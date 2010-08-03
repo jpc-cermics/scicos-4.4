@@ -77,7 +77,7 @@ function [palettes,windows]=do_palettes(palettes,windows)
 
   xsetech(wrect=[0 0 1 1],frect=rect,arect=[1 1 1 1]/32,fixed=%t)
   // FIXME: 
-  TMPDIR='/tmp';
+  TMPDIR=getenv('NSP_TMPDIR')
   graph=TMPDIR+'/'+scicos_pal(kpal,1)+'.pal'
   //Check if the graph file exists
   f_ = file('exists',graph)

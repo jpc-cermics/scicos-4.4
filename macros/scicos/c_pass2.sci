@@ -44,7 +44,7 @@ function cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,flag)
     
     xx="";
     if ~isempty(dep_u) then 
-      for i=bool2s(dep_u)
+      for i=b2m(dep_u)
 	xx=xx+string(i)+' ';
       end;
     end
@@ -73,19 +73,22 @@ function cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,flag)
   end
   txt=[txt;"END"]
   pw=getcwd()
+  TMPDIR=getenv('NSP_TMPDIR')
   chdir(TMPDIR)
-  mdelete('datacos'); 
-  write('datacos',txt)
-  mdelete('mlcos.sci')
-  if MSDOS then
-    unix_g(pathconvert(SCI)+"bin\paksazi.exe")
-  else
-    unix_g(SCI+"/bin/paksazi.exe")
+  file('delete','datacos');
+  fd = fopen('datacos',mode='w');
+  fd.put_smatrix[txt];
+  fd.close[];
+  file('delete','mlcos.sci');
+  fexe= file('join',[getenv('NSP'),'bin','paksazi.exe']);
+  ok= execstr('spawn(fexe)',errcatch=%t)
+  if ~ok then
+    x_message('Sorry compilation problem:\n\n'+catenate(lasterror()));
   end
   exec('mlcos.sci');
   chdir(pw)
   [ordptr,ordclk,critical,ztyp_blocks,dup,cord,oord,zord,iord,err_blks,err_msg,ok]=test_comp()
-  if ~ok then 
+  if ok <> 1 then 
     if flag=="verbose" then
       ok=hilite_mult_objs(corinv,err_blks,err_msg)
     end
