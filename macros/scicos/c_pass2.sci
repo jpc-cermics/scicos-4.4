@@ -81,9 +81,14 @@ function cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,flag)
   fd.close[];
   file('delete','mlcos.sci');
   fexe= file('join',[getenv('NSP'),'bin','paksazi.exe']);
-  ok= execstr('spawn(fexe)',errcatch=%t)
+  [ok,stdo,stde,msg]=spawn_sync(fexe);
+  // check that spawing was ok 
   if ~ok then
-    x_message('Sorry compilation problem:\n\n'+catenate(lasterror()));
+    x_message('Error: spawning paksazi.exe failed:\n'+msg);
+  end
+  // check that paksazi has not returned an error 
+  if length(stde)<> 0 then 
+    x_message('Error: paksazi.exe message:\n'+catenat(stde));
   end
   exec('mlcos.sci');
   chdir(pw)
@@ -232,8 +237,8 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
     //## 06/04/09 : Add a second call to the interfacing function (job 'compile')
     if type(corinv(i),'short')=='m' & ~corinv(i).equal[0] then
       o=scs_m(scs_full_path(corinv(i)))
-      ierr=execstr('[bllst_out]='+o.gui+'(""compile"",bllst(i),i);','errcatch');
-      if ierr==0 then
+      ok =execstr('[bllst_out]='+o.gui+'(""compile"",bllst(i),i);',errcatch=%t);
+      if ok then
         if ~isempty(bllst_out) then
           //##check input/output size/type
           if (~isequal(bllst_out.in,bllst(i).in) |...
@@ -348,7 +353,7 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
     rpptr(i+1)=rpptr(i)+size(rpark,'*')
 
     //integer parameters
-    if type(ll.ipar,'short')==1 then
+    if type(ll.ipar,'short')=='m' then
       ipar=[ipar;ll.ipar(:)]
       ipptr(i+1)=ipptr(i)+size(ll.ipar,'*')
     else
