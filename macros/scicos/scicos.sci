@@ -16,6 +16,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   super_block = slevel > 1;
 
   scicos_ver='scicos2.7.3' // set current version of scicos
+  scicos_ver='scicos4.2' // set current version of scicos
   
   if ~super_block then
     // define scicos libraries

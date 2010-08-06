@@ -15,6 +15,165 @@ function scs_m=do_version(scs_m,version)
   end
   if version=='scicos2.7.1' then scs_m=do_version272(scs_m),version='scicos2.7.2';end
   if version=='scicos2.7.2' then scs_m=do_version273(scs_m),version='scicos2.7.3';end
+  if version=='scicos2.7.3' | version=='scicos4' | version=='scicos4.0.1' | version=='scicos4.0.2' then
+    version='scicos4.2';
+    // do certification 
+    scs_m=update_scs_m(scs_m,version);
+    // update scope //
+    scs_m=do_version42(scs_m);
+    scs_m.version = version;
+  end
+endfunction
+
+//*** update scope ***//
+function scs_m_new=do_version42(scs_m)
+  scs_m_new=scs_m
+  n=size(scs_m.objs);
+  for j=1:n //loop on objects
+    o=scs_m.objs(j);
+    if o.type  =='Block' then
+      omod=o.model;
+      //SUPER BLOCK
+      if omod.sim=='super'|omod.sim=='csuper' then
+        rpar=do_version(omod.rpar,find_scicos_version(omod.rpar))
+        scs_m_new.objs(j).model.rpar=rpar
+      //name of gui and sim list change
+      elseif o.gui=='SCOPE_f' then
+        scs_m_new.objs(j).gui='CSCOPE'
+	scs_m_new.objs(j).model.dstate=[]
+        //Remove the last parameter (inheritance not used in cscope)
+        ipar = scs_m_new.objs(j).model.ipar(:);
+	scs_m_new.objs(j).model.ipar = ipar(1:$-1);
+        scs_m_new.objs(j).model.sim=list('cscope', 4)
+	in = scs_m_new.objs(j).model.in(:);
+	a = size(in,1);
+	in2 = ones(a,1);
+	scs_m_new.objs(j).model.in2 = in2;
+	scs_m_new.objs(j).model.intyp = in2;
+        exprs = scs_m.objs(j).graphics.exprs;
+        if size(exprs)<9 then exprs(9)='0',end // compatibility
+        if size(exprs)<10 then exprs(10)=emptystr(),end // compatibility
+        scs_m_new.objs(j).graphics.exprs=exprs;
+      elseif o.gui=='CSCOPE' then
+        exprs = scs_m.objs(j).graphics.exprs;
+        if size(exprs)<10 then exprs(10)=emptystr(),end // compatibility
+        scs_m_new.objs(j).graphics.exprs=exprs;
+      elseif o.gui=='BOUNCEXY' then
+	in = scs_m_new.objs(j).model.in(:);
+	a = size(in,1);
+	in2 = ones(a,1);
+	scs_m_new.objs(j).model.in2 = in2;
+	scs_m_new.objs(j).model.intyp = in2;
+      elseif o.gui=='MSCOPE_f' then
+        exprs = scs_m.objs(j).graphics.exprs;
+        if size(exprs)<10 then exprs(10)='0',end // compatibility
+        if size(exprs)<11 then exprs(11)=emptystr(),end // compatibility
+        scs_m_new.objs(j).graphics.exprs=exprs;
+        scs_m_new.objs(j).gui='CMSCOPE'
+	scs_m_new.objs(j).model.dstate=[]
+        scs_m_new.objs(j).model.sim=list('cmscope', 4)
+	in = scs_m_new.objs(j).model.in(:);
+	a = size(in,1);
+	B=stripblanks(scs_m.objs(j).graphics.exprs(8));
+	B(1:a)=B;
+        B = strcat(B', ' ');
+        scs_m_new.objs(j).graphics.exprs(8) = B;
+	rpar=scs_m_new.objs(j).model.rpar(:);
+	N=scs_m_new.objs(j).model.ipar(2);
+	period = [];
+	for i=1:N
+	   period(i)=rpar(2);
+	end
+	scs_m_new.objs(j).model.rpar = [rpar(1);period(:);rpar(3:size(rpar,1))]
+	in2 = ones(a,1);
+	scs_m_new.objs(j).model.in2 = in2;
+	scs_m_new.objs(j).model.intyp = in2;
+      elseif o.gui=='ANIMXY_f' then
+        scs_m_new.objs(j).gui='CANIMXY'
+	scs_m_new.objs(j).model.dstate=[]
+        scs_m_new.objs(j).model.sim=list('canimxy', 4)
+	in = scs_m_new.objs(j).model.in(:);
+	a = size(in,1);
+	in2 = ones(a,1);
+	scs_m_new.objs(j).model.in2 = in2;
+	scs_m_new.objs(j).model.intyp = in2;
+	scs_m_new.objs(j).graphics.exprs = [string(1);scs_m_new.objs(j).graphics.exprs(:)]
+	scs_m_new.objs(j).model.ipar = [scs_m_new.objs(j).model.ipar(:);1]
+        exprs = scs_m_new.objs(j).graphics.exprs(:)
+        if size(exprs,'*')==8 then exprs=[1;exprs(1:3);'[]';'[]';exprs(4:8)],end
+        scs_m_new.objs(j).graphics.exprs=exprs;
+      elseif o.gui=='EVENTSCOPE_f' then
+        scs_m_new.objs(j).gui='CEVENTSCOPE'
+	scs_m_new.objs(j).model.dstate=[]
+        scs_m_new.objs(j).model.sim=list('cevscpe', 4)
+	in = scs_m_new.objs(j).model.in(:);
+	a = size(in,1);
+	in2 = ones(a,1);
+	scs_m_new.objs(j).model.in2 = in2;
+	scs_m_new.objs(j).model.intyp = in2;
+      elseif o.gui=='FSCOPE_f' then
+        scs_m_new.objs(j).gui='CFSCOPE'
+	scs_m_new.objs(j).model.dstate=[]
+        scs_m_new.objs(j).model.sim=list('cfscope', 4)
+	in = scs_m_new.objs(j).model.in(:);
+	a = size(in,1);
+	in2 = ones(a,1);
+	scs_m_new.objs(j).model.in2 = in2;
+	scs_m_new.objs(j).model.intyp = in2;
+        exprs = scs_m.objs(j).graphics.exprs;
+        if size(exprs)<9 then exprs(9)='0',end // compatibility
+        scs_m_new.objs(j).graphics.exprs=exprs;
+      elseif o.gui=='SCOPXY_f' then
+        scs_m_new.objs(j).gui='CSCOPXY'
+	scs_m_new.objs(j).model.dstate=[]
+        scs_m_new.objs(j).model.sim=list('cscopxy', 4)
+	in = scs_m_new.objs(j).model.in(:);
+	a = size(in,1);
+	in2 = ones(a,1);
+	scs_m_new.objs(j).model.in2 = in2;
+	scs_m_new.objs(j).model.intyp = in2;
+	scs_m_new.objs(j).graphics.exprs = [string(1);scs_m_new.objs(j).graphics.exprs(:)]
+	scs_m_new.objs(j).model.ipar = [scs_m_new.objs(j).model.ipar(:);1]
+      elseif o.gui=='CMSCOPE' then
+        exprs = scs_m.objs(j).graphics.exprs;
+        if size(exprs)<11 then exprs(11)=emptystr(),end // compatibility
+        scs_m_new.objs(j).graphics.exprs=exprs;
+        scs_m_new.objs(j).model.dstate=[]
+	in = scs_m_new.objs(j).model.in(:);
+	a = size(in,1);
+        B=stripblanks(scs_m.objs(j).graphics.exprs(8));
+        B(1:a)=B;
+        B = strcat(B', ' ');
+        scs_m_new.objs(j).graphics.exprs(8)=B;
+        rpar=scs_m_new.objs(j).model.rpar(:);
+        N=scs_m_new.objs(j).model.ipar(2);
+        period = [];
+        for i=1:N
+          period(i)=rpar(2);
+        end
+        scs_m_new.objs(j).model.rpar = [rpar(1);period(:);rpar(3:size(rpar,1))]
+        in2 = ones(a,1);
+        scs_m_new.objs(j).model.in2 = in2;
+        scs_m_new.objs(j).model.intyp = in2;
+      elseif o.gui=='IN_f' then
+        scs_m_new.objs(j).model.out    = -1;
+        scs_m_new.objs(j).model.out2   = -2;
+        scs_m_new.objs(j).model.outtyp = -1;
+      elseif o.gui=='OUT_f' then
+        scs_m_new.objs(j).model.in    = -1;
+        scs_m_new.objs(j).model.in2   = -2;
+        scs_m_new.objs(j).model.intyp = -1;
+      elseif o.gui=='INIMPL_f' then
+        scs_m_new.objs(j).model.out    = -1;
+        scs_m_new.objs(j).model.out2   = 1;
+        scs_m_new.objs(j).model.outtyp = -1;
+      elseif o.gui=='OUTIMPL_f' then
+        scs_m_new.objs(j).model.in    = -1;
+        scs_m_new.objs(j).model.in2   = 1;
+        scs_m_new.objs(j).model.intyp = -1;
+      end
+    end
+  end
 endfunction
 
 function scs_m_new=do_version273(scs_m)
