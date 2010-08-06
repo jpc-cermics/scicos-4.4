@@ -34,7 +34,7 @@ function scs_m_new=do_version42(scs_m)
     if o.type  =='Block' then
       omod=o.model;
       //SUPER BLOCK
-      if omod.sim=='super'|omod.sim=='csuper' then
+      if omod.sim.equal['super'] || omod.sim.equal['csuper'] then
         rpar=do_version(omod.rpar,find_scicos_version(omod.rpar))
         scs_m_new.objs(j).model.rpar=rpar
       //name of gui and sim list change

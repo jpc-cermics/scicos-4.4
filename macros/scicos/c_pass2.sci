@@ -468,7 +468,7 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
   //store unconnected outputs, if any, at the end of outtb
   unco=find(outlnk==0);
   for j=unco
-    m=maxi(find(outptr<=j))
+    m=max(find(outptr<=j))
     n=j-outptr(m)+1
     nm=bllst(m).out(n)
     if nm<1 then
@@ -481,13 +481,13 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
     lnksz($+1,1)=bllst(m).out(n);
     lnksz($,2)=bllst(m).out2(n);
     lnktyp($+1)=bllst(m).outtyp(n);
-    outlnk(j)=maxi(outlnk)+1
+    outlnk(j)=max(outlnk)+1
   end
 
   //store unconnected inputs, if any, at the end of outtb
   unco=find(inplnk==0);
   for j=unco
-    m=maxi(find(inpptr<=j))
+    m=max(find(inpptr<=j))
     n=j-inpptr(m)+1
     nm=bllst(m).in(n)
     if nm<1 then 
@@ -500,7 +500,7 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
     lnksz($+1,1)=bllst(m).in(n);
     lnksz($,2)=bllst(m).in2(n);
     lnktyp($+1)=bllst(m).intyp(n);
-    inplnk(j)=maxi([inplnk;maxi(outlnk)])+1
+    inplnk(j)=max([inplnk;max(outlnk)])+1
   end
 
 endfunction
@@ -611,12 +611,12 @@ function [ok,bllst]=adjust_inout(bllst,connectmat)
                  //of the output ports of the target block
                  if ndim==1 then
                    ww=find(bllst(connectmat(jj,3)).out==0)
-                   if (~isempty(ww) &&mini(bllst(connectmat(jj,3)).in(:))>0) then
+                   if (~isempty(ww) &&min(bllst(connectmat(jj,3)).in(:))>0) then
                       bllst(connectmat(jj,3)).out(ww)=sum(bllst(connectmat(jj,3)).in(:))
                    end
                  elseif ndim==2 then
                    ww=find(bllst(connectmat(jj,3)).out2==0)
-                   if (~isempty(ww) &&mini(bllst(connectmat(jj,3)).in2(:))>0) then
+                   if (~isempty(ww) &&min(bllst(connectmat(jj,3)).in2(:))>0) then
                       bllst(connectmat(jj,3)).out2(ww)=sum(bllst(connectmat(jj,3)).in2(:))
                    end
                  end
@@ -661,12 +661,12 @@ function [ok,bllst]=adjust_inout(bllst,connectmat)
                  //of the input ports of the source block
                  if ndim==1 then
                    ww=find(bllst(connectmat(jj,1)).in==0)
-                   if (~isempty(ww) &&mini(bllst(connectmat(jj,1)).out(:))>0) then
+                   if (~isempty(ww) &&min(bllst(connectmat(jj,1)).out(:))>0) then
                       bllst(connectmat(jj,1)).in(ww)=sum(bllst(connectmat(jj,1)).out(:))
                    end
                  elseif ndim==2 then
                    ww=find(bllst(connectmat(jj,1)).in2==0)
-                   if (~isempty(ww)&&mini(bllst(connectmat(jj,1)).out2(:))>0) then
+                   if (~isempty(ww)&&min(bllst(connectmat(jj,1)).out2(:))>0) then
                       bllst(connectmat(jj,1)).in2(ww)=sum(bllst(connectmat(jj,1)).out2(:))
                    end
                  end
@@ -697,7 +697,7 @@ function [ok,bllst]=adjust_inout(bllst,connectmat)
 
                  //test if all size of the ndim dimension of input
                  //port of the source block is positive
-                 if mini(ww)>0 then
+                 if min(ww)>0 then
                     //test if the dimension of the target port
                     //is positive
                     if nin(1,ndim)>0 then
@@ -787,7 +787,7 @@ function [ok,bllst]=adjust_inout(bllst,connectmat)
 
                  //test if all size of the ndim dimension of output
                  //port of the target block is positive
-                 if mini(ww)>0 then
+                 if min(ww)>0 then
                     //test if the dimension of the source port
                     //is positive
                     if nout(1,ndim)>0 then
@@ -937,12 +937,12 @@ function [ok,bllst]=adjust_inout(bllst,connectmat)
             bllst(connectmat(jj,1)).in2(ww)=ninnout(1,2)
             //
             ww=find(bllst(connectmat(jj,1)).in==0)
-            if (~isempty(ww)&&mini(bllst(connectmat(jj,1)).out(:))>0) then 
+            if (~isempty(ww)&&min(bllst(connectmat(jj,1)).out(:))>0) then 
                bllst(connectmat(jj,1)).in(ww)=sum(bllst(connectmat(jj,1)).out)
             end
 
             ww=find(bllst(connectmat(jj,1)).in2==0)
-            if (~isempty(ww) &&mini(bllst(connectmat(jj,1)).out2(:))>0) then 
+            if (~isempty(ww) &&min(bllst(connectmat(jj,1)).out2(:))>0) then 
                  bllst(connectmat(jj,1)).in2(ww)=sum(bllst(connectmat(jj,1)).out2)
             end
             //
@@ -980,11 +980,11 @@ function [ok,bllst]=adjust_inout(bllst,connectmat)
             bllst(connectmat(jj,3)).out2(ww)=ninnout(1,2)
             //
             ww=find(bllst(connectmat(jj,3)).out==0)
-            if (~isempty(ww)&&mini(bllst(connectmat(jj,3)).in(:))>0) then
+            if (~isempty(ww)&&min(bllst(connectmat(jj,3)).in(:))>0) then
                bllst(connectmat(jj,3)).out(ww)=sum(bllst(connectmat(jj,3)).in(:))
             end
             ww=find(bllst(connectmat(jj,3)).out2==0)
-            if (~isempty(ww)&&mini(bllst(connectmat(jj,3)).in2(:))>0) then
+            if (~isempty(ww)&&min(bllst(connectmat(jj,3)).in2(:))>0) then
                bllst(connectmat(jj,3)).out2(ww)=sum(bllst(connectmat(jj,3)).in2(:))
             end
         end
@@ -1027,7 +1027,7 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
     return
   end
 
-  lp=mini(size(path_out,'*'),size(path_in,'*'))
+  lp=min(size(path_out,'*'),size(path_in,'*'))
   k=find(path_out(1:lp)<>path_in(1:lp))
   path=path_out(1:k(1)-1) // common superbloc path
   if (k <> []) then
@@ -1035,7 +1035,7 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
     path_in=path_in(k(1))   // "to" block number
   end
   if isdef('Code_gene_run') then
-    mxwin=maxi(winsid())
+    mxwin=max(winsid())
     path=path+1 // Consider locally compiled superblock as a superblock
     for k=1:size(path,'*')
       //hilite_obj(all_scs_m.objs(numk(k)))
@@ -1094,7 +1094,7 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
       end
       unhilite_obj(kk)
     else
-      mxwin=maxi(winsid())
+      mxwin=max(winsid())
       kk=[];
       for k=1:size(path,'*')
 	//hilite_obj(scs_m.objs(path(k)))

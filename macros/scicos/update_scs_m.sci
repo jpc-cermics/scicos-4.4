@@ -50,12 +50,12 @@ function scs_m_new = update_scs_m(scs_m,version)
 	     case 'model' then
 	      //************* model ***********//
 	      omod  = o.model;
-	      o_new.model =scicos_model(omod(:));
 	      //******** super block case ********//
-	      //if omod.sim=='super'|omod.sim=='csuper' then
-	      //  rpar=update_scs_m(omod.rpar,version)
-	      //  omod.rpar=rpar
-	      //end
+	      if omod.sim.equal['super'] || omod.sim.equal['csuper'] then
+		//printf('update a super model ');
+		omod.rpar= update_scs_m(omod.rpar,version)
+	      end
+	      o_new.model =scicos_model(omod(:));
 	    else
 	      //************* other ***********//
 	      // just copy the field 
@@ -80,13 +80,13 @@ function scs_m_new = update_scs_m(scs_m,version)
 	     case 'model' then
 	      //************* model ***********//
 	      omod  = o.model;
-	      o_new.model =scicos_model(omod(:));
 	      //******** super block case ********//
-	      //if omod.sim=='super'|omod.sim=='csuper' then
-	      //  rpar=update_scs_m(omod.rpar,version)
-	      //  omod.rpar=rpar
-	      //end
-	      o_new.model = omod;
+	      if omod.sim.equal['super'] || omod.sim.equal['csuper'] then
+		// printf('update a super model in text ');
+	        rpar=update_scs_m(omod.rpar,version)
+	        omod.rpar=rpar
+	      end
+	      o_new.model =scicos_model(omod(:));
 	    else
 	      //************* other ***********//
 	      // just copy the field 
@@ -95,9 +95,8 @@ function scs_m_new = update_scs_m(scs_m,version)
 	  end  //end of for k=
 	  scs_m_new.objs(j) = o_new;
 	  //************* other ***********//
-	else  // JESAISPASIYADAUTRESOBJS
-	  // QUEDESBLOCKSDESLINKETDUTEXTESDANSSCICOS
-	  // ALORSICIJEFAISRIEN
+	else  
+	  // just copy ...
 	  scs_m_new.objs(j) = o;
 	  //************************************//
 	end //end of select typeof(o)
