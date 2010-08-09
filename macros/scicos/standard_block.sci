@@ -68,10 +68,16 @@ function [x,y,typ]=standard_block(job,block,arg2=[])
   end
 endfunction
 
-function o=standard_define(sz,model,label,gr_i=[],gui="")
+function o=standard_define(sz,model,label,gr_i,gui)
 //--------------------------------------------------
 //initialize graphic part of the block data structure
 // Copyright INRIA
+  if nargin <= 3 then gr_i = [] ; end 
+  if nargin <= 4 then gui = "" ;
+    error("gui should be defined for nsp blocks");
+    return;
+  end 
+  
   nin=size(model.in,1);
   if nin>0 then pin(nin,1)=0,else pin=[],end
   nout=size(model.out,1);
