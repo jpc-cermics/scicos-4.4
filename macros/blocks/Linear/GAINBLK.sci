@@ -41,11 +41,11 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
 //	xset('pattern',pcoli)
 	xstringb(orig(1)+(x1)*sz(1),orig(2)+sz(2)*a,gain,sz(1)*(2*a),sz(2)*(1-2*a),'fill');
       else
-	xpoly(xx,yy,'lines');
+	xpoly(xx,yy,type='lines');
 	xstringb(orig(1)+(x1)*sz(1),orig(2)+sz(2)*a,gain,sz(1)*(2*a),sz(2)*(1-2*a),'fill');
       end
     else
-      xpoly(xx,yy,'lines');
+      xpoly(xx,yy,type='lines');
       xstringb(orig(1)+(x1)*sz(1),orig(2)+sz(2)*a,gain,sz(1)*(2*a),sz(2)*(1-2*a),'fill');
     end
     xf=60

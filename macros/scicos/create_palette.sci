@@ -83,23 +83,10 @@ function lisf=scicos_get_palette_content(txt)
 //
   if txt=='all' then
     // return the palette names 
-    lisf= ['Sinks' ;
-	   'Branching' ;
-	   'Non_linear' ;
-	   'Lookup_Tables' ;
-	   'Events' ;
-	   'Threshold' ;
-	   'Others' ;
-	   'Linear' ;
-	   'OldBlocks' ;
-	   'DemoBlocks' ;
-	   'Modelica' ;
-	   'Modelica Electrical' ;
-	   'Modelica Hydraulics' ;
-	   'Modelica Linear' ;
-	   'Matrix' ;
-	   'Integer' ;
-	   'Iterators' ];
+    lisf= ['Sinks' ;  'Branching'; 'Non_linear';  'Lookup_Tables'; 
+	   'Events' ;  'Threshold';  'Others'; 'Linear'; 'OldBlocks' ; 'DemoBlocks' ;
+	   'Modelica' ;  'Modelica Electrical';   'Modelica Hydraulics' ;  'Modelica Linear';
+	   'Matrix' ; 'Integer';  'Iterators' ];
     
   elseif txt=='Sources' then
     lisf=['CONST_m.sci';'GENSQR_f.sci';'RAMP.sci';  

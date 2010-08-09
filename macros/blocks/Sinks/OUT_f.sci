@@ -43,7 +43,7 @@ case 'plot' then
     xstringb(xo,yo,string(prt),sz(1)/1.5,sz(2))
   else
     xstringb(xo,yo,string(prt),sz(1)/1.5,sz(2))
-    xpoly(x,y,'lines',1)
+    xpoly(x,y,type='lines',close=%t)
   end
  
   xset('thickness',thick)

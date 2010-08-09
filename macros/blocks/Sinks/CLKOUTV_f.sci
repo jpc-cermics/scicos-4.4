@@ -25,7 +25,7 @@ select job
     xstringb(xo,yo,string(prt),sz(1),sz(2)/1.5);
   else
     xstringb(xo,yo,string(prt),sz(1),sz(2)/1.5);
-    xpoly(x,y,'lines',1);
+    xpoly(x,y,type='lines',close=%t);
   end
   in= [-1/14  1/7
      0      0

@@ -17,3 +17,6 @@ if file('pathtype',scicos_path) == 'relative' then
   scicos_path= file('join',[getcwd(),scicos_path]);
 end
 
+if ~new_graphics() then 
+  switch_graphics();
+end

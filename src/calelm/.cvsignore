@@ -1,11 +1,10 @@
 *.d
-.archive_target
-job
-job-subst-calelm.el
-job-subst-c.el
-job-subst-lapack.el
+.archive_target 
+.nsp_history
 *.o
-*.so
-*.lo
+*.lo 
 *.la
+*.so
 .libs
+
+

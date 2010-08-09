@@ -6,9 +6,8 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
   // Define scicos palettes of blocks
   //Scicos palettes =======================================================
 
-  pal_names=['Sources';'Sinks';'Linear';'Non_linear';'Events';'Threshold';
-	     'Others';'Branching';'Electrical';
-	     'OldBlocks';'DemoBlocks';'Hydraulics'];
+  pal_names=scicos_get_palette_content('all');
+    
   scicos_pal=[pal_names, scicos_path + '/macros/blocks/palettes/'+pal_names+'.cos']
   //Scicos palettes loading ===========================================
   scicos_pal_libs=['Branching','Events','Misc','Sinks','Threshold','Linear', ...

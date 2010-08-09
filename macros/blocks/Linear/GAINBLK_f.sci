@@ -27,11 +27,11 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
 	xset('pattern',pcoli)
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
       else
-	xpoly(xx,yy,'lines');
+	xpoly(xx,yy,type='lines');
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
       end
     else
-      xpoly(xx,yy,'lines');
+      xpoly(xx,yy,type='lines');	
       xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
     end
     xf=60

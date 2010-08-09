@@ -98,7 +98,7 @@ P=[2,50,1,0; 70,98,2,0;70,2,-2,0]
       
       if P(i,3)==-2 then  // deciding the port's color: black, if x<sz(1)/2 else white.
 	out2R=out2*R;
-	xpoly(orig(1)+out2R(:,1)+P(i,1)*sz(1)/100,orig(2)+  out2R(:,2)+P(i,2)*sz(2)/100, 'lines',1)	
+	xpoly(orig(1)+out2R(:,1)+P(i,1)*sz(1)/100,orig(2)+  out2R(:,2)+P(i,2)*sz(2)/100,type='lines',close=%t)	
       end
     end  
   else
@@ -121,7 +121,7 @@ P=[2,50,1,0; 70,98,2,0;70,2,-2,0]
       end
       if P(i,3)==-2 then  // deciding the port's color: black, if x<sz(1)/2 else white.
 	out2R=out2*R;
-	xpoly(orig(1)+sz(1)-out2R(:,1)-P(i,1)*sz(1)/100,orig(2)+  out2R(:,2)+P(i,2)*sz(2)/100, 'lines',1)
+	xpoly(orig(1)+sz(1)-out2R(:,1)-P(i,1)*sz(1)/100,orig(2)+  out2R(:,2)+P(i,2)*sz(2)/100,type='lines',close=%t)
       end
     end          
   end
