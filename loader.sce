@@ -13,4 +13,7 @@ printf(libtitle+' loaded\n');
 
 // path to here 
 scicos_path = get_current_exec_dir()
+if file('pathtype',scicos_path) == 'relative' then 
+  scicos_path= file('join',[getcwd(),scicos_path]);
+end
 

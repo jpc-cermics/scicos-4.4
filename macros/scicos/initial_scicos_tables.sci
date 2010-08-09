@@ -9,7 +9,7 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
   pal_names=['Sources';'Sinks';'Linear';'Non_linear';'Events';'Threshold';
 	     'Others';'Branching';'Electrical';
 	     'OldBlocks';'DemoBlocks';'Hydraulics'];
-  scicos_pal=[pal_names, 'SCI/macros/blocks/palettes/'+pal_names+'.cos']
+  scicos_pal=[pal_names, scicos_path + '/macros/blocks/palettes/'+pal_names+'.cos']
   //Scicos palettes loading ===========================================
   scicos_pal_libs=['Branching','Events','Misc','Sinks','Threshold','Linear', ...
 	  'NonLinear','Sources','Electrical','Hydraulics'];
