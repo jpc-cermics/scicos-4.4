@@ -101,7 +101,7 @@ case 'define' then
 	 sci2exp(model.nmode);sci2exp(model.nzcross);
 	 sci2exp(model.firing);'y';'n'];
   gr_i=['xstringb(orig(1),orig(2),''GENERIC'',sz(1),sz(2),''fill'');']
-  x=standard_define([2 2],model,label,gr_i=gr_i,gui='generic_block2')
+  x=standard_define([2 2],model,label,gr_i,'generic_block2')
 end
 endfunction
 

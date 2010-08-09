@@ -97,7 +97,7 @@ function [x,y,typ]=generic_block(job,arg1,arg2)
 	   sci2exp(model.rpar);sci2exp(model.ipar);
 	   sci2exp(model.firing);'y';'n'];
     gr_i=['xstringb(orig(1),orig(2),''GENERIC'',sz(1),sz(2),''fill'');']
-    x=standard_define([2 2],model,label,gr_i=gr_i,gui='generic_block')
+    x=standard_define([2 2],model,label,gr_i,'generic_block')
   end
 endfunction
 

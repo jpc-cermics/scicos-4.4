@@ -28,21 +28,21 @@ function routines=create_palette(bidon)
     path=scicos_path+'/macros/blocks'
     
     if bidon=='all' then
-      bidon=['Sources','Sinks','Branching','Non_linear','Events','Threshold',...
-	     'Others','Linear','OldBlocks','DemoBlocks','Electrical','Hydraulics'];
+      bidon=scicos_get_palette_content('all');
     else
       bidon=bidon(:)'
     end
-    
     routines=[];
-    for txt=bidon
+    for i=1:size(bidon,'*') 
+      txt = bidon(i);
       printf('Constructing %s\n',txt)
       lisf=scicos_get_palette_content(txt);
       if isempty(lisf) then 
-	error('Palette '+txt+' does not exists')
+	printf('Palette '+txt+' does not exists\n')
+      else 
+	// here we could decide to create a .cos or a .cosf 
+	routines=[routines;build_palette(lisf,path,txt+'.cos')];
       end
-      // here we could decide to create a .cos or a .cosf 
-      routines=[routines;build_palette(lisf,path,txt+'.cos')];
     end
     chdir(savepwd)
   end
@@ -81,7 +81,27 @@ endfunction
 function lisf=scicos_get_palette_content(txt)
 // return the objet present in palette named txt 
 //
-  if txt=='Sources' then
+  if txt=='all' then
+    // return the palette names 
+    lisf= ['Sinks' ;
+	   'Branching' ;
+	   'Non_linear' ;
+	   'Lookup_Tables' ;
+	   'Events' ;
+	   'Threshold' ;
+	   'Others' ;
+	   'Linear' ;
+	   'OldBlocks' ;
+	   'DemoBlocks' ;
+	   'Modelica' ;
+	   'Modelica Electrical' ;
+	   'Modelica Hydraulics' ;
+	   'Modelica Linear' ;
+	   'Matrix' ;
+	   'Integer' ;
+	   'Iterators' ];
+    
+  elseif txt=='Sources' then
     lisf=['CONST_m.sci';'GENSQR_f.sci';'RAMP.sci';  
 	  'RAND_m.sci';'RFILE_f.sci';
 	  'CLKINV_f.sci'; 'CURV_f.sci';  'INIMPL_f.sci'; 'READAU_f.sci';
@@ -165,35 +185,31 @@ function lisf=scicos_get_palette_content(txt)
   elseif txt=='DemoBlocks' then
     lisf=['BOUNCE.sci';'BOUNCEXY.sci';'BPLATFORM.sci';'PENDULUM_ANIM.sci']
     
-  elseif txt=='ZZModelica' then
-    lisf=list('MBLOCK.sci',...
-	      'MPBLOCK.sci',...
-	      list(['Capacitor.sci';'Ground.sci';'VVsourceAC.sci'; //## Electrical
-		    'ConstantVoltage.sci';'Inductor.sci';'PotentialSensor.sci';
-		    'VariableResistor.sci';'CurrentSensor.sci';'Resistor.sci';
-		    'VoltageSensor.sci';'Diode.sci';'VsourceAC.sci';
-		    'NPN.sci';'PNP.sci';'SineVoltage.sci';'Switch.sci';
-		    'OpAmp.sci';'PMOS.sci';'NMOS.sci';'CCS.sci';'CVS.sci';
-		    'IdealTransformer.sci';'Gyrator.sci']),...
-	      list(['Bache.sci';'VanneReglante.sci';'PerteDP.sci'; //## ThermoHydraulics
-		    'PuitsP.sci';'SourceP.sci';'Flowmeter.sci']),...
-	      list(['Actuator.sci';'Constant.sci';'Feedback.sci'; //## Linear
-		    'Gain.sci';'Limiter.sci';'PI.sci';'Sensor.sci';'PT1.sci';
-		    'SecondOrder.sci'; 'TanTF.sci'; 'AtanTF.sci'; 'FirstOrder.sci';
-		    'SineTF.sci'; 'Sine.sci']))
-    //## TODO Masoud
-    gr_i=list([],...  //## main
-	      [],...  //## Elec
-	      [],...  //## Thermo
-	      [])     //## Linear
-    id=list([],...    //## main
-	    'Electrical',... //## Elec
-	    'Hydraulics',... //## Thermo
-	    'Linear')        //## Linear
-    path='SCI/macros/scicos/'
-    path=list(path,path,path,path)
-    PalName=list(txt,'Electrical','ThermoHydraulics','ModLinear')
-
+  elseif txt== 'Modelica' then
+    lisf=['MBLOCK.sci', 'MPBLOCK.sci'];
+    
+  elseif txt== 'Modelica Electrical' then
+    
+    lisf=['Capacitor.sci';'Ground.sci';'VVsourceAC.sci';
+	  'ConstantVoltage.sci';'Inductor.sci';'PotentialSensor.sci';
+	  'VariableResistor.sci';'CurrentSensor.sci';'Resistor.sci';
+	  'VoltageSensor.sci';'Diode.sci';'VsourceAC.sci';
+	  'NPN.sci';'PNP.sci';'SineVoltage.sci';'Switch.sci';
+	  'OpAmp.sci';'PMOS.sci';'NMOS.sci';'CCS.sci';'CVS.sci';
+	  'IdealTransformer.sci';'Gyrator.sci'];
+    
+  elseif txt== 'Modelica Hydraulics' then
+	      
+    lisf = ['Bache.sci';'VanneReglante.sci';'PerteDP.sci';
+	    'PuitsP.sci';'SourceP.sci';'Flowmeter.sci'];
+	
+  elseif txt== 'Modelica Linear' then
+	      
+    lisf =['Actuator.sci';'Constant.sci';'Feedback.sci'; 
+	   'Gain.sci';'Limiter.sci';'PI.sci';'Sensor.sci';'PT1.sci';
+	   'SecondOrder.sci'; 'TanTF.sci'; 'AtanTF.sci'; 'FirstOrder.sci';
+	   'SineTF.sci'; 'Sine.sci'];
+    
   elseif txt=='Matrix' then
     lisf=['MATMUL.sci';'MATTRAN.sci';'MATSING.sci';'MATRESH.sci';'MATDIAG.sci';
 	  'MATEIG.sci';'MATMAGPHI.sci';'EXTRACT.sci';'MATEXPM.sci';'MATDET.sci';
