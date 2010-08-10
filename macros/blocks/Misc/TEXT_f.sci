@@ -17,16 +17,16 @@ case 'plot' then //normal  position
   //** save the previous parameter 
   //** ppat    = xget('pattern'); //** Get the current pattern or the current color.
   //** oldfont = xget('font')   ; //** Get font=[fontid,fontsize] .
-  gh_winpal = gca(); //** get the current Axes proprieties 
+  //gh_winpal = gca(); //** get the current Axes proprieties 
  
-  default_font_style = gh_winpal.font_style ;
-  default_font_size  = gh_winpal.font_size  ;
-  default_font_color = gh_winpal.font_color ;
+  //default_font_style = gh_winpal.font_style ;
+  //default_font_size  = gh_winpal.font_size  ;
+  //default_font_color = gh_winpal.font_color ;
   
   //** set the new parameters 
   //** xset('font',model.ipar(1),model.ipar(2))
-  gh_winpal.font_style = model.ipar(1) ; 
-  gh_winpal.font_size  = model.ipar(2) ;
+  //gh_winpal.font_style = model.ipar(1) ; 
+  //gh_winpal.font_size  = model.ipar(2) ;
   
   //@@ compute bbox
   rect = stringbox(model.rpar, graphics.orig(1), graphics.orig(2));
@@ -37,7 +37,7 @@ case 'plot' then //normal  position
   //** special case for Windows 
   if MSDOS then
     //** xset('pattern',scs_m.props.options.Background(1))
-    gh_winpal.font_color = scs_m.props.options.Background(1) ;
+    //gh_winpal.font_color = scs_m.props.options.Background(1) ;
     
     //@@ fill txt_index in a box
     xstringb(rect(1,1),rect(2,1), model.rpar, w, h,'fill') ;
@@ -47,7 +47,7 @@ case 'plot' then //normal  position
   
   //** set the new parameters 
   //** xset('pattern', default_color(1))  ;
-  gh_winpal.font_color = default_color(1) ;
+  //gh_winpal.font_color = default_color(1) ;
   
   //@@ fill txt_index in a box
   xstringb(rect(1,1),rect(2,1), model.rpar, w, h,'fill') ;
@@ -58,18 +58,18 @@ case 'plot' then //normal  position
   //** restore the old settings 
   //** xset('font',oldfont(1),oldfont(2))
   //** xset('pattern',ppat)
-  gh_winpal.font_style = default_font_style ;
-  gh_winpal.font_size  = default_font_size  ;
-  gh_winpal.font_color = default_font_color ; 
+  //gh_winpal.font_style = default_font_style ;
+  //gh_winpal.font_size  = default_font_size  ;
+  //gh_winpal.font_color = default_font_color ; 
    
-case 'getinputs' then
+ case 'getinputs' then
 
-case 'getoutputs' then
+ case 'getoutputs' then
 
-case 'getorigin' then
+ case 'getorigin' then
   [x,y] = standard_origin(arg1)
 
-case 'set' then
+ case 'set' then
   x = arg1 ;
   graphics = arg1.graphics ;
   orig  = graphics.orig  ;
@@ -100,15 +100,15 @@ case 'set' then
       
       //** save the font 
       //** oldfont = xget('font')
-      gh_winpal = gca(); //** get the current Axes proprieties 
-      default_font_style = gh_winpal.font_style ;
-      default_font_size  = gh_winpal.font_size  ;
-      default_font_color = gh_winpal.font_color ;
+      //gh_winpal = gca(); //** get the current Axes proprieties 
+      //default_font_style = gh_winpal.font_style ;
+      //default_font_size  = gh_winpal.font_size  ;
+      //default_font_color = gh_winpal.font_color ;
       
       //** set the new font 
       //** xset('font',font,siz)
-      gh_winpal.font_style = font ; 
-      gh_winpal.font_size  = siz  ;
+      //gh_winpal.font_style = font ; 
+      //gh_winpal.font_size  = siz  ;
       
       
       //** store the box coordinate that contains the string
@@ -116,9 +116,9 @@ case 'set' then
       
       //** restore the old font 
       //** xset('font',oldfont(1),oldfont(2));
-      gh_winpal.font_style = default_font_style ;
-      gh_winpal.font_size  = default_font_size  ;
-      gh_winpal.font_color = default_font_color ; 
+      //gh_winpal.font_style = default_font_style ;
+      //gh_winpal.font_size  = default_font_size  ;
+      //gh_winpal.font_color = default_font_color ; 
 
       sz = r(3:4) ; 
       graphics.sz = sz        ;

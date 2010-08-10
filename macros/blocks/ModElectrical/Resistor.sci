@@ -55,7 +55,7 @@ case 'define' then
         'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
         'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
         'xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,''fill'');'
-        'e=gce();']
+        '//e=gce();']
   x=standard_define([2 0.18],model,exprs,list(gr_i,0),'Resistor');
   x.graphics.in_implicit=['I']
   x.graphics.out_implicit=['I']

@@ -52,9 +52,9 @@ case 'define' then
   gr_i=['rpar=model.rpar;n=size(rpar,''*'')/2;';
     'thick=xget(''thickness'');xset(''thickness'',2);';
     'xx=rpar(1:n);yy=rpar(n+1:2*n);';
-    'mnx=min(xx);xx=xx-mnx*ones(xx);mxx=max(xx);';
+    'mnx=min(xx);xx=xx-mnx*ones(size(xx));mxx=max(xx);';
     'xx=orig(1)+sz(1)*(1/10+(4/5)*xx/mxx);';
-    'mnx=min(yy);yy=yy-mnx*ones(yy);mxx=max(yy);';
+    'mnx=min(yy);yy=yy-mnx*ones(size(yy));mxx=max(yy);';
     'yy=orig(2)+sz(2)*(1/10+(4/5)*yy/mxx);';
     'xpoly(xx,yy,type=''lines'');';
     'xset(''thickness'',thick);']

@@ -83,7 +83,7 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
     in=[1;1]
     out=1
     // FIXME ? compile works ? 
-    txt = '(u1>0)*sin(u2)^2'
+    txt = '(u1>0)*sin(u2).^2'
     %bexp=scalexp_create(txt);
     nz=%bexp.logicals[];
     %bexp.bcomp[];

@@ -20,21 +20,21 @@ case 'plot' then
   
   if type(gr_i,'short')=='l' then 
     xfarcs([orig(1);orig(2)+sz(2);sz(1)*p;sz(2);0;360*64],gr_i(2))
-    gh_temp = gce();
-    if gh_temp.type=='Compound' then
-      gh_temp.children(1).foreground = default_color(1);
-    else
-      gh_temp.foreground = default_color(1);
-    end
+    // gh_temp = gce();
+    // if gh_temp.type=='Compound' then
+    //   gh_temp.children(1).foreground = default_color(1);
+    // else
+    //   gh_temp.foreground = default_color(1);
+    // end
   end
   
   xarc(orig(1),orig(2)+sz(2),sz(1)*p,sz(2),0,360*64)
-  gh_temp = gce(); 
-  gh_temp.foreground = default_color(1);
+  // gh_temp = gce(); 
+  // gh_temp.foreground = default_color(1);
   
-  xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],0)
-  gh_temp = gce(); 
-  gh_temp.segs_color = [default_color(1), default_color(1)] ;
+  xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],style=0)
+  // gh_temp = gce(); 
+  // gh_temp.segs_color = [default_color(1), default_color(1)] ;
   
   xset('thickness',thick);
   if orient then  //standard orientation (port)
@@ -42,17 +42,17 @@ case 'plot' then
           1/7    0
 	  0   1/14]*3
     xfpoly(sz(1)*out(:,1)+orig(1)+sz(1)*p,sz(2)*out(:,2)+orig(2)+sz(2)/2,1)
-    gh_temp = gce(); 
-    gh_temp.foreground = default_color(1);
-    gh_temp.background = default_color(1);
+    // gh_temp = gce(); 
+    // gh_temp.foreground = default_color(1);
+    // gh_temp.background = default_color(1);
   else //tilded orientation
     out = [  0   -1/14
 	   -1/7    0
  	    0   1/14]*3
     xfpoly(sz(1)*out(:,1)+orig(1),sz(2)*out(:,2)+orig(2)+sz(2)/2,1)
-    gh_temp = gce(); 
-    gh_temp.foreground = default_color(1);
-    gh_temp.background = default_color(1);
+    // gh_temp = gce(); 
+    // gh_temp.foreground = default_color(1);
+    // gh_temp.background = default_color(1);
   
   end
   //** xset('dashes',patt)
@@ -105,7 +105,7 @@ case 'define' then
 
   gr_i=['rx=sz(1)*p/2;ry=sz(2)/2'
 	'xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2"+...
-	" .3],0)']
+	" .3],style=0)']
   exprs=[]
   x=standard_define([1 1]/1.2,model,exprs,gr_i,'SUM_f');
 end

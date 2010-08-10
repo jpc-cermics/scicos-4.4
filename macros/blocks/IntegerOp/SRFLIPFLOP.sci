@@ -438,8 +438,8 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
               'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
               'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
               'xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,''fill'');'
-              'e=gce();'
-              'e.font_style=style;']
+              '//e=gce();'
+              '//e.font_style=style;']
     	x=standard_define([2 3],model,[],gr_i,'SRFLIPFLOP');
   end
 endfunction

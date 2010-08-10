@@ -52,29 +52,26 @@ function [x,y,typ]=GOTOMO(job,arg1,arg2)
     xset('pattern',pat)
         //** ------- Identification ---------------------------
     ident = o.graphics.id
-    gh_axes = gca(); //** get the Axes proprieties 
+    //gh_axes = gca(); //** get the Axes proprieties 
   
     // draw Identification
     if ~isempty(ident) & ident <> ''  then
   
       //** Save font state  
-      axes_font_style = gh_axes.font_style ;
-      axes_font_size  = gh_axes.font_size  ;
+      //axes_font_style = gh_axes.font_style ;
+      //axes_font_size  = gh_axes.font_size  ;
       //** axes_font_color = gh_axes.font_color ; //** optional
-  
-        gh_axes.font_style = options.ID(1)(1) ; 
-        gh_axes.font_size  = options.ID(1)(2) ;
-        //** font color not yet used 
-        rectangle = xstringl(orig(1), orig(2), ident) ;
-        w = max(rectangle(3), sz(1)) ;
-        h = rectangle(4) * 1.3 ;
-        xstringb(orig(1) + sz(1) / 2 - w / 2, orig(2) - h , ident , w, h) ;
-  
-     //** Restore font state 
-     gh_axes.font_style = axes_font_style ;
-     gh_axes.font_size  = axes_font_size  ;
-     //** gh_axes.font_color = axes_font_color ; //** optional
-
+      //gh_axes.font_style = options.ID(1)(1) ; 
+      //gh_axes.font_size  = options.ID(1)(2) ;
+      //** font color not yet used 
+      rectangle = xstringl(orig(1), orig(2), ident) ;
+      w = max(rectangle(3), sz(1)) ;
+      h = rectangle(4) * 1.3 ;
+      xstringb(orig(1) + sz(1) / 2 - w / 2, orig(2) - h , ident , w, h) ;
+      //** Restore font state 
+      //gh_axes.font_style = axes_font_style ;
+      //gh_axes.font_size  = axes_font_size  ;
+      //** gh_axes.font_color = axes_font_color ; //** optional
     end
   //** ----- Identification End -----------------------------
 

@@ -34,10 +34,10 @@ case 'define' then
   model.equations=mo
   exprs=''
   gr_i=['xset(''thickness'',3)';
-      'xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],0);';
-      'xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],0);';
-      'xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],0);';
-      'xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],0);']
+      'xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],style=0);';
+      'xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],style=0);';
+      'xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],style=0);';
+      'xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],style=0);']
   x=standard_define([1 1],model,exprs,list(gr_i,0),'Ground');
   x.graphics.in_implicit=['I']
   x.graphics.out_implicit=['I']

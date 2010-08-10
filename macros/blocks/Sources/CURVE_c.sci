@@ -558,7 +558,7 @@ while %t then //=================================================
     HIT=%f
     if N<>0 then
       xt=xy(:,1);yt=xy(:,2);
-      dist=((xt-ones(N,1)*xc))^2+((yt-ones(N,1)*yc))^2
+      dist=((xt-ones(N,1)*xc)).^2+((yt-ones(N,1)*yc)).^2 // 
       [dca,k]=min(dist);
       rectx=a.data_bounds;
       ex=abs(rectx(2,1)-rectx(1,1))/80;

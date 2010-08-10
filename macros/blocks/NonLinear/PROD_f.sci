@@ -14,8 +14,8 @@ case 'plot' then
   rx = sz(1)*p/2
   ry = sz(2)/2
   xarc(orig(1),orig(2)+sz(2),sz(1)*p,sz(2),0,23040) // (23040=360*64)
-  gh_temp = gce(); 
-  gh_temp.foreground = default_color(1);
+  // gh_temp = gce(); 
+  // gh_temp.foreground = default_color(1);
   
   t=%pi/4
   xx=(orig(1)+rx)+..
@@ -24,9 +24,9 @@ case 'plot' then
   yy=(orig(2)+ry)+..
       [cos(5*t) , cos(-t);
        cos(t) ,   cos(3*t)]*diag([ry;ry]/1.7)
-  xsegs(xx,yy,0)
-  gh_temp = gce(); 
-  gh_temp.segs_color = [default_color(1), default_color(1)] ;
+  xsegs(xx,yy,style=0)
+  // gh_temp = gce(); 
+  // gh_temp.segs_color = [default_color(1), default_color(1)] ;
   
   xset('thickness',1)
   if orient then  //standard orientation (port)
@@ -34,17 +34,17 @@ case 'plot' then
 	1/7    0
 	0   1/14]*3
     xfpoly(sz(1)*out(:,1)+ones(3,1)*(orig(1)+sz(1)*p),sz(2)*out(:,2)+ones(3,1)*(orig(2)+sz(2)/2),1);
-    gh_temp = gce(); 
-    gh_temp.foreground = default_color(1);
-    gh_temp.background = default_color(1);	
+    // gh_temp = gce(); 
+    // gh_temp.foreground = default_color(1);
+    // gh_temp.background = default_color(1);	
   else //tilded orientation
     out= [0   -1/14
 	-1/7    0
 	0   1/14]*3
     xfpoly(sz(1)*out(:,1)+ones(3,1)*orig(1),sz(2)*out(:,2)+ones(3,1)*(orig(2)+sz(2)/2),1);
-    gh_temp = gce(); 
-    gh_temp.foreground = default_color(1);
-    gh_temp.background = default_color(1);
+    // gh_temp = gce(); 
+    // gh_temp.foreground = default_color(1);
+    // gh_temp.background = default_color(1);
   end
     //** xset('dashes',patt)
 //**-------------------------------------------------------------------------------------------

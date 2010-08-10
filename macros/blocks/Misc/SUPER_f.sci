@@ -67,7 +67,7 @@ case 'define' then
     'xrects([xx;yy;[sz(1)/7;sz(2)/5]*ones(1,3)]);';
     'xx=orig(1)+      [1 2 3 4 5 6 3.5 3.5 3.5 4 5 5.5 5.5 5.5]*sz(1)/7;';
     'yy=orig(2)+sz(2)-[3 3 3 3 3 3 3   7   7   7 7 7   7   3  ]*sz(2)/10;';
-    'xsegs(xx,yy,0);';
+    'xsegs(xx,yy,style=0);';
     'xset(''thickness'',thick)']
   x=standard_define([2 2],model,[],gr_i,'SUPER_f');
 end

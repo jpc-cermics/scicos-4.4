@@ -50,7 +50,7 @@ case 'define' then
 	'xx=orig(1)+[0 1/3 1/3 1/3 ]*sz(1);';
 	'yy=orig(2)+[1/2 1/2 1 0]*sz(2);';
 	'xpoly(xx,yy);'
-	'xsegs(orig(1)+ sz(1)*2/3*[1 1 1 3/2],orig(2)+(sz(2)*1/2)*[2 0 1 1],0);';
+	'xsegs(orig(1)+ sz(1)*2/3*[1 1 1 3/2],orig(2)+(sz(2)*1/2)*[2 0 1 1],style=0);';
         'if orient then'
 	'  xrects([orig(1)+sz(1)*1/2;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));'
 	'  xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,''+'');';
@@ -67,8 +67,8 @@ case 'define' then
         'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
         'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
         'xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,''fill'');'
-        'e=gce();'
-        'e.font_style=style;'	];
+        '//e=gce();'
+        '//e.font_style=style;'	];
   x=standard_define([2 1.1],model,exprs,list(gr_i,0),'Capacitor');
   x.graphics.in_implicit=['I']
   x.graphics.out_implicit=['I']

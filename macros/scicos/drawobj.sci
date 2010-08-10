@@ -16,7 +16,7 @@ function drawobj(o)
     if ~ierr then
       // XXX message(['Block '+o.gui+ ' not defined ';
       // 'You must leave scicos and define it now.']),
-      message(['Error in '+ o.gui+'(''plot'',o) evaluation';lasterror()]);
+      message(['Error in '+ o.gui+'(''plot'',o) evaluation\n';catenate(lasterror())]);
     end
    case 'Link' then
     if o.thick(2)>=0 then
@@ -28,7 +28,10 @@ function drawobj(o)
       xset('thickness',thick)
     end
    case 'Text' then
-    execstr(o.gui+'(''plot'',o)')
+    ok=execstr(o.gui+'(''plot'',o)' ,errcatch=%t)
+    if ~ok then
+      message(['Error in '+ o.gui+'(''plot'',o) evaluation\n';catenate(lasterror())]);
+    end
   end
 endfunction
 

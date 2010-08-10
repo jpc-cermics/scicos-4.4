@@ -43,7 +43,7 @@ scs_m_1.objs(2)=mlist(["Block","graphics","model","gui","doc"],..
                 8,..
                 list(..
                 ["rx=sz(1)*p/2;ry=sz(2)/2";
-                "xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],0)"],..
+                "xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],style=0)"],..
                 8),"",[],[]),..
                 mlist(..
                 ["model","sim","in","in2","intyp","out","out2","outtyp","evtin","evtout",..

@@ -18,7 +18,7 @@ case 'plot' then
     xfarcs([orig(1);orig(2)+sz(2);sz(1)*p;sz(2);0;360*64],gr_i(2))
   end
   xarc(orig(1),orig(2)+sz(2),sz(1)*p,sz(2),0,360*64)
-  xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],27)
+  xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],style=27)
   xset('thickness',thick);
   if orient then  //standard orientation
     out= [0  -1/14
@@ -102,7 +102,7 @@ case 'define' then
   exprs=[sci2exp(1);sci2exp(sgn)]
   
   gr_i=['rx=sz(1)*p/2;ry=sz(2)/2'
-  'xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],0)']
+  'xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],style=0)']
   
   x=standard_define([1 1]/1.2,model,exprs,gr_i,'SOM_f');
 end

@@ -1155,7 +1155,7 @@ function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
 				peout=8,..
 				gr_i=list(..
 				["rx=sz(1)*p/2;ry=sz(2)/2";
-				"xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],0)"],8),..
+				"xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],style=0)"],8),..
 				id="",..
 				in_implicit=[],..
 				out_implicit=[]),..
@@ -1366,7 +1366,7 @@ function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
 				peout=[],..
 				gr_i=list(..
 				["rx=sz(1)*p/2;ry=sz(2)/2";
-				"xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2 .3],0)"],8),..
+				"xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2 .3],style=0)"],8),..
 				id="",..
 				in_implicit=["E";"E";"E"],..
 				out_implicit="E"),..
@@ -1793,8 +1793,8 @@ function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
               'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
               'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
               'xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,''fill'');'
-              'e=gce();'
-              'e.font_style=style;']
+              '//e=gce();'
+              '//e.font_style=style;']
     	x=standard_define([2 3],model,[],gr_i,'DFLIPFLOP');
   end
 endfunction

@@ -23,13 +23,13 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
     xset('font', options.ID(1)(1), options.ID(1)(2))
     xstringb(orig(1)+2*sz(1)/16,orig(2)+sz(2)/16,'S-CLK',sz(1)/2,sz(2)/3-sz(2)/8,'fill')
     xx=[0:.01:1];
-    yy=(1/4-(xx-1/2)^2)^(1/2)+1/2;
+    yy=(1/4-(xx-1/2).^2).^(1/2)+1/2;
     x=(orig(1)+5*sz(1)/8)*ones(1,101)+sz(1)/4*xx;
     y=(orig(2))*ones(1,101)+sz(2)/3*yy;
     xset('thickness',2);
     xpolys(x',y',5*ones(101,1));
     xx=[1:-.01:.01 0];
-    yy=-(1/4-(xx-1/2)^2)^(1/2)+1/2;
+    yy=-(1/4-(xx-1/2).^2).^(1/2)+1/2;
     x=(orig(1)+5*sz(1)/8)*ones(1,101)+sz(1)/4*xx;
     y=(orig(2))*ones(1,101)+sz(2)/3*yy;
     xpolys(x',y',5*ones(101,1));

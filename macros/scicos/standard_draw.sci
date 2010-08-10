@@ -127,9 +127,9 @@ function standard_draw_old(o,frame,draw_ports)
 	  gr_i];
   end
   if  ~execstr(gr_i,errcatch=%t) then
+    printf("%s",catenate(lasterror()));
     message(['Error in Icon defintion';
-	     'See error message in scilab window']);
-    printf("%s",lasterror());
+	     'See error message in nsp window']);
     
   end
   xset('pattern',pat)
@@ -240,9 +240,9 @@ function standard_draw_new(o,frame,draw_ports)
   end
     
   if  ~execstr(gr_i,errcatch=%t) then
-    message(['Error in Icon defintion';
-	     'See error message in scilab window']);
     printf("%s",lasterror());
+    message(['Error in Icon defintion';
+	     'See error message in nsp window']);
     
   end
   xset('pattern',pat)

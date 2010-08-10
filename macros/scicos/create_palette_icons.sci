@@ -22,13 +22,14 @@ function create_palette_icons(palette='all')
       printf('Palette '+txt+' does not exists\n')
     else 
       // here we could decide to create a .cos or a .cosf 
-      build_palette_icons(lisf,path,txt);
+      build_palette_icons(lisf)
     end
   end
 endfunction
 
-function build_palette_icons(lisf,path,palette_name)
-  // file('mkdir',palette_name);
+function build_palette_icons(lisf)
+// lisf is a matrix of block names 
+//
   for k=1:size(lisf,'*')
     fil = lisf(k);
     scs_m=scicos_diagram();
@@ -41,10 +42,13 @@ function build_palette_icons(lisf,path,palette_name)
       blk.graphics.orig=[0,0];
       scs_m.objs(1)=blk
     end
-    scicos_view(scs_m);
-    //scicos_save_in_file(scs_m,list(),file('join',[palette_name,name+'.cos']),scicos_ver);   
-    win=xget('window');
-    xexport(win,file('join',[name+'.svg']),figure_background=%f);
+    ok=execstr('scicos_view(scs_m)',errcatch=%t);
+    if ~ok then 
+      message(['Error when drawing '+name;catenate(lasterror())] );
+    else
+      win=xget('window');
+      xexport(win,file('join',[name+'.svg']),figure_background=%f);
+    end
   end
 endfunction
 

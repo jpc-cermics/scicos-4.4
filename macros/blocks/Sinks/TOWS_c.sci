@@ -83,8 +83,8 @@ case 'define' then
         'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
         'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
         'xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,''fill'');'
-        'e=gce();'
-        'e.font_style=style;']
+        '//e=gce();'
+        '//e.font_style=style;']
   exprs=[string(nz),string(varnam),string(herit)]
   x=standard_define([3.5 2],model,exprs,gr_i,'TOWS_c');
 end

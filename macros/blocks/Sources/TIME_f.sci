@@ -30,7 +30,7 @@ case 'define' then
     'orig(1)+rx    orig(1)+rx+0.6*rx*cos(%pi/6)];';
     'yy=[orig(2)+ry    orig(2)+ry ;';
     '	  orig(2)+1.8*ry  orig(2)+ry+0.6*ry*sin(%pi/6)];';
-    'xsegs(xx,yy,0);';
+    'xsegs(xx,yy,style=0);';
     'xset(''thickness'',thick);']
    x=standard_define([2 2],model,[],gr_i,'TIME_f');
 end

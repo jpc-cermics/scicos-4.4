@@ -64,8 +64,8 @@ case 'define' then
     'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
     'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
     'xstringb(orig(1)+13*(sz(1)/32),orig(2)+30*(sz(2)/70),txt,w,h,''fill'');'
-    'e=gce();'
-    'e.font_style=style;']
+    '//e=gce();'
+    '//e.font_style=style;']
   x=standard_define([2 2],model,exprs,gr_i,'OpAmp');
   x.graphics.in_implicit=['I';'I']
   x.graphics.out_implicit=['I']

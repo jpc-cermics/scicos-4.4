@@ -51,7 +51,7 @@ case 'define' then
     'x=orig(1)+[0,3,5.0]*sz(1)/8;';
 	'y=orig(2)+[1,1,2.5]*sz(2)/2;';
 	'xpoly(x,y,type=''lines'',close=%f);';
-	'xpoly(orig(1)+3*sz(1)/8,orig(2)+1*sz(2)/2,''marks'',1);'; 
+	'xpoly(orig(1)+3*sz(1)/8,orig(2)+1*sz(2)/2,type=''marks'',close=%t);'; 
 	'x=orig(1)+[5,8]*sz(1)/8;';
 	'y=orig(2)+[1,1]*sz(2)/2;';
 	'xpoly(x,y,type=''lines'',close=%f);';
