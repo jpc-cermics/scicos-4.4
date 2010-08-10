@@ -31,7 +31,7 @@ function scicos_palette_treeview(L)
   
   model = gtktreestore_new(list(list(%types.GdkPixbuf),"name",0,0),%f)
 
-  scicos_icon_path = getenv('NSP')+'/macros/scicos_no_xor/scicos-images/';
+  scicos_icon_path = scicos_path+'/macros/scicos/scicos-images/';
   icons = glob(scicos_icon_path);
   
   dir_logo = scicos_icon_path + 'gtk-directory.png';
