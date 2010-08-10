@@ -20,7 +20,7 @@ case 'set' then
   Exprs0= ["E";"W";"F";"A"]
   Bitems= ["Phase delay (secs)";"Pulse Width (% of period)";"Period (secs)";"Amplitude"]
   Ss= list("pol",-1,"pol",-1,"pol",-1,"mat",[-1 -1])
-  scicos_context=hash();
+  scicos_context=hash(10);
   x=arg1
   ok=%f
   while ~ok do
