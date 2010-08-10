@@ -1,7 +1,6 @@
 SHELL=/bin/csh
 
-include Path.incl 
-
+include ../../Path.incl
 include $(SCIDIR)/Makefile.incl
 
 all	:: builder.sce 
@@ -24,6 +23,17 @@ clean	::
 distclean:: clean 
 	cd src; make distclean 
 	cd macros ; make distclean 
+
+PATH_INCL= $(wildcard Path.incl)
+
+test	::
+ifeq ($(PATH_INCL),Path.incl)
+	@echo $(PATH_INCL) "is already present" 
+else
+	@echo Path.incl "copied from ../../"
+	@cp ../../Path.incl .
+endif
+
 
 
 

@@ -37,8 +37,8 @@ function [ok,a_domaine,b_domaine,discr,signe,choix,type_meth,degre,Nbr_maillage,
   // evaluation du context
   %mm=getfield(1,%scicos_context)
   for %mi=%mm(3:$)
-    if execstr(%mi+'=%scicos_context(%mi)','errcatch')<>0 then
-      disp(lasterror())
+    if ~execstr(%mi+'=%scicos_context(%mi)',errcatch=%t) then
+      printf(lasterror())
       ok=%t
       return
     end

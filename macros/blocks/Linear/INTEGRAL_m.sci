@@ -107,7 +107,7 @@ case 'define' then
   gr_i=['thick=xget(''thickness'')'
         'pat=xget(''pattern'')'
         'fnt=xget(''font'')'
-        'xpoly(orig(1)+[0.7;0.62;0.549;0.44;0.364;0.291]*sz(1),orig(2)+[0.947;0.947;0.884;0.321;0.255;0.255]*sz(2),"'lines"')'
+        'xpoly(orig(1)+[0.7;0.62;0.549;0.44;0.364;0.291]*sz(1),orig(2)+[0.947;0.947;0.884;0.321;0.255;0.255]*sz(2),type="'lines"')'
         'txt=''1/s'';'
         'style=5;'
         'rectstr=stringbox(txt,orig(1),orig(2),0,style,1);'

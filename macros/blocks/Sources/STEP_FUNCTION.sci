@@ -126,7 +126,7 @@ case 'define' then
   gr_i=[  'thick=xget(''thickness'')'
 	  'pat=xget(''pattern'')'
 	  'fnt=xget(''font'')'
-	  'xpoly(orig(1)+[0.071;0.413;0.413;0.773]*sz(1),orig(2)+[0.195;0.195;0.635;0.635]*sz(2),'"lines"')';
+	  'xpoly(orig(1)+[0.071;0.413;0.413;0.773]*sz(1),orig(2)+[0.195;0.195;0.635;0.635]*sz(2),type='"lines"')';
 	  'xset(''thickness'',thick)'
 	  'xset(''pattern'',pat)'
 	  'xset(''font'',fnt(1),fnt(2))']

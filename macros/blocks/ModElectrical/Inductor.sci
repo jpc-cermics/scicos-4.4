@@ -43,7 +43,7 @@ case 'define' then
   exprs=string(L)
 
   gr_i=['tt=linspace(0.04,0.96,100)'';'
-        'xpoly(tt*sz(1)+orig(1),+orig(2)+abs(sin(18*(tt-0.04)))*sz(2),""lines"");';
+        'xpoly(tt*sz(1)+orig(1),+orig(2)+abs(sin(18*(tt-0.04)))*sz(2),type=""lines"");';
         'xx=orig(1)+[0 0.04 0.04 0.04 0]*sz(1);';
         'yy=orig(2)+[1/2 1/2 0  1/2 1/2]*sz(2);';
         'xpoly(xx,yy) ';

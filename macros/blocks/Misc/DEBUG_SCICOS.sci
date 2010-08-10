@@ -33,8 +33,8 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
 
         if ~isempty(txt)|Quit~=1 then
           tt=['block=debug_scicos(block,flag)']
-
-          if execstr('deff(tt,txt)','errcatch')==0 then
+	  ok=execstr('deff(tt,txt)',errcatch=%t);
+          if ok then
             save(TMPDIR+'/debug_scicos',debug_scicos)
             exprs(2)=txt
             if (scicos_debug()<>2 & scicos_debug()<>3) then

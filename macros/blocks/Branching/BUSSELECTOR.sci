@@ -38,8 +38,8 @@ case 'set' then
 	  ['Signal Selected','Output type bus (0=No 1=yes)'],..
 	  list('string',-1,'vec',1),label) // just for test
       outputbus=string(outputbus)
-      ierr=execstr('SelectedSignals=evstr(SelectedSignals)','errcatch');
-      if ierr<>0 then
+      ok=execstr('SelectedSignals=evstr(SelectedSignals)',errcatch=%t);
+      if ~ok then
 	message(['The Format you entered for the ""Signal Selected"" is wrong';
 	         'It must be ""[""S1"";""S2""]""']);okk=%f;
       end

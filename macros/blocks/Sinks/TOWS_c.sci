@@ -32,7 +32,7 @@ case 'set' then
 
       //check for valid name variable
       r=%f;
-      ierr=execstr('r=validvar(varnam)','errcatch')
+      ierr=execstr('r=validvar(varnam)',errcatch=%t)
       if ~r then
         message(["Invalid variable name.";
                  "Please choose another variable name."]);

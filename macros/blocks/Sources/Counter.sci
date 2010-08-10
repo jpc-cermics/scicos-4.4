@@ -4,8 +4,8 @@ x=[];y=[];typ=[];
 select job
  case 'plot' then
   graphics=arg1.graphics;
-  ierr=execstr('(evstr(graphics.exprs(3))==1)','errcatch')
-  if ierr<>0 then graphics.exprs(3)='1';end
+  eok=execstr('(evstr(graphics.exprs(3))==1)',errcatch=%t)
+  if ~eok then graphics.exprs(3)='1';end
   if (evstr(graphics.exprs(3))==1) then
   from=graphics.exprs(1)
   to=graphics.exprs(2)

@@ -91,18 +91,18 @@ case 'set' then
 //   outtype=stripblanks(evstr(Touttype));..
 //   param=stripblanks(evstr(Tparam));..
 //   paramv=evstr(Tparamv);..
-//   funam=stripblanks(Tfunam)",'errcatch')
+//   funam=stripblanks(Tfunam)",errcatch=%t)
 //
    //first stage of checking variable name
    //put string symbolic parameters in variable
-   ierr=execstr("in=stripblanks(evstr(Tin));..
+   eok=execstr("in=stripblanks(evstr(Tin));..
                  intype=stripblanks(evstr(Tintype));..
                  out=stripblanks(evstr(Tout));..
                  outtype=stripblanks(evstr(Touttype));..
                  param=stripblanks(evstr(Tparam));..
-                 funam=stripblanks(Tfunam)",'errcatch')
+                 funam=stripblanks(Tfunam)",errcatch=%t)
 
-   if ierr<>0 then
+   if ~eok then
      //You loose ! Try again ! Insert coin !
      //x_message("Error, try again please!")
      x_message("Error in evaluation of variables.")
@@ -115,7 +115,7 @@ case 'set' then
    if ok then
      for i=1:size(in,'*')
        r=%f;
-       ierr=execstr('r=validvar(in(i))','errcatch')
+       ierr=execstr('r=validvar(in(i))',errcatch=%t)
        if ~r then
          ok=%f
          break
@@ -131,7 +131,7 @@ case 'set' then
    if ok then
      for i=1:size(out,'*')
        r=%f;
-       ierr=execstr('r=validvar(out(i))','errcatch')
+       ierr=execstr('r=validvar(out(i))',errcatch=%t)
        if ~r then
          ok=%f
          break
@@ -148,7 +148,7 @@ case 'set' then
      param=param(:)
      for i=1:size(param,'*')
        r=%f;
-       ierr=execstr('r=validvar(param(i))','errcatch')
+       ierr=execstr('r=validvar(param(i))',errcatch=%t)
        if ~r then
          ok=%f
          break
