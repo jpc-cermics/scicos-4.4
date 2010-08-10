@@ -83,7 +83,7 @@ function lisf=scicos_get_palette_content(txt)
 //
   if txt=='all' then
     // return the palette names 
-    lisf= ['Sinks' ;  'Branching'; 'Non_linear';  'Lookup_Tables'; 
+    lisf= ['Sources'; 'Sinks' ;  'Branching'; 'Non_linear';  'Lookup_Tables'; 
 	   'Events' ;  'Threshold';  'Others'; 'Linear'; 'OldBlocks' ; 'DemoBlocks' ;
 	   'Modelica' ;  'Modelica Electrical';   'Modelica Hydraulics' ;  'Modelica Linear';
 	   'Matrix' ; 'Integer';  'Iterators' ];
