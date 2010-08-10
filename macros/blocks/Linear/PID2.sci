@@ -23,7 +23,7 @@ case 'set' then
     ["Proportional";"Integral";"Derivative"]
   Ss=..
     list("pol",-1,"pol",-1,"pol",-1)
-  scicos_context=struct()
+  scicos_context=hash(10)
      x=arg1
   ok=%f
   while ~ok do

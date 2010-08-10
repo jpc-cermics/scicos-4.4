@@ -27,7 +27,7 @@ case 'set' then
     "Period (sec)"]
   Ss=..
     list("mat",[-1,-1],"mat",[-1,-1],"pol",-1,"pol",-1)
-  scicos_context=struct()
+  scicos_context=hash(10)
      x=arg1
   ok=%f
   while ~ok do

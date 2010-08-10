@@ -27,7 +27,7 @@ case 'set' then
  end
 
  ss=graphics.exprs(2)(3)
-scicos_context=struct()
+scicos_context=hash(10)
  execstr('[ok,'+tt+',exprs]=getvalue(btitre,bitems,ss,exprs)')
  
  if ok then

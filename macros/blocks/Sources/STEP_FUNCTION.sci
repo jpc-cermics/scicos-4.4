@@ -43,7 +43,7 @@ case 'set' then
 	  // initexe changed
 	  needcompile=2
 	end
-	if model.sim=='input'|model.sim=='output' then
+	if model.sim.equal['input']|model.sim.equal['output'] then
 	  if model.ipar<>model_n.ipar then
 	    needcompile=4
 	  end

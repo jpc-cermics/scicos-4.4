@@ -199,7 +199,7 @@ function [ok,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18]=get
 		 'waiting for dimension  '+%ssz])
       %ini=%str
     elseif %nok<0 then
-      if %ierr==0 then
+      if %ierr then
 	x_message(['answer given for  '+%labels(-%nok);
 		   'has incorrect type :'+ %typ(-2*%nok-1)])
       else

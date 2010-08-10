@@ -25,39 +25,38 @@ while %t do
     else
 	model.sim=list('cstblk4_m',4)
 	model.opar=list(C)
-	if (type(C)==1) then
-		 if isreal(C) then
-      		     ot=1
-		 else
-		     ot=2
-		 end
+	if type(C,'short')=='m' then
+	  if isreal(C) then
+	    ot=1
+	  else
+	    ot=2
+	  end
 	elseif (typeof(C)=="int32") then
-	 ot=3
+	  ot=3
 	elseif (typeof(C)=="int16") then
-	ot=4
+	  ot=4
 	elseif (typeof(C)=="int8") then
-	ot=5
+	  ot=5
 	elseif (typeof(C)=="uint32") then
-	ot=6
+	  ot=6
 	elseif (typeof(C)=="uint16") then
-	ot=7
+	  ot=7
 	elseif (typeof(C)=="uint8") then
-	ot=8
+	  ot=8
 	else message("type not recognized");ok=%f;
 	end
 
 	if ok then
-	   model.rpar=[]
-	   [model,graphics,ok]=set_io(model,graphics,list(),list(nout,ot),[],[])
-      	    graphics.exprs=exprs;
-            x.graphics=graphics;x.model=model
-            break;
+	  model.rpar=[]
+	  [model,graphics,ok]=set_io(model,graphics,list(),list(nout,ot),[],[])
+	  graphics.exprs=exprs;
+	  x.graphics=graphics;x.model=model
+	  break;
 	end
     end
-  end
-case 'define' then
+end
+ case 'define' then
   C=[1]
-
   model=scicos_model()
   model.sim=list('cstblk4',4)
   model.in=[]
@@ -70,9 +69,9 @@ case 'define' then
   model.dep_ut=[%f %f]
   exprs=sci2exp(C)
   gr_i=['dx=sz(1)/5;dy=sz(2)/10;';
-    'w=sz(1)-2*dx;h=sz(2)-2*dy;';
-   'txt=C;'
-    'xstringb(orig(1)+dx,orig(2)+dy,txt,w,h,''fill'');']
+	'w=sz(1)-2*dx;h=sz(2)-2*dy;';
+	'txt=C;'
+	'xstringb(orig(1)+dx,orig(2)+dy,txt,w,h,''fill'');']
   x=standard_define([2 2],model,exprs,gr_i,'CONST_m');
 end
 endfunction

@@ -54,7 +54,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
       resume, 
     end
     if var#<>list() then
-      if lstsize(var#)<>2 then
+      if length(var#)<>2 then
 	ierr=2,
 	resume, 
       end
@@ -100,7 +100,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
   clkin=int(clkin(:))
   nclkin=size(clkin,1)
   if nclkin>0 then
-    if mini(clkin)<1 then
+    if min(clkin)<1 then
       message('set_io : '+...
 	      'Event input ports sizes must be positive')
       ok=%f
@@ -110,7 +110,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
   clkout=int(clkout(:))
   nclkout=size(clkout,1)
   if nclkout>0 then
-    if mini(clkout)<1 then
+    if min(clkout)<1 then
       message('set_io : '+...
 	      'Event output ports sizes must be positive')
       ok=%f
@@ -144,8 +144,8 @@ function [model, graphics, ok]=set_io(model, graphics,...
 	     model.evtin,...
 	     model.evtout)
 
-  n1=size(in1(:,1),'*') //current number of input port of model
-  n=size(in(:,1),'*') //given number of input port
+  n1=size(in1,1) //current number of input port of model
+  n=size(in,1) //given number of input port
   if n1>n then
     //    if or(ip1(n+1:$)>0) then
     //      message('set_io : '+...
@@ -197,7 +197,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
   I='E'
 
   if ip1<>[] then
-    in_impl=I(ones(ip1))
+    in_impl=I(ones(size(ip1)))
     in_impl(in_implicit)='I'
     in_impl(in_bus)='B'
     //    kk=size(graphics.in_implicit,'*')
@@ -212,7 +212,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
     in_impl=[]
   end
   if op1<>[] then
-    out_impl=I(ones(op1))
+    out_impl=I(ones(size(op1)))
     out_impl(out_implicit)='I'
     out_impl(out_bus)='B'
     //    kk=size(graphics.out_implicit,'*')
@@ -235,9 +235,13 @@ function [model, graphics, ok]=set_io(model, graphics,...
   graphics.peout=cop1
   graphics.in_implicit=in_impl
   graphics.out_implicit=out_impl
+  if isempty(in) then in = zeros(0,2);end 
+  if isempty(in2) then in2 = zeros(0,2);end 
   model.in=in(:,1)
   model.in2=in(:,2)
   model.intyp=in_t
+  if isempty(out) then out = zeros(0,2);end 
+  if isempty(out2) then out2 = zeros(0,2);end 
   model.out=out(:,1)
   model.out2=out(:,2)
   model.outtyp=out_t

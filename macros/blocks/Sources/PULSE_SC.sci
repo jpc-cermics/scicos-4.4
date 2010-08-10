@@ -16,16 +16,12 @@ case 'set' then
   typ=list()
   graphics=arg1.graphics;
   exprs=graphics.exprs
-  Btitre=..
-    "Set Pulse Generator parameters"
-  Exprs0=..
-    ["E";"W";"F";"A"]
-  Bitems=..
-    ["Phase delay (secs)";"Pulse Width (% of period)";"Period (secs)";"Amplitude"]
-  Ss=..
-    list("pol",-1,"pol",-1,"pol",-1,"mat",[-1 -1])
-  scicos_context=struct();
-     x=arg1
+  Btitre= "Set Pulse Generator parameters"
+  Exprs0= ["E";"W";"F";"A"]
+  Bitems= ["Phase delay (secs)";"Pulse Width (% of period)";"Period (secs)";"Amplitude"]
+  Ss= list("pol",-1,"pol",-1,"pol",-1,"mat",[-1 -1])
+  scicos_context=hash();
+  x=arg1
   ok=%f
   while ~ok do
     [ok,scicos_context.E,scicos_context.W,scicos_context.F,scicos_context.A,exprs]=getvalue(Btitre,Bitems,Ss,exprs)
