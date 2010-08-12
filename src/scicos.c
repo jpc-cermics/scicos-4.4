@@ -7,12 +7,19 @@
 #include <nsp/sciio.h>
 #include <nsp/system.h>
 #include <nsp/blas.h>
+#include <nsp/menus.h>
 #include "../libinteg/integ.h"
 #include "sundials/sundials.h"
 #include "ezxml.h"
 
+extern void scicos_send_halt(void);
+
 #define TABSIM			/* to force include of tabsim definition */
 #include "scicos/blocks.h"
+
+/* IMPORT for win32 */
+
+IMPORT ode_err ierode_;
 
 typedef struct
 {
@@ -138,6 +145,9 @@ int scicos_main (scicos_run * sr, double *t0_in, double *tf_in,
 {
   int kf, mxtb, ierr0, kfun0, i, j, k, ni, no;
   double *W;
+
+  /* associate the function scicos_send_halt to the stop menu */
+  set_stop_menu_handler(scicos_send_halt);
 
   TCritWarning = 0;
   Scicos = sr;

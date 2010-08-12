@@ -21,11 +21,14 @@
  * 
  *--------------------------------------------------------------------------*/
 
-
-
 #include <math.h>
+#include <nsp/machine.h>
+#include <nsp/scalexp.h>
 #include "scicos/scicos.h"
 #include "scicos/blocks.h"
+
+/* import data from libsnp.dll */
+IMPORT expr_func expr_functions[];
 
 static int nsp_scalarexp_byte_eval_scicos (const int *code, int lcode,
 					   const double *constv,
@@ -70,7 +73,6 @@ void scicos_evaluate_expr_block (scicos_block * block, int flag)
     }
 }
 
-#include "nsp/scalexp.h"
 
 #define SCICOS_OP_EVAL_BINARY(exp)					\
   if(block_ng>0) nzcr=nzcr+1;						\
