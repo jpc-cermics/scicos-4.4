@@ -99,7 +99,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     if ext=='xml'|ext=='XML' then
       needcompile=4;%cpr=list();
       context=scs_m.props.context
-      [%scicos_context,ierr]=script2var(context,struct())
+      [%scicos_context,ierr]=script2var(context,hash(10))
       //      [ok,scs_m]=do_define_and_set(scs_m)
       [scs_m,cpr,vv,ok]=do_eval(scs_m,%cpr,%scicos_context,%f,'XML');
       if ~ok then
@@ -234,11 +234,16 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
   %mprt=funcprot()
   funcprot(0) 
   getvalue=setvalue;
-  deff('message(txt)','x_message(''In block ''+o.gui+'': ''+txt);global %scicos_prob;%scicos_prob=resume(%t)')
-
+  
+  function message(txt)
+    x_message('In block '+o.gui+': '+txt);
+    global %scicos_prob;
+    resume(%scicos_prob=%t);
+  endfunction
+  
   global %scicos_prob
   %scicos_prob=%f
-
+  
   //## overload some functions used in GUI
   function [ok,tt]        =  FORTR(funam,tt,i,o) 
     ok=%t;
@@ -301,39 +306,42 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
 	o.model=update_model(o.model);
       end
       o.graphics.exprs=graphics.exprs;
-      if or(o.model.sim(1)==['super','asuper'])|(o.model.sim(1)=='csuper'& ~isequal(o.model.ipar,1))
+      if or(o.model.sim(1)==['super','asuper']) | ...
+	    (o.model.sim(1)=='csuper'& ~isequal(o.model.ipar,1))
 	[ok,scs_m_1]=do_define_and_set(rpar,%t)
-      if ~ok then scs_m=get_new_scs_m();return;end
-      o.model.rpar=scs_m_1;
-      if sim(1)=="asuper" then
-	o.model.sim=sim;
+	if ~ok then scs_m=get_new_scs_m();
+	  return;
+	end
+	o.model.rpar=scs_m_1;
+	if sim(1)=="asuper" then
+	  o.model.sim=sim;
+	end
+	o.model.in=-1*ones(size(graphics.pin,'*'),1);
+	o.model.in2=-2*ones(size(graphics.pin,'*'),1);
+	o.model.intyp=-1*ones(1,size(graphics.pin,'*'));
+	o.model.out=-1*ones(size(graphics.pout,'*'),1);
+	o.model.out2=-2*ones(size(graphics.pout,'*'),1);
+	o.model.outtyp=-1*ones(1,size(graphics.pout,'*'));
+	o.model.evtin=ones(size(graphics.pein,'*'),1);
+	o.model.evtout=ones(size(graphics.peout,'*'),1);
+      else
+	ierr=execstr('o='+o.gui+'(""set"",o);',errcatch=%t);
+	if ~ierr then
+	  x_message(['An error occured while opening the diagram\n';
+		     catenate(lasterror());
+		     'The diagram will not be opened'])
+	  ok=%f;
+	  scs_m= get_new_scs_m();;
+	  return
+	end
       end
-      o.model.in=-1*ones(size(graphics.pin,'*'),1);
-      o.model.in2=-2*ones(size(graphics.pin,'*'),1);
-      o.model.intyp=-1*ones(1,size(graphics.pin,'*'));
-      o.model.out=-1*ones(size(graphics.pout,'*'),1);
-      o.model.out2=-2*ones(size(graphics.pout,'*'),1);
-      o.model.outtyp=-1*ones(1,size(graphics.pout,'*'));
-      o.model.evtin=ones(size(graphics.pein,'*'),1);
-      o.model.evtout=ones(size(graphics.peout,'*'),1);
-    else
-     ierr=execstr('o='+o.gui+'(""set"",o);',errcatch=%t);
-     if ierr<>0 then
-       x_message(['An error occured while opening the diagram';
-	   lasterror();
-	   'The diagram will not be opened'])
-       ok=%f;
-       scs_m= get_new_scs_m();;
-       return
-     end
+      o.graphics=graphics;
     end
-    o.graphics=graphics;
+    scs_m.objs(i)=o;
   end
-  scs_m.objs(i)=o;
-end
-//if argn(2)<2 then
+  //if argn(2)<2 then
   //scs_m=do_eval(scs_m);
-//end
+  //end
 endfunction
 
 function model=update_model(model)
@@ -341,23 +349,32 @@ function model=update_model(model)
 endfunction
 
 function [scs_m,ok]=generating_atomic_code(scs_m)
+  ok=%t;
   scs_m_sav=scs_m;
   for i=1:length(scs_m.objs)
     o=scs_m.objs(i);
-    if typeof(o)=='Block' then
+    if o.type =='Block' then
       if or(o.model.sim(1)==['super','asuper','csuper']) then
 	[scs_m1,ok]=generating_atomic_code(o.model.rpar)
-	if ~ok then scs_m=scs_m_sav;return;end
+	if ~ok then 
+	  scs_m=scs_m_sav;
+	  return;
+	end
 	o.model.rpar=scs_m1;
 	scs_m.objs(i)=o;
 	if o.model.sim(1)=='asuper' then
 	  printf('Generating the code for the atomic subsystem ......')
-	  ierr=execstr('[o,needcompile,ok]=do_CreateAtomic(o,i,scs_m)',errcatch=%t);
-	  if ierr<>0 then
+	  eok=execstr('[o,needcompile,ok]=do_CreateAtomic(o,i,scs_m)',errcatch=%t);
+	  if ~eok  then
 	    printf('Error\n')
-	    printf('An Error Occured While trying to generate automatically the code for the atomic subsystem\n.Please try to do it manually\n.')
-	    ok=%f;return;
+	    printf('An Error Occured While trying to generate\n");
+	    printf(' automatically the code for the atomic subsystem:\n"+ ...
+		   catenate(lasterror()));
+	    printf(' Please try to do it manually.\n')
+	    ok=%f;
+	    return;
 	  end
+	  // test the ok returned by do_CreateAtomic
 	  if ~ok then scs_m=scs_m_sav;printf('Error\n');return;end
 	  printf('Done\n');
 	  scs_m.objs(i)=o;
