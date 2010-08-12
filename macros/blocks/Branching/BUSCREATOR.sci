@@ -120,23 +120,24 @@ end
 endfunction
 
 function [ok,inputnb,inputbusnb,Signals,InheritSignal]=BusCreatorProperties(exprs)
-inputnb=eval(exprs(1))
-SigVal=[]
-M=exprs(2)
-signalsinput=M.SignalName
-for i=1:size(signalsinput,'*')
-  ind=strindex(signalsinput(i),' ');
-  if ~isempty(ind) then 
-    SigVal=[SigVal;strcat(['{',signalsinput(i),'}'])]
-  else 
-    SigVal=[SigVal;signalsinput(i)];
+  inputnb=evstr(exprs(1))
+  SigVal=[]
+  M=exprs(2)
+  signalsinput=M.SignalName
+  for i=1:size(signalsinput,'*')
+    ind=strindex(signalsinput(i),' ');
+    if ~isempty(ind) then 
+      SigVal=[SigVal;strcat(['{',signalsinput(i),'}'])]
+    else 
+      SigVal=[SigVal;signalsinput(i)];
+    end
   end
-end
 BusInput=exprs(2)(2)
 options=['Inherit bus signals names from input port';
     'Require input signals names to match signals below']
 origopt=options(evstr(exprs(4))+1)
-inputbusnb=eval(exprs(3))
+//inputbusnb=eval(exprs(3))
+inputbusnb=evstr(exprs(3))
 txt=['set BWpath [file dirname '"$env(SCIPATH)/tcl/BWidget-1.7.0'"]'
      'if {[lsearch $auto_path $BWpath]==-1} {'+..
      'set auto_path [linsert $auto_path 0 $BWpath]'+..
@@ -297,8 +298,10 @@ if done==string(1) then
   Signals=TCL_GetVar('SignalsList');
   InheritSignal=find(options==TCL_GetVar('opt'))-1
   ok=%t
-  inputnb=eval(inputnb);
-  inputbusnb=eval(inputbusnb);
+//  inputnb=eval(inputnb);
+inputnb=evstr(inputnb);
+//  inputbusnb=eval(inputbusnb);
+inputbusnb=evstr(inputbusnb);
   indxstart=strindex(Signals,'{')
   indxend=strindex(Signals,'}')
   if ~isempty(indxstart) then

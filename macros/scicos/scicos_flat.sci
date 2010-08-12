@@ -286,10 +286,12 @@ for k=1:n //loop on all objects
       scs_m.objs(k).model.rpar=scs_m1;
       //shifting the scop_mat for regular blocks. Fady 08/11/2007
       if ~isempty(scop_mat) then
-	v_mat=find(eval(scop_mat(:,1))<MaxBlock)
+	//v_mat=find(eval(scop_mat(:,1))<MaxBlock)
+	v_mat=find(evstr(scop_mat(:,1))<MaxBlock)
 	v_mat=v_mat(:)
 	for j=v_mat
-	  scop_mat(j,1)=string(eval(scop_mat(j,1))+nb)
+	  // scop_mat(j,1)=string(eval(scop_mat(j,1))+nb)
+	  scop_mat(j,1)=string(evstr(scop_mat(j,1))+nb)
 	end
       end
      

@@ -1,10 +1,18 @@
-function scs_m=delete_unconnected(scs_m);
+function scs_m=delete_unconnected(scs_m)
+  if new_graphics() then 
+    scs_m=delete_unconnected_new(scs_m);
+  else
+    scs_m=delete_unconnected_old(scs_m);
+  end
+endfunction
+
+function scs_m=delete_unconnected_old(scs_m);
 //delete unconnected blocks and all relevant parts of a diagram
 //may be used before compilation
 // Copyright INRIA
-  // printf("In delete unconnected\n");
   scs_m_old=scs_m;
-  n=length(scs_m.objs)
+  n=length(scs_m.objs);
+  if n==0 then return, end ; //** exit point
   DEL=[]
   DELL=[]
   finish=%f
@@ -12,7 +20,7 @@ function scs_m=delete_unconnected(scs_m);
     finish=%t
     for k=1:n  //loop on scs_m objects
       if scs_m.objs(k).type =='Block' then
-        if scs_m.objs(k).gui<>'SUM_f'&scs_m.objs(k).gui<>'SOM_f' then
+          if scs_m.objs(k).gui<>'SUM_f'&scs_m.objs(k).gui<>'SOM_f' then
 	  if find(scs_m.objs(k).gui==['IFTHEL_f','ESELECT_f']) then
 	    kk=[find(scs_m.objs(k).graphics.pein==0),find(scs_m.objs(k).graphics.pin==0)]
 	    if ~isempty(kk) // a synchro block is not active, remove it
@@ -45,16 +53,15 @@ function scs_m=delete_unconnected(scs_m);
   end
 
   //suppress rigth-most deleted elements
-  if length(scs_m.objs)<>0 then 
-    while scs_m.objs($).type =='Deleted' then
-      scs_m.objs($)=null();
-      if length(scs_m.objs)==0 then break,end
-    end
+  while scs_m.objs($).type =='Deleted' then
+    scs_m.objs($)=null();
+    if length(scs_m.objs)==0 then break,end
   end
   // Notify by hiliting and message edition
 
   if ~isempty(DEL) then 
     wins=xget('window')
+    // XXXX if flgcdgen<>-1 then path=[numk path]; scs_m_s=all_scs_m; end
     if ~isempty(path) then
       mxwin=max(winsid())
       for k=1:size(path,'*')
@@ -113,13 +120,15 @@ function scs_m=delete_unconnected_new(scs_m);
 	  else
 	    kk=[find(scs_m.objs(k).graphics.pin==0)]
 	    if ~isempty(kk) then // at least one  input port is not connected delete the block
-	      if or(scs_m.objs(k).graphics.__keys=="in_implicit") then
-	        if or(scs_m.objs(k).graphics.in_implicit(kk)<>"I") then 
-		  [scs_m,DEL1,DELL1]=do_delete1(scs_m,k,%f)
-		  DEL=[DEL DEL1]
-		  DELL=[DELL DELL1]
-		  finish=%f
-	        end
+	      if scs_m.objs(k).graphics.iskey["in_implicit"] then
+		if ~isempty(scs_m.objs(k).graphics.in_implicit(kk))
+		  if or(scs_m.objs(k).graphics.in_implicit(kk)<>"I") then 
+		    [scs_m,DEL1,DELL1]=do_delete1(scs_m,k,%f)
+		    DEL=[DEL DEL1]
+		    DELL=[DELL DELL1]
+		    finish=%f
+		  end
+		end
 	      else
 	        [scs_m,DEL1,DELL1]=do_delete1(scs_m,k,%f)
 	        DEL=[DEL DEL1]
@@ -134,16 +143,15 @@ function scs_m=delete_unconnected_new(scs_m);
   end
   
   //suppress rigth-most deleted elements
-  if length(scs_m.objs)<>0 then 
-    while scs_m.objs($).type =='Deleted' then
-      scs_m.objs($)=null();
-      if length(scs_m.objs)==0 then break,end
-    end
+  while scs_m.objs($).type =='Deleted' then
+    scs_m.objs($)=null();
+    if length(scs_m.objs)==0 then break,end
   end
   // Notify by hiliting and message edition
 
   if ~isempty(DEL) then 
     wins=xget('window')
+    //XXX if flgcdgen<>-1 then path=[numk path]; scs_m_s=all_scs_m; end
     if ~isempty(path) then
       // XXXXX a finir le hilite recurssif 
       mxwin=max(winsid())
