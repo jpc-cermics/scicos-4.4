@@ -18,11 +18,12 @@ case 'set' then
   rpar=model.rpar
   ns=prod(size(x0));nin=1;nout=1
   %scicos_context=%scicos_context;
-  %scicos_context.s=%s
+  %s=poly(0,'s');%z=poly(0,'s');
 
+  %scicos_context.s=%s
   exprs(1)=varnumsubst(exprs(1),"%s","s")
   exprs(2)=varnumsubst(exprs(2),"%s","s")
-
+  
   while %t do
     [ok,num,den,exprs]=getvalue('Set continuous SISO transfer parameters',..
 	['Numerator (s)';
@@ -38,11 +39,8 @@ case 'set' then
     if ok then
       H=cont_frm(num,den)
       [A,B,C,D]=H(2:5);
-
-
       exprs(1)=varnumsubst(exprs(1),"s","%s")
       exprs(2)=varnumsubst(exprs(2),"s","%s")
-
       graphics.exprs=exprs;
       [ns1,vns1]=size(A);
       rpar=[matrix(A,ns1*ns1,1);

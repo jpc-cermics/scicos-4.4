@@ -16,7 +16,7 @@ function Eval_()
     if needcompile<>4&size(%cpr)>0 then %state0=%cpr.state,end
     alreadyran=%f
   else
-    message(['Error occured when evaluating context:'; lasterror()]);
+    message(['Error occured when evaluating context:\n'; catenate(lasterror())]);
     continue;
   end
   enablemenus()
@@ -36,7 +36,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr)
     x_message('In block '+o.gui+': '+txt);
     resume(%scicos_prob=%t); 
   endfunction
-
+  
   %scicos_prob=%f
 
   function [ok,tt]=FORTR(funam,tt,i,o) ; ok=%t; endfunction

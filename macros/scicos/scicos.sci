@@ -326,7 +326,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       printf('Entering function ' + %cor_item_fun+'\n'); 
       ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
       if ierr== %f then 
-	message(['Error in '+%cor_item_fun;lasterror()]);
+	message(['Error in '+%cor_item_fun;catenate(lasterror())]);
 	Cmenu="";%pt=[];
       end
       printf('Quit function ' + %cor_item_fun+'\n'); 

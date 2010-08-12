@@ -1,20 +1,14 @@
-
 function [model, graphics, ok]=set_io(model, graphics,...
-				      in#,...
-				      out#,...
-				      clkin,...
-				      clkout,...
-				      in_implicit,...
-				      out_implicit,..
-				      in_bus,..
-				      out_bus)
+				      in#, out#,...
+				      clkin, clkout,...
+				      in_implicit, out_implicit,..
+				      in_bus, out_bus)
   // Copyright INRIA
-  // CHECK
-  if argn(2)<=6 then
+  if nargin <= 6 then
     in_implicit=[]
     out_implicit=[],
   end
-  if argn(2)<=8 then
+  if nargin <=8 then
     in_bus=[]
     out_bus=[],
   end
@@ -83,7 +77,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
     end
     ko=%t;
   endfunction
-      
+  
   [in, in_t, err__, ko]=extract__(in#)
   if ~ko then
     message('set_io : '+  str__err(err__,'in'));
@@ -156,8 +150,8 @@ function [model, graphics, ok]=set_io(model, graphics,...
   else
     ip1=[ip1;zeros(n-n1,1)]
   end
-  n1=size(out1(:,1),'*')
-  n=size(out(:,1),'*')
+  n1=size(out1,1);// size(:,1),'*')
+  n=size(out,1)// size(:,1),'*')
   if n1>n then
     //    if or(op1(n+1:$)>0) then
     //      message('set_io : '+...

@@ -16,11 +16,11 @@ function [model,graphics,ok]=check_io(model,graphics,in,out,clkin,clkout,in_impl
 //           ok==%t  : changes of block structure has been performed
 //!
 // Copyright INRIA
-  //printf('in check_io\n');
+//printf('in check_io\n');
+
   if nargin <=6 then in_implicit=[],out_implicit=[],end
   // check_io first check if given number of ports agree with block connection
   in=int(in(:));nin=size(in,1)
-
   out=int(out(:));nout=size(out,1);
 
   clkin=int(clkin(:));nclkin=size(clkin,1);
@@ -31,7 +31,6 @@ function [model,graphics,ok]=check_io(model,graphics,in,out,clkin,clkout,in_impl
       return
     end
   end
-
 
   clkout=int(clkout(:));nclkout=size(clkout,1);
   if nclkout>0 then
@@ -141,15 +140,15 @@ function [model,graphics,ok]=check_io(model,graphics,in,out,clkin,clkout,in_impl
   
   if size(in1,2)<=1 then
     model.in=in
-  elseif size(in1,2)==2 then //This appears not to be useful, retained if case of?
-    disp("check_io : unexpected case")
+  elseif size(in1,2)==2 then //This appears not to be useful, retained in case of?
+    // disp("check_io : unexpected case")
     model.in=[in,2*ones(size(in))];
   end
   
   if size(out1,2)<=1 then
     model.out=out
-  elseif size(out1,2)==2 then //This appears not to be useful, retained if case of?
-    disp("check_io : unexpected case")
+  elseif size(out1,2)==2 then //This appears not to be useful, retained in case of?
+    // disp("check_io : unexpected case")
     model.out=[out,2*ones(size(out))];
   end
   model.evtin=clkin
