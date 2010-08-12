@@ -14,16 +14,12 @@ function Load_()
       scs_m.props.options('3D')(1)=%f //disable 3D block shape 
     end
     options=scs_m.props.options
-    xset('alufunction',3);
     xclear();//xbasc();
     xselect();
     set_background()
-
     pwindow_set_size()
     window_set_size()
-
-    xselect();
-
+    
     if is(scs_m.props.context,%types.SMat) then
       %now_win=xget('window')
       // execute the context 
@@ -64,7 +60,7 @@ function Load_()
   enablemenus()
 endfunction
 
-function [ok,scs_m,%cpr,edited]=do_load(fname,typ)
+function [ok,scs_m,%cpr,edited]=do_load_old(fname,typ)
 // Copyright INRIA
   if nargin < 2 then typ='diagram',end
 

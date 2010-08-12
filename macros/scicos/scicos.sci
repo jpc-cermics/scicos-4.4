@@ -197,6 +197,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     windows=[1 curwin]
     pixmap=%scicos_display_mode
     //
+    %scicos_gui_mode=1;
     //if ~exists('%scicos_gui_mode') then 
     //  if with_tk() then %scicos_gui_mode=1,else %scicos_gui_mode=0,end
     //end
