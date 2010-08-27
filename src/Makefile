@@ -38,7 +38,7 @@ BLOCKSC=selector.o sum.o prod.o switchn.o relay.o readc.o writec.o writeau.o \
 	satur.o step_func.o integral_func.o absolute_value.o bounce_ball.o \
 	bouncexy.o extractor.o scalar2vector.o minmax.o signum.o product.o \
 	summation.o multiplex.o gainblk.o relationalop.o modulo_count.o \
-	hystheresis.o ratelimiter.o backlash.o deadband.o ramp.o evaluate_expr.o \
+	hystheresis.o ratelimiter.o backlash.o deadband.o ramp.o \
 	deriv.o sin_blk.o cos_blk.o tan_blk.o asin_blk.o acos_blk.o atan_blk.o \
         sinh_blk.o cosh_blk.o tanh_blk.o asinh_blk.o acosh_blk.o atanh_blk.o \
 	evtvardly.o edgetrig.o tcslti4.o tcsltj4.o dsslti4.o \

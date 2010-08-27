@@ -24,9 +24,14 @@
 #include <string.h>
 
 #include "nsp/machine.h"
-#include "nsp/matrix-in.h"
-#include "nsp/bmatrix-in.h"
-
+#include <nsp/graphics-new/Graphics.h>
+#include <nsp/object.h>
+#include <nsp/matrix.h>
+#include <nsp/imatrix.h>
+#include <nsp/smatrix.h>
+#include <nsp/hash.h>
+#include <nsp/list.h>
+#include <nsp/interf.h>
 #include "scicos/scicos4.h"
 
 /* 

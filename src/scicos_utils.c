@@ -1,4 +1,6 @@
-#include "nsp/object.h"
+
+#include "nsp/object.h" 
+#include "nsp/graphics-old/Graphics.h" 
 #include "nsp/blas.h"
 #include "nsp/lapack-c.h"
 #include "nsp/cnumeric.h"

@@ -27,13 +27,21 @@
 #include <math.h>
 #include "nsp/machine.h"
 #include "nsp/math.h"
-#include "nsp/graphics-old/Graphics.h"
-#include "nsp/object.h"
+
+#include <nsp/graphics-old/Graphics.h>
+#include <nsp/object.h>
+#include <nsp/matrix.h>
+#include <nsp/smatrix.h>
+#include <nsp/hash.h>
+#include <nsp/file.h>
+
+#include <nsp/libstab.h>
+#include <nsp/gtk/gobject.h>	/* FIXME: nsp_gtk_eval_function */
+
 #include "nsp/blas.h"
 #include "nsp/matutil.h"
 #include "../librand/grand.h"	/* rand_ranf() */
 #include "../system/files.h"	/*  FSIZE */
-#include "../graphics-old/new_graphics.h"
 
 #include "blocks.h"
 
@@ -3540,9 +3548,6 @@ int scicos_affdraw (BCG * Xgc, const int fontd[], const int form[],
   return 0;
 }
 
-/* XXXXX a mettre ailleurs */
-#include "../interp/LibsTab.h"
-#include "nsp/gtk/gobject.h"	/* FIXME: nsp_gtk_eval_function */
 
 int scicos_getgeom (double *g)
 {

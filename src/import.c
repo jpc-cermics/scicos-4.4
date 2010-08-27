@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2007-2009 Ramine Nikoukhah (Inria) 
+ * Copyright (C) 2007-2010 Ramine Nikoukhah (Inria) 
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -17,7 +17,7 @@
  * Boston, MA 02111-1307, USA.
  *
  *
- * adapted to nsp by Jean-Philippe Chancelier 2006-2007
+ * adapted to nsp by Jean-Philippe Chancelier 2007-2010
  * 
  *--------------------------------------------------------------------------*/
 
@@ -25,7 +25,8 @@
 #include <string.h>
 #include "nsp/math.h"
 #include "nsp/machine.h"
-#include "nsp/object.h"
+#include <nsp/object.h>
+#include <nsp/graphics-new/Graphics.h>
 
 #include "scicos/scicos4.h"
 

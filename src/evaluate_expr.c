@@ -23,7 +23,12 @@
 
 #include <math.h>
 #include <nsp/machine.h>
+
+#include <nsp/graphics-new/Graphics.h>
+#include <nsp/machine.h>
+#include <nsp/plist.h>
 #include <nsp/scalexp.h>
+
 #include "scicos/scicos.h"
 #include "scicos/blocks.h"
 

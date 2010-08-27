@@ -22,7 +22,17 @@
  *--------------------------------------------------------------------------*/
 
 #include "nsp/machine.h"
-#include "nsp/object.h"
+#include <nsp/graphics-new/Graphics.h>
+#include <nsp/object.h>
+#include <nsp/matrix.h>
+#include <nsp/smatrix.h>
+#include <nsp/hash.h>
+#include <nsp/serial.h>
+#include <nsp/list.h>
+
+#include <nsp/interf.h>
+
+
 #include "nsp/interf.h"
 #include "scicos/scicos.h"
 

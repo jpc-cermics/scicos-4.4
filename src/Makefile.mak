@@ -41,7 +41,7 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	satur.obj step_func.obj integral_func.obj absolute_value.obj bounce_ball.obj \
 	bouncexy.obj extractor.obj scalar2vector.obj minmax.obj signum.obj product.obj \
 	summation.obj multiplex.obj gainblk.obj relationalop.obj modulo_count.obj \
-	hystheresis.obj ratelimiter.obj backlash.obj deadband.obj ramp.obj evaluate_expr.obj \
+	hystheresis.obj ratelimiter.obj backlash.obj deadband.obj ramp.obj \
 	deriv.obj sin_blk.obj cos_blk.obj tan_blk.obj asin_blk.obj acos_blk.obj atan_blk.obj \
         sinh_blk.obj cosh_blk.obj tanh_blk.obj asinh_blk.obj acosh_blk.obj atanh_blk.obj \
 	evtvardly.obj edgetrig.obj tcslti4.obj tcsltj4.obj dsslti4.obj \
