@@ -5,6 +5,7 @@
 #include "nsp/blas.h" 
 #include "nsp/lapack-c.h" 
 #include "nsp/cnumeric.h" 
+#include "nsp/matutil.h" 
 
 #define U_fp void *
 #define intg_f void *

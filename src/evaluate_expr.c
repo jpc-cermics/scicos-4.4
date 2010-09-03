@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2007-2009 Ramine Nikoukhah (Inria) 
+ * Copyright (C) 2007-2010 Ramine Nikoukhah (Inria) 
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -25,10 +25,9 @@
 #include <nsp/machine.h>
 
 #include <nsp/graphics-new/Graphics.h>
-#include <nsp/machine.h>
+#include <nsp/nsp.h>
 #include <nsp/plist.h>
 #include <nsp/scalexp.h>
-
 #include "scicos/scicos.h"
 #include "scicos/blocks.h"
 
