@@ -21,9 +21,8 @@
  * 
  *--------------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <nsp/nsp.h> 
+#include <nsp/linking.h>
 #include <nsp/graphics-old/Graphics.h>
 #include <scicos/scicos4.h>
 #include <scicos/blocks.h>
@@ -37,7 +36,6 @@
 #include "ezxml.h"
 
 extern void scicos_send_halt(void);
-extern int SearchInDynLinks(nsp_const_string op, int (**realop) ());
 
 #define TABSIM			/* to force include of tabsim definition */
 #include "scicos/blocks.h"
@@ -412,8 +410,8 @@ void *scicos_get_function (char *fname)
 	return tabsim[i].fonc;
       i++;
     }
-  if (SearchInDynLinks (fname, &loc) != -1)
-    return loc;
+  /* search if symbol is in a dynamically linked shared archive*/
+  if ( nsp_link_search(fname,-1,&loc) != -1 ) return loc ;
   return NULL;
 }
 

@@ -151,17 +151,11 @@ Makefile.mak	: Makefile
 Makefile.amk	: Makefile
 	$(SCIDIR)/scripts/Mak2ABSMak Makefile
 
-distclean:: 
-	@echo Cleaning in sundiags 
-	@$(RM) sundials/*.o 
-	@echo Cleaning in blocks
-	@$(RM) blocks/*.o 
+distclean:: clean 
 
 clean:: 
-	@echo Cleaning in sundiags 
-	@$(RM) sundials/*.o 
-	@echo Cleaning in blocks
-	@$(RM) blocks/*.o 
+	@echo Cleaning in subdirs
+	@$(RM) */*.o */*.lo
 
 #---------------Blocks
 
