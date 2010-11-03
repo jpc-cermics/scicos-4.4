@@ -1,10 +1,10 @@
 function [ok,bllst]=adjust_in2out2(bllst)
 // Copyright INRIA
- //adjust_in2out2
- //adjust in2,intyp,out2, outtyp in accordance to
- //in out (for compatibility)
- ok=%t
- nblk=size(bllst);
+//adjust_in2out2
+//adjust in2,intyp,out2, outtyp in accordance to
+//in out (for compatibility)
+  ok=%t
+  nblk=size(bllst);
  //Check dimension of vectors in/in2,out/out2 
  //and intyp/outyp for each block
  for i=1:nblk
@@ -27,7 +27,7 @@ function [ok,bllst]=adjust_in2out2(bllst)
   sz_outtyp=size(bllst(i).outtyp,'*');
   //adjust dimension of out2
   if sz_out2<sz_out then
-       bllst(i).out2=[bllst(i).out2;ones(sz_out-sz_out2,1)]
+    bllst(i).out2=[bllst(i).out2;ones(sz_out-sz_out2,1)]
   end
   //adjust dimension of outtyp
   if sz_outtyp<sz_out then

@@ -42,7 +42,6 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(s
 // the cor will be set to 0. (In this case the blocks are considered as IN_f ...)
 // Fady NASSIF 2007. INRIA.
 //-------------------------------------------------------------------
-pause xxx
 if nargin <= 1 then ksup=0;end //used for recursion
 if ksup==0 then   // main scheme
   MaxBlock=countblocks(scs_m);

@@ -401,7 +401,11 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
     //
     if ~isempty(ll.evtout) then  
       ll11=ll.firing
-      prt=find(ll11>=zeros(size(ll11)))
+      if type(ll11,'short')== 'b' then 
+	// jpc nov 2010 ll11 can be boolean or scalar ....
+	ll11 = b2m(ll11);
+      end
+      prt=find(ll11 >=zeros(size(ll11)))
       nprt=prod(size(prt))
       initexe=[initexe;[i*ones(nprt,1),matrix(prt,nprt,1),matrix(ll11(prt),nprt,1)]];
     end
