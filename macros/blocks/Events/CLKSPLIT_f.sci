@@ -40,7 +40,7 @@ select job
       model.blocktype='d'
       model.firing=[%f,%f,%f] //????
       model.dep_ut=[%f %f]
-      x = standard_define([1 1]/3,model,[],[],' CLKSPLIT_f');
+      x = standard_define([1 1]/3,model,[],[],'CLKSPLIT_f');
 end //** ...select job 
 
 endfunction

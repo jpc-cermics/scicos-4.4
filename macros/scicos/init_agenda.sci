@@ -1,9 +1,12 @@
 function [tevts,evtspt,pointi]=init_agenda(initexe,clkptr)
-
 // Copyright INRIA
 // order initial firing events in chronological order.
   nblk=size(clkptr,1)-1
-  timevec=initexe(:,3)
+  if isempty(initexe) then 
+    timevec=[];
+  else
+    timevec=initexe(:,3)
+  end
   if ~isempty(timevec) then
     [timevec,indtime]=sort(-timevec)
     initexe=initexe(indtime,:)

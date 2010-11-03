@@ -41,7 +41,7 @@ select job
       model.blocktype = 'c'        ;
       model.dep_ut    = [%t %f]    ;
       //**
-      x=standard_define([1 1]/3,model,[],[],' BUSSPLIT');
+      x=standard_define([1 1]/3,model,[],[],'BUSSPLIT');
       x.graphics.in_implicit='B'
       x.graphics.out_implicit=['B';'B';'B']
 end

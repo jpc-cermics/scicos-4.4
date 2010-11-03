@@ -376,6 +376,10 @@ static int scicos_fill_sim (NspHash * Sim, scicos_sim * scsim)
 	    {
 	      void *fptr =
 		scicos_get_function (((NspSMatrix *) cloc->O)->S[0]);
+	      Sciprintf("Info: Searching block simulation fn %s: %s\n",
+			((NspSMatrix *) cloc->O)->S[0],
+			( fptr != NULL) ? "found": "not found, assuming macro");
+	      
 	      if (fptr != NULL)
 		{
 		  /* a hard code function given by its adress */

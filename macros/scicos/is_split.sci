@@ -3,6 +3,7 @@ function r=is_split(o)
 // Copyright INRIA
 //if o(1)<>'Block' then r=%f,return,end
   if o.type <>'Block' then r=%f,return,end
-  //r=o(3)(1)=='split'|o(3)(1)=='lsplit'
+  //r=o(3)(1)=='split'|o(3)(1)=='lsplit' 
+  pause is_split; 
   r=o.model.sim(1)=='split'|o.model.sim(1)=='lsplit'
 endfunction

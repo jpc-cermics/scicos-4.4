@@ -4,6 +4,7 @@
  *    event delay with discrete counter
  */
 
+
 void evtdly4 (scicos_block * block, int flag)
 {
   void **_work = GetPtrWorkPtrs (block);

@@ -407,7 +407,11 @@ function cor=update_cor(cor,reg)
 endfunction
 
 function clkconnect=link_sample0_to_allout(allout,clkconnect)
-  blk0=find(clkconnect(:,1)==0)
+  if ~isempty(clkconnect) then 
+    blk0=find(clkconnect(:,1)==0)
+  else
+    blk0=[];
+  end
   if ~isempty(blk0) then
     for i = blk0
       clkconnect=[clkconnect;[allout clkconnect(i,3)*ones(size(allout,1),1) clkconnect(i,4)*ones(size(allout,1),1)]];

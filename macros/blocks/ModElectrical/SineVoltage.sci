@@ -59,7 +59,7 @@ case 'define' then
 	'xstringb(orig(1),orig(2)+sz(2)*0.5,V,sz(1),sz(2)*0.3,''fill'')']
   
   
-  x=standard_define([2 2],model,exprs,gr_i,' SineVoltage');
+  x=standard_define([2 2],model,exprs,gr_i,'SineVoltage');
   x.graphics.in_implicit=['I']
   x.graphics.out_implicit=['I']
 end

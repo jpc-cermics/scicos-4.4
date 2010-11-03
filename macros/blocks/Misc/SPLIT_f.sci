@@ -41,7 +41,7 @@ select job
       model.blocktype = 'c'        ;
       model.dep_ut    = [%t %f]    ;
       //**
-      x=standard_define([1 1]/3,model,[],[],' SPLIT_f');
+      x=standard_define([1 1]/3,model,[],[],'SPLIT_f');
 end
 
 endfunction
