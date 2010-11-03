@@ -130,8 +130,13 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       [%junk,%palce]=gunique(scicos_pal(:,2));
       %palce=-sort(-%palce);
       scicos_pal=scicos_pal(%palce,:);
+    else
+      lasterror(); // clear the error message stack 
     end
-    execstr('load(''.scicos_short'')',errcatch=%t)  //keyboard shortcuts
+    ok = execstr('load(''.scicos_short'')',errcatch=%t)  //keyboard shortcuts
+    if ~ok then 
+      lasterror(); // clear the error message stack 
+    end
   end
   //
   if ~exists('needcompile') then needcompile=0; 
