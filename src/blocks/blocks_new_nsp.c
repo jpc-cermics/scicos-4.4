@@ -22,14 +22,22 @@
  * 
  *--------------------------------------------------------------------------*/
 
-#include <stdlib.h>
-#include <math.h>
-#include "nsp/machine.h"
-#include "../graphics-new/new_graphics.h"
-#include "nsp/graphics-old/Graphics.h"
-#include "nsp/object.h"
-#include "nsp/blas.h"
-#include "nsp/matutil.h"
+#define NEW_GRAPHICS 
+
+#include <nsp/nsp.h>
+#include <nsp/objects.h>
+#include <nsp/graphics-new/Graphics.h> 
+#include <nsp/objs3d.h>
+#include <nsp/axes.h>
+#include <nsp/interf.h>
+#include <nsp/figuredata.h>
+#include <nsp/figure.h>
+#include <nsp/qcurve.h>
+
+/* #include "nsp/graphics-old/Graphics.h"  */
+
+#include <nsp/blas.h>
+#include <nsp/matutil.h>
 
 #include "blocks.h"
 
@@ -41,7 +49,6 @@ extern double acosh (double x);
 extern double atanh (double x);
 #endif
 
-
 /*
  * utility to set wid as the current graphic window
  */
@@ -49,18 +56,30 @@ extern double atanh (double x);
 BCG *scicos_set_win (int wid, int *oldwid)
 {
   BCG *Xgc;
+#ifdef  NEW_GRAPHICS 
+  if ((Xgc = window_list_get_first ()) != NULL)
+#else 
   if ((Xgc = window_list_get_first_old ()) != NULL)
+#endif 
     {
       *oldwid = Xgc->graphic_engine->xget_curwin ();
       if (*oldwid != wid)
 	{
 	  Xgc->graphic_engine->xset_curwin (Max (wid, 0), TRUE);
+#ifdef  NEW_GRAPHICS 
+	  Xgc = window_list_get_first ();
+#else
 	  Xgc = window_list_get_first_old ();
+#endif
 	}
     }
   else
     {
-      Xgc = set_graphic_window_old (Max (wid, 0));
+#ifdef  NEW_GRAPHICS 
+      Xgc = set_graphic_window (Max (wid, 0));
+#else 
+      Xgc = set_graphic_window_old(Max (wid, 0));
+#endif 
     }
   return Xgc;
 }
@@ -2157,12 +2176,6 @@ struct _cscope_rpar
 
 #ifdef NEW_GRAPHICS
 
-#include <nsp/object.h>
-#include <nsp/figuredata.h>
-#include <nsp/figure.h>
-#include <nsp/axes.h>
-#include <nsp/qcurve.h>
-
 typedef struct _cscope_data cscope_data;
 
 struct _cscope_data
@@ -2187,7 +2200,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
   t = scicos_get_scicos_time ();
 
   wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
-
+  
   if (flag == 2)
     {
       cscope_data *D = (cscope_data *) (*block->work);
@@ -2203,7 +2216,9 @@ void scicos_cscope_block (scicos_block * block, int flag)
       D->tlast = t;
       /* nu here should be equal to csi->n */
       nsp_oscillo_add_point (D->L, t, block->inptr[0], nu);
-      nsp_figure_force_redraw (D->Fig->obj);
+      /* 
+	 nsp_figure_force_redraw (D->Fig->obj);
+      */
     }
   else if (flag == 4)
     {

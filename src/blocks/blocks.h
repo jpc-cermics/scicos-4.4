@@ -5,7 +5,7 @@
 #include <math.h>
 #include "nsp/machine.h"
 #include "nsp/math.h" 
-#include "nsp/graphics-old/Graphics.h" 
+/* #include "nsp/graphics-old/Graphics.h"  */
 #include "nsp/object.h" 
 #include "nsp/blas.h" 
 #include "nsp/matutil.h" 

@@ -95,11 +95,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	      'Replot','Save|||gtk-save','Save As|||gtk-save-as',..
 	      'Load|||gtk-open','Export','Quit|||gtk-quit','Background color','Aspect',..
 	      'Zoom in|||gtk-zoom-in',  'Zoom out|||gtk-zoom-out',  'Help');
-   
-
-
-   
-   
+      
    %scicos_lhb_list(3)=list('Copy|||gtk-copy','Copy Region','Help');
     //
     //if exists('scicoslib')==0 then load('SCI/macros/scicos/lib'),end

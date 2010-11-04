@@ -475,9 +475,9 @@ static void cosini (double *told)
   int jj, ii, kk;		/*local counters */
   int sszz;			/*local size of element of outtb */
   int c1 = 1, flag__, i, kfune = 0;
-  int sz_outtb[7] = { 0, 0, 0, 0, 0, 0, 0 };
-  void *outtb[7] = { NULL };
-  int cur_outtb[7] = { 0, 0, 0, 0, 0, 0, 0 };
+  int sz_outtb[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  void *outtb[8] = { NULL };
+  int cur_outtb[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
   /* first pass to compute the sizes */
   for (ii = 0; ii < Scicos->sim.nlnk; ii++)

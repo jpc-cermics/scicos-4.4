@@ -47,6 +47,10 @@
 
 static void scicos_intp (double x, const double *xd, const double *yd, int n,
 			 int nc, double *y);
+static int scicos_affdraw (BCG * Xgc, const int fontd[], const int form[],
+			   const double *val, const double r[]);
+static int scicos_recterase (BCG * Xgc, const double r[]);
+static int scicos_getgeom (double *);
 
 /* 
  * most of the blocks defined here have the following calling sequence
@@ -3101,8 +3105,6 @@ void scicos_readau_block (int *flag, int *nevprt, const double *t, double *xd,
  * Copyright Enpc jpc 
  */
 
-extern int scicos_getgeom (double *);
-
 /*----------------------------------------------------
  * erase a rectangle 
  *----------------------------------------------------*/
@@ -3516,7 +3518,72 @@ int scicos_affich_block (scicos_args_F0)
   return 0;
 }
 
-int scicos_recterase (BCG * Xgc, const double r[])
+
+int scicos_affich2_block (scicos_args_F0)
+{
+  BCG *Xgc;
+  int record, cur = 0, wid;
+  double ur;
+  /*     ipar(1) = font */
+  /*     ipar(2) = fontsize */
+  /*     ipar(3) = color */
+  /*     ipar(4) = win */
+  /*     ipar(5) = nt : total number of output digits */
+  /*     ipar(6) = nd number of rationnal part digits */
+  /*     z(1)=value */
+  /*     z(2)=window */
+  /*     z(3)=x */
+  /*     z(4)=y */
+  /*     z(5)=width */
+  /*     z(6)=height */
+  --y;
+  --u;
+  --ipar;
+  --rpar;
+  --tvec;
+  --z__;
+  --x;
+  --xd;
+  if (*flag__ == 2)
+    {
+      /*     state evolution */
+      ur = pow (10.0, ipar[6]);
+      ur = anint (u[1] * ur) / ur;	/* round */
+      if (ur == z__[1])
+	{
+	  return 0;
+	}
+      wid = (int) z__[2];
+      if (wid < 0)
+	return 0;
+      Xgc = scicos_set_win (wid, &cur);
+      record = Xgc->graphic_engine->xget_recording (Xgc);
+      Xgc->graphic_engine->xset_recording (Xgc, FALSE);
+      scicos_recterase (Xgc, &z__[3]);
+      z__[1] = ur;
+      scicos_affdraw (Xgc, &ipar[1], &ipar[5], &z__[1], &z__[3]);
+      Xgc->graphic_engine->xset_recording (Xgc, record);
+    }
+  else if (*flag__ == 4)
+    {
+      /*     .  initial value */
+      z__[1] = 0.;
+      if (scicos_getgeom (&z__[2]) == FAIL)
+	return 0;
+      wid = (int) z__[2];
+      if (wid < 0)
+	return 0;
+      Xgc = scicos_set_win (wid, &cur);
+      record = Xgc->graphic_engine->xget_recording (Xgc);
+      Xgc->graphic_engine->xset_recording (Xgc, FALSE);
+      scicos_recterase (Xgc, &z__[3]);
+      scicos_affdraw (Xgc, &ipar[1], &ipar[5], &z__[1], &z__[3]);
+      Xgc->graphic_engine->xset_recording (Xgc, record);
+    }
+  return 0;
+}
+
+static int scicos_recterase (BCG * Xgc, const double r[])
 {
   const double dx = .06, dy = .06;
   double w, x, y, h;
@@ -3528,8 +3595,8 @@ int scicos_recterase (BCG * Xgc, const double r[])
   return 0;
 }
 
-int scicos_affdraw (BCG * Xgc, const int fontd[], const int form[],
-		    const double *val, const double r[])
+static int scicos_affdraw (BCG * Xgc, const int fontd[], const int form[],
+			   const double *val, const double r[])
 {
   int fontid[2], rect[4], flag = 0, pixmode;
   char buf[128];
