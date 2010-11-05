@@ -23,7 +23,7 @@
 
 #include <nsp/nsp.h> 
 #include <nsp/linking.h>
-#include <nsp/graphics-old/Graphics.h>
+#include <nsp/graphics-new/Graphics.h>
 #include <scicos/scicos4.h>
 #include <scicos/blocks.h>
 #include <nsp/matutil.h>

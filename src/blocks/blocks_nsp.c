@@ -23,23 +23,18 @@
  * 
  *--------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <math.h>
-#include "nsp/machine.h"
-#include "nsp/math.h"
-
+#include <nsp/nsp.h> 
 #include <nsp/graphics-old/Graphics.h>
 #include <nsp/object.h>
 #include <nsp/matrix.h>
 #include <nsp/smatrix.h>
 #include <nsp/hash.h>
 #include <nsp/file.h>
-
 #include <nsp/libstab.h>
 #include <nsp/gtk/gobject.h>	/* FIXME: nsp_gtk_eval_function */
 
-#include "nsp/blas.h"
-#include "nsp/matutil.h"
+#include <nsp/blas.h>
+#include <nsp/matutil.h>
 #include "../librand/grand.h"	/* rand_ranf() */
 #include "../system/files.h"	/*  FSIZE */
 

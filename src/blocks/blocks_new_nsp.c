@@ -39,7 +39,6 @@
 #include <nsp/interf.h>
 #include <nsp/blas.h>
 #include <nsp/matutil.h>
-
 #include "blocks.h"
 
 /* to be moved elsewhere XXXX  */
