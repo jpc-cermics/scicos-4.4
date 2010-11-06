@@ -138,7 +138,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
     xset('window',win);
   end  
   needreplay=%t
-
+  
   // simulation
 
   tf=scs_m.props.tf;
@@ -146,7 +146,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
   setmenu(curwin,'stop')
   timer()
   needreplay=%t
-
+  
   execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''run'',tolerances)',errcatch=%t)
   
   %cpr.state=state
@@ -172,6 +172,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
     end
     ok=%f
   end
+  
   xset('window',curwin)
   //printf("XXX %f\n",timer())
   unsetmenu(curwin,'stop')

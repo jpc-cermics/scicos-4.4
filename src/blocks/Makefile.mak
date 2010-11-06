@@ -3,10 +3,37 @@
 # -----------------------------
 SHELL = /bin/sh
 
-SCIDIR=../../../
-SCIDIR1=..\..\..
+SCIDIR=../../../..
+SCIDIR1=..\..\..\..
 
-LIBRARY=nsp.lib
+LIBRARY=libblocks.lib 
+
+BLOCKSF=evtdly.obj cstblk.obj \
+	lusat.obj pload.obj qzcel.obj qzflr.obj \
+	qzrnd.obj qztrn.obj lsplit.obj csslti.obj \
+	dsslti.obj trash.obj zcross.obj \
+	expblk.obj logblk.obj sinblk.obj tanblk.obj powblk.obj \
+	sqrblk.obj delay.obj selblk.obj forblk.obj writef.obj invblk.obj hltblk.obj \
+	gensin.obj rndblk.obj lookup.obj timblk.obj gensqr.obj mfclck.obj \
+	sawtth.obj tcslti.obj tcsltj.obj integr.obj readf.obj affich2.obj affich.obj \
+	intpol.obj intplt.obj minblk.obj maxblk.obj dlradp.obj  iocopy.obj \
+	sum2.obj sum3.obj delayv.obj mux.obj demux.obj samphold.obj dollar.obj \
+	intrp2.obj intrpl.obj fsv.obj memo.obj \
+	absblk.obj bidon.obj gain.obj cdummy.obj dband.obj cosblk.obj ifthel.obj \
+	eselect.obj
+
+BLOCKS_CODE=evtdly.obj cstblk.obj \
+	lusat.obj pload.obj qzcel.obj qzflr.obj \
+	qzrnd.obj qztrn.obj lsplit.obj csslti.obj \
+	dsslti.obj trash.obj zcross.obj \
+	expblk.obj logblk.obj sinblk.obj tanblk.obj powblk.obj \
+	sqrblk.obj delay.obj selblk.obj forblk.obj  writef.obj invblk.obj hltblk.obj \
+	gensin.obj rndblk.obj lookup.obj timblk.obj gensqr.obj mfclck.obj \
+	sawtth.obj tcslti.obj tcsltj.obj integr.obj readf.obj affich2.obj affich.obj \
+	intpol.obj intplt.obj minblk.obj maxblk.obj dlradp.obj  iocopy.obj \
+	sum2.obj sum3.obj delayv.obj mux.obj demux.obj samphold.obj dollar.obj \
+	intrp2.obj intrpl.obj fsv.obj memo.obj \
+	ifthel.obj eselect.obj
 
 BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj writeau.obj \
 	readau.obj plusblk.obj slider.obj  zcross2.obj mswitch.obj logicalop.obj \
@@ -14,7 +41,7 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	satur.obj step_func.obj integral_func.obj absolute_value.obj bounce_ball.obj \
 	bouncexy.obj extractor.obj scalar2vector.obj minmax.obj signum.obj product.obj \
 	summation.obj multiplex.obj gainblk.obj relationalop.obj modulo_count.obj \
-	hystheresis.obj ratelimiter.obj backlash.obj deadband.obj ramp.obj evaluate_expr.obj \
+	hystheresis.obj ratelimiter.obj backlash.obj deadband.obj ramp.obj \
 	deriv.obj sin_blk.obj cos_blk.obj tan_blk.obj asin_blk.obj acos_blk.obj atan_blk.obj \
         sinh_blk.obj cosh_blk.obj tanh_blk.obj asinh_blk.obj acosh_blk.obj atanh_blk.obj \
 	evtvardly.obj edgetrig.obj tcslti4.obj tcsltj4.obj dsslti4.obj \
@@ -66,14 +93,15 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	matbyscal.obj matbyscal_s.obj matbyscal_e.obj matmul2_s.obj matmul2_e.obj constraint_c.obj lookup2d.obj \
 	diffblk_c.obj andlog.obj foriterator.obj assignment.obj whileiterator.obj loopbreaker.obj
 
-OBJSC=  $(BLOCKSC) blocks_nsp.obj blocks_new_nsp.obj 
+OBJSC=  $(BLOCKSC) blocks_new_nsp.obj blocks_nsp.obj 
 
 include $(SCIDIR)/Makefile.incl.mak
 
 CFLAGS = $(CC_OPTIONS) 
 FFLAGS = $(FC_OPTIONS)
+OBJS = $(OBJSC) $(OBJSF)
 
-include ../../Make.lib.mak
+include $(SCIDIR)/config/Makeso.incl
 
 
 
@@ -83,11 +111,19 @@ Makefile.mak	: Makefile
 Makefile.libmk	: Makefile
 	$(SCIDIR)/scripts/Mak2ABSMak Makefile
 
-#---------------Blocks
+distclean:: clean 
+	@$(RM) -f -r .libs *.so *.la 
 
-# include Make.Blocks.mak
+clean:: 
+	@$(RM) *.obj *.lo
 
-distclean::
-	$(RM) Fblocknames Cblocknames 
+# special rules for compilation 
+#-------------------------------
 
+%.obj: %.c 
+	@echo "compiling $<  Wall "
+	@$(COMPILE) -c $< -o $@
 
+%.lo: %.c 
+	@echo "compiling $<  Wall "
+	@$(LTCOMPILE) -c $< -o $@

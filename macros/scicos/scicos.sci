@@ -61,50 +61,44 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   
     //intialize lhb menu
     
-   %scicos_lhb_list=list()
-   %scicos_lhb_list(1)=list('Open/Set',..
-			    'Smart Move'  ,..
-			    'Move'  ,..
-			    'Copy|||gtk-copy',..
-			    'Delete|||gtk-delete',..
-			    'Link',..
-			    'Align',..
-			    'Replace',..
-			    'Flip',..
-			    list('Properties',..
-				 'Resize',..
-				 'Icon',..
-				 'Icon Editor',..
-				 'Color|||gtk-select-color',..
-				 'Label',..
-				 'Get Info',..
-				 'Identification',..
-				 'Details',...
-				 'Documentation'),...
-			    'Code Generation',..
-			    'Help|||gtk-help')
-   
-   [L, scs_m_palettes] = do_pal_tree(scicos_pal);
-   L.add_first['Pal Tree'];
-   %scicos_pal_list=L;
-   
-   //if new_graphics() then demo_tree_store_pix(L); demo_icon_view(L); end 
-      
-   %scicos_lhb_list(2)=list('Undo|||gtk-undo','Palettes',L,'Context','Add new block',..
-	      'Copy Region','Delete Region','Region to Super Block',..
-	      'Replot','Save|||gtk-save','Save As|||gtk-save-as',..
-	      'Load|||gtk-open','Export','Quit|||gtk-quit','Background color','Aspect',..
-	      'Zoom in|||gtk-zoom-in',  'Zoom out|||gtk-zoom-out',  'Help');
-      
-   %scicos_lhb_list(3)=list('Copy|||gtk-copy','Copy Region','Help');
+    %scicos_lhb_list=list()
+    %scicos_lhb_list(1)=list('Open/Set',..
+			     'Smart Move'  ,..
+			     'Move'  ,..
+			     'Copy|||gtk-copy',..
+			     'Delete|||gtk-delete',..
+			     'Link',..
+			     'Align',..
+			     'Replace',..
+			     'Flip',..
+			     list('Properties',..
+				  'Resize',..
+				  'Icon',..
+				  'Icon Editor',..
+				  'Color|||gtk-select-color',..
+				  'Label',..
+				  'Get Info',..
+				  'Identification',..
+				  'Details',...
+				  'Documentation'),...
+			     'Code Generation',..
+			     'Help|||gtk-help')
+    [L, scs_m_palettes] = do_pal_tree(scicos_pal);
+    L.add_first['Pal Tree'];
+    %scicos_pal_list=L;
+    %scicos_lhb_list(2)=list('Undo|||gtk-undo','Palettes',L,'Context','Add new block',..
+			     'Copy Region','Delete Region','Region to Super Block',..
+			     'Replot','Save|||gtk-save','Save As|||gtk-save-as',..
+			     'Load|||gtk-open','Export','Quit|||gtk-quit','Background color','Aspect',..
+			     'Zoom in|||gtk-zoom-in',  'Zoom out|||gtk-zoom-out',  'Help');
+    
+    %scicos_lhb_list(3)=list('Copy|||gtk-copy','Copy Region','Help');
     //
     //if exists('scicoslib')==0 then load('SCI/macros/scicos/lib'),end
     //exec(loadpallibs,-1) //to load the palettes libraries
   end
-
   
   Main_Scicos_window=1000
-
 
   //Initialisation
   newparameters=list();
@@ -247,11 +241,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   xset('recording',0);
   //set_background()
 
+  // reset graphics objects 
   pwindow_set_size()
   window_set_size()
 
   //xset('alufunction',6)
-
   //   
   for %Y=1:size(%scicos_menu,1)
     execstr(%scicos_menu(%Y)(1)+'_'+m2s(curwin,'%.0f')+'='+%scicos_menu(%Y)(1)+';')
@@ -283,20 +277,23 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if is(scs_m.props.context,%types.SMat) then
     %now_win=xget('window')
     if ~execstr(scs_m.props.context,errcatch=%t) then
-      message(['Error occur when evaluating context:']);//     lasterror() ])
+      message(['Error occur when evaluating context:']);
+      lasterror();
     end
     xset('window',%now_win)
     xset('recording',0);
   else
     scs_m.props.context=' ' 
   end
-
+  
   if new_graphics() then 
-    scs_m = drawobjs(scs_m);
+    // reset all the graphic objects which could still be in 
+    // scs_m 
+    scs_m=do_replot(scs_m)
   else
     drawobjs(scs_m);
   end
-  
+    
   // center the viewport 
   // window_set_size() can do the same but it clears the window
   xflush();
@@ -321,7 +318,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
 
     if Cmenu=='Quit' then do_exit();break;end
-
+    
     %koko=find(Cmenu==%cor_item_exec(:,1));
     if size(%koko,'*')==1 then
       %cor_item_fun=%cor_item_exec(%koko,2);

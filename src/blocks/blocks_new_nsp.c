@@ -22,7 +22,7 @@
  * 
  *--------------------------------------------------------------------------*/
 
-/* #define NEW_GRAPHICS  */
+#define NEW_GRAPHICS
 
 #include <nsp/nsp.h>
 #include <nsp/objects.h>
@@ -2164,6 +2164,7 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
 typedef struct _cscope_ipar cscope_ipar;
 struct _cscope_ipar
 {
+  /* n is the number of data to accumulate before redrawing */
   int wid, color_flag, n, type[8], wpos[2], wdim[2];
 };
 
@@ -2180,9 +2181,9 @@ typedef struct _cscope_data cscope_data;
 
 struct _cscope_data
 {
-  int count;
-  double tlast;
-  NspFigure *Fig;
+  int count;    /* number of points inserted in the scope buffer */
+  double tlast; /* last time inserted in csope data */
+  NspAxes *Axes;
   NspList *L;
 };
 
@@ -2196,7 +2197,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
   double t;
   int nu, cur = 0, k, wid;
 
-  nu = Min (block->insz[0], 8);
+  nu = Min (block->insz[0], 8); /* number of curves */
   t = scicos_get_scicos_time ();
 
   wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
@@ -2214,14 +2215,19 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	}
       D->count++;
       D->tlast = t;
-      /* nu here should be equal to csi->n */
+      /* add nu points for time t, nu is the number of curves */
       nsp_oscillo_add_point (D->L, t, block->inptr[0], nu);
-      /* 
-	 nsp_figure_force_redraw (D->Fig->obj);
-      */
+      if ( D->count % csi->n == 0 ) 
+	{
+	  /* redraw each csi->n accumulated points 
+	   * first check if we need to change the xscale 
+	   */
+	  nsp_axes_invalidate((NspGraphic *) D->Axes);
+	}
     }
   else if (flag == 4)
     {
+      /* initialize a scope window */
       cscope_data *D;
       NspList *L;
       /* XXX :
@@ -2230,9 +2236,9 @@ void scicos_cscope_block (scicos_block * block, int flag)
        * in order to cover a csr->per horizon 
        */
       int scopebs = 1000;
-      NspFigure *Fig =
-	nsp_oscillo_obj (wid, csi->n, csi->type, scopebs, TRUE, 0, 0, &L);
-      if (Fig == NULL)
+      NspAxes *Axes =
+	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE,csr->ymin,csr->ymax, &L);
+      if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -2242,8 +2248,9 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	  scicos_set_block_error (-16);
 	  return;
 	}
+      /* store created data in work area of block */
       D = (cscope_data *) (*block->work);
-      D->Fig = Fig;
+      D->Axes = Axes;
       D->L = L;
       D->count = 0;
       D->tlast = t;
@@ -2271,6 +2278,8 @@ void scicos_cscope_block (scicos_block * block, int flag)
 }
 
 #else
+
+/* code for `old' graphics */
 
 void scicos_cscope_block (scicos_block * block, int flag)
 {
