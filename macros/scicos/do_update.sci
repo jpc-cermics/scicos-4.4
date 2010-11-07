@@ -4,6 +4,7 @@ function [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0,needcom
 //!
 // Copyright INRIA
   ok=%t 
+
   if exists('alreadyran','all');alreadyran=alreadyran ;else alreadyran=%f;end;
 //  printf("XXX: in do_update with needcompile = %d\n",needcompile);
   select needcompile

@@ -26,22 +26,22 @@ function [scs_m,edited]=do_SaveAs()
     message('Only *.cos binary or cosf ascii files allowed');
     return
   end
-
-  if ~super_block&~pal_mode then
+  if ~super_block & ~pal_mode then
     //update %cpr data structure to make it coherent with last changes
     if needcompile==4 then
       %cpr=list()
     else
-      [%cpr,%state0,needcompile,ok]=do_update(%cpr,%state0,needcompile)
-      if ~ok then return,end
+      [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0, needcompile)
+      if ~ok then 
+	message('do_update failed');
+	return,
+      end
       %cpr.state=%state0
     end
   else
     %cpr=list()
   end
-
   scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver);
-    
   drawtitle(scs_m.props)  // draw the new title
   edited=%f
   if pal_mode then 
