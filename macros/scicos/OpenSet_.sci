@@ -12,7 +12,6 @@ function OpenSet_()
   
     disablemenus() // bug a corriger 
     if windows(find(%win==windows(:,2)),1)==100000 then
-
       //click in navigator
       [%Path,%kk,ok]=whereintree(%Tree,%xc,%yc)
       if ok & ~isempty(%kk) then %Path($)=null();%Path($)=null();end

@@ -17,7 +17,7 @@ function Replot_()
     enablemenus()
   end
 endfunction
-ls
+
 function scs_m=do_replot(scs_m)
 // this function recreates all the 
 // graphic objects. Note that scs_m 

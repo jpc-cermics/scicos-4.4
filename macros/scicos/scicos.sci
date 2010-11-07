@@ -11,6 +11,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 // Copyright INRIA
 //check if superblock editing mode
 //% FIXME [%ljunk,%mac]=where()
+  
   if ~exists('slevel') then slevel=0;end 
   slevel = slevel +1;
   super_block = slevel > 1;
@@ -293,7 +294,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   else
     drawobjs(scs_m);
   end
-    
+  
   // center the viewport 
   // window_set_size() can do the same but it clears the window
   xflush();
@@ -335,7 +336,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     if Cmenu=='Quit' then do_exit();break;end
     if pixmap then xset('wshow'),end
   end
-
   // remove the gr graphics from scs_m 
   if new_graphics() then 
     for k=1:length(scs_m.objs);

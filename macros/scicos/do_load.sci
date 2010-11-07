@@ -1,12 +1,11 @@
 function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
 // Copyright INRIA
-//**
-//** Load a Scicos diagram
+// Load a Scicos diagram
 
   global %scicos_demo_mode ; 
-  if nargin <=0 then  fname=[]; end
+  if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
-
+  
   if alreadyran & typ=="diagram" then
     do_terminate(); //end current simulation
   end
@@ -18,7 +17,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     xpause(100)  // quick and dirty fix for windows bug on fast
                  // computers
   end
-  //** function [p] = tk_getfile(file_mask, path, Title, multip)
+  
   if %scicos_demo_mode==1 then
       //** open a demo file
       if isempty(fname) then
@@ -46,99 +45,98 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   %scicos_demo_mode = []; //** clear the variable
 
   fname = stripblanks(fname)
-
-  if fname<>emptystr() then
+      
+  if fname.equal[""] then 
+    // We have canceled the open 
+    ok=%f
     %cpr=list()
     scs_m=[]
     edited = %f
-    [path,name,ext]=splitfilepath(fname);
-    //first pass
-    if ext=='cos'|ext=='COS'|ext=='cosf'|ext=='COSF'|ext==''|ext=='XML'|ext=='xml' then
-      if ext=='' then  // to allow user not to enter necessarily the extension
-        fname=fname+'.cos'
-        ext='cos'
-      end
-    else
-      message(['Only *.cos (binary), *.cosf (formatted) files and *.xml (xml)';
-               'allowed'])
-      ok=%f
-      //scs_m=scicos_diagram(version=current_version)
-      scs_m = get_new_scs_m();
-      return
-    end
-
-    //second pass
-    if ext=='cos'|ext=='COS' then
-      ierr=execstr('load(fname)',errcatch=%t)
-      ok=%t
-    elseif ext=='cosf'|ext=='COSF' then
-      ierr=execstr('exec(fname,-1)',errcatch=%t)
-      ok=%t
-    elseif ext=='xml'|ext=='XML' then
-      printf('Opening an XML file. Please wait ...............')
-      ierr=execstr('scs_m=xml2cos(fname)',errcatch=%t)
-      ok=%t
-    elseif ext=='new'
-      ok=%t
-      ierr=%t
-      scs_m=scicos_diagram(version=current_version)
-      scs_m.props.title=name
-    end
-    if ~ierr then
-      if ext=='xml'|ext=='XML' then
-	message(['An error has occur during execution of '+name+'.';
-		 'Please check the format of your XML file'])
-	printf('Error\n');
-      else
-	message('An error has occur during execution of '+name+'.')
-      end
-      ok=%f
-      scs_m=get_new_scs_m();     
-      return
-    end
-    if ext=='xml'|ext=='XML' then
-      needcompile=4;%cpr=list();
-      context=scs_m.props.context
-      [%scicos_context,ierr]=script2var(context,hash(10))
-      //      [ok,scs_m]=do_define_and_set(scs_m)
-      [scs_m,cpr,vv,ok]=do_eval(scs_m,%cpr,%scicos_context,%f,'XML');
-      if ~ok then
-	x_message(['An error occured while opening the diagram\n';
-		   catenate(lasterror());
-		   'The diagram will not be opened'])
-	scs_m= get_new_scs_m();;
-	printf('Error\n');
-	return;
-      end
-      printf('Done\n');
-    end
-    
-    //for compatibility
-    scicos_ver=find_scicos_version(scs_m)
-    if scicos_ver=='scicos2.2' then
-      if isempty(scs_m) then scs_m=x,end //for compatibility
-    end
-
-    //##update version
-    [ierr,scicos_ver,scs_m]=update_version(scs_m)
-    if ierr<>0 then
-      message('An error has occured during the update of '+name+'.')
-      ok=%f
-      scs_m = get_new_scs_m();
-      //scs_m=scicos_diagram(version=current_version)
-      return
-    end
-
-    //## reset %cpr and edited=%t if we have
-    //## do a convertion
-    if scicos_ver<>current_version then
-      %cpr=list()
-      edited=%t
-    end
-    
-  else
-    ok=%f
     return
+  end
+  
+  %cpr=list()
+  scs_m=[]
+  edited = %f
+  [path,name,ext]=splitfilepath(fname);
+  //first pass
+  if ext=='cos'|ext=='COS'|ext=='cosf'|ext=='COSF'|ext==''|ext=='XML'|ext=='xml' then
+    if ext=='' then  // to allow user not to enter necessarily the extension
+      fname=fname+'.cos'
+      ext='cos'
+    end
+  else
+    message(['Only *.cos (binary), *.cosf (formatted) files and *.xml (xml)';
+	     'allowed'])
+    ok=%f
+    //scs_m=scicos_diagram(version=current_version)
+    scs_m = get_new_scs_m();
+    return
+  end
+  //second pass
+  if ext=='cos'|ext=='COS' then
+    ierr=execstr('load(fname)',errcatch=%t)
+    ok=%t
+  elseif ext=='cosf'|ext=='COSF' then
+    ierr=execstr('exec(fname,-1)',errcatch=%t)
+    ok=%t
+  elseif ext=='xml'|ext=='XML' then
+    printf('Opening an XML file. Please wait ...............')
+    ierr=execstr('scs_m=xml2cos(fname)',errcatch=%t)
+    ok=%t
+  elseif ext=='new'
+    ok=%t
+    ierr=%t
+    scs_m=scicos_diagram(version=current_version)
+    scs_m.props.title=name
+  end
+  if ~ierr then
+    if ext=='xml'|ext=='XML' then
+      message(['An error has occur during execution of '+name+'.';
+	       'Please check the format of your XML file'])
+      printf('Error\n');
+    else
+      message('An error has occur during execution of '+name+'.')
+    end
+    ok=%f
+    scs_m=get_new_scs_m();     
+    return
+  end
+  if ext=='xml'|ext=='XML' then
+    needcompile=4;%cpr=list();
+    context=scs_m.props.context
+    [%scicos_context,ierr]=script2var(context,hash(10))
+    //      [ok,scs_m]=do_define_and_set(scs_m)
+    [scs_m,cpr,vv,ok]=do_eval(scs_m,%cpr,%scicos_context,%f,'XML');
+    if ~ok then
+      x_message(['An error occured while opening the diagram\n';
+		 catenate(lasterror());
+		 'The diagram will not be opened'])
+      scs_m= get_new_scs_m();;
+      printf('Error\n');
+      return;
+    end
+    printf('Done\n');
+  end
+  //for compatibility
+  scicos_ver=find_scicos_version(scs_m)
+  if scicos_ver=='scicos2.2' then
+    if isempty(scs_m) then scs_m=x,end //for compatibility
+  end
+  //##update version
+  [ierr,scicos_ver,scs_m]=update_version(scs_m)
+  if ierr<>0 then
+    message('An error has occured during the update of '+name+'.')
+    ok=%f
+    scs_m = get_new_scs_m();
+    //scs_m=scicos_diagram(version=current_version)
+    return
+  end
+  //## reset %cpr and edited=%t if we have
+  //## do a convertion
+  if scicos_ver<>current_version then
+    %cpr=list()
+    edited=%t
   end
   scs_m.props.title=[scs_m.props.title(1),path]
   if ext=='xml'|ext=='XML' then
