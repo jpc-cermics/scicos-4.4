@@ -2,16 +2,13 @@
 
 #include "blocks.h"
 
-void scicos_selector_block (scicos_args_F2);
+void selector (scicos_args_F2);
 
-void
-selector (flag, nevprt, t, xd, x, nx, z, nz, tvec, ntvec, rpar, nrpar,
-	  ipar, nipar, inptr, insz, nin, outptr, outsz, nout)
-  int *flag, *nevprt, *nx, *nz, *ntvec, *nrpar, ipar[], *nipar, insz[],
-  *nin, outsz[], *nout;
-double x[], xd[], z[], tvec[], rpar[];
-double *inptr[], *outptr[], *t;
-
+void selector (int *flag, int *nevprt, const double *t, double *xd,
+		       double *x, int *nx, double *z, int *nz, double *tvec,
+		       int *ntvec, double *rpar, int *nrpar, int *ipar,
+		       int *nipar, double **inptr, int *insz, int *nin,
+		       double **outptr, int *outsz, int *nout)
 {
   int k;
   double *y;

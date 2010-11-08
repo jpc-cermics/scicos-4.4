@@ -31,7 +31,7 @@ nsp_ctrlpack_wcerr (double *ar, double *ai, double *w, int *ia, int *n,
 
   /* Local variables */
   int itab[15];
-  double norm, norm1;
+  double norm=0, norm1;
   int i__, j, k, l;
   double alpha;
   int i1, n2;

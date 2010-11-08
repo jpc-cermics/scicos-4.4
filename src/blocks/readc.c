@@ -1,7 +1,7 @@
 #include "blocks.h"
 
-extern void scicos_readc_block (scicos_args_F2);
-void readc (scicos_args_F2);
+
+extern void readc (scicos_args_F2);
 
 void readc (int *flag, int *nevprt, const double *t, double *xd, double *x,
 	    int *nx, double *z, int *nz, double *tvec, int *ntvec,

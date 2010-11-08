@@ -32,7 +32,7 @@ nsp_ctrlpack_dlald2 (int *ltran, double *t, int *ldt, double *b, int *ldb,
   double btmp[3], temp, smin;
   int jpiv[3];
   double xmax;
-  int ipsv, jpsv, i__, j, k;
+  int ipsv=0, jpsv=0, i__, j, k;
   double t9[9] /* was [3][3] */ ;
   int ip, jp;
   double smlnum, eps, tmp[3];
@@ -307,7 +307,7 @@ nsp_ctrlpack_dlaly2 (int *ltran, double *t, int *ldt, double *b, int *ldb,
   double btmp[3], temp, smin;
   int jpiv[3];
   double xmax;
-  int ipsv, jpsv, i__, j, k;
+  int ipsv=0, jpsv=0, i__, j, k;
   double t9[9] /* was [3][3] */ ;
   int ip, jp;
   double smlnum, eps, tmp[3];
@@ -581,7 +581,7 @@ nsp_ctrlpack_dlasd2 (int *ltranl, int *ltranr, int *isgn, int *n1, int *n2,
   double temp;
   int jpiv[4];
   double xmax;
-  int ipsv, jpsv, i__, j, k;
+  int ipsv=0, jpsv=0, i__, j, k;
   int bswap;
   int xswap;
   double x2[2], l21, u11, u12;
@@ -6547,7 +6547,7 @@ nsp_ctrlpack_riccmf (char *trana, int *n, double *a, int *lda, char *uplo,
   char equed[1];
   double cnorm, dnorm;
   int lower;
-  double rnorm;
+  double rnorm=0;
   int n2, n4;
   double cnorm2, dnorm2;
   int ia, ib, ic, ij;
@@ -6555,7 +6555,7 @@ nsp_ctrlpack_riccmf (char *trana, int *n, double *a, int *lda, char *uplo,
   int iu, iv;
   int lwamax;
   int notrna;
-  double rdnorm;
+  double rdnorm=0;
   int ij1, ij2;
   int minwrk;
   int iaf, ibr, ifr, lwa;
@@ -9452,7 +9452,7 @@ nsp_ctrlpack_ricdmf (char *trana, int *n, double *a, int *lda, char *uplo,
   char equed[1];
   double cnorm, dnorm;
   int lower;
-  double rnorm;
+  double rnorm=0.0;
   int n2, n4;
   double cnorm2, dnorm2;
   int ia, ib, ic, ij;
@@ -9461,7 +9461,7 @@ nsp_ctrlpack_ricdmf (char *trana, int *n, double *a, int *lda, char *uplo,
   int lwamax;
   int iwferr;
   int notrna;
-  double rdnorm;
+  double rdnorm=0.0;
   int ij1, ij2;
   int minwrk;
   int iac, iaf, ibr, ifr, lwa;

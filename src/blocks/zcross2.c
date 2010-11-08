@@ -1,12 +1,11 @@
 #include "blocks.h"
 
-void
-zcross2 (flag, nevprt, t, xd, x, nx, z, nz, tvec, ntvec, rpar, nrpar,
-	 ipar, nipar, u, nu, g, ng)
-  int *flag, *nevprt, *nx, *nz, *ntvec, *nrpar, ipar[], *nipar, *nu, *ng;
-double x[], xd[], z[], tvec[], rpar[];
-double u[], g[], *t;
+void zcross2(scicos_args_F0);
 
+void zcross2 (int *flag, int *nevprt, const double *t, double *xd,
+	      double *x, int *nx, double *z, int *nz, double *tvec,
+	      int *ntvec, double *rpar, int *nrpar, int *ipar,
+	      int *nipar, double *u, int *nu, double *g, int *ng)
 {
 
   int i, j;
