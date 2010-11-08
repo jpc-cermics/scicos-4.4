@@ -77,6 +77,10 @@ void cmatview (scicos_block * block, int flag)
 	  }
 	wid = 20000 + scicos_get_block_number();
 	D->Axes = nsp_cmatview(wid,label, ipar[0],ipar[1],dim_i,dim_j,&gm);
+	/* keep a copy in case Axes is destroyed during simulation 
+	 * axe is a by reference object 
+	 */
+	D->Axes = nsp_axes_copy(D->Axes);
 	D->gm = gm;
 	if ( D->Axes == NULL ) 
 	  {
@@ -88,11 +92,15 @@ void cmatview (scicos_block * block, int flag)
     case StateUpdate:
       {
 	cmatview_data *D = (cmatview_data *) (*block->work);
+	if ( D->Axes->obj->ref_count <= 1 ) 
+	  {
+	    /* Axes was destroyed during simulation */
+	    return;
+	  }
 	/* matrix to be vizualized */
 	u1 = GetInPortPtrs (block, 1);
 	dim_i = GetInPortRows (block, 1);
 	dim_j = GetInPortCols (block, 1);
-	Sciprintf("Error: A finir mettre à jour \n");
 	memcpy(D->gm->obj->data->R,u1,dim_i*dim_j*sizeof(double));
 	/* invalidate gm */
 	nsp_graphic_invalidate((NspGraphic *) D->gm);
@@ -101,6 +109,13 @@ void cmatview (scicos_block * block, int flag)
     case Ending:
       {
 	cmatview_data *D = (cmatview_data *) (*block->work);
+	if ( D->Axes->obj->ref_count <= 1 ) 
+	  {
+	    /* Axes was destroyed during simulation 
+	     * we finish detruction 
+	     */
+	    nsp_axes_destroy(D->Axes);
+	  }
 	scicos_free (D);
 	break;
       }
