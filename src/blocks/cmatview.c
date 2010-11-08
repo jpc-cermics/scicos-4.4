@@ -16,6 +16,11 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
+ * Display a matrix using a NspGMatrix object 
+ * XXX the fact that we should use rpar to change the colormap 
+ *     remains to be done 
+ * XXX verify that the matrix is properly drawn (transpose or not ?).
+ *
  *--------------------------------------------------------------------------*/
 
 #define NEW_GRAPHICS
