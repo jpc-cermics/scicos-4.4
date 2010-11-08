@@ -86,7 +86,6 @@ void cmatview (scicos_block * block, int flag)
 	break;
       }
     case StateUpdate:
-    case 1: /* to test */
       {
 	cmatview_data *D = (cmatview_data *) (*block->work);
 	/* matrix to be vizualized */
