@@ -32,7 +32,7 @@ nsp_ctrlpack_shrslv (double *a, double *b, double *c__, int *m, int *n,
   int i__, j, k, l;
   double p[4];
   double t[16] /* was [4][4] */ , z__[4];
-  double rcond, const__;
+  double rcond, const__=0;
   int dk, dl, kk, ll, km1, lm1;
 
   /* 

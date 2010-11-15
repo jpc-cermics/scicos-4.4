@@ -19,7 +19,7 @@ nsp_ctrlpack_comqr3 (int *nm, int *n, int *low, int *igh, double *hr,
   /* Local variables */
   int iend;
   double norm;
-  int i__, j, l;
+  int i__, j, l=0;
   int en, ll;
   double si, ti, xi, yi;
   int jx;

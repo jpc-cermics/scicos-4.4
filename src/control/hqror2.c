@@ -18,8 +18,8 @@ nsp_ctrlpack_hqror2 (int *nm, int *n, int *low, int *igh, double *h__,
 
   /* Local variables */
   double cres, norm;
-  int i__, j, k, l, m;
-  double p, q, r__, s, t, w, x, y, z3;
+  int i__, j, k, l=0, m=0;
+  double p, q=0, r__=0, s=0, t, w, x, y, z3;
   int na, ii, en;
   double ra, sa;
   int jj, ll;
