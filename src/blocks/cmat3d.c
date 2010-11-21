@@ -1,237 +1,218 @@
-/**
-   \file cmat3d.c
-   \author Benoit Bayol
-   \version 1.0
-   \date September 2006 - January 2007
-   \brief CMAT3D is a scope which connect a matrix to a plot3d. Values of the matrix are the values at the nodes.
-   \see CMAT3D.sci in macros/scicos_blocks/Sinks/
-*/
+/* Nsp
+ * Copyright (C) 2010-2010 Jean-Philippe Chancelier Enpc/Cermics
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ * Display a matrix using a NspGMatrix object 
+ * XXX the fact that we should use rpar to change the colormap 
+ *     remains to be done 
+ * XXX verify that the matrix is properly drawn (transpose or not ?).
+ *
+ *--------------------------------------------------------------------------*/
 
+#define NEW_GRAPHICS
+
+#include <nsp/nsp.h>
+#include <nsp/objects.h>
+#include <nsp/graphics-new/Graphics.h> 
+#include <nsp/objs3d.h>
+#include <nsp/polyhedron.h>
+#include <nsp/figuredata.h>
+#include <nsp/figure.h>
+#include <nsp/gmatrix.h>
 
 #include "blocks.h"
 
+typedef struct _cmat3d_data cmat3d_data;
+
+struct _cmat3d_data
+{
+  NspObjs3d *objs3d;
+  NspSPolyhedron *pol;
+  NspMatrix *x,*y;
+};
+
+static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
+		       double rect[],int dim_i, int dim_j);
+
+
 void cmat3d (scicos_block * block, int flag)
 {
-  Sciprintf ("cmat3d is to be done for nsp \n");
-}
-
-#if 0
-
-#include "scoMemoryScope.h"
-#include "scoWindowScope.h"
-#include "scoMisc.h"
-#include "scoGetProperty.h"
-#include "scoSetProperty.h"
-#include "blocks.h"
-
-/** \fn cmat3d_draw(scicos_block * block, ScopeMemory ** pScopeMemory, int firstdraw)
-    \brief Function to draw or redraw the window
-*/
-void cmat3d_draw (scicos_block * block, ScopeMemory ** pScopeMemory,
-		  int firstdraw)
-{
-  /*Declarations */
-  int i;			//As usual
-  int *ipar;			//Integer Parameters
-  int win_pos[2];		//Position of the Window
-  int win_dim[2];		//Dimension of the Window
-  int dimension = 3;
-  double *rpar;			//Reals parameters
-  double ymin, ymax;		//Ymin and Ymax are vectors here
-  double xmin, xmax;
-  double zmin, zmax;
-  int number_of_curves_by_subwin;
-  int number_of_subwin;
-  double *mat;
-  int size_mat;
-  int size_in_x;
-  int size_in_y;
-  char *label;
-  scoGraphicalObject pShortDraw;
-
-  /*Retrieve parameters from the scicos_model() which has been created thanks to the interfacing function */
-  rpar = GetRparPtrs (block);
-  ipar = GetIparPtrs (block);
-
-  number_of_subwin = 1;
-
-  win_pos[0] = -1;
-  win_pos[1] = -1;
-  win_dim[0] = -1;
-  win_dim[1] = -1;
-
-  size_mat = ipar[2];
-  mat = (double *) scicos_malloc (size_mat * sizeof (double));
-  for (i = 0; i < size_mat; i++)
-    {
-      mat[i] = rpar[i];
-    }
-  size_in_x = GetInPortSize (block, 1, 1);
-  size_in_y = GetInPortSize (block, 1, 2);
-  if (ipar[3] == 1)
-    {
-      xmax = size_in_x;
-      xmin = 0;
-      ymax = size_in_y;
-      ymin = 0;
-    }
-  else
-    {
-      xmin = rpar[size_mat];
-      xmax = rpar[size_mat + 1];
-      ymin = rpar[size_mat + 2];
-      ymax = rpar[size_mat + 3];
-    }
-
-  zmin = ipar[0];
-  zmax = ipar[1];
-  number_of_curves_by_subwin = 1;
-  label = GetLabelPtrs (block);
-
-  /*Allocating memory for scope only if the window has to be created and not redraw */
-  if (firstdraw == 1)
-    {
-      scoInitScopeMemory (GetPtrWorkPtrs (block), pScopeMemory,
-			  number_of_subwin, &number_of_curves_by_subwin);
-    }
-
-  /*Creating the Scope with axes */
-  scoInitOfWindow (*pScopeMemory, dimension, -1, win_pos, win_dim, &xmin,
-		   &xmax, &ymin, &ymax, &zmin, &zmax);
-  if (scoGetScopeActivation (*pScopeMemory) == 1)
-    {
-      /*Here we put the special window feature like pixmap or text title
-	Dont forget that the function scoAddTitleScope redraws the window at end so it would be a good idea to put it at the end */
-      pFIGURE_FEATURE (scoGetPointerScopeWindow (*pScopeMemory))->pixmap = 1;
-      pFIGURE_FEATURE (scoGetPointerScopeWindow (*pScopeMemory))->wshow = 1;
-
-      sciSetColormap (scoGetPointerScopeWindow (*pScopeMemory), mat,
-		      size_mat / 3, 3);
-
-      pSUBWIN_FEATURE (scoGetPointerAxes (*pScopeMemory, 0))->alpha = 50;
-      pSUBWIN_FEATURE (scoGetPointerAxes (*pScopeMemory, 0))->theta = 280;
-
-      /*Adding graphic elements like plot3d or polyline and so */
-      if (ipar[3] == 1)
-	{
-	  scoAddPlot3dForShortDraw (*pScopeMemory, 0, 0,
-				    GetInPortSize (block, 1, 1),
-				    GetInPortSize (block, 1, 2));
-	}
-      else
-	{
-	  double h_x, h_y;
-	  scoAddPlot3dForShortDraw (*pScopeMemory, 0, 0,
-				    GetInPortSize (block, 1, 1),
-				    GetInPortSize (block, 1, 2));
-	  pShortDraw = scoGetPointerShortDraw (*pScopeMemory, 0, 0);
-	  h_x = fabs ((xmax - xmin) / (GetInPortSize (block, 1, 1) - 1));
-	  h_y = fabs ((ymax - ymin) / (GetInPortSize (block, 1, 2) - 1));
-
-	  for (i = 0; i < size_in_x; i++)
-	    {
-	      pSURFACE_FEATURE (pShortDraw)->pvecx[i] = xmin + i * h_x;
-	    }
-	  for (i = 0; i < size_in_y; i++)
-	    {
-	      pSURFACE_FEATURE (pShortDraw)->pvecy[i] = ymin + i * h_y;
-	    }
-	}
-      scoAddTitlesScope (*pScopeMemory, label, "x", "y", "z");
-    }
-  /*Dont forget to free your scicos_malloc or MALLOC */
-  scicos_free (mat);
-
-}
-
-/** \fn void cmat3d(scicos_block * block, int flag)
-    \brief the computational function
-    \param block A pointer to a scicos_block
-    \param flag An int which indicates the state of the block (init, update, ending)
-*/
-void cmat3d (scicos_block * block, int flag)
-{
-  void **_work = GetPtrWorkPtrs (block);
-  /* Declarations */
-  ScopeMemory *pScopeMemory;
-  scoGraphicalObject pShortDraw;
   double *u1;
-  int i, j;
-  int dim_i, dim_j;
-  int **user_data_ptr, *size_ptr;
-
-  /* State Machine Control */
+  int dim_i = GetInPortRows (block, 1);
+  int dim_j = GetInPortCols (block, 1);
+  
   switch (flag)
     {
-      /*Flag 4 */
     case Initialization:
       {
-	/*We create the window for the first time, so 1 is in parameters */
-	cmat3d_draw (block, &pScopeMemory, 1);
-	break;			//dont forget the break
+	double rect[6]={0,1,0,1,0,1}; /* xmin,xmax,ymin,ymax,zmin,zmax */
+	NspMatrix *cmap;
+	cmat3d_data *D;
+	int wid;
+	/* ipar=[ zmin,zmax, colormap_size],
+	 * the colormap is stored in rpar; 
+	 */
+	int *ipar= GetIparPtrs (block);	
+	int size_mat= ipar[2] ;	
+	double *rpar=GetRparPtrs (block);
+	char *label= GetLabelPtrs (block);
+
+	if ((*block->work = scicos_malloc (sizeof (cmat3d_data))) == NULL)
+	  {
+	    scicos_set_block_error (-16);
+	    return;
+	  }
+	D = (cmat3d_data *) (*block->work);
+	/* should be used to set the colormap */
+	cmap = nsp_matrix_create("cmap",'r',size_mat,3);
+	memcpy(cmap->R,rpar+2,3*size_mat*sizeof(double));
+	/* boundaries */
+	rect[4]=ipar[0];
+	rect[5]=ipar[1];
+	if (ipar[3] == 1)
+	  {
+	    rect[1] = GetInPortSize (block, 1, 1);
+	    rect[3] = GetInPortSize (block, 1, 2);
+	  }
+	else
+	  {
+	    memcpy(rect,rpar+size_mat,4*sizeof(double));
+	  }
+	/* zmin = ipar[0];zmax = ipar[1]; */
+	wid = 20000 + scicos_get_block_number();
+	nsp_cmat3d(D,wid,label,cmap,rect, dim_i,dim_j);
+	/* keep a copy in case Axes is destroyed during simulation 
+	 * axe is a by reference object 
+	 */
+	D->objs3d = nsp_objs3d_copy(D->objs3d);
+	if ( D->objs3d == NULL ) 
+	  {
+	    scicos_set_block_error (-16);
+	    return;
+	  }
+	break;
       }
-      /*Flag 2 */
     case StateUpdate:
       {
-	/*Retreiving Scope in the _work */
-	scoRetrieveScopeMemory (_work, &pScopeMemory);
-	if (scoGetPointerScopeWindow (pScopeMemory) == NULL)
-	  return;
-	if (scoGetScopeActivation (pScopeMemory) == 1)
+	cmat3d_data *D = (cmat3d_data *) (*block->work);
+	if ( D->objs3d->obj->ref_count <= 1 ) 
 	  {
-
-
-	    /*Here some allocations and calcul wich are necessary */
-	    pShortDraw = scoGetPointerShortDraw (pScopeMemory, 0, 0);
-
-	    u1 = GetInPortPtrs (block, 1);
-	    dim_i = GetInPortRows (block, 1);
-	    dim_j = GetInPortCols (block, 1);
-
-	    for (i = 0; i < dim_i; i++)
-	      {
-
-		for (j = 0; j < dim_j; j++)
-		  {
-		    pSURFACE_FEATURE (pShortDraw)->pvecz[j + i * dim_j] =
-		      u1[j + dim_j * i];
-		  }
-	      }
-
-	    /*Here is the draw instructions */
-	    sciSetUsedWindow (scoGetWindowID (pScopeMemory));
-	    if (pFIGURE_FEATURE (scoGetPointerScopeWindow (pScopeMemory))->
-		pixmap == 1)
-	      {
-		C2F (dr) ("xset", "wshow", PI0, PI0, PI0, PI0, PI0, PI0, PD0,
-			  PD0, PD0, PD0, 0L, 0L);
-	      }
-	    sciDrawObj (scoGetPointerScopeWindow (pScopeMemory));
+	    /* Axes was destroyed during simulation */
+	    return;
 	  }
-	break;			//dont forget the break
-      }
-      /*Flag 5 */
+	/* matrix to be vizualized */
+	u1 = GetInPortPtrs (block, 1);
+	dim_i = GetInPortRows (block, 1);
+	dim_j = GetInPortCols (block, 1);
+	nsp_spolyhedron_update_from_triplet(D->pol,D->x->R,D->y->R,u1,dim_i,dim_j,NULL,0);
+	nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
+	break;
+      }	
     case Ending:
       {
-	/*Retrieve Memory */
-	scoRetrieveScopeMemory (_work, &pScopeMemory);
-	if (scoGetScopeActivation (pScopeMemory) == 1)
+	cmat3d_data *D = (cmat3d_data *) (*block->work);
+	if ( D->objs3d->obj->ref_count <= 1 ) 
 	  {
-	    if (scoGetPointerScopeWindow (pScopeMemory) != NULL)
-	      {
-		sciSetUsedWindow (scoGetWindowID (pScopeMemory));
-		pShortDraw = sciGetCurrentFigure ();
-		sciGetPointerToUserData (pShortDraw, &user_data_ptr,
-					 &size_ptr);
-		FREE (*user_data_ptr);
-		*user_data_ptr = NULL;
-		*size_ptr = 0;
-	      }
+	    /* Axes was destroyed during simulation 
+	     * we finish detruction 
+	     */
+	    nsp_objs3d_destroy(D->objs3d);
+	    nsp_matrix_destroy(D->x);
+	    nsp_matrix_destroy(D->y);
 	  }
-	/*Here we can add specific instructions to be sure that we have stick short and longdraw if we need it. Cscope for example stick the last short to the long to have one curve to move */
-	scoFreeScopeMemory (_work, &pScopeMemory);
+	scicos_free (D);
 	break;
       }
     }
 }
-#endif
+
+static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
+		       double rect[],int dim_i, int dim_j)
+{
+  NspSPolyhedron *pol;  
+  BCG *Xgc;
+  NspMatrix *z,*x,*y;
+  int i,l;
+
+  D->objs3d= NULL;
+  
+  /*
+   * set current window
+   */
+  
+  if ((Xgc = window_list_get_first()) != NULL) 
+    Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
+  else 
+    Xgc= set_graphic_window_new(Max(win,0));
+
+  /*
+   * Gc of new window 
+   */
+  if ((Xgc = window_list_get_first())== NULL) return;
+  if ((D->objs3d = nsp_check_for_objs3d(Xgc,NULL)) == NULL) return;
+
+  D->objs3d->obj->alpha=35;
+  D->objs3d->obj->theta=45;
+
+  if (cmap != NULL ) 
+    {
+      if ( D->objs3d->obj->colormap != NULL) 
+	nsp_matrix_destroy(D->objs3d->obj->colormap);
+      D->objs3d->obj->colormap=cmap; 
+    }
+  
+  if (label != NULL && strlen(label) != 0 && strcmp(label," ") != 0)
+    Xgc->graphic_engine->setpopupname (Xgc, label);
+  
+  /* clean previous plots in case objs3d is in use.  */ 
+
+  l =  nsp_list_length(D->objs3d->obj->children);
+  for ( i = 0 ; i < l  ; i++)
+    nsp_list_remove_first(D->objs3d->obj->children);
+  
+  /* create a polyhedron and insert it in objs3d */
+  if (( x = nsp_matrix_create("x",'r',1,dim_i)) == NULL) return;
+  if (( y = nsp_matrix_create("x",'r',1,dim_j)) == NULL) return;
+  if (( z = nsp_matrix_create("x",'r',dim_i,dim_j)) == NULL) return;
+  
+  for ( i = 0 ; i < dim_i ; i++) x->R[i]= rect[0]+ rect[1]*(i- dim_i)/(rect[1]-rect[0]);
+  for ( i = 0 ; i < dim_j ; i++) y->R[i]= rect[2]+ rect[3]*(i- dim_i)/(rect[3]-rect[2]);
+  for ( i = 0 ; i < dim_j*dim_i ; i++) z->R[i]=0.0;
+  pol = nsp_spolyhedron_create_from_triplet("pol",x->R,y->R,z->R,dim_i,dim_j,NULL,0);
+  D->pol = pol ;
+  if ( pol == NULL) return;
+  D->x = x;
+  D->y = y;
+  nsp_matrix_destroy(z);
+  
+  /* fix the mesh according to flag 
+   * Note that when flg == 0 we should 
+   * only draw the mesh 
+   */
+  D->pol->obj->mesh = TRUE;
+  D->pol->obj->shade = FALSE;/* shade; */
+  /* insert the new polyhedron */
+  if ( nsp_objs3d_insert_child(D->objs3d, (NspGraphic *) D->pol)== FAIL)
+    {
+      Scierror("Error: failed to insert contour in Figure\n");
+      return;
+    }
+  nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
+
+}
+
+
