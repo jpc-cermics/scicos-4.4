@@ -33,10 +33,11 @@ struct _tows_data
   NspMatrix *time; /* matrix to store time */
   NspCells *values; /* cell array to store values */
   int m,n;          /* each value in values is a mxn matrix */
+  char name[32];
 };
 
 static int nsp_store_data(tows_data *D,int type, int m, int n, void *data, double time);
-static int nsp_alloc_data(tows_data **hD,int size,int m,int n);
+static int nsp_alloc_tows_data(tows_data **hD,int size,int m,int n, int *ipar);
 
 void tows_c (scicos_block * block, int flag)
 {
@@ -45,14 +46,13 @@ void tows_c (scicos_block * block, int flag)
   int nu2 = GetInPortCols (block, 1);	/* number of cols of inputs */
   int ut  = GetInType (block, 1);	/* input type */
   int nz  = ipar[0];		        /* buffer size */
-
+  
   if (flag == 4)
     {
       tows_data *D;
       /* initialization 
-       * XXX We need the name of the data !!
        */
-      if ( nsp_alloc_data(&D,Max(nz,0),nu,nu2) == FAIL) 
+      if ( nsp_alloc_tows_data(&D,Max(nz,0),nu,nu2,ipar) == FAIL) 
 	{
 	  set_block_error (-16);
 	  return;
@@ -84,7 +84,7 @@ void tows_c (scicos_block * block, int flag)
 	}
       /* get old time */
       told = (D->start == 0 ) ? D->time->R[D->time->mn -1] : D->time->R[D->start -1];
-      Sciprintf("told = %f, t=%f\n",told,t);
+      Sciprintf("name=%s told = %f, t=%f\n",D->name,told,t);
       if ( nsp_store_data(D,ut, nu,nu2,  data,t) == FAIL) 
 	{
 	  Coserror ("Unable to store data!\n");
@@ -93,8 +93,9 @@ void tows_c (scicos_block * block, int flag)
     }
 }
 
-static int nsp_alloc_data(tows_data **hD,int size,int m,int n)
+static int nsp_alloc_tows_data(tows_data **hD,int size,int m,int n, int *ipar)
 {
+  int i;
   tows_data *D=NULL;
   if ((D= malloc(sizeof(tows_data)))== NULL) goto end;
   D->time = NULL;
@@ -102,6 +103,8 @@ static int nsp_alloc_data(tows_data **hD,int size,int m,int n)
   D->start = 0;
   D->m = m;
   D->n = n;
+  for ( i = 0 ; i < Min(ipar[1],32-1) ; i++)  D->name[i] = ipar[2+i];
+  D->name[i]='\0';
   if ((D->time= nsp_matrix_create("time",'r',1,size))==NULL) goto end;
   D->time->R[D->time->mn -1]=0.0;
   if ((D->values= nsp_cells_create("values",1,size))==NULL) goto end;
