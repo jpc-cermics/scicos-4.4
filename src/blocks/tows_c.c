@@ -1,5 +1,6 @@
 /* Nsp
- * Copyright (C) 2007-2010 Alan Layec Inria/Metalau
+ * Copyright (C) 2007-2010 Alan Layec Inria/Metalau and 
+ *                         Jean-Philippe Chancelier Enpc/Cermics
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -16,14 +17,15 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * rewriten for Nsp: Jean-Philippe Chancelier Enpc/Cermics 2010 
- * 
+ * rewriten for Nsp: Jean-Philippe Chancelier.
  *--------------------------------------------------------------------------*/
 
 #include "blocks.h"
 #include <nsp/matrix.h>
 #include <nsp/imatrix.h>
 #include <nsp/cells.h>
+#include <nsp/hash.h>
+#include <nsp/datas.h>
 
 typedef struct _tows_data tows_data;
 
@@ -36,8 +38,17 @@ struct _tows_data
   char name[32];
 };
 
-static int nsp_store_data(tows_data *D,int type, int m, int n, void *data, double time);
+static int nsp_store_tows_data(tows_data *D,int type, int m, int n, void *data, double time);
 static int nsp_alloc_tows_data(tows_data **hD,int size,int m,int n, int *ipar);
+static int nsp_tows_data_to_toplevel(tows_data *D);
+
+/*
+ * This block record data and at the end 
+ * register the recorded data in the global frame.
+ * If the object name is A then A.time is an 1xsz array containing
+ * simulation times and A.values is a 1xsz cell array containing 
+ * data values. sz and the name to give to the variable are block parameters.
+ */
 
 void tows_c (scicos_block * block, int flag)
 {
@@ -63,11 +74,11 @@ void tows_c (scicos_block * block, int flag)
     {			
       /* finish */
       tows_data *D = (tows_data *) (*block->work);
-      /* we should write data in a file 
-       * or send it to tolevel 
-       * TMPDIR/workspace/variable-name 
-       */
-      FREE(D);
+      if (  nsp_tows_data_to_toplevel(D)==FAIL) 
+	{
+	  set_block_error (-16);
+	  return;
+	}
     }
   else if ((flag == 2) || (flag == 0))
     {
@@ -85,7 +96,7 @@ void tows_c (scicos_block * block, int flag)
       /* get old time */
       told = (D->start == 0 ) ? D->time->R[D->time->mn -1] : D->time->R[D->start -1];
       Sciprintf("name=%s told = %f, t=%f\n",D->name,told,t);
-      if ( nsp_store_data(D,ut, nu,nu2,  data,t) == FAIL) 
+      if ( nsp_store_tows_data(D,ut, nu,nu2,  data,t) == FAIL) 
 	{
 	  Coserror ("Unable to store data!\n");
 	  return;
@@ -124,7 +135,7 @@ static int nsp_alloc_tows_data(tows_data **hD,int size,int m,int n, int *ipar)
  * type of objects when set are not changed.
  */
 
-static int nsp_store_data(tows_data *D,int type, int m, int n, void *data, double time)
+static int nsp_store_tows_data(tows_data *D,int type, int m, int n, void *data, double time)
 {
   D->time->R[D->start]= time;
   switch (type)
@@ -145,7 +156,19 @@ static int nsp_store_data(tows_data *D,int type, int m, int n, void *data, doubl
 	  }
 	D->start++; 
 	if ( D->start == D->time->mn ) D->start = 0;
-	memcpy(M->R,data, m*n*((ctype== 'c') ? 2:1)*sizeof(double));
+	if ( ctype== 'c' ) 
+	  {
+	    int i;
+	    for (i = 0 ; i < M->mn ; i++) 
+	      {
+		M->C[i].r = ((double *) data)[i];
+		M->C[i].i = (((double *) data) + m*n)[i];
+	      }
+	  }
+	else 
+	  {
+	    memcpy(M->R,data, m*n*sizeof(double));
+	  }
       }
       break;
 #define ICREATE(itype,type)						\
@@ -173,3 +196,57 @@ static int nsp_store_data(tows_data *D,int type, int m, int n, void *data, doubl
   return OK;
 }
 
+static int nsp_tows_data_to_toplevel(tows_data *D)
+{
+  NspHash *H;
+  /* size of final data: should be D->time->mn or D->start */
+  /*
+   * i.e data at the end are at position [0,D->start-1] if D->values->objs[D->start]== NULL. 
+   * or at position [D->start, D->time->mn-1,0,D->start-1] if the queue is fully filled. 
+   * When objects at position D->start does not exists it is created. We assume that the 
+   * type of objects when set are not changed.
+   */
+  if ( D->values->objs[D->start] == NULL ) 
+    {
+      /* we have less data than the buffer size 
+       */
+      if ( nsp_matrix_resize(D->time, 1 ,Max(D->start-1,0) ) == FAIL) goto end;
+      if ( nsp_cells_resize(D->values,1, Max(D->start-1,0))  == FAIL) goto end;
+    }
+  else
+    {
+      int i, k=0;
+      /* we need to reorder the queue */
+      NspMatrix *time;  
+      NspCells *values;
+      if (( time= nsp_matrix_create("time",'r',1,D->time->mn ))==NULL) goto end;
+      if (( values= nsp_cells_create("values",1,D->time->mn))==NULL) goto end;
+      for ( i = D->start ; i < D->time->mn ; i++) 
+	{
+	  time->R[k]= D->time->R[i];
+	  values->objs[k] = D->values->objs[i];
+	  D->values->objs[i] = NULL;
+	  k++;
+	}
+      for ( i = 0 ; i < D->start ;i++) 
+	{
+	  time->R[k]= D->time->R[i];
+	  values->objs[k] = D->values->objs[i];
+	  D->values->objs[i] = NULL;
+	  k++;
+	}
+      nsp_matrix_destroy(D->time);
+      nsp_cells_destroy(D->values);
+      D->time = time;
+      D->values = values;
+    }
+  /* create a struct */
+  if (( H = nsp_hash_create(D->name,2)) == NULLHASH) goto end;
+  if (nsp_hash_enter(H,NSP_OBJECT(D->time))== FAIL) goto end;
+  if (nsp_hash_enter(H,NSP_OBJECT(D->values))== FAIL) goto end;
+  free(D);
+  if ( nsp_global_frame_replace_object(NSP_OBJECT(H)) == FAIL) goto end; 
+  return OK;
+ end:
+  return FAIL;
+}
