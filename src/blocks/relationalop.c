@@ -1,5 +1,8 @@
 #include "blocks.h"
 
+#define CASE_OP1(op)  _y1[0] = (_u1[0] op _u2[0]) ? 1.0: 0.0;
+#define CASE_OP2(op)  _mode[0] = (_u1[0] op _u2[0]) ? 2: 1;
+
 void relationalop (scicos_block * block, int flag)
 {
   int *_ipar = GetIparPtrs (block);
@@ -9,9 +12,8 @@ void relationalop (scicos_block * block, int flag)
   double *_u1 = GetRealInPortPtrs (block, 1);
   double *_y1 = GetRealOutPortPtrs (block, 1);
   double *_u2 = GetRealInPortPtrs (block, 2);
-  int i;
-
-  i = _ipar[0];
+  int i =  _ipar[0];
+  
   if (flag == 1)
     {
       if (_ng != 0 && areModesFixed (block))
@@ -22,67 +24,12 @@ void relationalop (scicos_block * block, int flag)
 	{
 	  switch (i)
 	    {
-	    case 0:
-	      if (_u1[0] == _u2[0])
-		{
-		  _y1[0] = 1.0;
-		}
-	      else
-		{
-		  _y1[0] = 0.0;
-		}
-	      break;
-
-	    case 1:
-	      if (_u1[0] != _u2[0])
-		{
-		  _y1[0] = 1.0;
-		}
-	      else
-		{
-		  _y1[0] = 0.0;
-		}
-	      break;
-	    case 2:
-	      if (_u1[0] < _u2[0])
-		{
-		  _y1[0] = 1.0;
-		}
-	      else
-		{
-		  _y1[0] = 0.0;
-		}
-	      break;
-	    case 3:
-	      if (_u1[0] <= _u2[0])
-		{
-		  _y1[0] = 1.0;
-		}
-	      else
-		{
-		  _y1[0] = 0.0;
-		}
-	      break;
-	    case 4:
-	      if (_u1[0] >= _u2[0])
-		{
-		  _y1[0] = 1.0;
-		}
-	      else
-		{
-		  _y1[0] = 0.0;
-		}
-	      break;
-	    case 5:
-	      if (_u1[0] > _u2[0])
-		{
-		  _y1[0] = 1.0;
-		}
-	      else
-		{
-		  _y1[0] = 0.0;
-		}
-	      break;
+	    case 0: CASE_OP1(==);break;
+	    case 1: CASE_OP1(!=);break;
+	    case 2: CASE_OP1(<);break;
+	    case 3: CASE_OP1(<=);break;
+	    case 4: CASE_OP1(>=);break;
+	    case 5: CASE_OP1(>);break;
 	    }
 	}
 
@@ -94,67 +41,12 @@ void relationalop (scicos_block * block, int flag)
 	{
 	  switch (i)
 	    {
-	    case 0:
-	      if (_u1[0] == _u2[0])
-		{
-		  _mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  _mode[0] = (int) 1.0;
-		}
-	      break;
-
-	    case 1:
-	      if (_u1[0] != _u2[0])
-		{
-		  _mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  _mode[0] = (int) 1.0;
-		}
-	      break;
-	    case 2:
-	      if (_u1[0] < _u2[0])
-		{
-		  _mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  _mode[0] = (int) 1.0;
-		}
-	      break;
-	    case 3:
-	      if (_u1[0] <= _u2[0])
-		{
-		  _mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  _mode[0] = (int) 1.0;
-		}
-	      break;
-	    case 4:
-	      if (_u1[0] >= _u2[0])
-		{
-		  _mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  _mode[0] = (int) 1.0;
-		}
-	      break;
-	    case 5:
-	      if (_u1[0] > _u2[0])
-		{
-		  _mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  _mode[0] = (int) 1.0;
-		}
-	      break;
+	    case 0: CASE_OP2(==);break;
+	    case 1: CASE_OP2(!=);break;
+	    case 2: CASE_OP2(<);break;
+	    case 3: CASE_OP2(<=);break;
+	    case 4: CASE_OP2(>=);break;
+	    case 5: CASE_OP2(>);break;
 	    }
 	}
     }
