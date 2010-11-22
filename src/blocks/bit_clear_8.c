@@ -15,7 +15,7 @@ void bit_clear_8_old (scicos_block * block, int flag)
 }
 
 #define BIT_CLEAR(tag, type)						\
-  void CNAME(new_bit_clear_,tag) (scicos_block * block, int flag)		\
+  void CNAME(new_bit_clear_,tag) (scicos_block * block, int flag)	\
   {									\
     int i;								\
     int m= GetInPortRows (block, 1);					\

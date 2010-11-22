@@ -72,8 +72,7 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	gainblk_i32n.obj gainblk_i32e.obj gainblk_i16s.obj gainblk_i16n.obj gainblk_i16e.obj \
 	gainblk_i8s.obj gainblk_i8n.obj gainblk_i8e.obj gainblk_ui32s.obj gainblk_ui32n.obj \
 	gainblk_ui32e.obj gainblk_ui16s.obj gainblk_ui16n.obj gainblk_ui16e.obj gainblk_ui8s.obj \
-	gainblk_ui8n.obj gainblk_ui8e.obj delay4_i32.obj delay4_i16.obj delay4_i8.obj delay4_ui32.obj \
-	delay4_ui16.obj delay4_ui8.obj mat_sqrt.obj \
+	gainblk_ui8n.obj gainblk_ui8e.obj delay4_ints.obj mat_sqrt.obj \
 	matz_sqrt.obj relational_op_i32.obj relational_op_ui32.obj relational_op_i16.obj \
 	relational_op_ui16.obj relational_op_i8.obj relational_op_ui8.obj evtdly4.obj\
 	matmul2_m.obj matzmul2_m.obj expblk_m.obj logic.obj bit_clear_32.obj bit_clear_16.obj bit_clear_8.obj\

@@ -69,8 +69,7 @@ BLOCKSC=selector.o sum.o prod.o switchn.o relay.o readc.o writec.o writeau.o \
 	gainblk_i32n.o gainblk_i32e.o gainblk_i16s.o gainblk_i16n.o gainblk_i16e.o \
 	gainblk_i8s.o gainblk_i8n.o gainblk_i8e.o gainblk_ui32s.o gainblk_ui32n.o \
 	gainblk_ui32e.o gainblk_ui16s.o gainblk_ui16n.o gainblk_ui16e.o gainblk_ui8s.o \
-	gainblk_ui8n.o gainblk_ui8e.o delay4_i32.o delay4_i16.o delay4_i8.o delay4_ui32.o \
-	delay4_ui16.o delay4_ui8.o mat_sqrt.o \
+	gainblk_ui8n.o gainblk_ui8e.o delay4_ints.o mat_sqrt.o \
 	matz_sqrt.o relational_op_i32.o relational_op_ui32.o relational_op_i16.o \
 	relational_op_ui16.o relational_op_i8.o relational_op_ui8.o evtdly4.o\
 	matmul2_m.o matzmul2_m.o expblk_m.o logic.o bit_clear_32.o bit_clear_16.o bit_clear_8.o\
