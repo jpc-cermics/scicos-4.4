@@ -72,7 +72,7 @@ BLOCKSC=selector.o sum.o prod.o switchn.o relay.o readc.o writec.o writeau.o \
 	gainblk_ui8n.o gainblk_ui8e.o delay4_ints.o mat_sqrt.o \
 	matz_sqrt.o relational_op_ints.o evtdly4.o\
 	matmul2_m.o matzmul2_m.o expblk_m.o logic.o bit_clear_32.o bit_clear_16.o bit_clear_8.o\
-	bit_set_32.o bit_set_16.o bit_set_8.o extract_bit_32_UH0.o extract_bit_16_UH0.o \
+	bit_set_ints.o extract_bit_32_UH0.o extract_bit_16_UH0.o \
 	extract_bit_8_UH0.o extract_bit_32_UH1.o extract_bit_16_UH1.o extract_bit_8_UH1.o \
 	extract_bit_32_LH.o extract_bit_16_LH.o extract_bit_8_LH.o extract_bit_32_MSB0.o \
         extract_bit_16_MSB0.o extract_bit_8_MSB0.o extract_bit_32_MSB1.o extract_bit_16_MSB1.o \

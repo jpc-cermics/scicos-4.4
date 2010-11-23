@@ -1,16 +1,19 @@
 #include "blocks.h"
 
+/* operators : 
+ * and(0),or(1), nand(2), nor(3), xor(4), not(5) 
+ */
+
 void logicalop_i8 (scicos_block * block, int flag)
 {
-  int i, m, n, nin, k, j, l;
-  int *ipar;
-  char *y, *u;
-  m = GetInPortRows (block, 1);
-  n = GetInPortCols (block, 1);
-  y = Getint8OutPortPtrs (block, 1);
-  ipar = GetIparPtrs (block);
-  nin = GetNin (block);
-  k = ipar[0];
+  int i, j, l;
+  int *ipar = GetIparPtrs (block);
+  int k = ipar[0];
+  char *u;
+  char *y = Getint8OutPortPtrs (block, 1);
+  int m = GetInPortRows (block, 1);
+  int n = GetInPortCols (block, 1);
+  int nin = GetNin (block);
   switch (k)
     {
     case 0:
