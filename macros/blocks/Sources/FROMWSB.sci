@@ -26,7 +26,7 @@ case 'set' then
     end
     xx=arg1(spath)// get the block
     execstr('xxn='+xx.gui+'(''set'',xx)')
-    if ~isequalbitwise(xxn,xx) then 
+    if ~xxn.equal[xx] then 
       model=xx.model
       model_n=xxn.model
       if ~is_modelica_block(xx) then

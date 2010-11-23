@@ -1009,10 +1009,9 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
 // path_out : Path of the "from block" in scs_m
 // path_in  : Path of the "to block" in scs_m
 //!
-
-  //** save the current figure handle
-  gh_wins = gcf();
-
+//** save the current figure handle
+  // gh_wins = gcf();
+  pause xxx
   if path_in==-1 then
     hilite_obj(path_out);
     message(['One of this block''s outputs has negative size';

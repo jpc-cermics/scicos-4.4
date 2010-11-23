@@ -1,22 +1,73 @@
+/* Nsp
+ * Copyright (C) 2007-2010 Masoud Najafi and Alan Layec Inria/Metalau and 
+ *                         Jean-Philippe Chancelier Enpc/Cermics
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ * rewriten for Nsp: Jean-Philippe Chancelier.
+ *--------------------------------------------------------------------------*/
+
 #include "blocks.h"
+#include <nsp/matrix.h>
+#include <nsp/imatrix.h>
+#include <nsp/cells.h>
+#include <nsp/hash.h>
+#include <nsp/datas.h>
 
-/*    Masoud Najafi, Alan Layec September 2007 */
-/*    Copyright INRIA
- *    Scicos block simulator
- *    From workspace block
- */
 
-#define T0        ptr->workt[0]
-#define TNm1      ptr->workt[nPoints-1]
-#define TP        (TNm1-0)
+typedef struct _fromws_data fromws_data;
 
+struct _fromws_data
+{
+  int start;
+  NspMatrix *time; /* matrix to store time */
+  NspCells *values; /* cell array to store values */
+  int m,n;          /* each value in values is a mxn matrix */
+  char name[32];
+};
+
+static int nsp_fromws_acquire_data(const char *name,fromws_data *D);
 
 void fromws_c (scicos_block * block, int flag)
 {
+  fromws_data D;
+  int *_ipar = GetIparPtrs (block);
+  if (flag == 4)
+    {
+      int i;
+      char name[32];
+      for ( i = 0 ; i <  _ipar[0];i++) name[i]= *( _ipar + 1+i);
+      name[i]='\0';
+      if (nsp_fromws_acquire_data(name,&D)==FAIL) 
+	{
+	  Coserror ("Cannot acquire data '%s' \n",name);
+	  return;
+	}
+    }
   Sciprintf ("fromws_c is to be done for nsp \n");
 }
 
 #if 0
+
+
+
+
+#define T0        ptr->workt[0]
+#define TNm1      ptr->workt[nPoints-1]
+#define TP        (TNm1-0)
 
 
 extern int C2F (cvstr) (int *, int *, char *, int *, unsigned long int));
@@ -31,45 +82,7 @@ int Mytridiagldltsolve (double *d, double *l, double *b, int n);
 int Myevalhermite2 (const double *t, double *xa, double *xb, double *ya,
 		    double *yb, double *da, double *db, double *h, double *dh,
 		    double *ddh, double *dddh, int *i);
-/*int Myevalhermite(const double *t, double *xa, double *xb, double *ya, double *yb, double *da, double *db, double *h, double *dh, double *ddh, double *dddh, int *i);*/
 
-/* function to check and extract data coming from an hypermat */
-int Ishm (int *fd, int *Ytype, int *nPoints, int *my, int *ny, int *YsubType);
-
-static char fmtd[3] =
-  {
-    'd', 'l', '\000'};
-
-static char fmti[3] =
-  {
-    'i', 'l', '\000'};
-
-/* static char fmtl[3]={'l','l','\000'}; */
-static char fmts[3] =
-  {
-    's', 'l', '\000'};
-
-static char fmtc[3] =
-  {
-    'c', 'l', '\000'};
-
-static char fmtui[3] =
-  {
-    'u', 'i', '\000'};
-
-/* static char fmtul[3]={'u','l','\000'}; */
-static char fmtus[3] =
-  {
-    'u', 's', '\000'};
-
-static char fmtuc[3] =
-  {
-    'u', 'c', '\000'};
-
-#ifdef hppa
-#undef FILENAME_MAX
-#define FILENAME_MAX 4096
-#endif
 /* work struct for that block */
 typedef struct
 {
@@ -87,7 +100,6 @@ typedef struct
   double *workt;
 } fromwork_struct;
 
-
 void fromws_c (scicos_block * block, int flag)
 {
   void **_work = GetPtrWorkPtrs (block);
@@ -103,13 +115,12 @@ void fromws_c (scicos_block * block, int flag)
   int cnt1, cnt2, EVindex, PerEVcnt;
 
   int Fnlength, *FName, Method, ZC, OutEnd;
-
+  
   Fnlength = _ipar[0];
   FName = _ipar + 1;
   Method = _ipar[1 + Fnlength];
   ZC = _ipar[2 + Fnlength];
   OutEnd = _ipar[3 + Fnlength];
-
 
   /* variables to handle files of TMPDIR/Workspace */
   int fd;
@@ -1614,3 +1625,16 @@ int Myevalhermite2 (const double *t, double *x1, double *x2, double *y1,
 }
 
 #endif
+
+
+static int nsp_fromws_acquire_data(const char *name,fromws_data *D)
+{
+  NspObject *Obj,*Time,*Values;
+  if ((Obj = nsp_global_frame_search_object(name))== NULL)  return FAIL;
+  if ( !IsHash(Obj))   return FAIL;
+  if (nsp_hash_find((NspHash *) Obj,"time",&Time) == FAIL) return FAIL;
+  if (nsp_hash_find((NspHash *) Obj,"values",&Values) == FAIL) return FAIL;
+  if ( IsMat(Time) == FAIL) return FAIL;
+  if ( IsCells(Values) == FAIL) return FAIL;
+  return OK;
+}
