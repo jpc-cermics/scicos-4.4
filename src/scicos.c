@@ -1,4 +1,4 @@
-/* Nsp
+/* 
  * Copyright (C) 2007-2010 Ramine Nikoukhah (Inria) 
  *
  * This library is free software; you can redistribute it and/or
