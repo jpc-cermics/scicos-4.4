@@ -53,6 +53,6 @@ DELAY4(i16, gint16)
 DELAY4(i32, gint)
 DELAY4(u8, gint8)
 DELAY4(u16, gint16)
-DELAY4(u32, gint)
+DELAY4(u32, guint)
 
 #undef DELAY4 

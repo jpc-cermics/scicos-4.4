@@ -78,9 +78,8 @@ BLOCKSC=selector.o sum.o prod.o switchn.o relay.o readc.o writec.o writeau.o \
         extract_bit_16_MSB0.o extract_bit_8_MSB0.o extract_bit_32_MSB1.o extract_bit_16_MSB1.o \
         extract_bit_8_MSB1.o extract_bit_32_LSB.o extract_bit_16_LSB.o extract_bit_8_LSB.o \
         extract_bit_32_RB0.o extract_bit_16_RB0.o extract_bit_8_RB0.o extract_bit_32_RB1.o \
-        extract_bit_16_RB1.o extract_bit_8_RB1.o shift_8_LA.o shift_16_LA.o shift_32_LA.o \
-	shift_8_LC.o shift_16_LC.o shift_32_LC.o shift_8_RA.o shift_16_RA.o shift_32_RA.o \
-	shift_8_RC.o shift_16_RC.o shift_32_RC.o shift_u8_RA.o shift_u16_RA.o shift_u32_RA.o\
+        extract_bit_16_RB1.o extract_bit_8_RB1.o \
+	shift_ints.o \
 	extract_bit_u32_UH1.o extract_bit_u16_UH1.o extract_bit_u8_UH1.o extract_bit_u32_MSB1.o\
 	extract_bit_u16_MSB1.o extract_bit_u8_MSB1.o extract_bit_u32_RB1.o extract_bit_u16_RB1.o \
         extract_bit_u8_RB1.o rndblk_m.o relational_op.o curve_c.o counter.o m_frequ.o \
