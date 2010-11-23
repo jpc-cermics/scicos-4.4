@@ -1,6 +1,6 @@
 #include "blocks.h"
 
-void bit_clear_8_old (scicos_block * block, int flag)
+void bit_clear_8(scicos_block * block, int flag)
 {
   int n, m, i;
   char *opar;
