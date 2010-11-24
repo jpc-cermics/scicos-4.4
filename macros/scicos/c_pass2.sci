@@ -1010,8 +1010,8 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
 // path_in  : Path of the "to block" in scs_m
 //!
 //** save the current figure handle
-  // gh_wins = gcf();
-  pause xxx
+// gh_wins = gcf();
+
   if path_in==-1 then
     hilite_obj(path_out);
     message(['One of this block''s outputs has negative size';
@@ -1033,11 +1033,11 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
   lp=min(size(path_out,'*'),size(path_in,'*'))
   k=find(path_out(1:lp)<>path_in(1:lp))
   path=path_out(1:k(1)-1) // common superbloc path
-  if (k <> []) then
+  if ~isempty(k) then
     path_out=path_out(k(1)) // "from" block number
     path_in=path_in(k(1))   // "to" block number
   end
-  if isdef('Code_gene_run') then
+  if exists('Code_gene_run') then
     mxwin=max(winsid())
     path=path+1 // Consider locally compiled superblock as a superblock
     for k=1:size(path,'*')
@@ -1085,6 +1085,7 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
           end
         end
       end
+
       hilite_obj(kk)
       if flagg==1 then
 	ninnout=evstr(dialog(['Hilited block(s) have connected ports ';
@@ -1113,11 +1114,12 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
         if prt_in >0 & prt_out >0 then
           if scs_m.objs(path_out).graphics.pout(prt_out) == ...
               scs_m.objs(path_in).graphics.pin(prt_in) then 
-                kk=[kk;scs_m.objs(path_out).graphics.pout(prt_out)]
+	    kk=[kk;scs_m.objs(path_out).graphics.pout(prt_out)]
           end
         end
       end
-      hilite_obj(kk)
+      pause xxx
+      hilite_obj(kk);
       if flagg==1 then
 	ninnout=evstr(dialog(['Hilited block(s) have connected ports ';
 	    'with  sizes that cannot be determined by the context';
@@ -1127,7 +1129,7 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
 	    'with  types that cannot be determined by the context';
 	    'what is the size of this link'],'1'))
       end
-      
+      unhilite_obj(kk);
       //for k=size(path,'*'):-1:1,xdel(mxwin+k),end //TOBEDONE
       for k=size(path,'*'):-1:1,
         //** select the mxwin+k window and get the handle

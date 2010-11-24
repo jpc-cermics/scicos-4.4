@@ -1,18 +1,19 @@
 function unhilite_obj(o,draw=%t)
 // Copyright ENPC
-  if new_graphics() then
-    // XXX A revoir car les objets on changé 
-    if o.type =='Block' then
-      o.gr.hilited = %f;
-      o.gr.invalidate[];
-    elseif o.type =='Link' then
-      // A link is a compound with a polyline inside 
-      o.gr.children(1).hilited = %f;
-      if draw then 
-	o.gr.invalidate[];
-      end
+  if type(o,'short')=='m' then 
+    for k=1:size(o,'*')
+      unhilite_obj(scs_m.objs(o(k)),draw=draw);
     end
-  else
-    scicos_redraw_scene(scs_m,[],0)
+    return;
+  end
+  if o.type =='Block' then
+    o.gr.hilited = %f;
+    o.gr.invalidate[];
+  elseif o.type =='Link' then
+    // A link is a compound with a polyline inside 
+    o.gr.children(1).hilited = %f;
+    if draw then 
+      o.gr.invalidate[];
+    end
   end
 endfunction

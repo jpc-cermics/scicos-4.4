@@ -1,30 +1,20 @@
 function hilite_obj(o,draw=%t)
-//
 // Copyright INRIA
-  if new_graphics() then
-    if o.type =='Block' then
-      o.gr.hilited = %t;
-      o.gr.invalidate[];
-    elseif o.type =='Link' then
-      // A link is a compound with a polyline inside 
-      o.gr.children(1).hilited = %t;
-      o.gr.invalidate[];
+// just keep the new_graphics case 
+// 
+  if type(o,'short')=='m' then 
+    for k=1:size(o,'*')
+      hilite_obj(scs_m.objs(o(k)),draw=draw);
     end
-  else
-    xtape_status=xget('recording');xset('recording',0);
-    if o.type =='Block' then
-      graphics=o.graphics;
-      [orig,sz]=(graphics.orig,graphics.sz)
-      thick=xget('thickness')
-      xset('thickness',6*thick);
-      xrect(orig(1),orig(2)+sz(2),sz(1),sz(2));
-      if pixmap then xset('wshow'),end
-      xset('thickness',thick);
-    elseif o.type =='Link' then
-      o.thick(1)=5*max(o.thick(1),1)
-      drawobj(o)
-      if pixmap then xset('wshow'),end
-    end
-    xset("recording",xtape_status);
+    return;
+  end
+  if o.type =='Block' then
+    o.gr.hilited = %t;
+    o.gr.invalidate[];
+  elseif o.type =='Link' then
+    // A link is a compound with a polyline inside 
+    o.gr.children(1).hilited = %t;
+    o.gr.invalidate[];
   end
 endfunction
+
