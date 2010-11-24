@@ -32,51 +32,68 @@ typedef struct _fromws_data fromws_data;
 
 struct _fromws_data
 {
-  int start;
   NspMatrix *time; /* matrix to store time */
   NspCells *values; /* cell array to store values */
-  int m,n;          /* each value in values is a mxn matrix */
+  int m,n,type;     /* each value in values is a mxn matrix of type type */
   char name[32];
 };
 
-static int nsp_fromws_acquire_data(const char *name,fromws_data *D);
+static int nsp_fromws_acquire_data(const char *name,fromws_data **D,int m,int n,int type);
 
 void fromws_c (scicos_block * block, int flag)
 {
-  fromws_data D;
+  void **_work = GetPtrWorkPtrs (block);
   int *_ipar = GetIparPtrs (block);
+  int my = GetOutPortRows (block, 1);	/* number of rows of Outputs */
+  int ny = GetOutPortCols (block, 1);	/* number of cols of Outputs */
+  int ytype = GetOutType (block, 1);	/* output type */
+  double *_evout = GetNevOutPtrs (block);
+  
+  /* 
+     Fnlength = _ipar[0];
+     FName = _ipar + 1;
+     Method = _ipar[1 + Fnlength];
+     ZC = _ipar[2 + Fnlength];
+     OutEnd = _ipar[3 + Fnlength];
+  */
+
   if (flag == 4)
     {
+      fromws_data *D;
       int i;
       char name[32];
       for ( i = 0 ; i <  _ipar[0];i++) name[i]= *( _ipar + 1+i);
       name[i]='\0';
-      if (nsp_fromws_acquire_data(name,&D)==FAIL) 
+      if (nsp_fromws_acquire_data(name,&D,my,ny,ytype)==FAIL) 
 	{
 	  Coserror ("Cannot acquire data '%s' \n",name);
 	  return;
 	}
+      *block->work = D;
     }
-  Sciprintf ("fromws_c is to be done for nsp \n");
+  else if (flag == 1)
+    {
+      fromws_data *D = (fromws_data *) (*block->work);
+      Sciprintf ("fromws_c is to be done for nsp \n");
+    }
+  else if (flag == 3)
+    {
+      fromws_data *D = (fromws_data *) (*block->work);
+      Sciprintf ("fromws_c is to be done for nsp \n");
+    }
+  else if (flag == 5)
+    {
+      fromws_data *D = (fromws_data *) (*block->work);
+      Sciprintf ("fromws_c is to be done for nsp \n");
+    }
 }
 
+
 #if 0
-
-
-
 
 #define T0        ptr->workt[0]
 #define TNm1      ptr->workt[nPoints-1]
 #define TP        (TNm1-0)
-
-
-extern int C2F (cvstr) (int *, int *, char *, int *, unsigned long int));
-extern int C2F (mgetnc) ();
-extern void C2F (mopen) ();
-extern int C2F (cluni0) (char *name, char *nams, int *ln, long int name_len,
-			 long int nams_len));
-extern void C2F (mclose) (int *fd, double *res));
-
 
 int Mytridiagldltsolve (double *d, double *l, double *b, int n);
 int Myevalhermite2 (const double *t, double *xa, double *xb, double *ya,
@@ -102,44 +119,19 @@ typedef struct
 
 void fromws_c (scicos_block * block, int flag)
 {
-  void **_work = GetPtrWorkPtrs (block);
-  int *_ipar = GetIparPtrs (block);
-  double *_evout = GetNevOutPtrs (block);
   double t, y1, y2, t1, t2, r;
   double *spline, *A_d, *A_sd, *qdy;
-  /* double  a,b,c,*y; */
   double d1, d2, h, dh, ddh, dddh;
   /* counter and indexes variables */
   int i, inow;
   int j, jfirst;
   int cnt1, cnt2, EVindex, PerEVcnt;
 
-  int Fnlength, *FName, Method, ZC, OutEnd;
-  
-  Fnlength = _ipar[0];
-  FName = _ipar + 1;
-  Method = _ipar[1 + Fnlength];
-  ZC = _ipar[2 + Fnlength];
-  OutEnd = _ipar[3 + Fnlength];
-
-  /* variables to handle files of TMPDIR/Workspace */
-  int fd;
-  char *status;
-  int swap = 1;
-  double res;
-  int out_n;
-  long int lout;
-  char filename[FILENAME_MAX];
-  char str[100] =
-    {
-      0};
-  int ierr;
-
   /* variables for type and dims of data coming from scilab */
   int Ytype, YsubType, mY, nY;
   int nPoints;
   int Ydim[10];
-
+  
   /* variables for type and dims of data of the output port block */
   int ytype, my, ny;
 
@@ -152,202 +144,9 @@ void fromws_c (scicos_block * block, int flag)
   SCSINT32_COP *y_l, *ptr_l;
   SCSUINT32_COP *y_ul, *ptr_ul;
 
-  /* the struct ptr of that block */
-  fromwork_struct *ptr;
-
-  /* for path of TMPDIR/workspace */
-  char env[256];
-  char sep[2];
-#ifdef _MSC_VER
-  sep[0] = '\\';
-#else
-  sep[0] = '/';
-#endif
-  sep[1] = '\0';
-
-  /*retrieve dimensions of output port */
-  my = GetOutPortRows (block, 1);	/* number of rows of Outputs */
-  ny = GetOutPortCols (block, 1);	/* number of cols of Outputs */
-  ytype = GetOutType (block, 1);	/* output type */
-
-  ptr_d = NULL;
-  ptr_D = NULL;
-
   /* init */
   if (flag == 4)
     {
-      /* convert scilab code of the variable name to C string */
-      C2F (cvstr) (&(Fnlength), FName, str, (j = 1, &j),
-		   (SCSUINT32_COP) strlen (str));
-      str[Fnlength] = '\0';
-
-      /* retrieve path of TMPDIR/workspace */
-      strcpy (env, getenv ("TMPDIR"));
-      strcat (env, sep);
-      strcat (env, "Workspace");
-      strcat (env, sep);
-      strcat (env, str);
-
-      /* open tmp file */
-      status = "rb";		/* "r" : read */
-      /* "b" : binary format (required for Windows) */
-
-      lout = FILENAME_MAX;
-      C2F (cluni0) (env, filename, &out_n, 1, lout);
-      C2F (mopen) (&fd, env, status, &swap, &res, &ierr);
-
-      if (ierr != 0)
-	{
-	  /*sciprint("The '%s' variable does not exist.\n",str);
-	   *set_block_error(-3);
-	   */
-	  Coserror ("The '%s' variable does not exist.\n", str);
-	  return;
-	}
-
-      /* read x */
-      C2F (mgetnc) (&fd, &Ydim[0], (j = nsiz, &j), fmti, &ierr);	/* read sci id */
-      C2F (mgetnc) (&fd, &Ydim[6], (j = 1, &j), fmti, &ierr);	/* read sci type */
-      if (Ydim[6] == 17)
-	{
-	  if (!Ishm (&fd, &Ytype, &nPoints, &mY, &nY, &YsubType))
-	    {
-	      /*Coserror("Invalid variable type.\n"); */
-	      /*sciprint("Invalid variable type.\n");
-		set_block_error(-3); */
-	      C2F (mclose) (&fd, &res);
-	      return;
-	    }
-	  if (!((Ytype == 1) || (Ytype == 8)))
-	    {
-	      Coserror ("Invalid variable type.\n");
-	      /*sciprint("Invalid variable type.\n");
-		set_block_error(-3); */
-	      C2F (mclose) (&fd, &res);
-	      return;
-	    }
-	}
-      else if ((Ydim[6] == 1) || (Ydim[6] == 8))
-	{
-	  C2F (mgetnc) (&fd, &Ydim[7], (j = 3, &j), fmti, &ierr);	/* read sci header */
-	  Ytype = Ydim[6];	/* data type        */
-	  nPoints = Ydim[7];	/* number of data   */
-	  mY = Ydim[8];		/* first dimension  */
-	  nY = 1;		/* second dimension */
-	  YsubType = Ydim[9];	/* subtype          */
-	}
-      else
-	{
-	  Coserror ("Invalid variable type.\n");
-	  /*sciprint("Invalid variable type.\n");
-	    set_block_error(-3); */
-	  C2F (mclose) (&fd, &res);
-	  return;
-	}
-
-      /* check dimension for output port and variable */
-      if ((mY != my) || (nY != ny))
-	{
-	  Coserror
-	    ("Data dimensions are inconsistent:\n\r Variable size=[%d,%d] \n\r"
-	     "Block output size=[%d,%d].\n", mY, nY, my, ny);
-	  /*set_block_error(-3); */
-	  C2F (mclose) (&fd, &res);
-	  return;
-	}
-
-      /* check variable data type and output block data type */
-      if (Ytype == 1)
-	{			/*real/complex cases */
-	  switch (YsubType)
-	    {
-	    case 0:
-	      if (ytype != 10)
-		{
-		  Coserror ("Output should be of Real type.\n");
-		  /*set_block_error(-3); */
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      break;
-
-	    case 1:
-	      if (ytype != 11)
-		{
-		  Coserror ("Output should be of complex type.\n");
-		  /*set_block_error(-3); */
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      break;
-	    }
-	}
-      else if (Ytype == 8)
-	{			/*int cases */
-	  switch (YsubType)
-	    {
-	    case 1:
-	      if (ytype != 81)
-		{
-		  sciprint ("Output should be of int8 type.\n");
-		  set_block_error (-3);
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      break;
-
-	    case 2:
-	      if (ytype != 82)
-		{
-		  Coserror ("Output should be of int16 type.\n");
-		  /*set_block_error(-3); */
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      break;
-
-	    case 4:
-	      if (ytype != 84)
-		{
-		  Coserror ("Output should be of int32 type.\n");
-		  /*set_block_error(-3); */
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      break;
-
-	    case 11:
-	      if (ytype != 811)
-		{
-		  Coserror ("Output should be of uint8 type.\n");
-		  /*set_block_error(-3); */
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      break;
-
-	    case 12:
-	      if (ytype != 812)
-		{
-		  Coserror ("Output should be of uint16 type.\n");
-		  /*set_block_error(-3); */
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      break;
-
-	    case 14:
-	      if (ytype != 814)
-		{
-		  Coserror ("Output should be of uint32 type.\n");
-		  /*set_block_error(-3); */
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      break;
-	    }
-	}
-
       /* allocation of the work structure of that block */
       if ((*(_work) =
 	   (fromwork_struct *) scicos_malloc (sizeof (fromwork_struct))) ==
@@ -361,186 +160,6 @@ void fromws_c (scicos_block * block, int flag)
       ptr->D = NULL;
       ptr->workt = NULL;
       ptr->work = NULL;
-
-      if (Ytype == 1)
-	{			/*real/complex case */
-	  switch (YsubType)
-	    {
-	    case 0:		/* Real */
-	      if ((ptr->work =
-		   (void *) scicos_malloc (nPoints * mY * nY *
-					   sizeof (double))) == NULL)
-		{
-		  set_block_error (-16);
-		  scicos_free (ptr);
-		  *(_work) = NULL;
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      ptr_d = (SCSREAL_COP *) ptr->work;
-	      C2F (mgetnc) (&fd, ptr_d, (j = nPoints * mY * nY, &j), fmtd, &ierr);	/* read double data */
-	      break;
-	    case 1:		/* complex */
-	      if ((ptr->work =
-		   (void *) scicos_malloc (2 * nPoints * mY * nY *
-					   sizeof (double))) == NULL)
-		{
-		  set_block_error (-16);
-		  scicos_free (ptr);
-		  *(_work) = NULL;
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      ptr_d = (SCSREAL_COP *) ptr->work;
-	      C2F (mgetnc) (&fd, ptr_d, (j = 2 * nPoints * mY * nY, &j), fmtd, &ierr);	/* read double data */
-	      break;
-	    }
-	}
-      else if (Ytype == 8)
-	{			/*int case */
-	  switch (YsubType)
-	    {
-	    case 1:		/* int8 */
-	      if ((ptr->work =
-		   (void *) scicos_malloc (nPoints * mY * nY *
-					   sizeof (char))) == NULL)
-		{
-		  set_block_error (-16);
-		  scicos_free (ptr);
-		  *(_work) = NULL;
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      ptr_c = (SCSINT8_COP *) ptr->work;
-	      C2F (mgetnc) (&fd, ptr_c, (j = nPoints * mY * nY, &j), fmtc, &ierr);	/* read char data */
-	      break;
-	    case 2:		/* int16 */
-	      if ((ptr->work =
-		   (void *) scicos_malloc (nPoints * mY * nY *
-					   sizeof (SCSINT16_COP))) == NULL)
-		{
-		  set_block_error (-16);
-		  scicos_free (ptr);
-		  *(_work) = NULL;
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      ptr_s = (SCSINT16_COP *) ptr->work;
-	      C2F (mgetnc) (&fd, ptr_s, (j = nPoints * mY * nY, &j), fmts, &ierr);	/* read short data */
-	      break;
-	    case 4:		/* int32 */
-	      if ((ptr->work =
-		   (void *) scicos_malloc (nPoints * mY * nY *
-					   sizeof (SCSINT32_COP))) == NULL)
-		{
-		  set_block_error (-16);
-		  scicos_free (ptr);
-		  *(_work) = NULL;
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      ptr_l = (SCSINT32_COP *) ptr->work;
-	      C2F (mgetnc) (&fd, ptr_l, (j = nPoints * mY * nY, &j), fmti, &ierr);	/* read short data */
-	      break;
-	    case 11:		/* uint8 */
-	      if ((ptr->work =
-		   (void *) scicos_malloc (nPoints * mY * nY *
-					   sizeof (SCSUINT8_COP))) == NULL)
-		{
-		  set_block_error (-16);
-		  scicos_free (ptr);
-		  *(_work) = NULL;
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      ptr_uc = (SCSUINT8_COP *) ptr->work;
-	      C2F (mgetnc) (&fd, ptr_uc, (j = nPoints * mY * nY, &j), fmtuc, &ierr);	/* read short data */
-	      break;
-	    case 12:		/* uint16 */
-	      if ((ptr->work =
-		   (void *) scicos_malloc (nPoints * mY * nY *
-					   sizeof (SCSUINT16_COP))) == NULL)
-		{
-		  set_block_error (-16);
-		  scicos_free (ptr);
-		  *(_work) = NULL;
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      ptr_us = (SCSUINT16_COP *) ptr->work;
-	      C2F (mgetnc) (&fd, ptr_us, (j = nPoints * mY * nY, &j), fmtus, &ierr);	/* read short data */
-	      break;
-	    case 14:		/* uint32 */
-	      if ((ptr->work =
-		   (void *) scicos_malloc (nPoints * mY * nY *
-					   sizeof (SCSUINT32_COP))) == NULL)
-		{
-		  set_block_error (-16);
-		  scicos_free (ptr);
-		  *(_work) = NULL;
-		  C2F (mclose) (&fd, &res);
-		  return;
-		}
-	      ptr_ul = (SCSUINT32_COP *) ptr->work;
-	      C2F (mgetnc) (&fd, ptr_ul, (j = nPoints * mY * nY, &j), fmtui, &ierr);	/* read 32bits data */
-	      break;
-	    }
-	}
-
-      /* check Hmat */
-      if (Ydim[6] == 17)
-	{
-	  ptr->Hmat = 1;
-	}
-      else
-	{
-	  ptr->Hmat = 0;
-	}
-
-      /* read t */
-      C2F (mgetnc) (&fd, &Ydim[0], (j = nsiz, &j), fmti, &ierr);	/* read sci id */
-      C2F (mgetnc) (&fd, &Ydim[6], (j = 1, &j), fmti, &ierr);	/* read sci type */
-      C2F (mgetnc) (&fd, &Ydim[7], (j = 3, &j), fmti, &ierr);	/* read sci header */
-
-      if (nPoints != Ydim[7])
-	{
-	  Coserror
-	    ("The size of the Time(%d) and Data(%d) vectors are inconsistent.\n",
-	     Ydim[7], nPoints);
-	  /*set_block_error(-3); */
-	  *(_work) = NULL;
-	  scicos_free (ptr->work);
-	  scicos_free (ptr);
-	  C2F (mclose) (&fd, &res);
-	  return;
-	}
-
-      if ((Ydim[6] != 1) | (Ydim[9] != 0))
-	{
-	  Coserror ("The Time vector type is not " "double" ".\n");
-	  /*set_block_error(-3); */
-	  *(_work) = NULL;
-	  scicos_free (ptr->work);
-	  scicos_free (ptr);
-	  C2F (mclose) (&fd, &res);
-	  return;
-	}
-
-      if ((ptr->workt =
-	   (double *) scicos_malloc (nPoints * sizeof (double))) == NULL)
-	{
-	  set_block_error (-16);
-	  *(_work) = NULL;
-	  scicos_free (ptr->work);
-	  scicos_free (ptr);
-	  C2F (mclose) (&fd, &res);
-	  return;
-	}
-      ptr_T = (SCSREAL_COP *) ptr->workt;
-      C2F (mgetnc) (&fd, ptr_T, (j = nPoints, &j), fmtd, &ierr);	/* read data of t */
-
-      /* close the file */
-      C2F (mclose) (&fd, &res);
 
       /*================================*/
       /* check for an increasing time data */
@@ -1627,14 +1246,101 @@ int Myevalhermite2 (const double *t, double *x1, double *x2, double *y1,
 #endif
 
 
-static int nsp_fromws_acquire_data(const char *name,fromws_data *D)
+static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n,int type)
 {
+  int i;
+  NSP_ITYPE_NAMES(names);
+  char *st=NULL;
+  char type_ref; 
+  int ism_ref,itype_ref;
+  fromws_data *D;
   NspObject *Obj,*Time,*Values;
+  if ((D= malloc(sizeof(fromws_data)))== NULL) return FAIL;
+  D->m=m;
+  D->n=n;
+  D->type=type;
   if ((Obj = nsp_global_frame_search_object(name))== NULL)  return FAIL;
   if ( !IsHash(Obj))   return FAIL;
   if (nsp_hash_find((NspHash *) Obj,"time",&Time) == FAIL) return FAIL;
   if (nsp_hash_find((NspHash *) Obj,"values",&Values) == FAIL) return FAIL;
-  if ( IsMat(Time) == FAIL) return FAIL;
-  if ( IsCells(Values) == FAIL) return FAIL;
+  if ( !IsMat(Time) ) return FAIL;
+  Mat2double((NspMatrix *) Time);
+  if ( !IsCells(Values) == FAIL) return FAIL;
+  if ( ((NspMatrix *) Time)->mn != ((NspCells *) Values)->mn) 
+    {
+      Coserror("Time and Values have incompatible size");
+      return FAIL;
+    }
+  if ( ((NspMatrix *) Time)->rc_type != 'r') 
+    {
+      Coserror("Time and Values have incompatible size");
+      return FAIL;
+    }
+  for ( i = 0 ; i < ((NspCells *) Values)->mn ; i++) 
+    {
+      NspObject *Loc=  ((NspCells *) Values)->objs[i];
+      if ( Loc == NULL || !( IsMat(Loc) || IsIMat(Loc) )) 
+	{
+	  Coserror("%s.values{%d} should be a real or int matrix",name,i+1);
+	  return FAIL;
+	}
+      switch ( type ) 
+	{
+	case SCSREAL_N :
+	  if ( ! IsMat(Loc) ||  ((NspMatrix *) Loc)->rc_type != 'r') 
+	    {
+	      Coserror("%s.values{%d} should be a real matrix",name,i+1);
+	      return FAIL;
+	    }
+	  ism_ref=1;
+	  type_ref='r';
+	  break;
+	case SCSCOMPLEX_N :
+	  if ( ! IsMat(Loc) ||  ((NspMatrix *) Loc)->rc_type != 'r') 
+	    {
+	      Coserror("%s.values{%d} should be a complex matrix",name,i+1);
+	      return FAIL;
+	    }
+	  ism_ref=1;
+	  type_ref='c';
+	  break;
+	default:
+	  if ( ! IsIMat(Loc) )
+	    {
+	      Coserror("%s.values{%d} should be an int matrix",name,i+1);
+	      return FAIL;
+	    }
+	  ism_ref = 0;
+	  itype_ref = type;
+	  st = NSP_ITYPE_NAME(names,((NspIMatrix *)Loc)->itype);
+	  switch ( type ) 
+	    {
+#define TYPE_CASE(scicos_t,nsp_t)					\
+	      case scicos_t :						\
+		if ( ((NspIMatrix *) Loc)->itype != nsp_t )		\
+		  {							\
+		    Coserror("%s.values{%d} should be an imatrix of type %s",name,i+1,st); \
+		    return FAIL;					\
+		  } 
+	      TYPE_CASE( SCSINT_N, nsp_gint );break;
+	      TYPE_CASE( SCSINT8_N, nsp_gint8 );break;
+	      TYPE_CASE( SCSINT16_N, nsp_gint16 );break;
+	      TYPE_CASE( SCSINT32_N, nsp_gint32 );break;
+	      TYPE_CASE( SCSUINT_N , nsp_guint);break;
+	      TYPE_CASE( SCSUINT8_N, nsp_guint8);break;
+	      TYPE_CASE( SCSUINT16_N , nsp_guint16);break;
+	      TYPE_CASE( SCSUINT32_N,nsp_guint32 );break;
+#undef TYPE_CASE 
+	    default:
+	      return FAIL;
+	    }
+	}
+      /* this works for matrix and imatrix */
+      if ( ((NspMatrix *) Loc)->m != D->m || ((NspMatrix *) Loc)->n != D->n)
+	{
+	  Coserror("%s.values{%d} should be a of size %dx%s",name,i+1,D->m,D->n);
+	  return FAIL;
+	}
+    }
   return OK;
 }
