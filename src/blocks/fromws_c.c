@@ -28,6 +28,37 @@
 #include <nsp/datas.h>
 
 
+#define Y_COMPUTE1(type)						\
+  {									\
+    type *y_ul = (type *) GetOutPortPtrs (block, 1);			\
+    if (inow >= D->time->mn - 1)					\
+      {									\
+	if (D->OutEnd == 0)						\
+	  {								\
+	    y_ul[j] = 0;	/* outputs set to zero */		\
+	  }								\
+	else if (D->OutEnd == 1)					\
+	  {								\
+	    /* hold outputs at the end */				\
+	    y_ul[j] = ((type *) ((NspIMatrix *) D->values->objs[D->time->mn-1])->Iv)[j]; \
+	  }								\
+      }									\
+    else if (D->Method == 0)						\
+      {									\
+	y_ul[j] =(inow < 0)?  0:  ((type *) ((NspIMatrix *) D->values->objs[inow])->Iv)[j]; \
+      }									\
+    else if (D->Method >= 1)						\
+      {									\
+    	double t1,t2,y1,y2;						\
+	if (inow < 0) inow = 0;						\
+	t1 = D->time->R[inow];						\
+	t2 = D->time->R[inow + 1];					\
+	y1 = (double) ((type *) ((NspIMatrix *) D->values->objs[inow])->Iv)[j]; \
+	y2 = (double) ((type *) ((NspIMatrix *) D->values->objs[inow+1])->Iv)[j]; \
+	y_ul[j] =  (type) ((y2 - y1) * (t - t1) / (t2 - t1) + y1);	\
+      }									\
+  }
+
 typedef struct _fromws_data fromws_data;
 
 struct _fromws_data
@@ -36,26 +67,29 @@ struct _fromws_data
   NspCells *values; /* cell array to store values */
   int m,n,type;     /* each value in values is a mxn matrix of type type */
   char name[32];
+  int Method, ZC, OutEnd;
+  double *D;
+  int cnt1; 
+  int cnt2; 
+  int EVindex;
+  int PerEVcnt;
+  int firstevent;
 };
 
 static int nsp_fromws_acquire_data(const char *name,fromws_data **D,int m,int n,int type);
+static int nsp_alloc_for_spline(fromws_data *D);
+static int Mytridiagldltsolve (double *d, double *l, double *b, int n);
+static int Myevalhermite2 (const double *t, double *xa, double *xb, double *ya,
+			   double *yb, double *da, double *db, double *h, double *dh,
+			   double *ddh, double *dddh, int *i);
 
 void fromws_c (scicos_block * block, int flag)
 {
-  void **_work = GetPtrWorkPtrs (block);
   int *_ipar = GetIparPtrs (block);
   int my = GetOutPortRows (block, 1);	/* number of rows of Outputs */
   int ny = GetOutPortCols (block, 1);	/* number of cols of Outputs */
   int ytype = GetOutType (block, 1);	/* output type */
   double *_evout = GetNevOutPtrs (block);
-  
-  /* 
-     Fnlength = _ipar[0];
-     FName = _ipar + 1;
-     Method = _ipar[1 + Fnlength];
-     ZC = _ipar[2 + Fnlength];
-     OutEnd = _ipar[3 + Fnlength];
-  */
 
   if (flag == 4)
     {
@@ -69,317 +103,42 @@ void fromws_c (scicos_block * block, int flag)
 	  Coserror ("Cannot acquire data '%s' \n",name);
 	  return;
 	}
-      *block->work = D;
-    }
-  else if (flag == 1)
-    {
-      fromws_data *D = (fromws_data *) (*block->work);
-      Sciprintf ("fromws_c is to be done for nsp \n");
-    }
-  else if (flag == 3)
-    {
-      fromws_data *D = (fromws_data *) (*block->work);
-      Sciprintf ("fromws_c is to be done for nsp \n");
-    }
-  else if (flag == 5)
-    {
-      fromws_data *D = (fromws_data *) (*block->work);
-      Sciprintf ("fromws_c is to be done for nsp \n");
-    }
-}
-
-
-#if 0
-
-#define T0        ptr->workt[0]
-#define TNm1      ptr->workt[nPoints-1]
-#define TP        (TNm1-0)
-
-int Mytridiagldltsolve (double *d, double *l, double *b, int n);
-int Myevalhermite2 (const double *t, double *xa, double *xb, double *ya,
-		    double *yb, double *da, double *db, double *h, double *dh,
-		    double *ddh, double *dddh, int *i);
-
-/* work struct for that block */
-typedef struct
-{
-  int nPoints;
-  int Hmat;
-  int Yt;
-  int Yst;
-  int cnt1;
-  int cnt2;
-  int EVindex;
-  int PerEVcnt;
-  int firstevent;
-  double *D;
-  void *work;
-  double *workt;
-} fromwork_struct;
-
-void fromws_c (scicos_block * block, int flag)
-{
-  double t, y1, y2, t1, t2, r;
-  double *spline, *A_d, *A_sd, *qdy;
-  double d1, d2, h, dh, ddh, dddh;
-  /* counter and indexes variables */
-  int i, inow;
-  int j, jfirst;
-  int cnt1, cnt2, EVindex, PerEVcnt;
-
-  /* variables for type and dims of data coming from scilab */
-  int Ytype, YsubType, mY, nY;
-  int nPoints;
-  int Ydim[10];
-  
-  /* variables for type and dims of data of the output port block */
-  int ytype, my, ny;
-
-  /* generic pointer */
-  SCSREAL_COP *y_d, *y_cd, *ptr_d, *ptr_T, *ptr_D;
-  SCSINT8_COP *y_c, *ptr_c;
-  SCSUINT8_COP *y_uc, *ptr_uc;
-  SCSINT16_COP *y_s, *ptr_s;
-  SCSUINT16_COP *y_us, *ptr_us;
-  SCSINT32_COP *y_l, *ptr_l;
-  SCSUINT32_COP *y_ul, *ptr_ul;
-
-  /* init */
-  if (flag == 4)
-    {
-      /* allocation of the work structure of that block */
-      if ((*(_work) =
-	   (fromwork_struct *) scicos_malloc (sizeof (fromwork_struct))) ==
-	  NULL)
+      D->Method = *(_ipar+ 1 + _ipar[0]);
+      D->ZC =     *(_ipar+ 2 + _ipar[0]);
+      D->OutEnd = *(_ipar+ 3 + _ipar[0]);
+      if ( nsp_alloc_for_spline(D) == FAIL) 
 	{
-	  set_block_error (-16);
-	  C2F (mclose) (&fd, &res);
+	  Coserror ("Cannot acquire data '%s' \n",name);
 	  return;
 	}
-      ptr = *(_work);
-      ptr->D = NULL;
-      ptr->workt = NULL;
-      ptr->work = NULL;
+      *block->work = D;
 
-      /*================================*/
-      /* check for an increasing time data */
-      for (j = 0; j < nPoints - 1; j++)
-	{
-	  if (ptr_T[j] > ptr_T[j + 1])
-	    {
-	      Coserror ("The time vector should be an increasing vector.\n");
-	      /*set_block_error(-3); */
-	      *(_work) = NULL;
-	      scicos_free (ptr->workt);
-	      scicos_free (ptr->work);
-	      scicos_free (ptr);
-	      return;
-	    }
-	}
-      /*=================================*/
-      if ((Method > 1) && (Ytype == 1) && (!ptr->Hmat))
-	{			/* double or complex */
-
-	  if (YsubType == 0)
-	    {			/*real */
-	      if ((ptr->D =
-		   (double *) scicos_malloc (nPoints * mY *
-					     sizeof (double))) == NULL)
-		{
-		  set_block_error (-16);
-		  *(_work) = NULL;
-		  scicos_free (ptr->workt);
-		  scicos_free (ptr->work);
-		  scicos_free (ptr);
-		  return;
-		}
-	    }
-	  else
-	    {			/*complex */
-	      if ((ptr->D =
-		   (double *) scicos_malloc (2 * nPoints * mY *
-					     sizeof (double))) == NULL)
-		{
-		  set_block_error (-16);
-		  *(_work) = NULL;
-		  scicos_free (ptr->workt);
-		  scicos_free (ptr->work);
-		  scicos_free (ptr);
-		  return;
-		}
-	    }
-
-	  if ((spline =
-	       (double *) scicos_malloc ((3 * nPoints - 2) *
-					 sizeof (double))) == NULL)
-	    {
-	      Coserror ("Allocation problem in spline.\n");
-	      /*set_block_error(-16); */
-	      *(_work) = NULL;
-	      scicos_free (ptr->D);
-	      scicos_free (ptr->workt);
-	      scicos_free (ptr->work);
-	      scicos_free (ptr);
-	      return;
-	    }
-
-	  A_d = spline;
-	  A_sd = A_d + nPoints;
-	  qdy = A_sd + nPoints - 1;
-
-	  for (j = 0; j < mY; j++)
-	    {			/* real part */
-	      for (i = 0; i <= nPoints - 2; i++)
-		{
-		  A_sd[i] = 1.0 / (ptr_T[i + 1] - ptr_T[i]);
-		  qdy[i] =
-		    (ptr_d[i + 1 + j * nPoints] -
-		     ptr_d[i + j * nPoints]) * A_sd[i] * A_sd[i];
-		}
-
-	      for (i = 1; i <= nPoints - 2; i++)
-		{
-		  A_d[i] = 2.0 * (A_sd[i - 1] + A_sd[i]);
-		  ptr->D[i + j * nPoints] = 3.0 * (qdy[i - 1] + qdy[i]);
-		}
-
-	      if (Method == 2)
-		{
-		  A_d[0] = 2.0 * A_sd[0];
-		  ptr->D[0 + j * nPoints] = 3.0 * qdy[0];
-		  A_d[nPoints - 1] = 2.0 * A_sd[nPoints - 2];
-		  ptr->D[nPoints - 1 + j * nPoints] = 3.0 * qdy[nPoints - 2];
-		  Mytridiagldltsolve (A_d, A_sd, &ptr->D[j * nPoints],
-				      nPoints);
-		}
-
-	      if (Method == 3)
-		{
-		  /*  s'''(x(2)-) = s'''(x(2)+) */
-		  r = A_sd[1] / A_sd[0];
-		  A_d[0] = A_sd[0] / (1.0 + r);
-		  ptr->D[j * nPoints] =
-		    ((3.0 * r + 2.0) * qdy[0] +
-		     r * qdy[1]) / ((1.0 + r) * (1.0 + r));
-		  /*  s'''(x(n-1)-) = s'''(x(n-1)+) */
-		  r = A_sd[nPoints - 3] / A_sd[nPoints - 2];
-		  A_d[nPoints - 1] = A_sd[nPoints - 2] / (1.0 + r);
-		  ptr->D[nPoints - 1 + j * nPoints] =
-		    ((3.0 * r + 2.0) * qdy[nPoints - 2] +
-		     r * qdy[nPoints - 3]) / ((1.0 + r) * (1.0 + r));
-		  Mytridiagldltsolve (A_d, A_sd, &ptr->D[j * nPoints],
-				      nPoints);
-		}
-	    }
-
-	  if (YsubType == 1)
-	    {			/* imag part */
-	      for (j = 0; j < mY; j++)
-		{
-		  for (i = 0; i <= nPoints - 2; i++)
-		    {
-		      A_sd[i] = 1.0 / (ptr_T[i + 1] - ptr_T[i]);
-		      qdy[i] =
-			(ptr_d[nPoints + i + 1 + j * nPoints] -
-			 ptr_d[nPoints + i +
-			       j * nPoints]) * A_sd[i] * A_sd[i];
-		    }
-
-		  for (i = 1; i <= nPoints - 2; i++)
-		    {
-		      A_d[i] = 2.0 * (A_sd[i - 1] + A_sd[i]);
-		      ptr->D[i + j * nPoints + nPoints] =
-			3.0 * (qdy[i - 1] + qdy[i]);
-		    }
-
-		  if (Method == 2)
-		    {
-		      A_d[0] = 2.0 * A_sd[0];
-		      ptr->D[nPoints + 0 + j * nPoints] = 3.0 * qdy[0];
-		      A_d[nPoints - 1] = 2.0 * A_sd[nPoints - 2];
-		      ptr->D[nPoints + nPoints - 1 + j * nPoints] =
-			3.0 * qdy[nPoints - 2];
-		      Mytridiagldltsolve (A_d, A_sd,
-					  &ptr->D[nPoints + j * nPoints],
-					  nPoints);
-		    }
-
-		  if (Method == 3)
-		    {
-		      /*  s'''(x(2)-) = s'''(x(2)+) */
-		      r = A_sd[1] / A_sd[0];
-		      A_d[0] = A_sd[0] / (1.0 + r);
-		      ptr->D[nPoints + j * nPoints] =
-			((3.0 * r + 2.0) * qdy[0] +
-			 r * qdy[1]) / ((1.0 + r) * (1.0 + r));
-		      /*  s'''(x(n-1)-) = s'''(x(n-1)+) */
-		      r = A_sd[nPoints - 3] / A_sd[nPoints - 2];
-		      A_d[nPoints - 1] = A_sd[nPoints - 2] / (1.0 + r);
-		      ptr->D[nPoints + nPoints - 1 + j * nPoints] =
-			((3.0 * r + 2.0) * qdy[nPoints - 2] +
-			 r * qdy[nPoints - 3]) / ((1.0 + r) * (1.0 + r));
-		      Mytridiagldltsolve (A_d, A_sd,
-					  &ptr->D[nPoints + j * nPoints],
-					  nPoints);
-		    }
-		}
-	    }
-
-	  scicos_free (spline);
-	}
-      /*===================================*/
-      cnt1 = nPoints - 1;
-      cnt2 = nPoints;
-      for (i = 0; i < nPoints; i++)
-	{			/* finding the first positive time instant */
-	  if (ptr->workt[i] >= 0)
-	    {
-	      cnt1 = i - 1;
-	      cnt2 = i;
-	      break;
-	    }
-	}
-      ptr->nPoints = nPoints;
-      ptr->Yt = Ytype;
-      ptr->Yst = YsubType;
-      ptr->cnt1 = cnt1;
-      ptr->cnt2 = cnt2;
-      ptr->EVindex = 0;
-      ptr->PerEVcnt = 0;
-      ptr->firstevent = 1;
-      return;
-      /*******************************************************/
-      /*******************************************************/
     }
   else if (flag == 1)
-    {				/* output computation */
+    {
+      int i,j, inow;
+      fromws_data *D = (fromws_data *) (*block->work);
+      int cnt1 = D->cnt1;
+      int cnt2 = D->cnt2;
+      int EVindex = D->EVindex;
+      int PerEVcnt = D->PerEVcnt;
+      double t = GetScicosTime (block);
 
-      /* retrieve ptr of the structure of that block */
-      ptr = *(_work);
-      nPoints = ptr->nPoints;
-      cnt1 = ptr->cnt1;
-      cnt2 = ptr->cnt2;
-      EVindex = ptr->EVindex;
-      PerEVcnt = ptr->PerEVcnt;
-
-      /* get current simulation time */
-      t = GetScicosTime (block);
-      t1 = t;
-
-      if (ZC == 1)
-	{			/*zero crossing enable */
-	  if (OutEnd == 2)
+      if (D->ZC == 1)
+	{
+	  /*zero crossing enable */
+	  if (D->OutEnd == 2)
 	    {
-	      t -= (PerEVcnt) * TP;
+	      t -= (PerEVcnt) * D->time->R[D->time->mn-1];
 	    }
-	  inow = nPoints - 1;
-	  for (i = cnt1; i < nPoints; i++)
+	  inow = D->time->mn - 1;
+	  for (i = cnt1; i < D->time->mn; i++)
 	    {
 	      if (i == -1)
 		{
 		  continue;
 		}
-	      if (t < ptr->workt[i])
+	      if (t < D->time->R[i])
 		{
 		  inow = i - 1;
 		  if (inow < cnt2)
@@ -397,22 +156,23 @@ void fromws_c (scicos_block * block, int flag)
 	}
       else
 	{			/*zero crossing disable */
-	  if (OutEnd == 2)
+	  if (D->OutEnd == 2)
 	    {
-	      if (TP != 0)
+	      double r;
+	      if ( D->time->R[D->time->mn-1] != 0)
 		{
-		  r = floor ((t / TP));
+		  r = floor ((t /D->time->R[D->time->mn-1]));
 		}
 	      else
 		{
 		  r = 0;
 		}
-	      t -= ((int) r) * TP;
+	      t -= ((int) r) *D->time->R[D->time->mn-1];
 	    }
-	  inow = nPoints - 1;
-	  for (i = 0; i < nPoints; i++)
+	  inow = D->time->mn - 1;
+	  for (i = 0; i < D->time->mn ; i++)
 	    {
-	      if (t < ptr->workt[i])
+	      if (t < D->time->R[i])
 		{
 		  inow = i - 1;
 		  break;
@@ -420,830 +180,219 @@ void fromws_c (scicos_block * block, int flag)
 	    }
 	}
 
-      ptr->cnt1 = cnt1;
-      ptr->cnt2 = cnt2;
-      ptr->EVindex = EVindex;
-      ptr->PerEVcnt = PerEVcnt;
+      D->cnt1 = cnt1;
+      D->cnt2 = cnt2;
+      D->EVindex = EVindex;
+      D->PerEVcnt = PerEVcnt;
 
-      /***************************/
-      /* hypermatrix case */
-      if (ptr->Hmat)
+      for (j = 0; j < D->m*D->n; j++)
 	{
-
-	  for (j = 0; j < my * ny; j++)
+	  if ( D->type == SCSREAL_N || D->type == SCSCOMPLEX_N)
 	    {
-	      if (ptr->Yt == 1)
+	      double *y_d = GetRealOutPortPtrs (block, 1);
+	      double *ptr_D = (double *) D->D;
+	      if (inow >= D->time->mn - 1)
 		{
-		  if (ptr->Yst == 0)
-		    {		/* real case */
-		      y_d = GetRealOutPortPtrs (block, 1);
-		      ptr_d = (double *) ptr->work;
-
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_d[j] = 0.0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_d[j] = ptr_d[(nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			    }
-			}
-		      else
-			{
-			  if (inow < 0)
-			    {
-			      y_d[j] = 0.0;
-			    }
-			  else
-			    {
-			      y_d[j] = ptr_d[inow * ny * my + j];
-			    }
-			}
-		    }
-		  else
-		    {		/* complexe case */
-		      y_d = GetRealOutPortPtrs (block, 1);
-		      y_cd = GetImagOutPortPtrs (block, 1);
-		      ptr_d = (double *) ptr->work;
-
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_d[j] = 0.0;	/* outputs set to zero */
-			      y_cd[j] = 0.0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_d[j] = ptr_d[(nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			      y_cd[j] = ptr_d[nPoints * my * ny + (nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			    }
-			}
-		      else
-			{
-			  if (inow < 0)
-			    {
-			      y_d[j] = 0.0;	/* outputs set to zero */
-			      y_cd[j] = 0.0;	/* outputs set to zero */
-			    }
-			  else
-			    {
-			      y_d[j] = ptr_d[inow * ny * my + j];
-			      y_cd[j] =
-				ptr_d[nPoints * my * ny + inow * ny * my + j];
-			    }
-			}
-		    }
-		}
-	      else if (ptr->Yt == 8)
-		{
-		  switch (ptr->Yst)
+		  if (D->OutEnd == 0)
 		    {
-		    case 1:	/* ---------------------int8 char  ---------------------------- */
-		      y_c = Getint8OutPortPtrs (block, 1);
-		      ptr_c = (char *) ptr->work;
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_c[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_c[j] = ptr_c[(nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			    }
-			}
-		      else
-			{
-			  if (inow < 0)
-			    {
-			      y_c[j] = 0;
-			    }
-			  else
-			    {
-			      y_c[j] = ptr_c[inow * ny * my + j];
-			    }
-			}
-		      break;
-
-		    case 2:	/* ---------------------int16 short--------------------- */
-		      y_s = Getint16OutPortPtrs (block, 1);
-		      ptr_s = (SCSINT16_COP *) ptr->work;
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_s[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_s[j] = ptr_s[(nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			    }
-			}
-		      else
-			{
-			  if (inow < 0)
-			    {
-			      y_s[j] = 0;
-			    }
-			  else
-			    {
-			      y_s[j] = ptr_s[inow * ny * my + j];
-			    }
-			}
-		      break;
-
-		    case 4:	/* ---------------------int32 long--------------------- */
-		      y_l = Getint32OutPortPtrs (block, 1);
-		      ptr_l = (SCSINT32_COP *) ptr->work;
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_l[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_l[j] = ptr_l[(nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			    }
-			}
-		      else
-			{
-			  if (inow < 0)
-			    {
-			      y_l[j] = 0;
-			    }
-			  else
-			    {
-			      y_l[j] = ptr_l[inow * ny * my + j];
-			    }
-			}
-		      break;
-
-		    case 11:
-		      /*--------------------- uint8 uchar---------------------*/
-		      y_uc = Getuint8OutPortPtrs (block, 1);
-		      ptr_uc = (SCSUINT8_COP *) ptr->work;
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_uc[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_uc[j] = ptr_uc[(nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			    }
-			}
-		      else
-			{
-			  if (inow < 0)
-			    {
-			      y_uc[j] = 0;
-			    }
-			  else
-			    {
-			      y_uc[j] = ptr_uc[inow * ny * my + j];
-			    }
-			}
-		      break;
-
-		    case 12:	/* ---------------------uint16 ushort--------------------- */
-		      y_us = Getuint16OutPortPtrs (block, 1);
-		      ptr_us = (SCSUINT16_COP *) ptr->work;
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_us[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_us[j] = ptr_us[(nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			    }
-			}
-		      else
-			{
-			  if (inow < 0)
-			    {
-			      y_us[j] = 0;
-			    }
-			  else
-			    {
-			      y_us[j] = ptr_us[inow * ny * my + j];
-			    }
-			}
-		      break;
-
-		    case 14:	/* ---------------------uint32 ulong--------------------- */
-		      y_ul = Getuint32OutPortPtrs (block, 1);
-		      ptr_ul = (SCSUINT32_COP *) ptr->work;
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_ul[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_ul[j] = ptr_ul[(nPoints - 1) * ny * my + j];	/* hold outputs at the end */
-			    }
-			}
-		      else
-			{
-			  if (inow < 0)
-			    {
-			      y_ul[j] = 0;
-			    }
-			  else
-			    {
-			      y_ul[j] = ptr_ul[inow * ny * my + j];
-			    }
-			}
-		      break;
+		      y_d[j] = 0.0;	/* outputs set to zero */
+		    }
+		  else if (D->OutEnd == 1)
+		    {
+		      /* hold outputs at the end */
+		      y_d[j] = ((NspMatrix *) D->values->objs[D->time->mn - 1])->R[j]; 
 		    }
 		}
-	    }			/* for j loop */
-	}
-      /****************************/
-      /* scalar of vectorial case */
-      else
-	{
-	  for (j = 0; j < my; j++)
+	      else if (D->Method == 0)
+		{
+		  y_d[j] =(inow < 0)?  0.0:  ((NspMatrix *) D->values->objs[inow])->R[j];
+		}
+	      else if (D->Method == 1)
+		{
+		  double t1,t2,y1,y2;
+		  if (inow < 0) inow = 0;
+		  t1 = D->time->R[inow];
+		  t2 = D->time->R[inow + 1];
+		  y1 = ((NspMatrix *) D->values->objs[inow])->R[j];
+		  y2 = ((NspMatrix *) D->values->objs[inow+1])->R[j];
+		  y_d[j] = (y2 - y1) * (t - t1) / (t2 - t1) + y1;
+		}
+	      else if (D->Method >= 2)
+		{
+		  double h,dh,ddh,dddh;
+		  double t1,t2,y1,y2,d1,d2;
+		  if (inow < 0) inow = 0;
+		  t1 = D->time->R[inow];
+		  t2 = D->time->R[inow + 1];
+		  y1 = ((NspMatrix *) D->values->objs[inow])->R[j];
+		  y2 = ((NspMatrix *) D->values->objs[inow+1])->R[j];
+		  d1 = ptr_D[inow + j * D->time->mn];
+		  d2 = ptr_D[inow + 1 + j * D->time->mn];
+		  Myevalhermite2 (&t, &t1, &t2, &y1, &y2, &d1, &d2, &h, &dh, &ddh, &dddh, &inow);
+		  y_d[j] = h;
+		}
+	      if ( D->type == SCSCOMPLEX_N) 
+		{
+		  /*  --------------complex---------------------- */
+		  double *y_cd = GetImagOutPortPtrs (block, 1);
+		  if (inow >= D->time->mn - 1)
+		    {
+		      if (D->OutEnd == 0)
+			{
+			  y_cd[j] = 0.0;	/* outputs set to zero */
+			}
+		      else if (D->OutEnd == 1)
+			{
+			  y_cd[j] = ((NspMatrix *) D->values->objs[D->time->mn - 1])->C[j].i;
+			}
+		    }
+		  else if (D->Method == 0)
+		    {
+		      if (inow < 0)
+			{
+			  y_cd[j] = 0.0;	/* outputs set to zero */
+			}
+		      else
+			{
+			  y_cd[j] =((NspMatrix *) D->values->objs[inow])->C[j].i;
+			}
+		    }
+		  else if (D->Method == 1)
+		    {
+		      double t1,t2,y1,y2;
+		      if (inow < 0) inow = 0;
+		      t1 = D->time->R[inow];
+		      t2 = D->time->R[inow + 1];
+		      y1= ((NspMatrix *) D->values->objs[inow])->C[j].i;
+		      y2= ((NspMatrix *) D->values->objs[inow+1])->C[j].i;
+		      y_cd[j] = (y2 - y1) * (t - t1) / (t2 - t1) + y1;
+		    }
+		  else if (D->Method >= 2)
+		    {
+		      double h,dh,ddh,dddh;
+		      double t1,t2,y1,y2,d1,d2;
+		      t1 = D->time->R[inow];
+		      t2 = D->time->R[inow + 1];
+		      y1 = ((NspMatrix *) D->values->objs[inow])->C[j].i;
+		      y2 = ((NspMatrix *) D->values->objs[inow+1])->C[j].i;
+		      d1 = ptr_D[inow + j * D->time->mn + D->time->mn];
+		      d2 = ptr_D[inow + 1 + j * D->time->mn + D->time->mn];
+		      Myevalhermite2 (&t, &t1, &t2, &y1, &y2, &d1, &d2,
+				      &h, &dh, &ddh, &dddh, &inow);
+		      y_cd[j] = h;
+		    }
+		}
+	    }
+	  else
 	    {
-	      if (ptr->Yt == 1)
+	      switch ( D->type )
 		{
-		  if ((ptr->Yst == 0) || (ptr->Yst == 1))
-		    {		/*  if Real or complex */
-		      y_d = GetRealOutPortPtrs (block, 1);
-		      ptr_d = (double *) ptr->work;
-		      ptr_D = (double *) ptr->D;
-
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_d[j] = 0.0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_d[j] = ptr_d[nPoints - 1 + (j) * nPoints];	/* hold outputs at the end */
-			    }
-			}
-		      else if (Method == 0)
-			{
-			  if (inow < 0)
-			    {
-			      y_d[j] = 0.0;
-			    }
-			  else
-			    {
-			      y_d[j] = ptr_d[inow + (j) * nPoints];
-			    }
-			}
-		      else if (Method == 1)
-			{
-			  if (inow < 0)
-			    {
-			      inow = 0;
-			    }
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = ptr_d[inow + j * nPoints];
-			  y2 = ptr_d[inow + 1 + j * nPoints];
-			  y_d[j] = (y2 - y1) * (t - t1) / (t2 - t1) + y1;
-			}
-		      else if (Method >= 2)
-			{
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = ptr_d[inow + j * nPoints];
-			  y2 = ptr_d[inow + 1 + j * nPoints];
-			  d1 = ptr_D[inow + j * nPoints];
-			  d2 = ptr_D[inow + 1 + j * nPoints];
-			  Myevalhermite2 (&t, &t1, &t2, &y1, &y2, &d1, &d2,
-					  &h, &dh, &ddh, &dddh, &inow);
-			  y_d[j] = h;
-			}
-		    }
-		  if (ptr->Yst == 1)
-		    {		/*  --------------complex---------------------- */
-		      y_cd = GetImagOutPortPtrs (block, 1);
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_cd[j] = 0.0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_cd[j] = ptr_d[nPoints * my + nPoints - 1 + (j) * nPoints];	// hold outputs at the end
-			    }
-			}
-		      else if (Method == 0)
-			{
-			  if (inow < 0)
-			    {
-			      y_cd[j] = 0.0;	/* outputs set to zero */
-			    }
-			  else
-			    {
-			      y_cd[j] =
-				ptr_d[nPoints * my + inow + (j) * nPoints];
-			    }
-			}
-		      else if (Method == 1)
-			{
-			  if (inow < 0)
-			    {
-			      inow = 0;
-			    }	/* extrapolation for 0<t<X(0) */
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = ptr_d[nPoints * my + inow + j * nPoints];
-			  y2 = ptr_d[nPoints * my + inow + 1 + j * nPoints];
-			  y_cd[j] = (y2 - y1) * (t - t1) / (t2 - t1) + y1;
-			}
-		      else if (Method >= 2)
-			{
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = ptr_d[inow + j * nPoints + nPoints];
-			  y2 = ptr_d[inow + 1 + j * nPoints + nPoints];
-			  d1 = ptr_D[inow + j * nPoints + nPoints];
-			  d2 = ptr_D[inow + 1 + j * nPoints + nPoints];
-			  Myevalhermite2 (&t, &t1, &t2, &y1, &y2, &d1, &d2,
-					  &h, &dh, &ddh, &dddh, &inow);
-			  y_cd[j] = h;
-			}
-		    }
+		case 1:  Y_COMPUTE1(gint8); break;
+		case 2:  Y_COMPUTE1(gint16); break;
+		case 4:  Y_COMPUTE1(gint32); break;
+		case 11: Y_COMPUTE1(guint8); break;
+		case 12: Y_COMPUTE1(guint16); break;
+		case 14: Y_COMPUTE1(guint32); break;
 		}
-	      else if (ptr->Yt == 8)
-		{
-		  switch (ptr->Yst)
-		    {
-		    case 1:	/* ---------------------int8 char  ---------------------------- */
-		      y_c = Getint8OutPortPtrs (block, 1);
-		      ptr_c = (char *) ptr->work;
-		      /*y_c[j]=ptr_c[inow+(j)*nPoints]; */
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_c[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_c[j] = ptr_c[nPoints - 1 + (j) * nPoints];	/* hold outputs at the end */
-			    }
-			}
-		      else if (Method == 0)
-			{
-			  if (inow < 0)
-			    {
-			      y_c[j] = 0;
-			    }
-			  else
-			    {
-			      y_c[j] = ptr_c[inow + (j) * nPoints];
-			    }
-			}
-		      else if (Method >= 1)
-			{
-			  if (inow < 0)
-			    {
-			      inow = 0;
-			    }
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = (double) ptr_c[inow + j * nPoints];
-			  y2 = (double) ptr_c[inow + 1 + j * nPoints];
-			  y_c[j] =
-			    (char) ((y2 - y1) * (t - t1) / (t2 - t1) + y1);
-			}
-		      break;
-		    case 2:	/* ---------------------int16 short--------------------- */
-		      y_s = Getint16OutPortPtrs (block, 1);
-		      ptr_s = (SCSINT16_COP *) ptr->work;
-		      /* y_s[j]=ptr_s[inow+(j)*nPoints]; */
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_s[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_s[j] = ptr_s[nPoints - 1 + (j) * nPoints];	// hold outputs at the end
-			    }
-			}
-		      else if (Method == 0)
-			{
-			  if (inow < 0)
-			    {
-			      y_s[j] = 0;
-			    }
-			  else
-			    {
-			      y_s[j] = ptr_s[inow + (j) * nPoints];
-			    }
-			}
-		      else if (Method >= 1)
-			{
-			  if (inow < 0)
-			    {
-			      inow = 0;
-			    }
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = (double) ptr_s[inow + j * nPoints];
-			  y2 = (double) ptr_s[inow + 1 + j * nPoints];
-			  y_s[j] =
-			    (SCSINT16_COP) ((y2 - y1) * (t - t1) / (t2 - t1) +
-					    y1);
-			}
-		      break;
-		    case 4:	/* ---------------------int32 long--------------------- */
-		      y_l = Getint32OutPortPtrs (block, 1);
-		      ptr_l = (SCSINT32_COP *) ptr->work;
-		      /*y_l[j]=ptr_l[inow+(j)*nPoints]; */
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_l[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_l[j] = ptr_l[nPoints - 1 + (j) * nPoints];	/* hold outputs at the end */
-			    }
-			}
-		      else if (Method == 0)
-			{
-			  if (inow < 0)
-			    {
-			      y_l[j] = 0;
-			    }
-			  else
-			    {
-			      y_l[j] = ptr_l[inow + (j) * nPoints];
-			    }
-			}
-		      else if (Method >= 1)
-			{
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = (double) ptr_l[inow + j * nPoints];
-			  y2 = (double) ptr_l[inow + 1 + j * nPoints];
-			  y_l[j] =
-			    (SCSINT32_COP) ((y2 - y1) * (t - t1) / (t2 - t1) +
-					    y1);
-			}
-		      break;
-		    case 11:
-		      /*--------------------- uint8 uchar---------------------*/
-		      y_uc = Getuint8OutPortPtrs (block, 1);
-		      ptr_uc = (SCSUINT8_COP *) ptr->work;
-		      /*y_uc[j]=ptr_uc[inow+(j)*nPoints]; */
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_uc[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_uc[j] = ptr_uc[nPoints - 1 + (j) * nPoints];	/* hold outputs at the end */
-			    }
-			}
-		      else if (Method == 0)
-			{
-			  if (inow < 0)
-			    {
-			      y_uc[j] = 0;
-			    }
-			  else
-			    {
-			      y_uc[j] = ptr_uc[inow + (j) * nPoints];
-			    }
-			}
-		      else if (Method >= 1)
-			{
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = (double) ptr_uc[inow + j * nPoints];
-			  y2 = (double) ptr_uc[inow + 1 + j * nPoints];
-			  y_uc[j] =
-			    (SCSUINT8_COP) ((y2 - y1) * (t - t1) / (t2 - t1) +
-					    y1);
-			}
-		      break;
-		    case 12:	/* ---------------------uint16 ushort--------------------- */
-		      y_us = Getuint16OutPortPtrs (block, 1);
-		      ptr_us = (SCSUINT16_COP *) ptr->work;
-		      /* y_us[j]=ptr_us[inow+(j)*nPoints]; */
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_us[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_us[j] = ptr_us[nPoints - 1 + (j) * nPoints];	/* hold outputs at the end */
-			    }
-			}
-		      else if (Method == 0)
-			{
-			  if (inow < 0)
-			    {
-			      y_us[j] = 0;
-			    }
-			  else
-			    {
-			      y_us[j] = ptr_us[inow + (j) * nPoints];
-			    }
-			}
-		      else if (Method >= 1)
-			{
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = (double) ptr_us[inow + j * nPoints];
-			  y2 = (double) ptr_us[inow + 1 + j * nPoints];
-			  y_us[j] =
-			    (SCSUINT16_COP) ((y2 - y1) * (t - t1) / (t2 -
-								     t1) +
-					     y1);
-			}
-		      break;
-		    case 14:	/* ---------------------uint32 ulong--------------------- */
-		      y_ul = Getuint32OutPortPtrs (block, 1);
-		      ptr_ul = (SCSUINT32_COP *) ptr->work;
-		      /* y_ul[j]=ptr_ul[inow+(j)*nPoints]; */
-		      if (inow >= nPoints - 1)
-			{
-			  if (OutEnd == 0)
-			    {
-			      y_ul[j] = 0;	/* outputs set to zero */
-			    }
-			  else if (OutEnd == 1)
-			    {
-			      y_ul[j] = ptr_ul[nPoints - 1 + (j) * nPoints];	/* hold outputs at the end */
-			    }
-			}
-		      else if (Method == 0)
-			{
-			  if (inow < 0)
-			    {
-			      y_ul[j] = 0;
-			    }
-			  else
-			    {
-			      y_ul[j] = ptr_ul[inow + (j) * nPoints];
-			    }
-			}
-		      else if (Method >= 1)
-			{
-			  t1 = ptr->workt[inow];
-			  t2 = ptr->workt[inow + 1];
-			  y1 = (double) ptr_ul[inow + j * nPoints];
-			  y2 = (double) ptr_ul[inow + 1 + j * nPoints];
-			  y_ul[j] =
-			    (SCSUINT32_COP) ((y2 - y1) * (t - t1) / (t2 -
-								     t1) +
-					     y1);
-			}
-		      break;
-		    }
-		}
-	    }			/* for j loop */
-	}
-      /********************************************************************/
+	    }
+	} 
     }
   else if (flag == 3)
-    {				/* event date computation */
-      /* retrieve ptr of the structure of that block */
-      ptr = *(_work);
-      nPoints = ptr->nPoints;
-      cnt1 = ptr->cnt1;
-      cnt2 = ptr->cnt2;
-      EVindex = ptr->EVindex;
-      PerEVcnt = ptr->PerEVcnt;
-
+    {
+      int jfirst,i,j;
+      fromws_data *D = (fromws_data *) (*block->work);
+      /* event date computation */
+      int cnt1 = D->cnt1;
+      int cnt2 = D->cnt2;
+      int EVindex = D->EVindex;
+      int PerEVcnt = D->PerEVcnt;
       /* get current simulation time */
-      t = GetScicosTime (block);
-
-      if (ZC == 1)
-	{			/* generate Events only if ZC is active */
-	  if ((Method == 1) || (Method == 0))
+      if (D->ZC == 1)
+	{	
+	  /* generate Events only if ZC is active */
+	  if ((D->Method == 1) || (D->Method == 0))
 	    {
 	      /*-------------------------*/
-	      if (ptr->firstevent == 1)
+	      if (D->firstevent == 1)
 		{
-		  jfirst = nPoints - 1;	/* finding first positive time instant */
-		  for (j = 0; j < nPoints; j++)
+		  jfirst = D->time->mn - 1;
+		  /* finding first positive time instant */
+		  for (j = 0; j < D->time->mn; j++)
 		    {
-		      if (ptr->workt[j] > 0)
+		      if (D->time->R[j] > 0)
 			{
 			  jfirst = j;
 			  break;
 			}
 		    }
-		  _evout[0] = ptr->workt[jfirst];
+		  _evout[0] = D->time->R[jfirst];
 		  EVindex = jfirst;
-		  ptr->EVindex = EVindex;
-		  ptr->firstevent = 0;
+		  D->EVindex = EVindex;
+		  D->firstevent = 0;
 		  return;
 		}
 	      /*------------------------*/
 	      i = EVindex;
 	      /*------------------------*/
-	      if (i < nPoints - 1)
+	      if (i < D->time->mn - 1)
 		{
-		  _evout[0] = ptr->workt[i + 1] - ptr->workt[i];
+		  _evout[0] = D->time->R[i + 1] - D->time->R[i];
 		  EVindex = i + 1;
 		}
 	      /*------------------------*/
-	      if (i == nPoints - 1)
+	      if (i == D->time->mn - 1)
 		{
-		  if (OutEnd == 2)
-		    {		/*  Periodic */
+		  if (D->OutEnd == 2)
+		    {
+		      /*  Periodic */
 		      cnt1 = -1;
 		      cnt2 = 0;
 		      PerEVcnt++;	/* When OutEnd==2 (perodic output) */
-		      jfirst = nPoints - 1;	/* finding first positive time instant */
-		      for (j = 0; j < nPoints; j++)
+		      jfirst = D->time->mn - 1;	/* finding first positive time instant */
+		      for (j = 0; j < D->time->mn; j++)
 			{
-			  if (ptr->workt[j] > 0)
+			  if (D->time->R[j] > 0)
 			    {
 			      jfirst = j;
 			      break;
 			    }
 			}
-		      _evout[0] = ptr->workt[jfirst];
+		      _evout[0] = D->time->R[jfirst];
 		      EVindex = jfirst;
 		    }
 		}
 	      /*-------------------------- */
 	    }
-	  else if (Method <= 3)
+	  else if (D->Method <= 3)
 	    {
-	      if (ptr->firstevent == 1)
+	      if (D->firstevent == 1)
 		{
-		  _evout[0] = TP;
-		  ptr->firstevent = 0;
+		  _evout[0] = D->time->R[D->time->mn-1];
+		  D->firstevent = 0;
 		}
 	      else
 		{
-		  if (OutEnd == 2)
+		  if (D->OutEnd == 2)
 		    {
-		      _evout[0] = TP;
+		      _evout[0] = D->time->R[D->time->mn-1];
 		    }
 		  PerEVcnt++;
 		}
 	      cnt1 = -1;
 	      cnt2 = 0;
 	    }
-	  ptr->cnt1 = cnt1;
-	  ptr->cnt2 = cnt2;
-	  ptr->EVindex = EVindex;
-	  ptr->PerEVcnt = PerEVcnt;
+	  D->cnt1 = cnt1;
+	  D->cnt2 = cnt2;
+	  D->EVindex = EVindex;
+	  D->PerEVcnt = PerEVcnt;
 	}
-      /***********************************************************************/
     }
   else if (flag == 5)
-    {				/* finish */
-      ptr = *(_work);
-      if (ptr != NULL)
-	{
-	  if (ptr->D != NULL)
-	    {
-	      scicos_free (ptr->D);
-	    }
-	  if (ptr->work != NULL)
-	    {
-	      scicos_free (ptr->work);
-	    }
-	  if (ptr->workt != NULL)
-	    {
-	      scicos_free (ptr->workt);
-	    }
-	  scicos_free (ptr);
-	}
+    {
+      fromws_data *D = (fromws_data *) (*block->work);
+      Sciprintf ("fromws_c is to be done for nsp \n");
     }
-  /*************************************************************************/
 }
-
-int Ishm (int *fd, int *Ytype, int *nPoints, int *my, int *ny, int *YsubType)
-{
-  int *ptr_i;
-  int j, ierr;
-
-  /*work array to store header of hypermat */
-  if ((ptr_i = (int *) scicos_malloc (37 * sizeof (int))) == NULL)
-    {
-      return 0;
-    }
-
-  C2F (mgetnc) (fd, ptr_i, (j = 37, &j), fmti, &ierr);	/* read sci id */
-  if (ierr != 0)
-    {
-      return 0;
-    }
-
-  if ((ptr_i[0] != 3) ||
-      (ptr_i[1] != 1) ||
-      (ptr_i[5] != 10) ||
-      (ptr_i[6] != 1) ||
-      (ptr_i[7] != 3) ||
-      (ptr_i[8] != 0) ||
-      (ptr_i[9] != 1) ||
-      (ptr_i[10] != ptr_i[9] + 2) ||
-      (ptr_i[11] != ptr_i[10] + 4) ||
-      (ptr_i[12] != ptr_i[11] + 7) ||
-      (ptr_i[13] != 17) ||
-      (ptr_i[14] != 22) ||
-      (ptr_i[15] != 13) ||
-      (ptr_i[16] != 18) ||
-      (ptr_i[17] != 22) ||
-      (ptr_i[18] != 28) ||
-      (ptr_i[19] != 14) ||
-      (ptr_i[20] != 23) ||
-      (ptr_i[21] != 29) ||
-      (ptr_i[22] != 27) ||
-      (ptr_i[23] != 18) ||
-      (ptr_i[24] != 14) ||
-      (ptr_i[25] != 28) ||
-      (ptr_i[26] != 8) ||
-      (ptr_i[27] != 1) || (ptr_i[28] != 3) || (ptr_i[29] != 4))
-    {
-      Coserror ("Invalid variable type : error in hypermat scilab coding.\n");
-      return 0;
-    }
-
-  *my = ptr_i[30];		/*37 */
-  *ny = ptr_i[31];		/*38 */
-  *nPoints = ptr_i[32];		/*39 */
-  *Ytype = ptr_i[33];		/*40 */
-
-  if ((ptr_i[34] != ptr_i[30] * ptr_i[31] * ptr_i[32]) || (ptr_i[35] != 1))
-    {
-      Coserror ("Invalid variable type : error in hypermat scilab coding.\n");
-      return 0;
-    }
-
-  *YsubType = ptr_i[36];	/*43 */
-
-  scicos_free (ptr_i);
-  return 1;
-}
-
-int Mytridiagldltsolve (double *dA, double *lA, double *B, int N)
-{
-  double Temp;
-  int j;
-
-  for (j = 1; j <= N - 1; ++j)
-    {
-      Temp = lA[j - 1];
-      lA[j - 1] /= dA[j - 1];
-      B[j] -= lA[j - 1] * B[j - 1];
-      dA[j] -= Temp * lA[j - 1];
-    }
-
-  B[N - 1] /= dA[N - 1];
-  for (j = N - 2; j >= 0; --j)
-    {
-      B[j] = -lA[j] * B[j + 1] + B[j] / dA[j];
-    }
-
-  return 0;
-}
-
-
-int Myevalhermite2 (const double *t, double *x1, double *x2, double *y1,
-		    double *y2, double *d1, double *d2, double *z, double *dz,
-		    double *ddz, double *dddz, int *k)
-{
-  double Temp, p, p2, p3, D;
-  Temp = *t - *x1;
-  D = 1.0 / (*x2 - *x1);
-  p = (*y2 - *y1) * D;
-  p2 = (p - *d1) * D;
-  p3 = (*d2 - p + (*d1 - p)) * (D * D);
-  *z = p2 + p3 * (*t - *x2);
-  *dz = *z + p3 * Temp;
-  *ddz = (*dz + p3 * Temp) * 2.;
-  *dddz = p3 * 6.0;
-  *z = *d1 + *z * Temp;
-  *dz = *z + *dz * Temp;
-  *z = *y1 + *z * Temp;
-  return 0;
-}
-
-#endif
 
 
 static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n,int type)
@@ -1259,6 +408,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
   D->m=m;
   D->n=n;
   D->type=type;
+  D->D=NULL;
   if ((Obj = nsp_global_frame_search_object(name))== NULL)  return FAIL;
   if ( !IsHash(Obj))   return FAIL;
   if (nsp_hash_find((NspHash *) Obj,"time",&Time) == FAIL) return FAIL;
@@ -1342,5 +492,191 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
 	  return FAIL;
 	}
     }
+  /* check that times are increasing */
+  for (i = 0; i < D->time->mn - 1; i++)
+    {
+      if ( D->time->R[i] > D->time->R[i + 1])
+	{
+	  Coserror("Error: %s.time(%d) > %s.time(%d), time should be an increasing vector",name,i,i+1);
+	  return FAIL;
+	}
+    }
+  D->cnt1 = D->time->mn - 1;
+  D->cnt2 = D->time->mn;
+  for (i = 0; i < D->time->mn;  i++)
+    {			
+      /* finding the first positive time instant */
+      if ( D->time->R[i]  >= 0)
+	{
+	  D->cnt1 = i - 1;
+	  D->cnt2 = i;
+	  break;
+	}
+    }
+  D->EVindex = 0;
+  D->PerEVcnt = 0;
+  D->firstevent = 1;
   return OK;
+}
+
+/* Only allocate here when data is double or complex 
+ *
+ */
+
+static int nsp_alloc_for_spline(fromws_data *D)
+{
+  int i,j;
+  NspMatrix *Vt, *Vtp1;
+  double *spline, *A_d, *A_sd, *qdy;
+  int mY = D->m*D->n;
+  int nPoints = D->time->mn;
+  int iscomplex = (D->type == SCSREAL_N) ? 0:1;
+  double *ptr_T = D->time->R;
+
+  if ( D->type != SCSREAL_N && D->type != SCSCOMPLEX_N) return OK;
+  if ( D->Method <= 1) return OK;
+
+  if ((D->D = malloc ( (1+iscomplex) * D->time->mn * mY * sizeof (double))) == NULL)
+    {
+      set_block_error (-16);
+      return FAIL;
+    }
+  if ((spline =  (double *) scicos_malloc ((3 * nPoints - 2) * sizeof (double))) == NULL)
+    {
+      Coserror ("Allocation problem in spline.\n");
+      /*set_block_error(-16); */
+      return FAIL;
+    }
+  A_d = spline;
+  A_sd = A_d + nPoints;
+  qdy = A_sd + nPoints - 1;
+  
+  for (j = 0; j < mY; j++)
+    {	
+      /* real part */
+      for (i = 0; i <= nPoints - 2; i++)
+	{
+	  Vt = (NspMatrix *) D->values->objs[i];
+	  Vtp1 = (NspMatrix *) D->values->objs[i+1];
+	  A_sd[i] = 1.0 / (ptr_T[i + 1] - ptr_T[i]);
+	  qdy[i] = (Vtp1->R[j] - Vt->R[j])* A_sd[i] * A_sd[i];
+	}
+
+      for (i = 1; i <= nPoints - 2; i++)
+	{
+	  A_d[i] = 2.0 * (A_sd[i - 1] + A_sd[i]);
+	  D->D[i + j * nPoints] = 3.0 * (qdy[i - 1] + qdy[i]);
+	}
+
+      if (D->Method == 2)
+	{
+	  A_d[0] = 2.0 * A_sd[0];
+	  D->D[0 + j * nPoints] = 3.0 * qdy[0];
+	  A_d[nPoints - 1] = 2.0 * A_sd[nPoints - 2];
+	  D->D[nPoints - 1 + j * nPoints] = 3.0 * qdy[nPoints - 2];
+	  Mytridiagldltsolve (A_d, A_sd, &D->D[j * nPoints], nPoints);
+	}
+
+      if (D->Method == 3)
+	{
+	  /*  s'''(x(2)-) = s'''(x(2)+) */
+	  double r = A_sd[1] / A_sd[0];
+	  A_d[0] = A_sd[0] / (1.0 + r);
+	  D->D[j * nPoints] =  ((3.0 * r + 2.0) * qdy[0] +
+				  r * qdy[1]) / ((1.0 + r) * (1.0 + r));
+	  /*  s'''(x(n-1)-) = s'''(x(n-1)+) */
+	  r = A_sd[nPoints - 3] / A_sd[nPoints - 2];
+	  A_d[nPoints - 1] = A_sd[nPoints - 2] / (1.0 + r);
+	  D->D[nPoints - 1 + j * nPoints] =
+	    ((3.0 * r + 2.0) * qdy[nPoints - 2] +
+	     r * qdy[nPoints - 3]) / ((1.0 + r) * (1.0 + r));
+	  Mytridiagldltsolve (A_d, A_sd, &D->D[j * nPoints],  nPoints);
+	}
+    }
+  
+  if ( iscomplex )
+    {	
+      /* imag part */
+      for (j = 0; j < mY; j++)
+	{
+	  for (i = 0; i <= nPoints - 2; i++)
+	    {
+	      Vt = (NspMatrix *) D->values->objs[i];
+	      Vtp1 = (NspMatrix *) D->values->objs[i+1];
+	      A_sd[i] = 1.0 / (ptr_T[i + 1] - ptr_T[i]);
+	      qdy[i] =( Vtp1->C[j].i - Vt->C[j].i)  * A_sd[i] * A_sd[i];
+	    }
+	  for (i = 1; i <= nPoints - 2; i++)
+	    {
+	      A_d[i] = 2.0 * (A_sd[i - 1] + A_sd[i]);
+	      D->D[i + j * nPoints + nPoints] = 3.0 * (qdy[i - 1] + qdy[i]);
+	    }
+	  if (D->Method == 2)
+	    {
+	      A_d[0] = 2.0 * A_sd[0];
+	      D->D[nPoints + 0 + j * nPoints] = 3.0 * qdy[0];
+	      A_d[nPoints - 1] = 2.0 * A_sd[nPoints - 2];
+	      D->D[nPoints + nPoints - 1 + j * nPoints] = 3.0 * qdy[nPoints - 2];
+	      Mytridiagldltsolve (A_d, A_sd, &D->D[nPoints + j * nPoints], nPoints);
+	    }
+	  if (D->Method == 3)
+	    {
+	      /*  s'''(x(2)-) = s'''(x(2)+) */
+	      double r = A_sd[1] / A_sd[0];
+	      A_d[0] = A_sd[0] / (1.0 + r);
+	      D->D[nPoints + j * nPoints] =((3.0 * r + 2.0) * qdy[0] + r * qdy[1]) 
+		/ ((1.0 + r) * (1.0 + r));
+	      /*  s'''(x(n-1)-) = s'''(x(n-1)+) */
+	      r = A_sd[nPoints - 3] / A_sd[nPoints - 2];
+	      A_d[nPoints - 1] = A_sd[nPoints - 2] / (1.0 + r);
+	      D->D[nPoints + nPoints - 1 + j * nPoints] =
+		((3.0 * r + 2.0) * qdy[nPoints - 2] +
+		 r * qdy[nPoints - 3]) / ((1.0 + r) * (1.0 + r));
+	      Mytridiagldltsolve (A_d, A_sd, &D->D[nPoints + j * nPoints],  nPoints);
+	    }
+	}
+    }
+  free(spline);
+  return OK;
+}
+
+
+static int Mytridiagldltsolve (double *dA, double *lA, double *B, int N)
+{
+  int j;
+  for (j = 1; j <= N - 1; ++j)
+    {
+      double Temp = lA[j - 1];
+      lA[j - 1] /= dA[j - 1];
+      B[j] -= lA[j - 1] * B[j - 1];
+      dA[j] -= Temp * lA[j - 1];
+    }
+
+  B[N - 1] /= dA[N - 1];
+  for (j = N - 2; j >= 0; --j)
+    {
+      B[j] = -lA[j] * B[j + 1] + B[j] / dA[j];
+    }
+  return 0;
+}
+
+
+static int Myevalhermite2 (const double *t, double *x1, double *x2, double *y1,
+			   double *y2, double *d1, double *d2, double *z, double *dz,
+			   double *ddz, double *dddz, int *k)
+{
+  double Temp, p, p2, p3, D;
+  Temp = *t - *x1;
+  D = 1.0 / (*x2 - *x1);
+  p = (*y2 - *y1) * D;
+  p2 = (p - *d1) * D;
+  p3 = (*d2 - p + (*d1 - p)) * (D * D);
+  *z = p2 + p3 * (*t - *x2);
+  *dz = *z + p3 * Temp;
+  *ddz = (*dz + p3 * Temp) * 2.;
+  *dddz = p3 * 6.0;
+  *z = *d1 + *z * Temp;
+  *dz = *z + *dz * Temp;
+  *z = *y1 + *z * Temp;
+  return 0;
 }
