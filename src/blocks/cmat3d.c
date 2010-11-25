@@ -43,6 +43,7 @@ struct _cmat3d_data
   NspObjs3d *objs3d;
   NspSPolyhedron *pol;
   NspMatrix *x,*y;
+  double alpha,theta;
 };
 
 static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
@@ -94,6 +95,18 @@ void cmat3d (scicos_block * block, int flag)
 	  }
 	/* zmin = ipar[0];zmax = ipar[1]; */
 	wid = 20000 + scicos_get_block_number();
+	/* 
+	 */
+	if (GetNopar(block)==2) 
+	  {
+	    D->alpha= *(GetRealOparPtrs(block,1));
+	    D->theta= *(GetRealOparPtrs(block,2));
+	  }
+	else 
+	  {
+	    D->alpha = 35; 
+	    D->theta = 45;
+	  }
 	nsp_cmat3d(D,wid,label,cmap,rect, dim_i,dim_j);
 	/* keep a copy in case Axes is destroyed during simulation 
 	 * axe is a by reference object 
@@ -165,8 +178,8 @@ static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
   if ((Xgc = window_list_get_first())== NULL) return;
   if ((D->objs3d = nsp_check_for_objs3d(Xgc,NULL)) == NULL) return;
 
-  D->objs3d->obj->alpha=35;
-  D->objs3d->obj->theta=45;
+  D->objs3d->obj->alpha= D->alpha;
+  D->objs3d->obj->theta= D->theta;
 
   if (cmap != NULL ) 
     {
