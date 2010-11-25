@@ -285,6 +285,7 @@ void fromws_c (scicos_block * block, int flag)
 	    }
 	  else
 	    {
+	      /* XXXXX A revoir avec les bon types entiers */
 	      switch ( D->type )
 		{
 		case 1:  Y_COMPUTE1(gint8); break;
@@ -447,6 +448,8 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
 	      Coserror("%s.values{%d} should be a real matrix",name,i+1);
 	      return FAIL;
 	    }
+	  /* be sure that matrix is coded with double */
+	  Mat2double((NspMatrix *) Loc);
 	  ism_ref=1;
 	  type_ref='r';
 	  break;

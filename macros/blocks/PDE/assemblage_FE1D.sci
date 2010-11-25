@@ -1,3 +1,7 @@
+function assemblage_FE1D()
+// 
+endfunction
+
 function [xi,w] = setint()
 // Copyright INRIA
 // développé par EADS-CCR
@@ -10,17 +14,17 @@ function [xi,w] = setint()
 // Reference: Finite element, An introduction, Vol. 1 by E.Becker,    //
 // G.Carey, and J.Oden, pp. 94.                                       //
 //--------------------------------------------------------------------//
-     xi(1,1) = 0;
-     w(1,1) = 2;		// Gaussian quadrature of order 1
+  xi(1,1) = 0;
+  w(1,1) = 2;		// Gaussian quadrature of order 1
+  
+  xi(1,2) = -1/sqrt(3);
+  xi(2,2) = -xi(1,2);
+  w(1,2) = 1;
+  w(2,2) = w(1,2);		// Gaussian quadrature of order 2
 
-     xi(1,2) = -1/sqrt(3);
-     xi(2,2) = -xi(1,2);
-     w(1,2) = 1;
-     w(2,2) = w(1,2);		// Gaussian quadrature of order 2
-
-     xi(1,3) = -sqrt(3/5);
-     xi(2,3) = 0;
-     xi(3,3) = -xi(1,3);
+  xi(1,3) = -sqrt(3/5);
+  xi(2,3) = 0;
+  xi(3,3) = -xi(1,3);
      w(1,3) = 5/9;
      w(2,3) = 8/9;
      w(3,3) = w(1,3);	        // Gaussian quadrature of order 3

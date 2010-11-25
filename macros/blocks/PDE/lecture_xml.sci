@@ -2,7 +2,8 @@ function txt_xml=lecture_xml(nom)
 // Copyright INRIA
 // développé par EADS-CCR
   txt_xml=[];
-  vect=mgetl('SCI/macros/scicos_blocks/PDE/'+nom); //lecture du code xml
+  vect=mgetl('SCI/toolboxes/scicos-4.4/macros/blocks/PDE/'+nom);
+  // //lecture du code xml
   for i=1:size(vect,1)
     txt_xml=txt_xml+vect(i)+'$';
   end
@@ -15,8 +16,8 @@ function decision=interpret(txt_xml,delta,order)
   
   //Indice du premier noeud ouvert
   ind=strindex(txt_xml,'<Node');
-    //SI il reste un noeud ouvert dans txt_xml
-    if ~isempty(ind) then
+  //SI il reste un noeud ouvert dans txt_xml
+  if ~isempty(ind) then
     
       //On récupère la définition du noeud
       balise_fin=strindex(txt_xml,'$');

@@ -27,5 +27,6 @@ end
 // dim 1 */
 
 global V1;
-V1=hash(time=1:10,values=cell(1,10));
-for i=1:10, V1.values{i}= 2*i;end 
+n=5;
+V1=hash(time=1:n,values=cell(1,n));
+for i=1:n, V1.values{i}= i^2 ;end 
