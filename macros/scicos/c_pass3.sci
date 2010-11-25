@@ -64,7 +64,7 @@ function [cpr,ok]=c_pass3(scs_m,cpr)
     end
     
     if (funtyp(i,1)==3 | funtyp(i,1)==5 | funtyp(i,1)==10005)then //sciblocks
-      xd0k=var2vec(ll.dstate)
+      xd0k=serialize(ll.dstate,'m')
     else
       xd0k=ll.dstate(:)
     end
@@ -72,7 +72,7 @@ function [cpr,ok]=c_pass3(scs_m,cpr)
     zptr=[zptr;zptr($)+size(xd0k,'*')]
     
     if (funtyp(i,1)==3 | funtyp(i,1)==5 | funtyp(i,1)==10005) then //sciblocks
-      rpark=var2vec(ll.rpar)
+      rpark=serialize(ll.rpar,'m')
     else
       rpark=ll.rpar(:)
     end

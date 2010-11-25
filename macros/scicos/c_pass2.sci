@@ -302,7 +302,7 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
 
     //dstate
     if (funtyp(i,1)==3 | funtyp(i,1)==5 | funtyp(i,1)==10005) then //sciblocks
-      if isempty(ll.dstate) then xd0k=[]; else xd0k=var2vec(ll.dstate);end
+      if isempty(ll.dstate) then xd0k=[]; else xd0k=serialize(ll.dstate,'m');end
     else
       xd0k=ll.dstate(:)
     end
@@ -345,7 +345,7 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
 
     //real paramaters
     if (funtyp(i,1)==3 | funtyp(i,1)==5 | funtyp(i,1)==10005) then //sciblocks
-      if isempty(ll.rpar) then rpark=[]; else rpark=var2vec(ll.rpar);end
+      if isempty(ll.rpar) then rpark=[]; else rpark=serialize(ll.rpar,'m');end
     else
       rpark=ll.rpar(:)
     end
