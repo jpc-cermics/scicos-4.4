@@ -1070,17 +1070,16 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
     // show and hilite the super block hierarchy + the last involved blocks;
     // simplified (jpc Nov 2010) 
     mxwin=max(winsid())
-    kk=[];
     // initial hilited object 
-    obj = scs_m.objs(path(1));
+    if ~isempty(path) then obj = scs_m.objs(path(1)); end
+    // walk through hierarchy, create graphic windows and hilite superblock
     for k=1:size(path,'*')
       hilite_obj(scs_m.objs(path(k)));
       scs_m=scs_m.objs(path(k)).model.rpar;
       scs_m= scs_show(scs_m,mxwin+k)
     end
-    // show the last blocks.
+    // collect the blocks which are to be hilited.
     kk=[path_out]
-    //if or(path_in<>path_out) then hilite_obj(scs_m.objs(path_in)),end
     if or(path_in<>path_out) then kk=[kk;path_in], end
     if ~isempty(prt_in) && ~isempty(prt_out) then
       if prt_in >0 & prt_out >0 then
@@ -1090,6 +1089,7 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
 	end
       end
     end
+    // hilite collected 
     hilite_obj(kk);
     if flagg==1 then
       ninnout=evstr(dialog(['Hilited block(s) have connected ports ';
@@ -1100,12 +1100,12 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
 		    'with  types that cannot be determined by the context';
 		    'what is the type of this link'],'1'))
     end
+    // un-hilite collected 
     unhilite_obj(kk);
-    // just delete the created windows 
     // delete intermediate graphic windows 
     for k=size(path,'*'):-1:1,xdel(mxwin+k),end
-    // dehilite initial superblock.
-    unhilite_obj(obj)
+    // unhilite initial superblock.
+    if ~isempty(path) then  unhilite_obj(obj); end
   end
 endfunction
 
