@@ -494,9 +494,13 @@ void scicos_sciblk4 (scicos_block * Blocks, int flag)
     goto err;
   if ((Hel[p++] = scicos_itosci ("nevout", &Blocks->nevout, 1, 1)) == NULL)
     goto err;
-  if ((Hel[p++] =
-       scicos_dtosci ("evout", Blocks->evout, Blocks->nevout, 1)) == NULL)
-    goto err;
+  if ( Blocks->nevout != 0 ) 
+    {
+      if ((Hel[p++] =
+	   scicos_dtosci ("evout", Blocks->evout, Blocks->nevout, 1)) == NULL)
+	goto err;
+    }
+
   /* if ((Hel[p++]=   scicos_itosci("nrpar",&Blocks->nrpar,1,1))== NULL) goto err; */
   if (Blocks->scsptr_flag == fun_pointer)
     {
