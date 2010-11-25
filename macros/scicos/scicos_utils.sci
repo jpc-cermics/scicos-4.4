@@ -1,3 +1,8 @@
+function scicos_utils()
+// a set of function which emulate scilab funcitons.
+endfunction
+
+
 function A=emptystr(a,b)
   if nargin==0 then 
     A=smat_create(1,1);
