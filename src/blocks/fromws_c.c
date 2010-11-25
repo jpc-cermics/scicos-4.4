@@ -404,6 +404,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
   int ism_ref,itype_ref;
   fromws_data *D;
   NspObject *Obj,*Time,*Values;
+  *hD = NULL;
   if ((D= malloc(sizeof(fromws_data)))== NULL) return FAIL;
   D->m=m;
   D->n=n;
@@ -414,8 +415,11 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
   if (nsp_hash_find((NspHash *) Obj,"time",&Time) == FAIL) return FAIL;
   if (nsp_hash_find((NspHash *) Obj,"values",&Values) == FAIL) return FAIL;
   if ( !IsMat(Time) ) return FAIL;
+  /* be sure that matrix is double converted */
   Mat2double((NspMatrix *) Time);
+  D->time = Time;
   if ( !IsCells(Values) == FAIL) return FAIL;
+  D->values = Values;
   if ( ((NspMatrix *) Time)->mn != ((NspCells *) Values)->mn) 
     {
       Coserror("Time and Values have incompatible size");
@@ -426,6 +430,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
       Coserror("Time and Values have incompatible size");
       return FAIL;
     }
+  /* check that cell is properly filled */
   for ( i = 0 ; i < ((NspCells *) Values)->mn ; i++) 
     {
       NspObject *Loc=  ((NspCells *) Values)->objs[i];
@@ -488,7 +493,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
       /* this works for matrix and imatrix */
       if ( ((NspMatrix *) Loc)->m != D->m || ((NspMatrix *) Loc)->n != D->n)
 	{
-	  Coserror("%s.values{%d} should be a of size %dx%s",name,i+1,D->m,D->n);
+	  Coserror("%s.values{%d} should be a of size %dx%d",name,i+1,D->m,D->n);
 	  return FAIL;
 	}
     }
@@ -497,7 +502,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
     {
       if ( D->time->R[i] > D->time->R[i + 1])
 	{
-	  Coserror("Error: %s.time(%d) > %s.time(%d), time should be an increasing vector",name,i,i+1);
+	  Coserror("Error: %s.time(%d) > %s.time(%d), time should be an increasing vector",name,i,name,i+1);
 	  return FAIL;
 	}
     }
@@ -516,6 +521,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
   D->EVindex = 0;
   D->PerEVcnt = 0;
   D->firstevent = 1;
+  *hD = D;
   return OK;
 }
 
