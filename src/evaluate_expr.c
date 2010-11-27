@@ -28,7 +28,7 @@
 #include <nsp/nsp.h>
 #include <nsp/plist.h>
 #include <nsp/scalexp.h>
-#include "scicos/scicos.h"
+#include "scicos/scicos4.h"
 #include "scicos/blocks.h"
 
 /* import data from libsnp.dll */

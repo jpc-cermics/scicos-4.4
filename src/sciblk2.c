@@ -34,7 +34,7 @@
 
 
 #include "nsp/interf.h"
-#include "scicos/scicos.h"
+#include "scicos/scicos4.h"
 
 /* XXXXX */
 extern int nsp_gtk_eval_function (NspPList * func, NspObject * args[],
@@ -43,26 +43,24 @@ extern int nsp_gtk_eval_function_by_name (char *name, NspObject * args[],
 					  int n_args, NspObject * ret[],
 					  int *nret);
 
-static int scicos_scifunc (NspObject ** Args, int mrhs, NspObject ** Ret,
-			   int *mlhs)
+static int scicos_scifunc (scicos_funflag scsptr_flag, void *scsptr, NspObject ** Args, 
+			   int mrhs, NspObject ** Ret, int *mlhs)
 {
-  switch (Scicos->params.scsptr_flag)
+  switch (scsptr_flag)
     {
     case fun_macros:
       /* 
        *         Sciprintf("Evaluate a given macro\n");
        *         nsp_object_print( Scicos->params.scsptr,0,0,0);
        */
-      return nsp_gtk_eval_function ((NspPList *) Scicos->params.scsptr, Args,
-				    mrhs, Ret, mlhs);
+      return nsp_gtk_eval_function ((NspPList *) scsptr, Args,   mrhs, Ret, mlhs);
       break;
     case fun_macro_name:
       /* 
        *         Sciprintf("Evaluate a macro given by its name: %s\n",
        *         Scicos->params.scsptr);
        */
-      return nsp_gtk_eval_function_by_name (Scicos->params.scsptr, Args, mrhs,
-					    Ret, mlhs);
+      return nsp_gtk_eval_function_by_name (scsptr, Args, mrhs,  Ret, mlhs);
     case fun_pointer:
       Scierror ("Internal error: Expecting a macro or macro name\n");
       return FAIL;
@@ -368,7 +366,7 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
 
   /* function to be evaluated or name of function to be evaluated */
 
-  if (scicos_scifunc (Args, mrhs, Ret, &mlhs) == FAIL)
+  if (scicos_scifunc (Scicos->params.scsptr_flag,Scicos->params.scsptr, Args, mrhs, Ret, &mlhs) == FAIL)
     goto err;
 
   switch (*flag)
@@ -447,8 +445,6 @@ void scicos_sciblk4 (scicos_block * Blocks, int flag)
   int p = 0, i;
   double time = scicos_get_scicos_time ();
   if ((Hel[p++] = scicos_dtosci ("time", &time, 1, 1)) == NULL)
-    goto err;
-  if ((Hel[p++] = scicos_itosci ("nevprt", &Blocks->nevprt, 1, 1)) == NULL)
     goto err;
   if ((Hel[p++] = scicos_itosci ("nevprt", &Blocks->nevprt, 1, 1)) == NULL)
     goto err;
@@ -546,7 +542,7 @@ void scicos_sciblk4 (scicos_block * Blocks, int flag)
   if ((Args[1] = scicos_itosci (NVOID, &flag, 1, 1)) == NULL)
     goto err;
 
-  if (scicos_scifunc (Args, mrhs, Ret, &mlhs) == FAIL)
+  if (scicos_scifunc (Blocks->scsptr_flag,Blocks->scsptr,Args, mrhs, Ret, &mlhs) == FAIL)
     goto err;
   H = (NspHash *) Ret[0];
   switch (flag)
@@ -742,7 +738,7 @@ void scicos_sciblk (int *flag, int *nevprt, double *t, double *xd, double *x,
     goto err;
   /*     macro execution */
 
-  if (scicos_scifunc (Args, mrhs, Ret, &mlhs) == FAIL)
+  if (scicos_scifunc (Scicos->params.scsptr_flag,Scicos->params.scsptr, Args, mrhs, Ret, &mlhs) == FAIL)
     goto err;
   /*     transfer output variables to fortran */
   switch (*flag)
