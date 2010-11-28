@@ -569,7 +569,7 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
       int b_type = scsim->funtyp[kf];
       Blocks[kf].type =
 	(b_type < 10000) ? (b_type % 1000) : b_type % 1000 + 10000;
-
+      
       if (scsim->funflag[kf] == fun_pointer)
 	{
 	  Blocks[kf].scsptr = NULL;

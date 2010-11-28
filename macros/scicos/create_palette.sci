@@ -95,7 +95,7 @@ function lisf=scicos_get_palette_content(txt)
 	  'SAWTOOTH_f.sci'; 'STEP_FUNCTION.sci';
 	  'CLOCK_c.sci'; 'GENSIN_f.sci'; 'IN_f.sci';   'READC_f.sci';
 	  'TIME_f.sci'; 'Modulo_Count.sci';'Sigbuilder.sci';'Counter.sci';
-	  'SampleCLK.sci';'TKSCALE.sci';'FROMWSB.sci';'Ground_g.sci';
+	  'SampleCLK.sci';'TKSCALE.sci';'GTKRANGE.sci';'FROMWSB.sci';'Ground_g.sci';
 	  'PULSE_SC.sci';'GEN_SQR.sci';'BUSIN_f.sci';'SENSOR_f.sci']
   
   elseif txt=='Sinks' then

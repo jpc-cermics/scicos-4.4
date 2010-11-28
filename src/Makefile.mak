@@ -126,7 +126,7 @@ SUNDIALS=cvode.obj cvode_io.obj cvode_dense.obj nvector_serial.obj ida.obj ida_d
 
 OBJSC=  import.obj scicos.obj intcos.obj simul.obj sciblk2.obj trees.obj ezxml.obj scicos_utils.obj \
 	evaluate_expr.obj \
-	blocks/blocks_new_nsp.obj blocks/blocks_nsp.obj \
+	blocks/blocks_new_nsp.obj blocks/blocks_nsp.obj blocks/gtkrange.obj \
 	$(addprefix sundials/,$(SUNDIALS)) \
 	$(addprefix blocks/,$(BLOCKSC)) \
 	$(addprefix control/,$(CONTROL)) \

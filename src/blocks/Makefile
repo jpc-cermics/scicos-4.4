@@ -87,7 +87,7 @@ BLOCKSC=selector.o sum.o prod.o switchn.o relay.o readc.o writec.o writeau.o \
 	matbyscal.o matbyscal_s.o matbyscal_e.o matmul2_s.o matmul2_e.o constraint_c.o lookup2d.o \
 	diffblk_c.o andlog.o foriterator.o assignment.o whileiterator.o loopbreaker.o
 
-OBJSC=  $(BLOCKSC) blocks_new_nsp.o blocks_nsp.o 
+OBJSC=  $(BLOCKSC) blocks_new_nsp.o blocks_nsp.o gtkrange.o
 
 include $(SCIDIR)/Makefile.incl
 

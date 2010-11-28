@@ -90,7 +90,7 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	matbyscal.obj matbyscal_s.obj matbyscal_e.obj matmul2_s.obj matmul2_e.obj constraint_c.obj lookup2d.obj \
 	diffblk_c.obj andlog.obj foriterator.obj assignment.obj whileiterator.obj loopbreaker.obj
 
-OBJSC=  $(BLOCKSC) blocks_new_nsp.obj blocks_nsp.obj 
+OBJSC=  $(BLOCKSC) blocks_new_nsp.obj blocks_nsp.obj gtkrange.obj
 
 include $(SCIDIR)/Makefile.incl.mak
 
