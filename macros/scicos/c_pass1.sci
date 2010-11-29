@@ -88,10 +88,10 @@ for kb=1:nb
       cmat=[],ccmat=[],cor=[],corinv=[]
       return,
     end
-    if or(model.sim(1)==['plusblk']) then
+    if or(model.sim(1).equal['plusblk']) then
       [model,links_table]=adjust_sum(model,links_table,kb);
     end
-    if model.sim(1)<>'sampleclk' then
+    if ~model.sim(1).equal['sampleclk'] then
       kr=kr+1;blklst(kr)=model;
       ind(kb)=kr;
     else
