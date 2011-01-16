@@ -267,6 +267,8 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
   endfunction
   function [ok,tt]        = MODCOM(funam,tt,vinp,vout,vparam,vparamv, ...
 				   vpprop)
+    // FIXME: 
+    TMPDIR=getenv('NSP_TMPDIR')
     [dirF,nameF,extF]=fileparts(funam);
     tarpath=pathconvert(TMPDIR+'/Modelica/',%f,%t);
     if (extF=='')  then

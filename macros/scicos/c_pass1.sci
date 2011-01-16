@@ -196,8 +196,10 @@ else // mixed diagram
 
   cmat(:,[1 3])=abs(cmat(:,[1 3])) ;
   busmat(:,[1 3])=abs(busmat(:,[1 3])) ;
-  ccmat(:,[1 3])=abs(ccmat(:,[1 3])) ;
+  if ~isempty(ccmat) then ccmat(:,[1 3])=abs(ccmat(:,[1 3])) ; end
   cmmat=abs(cmmat) ;
+  // FIXME: 
+  TMPDIR=getenv('NSP_TMPDIR')
   //create regular block associated to all modelica blocks
   [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,TMPDIR+'/');
 
