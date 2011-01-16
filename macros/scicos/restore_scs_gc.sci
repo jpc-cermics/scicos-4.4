@@ -2,7 +2,7 @@ function restore_scs_gc(scs_gc)
 // restore the current scicos graphic context
 // Copyright INRIA
   xset('window',scs_gc(1))
-  xsetech(wrect=scs_gc(2)(1),frect=scs_gc(2)(2),fixed=%t)
+  xsetech(wrect=scs_gc(2)(1),frect=scs_gc(2)(2),fixed=%t,clip=%f,axesflag=0,iso=%t)
   driver(scs_gc(3))
   for i=4:size(scs_gc,'*')
     x=scs_gc(i)
