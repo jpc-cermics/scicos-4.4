@@ -4,13 +4,19 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   Cmenu="";%pt=[];btn=0;
   if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end   
 
-  if nargin==1 then
-    [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=flag)
+  global scicos_dblclk
+  if isempty(scicos_dblclk) then
+    if nargin==1 then
+      [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=flag)
+    else
+      [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%t)
+    end
   else
-    [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%t)
+    btn=3;xc=scicos_dblclk(1);yc=scicos_dblclk(2);win=scicos_dblclk(3);
+    scicos_dblclk=[]
   end
   %pt=[xc,yc]
-
+  printf("cosclick : btn =%d\n",btn);
   if or(btn==[2 5]) then // button 2 pressed or clicked
     if win ==curwin then
       [k,wh]=getobj(scs_m,[xc;yc])
@@ -35,6 +41,20 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
 
     if Cmenu=="" then %pt=[];end
 
+  elseif btn==0 then  
+      if win==curwin then
+	Cmenu='Move'
+        [k,wh]=getobj(scs_m,[xc;yc])
+        if ~isempty(k) then
+          Cmenu=check_edge(scs_m.objs(k),Cmenu,%pt)
+        end
+      end
+      return
+  elseif btn==3 then  
+      if win==curwin then
+	Cmenu='Open/Set'
+      end
+      return
   elseif btn==-100 then  
       if win==curwin then
 	Cmenu='Quit',

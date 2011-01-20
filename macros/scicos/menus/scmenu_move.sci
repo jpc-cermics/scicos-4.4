@@ -205,6 +205,10 @@ function scs_m=stupid_moveblock_new(scs_m,k,xc,yc)
     // during the move. Thus, to quit in a coherent 
     // state we only accept to quit on a mouse release).
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    if rep(3)==3 then
+      global scicos_dblclk
+      scicos_dblclk=[rep(1),rep(2),curwin]
+    end
     pt = rep(1:2);
     tr= pt - pto;
     // translate moving object 
@@ -364,6 +368,10 @@ function scs_m=stupid_movecorner_new(scs_m,k,xc,yc,wh)
   rep(3)=-1
   while rep(3)==-1 do
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    if rep(3)==3 then
+      global scicos_dblclk
+      scicos_dblclk=[rep(1),rep(2),curwin]
+    end
     pt = rep(1:2);
     tr= pt - pto;
     pto=pt;
