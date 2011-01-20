@@ -31,6 +31,7 @@ function [%pt,scs_m]=do_color(%pt,scs_m)
 	o=scs_m.objs(kc);
 	o.ct(1)=c;
 	o.gr.children(1).color=c;
+        scs_m.objs(kc)=o
       end
       F.draw_now[];
     else
