@@ -350,15 +350,23 @@ extern int scicos_debug_level;
 static int int_scicos_debug (Stack stack, int rhs, int opt, int lhs)
 {
   int debug;
-  CheckRhs (1, 1);
-  CheckLhs (0, 1);
-  /* first variable : the state */
-  if (GetScalarInt (stack, 1, &debug) == FAIL)
+  NspMatrix *M;
+  CheckRhs (-1, 1);
+  CheckLhs (-1, 1);
+  if ((lhs==1) && (rhs==0)) {
+    if ((M = nsp_matrix_create (NVOID, 'r', 1, 1)) == NULLMAT)
+      return RET_BUG;
+    M->R[0] = (double) scicos_debug_level;
+    NSP_OBJECT (M)->ret_pos = 1;
+    StackStore (stack, (NspObject *) M, 1);
+    return 1;
+  } else {
+    if (GetScalarInt (stack, 1, &debug) == FAIL)
     return RET_BUG;
-  scicos_debug_level = debug;
-  return 0;
+    scicos_debug_level = debug;
+    return 0;
+  }
 }
-
 
 int scicos_connection (int *path_out, int *path_in)
 {
