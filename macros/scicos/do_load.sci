@@ -49,9 +49,9 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   if fname.equal[""] then 
     // We have canceled the open 
     ok=%f
-    %cpr=list()
-    scs_m=[]
-    edited = %f
+    %cpr=%cpr
+    scs_m=scs_m
+    edited=edited
     return
   end
   

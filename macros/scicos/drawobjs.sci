@@ -1,6 +1,7 @@
 function scs_m=drawobjs(scs_m)
 // Copyright INRIA
 // adapted to a graphic object 
+  drawtitle(scs_m.props)
   ng= new_graphics();
   if ng then 
     F=get_current_figure();
@@ -30,6 +31,5 @@ function scs_m=drawobjs(scs_m)
       drawobj(scs_m.objs(i))
     end
   end
-  drawtitle(scs_m.props)
   show_info(scs_m.props.doc)
 endfunction
