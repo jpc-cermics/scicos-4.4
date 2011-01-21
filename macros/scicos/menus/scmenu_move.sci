@@ -9,7 +9,6 @@ function [%pt,scs_m]=do_stupidmove(%pt,scs_m)
 // get a scicos object to move, and move it with connected objects
 // or quit if a menu is selected
   rela=.1
-  //printf("In the while loop for getting an object\n");
   while %t
     if isempty(%pt) then
       [btn,%pt,win,Cmenu]=cosclick()
@@ -353,11 +352,9 @@ endfunction
 
 function scs_m=stupid_movecorner_new(scs_m,k,xc,yc,wh)
 // move a point in a link in new_graphics 
-  //printf("In stupid_movecorner_new\n");
   o=scs_m.objs(k);
   // indice of the moving point
   if wh > 0 then 
-    //printf(" wh is poistive \n");
     return; 
   end
   // move only one point  -wh 
@@ -368,7 +365,6 @@ function scs_m=stupid_movecorner_new(scs_m,k,xc,yc,wh)
   rep(3)=-1
   while rep(3)==-1 do
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-    printf("stupid_movecorner_new : rep(3)=%d\n",rep(3));
     if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]

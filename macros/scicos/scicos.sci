@@ -240,14 +240,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   
   xtape_status=xget('recording');
   xset('recording',0);
-  //set_background()
 
   // reset graphics objects 
   pwindow_set_size()
   window_set_size()
 
-  //xset('alufunction',6)
-  //   
   for %Y=1:size(%scicos_menu,1)
     execstr(%scicos_menu(%Y)(1)+'_'+m2s(curwin,'%.0f')+'='+%scicos_menu(%Y)(1)+';')
   end
@@ -261,10 +258,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   execstr('function enablemenus__(); Cmenu='''';enablemenus();endfunction');
   %cor_item_exec=[%cor_item_exec; 'EnableMenus','enablemenus__'];
   addmenu(curwin,'Reset');
-  // Pal tree handler 
-  %cor_item_exec=[%cor_item_exec; 'PlaceinDiagram','PlaceinDiagram_'];
-  // Drag and drop handler 
-  %cor_item_exec=[%cor_item_exec; 'PlaceDropped','PlaceDropped_'];
+  // add fixed menu items not visible
+  %cor_item_exec=[%cor_item_exec;
+                  'PlaceinDiagram','PlaceinDiagram_';
+                  'PlaceDropped'  ,'PlaceDropped_';
+                  'MoveLink'      ,'MoveLink_'];
   
   if ~super_block then
     delmenu(curwin,'stop')
@@ -305,16 +303,17 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if pixmap then xset('wshow'),end
   %pt=[];%win=curwin;
   Cmenu='Open/Set'
+  Select=list();Select_back=list();%ppt=[];
 
   while %t
     while %t do
       if Cmenu=="" & isempty(%pt) then
-	[btn,%pt,%win,Cmenu]=cosclick()
-	if Cmenu<> "" then 
-	  break
-	end
+        [btn,%pt,%win,Cmenu]=cosclick()
+        if Cmenu<> "" then 
+          break
+        end
       else
-	break
+        break
       end
     end
 
@@ -322,12 +321,19 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     
     %koko=find(Cmenu==%cor_item_exec(:,1));
     if size(%koko,'*')==1 then
+      Select_back=Select;
       %cor_item_fun=%cor_item_exec(%koko,2);
-      printf('Entering function ' + %cor_item_fun+'\n'); 
+      printf('Entering function ' + %cor_item_fun+'\n');
       ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
       if ierr== %f then 
-	message(['Error in '+%cor_item_fun;catenate(lasterror())]);
-	Cmenu="";%pt=[];
+        message(['Error in '+%cor_item_fun;catenate(lasterror())]);
+        Cmenu="";%pt=[];
+        Select_back=list();Select=list();
+      elseif or(curwin==winsid()) then
+        if ~isequal(Select,Select_back) then
+          selecthilite(Select_back, %f); // unHilite previous objects
+          selecthilite(Select, %t);      // Hilite the actual selected object
+        end
       end
       printf('Quit function ' + %cor_item_fun+'\n'); 
     else
@@ -340,7 +346,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if new_graphics() then 
     for k=1:length(scs_m.objs);
       if scs_m.objs(k).iskey['gr'] then 
-	scs_m.objs(k).delete['gr'];
+        scs_m.objs(k).delete['gr'];
       end
     end
   end
@@ -352,4 +358,3 @@ function [x,k]=gunique(x)
   x(keq)=[]
   k(keq)=[]
 endfunction
-

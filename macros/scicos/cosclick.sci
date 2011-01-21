@@ -21,12 +21,10 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     if win ==curwin then
       [k,wh]=getobj(scs_m,[xc;yc])
       if ~isempty(k) then
-	j=1
-	hilite_obj(scs_m.objs(k));
-	// 	xpause(300000)
-	// 	unhilite_obj(scs_m.objs(k));
+        j=1
+        hilite_obj(scs_m.objs(k));
       else
-	j=2
+        j=2
       end
     else
       j=3
@@ -37,18 +35,22 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       // this is ugly but we need a way to transmit args
       btn=args;
     end
-    if j==1 then unhilite_obj(scs_m.objs(k)), end;
+    if j==1 then
+      if scs_m.objs(k).type=='Link' then
+        if ~Select.has[scs_m.objs(k).gr.children(1)] then
+          unhilite_obj(scs_m.objs(k))
+        end
+      else
+        if ~Select.has[scs_m.objs(k).gr] then
+          unhilite_obj(scs_m.objs(k))
+        end
+      end
+    end;
 
     if Cmenu=="" then %pt=[];end
 
-  elseif btn==0 then  
-      if win==curwin then
-	Cmenu='Move'
-        [k,wh]=getobj(scs_m,[xc;yc])
-        if ~isempty(k) then
-          Cmenu=check_edge(scs_m.objs(k),Cmenu,%pt)
-        end
-      end
+  elseif btn==0 then
+	Cmenu='MoveLink'
       return
   elseif btn==3 then  
       if win==curwin then
