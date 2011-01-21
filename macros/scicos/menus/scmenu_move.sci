@@ -368,6 +368,7 @@ function scs_m=stupid_movecorner_new(scs_m,k,xc,yc,wh)
   rep(3)=-1
   while rep(3)==-1 do
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    printf("stupid_movecorner_new : rep(3)=%d\n",rep(3));
     if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
@@ -388,6 +389,9 @@ function scs_m=stupid_movecorner_new(scs_m,k,xc,yc,wh)
   if rep(3)==2 then
     o.gr.children(1).x = o.xx;
     o.gr.children(1).y = o.yy;
+    F.draw_latter[];
+    P.x=o.xx; P.y=o.yy;
+    F.draw_now[];
     return;
   end
   

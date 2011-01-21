@@ -604,7 +604,7 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       end
       // get a new point waiting for click
       F.draw_now[];
-      rep=xgetmouse(clearq=%f,cursor=%f)
+      rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f)
       F.draw_latter[];
       P.x(n+1)=rep(1);
       P.y(n+1)=rep(2);
@@ -615,6 +615,9 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 	F.remove[C];
 	F.draw_now[];
 	return
+      elseif rep(3)==-5 then
+         kto=getblock(scs_m,[rep(1);rep(2)])
+         if isempty(kto) then rep(3)=-1, end
       end
       //plot new position of last link segment
       xe=rep(1);ye=rep(2)
