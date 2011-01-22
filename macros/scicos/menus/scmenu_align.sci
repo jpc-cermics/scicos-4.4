@@ -1,9 +1,7 @@
 function Align_()
-  Cmenu='Open/Set'
-  xinfo('Click on an a first port')
+  Cmenu=''
   scs_m_save=scs_m;nc_save=needcompile;
   [%pt,scs_m]=prt_align(%pt,scs_m)
-  xinfo(' ')
 endfunction
 
 function [%pt,scs_m]=prt_align(%pt,scs_m)

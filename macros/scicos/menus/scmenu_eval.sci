@@ -1,5 +1,5 @@
 function Eval_()
-  Cmenu='Open/Set'
+  Cmenu=''
   %now_win=xget('window')
   // evaluate the context 
   if ~exists('%scicos_context') then 

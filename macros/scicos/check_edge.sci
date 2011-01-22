@@ -32,7 +32,7 @@ function Cmenu=check_edge(o,Cmenu,%pt)
         %center=orig+sz/2
         if or((%xc-%xout).^2+(%yc-%yout).^2 <(%xc-%center(1)).^2+...
               (%yc-%center(2)).^2) then
-          Cmenu="Link" 
+          Cmenu='Link'
         end
       end
     end

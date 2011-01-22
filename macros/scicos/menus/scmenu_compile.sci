@@ -1,6 +1,6 @@
 function Compile_()
   nc_save=4
-  Cmenu='Open\Set'
+  Cmenu=''
   if ~execstr('[%cpr,ok]=do_compile(scs_m)',errcatch=%t) then
     message(['Error in compile';lasterror()] )
     return;

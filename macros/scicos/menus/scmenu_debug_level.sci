@@ -1,6 +1,6 @@
 function DebugLevel_()
   if ~super_block then
-    Cmenu=""
+    Cmenu=''
     %scs_help='scicos_debug';
     [ok,n]=getvalue(['Set debugging level (0,1,2,3)';'It performs scicos_debug(n)'],...
                      'Debug level',list("vec",1),string(scicos_debug()));

@@ -22,9 +22,13 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if ~super_block then
     // define scicos libraries
     if exists('scicos_pal')==%f | exists('%scicos_menu')==%f | exists('%scicos_short')==%f |..
-	  exists('%scicos_display_mode')==%f| exists('scicos_pal_libs') ==%f then 
+	  exists('%scicos_display_mode')==%f| exists('scicos_pal_libs') ==%f |..
+          exists('%CmenuTypeOneVector')==%f then
+
       [scicos_pal_0,%scicos_menu_0,%scicos_short_0,%scicos_help_0,..
-       %scicos_display_mode_0,modelica_libs_0,scicos_pal_libs_0]=initial_scicos_tables()
+       %scicos_display_mode_0,modelica_libs_0,scicos_pal_libs_0, ..
+       %CmenuTypeOneVector_d]=initial_scicos_tables();
+
       if exists('scicos_pal')==%f then
 	//x_message(['scicos_pal not defined';  'using default values'])
 	scicos_pal=scicos_pal_0;
@@ -54,6 +58,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         //x_message(['scicos_pal_libs not defined'; 'using default values'])
         scicos_pal_libs=scicos_pal_libs_0
       end
+      if exists('%CmenuTypeOneVector')==%f then
+//	message(["%CmenuTypeOneVector not defined"; "using default values"])
+        %CmenuTypeOneVector = %CmenuTypeOneVector_d ;
+      end 
     end
     
     //if exists('%scicos_context')==%f then
@@ -304,45 +312,52 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if pixmap then xset('wshow'),end
   %pt=[];%win=curwin;
   Cmenu='Open/Set'
-  Select=list();Select_back=list();%ppt=[];
+  Select=[];Select_back=[];%ppt=[];
 
-  while %t
-    while %t do
-      if Cmenu=="" & isempty(%pt) then
-        [btn,%pt,%win,Cmenu]=cosclick()
-        if Cmenu<> "" then 
-          break
-        end
+  while ( Cmenu <> "Quit" & Cmenu <> "Leave"  )
+    [CmenuType, mess]=CmType(Cmenu);
+    xinfo(mess);
+    if(Cmenu=="" & ~isempty(%pt)) then %pt=[]; end
+    if (Cmenu<>"" & CmenuType==0) then %pt=[]; end
+    if (Cmenu<>"" & CmenuType==1 & isempty(%pt) & ~isempty(Select)) then
+      [%pt,%win] = get_selection(Select,%pt,%win)
+    end
+    if (Cmenu==""|(CmenuType==1 & isempty(%pt) & isempty(Select))) then
+      [btn, %pt_n, win_n, Cmenu_n] = cosclick() ;
+      if (Cmenu_n=='SelectLink' | Cmenu_n=='MoveLink') & Cmenu<>"" & CmenuType==1 & isempty(%pt) then
+        if ~isempty(%pt_n) then %pt = %pt_n; end
       else
-        break
+        if Cmenu_n<>"" then Cmenu = Cmenu_n; end
+        if ~isempty(%pt_n) then %pt = %pt_n; end
       end
-    end
-
-    if Cmenu=='Quit' then do_exit();break;end
-    disablemenus();
-    %koko=find(Cmenu==%cor_item_exec(:,1));
-    if size(%koko,'*')==1 then
-      Select_back=Select;
-      %cor_item_fun=%cor_item_exec(%koko,2);
-      printf('Entering function ' + %cor_item_fun+'\n');
-      ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
-      if ierr== %f then 
-        message(['Error in '+%cor_item_fun;catenate(lasterror())]);
-        Cmenu="";%pt=[];
-        Select_back=list();Select=list();
-      elseif or(curwin==winsid()) then
-        if ~isequal(Select,Select_back) then
-          selecthilite(Select_back, %f); // unHilite previous objects
-          selecthilite(Select, %t);      // Hilite the actual selected object
-        end
-      end
-      printf('Quit function ' + %cor_item_fun+'\n'); 
+      %win = win_n
     else
-      Cmenu="";%pt=[]
+      disablemenus();
+      %koko=find(Cmenu==%cor_item_exec(:,1));
+      if size(%koko,'*')==1 then
+        Select_back=Select;
+        %cor_item_fun=%cor_item_exec(%koko,2);
+        printf('Entering function ' + %cor_item_fun+'\n');
+        ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
+        if ierr== %f then 
+          message(['Error in '+%cor_item_fun;catenate(lasterror())]);
+          Cmenu="";%pt=[];
+          Select_back=[];Select=[];
+        elseif or(curwin==winsid()) then
+          if ~isequal(Select,Select_back) then
+            selecthilite(Select_back, %f); // unHilite previous objects
+            selecthilite(Select, %t);      // Hilite the actual selected object
+          end
+        end
+        printf('Quit function ' + %cor_item_fun+'\n'); 
+      else
+        Cmenu="";%pt=[]
+      end
     end
-    if Cmenu=='Quit' then do_exit();break;end
+    if Cmenu=='Quit' then break,end
     if pixmap then xset('wshow'),end
   end
+  if Cmenu=='Quit' then do_exit(), end
   // remove the gr graphics from scs_m 
   if new_graphics() then 
     for k=1:length(scs_m.objs);
@@ -351,6 +366,22 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
     end
   end
+endfunction
+
+function [itype, mess] = CmType(Cmenu)
+//** look inside "%CmenuTypeOneVector" if the command is type 1 (need both Cmenu and %pt)
+  k = find (Cmenu == %CmenuTypeOneVector(:,1)); 
+  if isempty(k) then //** if is not type 1 (empty k)
+    itype = 0 ; //** set type to zero
+    mess=''   ; //** set message to empty
+    return    ; //** --> EXIT point : return back 
+  end
+  if size(k,'*')>1 then //** if found more than one command 
+    message('Warning '+string( size(k,'*'))+' menus have identical name '+Cmenu);
+    k=k(1); //** ? 
+  end
+  itype = 1 ; 
+  mess = %CmenuTypeOneVector(k,2) ; 
 endfunction
 
 function [x,k]=gunique(x)

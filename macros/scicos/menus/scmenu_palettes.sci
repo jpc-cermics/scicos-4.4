@@ -1,5 +1,5 @@
 function Palettes_()
-  Cmenu='Open/Set'
+  Cmenu=''
   //[palettes,windows]=do_palettes(palettes,windows)
   //[palettes,windows]=do_all_palettes(windows)
   scicos_palette_icon_view();

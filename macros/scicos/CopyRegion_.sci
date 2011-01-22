@@ -1,5 +1,5 @@
 function CopyRegion_()
-  Cmenu='Open/Set'
+  Cmenu=''
   xinfo('Copy Region: Click, drag region, click (left to fix, right to cancel)')
   if new_graphics() then 
     [scs_m,needcompile]=do_copy_region_new(scs_m,needcompile);

@@ -1,6 +1,6 @@
 function RegiontoSuperBlock_()
 // Copyright INRIA
-  Cmenu='Open/Set'
+  Cmenu=''
   xinfo(' Click, drag region and click (left to fix, right to cancel)')
   ierr=execstr('[%pt,scs_m]=do_region2block(%pt,scs_m)',errcatch=%t);
   if ~ierr then 

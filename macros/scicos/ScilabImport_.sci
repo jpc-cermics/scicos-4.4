@@ -2,7 +2,7 @@ function ScilabImport_()
 // Import a Scilab Diagram in Nsp scicos.
 // XXX we should change the name in order not to 
 // overwrite the Scilab Diagram when saving.
-  Cmenu='Open/Set'
+  Cmenu=''
   if edited&~super_block then
     num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
     if num==2 then return;end

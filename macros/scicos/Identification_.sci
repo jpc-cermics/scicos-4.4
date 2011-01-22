@@ -1,5 +1,5 @@
 function Identification_()
-  Cmenu='Open/Set'
+  Cmenu=''
   xinfo('Click on an object to set or get identification')
   if new_graphics() then 
     printf("go in do_ident_new ");// ZZ

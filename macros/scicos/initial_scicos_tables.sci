@@ -1,5 +1,6 @@
 function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
-	  %scicos_display_mode, modelica_libs,scicos_pal_libs] = initial_scicos_tables()
+          %scicos_display_mode, modelica_libs,scicos_pal_libs, ..
+          %CmenuTypeOneVector] = initial_scicos_tables()
   
   %scicos_display_mode=0  // =1 if pixmap to be used for display
 
@@ -47,6 +48,42 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
   //Scicos Modelica librabry path definitions==============================
 
   modelica_libs=getenv('NSP')+'/macros/blocks/'+['Electrical','Hydraulics'];
+
+  //** Scicos "xinfo" messages ===========================================
+  //**
+  //** "%CmenuTypeOneVector" store the list of the commands/function to be called that require both 'Cmenu' AND '%pt'
+  //** menus of type 1 (require %pt)
+  %CmenuTypeOneVector =..
+     ['Region to Super Block', "Press lef mouse button, drag region and release (right button to cancel)";
+      'Region to Palette',     "Press lef mouse button, drag region and release (right button to cancel)";
+      'Smart Move',            "Click object to move, drag and click (left to fix, right to cancel)";
+      'Move',                  "Click object to move, drag and click (left to fix, right to cancel)";
+      'Duplicate',             "Click on the object to duplicate, drag, click (left to copy, right to cancel)";
+      'Align',                 "Click on an a port, click on a port of object to be moved";
+      'Link',                  "Drag, click left for final or intermediate points or right to cancel";
+      'Smart Link',            "Drag, click left for final or intermediate points or right to cancel";
+      'Delete',                "Delete: Click on the object to delete";
+      'Flip',                  "Click on block to be flipped"      ;
+      'Rotate Left',           "Click on block to be turned left"  ;
+      'Rotate Right',          "Click on block to be turned right" ;
+      'Open/Set',              "Click to open block or make a link";
+      'MoveLink',              ''                                  ; //** hidden commands
+      'SMove',                 ''                                  ;
+      'SelectLink',            ''                                  ;
+      'CtrlSelect',            ''                                  ;
+      'SelectRegion',          ''                                  ;
+      'Popup',                 ''                                  ;
+      'PlaceDropped',          ''                                  ;
+      'Label',                 "Click block to label";
+      'Get Info',              "Click on object  to get information on it";
+      'Code Generation',       "Click on a Super Block (without activation output) to obtain a coded block!" ;
+      'Icon',                  "Click on block to edit its icon";
+      'Color',                 "Click on object to choose its color";
+      'Identification',        "Click on an object to set or get identification";
+      'Resize',                "Click block to resize";
+      'Block Documentation',   "Click on a block to set or get it''s documentation"]
+
+  //**-----------------------------
 
   //Scicos Menus Help definitions===========================================
 

@@ -1,5 +1,5 @@
 function  Documentation_()
-  Cmenu='Open/Set'
+  Cmenu=''
   xinfo('Click on a block to set or get it''s documentation')
   [%pt,scs_m] = do_doc(%pt,scs_m)
   xinfo(' ')

@@ -1,5 +1,5 @@
 function Window_()
-  Cmenu='Open/Set'
+  Cmenu=''
 
   params=scs_m.props;
   params=do_window(params)
@@ -22,10 +22,7 @@ function Window_()
   end
 endfunction
 
-
-
 function wpar=do_window(wpar)
-// Copyright INRIA
   wd=wpar.wpar;w=wd(1);h=wd(2);
 
   while %t do

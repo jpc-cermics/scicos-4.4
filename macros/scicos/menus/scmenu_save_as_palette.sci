@@ -1,5 +1,5 @@
 function SaveasPalette_()
-  Cmenu='Open/Set'
+  Cmenu=''
 
   spmode=pal_mode
   pal_mode=%t

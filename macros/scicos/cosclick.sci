@@ -22,6 +22,11 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       [k,wh]=getobj(scs_m,[xc;yc])
       if ~isempty(k) then
         j=1
+        if scs_m.objs(k).type=='Link' then
+          alreadyhilited=scs_m.objs(k).gr.children(1).hilited
+        else
+          alreadyhilited=scs_m.objs(k).gr.hilited
+        end
         hilite_obj(scs_m.objs(k));
       else
         j=2
@@ -36,21 +41,15 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       btn=args;
     end
     if j==1 then
-      if scs_m.objs(k).type=='Link' then
-        if ~Select.has[scs_m.objs(k).gr.children(1)] then
-          unhilite_obj(scs_m.objs(k))
-        end
-      else
-        if ~Select.has[scs_m.objs(k).gr] then
-          unhilite_obj(scs_m.objs(k))
-        end
+      if ~alreadyhilited then
+        unhilite_obj(scs_m.objs(k))
       end
     end;
 
     if Cmenu=="" then %pt=[];end
 
   elseif btn==0 then
-	Cmenu='MoveLink'
+      Cmenu='MoveLink'
       return
   elseif btn==3 then  
       if win==curwin then

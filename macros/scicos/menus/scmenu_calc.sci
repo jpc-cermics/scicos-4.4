@@ -1,5 +1,5 @@
 function Calc_()
-  Cmenu=""
+  Cmenu=''
   xinfo('You may enter any Scilab instruction. enter abort or quit to terminate')
   scs_gc=save_scs_gc();
   printf("scicos calc mode, enter abort or quit to return to scicos\n");

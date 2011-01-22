@@ -1,5 +1,5 @@
 function Link_()
-  Cmenu='Open/Set'
+  Cmenu=''
   xinfo('Click link origin, drag, click left for final or intermediate points or right to cancel')
   if new_graphics() then 
     xcursor(GDK.PENCIL);

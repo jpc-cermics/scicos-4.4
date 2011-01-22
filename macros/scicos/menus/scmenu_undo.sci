@@ -1,6 +1,6 @@
 function Undo_()
 // jpc April 13 2009 
-  Cmenu='Open/Set'
+  Cmenu=''
   %pt=[]
   if enable_undo then
     if new_graphics() then

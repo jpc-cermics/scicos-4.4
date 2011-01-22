@@ -1,5 +1,5 @@
 function SaveAs_()
-  Cmenu='Open/Set'
+  Cmenu=''
   [scs_m,editedx]=do_SaveAs()
   if ~super_block then edited=editedx;end
 endfunction

@@ -1,5 +1,5 @@
 function Icon_()
-  Cmenu='Open/Set'
+  Cmenu=''
   xinfo('Click on block to edit its icon')
   scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
   [%pt,scs_m]=do_block(%pt,scs_m)

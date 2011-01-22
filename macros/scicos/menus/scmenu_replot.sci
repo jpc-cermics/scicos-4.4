@@ -1,5 +1,5 @@
 function Replot_()
-  Cmenu='Open/Set'
+  Cmenu=''
   %pt=[];
   if new_graphics() then
     // we would need also a Replot without a resize 

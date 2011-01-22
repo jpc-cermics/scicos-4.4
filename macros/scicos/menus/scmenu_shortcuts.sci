@@ -1,5 +1,5 @@
 function Shortcuts_()
-  Cmenu="";
+  Cmenu='';
   return
   %rr=lines()
   lines(0)

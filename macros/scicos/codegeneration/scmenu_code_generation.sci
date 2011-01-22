@@ -1,5 +1,5 @@
 function  CodeGeneration_()
-  Cmenu='Open/Set'
+  Cmenu=''
   xinfo('Click on a Superblock (without activation output)'+..
 	' to obtain a coded block ! ')
   k=[]

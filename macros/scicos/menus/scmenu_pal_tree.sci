@@ -1,5 +1,5 @@
 function PalTree_()
-  Cmenu='Open/Set'
+  Cmenu=''
   scicos_palette_treeview();
 endfunction
 

@@ -1,5 +1,5 @@
 function Details_()
-  Cmenu='Open/Set'
+  Cmenu=''
   xinfo('Click on an object to get internal details')
   %pt=do_details(%pt,scs_m);
   xinfo(' ')

@@ -1,7 +1,7 @@
 function PlaceDropped_()
 // jpc April 2009 
 // place a new block selected by drag and drop from menus.
-  Cmenu='Open/Set';
+  Cmenu='';
   if type(btn,'short')<>'h' then pause bug;return;end ;
   blk = scs_m_palettes(scs_full_path(btn.path));
   if new_graphics() then 
