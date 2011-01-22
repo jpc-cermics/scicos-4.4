@@ -14,13 +14,14 @@ function MoveLink_()
       execstr('%kk=getobj(scs_m_'+string(windows(kc,1))+',%pt)')
     end
     if ~isempty(%kk) then //** press over a valid block 
-        Cmenu="Duplicate"
-        Select=[%kk,%win]
+      //Cmenu="Duplicate"
+      Cmenu="Copy"
+      Select=[%kk,%win]
     else //** press in the void   
-        Cmenu="SelectRegion"
-        Select=[]
+      Cmenu="SelectRegion"
+      Select=[]
     end
-  else //** ... the press is in the current window 
+  else //** the press is in the current window
     %kk=getobj(scs_m,%pt)
     if ~isempty(%kk) then
       ObjSel=size(Select);

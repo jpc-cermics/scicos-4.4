@@ -7,48 +7,33 @@ function Copy_()
 endfunction
 
 function [%pt,scs_m,needcompile]=do_copy(%pt,scs_m,needcompile)
-// Copyright INRIA
-  while %t
-    if isempty(%pt) then
-      [btn,%pt,win,Cmenu]=cosclick()
-      if Cmenu<>"" then
-        resume(%win=win,Cmenu=Cmenu,btn=btn);
-        return;
-      end
-    else
-      xinfo('Click where you want object to be placed (right-click to cancel)')
-      win=%win;
+  win=%win;
+  xc=%pt(1);yc=%pt(2);
+  kc=find(win==windows(:,2))
+  if isempty(kc) then
+    message('This window is not an active palette')
+    k=[];
+  elseif windows(kc,1)<0 then //click dans une palette
+    kpal=-windows(kc,1)
+    palette=palettes(kpal)
+    k=getblocktext(palette,[xc;yc])
+    if ~isempty(k) then 
+      o=disconnect_ports(palette.objs(k))
     end
-    xc=%pt(1);yc=%pt(2);%pt=[]
-    kc=find(win==windows(:,2))
-    if isempty(kc) then
-      message('This window is not an active palette')
-      k=[];break
-    elseif windows(kc,1)<0 then //click dans une palette
-      kpal=-windows(kc,1)
-      palette=palettes(kpal)
-      k=getblocktext(palette,[xc;yc])
-      if ~isempty(k) then 
-	o=disconnect_ports(palette.objs(k)),
-	break,
-      end
-    elseif win==curwin then //click dans la fenetre courante
-      k=getblocktext(scs_m,[xc;yc])
-      if ~isempty(k) then
-	o=disconnect_ports(scs_m.objs(k)) // mark ports disconnected
-	break,
-      end
-    elseif slevel>1 then
-      execstr('k=getblocktext(scs_m_'+string(windows(kc,1))+',[xc;yc])')
-      if ~isempty(k) then
-	execstr('o=scs_m_'+string(windows(kc,1))+'.objs(k)')
-	o=disconnect_ports(o)//mark ports disconnected
-	break,
-      end
-    else
-      message('This window is not an active palette')
-      k=[];break
+  elseif win==curwin then //click dans la fenetre courante
+    k=getblocktext(scs_m,[xc;yc])
+    if ~isempty(k) then
+      o=disconnect_ports(scs_m.objs(k)) // mark ports disconnected
     end
+  elseif slevel>1 then
+    execstr('k=getblocktext(scs_m_'+string(windows(kc,1))+',[xc;yc])')
+    if ~isempty(k) then
+      execstr('o=scs_m_'+string(windows(kc,1))+'.objs(k)')
+      o=disconnect_ports(o)//mark ports disconnected
+    end
+  else
+    message('This window is not an active palette')
+    k=[];
   end
   if ~isempty(k) then
     if new_graphics() then 
@@ -146,7 +131,6 @@ function [%pt,scs_m,needcompile]=do_copy(%pt,scs_m,needcompile)
     xset('recording',xtape_status);      
     resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
   end
-        
 endfunction
 
 function o=disconnect_ports(o)

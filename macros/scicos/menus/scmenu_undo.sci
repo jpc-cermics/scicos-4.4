@@ -9,13 +9,14 @@ function Undo_()
       F=get_current_figure();
       F.draw_latter[];
       for i=1:length(scs_m.objs);
-	if scs_m.objs(i).iskey['gr'] then 
-	  // we already have stuffs recorded 
-	  F.remove[scs_m.objs(i).gr];
-	  scs_m.objs(i).delete['gr'];
-	end
+        if scs_m.objs(i).iskey['gr'] then 
+          // we already have stuffs recorded 
+          F.remove[scs_m.objs(i).gr];
+          scs_m.objs(i).delete['gr'];
+        end
       end
       scs_m=scs_m_save;
+      Select=[];
       needcompile=nc_save
       // take care that scs_m_save shares 
       // graphics with previous scs_m;

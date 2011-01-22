@@ -16,6 +16,43 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   slevel = slevel +1;
   super_block = slevel > 1;
 
+  if ~super_block then
+    global next_scicos_call
+    if isempty(next_scicos_call) then
+      next_scicos_call=1
+      [verscicos,minver]=get_scicos_version()
+      verscicos=part(verscicos,7:length(verscicos))
+      if minver<>'' then
+        verscicos=verscicos+'.'+minver
+      end
+      ttxxtt=['Scicos version '+verscicos
+              'Copyright (c) 1992-2010 Metalau project INRIA'
+              '']
+      printf("%s\n",ttxxtt)
+    end
+
+    //prepare from and to workspace stuff
+
+    //set up navigation
+    super_path=[] // path to the currently opened superblock
+    %scicos_navig=[]
+    inactive_windows=list(list(),[])
+    Scicos_commands=[]
+  end
+
+  %diagram_open=%t   //default choice
+  if super_path<>[] then
+    if isequal(%diagram_path_objective,super_path) then
+      if %scicos_navig<>[] then
+        %diagram_open=%t
+        %scicos_navig=[]
+      end
+    elseif %scicos_navig<>[] then
+      %diagram_open=%f
+    end
+  end
+
+  //TOBEREMOVED
   scicos_ver='scicos2.7.3' // set current version of scicos
   scicos_ver='scicos4.2' // set current version of scicos
   
@@ -23,88 +60,75 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     // define scicos libraries
     if exists('scicos_pal')==%f | exists('%scicos_menu')==%f | exists('%scicos_short')==%f |..
 	  exists('%scicos_display_mode')==%f| exists('scicos_pal_libs') ==%f |..
-          exists('%CmenuTypeOneVector')==%f then
+          exists('%scicos_lhb_list')==%f | exists('%CmenuTypeOneVector')==%f |..
+          exists('%scicos_gif')==%f | exists('%scicos_contrib')==%f |..
+          exists('%scicos_libs')==%f | exists('%scicos_cflags')==%f then
 
       [scicos_pal_0,%scicos_menu_0,%scicos_short_0,%scicos_help_0,..
        %scicos_display_mode_0,modelica_libs_0,scicos_pal_libs_0, ..
-       %CmenuTypeOneVector_d]=initial_scicos_tables();
+       %scicos_lhb_list_0, %CmenuTypeOneVector_0, %scicos_gif_0,..
+       %scicos_contrib_0,%scicos_libs_0,%scicos_cflags_0,..
+       %scicos_pal_list_0,scs_m_palettes_0]=initial_scicos_tables();
 
       if exists('scicos_pal')==%f then
-	//x_message(['scicos_pal not defined';  'using default values'])
-	scicos_pal=scicos_pal_0;
+        scicos_pal=scicos_pal_0;
       end
       if exists('%scicos_menu')==%f then
-	//x_message(['%scicos_menu not defined';   'using default values'])
-	%scicos_menu=%scicos_menu_0;
+        %scicos_menu=%scicos_menu_0;
       end
       if exists('%scicos_short')==%f then
-	//x_message(['%scicos_short not defined';   'using default values'])
-	%scicos_short=%scicos_short_0;
+        %scicos_short=%scicos_short_0;
       end
       if exists('%scicos_help')==%f then
-	//x_message(['%scicos_help not defined';   'using default values'])
-	%scicos_help=%scicos_help_0;
+        %scicos_help=%scicos_help_0;
       end
       if exists('%scicos_display_mode')==%f then
-	//x_message(['%scicos_display_mode not defined';  'using default values'])
-	%scicos_display_mode=%scicos_display_mode_0;
+        %scicos_display_mode=%scicos_display_mode_0;
       end
-    
       if exists('modelica_libs')==%f then
-        //x_message(['modelica_libs not defined'; 'using default values'])
         modelica_libs=modelica_libs_0
       end
       if exists('scicos_pal_libs')==%f then
-        //x_message(['scicos_pal_libs not defined'; 'using default values'])
         scicos_pal_libs=scicos_pal_libs_0
       end
+      if exists('%scicos_lhb_list')==%f then
+        %scicos_lhb_list = %scicos_lhb_list_0;
+      end
       if exists('%CmenuTypeOneVector')==%f then
-//	message(["%CmenuTypeOneVector not defined"; "using default values"])
-        %CmenuTypeOneVector = %CmenuTypeOneVector_d ;
-      end 
+        %CmenuTypeOneVector = %CmenuTypeOneVector_0;
+      end
+      if exists('%scicos_gif')==%f then
+        %scicos_gif = %scicos_gif_0;
+      end
+      if exists('%scicos_contrib')==%f then
+        %scicos_contrib = %scicos_contrib_0;
+      end
+      if exists('%scicos_libs')==%f then
+        %scicos_libs = %scicos_libs_0;
+      end
+      if exists('%scicos_cflags')==%f then
+        %scicos_cflags = %scicos_cflags_0;
+      end
+      if exists('%scicos_pal_list')==%f then
+        %scicos_pal_list = %scicos_pal_list_0;
+      end
+      if exists('scs_m_palettes')==%f then
+        scs_m_palettes = scs_m_palettes_0;
+      end
     end
-    
-    //if exists('%scicos_context')==%f then
-    //  %scicos_context=hash_create(0);
-    //end
-  
-    //intialize lhb menu
-    
-    %scicos_lhb_list=list()
-    %scicos_lhb_list(1)=list('Open/Set',..
-			     'Smart Move'  ,..
-			     'Move'  ,..
-			     'Copy|||gtk-copy',..
-			     'Delete|||gtk-delete',..
-			     'Link',..
-			     'Align',..
-			     'Replace',..
-			     'Flip',..
-			     list('Properties',..
-				  'Resize',..
-				  'Icon',..
-				  'Icon Editor',..
-				  'Color|||gtk-select-color',..
-				  'Label',..
-				  'Get Info',..
-				  'Identification',..
-				  'Details',...
-				  'Documentation'),...
-			     'Code Generation',..
-			     'Help|||gtk-help')
-    [L, scs_m_palettes] = do_pal_tree(scicos_pal);
-    L.add_first['Pal Tree'];
-    %scicos_pal_list=L;
-    %scicos_lhb_list(2)=list('Undo|||gtk-undo','Palettes',L,'Context','Add new block',..
-			     'Copy Region','Delete Region','Region to Super Block',..
-			     'Replot','Save|||gtk-save','Save As|||gtk-save-as',..
-			     'Load|||gtk-open','Export','Quit|||gtk-quit','Background color','Aspect',..
-			     'Zoom in|||gtk-zoom-in',  'Zoom out|||gtk-zoom-out',  'Help');
-    
-    %scicos_lhb_list(3)=list('Copy|||gtk-copy','Copy Region','Help');
-    //
-    //if exists('scicoslib')==0 then load('SCI/macros/scicos/lib'),end
-    //exec(loadpallibs,-1) //to load the palettes libraries
+    modelica_libs=unique(modelica_libs);
+    if exists('%scicos_with_grid')==%f then
+      %scicos_with_grid=%f;
+    end
+    if exists('%scs_wgrid')==%f then
+      %scs_wgrid=[10;10;12];
+    end
+    if exists('%scicos_action')==%f then
+      %scicos_action=%t;
+    end
+    if exists('%scicos_snap')==%f then
+      %scicos_snap=%f;
+    end
   end
   
   Main_Scicos_window=1000
@@ -121,7 +145,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     %zoom=1.4;
     pal_mode=%f; // Palette edition mode
     newblocks=[]; // table of added functions in pal_mode
-    super_path=[]; // path to the currently opened superblock
 
     scicos_paltmp=scicos_pal;
     if execstr('load(''.scicos_pal'')',errcatch=%t)==%t then
@@ -145,9 +168,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %fil=scs_m
       alreadyran=%f
       [ok,scs_m,%cpr,edited]=do_load(%fil,'diagram')
-      if ~ok then 
-	return,
-      end
+      if ~ok then return, end
+
       if size(%cpr)==0 then
 	needcompile=4
 	%state0=list()
@@ -311,10 +333,25 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   xset('viewport',wshift(1),wshift(2));
   if pixmap then xset('wshow'),end
   %pt=[];%win=curwin;
-  Cmenu='Open/Set'
+  Cmenu=''
   Select=[];Select_back=[];%ppt=[];
 
-  while ( Cmenu <> "Quit" & Cmenu <> "Leave"  )
+  while (Cmenu<>"Quit" & Cmenu<>"Leave")
+
+    if or(winsid()==curwin) then
+      if edited then
+        //TODO
+      end
+    end
+
+    if isempty(%scicos_navig) then 
+      if ~isempty(Scicos_commands) then
+        execstr(Scicos_commands(1))
+        Scicos_commands(1)=[]
+      end
+    end
+    if Cmenu=='Quit' then break,end
+
     [CmenuType, mess]=CmType(Cmenu);
     xinfo(mess);
     if(Cmenu=="" & ~isempty(%pt)) then %pt=[]; end
