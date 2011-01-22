@@ -293,7 +293,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
                   'PlaceinDiagram','PlaceinDiagram_';
                   'PlaceDropped'  ,'PlaceDropped_';
                   'MoveLink'      ,'MoveLink_'
-                  'CtrlSelect'    , 'CtrlSelect_'];
+                  'CtrlSelect'    , 'CtrlSelect_'
+                  'SelectRegion', 'SelectRegion_'];
   
   if ~super_block then
     delmenu(curwin,'stop')

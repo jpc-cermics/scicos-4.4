@@ -103,7 +103,7 @@ function icon_list=scicos_build_iconlist(L, j)
   // icon_list.connect_after["button_press_event", button_press_event_handler];
   icon_list.connect["selection_changed",   selection_changed];
   //icon_list.connect["popup_menu",  popup_menu_handler];
-  icon_list.connect["item_activated", item_activated];
+  //icon_list.connect["item_activated", item_activated];
   // model columns -> [pixbuf,name,paletteid,blockid];
 
   model = gtkliststore_new(list(list(%types.GdkPixbuf),"",1,2), %f);
