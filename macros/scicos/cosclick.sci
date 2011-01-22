@@ -65,6 +65,9 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
 	%pt=[]
       end
       return
+  //** ----- Mouse + Keyb. combos
+  elseif btn==58 then
+     Cmenu='CtrlSelect'
     
   elseif btn==-2 then
 
@@ -122,34 +125,4 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   end
   printf("Cmenu="+Cmenu+"\n");
 
-//   if btn==-100 then  
-//     if win==curwin then
-//       Cmenu='Quit',
-//     else
-//       Cmenu='Open/Set'
-//     end
-//     return
-//   end 
-//   if btn==-2 then
-//     // click in a dynamic menu
-//     xc=0;yc=0
-//     if ~isempty(strindex(str,'_'+string(curwin)+'(')) then
-//       // click in a scicos dynamic menu
-//       // note that this would not be valid if multiple scicos 
-//       execstr('Cmenu='+part(str,9:length(str)-1))
-//       execstr('Cmenu='+Cmenu)  
-//     else
-//       execstr(str,errcatch=%t);
-//       return
-//     end
-//   end
-//   if btn==0&(Cmenu==""|Cmenu=='Open/Set')&(win<>curwin) then
-//     jj=find(windows(:,2)==win)
-//     if ~isempty(jj) then
-//       btn=99  //mode copy
-//       if or(windows(jj,1)==100000) then
-// 	btn=111  //mode open-set (cliquer dans navigator)
-//       end
-//     end
-//   end
 endfunction

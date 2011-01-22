@@ -262,7 +262,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   %cor_item_exec=[%cor_item_exec;
                   'PlaceinDiagram','PlaceinDiagram_';
                   'PlaceDropped'  ,'PlaceDropped_';
-                  'MoveLink'      ,'MoveLink_'];
+                  'MoveLink'      ,'MoveLink_'
+                  'CtrlSelect'    , 'CtrlSelect_'];
   
   if ~super_block then
     delmenu(curwin,'stop')
