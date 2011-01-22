@@ -23,7 +23,7 @@ function MoveLink_()
   else //** ... the press is in the current window 
     %kk=getobj(scs_m,%pt)
     if ~isempty(%kk) then
-      ObjSel=size (Select);
+      ObjSel=size(Select);
       ObjSel=ObjSel(1);
       if ObjSel<=1 then //** with zero or one object already selected 
         Cmenu=check_edge(scs_m.objs(%kk),"Move",%pt);

@@ -21,20 +21,23 @@ function CtrlSelect_()
   end   
  
   if ~isempty(k) then
-    ki=find(k==Select(:,1)&%win==Select(:,2))
+    if ~isempty(Select) then
+      ki=find(k==Select(:,1)&%win==Select(:,2))
+    else
+      Select=[Select;[k,%win]];
+      %pt=[];return
+    end
     if ~isempty(Select) & Select(1,2)<>%win then
-     Select=list()
+      Select=[]
     end
     if isempty(ki) then
-     Select=[Select;[k,%win]];
-     %pt=[];return
+      Select=[Select;[k,%win]];
+      %pt=[];return
     else 
-     Select(ki,:)=[];
-     %pt=[];return
+      Select(ki,:)=[];
+      %pt=[];return
     end
   else
     %pt=[];return
   end
 endfunction
-
-

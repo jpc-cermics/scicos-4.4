@@ -271,11 +271,13 @@ function scs_m=changeports(scs_m,path,o_n)
   if new_graphics() then 
     F=get_current_figure();
     F.draw_latter[];
+    ishilited=o.gr.hilited;
     F.remove[o.gr];
     F.start_compound[];
     drawobj(o_n)
     C=F.end_compound[];
     o_n.gr=C;
+    o_n.gr.hilited=ishilited;
     F.draw_now[];
   else
     // redraw block
