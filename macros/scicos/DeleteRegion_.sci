@@ -16,9 +16,8 @@ function [scs_m,needcompile]=do_delete_region(scs_m,needcompile)
     return;
   end
   xc=%pt(1);yc=%pt(2);
-  disablemenus()
   [ox,oy,w,h,ok]=get_rectangle(xc,yc)
-  if ~ok then  enablemenus();return;end
+  if ~ok then return;end
   [del,keep]=get_blocks_in_rect(scs_m,ox,oy,w,h)
 
   modified= ~isempty(del)
@@ -47,7 +46,6 @@ function [scs_m,needcompile]=do_delete_region(scs_m,needcompile)
       xset('recording',xtape_status);
     end
     needcompile=4
-    enablemenus()
     resume(scs_m_save,nc_save,needreplay,enable_undo=%t,edited=%t);
     return ;
   else
@@ -56,6 +54,4 @@ function [scs_m,needcompile]=do_delete_region(scs_m,needcompile)
       F.draw_now[];
     end
   end
-
-  enablemenus()
 endfunction

@@ -2,12 +2,10 @@ function RegiontoSuperBlock_()
 // Copyright INRIA
   Cmenu='Open/Set'
   xinfo(' Click, drag region and click (left to fix, right to cancel)')
-  disablemenus()
   ierr=execstr('[%pt,scs_m]=do_region2block(%pt,scs_m)',errcatch=%t);
   if ~ierr then 
     message(lasterror());
   end
-  enablemenus()
 endfunction
 
 function [%pt,scs_m]=do_region2block(%pt,scs_m)

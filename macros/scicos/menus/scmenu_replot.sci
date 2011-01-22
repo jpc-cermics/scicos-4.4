@@ -1,20 +1,17 @@
 function Replot_()
   Cmenu='Open/Set'
   %pt=[];
-  disablemenus()
   if new_graphics() then
     // we would need also a Replot without a resize 
     %wdm=scs_m.props.wpar
     window_set_size();
     scs_m=do_replot(scs_m);
-    enablemenus()
   else
     xclear(curwin);//xbasc()
     %wdm=scs_m.props.wpar
     window_set_size()
     drawobjs(scs_m),
     if pixmap then xset('wshow'),end
-    enablemenus()
   end
 endfunction
 

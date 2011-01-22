@@ -319,7 +319,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
 
     if Cmenu=='Quit' then do_exit();break;end
-    
+    disablemenus();
     %koko=find(Cmenu==%cor_item_exec(:,1));
     if size(%koko,'*')==1 then
       Select_back=Select;

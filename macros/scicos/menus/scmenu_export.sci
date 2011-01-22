@@ -13,7 +13,6 @@ function do_export(scs_m,fname)
     if num==0 then return;end
     if num<>2 then fname= xgetfile(save=%t);end
   end
-  disablemenus()
   rep=%t;
   select num 
    case 1 then rep= execstr('do_export_ps(scs_m,fname);',errcatch=%t);
@@ -22,7 +21,6 @@ function do_export(scs_m,fname)
   if rep == %f then 
     message(['error while exporting";lasterror()]);
   end
-  enablemenus()
 endfunction
 
 function do_export_gwin(scs_m)

@@ -16,11 +16,10 @@ function [scs_m,needcompile]=do_copy_region(scs_m,needcompile)
     return;
   end
   xc=%pt(1);yc=%pt(2);
-  disablemenus()
   // get region to copy 
   [reg,rect]=get_region(xc,yc,win)
   // Copyright INRIA
-  if isempty(rect) then enablemenus();return,end
+  if isempty(rect) then return,end
 
   modified=length(reg)>1
   xinfo('Drag to destination position and click (left to fix, right to cancel)')
@@ -54,7 +53,7 @@ function [scs_m,needcompile]=do_copy_region(scs_m,needcompile)
   end
 
   xset("recording",xtape_status);
-  if rep(3)==2 then enablemenus();return,end
+  if rep(3)==2 then return,end
 
   scs_m_save=scs_m,nc_save=needcompile
   n=length(scs_m.objs)
@@ -96,12 +95,10 @@ function [scs_m,needcompile]=do_copy_region(scs_m,needcompile)
   xset('recording',xtape_status);
   
   if modified then 
-    needcompile=4,
-    enablemenus()
+    needcompile=4
     resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
     return;
   end
-  enablemenus()
 endfunction
 
 
@@ -112,11 +109,10 @@ function [scs_m,needcompile]=do_copy_region_new(scs_m,needcompile)
     return;
   end
   xc=%pt(1);yc=%pt(2);
-  disablemenus()
   // get region to copy 
   [reg,rect]=get_region(xc,yc,win)
   // Copyright INRIA
-  if isempty(rect) then enablemenus();return,end
+  if isempty(rect) then return,end
 
   modified=length(reg)>1
   xinfo('Drag to destination position and click (left to fix, right to cancel)')
@@ -147,7 +143,7 @@ function [scs_m,needcompile]=do_copy_region_new(scs_m,needcompile)
   xcursor();
   F.remove[C];
   F.draw_now[];
-  if rep(3)==2 then enablemenus();return,end
+  if rep(3)==2 then return,end
   scs_m_save=scs_m,nc_save=needcompile
   n=length(scs_m.objs)
   for k=1:size(reg.objs)
@@ -186,12 +182,10 @@ function [scs_m,needcompile]=do_copy_region_new(scs_m,needcompile)
   // redraw 
     
   if modified then 
-    needcompile=4,
-    enablemenus()
+    needcompile=4
     resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
     return;
   end
-  enablemenus()
 endfunction
 
 

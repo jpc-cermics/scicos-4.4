@@ -19,11 +19,9 @@ function  CodeGeneration_()
     if ~isempty(k) then break,end
   end
   if scs_m.objs(k).model.sim(1)=='super' then
-    disablemenus()
     all_scs_m=scs_m;
     XX=scs_m.objs(k);
     [ok,XX,alreadyran]=do_compile_superblock(XX,all_scs_m,k,alreadyran)
-    enablemenus()
 
     if ok then 
       scs_m.objs(k)=XX

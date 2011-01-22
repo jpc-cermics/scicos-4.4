@@ -3,7 +3,6 @@ function Undo_()
   Cmenu='Open/Set'
   %pt=[]
   if enable_undo then
-    disablemenus()
     if new_graphics() then
       // new graphics version.
       // we first need to erase graphic objects.
@@ -25,7 +24,6 @@ function Undo_()
       for i=1:length(scs_m.objs); scs_m.objs(i).delete['gr'];end
       //window_set_size();
       scs_m=drawobjs(scs_m);
-      enablemenus()
     else
       scs_m=scs_m_save;needcompile=nc_save
       scs_m.props.wpar=scs_m.props
@@ -36,6 +34,5 @@ function Undo_()
       if pixmap then xset('wshow'),end
     end
     enable_undo=%f
-    enablemenus()
   end
 endfunction

@@ -1,6 +1,5 @@
 function Window_()
   Cmenu='Open/Set'
-  disablemenus()
 
   params=scs_m.props;
   params=do_window(params)
@@ -21,7 +20,6 @@ function Window_()
     drawobjs(scs_m),
     if pixmap then xset('wshow'),end
   end
-  enablemenus()
 endfunction
 
 

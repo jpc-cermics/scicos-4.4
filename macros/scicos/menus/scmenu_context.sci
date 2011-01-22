@@ -24,13 +24,11 @@ function Context_()
     // herited and local context
     %scicos_context = H1;
     scs_m.props.context=context;
-    disablemenus()
     //do_terminate() Alan!!
     [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
     if needcompile<>4&size(%cpr)>0 then %state0=%cpr.state,end
     edited=%t
     alreadyran=%f
-    enablemenus()
     break,
   end
 endfunction

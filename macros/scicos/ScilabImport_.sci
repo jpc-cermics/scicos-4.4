@@ -9,7 +9,6 @@ function ScilabImport_()
     if alreadyran then do_terminate(),end  //terminate current simulation
     alreadyran=%f
   end
-  disablemenus()
   [ok,scs_m,%cpr,edited]=do_scilab_import()
   if super_block then edited=%t;end
   if ok then
@@ -44,7 +43,6 @@ function ScilabImport_()
       alreadyran=%f
     end
   end
-  enablemenus()
 endfunction
 
 function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)

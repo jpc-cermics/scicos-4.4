@@ -3,7 +3,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   Cmenu_orig=Cmenu
   Cmenu="";%pt=[];btn=0;
   if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end   
-
+  enablemenus();
   global scicos_dblclk
   if isempty(scicos_dblclk) then
     if nargin==1 then

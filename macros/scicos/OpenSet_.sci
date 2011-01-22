@@ -10,7 +10,6 @@ function OpenSet_()
     end
     %xc=%pt(1);%yc=%pt(2);%pt=[]
   
-    disablemenus() // bug a corriger 
     if windows(find(%win==windows(:,2)),1)==100000 then
       //click in navigator
       [%Path,%kk,ok]=whereintree(%Tree,%xc,%yc)
@@ -27,7 +26,6 @@ function OpenSet_()
       if Cmenu=='Link' then
 	%pt=[%xc,%yc];
 	super_path($)=[]
-	enablemenus()
 	break
       end
       // in case previous window has been destroyed
@@ -120,7 +118,6 @@ function OpenSet_()
 	newparameters=mark_newpars(%kk,newparametersb,newparameters)
       end
     end
-    enablemenus()
   end
   
   xinfo(' ')

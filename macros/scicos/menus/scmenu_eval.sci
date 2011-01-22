@@ -1,6 +1,5 @@
 function Eval_()
   Cmenu='Open/Set'
-  disablemenus()
   %now_win=xget('window')
   // evaluate the context 
   if ~exists('%scicos_context') then 
@@ -19,7 +18,6 @@ function Eval_()
     message(['Error occured when evaluating context:\n'; catenate(lasterror())]);
     continue;
   end
-  enablemenus()
 endfunction
 
 function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr)

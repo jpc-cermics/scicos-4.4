@@ -6,11 +6,9 @@ function Load_()
     if alreadyran then do_terminate(),end  //terminate current simulation
     alreadyran=%f
   end
-  disablemenus();
   [ok,scs_m,%cpr,edited]=do_load()
   if super_block then edited=%t;end
   if ~ok then
-    enablemenus();
     return;
   end
   
@@ -36,10 +34,8 @@ function Load_()
       //perform eval only if context contains functions which may give
       //different results from one execution to next
       //XXXX : we have to check here if context contains rand exec or load 
-      if ~context_same then 
-	disablemenus()
+      if ~context_same then
 	[scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
-	enablemenus()
       end
     end
   else
@@ -66,6 +62,5 @@ function Load_()
     needcompile=0
     alreadyran=%f
   end
-  enablemenus()
 endfunction
 
