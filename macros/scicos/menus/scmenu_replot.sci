@@ -28,4 +28,3 @@ function scs_m=do_replot(scs_m)
   end
   scs_m=drawobjs(scs_m);
 endfunction
-

@@ -82,14 +82,7 @@ function OpenSet_()
 	  if pixmap then xset('wshow'),end
 	end
 	menu_stuff(curwin,menus)
-	
-	if ~super_block then
-	  delmenu(curwin,'stop')
-	  addmenu(curwin,'stop||$scicos_stop')
-	  unsetmenu(curwin,'stop')
-	else
-	  unsetmenu(curwin,'Simulate')
-	end
+
 	//
       end
       //end of redrawing deleted parent  

@@ -9,8 +9,14 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 // menus : vector of character strings,optional parameter giving usable menus 
 //!
 // Copyright INRIA
-//check if superblock editing mode
-//% FIXME [%ljunk,%mac]=where()
+
+  global %scicos_navig
+  global %diagram_path_objective
+  global inactive_windows
+  global Scicos_commands
+
+  //check if superblock editing mode
+  //% FIXME [%ljunk,%mac]=where()
   
   if ~exists('slevel') then slevel=0;end 
   slevel = slevel +1;
@@ -32,6 +38,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
 
     //prepare from and to workspace stuff
+    //needed ?
 
     //set up navigation
     super_path=[] // path to the currently opened superblock
@@ -214,6 +221,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   options=scs_m.props.options
   //solver
   %scicos_solver=scs_m.props.tol(6)
+  %browsehelp_sav=[]
 
   if ~super_block then
     xset('window',Main_Scicos_window);
@@ -281,13 +289,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
   MSDOS=%f; // XXXXX 
   
-  menu_stuff(curwin,menus)
-  // Reset menu added:   to be sure to be able to reset menus 
-  EnableMenus_='EnableMenus';
-  execstr('function str=Reset_'+string(curwin)+'();str=''EnableMenus_'';endfunction');
-  execstr('function enablemenus__(); Cmenu='''';enablemenus();endfunction');
-  %cor_item_exec=[%cor_item_exec; 'EnableMenus','enablemenus__'];
-  addmenu(curwin,'Reset');
   // add fixed menu items not visible
   %cor_item_exec=[%cor_item_exec;
                   'PlaceinDiagram','PlaceinDiagram_';
@@ -296,13 +297,13 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
                   'CtrlSelect'    , 'CtrlSelect_'
                   'SelectRegion', 'SelectRegion_'];
   
-  if ~super_block then
-    delmenu(curwin,'stop')
-    addmenu(curwin,'stop||$scicos_stop');
-    unsetmenu(curwin,'stop')
-  else
-    unsetmenu(curwin,'Simulate')
-  end
+  //if ~super_block then
+  //  delmenu(curwin,'stop')
+  //  addmenu(curwin,'stop||$scicos_stop');
+  //  unsetmenu(curwin,'stop')
+  //else
+  //  unsetmenu(curwin,'Simulate')
+  //end
   
   // set context (variable definition...)
   if is(scs_m.props.context,%types.SMat) then
@@ -317,16 +318,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     scs_m.props.context=' ' 
   end
   
-  if new_graphics() then 
-    // reset all the graphic objects which could still be in 
-    // scs_m 
-    scs_m=do_replot(scs_m)
-  else
-    drawobjs(scs_m);
-  end
-  
   // center the viewport 
   // window_set_size() can do the same but it clears the window
+  %zoom=restore(curwin,menus,%zoom)
   xflush();
   wd_=xget('wdim');
   wpd_=xget('wpdim');
@@ -334,15 +328,30 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   xset('viewport',wshift(1),wshift(2));
   if pixmap then xset('wshow'),end
   %pt=[];%win=curwin;
-  Cmenu=''
+  Cmenu='Replot'
   Select=[];Select_back=[];%ppt=[];
 
+  //%zoom=restore(curwin,menus,%zoom)
+  //Cmenu='Replot'
+  //scs_m=do_replot(scs_m)
+  
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
 
     if or(winsid()==curwin) then
       if edited then
-        //TODO
+        // store win dims, it should only be in do_exit but not possible now
+        [wrect,frect,logflag,arect]=xgetech()
+        data_bounds=frect
+        winpos=xget("wpos")
+        winsize=xget("wpdim")
+        axsize=xget("wdim")
+        %curwpar=[data_bounds(:)',axsize,..
+                  xget('viewport'),winsize,winpos,%zoom]
+        if ~isequal(scs_m.props.wpar,%curwpar) then
+          scs_m.props.wpar=%curwpar
+        end
       end
+      drawtitle(scs_m.props)
     end
 
     if isempty(%scicos_navig) then 
@@ -353,46 +362,70 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
     if Cmenu=='Quit' then break,end
 
-    [CmenuType, mess]=CmType(Cmenu);
-    xinfo(mess);
-    if(Cmenu=="" & ~isempty(%pt)) then %pt=[]; end
-    if (Cmenu<>"" & CmenuType==0) then %pt=[]; end
-    if (Cmenu<>"" & CmenuType==1 & isempty(%pt) & ~isempty(Select)) then
-      [%pt,%win] = get_selection(Select,%pt,%win)
-    end
-    if (Cmenu==""|(CmenuType==1 & isempty(%pt) & isempty(Select))) then
-      [btn, %pt_n, win_n, Cmenu_n] = cosclick() ;
-      if (Cmenu_n=='SelectLink' | Cmenu_n=='MoveLink') & Cmenu<>"" & CmenuType==1 & isempty(%pt) then
-        if ~isempty(%pt_n) then %pt = %pt_n; end
-      else
-        if Cmenu_n<>"" then Cmenu = Cmenu_n; end
-        if ~isempty(%pt_n) then %pt = %pt_n; end
-      end
-      %win = win_n
+    if ~isempty(%scicos_navig) then
+     //TODO
     else
-      disablemenus();
-      %koko=find(Cmenu==%cor_item_exec(:,1));
-      if size(%koko,'*')==1 then
-        Select_back=Select;
-        %cor_item_fun=%cor_item_exec(%koko,2);
-        printf('Entering function ' + %cor_item_fun+'\n');
-        ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
-        if ierr== %f then 
-          message(['Error in '+%cor_item_fun;catenate(lasterror())]);
-          Cmenu="";%pt=[];
-          Select_back=[];Select=[];
-        elseif or(curwin==winsid()) then
-          if ~isequal(Select,Select_back) then
-            selecthilite(Select_back, %f); // unHilite previous objects
-            selecthilite(Select, %t);      // Hilite the actual selected object
-          end
+      %diagram_open=%t
+      if ~or(curwin==winsid()) then
+        //TODO
+        //gh_current_window = scf(curwin);
+        //%zoom=restore(gh_current_window)
+        //execstr('drawobjs(scs_m)', 'errcatch') ; 
+        %zoom=restore(curwin,menus,%zoom)
+        scs_m=do_replot(scs_m)
+        Select_back=[];Select=[]
+      end
+      if ~isempty(Select) then
+        if ~or(Select(1,2)==winsid()) then
+          Select=[]; //** imply a full Reset 
         end
-        printf('Quit function ' + %cor_item_fun+'\n'); 
+      end
+
+      [CmenuType, mess]=CmType(Cmenu);
+      xinfo(mess);
+      if (Cmenu=="" & ~isempty(%pt)) then %pt=[]; end
+      if (Cmenu<>"" & CmenuType==0) then %pt=[]; end
+      if (Cmenu<>"" & CmenuType==1 & isempty(%pt) & ~isempty(Select)) then
+        [%pt,%win] = get_selection(Select,%pt,%win)
+      end
+      if (Cmenu==""|(CmenuType==1 & isempty(%pt) & isempty(Select))) then
+        [btn, %pt_n, win_n, Cmenu_n] = cosclick() ;
+        if (Cmenu_n=='SelectLink' | Cmenu_n=='MoveLink') & Cmenu<>"" & CmenuType==1 & isempty(%pt) then
+          if ~isempty(%pt_n) then %pt = %pt_n; end
+        else
+          if Cmenu_n<>"" then Cmenu = Cmenu_n; end
+          if ~isempty(%pt_n) then %pt = %pt_n; end
+        end
+        %win = win_n
       else
-        Cmenu="";%pt=[]
+        disablemenus();
+        %koko=find(Cmenu==%cor_item_exec(:,1));
+        if size(%koko,'*')==1 then
+          Select_back=Select;
+          %cor_item_fun=%cor_item_exec(%koko,2);
+          printf('Entering function ' + %cor_item_fun+'\n');
+          ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
+          if ierr==%f then 
+            message(['Error in '+%cor_item_fun;catenate(lasterror())]);
+            Cmenu="";%pt=[];
+            Select_back=[];Select=[];
+          elseif or(curwin==winsid()) then
+            if ~isequal(Select,Select_back) then
+              selecthilite(Select_back, %f); // unHilite previous objects
+              selecthilite(Select, %t);      // Hilite the actual selected object
+            end
+          else
+            if isempty(%scicos_navig) then // in case window is not open
+              %scicos_navig=1
+              %diagram_path_objective=[]
+            end
+          end
+          printf('Quit function ' + %cor_item_fun+'\n'); 
+        else
+          Cmenu="";%pt=[]
+        end
       end
     end
-    if Cmenu=='Quit' then break,end
     if pixmap then xset('wshow'),end
   end
   if Cmenu=='Quit' then do_exit(), end

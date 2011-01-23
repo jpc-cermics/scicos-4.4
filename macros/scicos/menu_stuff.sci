@@ -9,6 +9,13 @@ function menu_stuff(win,menus)
     delmenu(win,sname);
     addmenu(win,sname,submenu(1),list(0,sname));    
   end
+  if ~super_block then
+    delmenu(curwin,'stop')
+    addmenu(curwin,'stop||$scicos_stop');
+    unsetmenu(curwin,'stop')
+  else
+    unsetmenu(curwin,'Simulate')
+  end
 endfunction
 
 function [menus]=scicos_menu_prepare(menu_descr)
