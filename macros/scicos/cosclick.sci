@@ -65,7 +65,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       end
       return
   //** ----- Mouse + Keyb. combos
-  elseif btn==58 then
+  elseif btn==2000 then
      Cmenu='CtrlSelect'
     
   elseif btn==-2 then
