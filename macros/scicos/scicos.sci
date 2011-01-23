@@ -331,10 +331,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   Cmenu='Replot'
   Select=[];Select_back=[];%ppt=[];
 
-  //%zoom=restore(curwin,menus,%zoom)
-  //Cmenu='Replot'
-  //scs_m=do_replot(scs_m)
-  
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
 
     if or(winsid()==curwin) then
@@ -367,10 +363,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     else
       %diagram_open=%t
       if ~or(curwin==winsid()) then
-        //TODO
-        //gh_current_window = scf(curwin);
-        //%zoom=restore(gh_current_window)
-        //execstr('drawobjs(scs_m)', 'errcatch') ; 
         %zoom=restore(curwin,menus,%zoom)
         scs_m=do_replot(scs_m)
         Select_back=[];Select=[]

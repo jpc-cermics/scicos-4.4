@@ -1,6 +1,7 @@
 function Replot_()
   Cmenu=''
-  %pt=[];
+  %pt=[]
+  Select=[]
   if new_graphics() then
     // we would need also a Replot without a resize 
     %wdm=scs_m.props.wpar
