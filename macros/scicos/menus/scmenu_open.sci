@@ -1,4 +1,4 @@
-function Load_()
+function Open_()
   Cmenu=''
   if edited & ~super_block then
     num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])

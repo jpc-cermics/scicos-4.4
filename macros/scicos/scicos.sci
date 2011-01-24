@@ -290,13 +290,29 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   MSDOS=%f; // XXXXX 
   
   // add fixed menu items not visible
-  %cor_item_exec=[%cor_item_exec;
-                  'PlaceinDiagram','PlaceinDiagram_';
-                  'PlaceDropped'  ,'PlaceDropped_';
-                  'MoveLink'      ,'MoveLink_'
-                  'CtrlSelect'    , 'CtrlSelect_'
-                  'SelectRegion', 'SelectRegion_'];
+//   %cor_item_exec=[%cor_item_exec;
+//                   'PlaceinDiagram','PlaceinDiagram_';
+//                   'PlaceDropped'  ,'PlaceDropped_';
+//                   'MoveLink'      ,'MoveLink_'
+//                   'CtrlSelect'    , 'CtrlSelect_'
+//                   'SelectRegion', 'SelectRegion_'];
   
+  %cor_item_exec = [%cor_item_exec;
+                    'Link'            , 'Link_'
+                    'Open/Set'        , 'OpenSet_'
+                    'MoveLink'        , 'MoveLink_'
+                    'SMove'           , 'SMove_'
+                    'SelectLink'      , 'SelectLink_'
+                    'CtrlSelect'      , 'CtrlSelect_'
+                    'SelectRegion'    , 'SelectRegion_'
+                    'Popup'           , 'Popup_'
+                    'PlaceinDiagram'  , 'PlaceinDiagram_'
+                    'PlaceDropped'    ,'PlaceDropped_'
+                    'BrowseTo'        , 'BrowseTo_'
+                    'Place in Browser', 'PlaceinBrowser_'
+                    'Select All'      , 'SelectAll_'   
+                    'Smart Link'      , 'SmartLink_'];
+
   //if ~super_block then
   //  delmenu(curwin,'stop')
   //  addmenu(curwin,'stop||$scicos_stop');
@@ -403,8 +419,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
             Select_back=[];Select=[];
           elseif or(curwin==winsid()) then
             if ~isequal(Select,Select_back) then
-              selecthilite(Select_back, %f); // unHilite previous objects
-              selecthilite(Select, %t);      // Hilite the actual selected object
+              selecthilite(Select_back,%f); // unHilite previous objects
+              selecthilite(Select,%t);      // Hilite the actual selected object
             end
           else
             if isempty(%scicos_navig) then // in case window is not open

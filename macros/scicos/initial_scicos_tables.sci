@@ -19,109 +19,164 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
     
   scicos_pal=[pal_names, scicos_path + '/macros/blocks/palettes/'+pal_names+'.cos']
   //Scicos palettes loading ===========================================
-  scicos_pal_libs=['Branching','Events','Misc','Sinks','Threshold','Linear', ...
-	  'NonLinear','Sources','Electrical','Hydraulics'];
+  scicos_pal_libs = ['Branching','Events','Misc','Sinks','Threshold','Linear', ...
+	             'MatrixOp','NonLinear','Sources','ModElectrical','ModHydraulics',...
+                     'ModLinear','PDE','IntegerOp','Iterators'];
   
-  //Scicos Menu definitions================================================
-  Diagram  = ['Diagram','Replot|||gtk-refresh','New|||gtk-new','Region to Super Block','Purge',..
-	      'Rename','Save|||gtk-save','Save As|||gtk-save-as','Scilab Export As',..
-              'Load|||gtk-open','Load as Palette','Scilab Import',..
-	      'Save as Palette','Save as Interf Func',..
-	      'Set Diagram Info','Navigator','Export','Export All','Quit|||gtk-quit'];
-  Edit     = ['Edit','Palettes','PalTree','Context','Smart Move','Move','Copy|||gtk-copy',..
-	      'Copy Region','Replace','Align','Link','Delete|||gtk-delete','Delete Region',..
-	      'Add new block','Flip|f','Undo|||gtk-undo','Pal editor'];
-  Simulate = ['Simulate','Setup','Compile','Eval','Debug Level','Run|||gtk-execute'];
-  Object   = ['Object','Open/Set','Resize','Icon','Icon Editor','Color',..
-	      'Label','Get Info','Identification','Documentation','Details',...
-	      'Code Generation'];
-  Misc     = ['Misc','Background color|||gtk-select-color','Default link colors|||gtk-select-color','ID fonts|||gtk-select-font',..
-	      'Aspect','Add color|||gtk-color-picker','Shortcuts','Display mode','Zoom in|||gtk-zoom-in',..
-	      'Zoom out|||gtk-zoom-out','Help|||gtk-help','Calc'];
-  %scicos_menu=list(Diagram,Edit,Simulate,Object,Misc);
+  //Scicos Menu definitions==========================================================
+  //**
+  File     = ['File',..
+              'New',..
+              'Open',..
+              'Save',..
+              'Save As',..
+              'Save as Interf Func',..
+              'Export',..
+              'Export All',..
+              'Exit Scicos',..
+              'Quit' ];
+
+  Diagram  = ['Diagram',..
+              'Context',..
+              'Replot',..
+              'Rename',..
+              'Purge',..
+              'Set Diagram Info',..
+              'Set Code Gen Properties',..
+              'Region to Super Block',..
+              'Up To Main Diagram'];
+  
+  Palette  = ['Palette',..
+              'Pal Tree',..
+              'Palettes',..
+              'Pal editor',..
+              'Region to Palette',..
+              'Load as Palette',..
+              'Save as Palette'];
+
+  Edit     = ['Edit',..
+              'Undo',..
+              'Cut',..
+              'Copy',..
+              'Paste',..
+              'Duplicate',..
+              'Delete',..
+              'Move',..
+              'Smart Move',..
+              'Align',..
+              'Flip',..
+              'Rotate Left',..
+              'Rotate Right',..
+              'Add new block',..
+              'Block Documentation'..
+              'Label'];
+
+  View     = ['View',..
+              'Zoom in',..
+              'Zoom out',..
+              'Fit diagram to figure',..
+              'Default window parameters',..
+              'Available Parameters',..
+              'Icon Font Option',..
+              'Grid'];
+
+  Simulate = ['Simulate',..
+              'Setup',..
+              'Compile',..
+              'Modelica initialize',..
+              'Eval',..
+              'Analyze Diagram',..
+              'Debug Level',..
+              'Run'];
+
+  Format   = ['Format',..
+              'Set default action',..
+              'Set grid',..
+              'Add color',..
+              'Default link colors',..
+              'Color',..
+              'Background color',..
+              'Show Block Shadow',..
+              'Resize',..
+              'Identification',..
+              'ID fonts',..
+              'Icon',..
+              'Icon Editor'];
+
+  Tools    = ['Tools',..
+              'Activate ScicosLab Window',..
+              'Create Mask',..
+              'Remove Mask',..
+              'Customize Mask',..
+              'Save Block GUI',..
+              'Create Atomic',..
+              'Remove Atomic',..
+              'Get Info',..
+              'Details',..
+              'Browser',..
+              'Code Generation',..
+              'Shortcuts',..
+              'Calc'];
+
+  Help     = ['Help',..
+              'Help',..
+              'Scicos Documentation',..
+              'Demos',..
+              'About Scicos'];
+
+  %scicos_menu = list(File,Diagram,Palette,Edit,View,Simulate,Format,Tools,Help);
 
   //Scicos Right Mouse Button Menu ===========================================
   %scicos_lhb_list = list();
 
   //** state_var = 1 : right click inside the CURRENT Scicos Window
   %scicos_lhb_list(1) = list('Cut',..
-                             'Copy',..
-                             'Delete',..
+                             'Copy|||gtk-copy',..
+                             'Delete|||gtk-delete',..
                              'Move',..
                              'Smart Move',..
                              'Duplicate',..
                              'Region to Super Block',..
                              'Region to Palette');
-   //TOBEREMOVED
-    %scicos_lhb_list(1)=list('Open/Set',..
-			     'Smart Move'  ,..
-			     'Move'  ,..
-			     'Copy|||gtk-copy',..
-			     'Delete|||gtk-delete',..
-			     'Link',..
-			     'Align',..
-			     'Replace',..
-			     'Flip',..
-			     list('Properties',..
-				  'Resize',..
-				  'Icon',..
-				  'Icon Editor',..
-				  'Color|||gtk-select-color',..
-				  'Label',..
-				  'Get Info',..
-				  'Identification',..
-				  'Details',...
-				  'Documentation'),...
-			     'Code Generation',..
-			     'Help|||gtk-help')
 
   //** state_var = 2 : right click in the void of the CURRENT Scicos Window
   [L, scs_m_palettes] = do_pal_tree(scicos_pal);
   L.add_first['Pal Tree'];
   %scicos_pal_list=L;
-  %scicos_lhb_list(2) = list('Undo',..
+  %scicos_lhb_list(2) = list('Undo|||gtk-undo',..
                              'Paste',..
-			     'Palettes',..
-			     'Context',..
-			     'Add new block',..
-			     'Replot',..
-			     'Save',..
-			     'Save As',..
-			     'Export',..
-			     'Quit',..
-			     'Background color',..
-			     'Show Block Shadow'  ,..
+                             'Palettes',..
+                             L,..
+                             'Context',..
+                             'Add new block',..
+                             'Replot',..
+                             'Save|||gtk-save',..
+                             'Save As|||gtk-save-as',..
+                             'Export',..
+                             'Quit|||gtk-quit',..
+                             'Background color',..
+                             'Show Block Shadow',..
                              list('Zoom',..
-			          'Zoom in' ,..
-			          'Zoom out'),..
+                                  'Zoom in|||gtk-zoom-in',..
+                                  'Zoom out|||gtk-zoom-out'),..
                              'Pal Tree',..
-			     'Region to Super Block',..
-			     'Region to Palette',..
+                             'Region to Super Block',..
+                             'Region to Palette',..
                              'Code Generation',..
                              'Browser',..
                              'Details',..
-			     'Help');
-
-   //TOBEREMOVED
-    %scicos_lhb_list(2)=list('Undo|||gtk-undo','Palettes',L,'Context','Add new block',..
-			     'Copy Region','Delete Region','Region to Super Block',..
-			     'Replot','Save|||gtk-save','Save As|||gtk-save-as',..
-			     'Load|||gtk-open','Export','Quit|||gtk-quit','Background color','Aspect',..
-			     'Zoom in|||gtk-zoom-in',  'Zoom out|||gtk-zoom-out',  'Help');
+                             'Help|||gtk-help');
     
   //** state_var = 3 : right click over a valid object inside a PALETTE or
   //**                 not a current Scicos window
-  %scicos_lhb_list(3) = list('Copy',..
+  %scicos_lhb_list(3) = list('Copy|||gtk-copy',..
                              'Help');
-
-  //TOBEREMOVED
-  %scicos_lhb_list(3)=list('Copy|||gtk-copy','Copy Region','Help');
 
   //** state_var = 4 : right click over a block that is not a super block
   %scicos_lhb_list(4) = list('Open/Set',..
                              'Cut',..
-                             'Copy',..
-                             'Delete',..
+                             'Copy|||gtk-copy',..
+                             'Delete|||gtk-delete',..
                              'Move',..
                              'Smart Move',..
                              'Duplicate',..
@@ -135,7 +190,7 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
                                   'Resize',..
                                   'Icon',..
                                   'Icon Editor',..
-                                  'Color',..
+                                  'Color|||gtk-select-color',..
                                   'Label',..
                                   'Get Info',..
                                   'Details',..
@@ -144,16 +199,16 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
                              'Remove Atomic',..
                              'Region to Super Block',..
                              'Region to Palette',..
-                             'Help');
+                             'Help|||gtk-help');
 
   //** state_var = 5 : right click over a link inside the CURRENT Scicos Window
   %scicos_lhb_list(5) = list('Link',..
-                             'Delete',..
+                             'Delete|||gtk-delete',..
                              'Move',..
                              'Smart Move',..
                              list('Link Properties',..
                                   'Resize',..
-                                  'Color',..
+                                  'Color|||gtk-select-color',..
                                   'Get Info',..
                                   'Details',..
                                   'Identification'));
@@ -161,15 +216,15 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
   //** state_var = 6 : right click over a text inside the CURRENT Scicos Window
   %scicos_lhb_list(6) = list('Open/Set',..
                              'Cut',..
-                             'Copy',..
-                             'Delete',..
+                             'Copy|||gtk-copy',..
+                             'Delete|||gtk-delete',..
                              'Move',..
                              'Duplicate',..
                              list('Rotate',..
                                   'Rotate Left',..
                                   'Rotate Right'),..
                              list('Text Properties',..
-                                  'Color',..
+                                  'Color|||gtk-select-color',..
                                   'Get Info',..
                                   'Details'));
 
@@ -179,8 +234,8 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
                                   'Rename',..
                                   'Set Code Gen Properties'),..
                              'Cut',..
-                             'Copy',..
-                             'Delete',..
+                             'Copy|||gtk-copy',..
+                             'Delete|||gtk-delete',..
                              'Move',..
                              'Smart Move',..
                              'Duplicate',..
@@ -194,7 +249,7 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
                                   'Resize',..
                                   'Icon',..
                                   'Icon Editor',..
-                                  'Color',..
+                                  'Color|||gtk-select-color',..
                                   'Label',..
                                   'Get Info',..
                                   'Details',..
@@ -212,17 +267,26 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
 
   //Scicos Shortcuts definitions===========================================
   %scicos_short=['a','Align'
-		 'd','Delete';
-		 'c','Copy';
-		 'm','Move';
-		 'u','Undo';
-		 'f','Flip';
-		 'o','Open/Set';
-		 's','Save';
-		 'i','Get Info';
-		 'r','Replot';
-		 'l','Link';
-		 'q','Quit']
+                 'd','Delete';
+                 'c','Duplicate';
+                 'm','Move';
+                 'z','Smart Move';
+                 'u','Undo';
+                 'f','Flip';
+                 't','Rotate Left';
+                 'T','Rotate Right';
+                 'o','Open/Set';
+                 's','Save';
+                 'i','Get Info';
+                 'r','Replot';
+                 'l','Smart Link';
+                 'q','Quit';
+                 '-','Zoom out';
+                 '+','Zoom in';
+                 '=','Fit diagram to figure';
+                 'g','Grid';
+                 'h','Help']
+
   //Scicos Modelica librabry path definitions==============================
 
   modelica_libs=scicospath+'/macros/blocks/'+['ModElectrical','ModHydraulics','ModLinear'];
@@ -240,7 +304,7 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
       'Region to Palette',     "Press lef mouse button, drag region and release (right button to cancel)";
       'Smart Move',            "Click object to move, drag and click (left to fix, right to cancel)";
       'Move',                  "Click object to move, drag and click (left to fix, right to cancel)";
-      'Copy',                  "Click on the object to duplicate, drag, click (left to copy, right to cancel)";
+      'Duplicate'              "Click on the object to duplicate, drag, click (left to copy, right to cancel)";
       'Align',                 "Click on an a port, click on a port of object to be moved";
       'Link',                  "Drag, click left for final or intermediate points or right to cancel";
       'Smart Link',            "Drag, click left for final or intermediate points or right to cancel";
@@ -269,7 +333,7 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
   //**-----------------------------
 
   //Scicos Menus Help definitions===========================================
-
+  //TODO!!
   %scicos_help=tlist(..
 		     ['sch','Window','Background color','Default link colors','ID font','3D aspect','Add color',..
 		      'Focus','Shift','Zoom in','Zoom out','Help','Calc','Palettes','Context','Smart Move',..

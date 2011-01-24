@@ -1,12 +1,13 @@
-function Copy_()
+function Duplicate_()
   Cmenu=''
   xinfo('Click on the object to copy, drag, click (left to copy, right t"+...
 	" o cancel)')
-  [%pt,scs_m,needcompile]=do_copy(%pt,scs_m,needcompile)
+  [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
+  %pt=''
   xinfo(' ')
 endfunction
 
-function [%pt,scs_m,needcompile]=do_copy(%pt,scs_m,needcompile)
+function [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
   win=%win;
   xc=%pt(1);yc=%pt(2);
   kc=find(win==windows(:,2))

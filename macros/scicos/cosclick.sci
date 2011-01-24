@@ -12,50 +12,20 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%t)
     end
   else
-    btn=3;xc=scicos_dblclk(1);yc=scicos_dblclk(2);win=scicos_dblclk(3);
+    btn=10;xc=scicos_dblclk(1);yc=scicos_dblclk(2);win=scicos_dblclk(3);
     scicos_dblclk=[]
   end
   %pt=[xc,yc]
   printf("cosclick : btn =%d\n",btn);
   if or(btn==[2 5]) then // button 2 pressed or clicked
-    if win ==curwin then
-      [k,wh]=getobj(scs_m,[xc;yc])
-      if ~isempty(k) then
-        j=1
-        if scs_m.objs(k).type=='Link' then
-          alreadyhilited=scs_m.objs(k).gr.children(1).hilited
-        else
-          alreadyhilited=scs_m.objs(k).gr.hilited
-        end
-        hilite_obj(scs_m.objs(k));
-      else
-        j=2
-      end
-    else
-      j=3
-    end
-        
-    [Cmenu,args]=mpopup(%scicos_lhb_list(j));
-    if type(args,'short')=='h' then 
-      // this is ugly but we need a way to transmit args
-      btn=args;
-    end
-    if j==1 then
-      if ~alreadyhilited then
-        unhilite_obj(scs_m.objs(k))
-      end
-    end;
-
-    if Cmenu=="" then %pt=[];end
-
+      Cmenu='Popup'
+      return
   elseif btn==0 then
       Cmenu='MoveLink'
-      return
-  elseif btn==3 then  
+  elseif btn==10 then  
       if win==curwin then
 	Cmenu='Open/Set'
       end
-      return
   elseif btn==-100 then  
       if win==curwin then
 	Cmenu='Quit',
@@ -63,7 +33,6 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
 	Cmenu='Open/Set'
 	%pt=[]
       end
-      return
   //** ----- Mouse + Keyb. combos
   elseif btn==2000 then
      Cmenu='CtrlSelect'
