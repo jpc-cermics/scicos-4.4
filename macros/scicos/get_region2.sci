@@ -1,8 +1,9 @@
-function [reg,rect,prt]=get_region2(xc,yc,win)
+function [reg,rect,prt,is_flip]=get_region2(xc,yc,win,is_flip)
 // Copyright INRIA
   ok=%t
   wins=curwin
   xset('window',win)
+  is_flip=[]
   reg=list();rect=[]
   kc=find(win==windows(:,2))
   if isempty(kc) then
@@ -21,10 +22,13 @@ function [reg,rect,prt]=get_region2(xc,yc,win)
     message('This window is not an active palette')
     return
   end
-
-  [ox,oy,w,h,ok]=get_rectangle(xc,yc)
-  if ~ok then prt=[];rect=[];return;end
-
+  [rect,button] = rubberbox([xc; yc; 0; 0],%t);
+  if or(button == [2 5 12 -100]) then
+    prt=[]
+    rect=[]
+    return
+  end
+  ox=rect(1),oy=rect(2),w=rect(3),h=rect(4);
   [keep,del]=get_blocks_in_rect(scs_m,ox,oy,w,h);
   for bkeep=keep
     if scs_m.objs(bkeep).type =='Block' then
@@ -62,6 +66,7 @@ function [reg,rect,prt]=get_region2(xc,yc,win)
     k1=prt(k,1);typ=prt(k,5);tp=prt(k,3)
     o1=reg.objs(k1)
     orient=o1.graphics.flip
+    is_flip=[is_flip,orient]
 
     if tp==1 then //input port
       // build the link between block and port
@@ -73,6 +78,14 @@ function [reg,rect,prt]=get_region2(xc,yc,win)
 	[x,y,vtyp]=getinputs(o1),
 	from=[nreg+1,1,0] //added port
 	to=prt(k,1:3)
+      end
+      if ~isempty(x) & ~isempty(y) then
+        xxx=rotate([x;y],...
+                   o1.graphics.theta*%pi/180,...
+                   [o1.graphics.orig(1)+o1.graphics.sz(1)/2;...
+                    o1.graphics.orig(2)+o1.graphics.sz(2)/2]);
+        x=xxx(1,:);
+        y=xxx(2,:);
       end
       if typ>0 then //input regular port
 	x=x(prt(k,2))
@@ -122,6 +135,14 @@ function [reg,rect,prt]=get_region2(xc,yc,win)
 	[x,y,vtyp]=getoutputs(o1)
 	to=[nreg+1,1,1]
 	from=prt(k,1:3)
+      end
+      if ~isempty(x) & ~isempty(y) then
+        xxx=rotate([x;y],...
+                   o1.graphics.theta*%pi/180,...
+                   [o1.graphics.orig(1)+o1.graphics.sz(1)/2;...
+                    o1.graphics.orig(2)+o1.graphics.sz(2)/2]);
+        x=xxx(1,:);
+        y=xxx(2,:);
       end
       if typ>0 then //output regular port
 	x=x(prt(k,2))

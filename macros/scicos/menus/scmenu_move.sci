@@ -1,6 +1,6 @@
 function Move_()
   Cmenu=''
-  SelectSize = size (Select) ; //** [row, col]
+  SelectSize = size(Select) ; //** [row, col]
   SelectSize = SelectSize(1) ; //**  row
   if ~isempty(Select) then
     if ~isempty(find(Select(:,2)<>curwin)) then
@@ -9,7 +9,7 @@ function Move_()
       return
     end
   end
-  if SelectSize==1 then
+  if SelectSize==1 | SelectSize==0 then
     [%pt,scs_m]=do_stupidmove(%pt,scs_m)
   else
     printf("TODO : do_stupidMultimove\n");

@@ -3,7 +3,7 @@ function SelectRegion_()
   Select=[]
   F=get_current_figure()
   F.draw_now[]
-  [rect,button]=rubberbox([%pt(1);%pt(2);0;0])
+  [rect,button]=rubberbox([%pt(1);%pt(2);0;0],%t)
   if button==2 then // right button exit OR active window has been closed
     return
   end
@@ -56,7 +56,32 @@ function [in,out] = get_objs_in_rect(scs_m,ox,oy,w,h)
   end
 endfunction
 
-function [rect,btn]=rubberbox(rect)
+function [rect,btn]=rubberbox(rect,edit_mode)
+  select nargin
+    case 0 then
+      edit_mode=%f
+      initial_rect=%f
+    case 1 then
+      initial_rect=type(rect,'short')=='m'
+      if ~initial_rect then edit_mode=rect,end
+    case 2 then
+      initial_rect=%t
+  end
+  if edit_mode then 
+    sel=0:2,//only button press requested
+  else 
+    sel=0:5,//press and click
+  end
+  opt=[%t edit_mode]
+  first=%t
+  if ~initial_rect
+    while %t
+      [btn,xc,yc]=xclick(0)
+      if or(btn==sel) then break,end
+    end
+    rect(1)=xc;rect(2)=yc
+  end
+  if size(rect,'*')==2 then rect(3)=0;rect(4)=0,end
   rep(3)=-1;
   xc=rect(1);
   yc=rect(2);
