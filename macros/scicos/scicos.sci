@@ -375,7 +375,39 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     if Cmenu=='Quit' then break,end
 
     if ~isempty(%scicos_navig) then
-     //TODO
+      while ~isempty(%scicos_navig) do
+        if ~isequal(%diagram_path_objective,super_path) then
+          %diagram_open=%f
+          Select_back=Select
+          [Cmenu,Select]=Find_Next_Step(%diagram_path_objective,super_path) 
+          if or(curwin==winsid()) & ~isequal(Select,Select_back) then
+            selecthilite(Select_back,%f); // unHilite previous objects
+            selecthilite(Select,%t);      // Hilite the actual selected object
+          end
+          if Cmenu=="OpenSet" then
+            ierr=execstr('exec(OpenSet_);',errcatch=%t)
+            if ierr==%f then message(catenate(lasterror())),end
+            if isequal(%diagram_path_objective,super_path) then // must add after testing &%scicos_navig<>[] 
+              if ~or(curwin==winsid()) then 
+                %zoom=restore(curwin,menus,%zoom)
+                execstr('drawobjs(scs_m)',errcatch=%t) 
+                %scicos_navig=[];
+                Select_back=[];Select=[]
+              end  
+            else
+              if ~or(curwin==winsid()) & isempty(%scicos_navig) then
+                %scicos_navig=1
+                %diagram_path_objective=[]
+              end
+            end
+          elseif Cmenu=="Quit" then
+            do_exit()
+            return
+          end
+        else
+          %scicos_navig=[]
+        end
+      end 
     else
       %diagram_open=%t
       if ~or(curwin==winsid()) then
