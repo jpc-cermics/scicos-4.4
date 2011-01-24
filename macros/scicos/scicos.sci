@@ -48,13 +48,13 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   end
 
   %diagram_open=%t   //default choice
-  if super_path<>[] then
+  if ~isempty(super_path) then
     if isequal(%diagram_path_objective,super_path) then
       if %scicos_navig<>[] then
         %diagram_open=%t
         %scicos_navig=[]
       end
-    elseif %scicos_navig<>[] then
+    elseif ~isempty(%scicos_navig) then
       %diagram_open=%f
     end
   end
