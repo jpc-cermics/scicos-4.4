@@ -5,7 +5,7 @@ function MoveLink_()
     %kk=[]
     kc=find(%win==windows(:,2));
     if isempty(kc) then //** the press is not inside an scicos actiview window
-      Cmenu="";%pt=[];return;
+      Cmenu='';%pt=[];return;
     elseif windows(kc,1)<0 then //** the press is inside a palette 
       kpal=-windows(kc,1); 
       palette=palettes(kpal);
@@ -19,6 +19,7 @@ function MoveLink_()
     else //** press in the void   
       //Cmenu="SelectRegion" //ALANDISABLEITFORTHATTIME
       //Select=[]
+      Cmenu='';%pt=[];return;
     end
   else //** the press is in the current window
     %kk=getobj(scs_m,%pt)
