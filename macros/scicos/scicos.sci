@@ -197,7 +197,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     xset('recording',0);
 
     ok = execstr('load(getenv(''NSP_TMPDIR'')+''/BackupSave.cos'')',errcatch=%t)
-    if ~ok then 
+    if ~ok then
+      lasterror();
       scs_m=get_new_scs_m();
       %cpr=list();needcompile=4;alreadyran=%f;%state0=list();
     else
