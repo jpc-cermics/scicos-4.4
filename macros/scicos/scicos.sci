@@ -167,9 +167,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       lasterror(); // clear the error message stack 
     end
   end
+
   //
   if ~exists('needcompile') then needcompile=0; 
   else needcompile=needcompile;end
+
   if nargin >=1 then
     if type(scs_m,'string')== 'SMat' then //diagram is given by its filename
       %fil=scs_m
@@ -189,37 +191,61 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	%cpr=list();needcompile=4;alreadyran=%f,%state0=list()
       end
     end
+    needsavetest=%t
   else
     xset('window',Main_Scicos_window);
     xset('recording',0);
-    scs_m=scicos_diagram();
-    %cpr=list();needcompile=4;alreadyran=%f;%state0=list();
+
+    ok = execstr('load(getenv(''NSP_TMPDIR'')+''/BackupSave.cos'')',errcatch=%t)
+    if ~ok then 
+      scs_m=get_new_scs_m();
+      %cpr=list();needcompile=4;alreadyran=%f;%state0=list();
+    else
+      load(getenv('NSP_TMPDIR')+'/BackupInfo')
+    end
+    needsavetest=%f
   end
-  //  if scs_m.type<>'diagram' then error('first argument must be a scicos diagram'),end
+
+  if scs_m.type<>'diagram' then
+    error('first argument must be a scicos diagram')
+  end
   
-  [menus]=scicos_menu_prepare(%scicos_menu);
-  // insert proper call backs in the current environment 
-  // 
-  %cor_item_exec=[];
-  for i=1:size(menus.items,'*')
-    sname = menus.items(i);
-    submenu=menus(sname);
-    %ww='menus('''+sname+''')(2)('+ m2s(1:(size(submenu(1),'*')),'%.0f') + ')';
-    execstr(sname+ '=%ww;');
-    %cor_item_exec=[%cor_item_exec;submenu(2),submenu(3)];
+  if ~super_block then
+    %cor_item_exec=[];
+    [menus]=scicos_menu_prepare(%scicos_menu);
+    for i=1:size(menus.items,'*')
+      sname = menus.items(i);
+      submenu=menus(sname);
+      %ww='menus('''+sname+''')(2)('+ m2s(1:(size(submenu(1),'*')),'%.0f') + ')';
+      execstr(sname+ '=%ww;');
+      %cor_item_exec=[%cor_item_exec;submenu(2),submenu(3)];
+    end
+
+    // add fixed menu items not visible
+    %cor_item_exec = [%cor_item_exec;
+                      'Link'            , 'Link_'
+                      'Open/Set'        , 'OpenSet_'
+                      'MoveLink'        , 'MoveLink_'
+                      'SMove'           , 'SMove_'
+                      'SelectLink'      , 'SelectLink_'
+                      'CtrlSelect'      , 'CtrlSelect_'
+                      'SelectRegion'    , 'SelectRegion_'
+                      'Popup'           , 'Popup_'
+                      'PlaceinDiagram'  , 'PlaceinDiagram_'
+                      'PlaceDropped'    ,'PlaceDropped_'
+                      'BrowseTo'        , 'BrowseTo_'
+                      'Place in Browser', 'PlaceinBrowser_'
+                      'Select All'      , 'SelectAll_'   
+                      'Smart Link'      , 'SmartLink_'];
+
+    //keyboard definiton
+    %tableau=smat_create(1,100,"");
+    for %Y=1:size(%scicos_short,1)
+      %tableau(-31+ascii(%scicos_short(%Y,1)))=%scicos_short(%Y,2);
+    end
   end
 
-  //keyboard definiton
-  //FIXME global('%tableau');
-  //XXX %tableau=emptystr([1:100]);
-  %tableau=smat_create(1,100,"");
-  for %Y=1:size(%scicos_short,1)
-    %tableau(-31+ascii(%scicos_short(%Y,1)))=%scicos_short(%Y,2);
-  end
-
-  // viewport
   options=scs_m.props.options
-  //solver
   %scicos_solver=scs_m.props.tol(6)
   %browsehelp_sav=[]
 
@@ -256,70 +282,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     windows=[windows;slevel,curwin]
     palettes=palettes;
   end
-
-  //initialize graphics
-  //xdel(curwin)
-  xset('window',curwin);
-  xset('recording',0);
-  xset('default')
-  xclear(); // clear and tape_clean in nsp 
-  if pixmap then xset('pixmap',1); end
-  xset('pattern',1)
-  xset('color',1)
-  if ~set_cmap(options('Cmap')) then // add colors if required
-    options('3D')(1)=%f //disable 3D block shape
-  end
-  if pixmap then xset('wwpc');end
-  if new_graphics() 
-    xclear(curwin,gc_reset=%f);xselect()
-  else
-    xclear();xselect()
-  end
-  
-  xtape_status=xget('recording');
-  xset('recording',0);
-
-  // reset graphics objects 
-  pwindow_set_size()
-  window_set_size()
-
-  for %Y=1:size(%scicos_menu,1)
-    execstr(%scicos_menu(%Y)(1)+'_'+m2s(curwin,'%.0f')+'='+%scicos_menu(%Y)(1)+';')
-  end
-
-  MSDOS=%f; // XXXXX 
-  
-  // add fixed menu items not visible
-//   %cor_item_exec=[%cor_item_exec;
-//                   'PlaceinDiagram','PlaceinDiagram_';
-//                   'PlaceDropped'  ,'PlaceDropped_';
-//                   'MoveLink'      ,'MoveLink_'
-//                   'CtrlSelect'    , 'CtrlSelect_'
-//                   'SelectRegion', 'SelectRegion_'];
-  
-  %cor_item_exec = [%cor_item_exec;
-                    'Link'            , 'Link_'
-                    'Open/Set'        , 'OpenSet_'
-                    'MoveLink'        , 'MoveLink_'
-                    'SMove'           , 'SMove_'
-                    'SelectLink'      , 'SelectLink_'
-                    'CtrlSelect'      , 'CtrlSelect_'
-                    'SelectRegion'    , 'SelectRegion_'
-                    'Popup'           , 'Popup_'
-                    'PlaceinDiagram'  , 'PlaceinDiagram_'
-                    'PlaceDropped'    ,'PlaceDropped_'
-                    'BrowseTo'        , 'BrowseTo_'
-                    'Place in Browser', 'PlaceinBrowser_'
-                    'Select All'      , 'SelectAll_'   
-                    'Smart Link'      , 'SmartLink_'];
-
-  //if ~super_block then
-  //  delmenu(curwin,'stop')
-  //  addmenu(curwin,'stop||$scicos_stop');
-  //  unsetmenu(curwin,'stop')
-  //else
-  //  unsetmenu(curwin,'Simulate')
-  //end
   
   // set context (variable definition...)
   if is(scs_m.props.context,%types.SMat) then
@@ -333,19 +295,36 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   else
     scs_m.props.context=' ' 
   end
-  
-  // center the viewport 
-  // window_set_size() can do the same but it clears the window
-  %zoom=restore(curwin,menus,%zoom)
-  xflush();
-  wd_=xget('wdim');
-  wpd_=xget('wpdim');
-  wshift=max((wd_-wpd_)/2,0);
-  xset('viewport',wshift(1),wshift(2));
-  if pixmap then xset('wshow'),end
-  %pt=[];%win=curwin;
-  Cmenu='Replot'
+
+  MSDOS=%f; // XXXXX 
+
+  Cmenu='';%pt=[];%win=curwin;
   Select=[];Select_back=[];%ppt=[];
+  
+  //initialize graphics
+  if %diagram_open then
+    needsavetest=%f
+    xset('window',curwin);
+    xset('recording',0);
+    xtape_status=xget('recording');
+    %zoom=restore(curwin,menus,%zoom)
+    scs_m = drawobjs(scs_m);
+    if super_block then
+      Cmenu = 'Replot'
+    end
+    //TODO
+  end
+
+// center the viewport 
+// window_set_size() can do the same but it clears the window
+//   xflush();
+//   wd_=xget('wdim');
+//   wpd_=xget('wpdim');
+//   wshift=max((wd_-wpd_)/2,0);
+//   xset('viewport',wshift(1),wshift(2));
+
+  exec(restore_menu)
+  global Clipboard 
 
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
 
@@ -374,7 +353,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
     if Cmenu=='Quit' then break,end
 
-    if ~isempty(%scicos_navig) then
+    if ~isempty(%scicos_navig) then //** navigation mode active
       while ~isempty(%scicos_navig) do
         if ~isequal(%diagram_path_objective,super_path) then
           %diagram_open=%f
@@ -429,7 +408,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         [%pt,%win] = get_selection(Select,%pt,%win)
       end
       if (Cmenu==""|(CmenuType==1 & isempty(%pt) & isempty(Select))) then
-        [btn, %pt_n, win_n, Cmenu_n] = cosclick() ;
+        [btn, %pt_n, win_n, Cmenu_n]=cosclick();
         if (Cmenu_n=='SelectLink' | Cmenu_n=='MoveLink') & Cmenu<>"" & CmenuType==1 & isempty(%pt) then
           if ~isempty(%pt_n) then %pt = %pt_n; end
         else
@@ -447,7 +426,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
           ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
           if ierr==%f then 
             message(['Error in '+%cor_item_fun;catenate(lasterror())]);
-            Cmenu="";%pt=[];
+            Cmenu='Replot';%pt=[];
             Select_back=[];Select=[];
           elseif or(curwin==winsid()) then
             if ~isequal(Select,Select_back) then
@@ -466,9 +445,23 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         end
       end
     end
-    if pixmap then xset('wshow'),end
   end
-  if Cmenu=='Quit' then do_exit(), end
+  if Cmenu=='Quit' then
+    do_exit()
+    //TODO
+    // clear all globals defore leaving
+    clearglobal Clipboard  
+    clearglobal Scicos_commands 
+    clearglobal %tableau
+    clearglobal %scicos_navig
+    clearglobal %diagram_path_objective
+    //close_inactive_windows(inactive_windows,[])
+    clearglobal inactive_windows
+  elseif Cmenu=='Leave' then
+    //TODO
+    disablemenus();
+    printf('%s\n','To reactivate Scicos, click on a diagram or type '"scicos();'"')
+  end
   // remove the gr graphics from scs_m 
   if new_graphics() then 
     for k=1:length(scs_m.objs);
@@ -500,4 +493,10 @@ function [x,k]=gunique(x)
   keq=find(x(2:$)==x(1:$-1))
   x(keq)=[]
   k(keq)=[]
+endfunction
+
+function restore_menu()
+  for %Y=1:size(%scicos_menu,1)
+    execstr(%scicos_menu(%Y)(1)+'_'+m2s(curwin,'%.0f')+'='+%scicos_menu(%Y)(1)+';')
+  end
 endfunction

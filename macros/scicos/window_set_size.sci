@@ -40,6 +40,7 @@ function window_set_size(rect=0,a=0)
     xset('viewport',%XSHIFT,%YSHIFT)
     F.invalidate[];
     F.process_updates[];
+    xflush() //BUG????
   else
     xclear();
     xset("wresize",0);

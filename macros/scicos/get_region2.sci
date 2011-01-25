@@ -23,7 +23,7 @@ function [reg,rect,prt,is_flip]=get_region2(xc,yc,win,is_flip)
     return
   end
   [rect,button] = rubberbox([xc; yc; 0; 0],%t);
-  if or(button == [2 5 12 -100]) then
+  if or(button == [2 5 -100]) then
     prt=[]
     rect=[]
     return

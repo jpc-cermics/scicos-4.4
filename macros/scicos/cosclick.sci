@@ -12,34 +12,43 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%t)
     end
   else
-    btn=10;xc=scicos_dblclk(1);yc=scicos_dblclk(2);win=scicos_dblclk(3);
+    btn=10;xc=scicos_dblclk(1);yc=scicos_dblclk(2);win=scicos_dblclk(3);str=''
     scicos_dblclk=[]
   end
   %pt=[xc,yc]
+  global inactive_windows
   printf("cosclick : btn =%d\n",btn);
-  if or(btn==[2 5]) then // button 2 pressed or clicked
-      Cmenu='Popup'
-      return
-  elseif btn==0 then
-      Cmenu='MoveLink'
-  elseif btn==10 then  
+  if btn==-100 then  
       if win==curwin then
-	Cmenu='Open/Set'
-      end
-  elseif btn==-100 then  
-      if win==curwin then
-	Cmenu='Quit',
+        Cmenu='Quit',
       else
-	Cmenu='Open/Set'
-	%pt=[]
+        Cmenu=''
+        %pt=[]
       end
-  //** ----- Mouse + Keyb. combos
-  elseif btn==2000 then
-     Cmenu='CtrlSelect'
-    
-  elseif btn==-2 then
+      return
+  end
 
-    // click in a dynamic menu
+  if btn==0 then
+    Cmenu='MoveLink'
+  elseif btn==1000 then
+     Cmenu='Smart Move'
+  elseif (btn==10) & (win==curwin) then  
+    Cmenu='Open/Set'
+  elseif (btn==10) & (win<>curwin) then
+    jj = find(windows(:,2)==win)
+    if ~isempty(jj) then
+      if or(windows(jj,1)==100000) then
+        Cmenu = "Open/Set"
+       else
+        Cmenu = "Duplicate"
+      end
+    else
+      Cmenu=''; %pt=[];
+    end
+  elseif or(btn==[2 5]) then // button 2 pressed or clicked
+    Cmenu='Popup'
+    return
+  elseif btn==-2 then // Dynamic Menu
     win=curwin
     if ~isempty(strindex(str,'_'+string(curwin)+'(')) then
       // click in a scicos dynamic menu
@@ -47,45 +56,36 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       execstr('Cmenu='+part(str,9:length(str)-1))
       execstr('Cmenu='+Cmenu)
       return
-    elseif  ~isempty(strindex(str,'PlaceDropped_info')) then
+    elseif ~isempty(strindex(str,'PlaceDropped_info')) then
       // we have dropped a block in the window 
       ok = execstr('[ptd,path,win]='+str,errcatch=%t);
       if ok && win == curwin  then 
-	Cmenu='PlaceDropped';
-	btn=hash_create(path=path); // well... this is [paletteid,blockid].
-	%pt = ptd;
-	return;
+        Cmenu='PlaceDropped';
+        btn=hash_create(path=path); // well... this is [paletteid,blockid].
+        %pt = ptd;
+        return;
       elseif win <> curwin then 
-	message("You can only drop in current window");
+        message("You can only drop in current window");
       end
     else // click in an other dynamic menu
       execstr(str,errcatch=%t)
       return
     end
-    
-  elseif (btn==0|btn==3)&(win<>curwin) then
-    jj=find(windows(:,2)==win)
-    if ~isempty(jj) then
-      if Cmenu_orig=='Copy Region' then
-	Cmenu=""
-      else
-	Cmenu='Copy' //btn=99  //mode copy
-      end
-      if or(windows(jj,1)==100000) then
-	Cmenu='Open/Set'//btn=111  //mode open-set (cliquer dans navigator)
-      end
-    else
-      %pt=[]
-    end
   elseif btn>31 then
-    Cmenu=%tableau(min(100,btn-31));
-    if Cmenu=="" then %pt=[];end
+    if btn==2000 then
+      Cmenu='CtrlSelect'
+    else
+      Cmenu=%tableau(min(100,btn-31));
+      if Cmenu=="" then %pt=[];end
+    end
   end
+
   if ~isempty(%pt) then 
     str_pt= " pt(1)="+string(%pt(1))+" pt(2)="+string(%pt(2));
   else
     str_pt= " pt=[]";
   end
+
   if type(btn,'short')=='h' then 
     printf("btn="+string('hash_table')+str_pt+"\n");
   else
