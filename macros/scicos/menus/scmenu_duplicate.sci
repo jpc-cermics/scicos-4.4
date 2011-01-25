@@ -68,6 +68,7 @@ function [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
       end
       if rep(3)==2 then 
 	// this is a cancel 
+	F.draw_latter[];
 	F.remove[o.gr];
 	F.draw_now[];
 	xcursor();

@@ -1,7 +1,7 @@
 function Paleditor_()
   Cmenu=''
   scicos_palnew=do_edit_pal(scicos_pal)
-  if ~isempty(scicos_palnew) & or(scicos_palnew<>scicos_pal) then 
+  if ~isempty(scicos_palnew) & ~isequal(scicos_palnew,scicos_pal) then
     scicos_pal=scicos_palnew
     if ~execstr('save(''.scicos_pal'',scicos_pal)',errcatch=%t) then
       message('Cannot save .scicos_pal in current directory')
