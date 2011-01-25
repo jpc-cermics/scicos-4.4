@@ -1,118 +1,111 @@
 function OpenSet_()
-  xinfo('Click to open block or make a link')
-  %kk=[]
-  while %t 
-    if isempty(%pt) then
-      [btn,%pt,%win,Cmenu]=cosclick()
-      if Cmenu<>"" then
-	break
-      end
-    end
-    %xc=%pt(1);%yc=%pt(2);%pt=[]
+ global inactive_windows
+ if or(curwin==winsid()) then xset('window',curwin) end
+
+ if ~%diagram_open then
+   %kk=Select(1)
+   if size(scs_m.objs)<%kk then
+     ierr=1
+   else
+     ierr=execstr('xxx=scs_m.objs(%kk).model.sim',errcatch=%t)
+   end
+   if ierr==%t then
+     if ~isequal(xxx,'super') then
+       ierr2=execstr('xxxx=scs_m.objs(%kk).gui',errcatch=%t)
+       if ierr2==%t then
+         if ~isequal(xxxx,'PAL_f') then
+           ierr=1;
+         end
+       else
+         ierr=1;
+       end
+     end
+   end
+   if ierr==%f then
+     message(['This window is not active anymore or';
+              'the browser is not up-to-date.'])
+     %scicos_navig=[]  // stop navigation
+     Scicos_commands=[]
+     Cmenu='';%pt=[]
+     return
+   end
+    
+//     inactive_windows(1)($+1)=super_path;inactive_windows(2)($+1)=curwin
+
+   super_path=[super_path,%kk]
+   [o,modified,newparametersb,needcompileb,editedb]=clickin( scs_m.objs(%kk));
+
+//     indx=find(curwin==inactive_windows(2))
+//     if ~isempty(indx) then
+//         inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
+//     end
+    
+   edited=edited|editedb
+   super_path($-size(%kk,2)+1:$)=[]
+    
+   if editedb then
+     enable_undo = %f
+     needcompile = max(needcompile, needcompileb)
+     %Path = list('objs',%kk)
+     if or(curwin==winsid()) then xset('window',curwin) end
+     scs_m = update_redraw_obj(scs_m, %Path,o)
+   end
+    
+   if modified then
+     newparameters = mark_newpars(%kk,newparametersb,newparameters)
+   end
+   return
+ end
+
+ %xc=%pt(1);%yc=%pt(2);
+ %kk=getobj(scs_m,[%xc;%yc]);
+ %Path=list('objs',%kk);
   
-    if windows(find(%win==windows(:,2)),1)==100000 then
-      //click in navigator
-      [%Path,%kk,ok]=whereintree(%Tree,%xc,%yc)
-      if ok & ~isempty(%kk) then %Path($)=null();%Path($)=null();end
-      if ~ok then %kk=[],end
-      //pause in openset navigator 
-    else
-      %kk=getobj(scs_m,[%xc;%yc])
-      %Path=list('objs',%kk)
-    end
-    if ~isempty(%kk) then
-      super_path=[super_path,%kk] 
-      [o,modified,newparametersb,needcompileb,editedb]= clickin(scs_m(%Path))
-      if Cmenu=='Link' then
-	%pt=[%xc,%yc];
-	super_path($)=[]
-	break
-      end
-      // in case previous window has been destroyed
+ if ~isempty(%kk) then
+   Select_back=Select; 
+   selecthilite(Select_back,%f); //  unHilite previous objects
+   Select=[%kk %win];            //** select the double clicked block 
+   selecthilite(Select,%t) ;       
 
-      if ~or(curwin==winsid()) then
-	if new_graphics() then 
-	  xset('window',curwin);
-	  xset('default')
-	  xclear();// XX xbasc();
-	  xset('pattern',1)
-	  xset('color',1)
-	  if ~set_cmap(scs_m.props.options('Cmap')) then 
-	    // add colors if required
-	    scs_m.props.options('3D')(1)=%f //disable 3D block shape
-	  end
-	  xclear();//xbasc();
-	  xselect()
-	  set_background()
-	  rect=dig_bound(scs_m);
-	  if ~isempty(rect) then 
-	    %wsiz=[rect(3)-rect(1),rect(4)-rect(2)];
-	  else
-	    %wsiz=[600/%zoom,400/%zoom]
-	  end
-	  // 1.3 to correct for X version
-	  xset('wpdim',min(1000,%zoom*%wsiz(1)),min(800,%zoom*%wsiz(2)))
-	  window_set_size()
-	  //xset('alufunction',6)
-	  scs_m=drawobjs(scs_m)
-	  // pause OpenSet_
-	else
-	  xset('window',curwin);
-	  xset('default')
-	  xclear();// XX xbasc();
-	  if pixmap then xset('pixmap',1); end
-	  xset('pattern',1)
-	  xset('color',1)
-	  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-	    scs_m.props.options('3D')(1)=%f //disable 3D block shape
-	  end
-	  if pixmap then xset('wwpc');end
-	  xclear();//xbasc();
-	  xselect()
-	  xtape_status=xget('recording');
-	  xset('recording',1);
-	  set_background()
+//     inactive_windows(1)($+1)=super_path;inactive_windows(2)($+1)=curwin
+		       
+   super_path=[super_path,%kk] ; 
+   [o,modified,newparametersb,needcompileb,editedb]=clickin(scs_m(%Path));
 
-          pwindow_set_size()
-	  window_set_size()
-	
-	  //xset('alufunction',6)
-	  scs_m=drawobjs(scs_m)
-	  // pause OpenSet_
-	  if pixmap then xset('wshow'),end
-	end
-	menu_stuff(curwin,menus)
+//     indx=find(curwin==inactive_windows(2))
+//     if ~isempty(indx) then
+//       inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
+//     end
+    
+   if Cmenu=="Link" then
+     %pt=[%xc, %yc]
+     super_path($)=[]
+     return;
+   end
 
-	//
-      end
-      //end of redrawing deleted parent  
-      
-      if needcompileb==4 then
-	%kw=find(windows(:,1)==100000)
-	if ~isempty(%kw) then
-	  xdel(windows(%kw,2))
-	  %Tree=list()
-	end
-      end
-      
-      edited=edited|editedb
-      super_path($-size(%kk,2)+1:$)=[]
-      
-      if editedb then
-	scs_m_save=scs_m;nc_save=needcompile
-	if ~pal_mode then
-	  needcompile=max(needcompile,needcompileb)
-	end
-	scs_m=update_redraw_obj(scs_m,%Path,o)
-      end
+   edited = edited | editedb
+   super_path($-size(%kk,2)+1:$)=[]
+   if editedb then
+     scs_m_save = scs_m
+     nc_save    = needcompile
+     if o.type=="Block" & o.model.sim=="super" then
+        enable_undo = 2  //special code in case the content of SB has been changed
+     else
+        enable_undo = %t
+     end
 
-      //note if block parameters have been modified
-      if modified&~pal_mode  then
-	newparameters=mark_newpars(%kk,newparametersb,newparameters)
-      end
-    end
-  end
-  
-  xinfo(' ')
+     if ~pal_mode then
+      needcompile = max(needcompile, needcompileb)
+     end
+     if or(curwin==winsid()) then xset('window',curwin) end
+     scs_m = update_redraw_obj(scs_m, %Path,o)
+   end
+    
+   // note if block parameters have been modified
+   if modified  then
+     newparameters = mark_newpars(%kk,newparametersb,newparameters);
+   end
+ end
+ Cmenu='';%pt=[];
 endfunction
 

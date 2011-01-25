@@ -19,14 +19,26 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   global inactive_windows
   printf("cosclick : btn =%d\n",btn);
   if btn==-100 then  
-      if win==curwin then
-        Cmenu='Quit',
-      else
-        Cmenu=''
-        %pt=[]
-      end
-      return
+    if win==curwin then
+      Cmenu='Quit',
+    else
+      Cmenu=''
+      %pt=[]
+    end
+    return
   end
+
+  if (win==-1)& (btn==-2)&part(str,1:7)=='execstr' then
+    from=max(strindex(str,'_'))+1;
+    to=max(strindex(str,'('))-1
+    win=evstr(part(str,from:to))
+  end
+
+//   if ~isempty(win) & ~isempty(find(win==inactive_windows(2))) then
+//     global Scicos_commands
+//     pathh=inactive_windows(1)(find(win==inactive_windows(2)))
+//     pause
+//   end
 
   if btn==0 then
     Cmenu='MoveLink'

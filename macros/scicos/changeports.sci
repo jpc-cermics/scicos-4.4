@@ -216,14 +216,9 @@ function scs_m=changeports(scs_m,path,o_n)
       end
     end
     [mxx,nxx]=size(xx)
-    if ~isempty(connected) then // move connected links  
-      
-      // erase moving part of links
-      xpolys(xx,yy,clr)
-      // draw moving part of links
+    if ~isempty(connected) then // move connected links
       xx=xx+mx
       yy=yy+my
-      xpolys(xx,yy,clr)
       //udate moved links in scicos structure
       for i=1:prod(size(ii))
 	oi=scs_m.objs(abs(ii(i)))
@@ -258,9 +253,11 @@ function scs_m=changeports(scs_m,path,o_n)
 	xl(kz)=[];yl(kz)=[]
 	//store
 	oi.xx=xl;oi.yy=yl;
-	if new_graphics() then 
-	  oi.gr.children(1).x = oi.xx;
-	  oi.gr.children(1).y = oi.yy;
+        if or(curwin==winsid()) then
+          if new_graphics() then 
+            oi.gr.children(1).x = oi.xx;
+            oi.gr.children(1).y = oi.yy;
+          end
 	end
 	scs_m.objs(abs(ii(i)))=oi;
       end
@@ -268,22 +265,24 @@ function scs_m=changeports(scs_m,path,o_n)
 
   end
   
-  if new_graphics() then 
-    F=get_current_figure();
-    F.draw_latter[];
-    ishilited=o.gr.hilited;
-    F.remove[o.gr];
-    F.start_compound[];
-    drawobj(o_n)
-    C=F.end_compound[];
-    o_n.gr=C;
-    o_n.gr.hilited=ishilited;
-    F.draw_now[];
-  else
-    // redraw block
-    drawobj(o) //clear old block
-    drawobj(o_n)// draw new block
-    if pixmap then xset('wshow'),end
+  if or(curwin==winsid()) then
+    if new_graphics() then 
+      F=get_current_figure();
+      F.draw_latter[];
+      ishilited=o.gr.hilited;
+      F.remove[o.gr];
+      F.start_compound[];
+      drawobj(o_n)
+      C=F.end_compound[];
+      o_n.gr=C;
+      o_n.gr.hilited=ishilited;
+      F.draw_now[];
+    else
+      // redraw block
+      drawobj(o) //clear old block
+      drawobj(o_n)// draw new block
+      if pixmap then xset('wshow'),end
+    end
   end
   
   // update block in scicos structure

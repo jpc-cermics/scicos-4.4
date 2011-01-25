@@ -301,7 +301,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
   Cmenu='';%pt=[];%win=curwin;
   Select=[];Select_back=[];%ppt=[];
-  
+
   //initialize graphics
   if %diagram_open then
     needsavetest=%f
@@ -328,7 +328,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   global Clipboard 
 
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
-
     if or(winsid()==curwin) then
       if edited then
         // store win dims, it should only be in do_exit but not possible now
@@ -391,8 +390,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     else
       %diagram_open=%t
       if ~or(curwin==winsid()) then
+        xset('window',curwin);
+        xset('recording',0);
         %zoom=restore(curwin,menus,%zoom)
-        scs_m=do_replot(scs_m)
+        Cmenu='Replot'
         Select_back=[];Select=[]
       end
       if ~isempty(Select) then
