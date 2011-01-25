@@ -16,21 +16,25 @@ function [%pt,scs_m]=do_move(%pt,scs_m)
 //!
 //get block to move
 //pause;
-  while %t
-    if isempty(%pt) then
-      [btn,%pt,win,Cmenu]=cosclick()
-      if Cmenu<>"" then
-	resume(%win=win,Cmenu=Cmenu,btn=btn);
-	return;
-      end
-    else
-      win=%win;
-    end
-    xc=%pt(1);yc=%pt(2);%pt=[]
-    [k,wh]=getobj(scs_m,[xc;yc])
-    if ~isempty(k) then break,end
-  end
+//   while %t
+//     if isempty(%pt) then
+//       [btn,%pt,win,Cmenu]=cosclick()
+//       if Cmenu<>"" then
+// 	resume(%win=win,Cmenu=Cmenu,btn=btn);
+// 	return;
+//       end
+//     else
+//       win=%win;
+//     end
+//     xc=%pt(1);yc=%pt(2);%pt=[]
+//     [k,wh]=getobj(scs_m,[xc;yc])
+//     if ~isempty(k) then break,end
+//   end
 
+  win=%win;
+  xc=%pt(1);yc=%pt(2);%pt=[]
+  [k,wh]=getobj(scs_m,[xc;yc])
+  if isempty(k) then return, end
   scs_m_save=scs_m
   xcursor(52);
   if scs_m.objs(k).type =='Block' | scs_m.objs(k).type =='Text' then
@@ -337,11 +341,17 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
     xset('pattern',default_color(0))
     pto=[xc,yc];
     pt = pto;
-    rep(3)=-1
-    while rep(3)==-1 ,
+    while 1
       // move loop
       // get new position
       rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+      if rep(3)==10 then
+        global scicos_dblclk
+        scicos_dblclk=[rep(1),rep(2),curwin]
+      end
+      if or(rep(3)==[0,-5, 2, 3, 5]) then
+        break
+      end
       pt = rep(1:2);
       tr= pt - pto;
       // draw block shape
@@ -896,9 +906,17 @@ function scs_m=movelink_new(scs_m,k,xc,yc,wh)
 	o.gr.children(1).x = [xx(1);p(1); xx(2:$)];
 	o.gr.children(1).y = [yy(1);p(2); yy(2:$)];
 	pto=[xc,yc];
-	rep(3)=-1
-	while rep(3)==-1 ,
+// 	rep(3)=-1
+// 	while rep(3)==-1 ,
+        while 1
 	  rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+          if rep(3)==10 then
+            global scicos_dblclk
+            scicos_dblclk=[rep(1),rep(2),curwin]
+          end
+          if or(rep(3)==[0,-5, 2, 3, 5]) then
+            break
+          end
 	  pt = rep(1:2);
 	  tr= pt - pto;
 	  F.draw_latter[];
@@ -1023,9 +1041,15 @@ function o=movelink4_new(o)
   e=e/norm(e)
   F=get_current_figure()
   pto=[xc,yc];
-  rep(3)=-1
-  while rep(3)==-1 ,
+  while 1
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    if rep(3)==10 then
+      global scicos_dblclk
+      scicos_dblclk=[rep(1),rep(2),curwin]
+    end
+    if or(rep(3)==[0,-5, 2, 3, 5]) then
+      break
+    end
     pt = rep(1:2);
     tr= pt - pto;
     F.draw_latter[];
@@ -1054,9 +1078,15 @@ function scs_m=movelink1_new(scs_m)
   e=e/norm(e)
   F=get_current_figure()
   pto=[xc,yc];
-  rep(3)=-1
-  while rep(3)==-1 ,
+  while 1
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    if rep(3)==10 then
+      global scicos_dblclk
+      scicos_dblclk=[rep(1),rep(2),curwin]
+    end
+    if or(rep(3)==[0,-5, 2, 3, 5]) then
+      break
+    end
     pt = rep(1:2);
     tr= pt - pto;
     F.draw_latter[];
@@ -1150,9 +1180,15 @@ function scs_m=movelink2_new(scs_m,o)
   e= e ./norm(e)
   F=get_current_figure()
   pto=[xc,yc];
-  rep(3)=-1
-  while rep(3)==-1 ,
+  while 1
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    if rep(3)==10 then
+      global scicos_dblclk
+      scicos_dblclk=[rep(1),rep(2),curwin]
+    end
+    if or(rep(3)==[0,-5, 2, 3, 5]) then
+      break
+    end
     pt = rep(1:2);
     tr= pt - pto;
     F.draw_latter[];
@@ -1245,9 +1281,15 @@ function scs_m=movelink3_new(scs_m,o)
   e=e/norm(e)
   F=get_current_figure()
   pto=[xc,yc];
-  rep(3)=-1
-  while rep(3)==-1 ,
+  while 1
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    if rep(3)==10 then
+      global scicos_dblclk
+      scicos_dblclk=[rep(1),rep(2),curwin]
+    end
+    if or(rep(3)==[0,-5, 2, 3, 5]) then
+      break
+    end
     pt = rep(1:2);
     tr= pt - pto;
     F.draw_latter[];
@@ -1318,9 +1360,15 @@ function scs_m=movecorner_new(scs_m,k,xc,yc,wh)
   wh=-wh;
   F=get_current_figure()
   pto=[xc,yc];
-  rep(3)=-1
-  while rep(3)==-1 ,
+  while 1
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    if rep(3)==10 then
+      global scicos_dblclk
+      scicos_dblclk=[rep(1),rep(2),curwin]
+    end
+    if or(rep(3)==[0,-5, 2, 3, 5]) then
+      break
+    end
     pt = rep(1:2);
     tr= pt - pto;
     F.draw_latter[];
@@ -1370,14 +1418,3 @@ function scs_m=movecorner_new(scs_m,k,xc,yc,wh)
   F.draw_now[];
   scs_m.objs(k)=o
 endfunction
-
-
-
-
-
-
-
-
-
-
-

@@ -72,7 +72,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       return
     end
   elseif btn>31 then
-    if btn==2000 then
+    if (btn==1003) | (btn==2003)| (btn==2000) then
       Cmenu='CtrlSelect'
     else
       Cmenu=%tableau(min(100,btn-31));
