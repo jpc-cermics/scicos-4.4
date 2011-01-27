@@ -1,24 +1,20 @@
-function [%pt,scs_m,needcompile]=getlink(%pt,scs_m,needcompile)
+function [%pt,scs_m,needcompile]=getlink(%pt,scs_m,needcompile,smart)
 //edition of a link from an output block to an input  block
 // Copyright INRIA
   dash=xget('color')
+  if nargin<4 then smart=%f,end
+  rel=15/100
   outin=['out','in']
   //----------- get link origin --------------------------------------
   //------------------------------------------------------------------
-  while %t
-    if isempty(%pt) then
-      [btn,%pt,win,Cmenu]=cosclick()
-      if Cmenu<>"" then
-	resume(%win=win,Cmenu=Cmenu,btn=btn)
-	return;
-      end
-    else
-      win=%win;
-    end
-    xc1=%pt(1);yc1=%pt(2);%pt=[]
-    [kfrom,wh]=getblocklink(scs_m,[xc1;yc1])
-    if ~isempty(kfrom) then o1=scs_m.objs(kfrom);break,end
+  xc1=%pt(1);yc1=%pt(2)
+  [kfrom,wh]=getblocklink(scs_m,[xc1;yc1])
+  if ~isempty(kfrom) then
+    o1=scs_m.objs(kfrom)
+  else
+    return
   end
+ 
   scs_m_save=scs_m,nc_save=needcompile
   if o1.type =='Link' then  //add a split block
     pt=[xc1;yc1]
@@ -35,6 +31,10 @@ function [%pt,scs_m,needcompile]=getlink(%pt,scs_m,needcompile)
     typo=ct(2)
     if typo==-1 then typp='evtout',else typp=outin(from(3)+1), end
     szout=getportsiz(scs_m.objs(from(1)),from(2),typp)
+    //get port data type
+    if typp=='out'|typp=='in' then
+      szouttyp=getporttyp(scs_m.objs(from(1)),from(2),typp)
+    end
 
     // get initial split position
     wh=wh(1)
@@ -55,25 +55,36 @@ function [%pt,scs_m,needcompile]=getlink(%pt,scs_m,needcompile)
     xl=d(1);yl=d(2)
   else //connection comes from a block
     graphics1=o1.graphics
-    orig = graphics1.orig
-    sz   = graphics1.sz
-    io   = graphics1.flip
-    op   = graphics1.pout
-    impi = graphics1.pin
-    cop  = graphics1.peout
+    orig  = graphics1.orig
+    sz    = graphics1.sz
+    theta = graphics1.theta
+    io    = graphics1.flip
+    op    = graphics1.pout
+    impi  = graphics1.pin
+    cop   = graphics1.peout
     [xout,yout,typout]=getoutputports(o1)
+    i_ImplIndx=find(graphics1.in_implicit=='I')
     if isempty(xout) then
-      message('This block has no output port'),
+      hilite_obj(kfrom)
+      message('This block has no output port')
+      unhilite_obj(kfrom)
       xset('color',dash)
       return
     end
+    xxx=rotate([xout;yout],...
+               theta*%pi/180,...
+               [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+    xout=xxx(1,:);
+    yout=xxx(2,:);
     [m,kp1]=min((yc1-yout).^2+(xc1-xout).^2)
     k=kp1
     xo=xout(k);yo=yout(k);typo=typout(k)
-    if typo==1 then
+    if typo==1|typo==3 then
       port_number=k
       if op(port_number)<>0 then
+        hilite_obj(kfrom)
 	message('selected port is already connected'),
+        unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
@@ -81,25 +92,32 @@ function [%pt,scs_m,needcompile]=getlink(%pt,scs_m,needcompile)
     elseif (typo==2 & k<=size(op,'*')) then //implicit  output port
       port_number=k
       if op(port_number)<>0 then
+        hilite_obj(kfrom)
 	message('selected port is already connected'),
+        unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
       typpfrom='out'
-    elseif (typo==2 & k>size(op,'*')) then //implicit  input port
-      k=k-size(op,'*')
-      port_number=k,//out port
+    elseif (typo==2 & k>size(op,'*')+size(cop,'*')) then //implicit  input port
+      typpfrom='in' 
+      k=k-size(op,'*')-size(cop,'*')
+//      port_number=k,//out port
+      port_number=i_ImplIndx(k)
       if impi(port_number)<>0 then
+        hilite_obj(kfrom)
 	message('selected port is already connected'),
+        unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
-      typpfrom='in'
     else
-      port_number=k-prod(size(find(typout==1)))
+      port_number=k-size(op,'*') //prod(size(find(typout==1)))
       if cop(port_number)<>0 then
+        hilite_obj(kfrom)
 	message('selected port is already connected'),
 	xset('color',dash)
+        unhilite_obj(kfrom)
 	return
       end
       typpfrom='evtout'
@@ -107,6 +125,9 @@ function [%pt,scs_m,needcompile]=getlink(%pt,scs_m,needcompile)
     fromsplit=%f
     clr=default_color(typo)
     szout=getportsiz(o1,port_number,typpfrom)
+    if typpfrom=='out'|typpfrom=='in' then
+      szouttyp=getporttyp(o1,port_number,typpfrom)
+    end
     from=[kfrom,port_number,b2m(typpfrom=='in'|typpfrom=='evtin')]
     xl=xo
     yl=yo
@@ -464,27 +485,24 @@ function [%pt,scs_m,needcompile]=getlink(%pt,scs_m,needcompile)
   resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
 endfunction
 
-function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
+function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 //edition of a link from an output block to an input  block
 // Copyright INRIA
   dash=xget('color')
+  if nargin<4 then smart=%f,end
+  rel=15/100
   outin=['out','in']
   //----------- get link origin --------------------------------------
   //------------------------------------------------------------------
-  while %t
-    if isempty(%pt) then
-      [btn,%pt,win,Cmenu]=cosclick()
-      if Cmenu<>"" then
-	resume(%win=win,Cmenu=Cmenu,btn=btn)
-	return;
-      end
-    else
-      win=%win;
-    end
-    xc1=%pt(1);yc1=%pt(2);%pt=[]
-    [kfrom,wh]=getblocklink(scs_m,[xc1;yc1])
-    if ~isempty(kfrom) then o1=scs_m.objs(kfrom);break,end
+  win=%win;
+  xc1=%pt(1);yc1=%pt(2);
+  [kfrom,wh]=getblocklink(scs_m,[xc1;yc1])
+  if ~isempty(kfrom) then
+    o1=scs_m.objs(kfrom)
+  else
+    return
   end
+
   scs_m_save=scs_m; nc_save=needcompile; 
   if o1.type =='Link' then  //add a split block
     pt=[xc1;yc1]
@@ -501,6 +519,9 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
     typo=ct(2)
     if typo==-1 then typp='evtout',else typp=outin(from(3)+1), end
     szout=getportsiz(scs_m.objs(from(1)),from(2),typp)
+    if typp=='out'|typp=='in' then
+     szouttyp=getporttyp(scs_m.objs(from(1)),from(2),typp)
+    end
 
     // get initial split position
     wh=wh(1)
@@ -521,25 +542,36 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
     xl=d(1);yl=d(2)
   else //connection comes from a block
     graphics1=o1.graphics
-    orig = graphics1.orig
-    sz   = graphics1.sz
-    io   = graphics1.flip
-    op   = graphics1.pout
-    impi = graphics1.pin
-    cop  = graphics1.peout
+    orig  = graphics1.orig
+    sz    = graphics1.sz
+    theta = graphics1.theta
+    io    = graphics1.flip
+    op    = graphics1.pout
+    impi  = graphics1.pin
+    cop   = graphics1.peout
     [xout,yout,typout]=getoutputports(o1)
+    i_ImplIndx=find(graphics1.in_implicit=='I')
     if isempty(xout) then
-      message('This block has no output port'),
+      hilite_obj(kfrom)
+      message('This block has no output port')
+      unhilite_obj(kfrom)
       xset('color',dash)
       return
     end
+    xxx=rotate([xout;yout],...
+               theta*%pi/180,...
+               [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+    xout=xxx(1,:);
+    yout=xxx(2,:);
     [m,kp1]=min((yc1-yout).^2+(xc1-xout).^2)
     k=kp1
     xo=xout(k);yo=yout(k);typo=typout(k)
-    if typo==1 then
+    if typo==1|typo==3 then
       port_number=k
       if op(port_number)<>0 then
-	message('selected port is already connected'),
+        hilite_obj(kfrom)
+	message('selected port is already connected')
+        unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
@@ -547,24 +579,31 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
     elseif (typo==2 & k<=size(op,'*')) then //implicit  output port
       port_number=k
       if op(port_number)<>0 then
-	message('selected port is already connected'),
+        hilite_obj(kfrom)
+	message('selected port is already connected')
+        unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
       typpfrom='out'
-    elseif (typo==2 & k>size(op,'*')) then //implicit  input port
-      k=k-size(op,'*')
-      port_number=k,//out port
+    elseif (typo==2 & k>size(op,'*')+size(cop,'*')) then //implicit  input port
+      typpfrom='in' 
+      k=k-size(op,'*')-size(cop,'*')
+//      port_number=k,//out port
       if impi(port_number)<>0 then
+        hilite_obj(kfrom)
 	message('selected port is already connected'),
+        unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
       typpfrom='in'
     else
-      port_number=k-prod(size(find(typout==1)))
+      port_number=k-size(op,'*') //k-prod(size(find(typout==1)))
       if cop(port_number)<>0 then
+        hilite_obj(kfrom)
 	message('selected port is already connected'),
+        unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
@@ -573,6 +612,9 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
     fromsplit=%f
     clr=default_color(typo)
     szout=getportsiz(o1,port_number,typpfrom)
+    if typpfrom=='out'|typpfrom=='in' then
+      szouttyp=getporttyp(o1,port_number,typpfrom)
+    end
     from=[kfrom,port_number,b2m(typpfrom=='in'|typpfrom=='evtin')]
     xl=xo
     yl=yo
@@ -606,9 +648,6 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       F.draw_now[];
       rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f)
       F.draw_latter[];
-      P.x(n+1)=rep(1);
-      P.y(n+1)=rep(2);
-      pt=[rep(1),rep(2)];
       if rep(3)==2 then 
 	xset('color',dash)
 	// abort 
@@ -621,6 +660,9 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       end
       //plot new position of last link segment
       xe=rep(1);ye=rep(2)
+      P.x(n+1)=rep(1);
+      P.y(n+1)=rep(2);
+      pt=[rep(1),rep(2)];
     end
     // here the last point of P or [xe,ye] is the point 
     // at which a click has occured
@@ -631,34 +673,47 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       graphics2=o2.graphics;
       orig  = graphics2.orig
       sz    = graphics2.sz
+      theta = graphics2.theta
       ip    = graphics2.pin
       impo  = graphics2.pout
       cip   = graphics2.pein
       [xin,yin,typin]=getinputports(o2)
+      o_ImplIndx=find(graphics2.out_implicit=='I')
       //-- check connection
       if isempty(xin) then
+        hilite_obj(kto)
 	message('This block has no input port'),
+        unhilite_obj(kto)
 	F.remove[C];
 	F.draw_now[];
 	xset('color',dash)
 	return
       end
+      xxx=rotate([xin;yin],...
+                 theta*%pi/180,...
+                 [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+      xin=xxx(1,:);
+      yin=xxx(2,:);
       [m,kp2]=min((ye-yin).^2+(xe-xin).^2)
       k=kp2
       xc2=xin(k);yc2=yin(k);typi=typin(k)
       if typo<>typi
+        hilite_obj(kto)
 	message(['selected ports don''t have the same type'
 		 'The port at the origin of the link has type '+string(typo);
 		 'the port at the end has type '+string(typin(k))])
+        unhilite_obj(kto)
 	F.remove[C];
 	F.draw_now[];
 	xset('color',dash)
 	return
       end
-      if typi==1 then
+      if typi==1|typi==3 then
 	port_number=k
 	if ip(port_number)<>0 then
+          hilite_obj(kto)
 	  message('selected port is already connected'),
+          unhilite_obj(kto)
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -666,16 +721,61 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 	end
 	typpto='in'
 	szin=getportsiz(o2,port_number,'in')
-	if szin<>szout & min([szin szout])>0 then
-	  message(['Warning';
-		   'selected ports don''t have the same  size';
-		   'The port at the origin of the link has size '+string(szout);
-		   'the port at the end has size '+string(szin)])
-	end
+        need_warning = %f;
+        if (szin(1)<>szout(1)) & min([szin(1) szout(1)])>0 then
+          need_warning=%t
+        end
+        szout2=[];szin2=[];
+        if size(szout,'*')==1 then
+           szout2=1;
+        else
+           szout2=szout(2);
+        end
+
+        if size(szin,'*')==1 then
+           szin2=1;
+        else
+           szin2=szin(2);
+        end
+        if (szin2<>szout2) & min([szin2 szout2])>0 then
+          need_warning=%t
+        end
+        if need_warning then
+            hilite_obj(kto)
+            message(['Warning :';
+                     'Selected ports don''t have the same size';
+                     'The port at the origin of the link has size '+sci2exp(szout);
+                     'the port at the end has size '+sci2exp(szin)+'.'])
+            unhilite_obj(kto)
+        end
+// 	if szin<>szout & min([szin szout])>0 then
+// 	  message(['Warning';
+// 		   'selected ports don''t have the same  size';
+// 		   'The port at the origin of the link has size '+string(szout);
+// 		   'the port at the end has size '+string(szin)])
+// 	end        szintyp=getporttyp(o2,port_number,'in')
+        szintyp=getporttyp(o2,port_number,'in')
+        if (szintyp>0 & szouttyp>0) then //if-then-else, event-select blocks case and all the -1 intyp/outtyp
+          if szintyp<>szouttyp then
+            tt_typ=['double';'complex';'int32';'int16';
+                    'int8';'uint32';'uint16';'uint8';'boolean']
+
+            hilite_obj(kto)
+            message(['Warning :';
+                     'Selected ports don''t have the same data type';
+                     'The port at the origin of the link has datatype '+...
+                      tt_typ(szouttyp)+' ('+sci2exp(szouttyp)+')';
+                     'the port at the end has datatype '+...
+                      tt_typ(szintyp)+' ('+sci2exp(szintyp)+')'+'.'])
+            unhilite_obj(kto)
+          end
+        end
       elseif (typi==2 & k<=size(ip,'*')) then //implicit "input" port
 	port_number=k
 	if ip(port_number)<>0 then
-	  message('selected port is already connected'),
+          hilite_obj(kto)
+	  message('selected port is already connected')
+          unhilite_obj(kto)
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -689,12 +789,15 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 		   'The port at the origin of the link has size '+string(szout);
 		   'the port at the end has size '+string(szin)])
 	end
-      elseif (typi==2 & k>size(ip,'*')) then //implicit "output" port
-	k=k-size(ip,'*')
+      elseif (typi==2 & k>size(ip,'*')+size(cip,'*')) then //implicit "output" port
+	k=k-size(ip,'*')-size(cip,'*')
 	typpto='out'
-	port_number=k
+	//port_number=k
+        port_number=o_ImplIndx(k)
 	if impo(port_number)<>0 then
-	  message('selected port is already connected'),
+          hilite_obj(kto)
+	  message('selected port is already connected')
+          unhilite_obj(kto)
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -709,9 +812,11 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 		   'the port at the end has size '+string(szin)])
 	end
       else
-	port_number=k-prod(size(find(typin==1)))
+	port_number=k-size(ip,'*')  //port_number=k-prod(size(find(typin==1)))
 	if cip(port_number)<>0 then
+          hilite_obj(kto)
 	  message('selected port is already connected'),
+          unhilite_obj(kto)
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -727,10 +832,10 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 	end
       end
       F.draw_latter[];
-      P.x(n+1)=xc2;
-      P.y(n+1)=yc2;
+      //P.x(n+1)=xc2;
+      //P.y(n+1)=yc2;
       // F.draw_now[];
-      xo=xc2;yo=yc2;
+      //xo=xc2;yo=yc2;
       break;
     else
       // -- new point ends current line segment
@@ -744,67 +849,89 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 	F.draw_latter[];
 	P.x(n+1)=xc2;
 	P.y(n+1)=yc2;
-	// avoid that new point is in previous segment 
-	if n>=2 && P.x(n) == P.x(n-1) && P.x(n+1)== P.x(n) then 
-	    P.y(n)= [];
-	    P.x(n)= [];
-	end
-	if n>=2 && P.y(n) == P.y(n-1) && P.y(n+1)== P.y(n) then 
-	    P.x(n)= [];
-	    P.y(n)= [];
-	end
-	// F.draw_now[];
+	F.draw_now[];
+        xl=[xl;xc2]
+        yl=[yl;yc2]
 	xo=xc2;yo=yc2;
       end
     end
   end ; //loop on link segments
   
   // now we try to improve the path-link 
-  xl=P.x';
-  yl=P.y';
+  //xl=P.x';
+  //yl=P.y';
 
   //make last segment horizontal or vertical
   typ=typo;
   to=[kto,port_number,b2m(typpto=='in'|typpto=='evtin')]
   nx=prod(size(xl))
-  if nx==2 then 
-    // link is one segment since [xc2,yc2] is already stored
-    if fromsplit&(xl<>xc2|yl<>yc2) then
-      //try to move split point
-      if xx(wh)==xx(wh+1) then //split is on a vertical link
-	if (yy(wh)-yc2)*(yy(wh+1)-yc2)<0 then
-	  //erase last segment
-	  yl($)=yc2;
-	end
-      elseif yy(wh)==yy(wh+1) then //split is on a horizontal link
-	if (xx(wh)-xc2)*(xx(wh+1)-xc2)<0 then
-	  //erase last segment
-	  xl($)=xc2;
-	  //draw last segment
-	end
-      end
-      d=[xl,yl]
-    end
+//   if nx==2 then 
+//     // link is one segment since [xc2,yc2] is already stored
+//     if fromsplit&(xl<>xc2|yl<>yc2) then
+//       //try to move split point
+//       if xx(wh)==xx(wh+1) then //split is on a vertical link
+// 	if (yy(wh)-yc2)*(yy(wh+1)-yc2)<0 then
+// 	  //erase last segment
+// 	  yl($)=yc2;
+// 	end
+//       elseif yy(wh)==yy(wh+1) then //split is on a horizontal link
+// 	if (xx(wh)-xc2)*(xx(wh+1)-xc2)<0 then
+// 	  //erase last segment
+// 	  xl($)=xc2;
+// 	  //draw last segment
+// 	end
+//       end
+//       d=[xl,yl]
+//     end
+//   else
+//     if xl(nx-1)==xl(nx-2) then 
+//       //previous segment is vertical 
+//       //form link datas
+//       yl($-1)=yl($);
+//     elseif yl(nx-1)==yl(nx-2) then 
+//       //previous segment is horizontal 
+//       //form link datas
+//       xl($-1)=xl($);
+//     else //previous segment is oblique
+//       //nothing particular is done
+//     end
+//   end
+
+
+ if nx==1 then
+   if fromsplit&(xl<>xc2|yl<>yc2) then
+     if xx(wh)==xx(wh+1) then
+       if (yy(wh)-yc2)*(yy(wh+1)-yc2)<0 then yl=yc2, end
+     elseif yy(wh)==yy(wh+1) then
+       if (xx(wh)-xc2)*(xx(wh+1)-xc2)<0 then xl=xc2, end
+     end
+     d=[xl,yl]
+   elseif kto==kfrom then
+     xl=[xl;(xl+xc2)/2]
+     yl=[yl;(yl+yc2)/2]
+   end
+   xl=[xl;xc2];yl=[yl;yc2]
   else
-    if xl(nx-1)==xl(nx-2) then 
-      //previous segment is vertical 
-      //form link datas
-      yl($-1)=yl($);
-    elseif yl(nx-1)==yl(nx-2) then 
-      //previous segment is horizontal 
-      //form link datas
-      xl($-1)=xl($);
-    else //previous segment is oblique
-      //nothing particular is done
+    if xl(nx)==xl(nx-1) then
+      nx=prod(size(xl))
+      xl=[xl;xc2];yl=[yl(1:nx-1);yc2;yc2]
+    elseif yl(nx)==yl(nx-1) then
+      nx=prod(size(xl))
+      xl=[xl(1:nx-1);xc2;xc2];yl=[yl;yc2]
+    else 
+      xl=[xl;xc2];yl=[yl;yc2]
     end
-  end
-  
+  end  
+
   // remove temporary path 
   F.draw_latter[]
   F.remove[C]
   
   // prepare new link 
   lk=scicos_link(xx=xl,yy=yl,ct=[clr,typ],from=from,to=to)
+  if typ==3 then
+    lk.thick=[2 2]
+  end
   
   //----------- update objects structure -----------------------------
   //------------------------------------------------------------------
@@ -837,6 +964,12 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       sp.graphics.pout = [nx+1;nx+2];
       inoutfrom='out'
       IMPSPLIT_f('plot',sp)
+    elseif typo==3 then
+      sp=BUSSPLIT('define')
+      sp.graphics.orig = d;
+      sp.graphics.pin  = ks;
+      sp.graphics.pout = [nx+1;nx+2];
+      BUSSPLIT('plot',sp)
     else
       sp=CLKSPLIT_f('define')
       sp.graphics.orig  = d;
@@ -868,6 +1001,33 @@ function [%pt,scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
   
   //add new link in objects structure
   nx=length(scs_m.objs)+1
+  //pause
+  movedblock=[];moving=0
+  if size(lk.xx,'*')==2 then
+   //if scs_m.objs(kfrom).graphics.theta==0&scs_m.objs(kto).graphics.theta==0 then
+    dx=lk.xx(1)-lk.xx(2);dy=lk.yy(1)-lk.yy(2);
+    if abs(dx)<rel*abs(dy) then
+      dy=0;moving=1
+    elseif abs(dy)<rel*abs(dx) then
+      dx=0;moving=1
+    end
+    if moving then
+      if isempty(get_connected(scs_m,kto)) then
+        scs_m.objs(kto).graphics.orig=scs_m.objs(kto).graphics.orig+[dx,dy]
+        lk.xx(2)=lk.xx(2)+dx;lk.yy(2)=lk.yy(2)+dy
+        movedblock=kto
+      elseif isempty(get_connected(scs_m,kfrom)) then
+        scs_m.objs(kfrom).graphics.orig=scs_m.objs(kfrom).graphics.orig-[dx,dy]
+        lk.xx(1)=lk.xx(1)-dx;lk.yy(1)=lk.yy(1)-dy
+        dx=-dx;dy=-dy
+        movedblock=kfrom
+      end
+    end
+  end
+  if ~isempty(movedblock) then
+    o=scs_m.objs(movedblock)
+    o.gr.translate[[dx dy]];
+  end
 
   F.start_compound[];
   drawobj(lk)
