@@ -88,7 +88,8 @@ function OpenSet_()
    if editedb then
      scs_m_save = scs_m
      nc_save    = needcompile
-     if o.type=="Block" & o.model.sim=="super" then
+
+     if o.type=="Block" & isequal(o.model.sim,"super") then
         enable_undo = 2  //special code in case the content of SB has been changed
      else
         enable_undo = %t

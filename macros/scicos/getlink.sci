@@ -663,6 +663,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       P.x(n+1)=rep(1);
       P.y(n+1)=rep(2);
       pt=[rep(1),rep(2)];
+      F.draw_now[];
     end
     // here the last point of P or [xe,ye] is the point 
     // at which a click has occured
@@ -865,52 +866,20 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
   typ=typo;
   to=[kto,port_number,b2m(typpto=='in'|typpto=='evtin')]
   nx=prod(size(xl))
-//   if nx==2 then 
-//     // link is one segment since [xc2,yc2] is already stored
-//     if fromsplit&(xl<>xc2|yl<>yc2) then
-//       //try to move split point
-//       if xx(wh)==xx(wh+1) then //split is on a vertical link
-// 	if (yy(wh)-yc2)*(yy(wh+1)-yc2)<0 then
-// 	  //erase last segment
-// 	  yl($)=yc2;
-// 	end
-//       elseif yy(wh)==yy(wh+1) then //split is on a horizontal link
-// 	if (xx(wh)-xc2)*(xx(wh+1)-xc2)<0 then
-// 	  //erase last segment
-// 	  xl($)=xc2;
-// 	  //draw last segment
-// 	end
-//       end
-//       d=[xl,yl]
-//     end
-//   else
-//     if xl(nx-1)==xl(nx-2) then 
-//       //previous segment is vertical 
-//       //form link datas
-//       yl($-1)=yl($);
-//     elseif yl(nx-1)==yl(nx-2) then 
-//       //previous segment is horizontal 
-//       //form link datas
-//       xl($-1)=xl($);
-//     else //previous segment is oblique
-//       //nothing particular is done
-//     end
-//   end
 
-
- if nx==1 then
-   if fromsplit&(xl<>xc2|yl<>yc2) then
-     if xx(wh)==xx(wh+1) then
-       if (yy(wh)-yc2)*(yy(wh+1)-yc2)<0 then yl=yc2, end
-     elseif yy(wh)==yy(wh+1) then
-       if (xx(wh)-xc2)*(xx(wh+1)-xc2)<0 then xl=xc2, end
-     end
-     d=[xl,yl]
-   elseif kto==kfrom then
-     xl=[xl;(xl+xc2)/2]
-     yl=[yl;(yl+yc2)/2]
-   end
-   xl=[xl;xc2];yl=[yl;yc2]
+  if nx==1 then
+    if fromsplit&(xl<>xc2|yl<>yc2) then
+      if xx(wh)==xx(wh+1) then
+        if (yy(wh)-yc2)*(yy(wh+1)-yc2)<0 then yl=yc2, end
+      elseif yy(wh)==yy(wh+1) then
+        if (xx(wh)-xc2)*(xx(wh+1)-xc2)<0 then xl=xc2, end
+      end
+      d=[xl,yl]
+    elseif kto==kfrom then
+      xl=[xl;(xl+xc2)/2]
+      yl=[yl;(yl+yc2)/2]
+    end
+    xl=[xl;xc2];yl=[yl;yc2]
   else
     if xl(nx)==xl(nx-1) then
       nx=prod(size(xl))
