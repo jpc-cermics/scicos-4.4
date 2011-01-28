@@ -32,27 +32,40 @@ function [%pt,scs_m]=do_block(%pt,scs_m)
     coli=[]
   end
   if type(gr_i,'short')<>'s' then gr_i=''; end
-  while %t do
-    gr_i=dialog(['Give scilab instructions to draw block';
-		 'shape.';		 
-		 'orig(1) : block down left corner x coordinate';
-		 'orig(2) : block down left corner y coordinate';
-		 'sz(1)   : block width';
-		 'sz(2)   : block height'],gr_i)
-    if size(gr_i,'*')==0 then return,end
+  iterate = %t
+  while iterate do
+    gr_i_new=dialog(['Give scilab instructions to draw block';
+		     'shape.';		 
+		     'orig(1) : block down left corner x coordinate';
+		     'orig(2) : block down left corner y coordinate';
+		     'sz(1)   : block width';
+		     'sz(2)   : block height'],gr_i);
+    
+    if size(gr_i_new,'*')==0 then return,end
     // FIXME: remove the catenate 
-    if execstr(catenate(['function mac()';gr_i;'endfunction'])) == %f then
-      message(['Incorrect syntax: '])//    lasterror()])
+    if ~execstr(['function mac()';gr_i_new;'endfunction'],errcatch=%t) then
+      message(['Incorrect syntax: ';catenate(lasterror())]);
+      gr_i = gr_i_new;
     else
-      o=scs_m.objs(K)
-      drawblock(o)
-      o.graphics.gr_i=list(gr_i,coli)
-      if ~execstr('drawblock(o)',errcatch=%t) then 
-	message(['errof during drawblock evaluation: '])//    lasterror()])
+      F=get_current_figure();
+      F.draw_latter[];
+      // create new graphic object for the block.
+      F.start_compound[];
+      scs_m.objs(K).graphics.gr_i=list(gr_i_new,coli);
+      ok = execstr('drawobj(scs_m.objs(K));',errcatch=%t);
+      C=F.end_compound[];
+      if ~ok then 
+	message(['error during drawblock evaluation';catenate(lasterror())]);
+	scs_m.objs(K).graphics.gr_i=gr_i;
       else
-	scs_m.objs(K)=o
-	break
+	if scs_m.objs(K).iskey['gr'] then 
+	  F.remove[scs_m.objs(K).gr];
+	end
+	// record new graphics 
+	scs_m.objs(K).gr=C;
+	iterate = %f // we can stop
       end
+      F.draw_now[];
     end
   end
 endfunction
