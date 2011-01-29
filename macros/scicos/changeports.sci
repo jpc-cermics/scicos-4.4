@@ -116,24 +116,6 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
   //** ---------------------------------------------
   //**
 
-  //** ------------ QUICK & DIRTY TRICK -------------
-  //** This code "export back" the "E" (explicit, standard) / "I" (implicit, Modelica)
-  //** proprieties to the "old" block because very old block/superblock does not have
-  //** these proprieties
-
-  //** for the "old blocks" input(s) with not defined proprieties
-  if isempty(in_mod) then 
-       in_mod = in_mod_n ; //** "export back" the "E" / "I"
-  end 
-
-  //** for the "old blocks" output(s) with not defined proprieties
-  if isempty(out_mod) then
-      out_mod = out_mod_n ; //** "export back" the "E" / "I"
-  end
-
-  //**-----------------------------------------------
-
-
   //** acquire the dimension of the new block input and output ports and
   //** put all the ports of the new block in unconnected [0] state  
 
@@ -154,6 +136,33 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
   size_pout  = size(pout,'*')  ;
   size_pein  = size(pein,'*')  ;
   size_peout = size(peout,'*') ;
+
+  //** ------------ QUICK & DIRTY TRICK -------------
+  //** This code "export back" the "E" (explicit, standard) / "I" (implicit, Modelica)
+  //** proprieties to the "old" block because very old block/superblock does not have
+  //** these proprieties
+
+  //** for the "old blocks" input(s) with not defined proprieties
+  if isempty(in_mod_n) then
+    I='E'
+    in_mod_n=I(ones(size_pin_n,1))
+  end
+
+  if isempty(in_mod) then 
+    in_mod = in_mod_n ; //** "export back" the "E" / "I"
+  end 
+
+  //** for the "old blocks" output(s) with not defined proprieties
+  if isempty(out_mod_n) then
+    I='E'
+    out_mod_n=I(ones(size_pout_n,1))
+  end
+
+  if isempty(out_mod) then
+    out_mod = out_mod_n ; //** "export back" the "E" / "I"
+  end
+
+  //**-----------------------------------------------
 
   //** New object ports position and type 
   //** x , y : absolute coordinates of the port 
@@ -315,9 +324,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
            yOutPortToCon   = [yOutPortToCon ysmout_n(i)] ; //** and pile up in the vector
            NumOutPortToCon = [NumOutPortToCon i] ;         //** and pile up the output port number
          else
-           if pout(i)>0 //** if the old port was connected
-             LinkToDel = [LinkToDel pout(i)]; //** add the Link to the "to be deleted links" vector
-           end
+           LinkToDel = [LinkToDel pout(i)]; //** add the Link to the "to be deleted links" vector
          end
        else
          if pout(i)>0 //** if the old port was connected
@@ -344,9 +351,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
          yOutPortToCon   = [yOutPortToCon yeout_n(i)] ; //** and pile up in the vector
          NumOutPortToCon = [NumOutPortToCon i] ;        //** and pile up the output port number
        else
-         if peout(i)>0 //** if the old port was connected
-           LinkToDel = [LinkToDel peout(i)]; //** add the Link to the "to be deleted links" vector
-         end
+         LinkToDel = [LinkToDel peout(i)]; //** add the Link to the "to be deleted links" vector
        end
 
     end //** of the for loop
@@ -406,7 +411,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 
       if  or(curwin==winsid()) then
         F=get_current_figure[];
-        if oi.iskey['gr'] then oi.delete['gr'];end 
+        if oi.iskey['gr'] then F.remove[oi.gr], end 
         F.start_compound[];
         drawobj(oi);
         oi.gr=F.end_compound[];
@@ -464,7 +469,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 
       if  or(curwin==winsid()) then
         F=get_current_figure[];
-        if oi.iskey['gr'] then oi.delete['gr'];end 
+        if oi.iskey['gr'] then F.remove[oi.gr], end 
         F.start_compound[];
         drawobj(oi);
         oi.gr=F.end_compound[];
