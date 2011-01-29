@@ -12,7 +12,6 @@ function Move_()
   if SelectSize==1 & scs_m.objs(Select(1)).type=="Link" then
     [%pt,scs_m]=do_stupidmove(%pt,scs_m)
   else
-    printf("TODO : do_stupidMultimove\n");
     [scs_m] = do_stupidMultimove(%pt, Select, scs_m)
   end
   %pt=[]
@@ -807,6 +806,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   moved_dist=0
   /////////////////////////////////////if with_gtk() then queue_state=[],end
 
+    xcursor(52);
     while 1 do //** interactive move loop
       rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
       //** left button release, right button (press, click)
@@ -933,6 +933,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
         end
       end
     end //** ... of while Interactive move LOOP --------------------------------------------------------------
+    xcursor();
 
     //**-----------------------------------------------
     //gh_figure = gcf();
