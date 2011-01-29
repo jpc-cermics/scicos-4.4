@@ -951,7 +951,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       sp.graphics.peout = [nx+1;nx+2];
       CLKSPLIT_f('plot',sp)
     end
-    
+
     // update the graphic parts 
     // 1 remove the o1 graphics 
     F.remove[o1.gr];

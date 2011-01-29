@@ -3,7 +3,7 @@ function sztyp=getporttyp(o,prt_number,typ)
   sztyp=[]
   typs=['in','out']
   k=find(typ==typs)
-  if k==[] then return,end
+  if isempty(k) then return,end
 
   select k
    case 1 then

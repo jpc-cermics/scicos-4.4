@@ -28,7 +28,7 @@ endfunction
 function [%pt,%win,reg] = get_selection2(Select,%pt,%win)
  win=Select(1,2)  // all items in the second column are identical
   kc=find(win==windows(:,2))
-  if kc==[] then
+  if isempty(kc) then
     reg=[];return // window no longer active
   elseif windows(kc,1)<0 then //palette
     scs_m=palettes(-windows(kc,1))
