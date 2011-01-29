@@ -1,10 +1,15 @@
 function Paste_()
   if ~isequal(%win,curwin) then
-     message(["Paste operation is not possible in this window"]);
-     Cmenu = ''; %pt = []; %ppt = [];
-     return
+    message(["Paste operation is not possible in this window"]);
+    Cmenu = ''; %pt = []; %ppt = [];
+    return
   end        
-    
+  
+  if isempty(Clipboard) then
+   Cmenu = ''; %pt = []; %ppt = [];
+   return
+  end
+
   xset('window',curwin);
   xselect();
   F=get_current_figure();
