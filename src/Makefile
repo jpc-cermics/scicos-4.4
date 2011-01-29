@@ -122,7 +122,7 @@ SUNDIALS=cvode.o cvode_io.o cvode_dense.o nvector_serial.o ida.o ida_dense.o \
 
 
 OBJSC=  import.o scicos.o intcos.o simul.o sciblk2.o trees.o ezxml.o scicos_utils.o \
-	evaluate_expr.o \
+	evaluate_expr.o about.o \
 	blocks/blocks_new_nsp.o blocks/blocks_nsp.o blocks/gtkrange.o \
 	$(addprefix sundials/,$(SUNDIALS)) \
 	$(addprefix blocks/,$(BLOCKSC)) \

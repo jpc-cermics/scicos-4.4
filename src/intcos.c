@@ -34,6 +34,16 @@
 #include <nsp/interf.h>
 #include "scicos/scicos4.h"
 
+extern void create_scicos_about(void);
+
+static int int_scicos_about (Stack stack, int rhs, int opt, int lhs)
+{
+  CheckRhs (-1, 0);
+  CheckLhs (-1, 0);
+  create_scicos_about();
+  return 0;
+}
+
 /* 
  * [state,t]=scicosim(state,tcur,tf,sim,'start' ,tol) 
  * 
@@ -800,6 +810,7 @@ static OpTab Scicos_func[] = {
   {"setxproperty", int_setxproperty},
   {"scicos_debug_count", int_scicos_debug_count},
   {"buildouttb", int_buildouttb},
+  {"scicos_about", int_scicos_about},
   {(char *) 0, NULL}
 };
 
