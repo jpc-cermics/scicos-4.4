@@ -645,7 +645,6 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 	end
       end
       // get a new point waiting for click
-      F.draw_now[];
       rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f)
       F.draw_latter[];
       if rep(3)==2 then 
@@ -685,6 +684,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
         hilite_obj(kto)
 	message('This block has no input port'),
         unhilite_obj(kto)
+        F.draw_latter[];
 	F.remove[C];
 	F.draw_now[];
 	xset('color',dash)
@@ -704,6 +704,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 		 'The port at the origin of the link has type '+string(typo);
 		 'the port at the end has type '+string(typin(k))])
         unhilite_obj(kto)
+        F.draw_latter[];
 	F.remove[C];
 	F.draw_now[];
 	xset('color',dash)
@@ -715,6 +716,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
           hilite_obj(kto)
 	  message('selected port is already connected'),
           unhilite_obj(kto)
+          F.draw_latter[];
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -777,6 +779,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
           hilite_obj(kto)
 	  message('selected port is already connected')
           unhilite_obj(kto)
+          F.draw_latter[];
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -799,6 +802,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
           hilite_obj(kto)
 	  message('selected port is already connected')
           unhilite_obj(kto)
+          F.draw_latter[];
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -818,6 +822,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
           hilite_obj(kto)
 	  message('selected port is already connected'),
           unhilite_obj(kto)
+          F.draw_latter[];
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
