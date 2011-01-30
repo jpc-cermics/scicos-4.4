@@ -27,6 +27,30 @@ function scs_m = changeports(scs_m, path, o_n)
 //**
 //**
 //**
+  //** This code can be validate by visual inspection only : look at the results !  
+
+  //** ------- Update  block --------------------------------------------
+
+  k = path($) ; //** the scs_m index of the target 
+  if or(curwin==winsid()) then
+    //** ------- Graphics ---------------
+    //** redraw block
+    if pixmap then xset('wshow'),end,
+    F=get_current_figure[];
+    F.draw_latter[];
+    ishilited=%f
+    if scs_m.objs(k).iskey['gr'] then
+      ishilited=scs_m.objs(k).gr.hilited
+      F.remove[scs_m.objs(k).gr];
+    end 
+    F.start_compound[];
+    drawobj(o_n);
+    o_n.gr=F.end_compound[];
+    o_n.gr.hilited=ishilited;
+    o_n.gr.invalidate[];
+    F.draw_now[];
+  end
+
   //** The very first time the this routine try to match the ports of the new blocks over the ports
   //** of the old one.
   //** "LinkToDel" is a vector of "scs_m" index of connected links of the old blocks that cannot be
@@ -63,32 +87,10 @@ function scs_m = changeports(scs_m, path, o_n)
 
   //**--------------------------------------------------------------------------------------------- 
 
-  //** This code can be validate by visual inspection only : look at the results !  
-
-  //** ------- Update  block --------------------------------------------
-
-  k = path($) ; //** the scs_m index of the target 
-  if or(curwin==winsid()) then
-    //** ------- Graphics ---------------
-    //** redraw block
-    if pixmap then xset('wshow'),end,
-    F=get_current_figure[];
-    F.draw_latter[];
-    ishilited=%f
-    if scs_m.objs(k).iskey['gr'] then
-      ishilited=scs_m.objs(k).gr.hilited
-      F.remove[scs_m.objs(k).gr];
-    end 
-    F.start_compound[];
-    drawobj(o_n);
-    o_n.gr=F.end_compound[];
-    o_n.gr.hilited=ishilited;
-    o_n.gr.invalidate[];
-    F.draw_now[];
-  end
   //**-------- Scicos -----------------
   //** update block in scicos structure
-
+  F.draw_latter[];
+  F.draw_now[];
   scs_m.objs(k) = o_n ;
 
 endfunction
