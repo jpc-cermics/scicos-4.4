@@ -35,16 +35,22 @@ endfunction
 
 function [context,ok]=do_context(context)
 // Copyright INRIA
-  if type(context,'string')=='Mat' then context='',end
-  rep=dialog(['You may enter here nsp code to define ';
+  if type(context,'string')<>'SMat' then context='',end
+  comment = ['You may enter here nsp code to define ';
 	      'symbolic parameters which can be used in block parameters definitions';
 	      ' ';
-	      'These instructions are evaluated once confirmed, i.e.,you';
-	      'click on OK, by Eval and every time diagram is loaded.'],context);
-  if size(rep,'*') == 0 then
+	     'These instructions are evaluated once confirmed, i.e.,you';
+	     'click on OK, by Eval and every time diagram is loaded.'];
+  if %t then 
+    // new version with editsmat 
+    R= editsmat('Context Edition',context,comment=catenate(comment,sep='\n'));
+  else
+    R=dialog(comment, context);
+  end
+  if isempty(R) then
     ok=%f
   else
-    context=rep
+    context=R;
     ok=%t
   end
 endfunction
