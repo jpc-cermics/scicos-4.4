@@ -12,7 +12,7 @@ function CreateMask_()
   end
   model=o.model
   graphics=o.graphics;
-  if model.sim <> 'super' then
+  if type(model.sim,'short')<>'s' || model.sim <> 'super' then
     message('Mask can only be created for Super Blocks.')
     return;
   end
