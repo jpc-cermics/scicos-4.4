@@ -17,6 +17,7 @@ function scs_m=drawobjs(scs_m)
     end
     // draw the objets and keep their associated graphic objects
     F=get_current_figure();
+    F.draw_latter[];
     for i=1:length(scs_m.objs);
       F.start_compound[];
       drawobj(scs_m.objs(i))
