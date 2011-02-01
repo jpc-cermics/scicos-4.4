@@ -327,7 +327,7 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
       // move loop
       // get new position
       rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-      if rep(3)==10 then
+      if rep(3)==3 then
         global scicos_dblclk
         scicos_dblclk=[rep(1),rep(2),curwin]
       end
