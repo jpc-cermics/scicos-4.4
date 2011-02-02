@@ -353,7 +353,9 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
          yOutPortToCon   = [yOutPortToCon yeout_n(i)] ; //** and pile up in the vector
          NumOutPortToCon = [NumOutPortToCon i] ;        //** and pile up the output port number
        else
-         LinkToDel = [LinkToDel peout(i)]; //** add the Link to the "to be deleted links" vector
+         if peout(i)>0 //** if the old port was connected
+           LinkToDel = [LinkToDel peout(i)]; //** add the Link to the "to be deleted links" vector
+         end
        end
 
     end //** of the for loop
