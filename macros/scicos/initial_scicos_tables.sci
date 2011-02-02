@@ -56,11 +56,11 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
 
   Edit     = ['Edit',..
               'Undo',..
-              'Cut',..
-              'Copy',..
-              'Paste',..
+              'Cut|||gtk-cut',..
+              'Copy|<Ctrl>c||gtk-copy',..
+              'Paste|<Ctrl>v||gtk-paste',..
               'Duplicate',..
-              'Delete',..
+              'Delete|Delete',..
               'Move',..
               'Smart Move',..
               'Align',..
