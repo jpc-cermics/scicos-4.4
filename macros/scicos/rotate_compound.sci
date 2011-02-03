@@ -15,25 +15,22 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, hdl)
 //**
 //** output : nothing. This function directly work in the figure handle
 //**          gcf()
-
   printf('rotate_compound\n');
-
   C=hdl.children(blk)
-
   for i=1:size(C.children)
     select type(C.children(i),'string')
-      case "GrRect" then
-        printf("GrRect\n");
-        x=C.children(i).x;
-        y=C.children(i).y;
-        w=C.children(i).w;
-        h=C.children(i).h;
-        C.children(i).show=%f
-        xxx = rotate([x, x  , x+w, x+w;...
-                      y, y-h, y-h, y],theta*%pi/180,...
-                      [sel_x+sel_w/2;sel_y-sel_h/2])
-        xpoly(xxx(1,:),xxx(2,:),type="lines",close=%t);
-
+     case "GrRect" then
+      printf("GrRect\n");
+      x=C.children(i).x;
+      y=C.children(i).y;
+      w=C.children(i).w;
+      h=C.children(i).h;
+      C.children(i).show=%f
+      xxx = rotate([x, x  , x+w, x+w;...
+		    y, y-h, y-h, y],theta*%pi/180,...
+		   [sel_x+sel_w/2;sel_y-sel_h/2])
+      xpoly(xxx(1,:),xxx(2,:),type="lines",close=%t);
+      
       case "Grstring" then
         printf("Grstring\n");
         //C.children(i).angle=
@@ -78,11 +75,8 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, hdl)
                      [sel_x+sel_w/2;sel_y-sel_h/2])
         C.children(i).x=xxx(1,1)-w/2
         C.children(i).y=xxx(2,1)+h/2
-
       else
         printf("TODO : %s\n",type(C.children(i),'string'));
     end
-
   end
-
 endfunction

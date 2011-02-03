@@ -2,8 +2,6 @@ function scs_m=drawobjs(scs_m)
 // Copyright INRIA
 // adapted to a graphic object 
   drawtitle(scs_m.props)
-  ng= new_graphics();
-  if ng then 
     F=get_current_figure();
     if length(scs_m.objs) == 0 then 
       F.draw_now[];
@@ -26,11 +24,5 @@ function scs_m=drawobjs(scs_m)
     end
     // will just activate a process_updates 
     F.draw_now[];
-  else 
-    if length(scs_m.objs) == 0 then return;end 
-    for i=1:length(scs_m.objs)
-      drawobj(scs_m.objs(i))
-    end
-  end
   show_info(scs_m.props.doc)
 endfunction

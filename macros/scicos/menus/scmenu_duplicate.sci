@@ -37,7 +37,6 @@ function [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
     k=[];
   end
   if ~isempty(k) then
-    if new_graphics() then 
       // new graphics 
       // -----------
       xset('window',curwin);
@@ -75,57 +74,6 @@ function [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
 	return;
       end
       xcursor();
-    else
-      // old graphics 
-      // -----------
-      xset('window',curwin);
-      xtape_status=xget('recording')
-      rep(3)=-1
-      [xy,sz]=(o.graphics.orig,o.graphics.sz)
-      p_offset= xy-[xc,yc];
-      // record the objects in graphics 
-      [echa,echb]=xgetech();
-      xclear(curwin,%t);
-      xset("recording",1);
-      xsetech(echa,echb);
-      drawobjs(scs_m);
-      xset('recording',0);
-      while rep(3)==-1 then 
-	// move loop
-	// draw block shape
-	// redraw the non moving objects.
-	xset("recording",1);
-	xclear(curwin,%f);
-	xtape('replay',curwin);
-	xset("recording",0);
-	xrect(xy(1),xy(2)+sz(2),sz(1),sz(2))
-	if pixmap then xset('wshow'),end
-	// get new position
-	rep=xgetmouse(clearq=%f)
-	// clear block shape
-	// xrect(xy(1),xy(2)+sz(2),sz(1),sz(2))
-	//xc=rep(1);yc=rep(2)
-	xy=rep(1:2) +p_offset  ;
-      end
-      // update and draw block
-      if rep(3)==2 then
-	// redraw the non moving objects.
-	xset("recording",1);
-	xclear(curwin,%f);
-	xtape('replay',curwin);
-	xset("recording",0);
-	xset('recording',xtape_status);      
-	if pixmap then xset('wshow'),end
-	return
-      end
-      o.graphics.orig=xy
-      // now redraw 
-      xset("recording",1);
-      xclear(curwin,%f);
-      xtape('replay',curwin);
-      drawobj(o)
-      if pixmap then xset('wshow'),end
-    end
     
     scs_m_save=scs_m,nc_save=needcompile
     scs_m.objs($+1)=o

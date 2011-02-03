@@ -2,18 +2,10 @@ function Replot_()
   Cmenu=''
   %pt=[]
   Select=[]
-  if new_graphics() then
-    // we would need also a Replot without a resize 
-    %wdm=scs_m.props.wpar
-    window_set_size();
-    scs_m=do_replot(scs_m);
-  else
-    xclear(curwin);//xbasc()
-    %wdm=scs_m.props.wpar
-    window_set_size()
-    drawobjs(scs_m),
-    if pixmap then xset('wshow'),end
-  end
+  // we would need also a Replot without a resize 
+  %wdm=scs_m.props.wpar
+  window_set_size();
+  scs_m=do_replot(scs_m);
 endfunction
 
 function scs_m=do_replot(scs_m)

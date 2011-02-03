@@ -43,11 +43,7 @@ function Open_()
   end
 
   // draw the new diagram
-  if new_graphics() 
-    xclear(curwin,gc_reset=%f);xselect()
-  else
-    xclear();xselect()
-  end
+  xclear(curwin,gc_reset=%f);xselect()
   set_background()
   // If we already have a window it's maybe not usefull to change it
   // pwindow_set_size()

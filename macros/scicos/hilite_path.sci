@@ -27,11 +27,7 @@ function hilite_path(path,mess,with_intermediates)
   if with_intermediates then
     scs_m=scs_m.objs(path(1)).model.rpar;
     for k=2:size(path,'*')
-      if new_graphics() then
-        scs_m=scs_show(scs_m,mxwin+k);opened_windows=[mxwin+k opened_windows]
-      else
-        scs_show(scs_m,mxwin+k);opened_windows=[mxwin+k opened_windows]
-      end
+      scs_m=scs_show(scs_m,mxwin+k);opened_windows=[mxwin+k opened_windows]
       hilite_obj(scs_m.objs(path(k)))
       scs_m=scs_m.objs(path(k)).model.rpar;
     end
@@ -40,11 +36,7 @@ function hilite_path(path,mess,with_intermediates)
       hilite_obj(scs_m.objs(path))
     else
       for k=1:size(path,'*')-1;scs_m=scs_m.objs(path(k)).model.rpar;end
-      if new_graphics() then
-        scs_m=scs_show(scs_m,mxwin+1);opened_windows=[mxwin+1 opened_windows]
-      else
-        scs_show(scs_m,mxwin+k);opened_windows=[mxwin+k opened_windows]
-      end
+      scs_m=scs_show(scs_m,mxwin+1);opened_windows=[mxwin+1 opened_windows]
       hilite_obj(scs_m.objs(path($)))
     end
   end

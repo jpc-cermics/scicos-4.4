@@ -11,8 +11,7 @@ function window_set_size(rect=0,a=0)
     w=600;h=400;rect=[0,0,w,h];a=1.5;
   end
   //printf('w,h,a [%f,%f,%f]\n',w,h,a);
-  if new_graphics() then 
-    xset("wresize",0);
+  xset("wresize",0);
     width=%zoom*w*a;height=%zoom*h*a
     printf('width,height [%f,%f]\n',width,height);
     xset('wdim',width,height);
@@ -41,17 +40,4 @@ function window_set_size(rect=0,a=0)
     F.invalidate[];
     F.process_updates[];
     xflush() //BUG????
-  else
-    xclear();
-    xset("wresize",0);
-    width=%zoom*w*a;height=%zoom*h*a
-    xset('wdim',width,height);
-    b=(1-1/a)/2;
-    xsetech([b,b,1/a,1/a],rect)
-    // center the graphic viewport inside the graphic window.
-    r=xget('wpdim');
-    %XSHIFT=max((width-r(1))/2,0)
-    %YSHIFT=max((height-r(2))/2,0)
-    xset('viewport',%XSHIFT,%YSHIFT)
-  end
 endfunction

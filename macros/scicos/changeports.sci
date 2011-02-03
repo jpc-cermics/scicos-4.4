@@ -1,36 +1,24 @@
 function scs_m = changeports(scs_m, path, o_n)
 // Copyright INRIA
 // Last Update Fady: 15 Dec 2008
-//**
 //** 27 July 2007
-//**
-//**              BEWARE : This is an ---> EXPERIMENTAL VERSION <--- !
-//**
 //** This function is able to replace any block with any other block. We made a reasonable effort
 //** to reutilize the information associated at the ports with the aim to mantain the connections.
 //**
 //** When the connection are incompatible, the links are removed.
 //**
 //** The existing links are moved in order to match the port's positions.
-//** 
 //**
 //** ToDo : adjust the links in square angle (horizontal and vertical links only).
 //**
-//**
 //** 16 Oct. 2007 : some observations
-//**
 //**                a) utilise a forced, fixed, two pass approach it is a bit redundant for "trivial
 //**                   operation" (e.g. replace a block not connected) ...
 //**
 //**                b) we not exclude the possibility of the necessity of a multiple pass approach,
 //**                   e.g. implement a "while(LinkToDel<>[])" loop. 
-//**
-//**
-//**
-  //** This code can be validate by visual inspection only : look at the results !  
-
-  //** ------- Update  block --------------------------------------------
-
+//** This code can be validate by visual inspection only : look at the results !  
+//** ------- Update  block --------------------------------------------
   k = path($) ; //** the scs_m index of the target 
   if or(curwin==winsid()) then
     //** ------- Graphics ---------------
@@ -84,28 +72,19 @@ function scs_m = changeports(scs_m, path, o_n)
      gr = %t                   ; //** update the screen
      [scs_m, DEL, DELL] = do_delete1(scs_m, Link_index, gr) ; //** delete the links
   end 
-
-  //**--------------------------------------------------------------------------------------------- 
-
   //**-------- Scicos -----------------
   //** update block in scicos structure
   F.draw_latter[];
   F.draw_now[];
   scs_m.objs(k) = o_n ;
-
 endfunction
-//**-------------------------------------------------------------------------------------------------
-//**
-//**-------------------------------------------------------------------------------------------------
+
 
 function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 //** ---- INITIALIZATION ----
-  //**
-  //**
-
-  //** isolate the object that will be substituited 
+//** isolate the object that will be substituited 
   o = scs_m(path) ;
-
+  
   //** extract the proprieties of the OLD object 
   [pin, pout, pein, peout, in_mod, out_mod] = (o.graphics.pin,  o.graphics.pout, ...
                                                o.graphics.pein, o.graphics.peout, ...

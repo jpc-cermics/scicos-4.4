@@ -41,13 +41,10 @@ function [%pt,scs_m]=do_region2block(%pt,scs_m)
   W=max(600,rect(3))
   H=max(400,rect(4))
 
-  ng=new_graphics();
-  if ng then
-    // do not keep the recorded graphics 
-    // in the super  block.
-    for k=1:length(scs_mb.objs) 
-      scs_mb.objs(k).delete['gr'];
-    end
+  // do not keep the recorded graphics 
+  // in the super  block.
+  for k=1:length(scs_mb.objs) 
+    scs_mb.objs(k).delete['gr'];
   end
 
   sup = SUPER_f('define')
@@ -82,31 +79,25 @@ function [%pt,scs_m]=do_region2block(%pt,scs_m)
   end
 
   // scs_m now have some deleted blocks
-  if ng then
-    F=get_current_figure();
-    F.draw_latter[];
-    [scs_m1,DEL]=do_delete2(scs_m,del,%f)
-    for k=DEL,
-      if scs_m.objs(k).iskey['gr'] then
-        F.remove[scs_m.objs(k).gr];
-      end
-      scs_m.objs(k)=mlist('Deleted');
+  F=get_current_figure();
+  F.draw_latter[];
+  [scs_m1,DEL]=do_delete2(scs_m,del,%f)
+  for k=DEL,
+    if scs_m.objs(k).iskey['gr'] then
+      F.remove[scs_m.objs(k).gr];
     end
-  else
-    [scs_m,DEL]=do_delete2(scs_m,del,%f)
+    scs_m.objs(k)=mlist('Deleted');
   end
 
   // add super block
   // drawobj(sup)
 
-  if ng then
-    F.draw_latter[];
-    F.start_compound[];
-    drawobj(sup);
-    C=F.end_compound[];
-    sup.gr = C;
-  end
-
+  F.draw_latter[];
+  F.start_compound[];
+  drawobj(sup);
+  C=F.end_compound[];
+  sup.gr = C;
+  
   scs_m.objs($+1)=sup
   // connect it
   nn=length(scs_m.objs)
@@ -244,32 +235,18 @@ function [%pt,scs_m]=do_region2block(%pt,scs_m)
     end
     lk=scicos_link(xx=xl,yy=yl,ct=prt(k,4:5),from=from,to=to)
     if lk.ct(2)==3 then lk.thick=[2 2];end
-    if ng then
-      F.start_compound[];
-      drawobj(lk);
-      C=F.end_compound[];
-      lk.gr = C;
-    else
-      drawobj(lk)
-    end
+    F.start_compound[];
+    drawobj(lk);
+    C=F.end_compound[];
+    lk.gr = C;
+    
     scs_m.objs($+1)=lk
     scs_m.objs(k1)=o1
     nnk=nnk+1
   end
 
   // redraw
-  if new_graphics() then 
-    F.draw_now[];
-  else
-    xtape_status=xget('recording')
-    [echa,echb]=xgetech();
-    xclear(curwin,%t);
-    xset("recording",1);
-    xsetech(echa,echb);
-    drawobjs(scs_m);
-    xset('recording',xtape_status);
-  end
-
+  F.draw_now[];
   resume(scs_m_save,nc_save,needreplay,enable_undo=%t,edited=%t,needcompile=4);
 endfunction
 
@@ -477,31 +454,24 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m)
   [ok,sup] = adjust_s_ports(sup)
 
   // scs_m now have some deleted blocks
-  if ng then
-    F=get_current_figure();
-    F.draw_latter[];
-    [scs_m1,DEL]=do_delete2(scs_m,keep,%f)
-    for k=DEL,
-      if scs_m.objs(k).iskey['gr'] then
-        F.remove[scs_m.objs(k).gr];
-      end
-      scs_m.objs(k)=mlist('Deleted');
+  F=get_current_figure();
+  F.draw_latter[];
+  [scs_m1,DEL]=do_delete2(scs_m,keep,%f)
+  for k=DEL,
+    if scs_m.objs(k).iskey['gr'] then
+      F.remove[scs_m.objs(k).gr];
     end
-  else
-    [scs_m,DEL]=do_delete2(scs_m,keep,%f)
+    scs_m.objs(k)=mlist('Deleted');
   end
-
   // add super block
   // drawobj(sup)
 
-  if ng then
-    F.draw_latter[];
-    F.start_compound[];
-    drawobj(sup);
-    C=F.end_compound[];
-    sup.gr = C;
-  end
-
+  F.draw_latter[];
+  F.start_compound[];
+  drawobj(sup);
+  C=F.end_compound[];
+  sup.gr = C;
+  
   //[scs_m,DEL] = do_delete2(scs_m,keep,%f) //** Quick speed improvement using %f (was %t)
   //drawobj(sup)
   
@@ -649,31 +619,17 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m)
 
     lk=scicos_link(xx=xl,yy=yl,ct=prt(k,4:5),from=from,to=to)
     if lk.ct(2)==3 then lk.thick=[2 2];end
-    if ng then
-      F.start_compound[];
-      drawobj(lk);
-      C=F.end_compound[];
-      lk.gr = C;
-    else
-      drawobj(lk)
-    end
+
+    F.start_compound[];
+    drawobj(lk);
+    C=F.end_compound[];
+    lk.gr = C;
+    
     scs_m.objs($+1)=lk
     scs_m.objs(k1)=o1
     nnk=nnk+1
   end
-  
   // redraw
-  if new_graphics() then 
-    F.draw_now[];
-  else
-    xtape_status=xget('recording')
-    [echa,echb]=xgetech();
-    xclear(curwin,%t);
-    xset("recording",1);
-    xsetech(echa,echb);
-    drawobjs(scs_m);
-    xset('recording',xtape_status);
-  end
-
+  F.draw_now[];
   resume(scs_m_save,nc_save,needreplay,enable_undo=%t,edited=%t,needcompile=4);
 endfunction

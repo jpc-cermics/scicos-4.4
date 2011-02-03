@@ -136,11 +136,7 @@ function scicos_view(scs_m)
     options('3D')(1)=%f //disable 3D block shape
   end
   if pixmap then xset('wwpc');end
-    if new_graphics() 
-    xclear(curwin,gc_reset=%f);xselect()
-  else
-    xclear();xselect()
-  end
+  xclear(curwin,gc_reset=%f);xselect()
   xtape_status=xget('recording');
   xset('recording',0);
   //set_background()
@@ -161,10 +157,5 @@ function scicos_view(scs_m)
   else
     scs_m.props.context=' ' 
   end
-
-  if new_graphics() then 
-    scs_m = drawobjs(scs_m);
-  else
-    drawobjs(scs_m);
-  end
+  scs_m = drawobjs(scs_m);
 endfunction

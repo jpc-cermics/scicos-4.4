@@ -174,22 +174,16 @@ function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
     if pixmap then xset('wshow'),end,
   end
     
-  if new_graphics() then 
-    if ~isempty(DEL) then 
-      F=get_current_figure();
-      F.draw_latter[];
-      for k=DEL,
-	// we need here to delete the stored graphic objects;
-	if gr && scs_m.objs(k).iskey['gr'] then 
-	  F.remove[scs_m.objs(k).gr];
-	end
-	scs_m.objs(k)=mlist('Deleted'),
-      end
-      F.draw_now[];
-    end
-  else
+  if ~isempty(DEL) then 
+    F=get_current_figure();
+    F.draw_latter[];
     for k=DEL,
+      // we need here to delete the stored graphic objects;
+      if gr && scs_m.objs(k).iskey['gr'] then 
+	F.remove[scs_m.objs(k).gr];
+      end
       scs_m.objs(k)=mlist('Deleted'),
     end
+    F.draw_now[];
   end
 endfunction

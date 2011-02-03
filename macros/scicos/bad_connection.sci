@@ -67,11 +67,7 @@ function bad_connection(path_out,prt_out,nout,path_in,prt_in,nin)
       for k=1:size(path,'*')
 	hilite_obj(scs_m.objs(path(k)))
 	scs_m=scs_m.objs(path(k)).model.rpar;
-        if new_graphics() then
-	  scs_m=scs_show(scs_m,mxwin+k)
-        else
-	  scs_show(scs_m,mxwin+k)
-        end
+	scs_m=scs_show(scs_m,mxwin+k)
       end
       hilite_obj(scs_m.objs(path_out))
       if or(path_in<>path_out) then hilite_obj(scs_m.objs(path_in)),end
@@ -105,12 +101,8 @@ function bad_connection(path_out,prt_out,nout,path_in,prt_in,nin)
         for k=1:size(path,'*')
 	  hilite_obj(scs_m.objs(path(k)))
 	  scs_m=scs_m.objs(path(k)).model.rpar;
-          if new_graphics() then
-	    scs_m=scs_show(scs_m,mxwin+k)
-          else
-	    scs_show(scs_m,mxwin+k);
-          end
-        end
+	  scs_m=scs_show(scs_m,mxwin+k)
+	end
         // XXX: Il y a un probleme avec hilite 
         // c'est que comme le hilite n'est pas recordé 
         // si un redessin est fait on le perd car dans 

@@ -465,11 +465,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     printf('%s\n','To reactivate Scicos, click on a diagram or type '"scicos();'"')
   end
   // remove the gr graphics from scs_m 
-  if new_graphics() then 
-    for k=1:length(scs_m.objs);
-      if scs_m.objs(k).iskey['gr'] then 
-        scs_m.objs(k).delete['gr'];
-      end
+  for k=1:length(scs_m.objs);
+    if scs_m.objs(k).iskey['gr'] then 
+      scs_m.objs(k).delete['gr'];
     end
   end
 endfunction

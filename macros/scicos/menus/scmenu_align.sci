@@ -79,12 +79,10 @@ function [%pt,scs_m]=prt_align(%pt,scs_m)
   o2.graphics=graphics2
   scs_m_save=scs_m
   scs_m.objs(k2)=o2
-  if new_graphics() then 
-    o2.gr.translate[tr];
-    F=get_current_figure();
-    F.draw_now[];
-  else 
-    scicos_redraw_scene(scs_m,[],0);
-  end
+  // translate object 
+  o2.gr.translate[tr];
+  // XXX this should be useless 
+  F=get_current_figure();
+  F.draw_now[];
   resume(scs_m_save,enable_undo=%t,edited=%t);
 endfunction

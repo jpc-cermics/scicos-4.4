@@ -70,6 +70,7 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
   end
   //   
   [params,ok]=GetLitParam(Fun,%t)
+  pause FindSBParams;
   if ~ok then return;end
   for X=params'
     select evstr('type(%scicos_context.'+X+')')

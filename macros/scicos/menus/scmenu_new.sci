@@ -8,13 +8,11 @@ function New_()
   if %r==2 then
     if alreadyran then do_terminate(),end  //terminate current simulation
     alreadyran=%f
-    if new_graphics() then 
-      F=get_current_figure()
-      for k=1:length(scs_m.objs)
-	if scs_m.objs(k).iskey['gr'] then 
-	  F.remove[scs_m.objs(k).gr];
-	  scs_m.objs(k).remove['gr'];
-	end
+    F=get_current_figure()
+    for k=1:length(scs_m.objs)
+      if scs_m.objs(k).iskey['gr'] then 
+	F.remove[scs_m.objs(k).gr];
+	scs_m.objs(k).remove['gr'];
       end
     end
     scs_m=scicos_diagram()
