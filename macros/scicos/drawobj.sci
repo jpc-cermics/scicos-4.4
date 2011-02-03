@@ -9,9 +9,14 @@ function drawobj(o)
       return 
     end
     ierr=execstr(o.gui+'(''plot'',o)' ,errcatch=%t)
+    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+    sel_x=orig(1);sel_y=orig(2)+sz(2);
+    sel_w=sz(1);sel_h=sz(2);
     if %f && new_graphics() then
-      [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-      xrect(orig(1),orig(2)+sz(2),sz(1),sz(2))
+      xrect(sel_x,sel_y,sel_w,sel_h)
+    end
+    if o.graphics.theta<>0 then
+      rotate_compound(sel_x, sel_y, sel_w, sel_h,1,o.graphics.theta,get_current_figure())
     end
     if ~ierr then
       // XXX message(['Block '+o.gui+ ' not defined ';
