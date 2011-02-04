@@ -29,10 +29,7 @@ function [%pt,scs_m,needcompile]=do_place_dropped_new(scs_m,blk)
   F=get_current_figure();
   F.draw_latter[];
   // o is a copy we create a new graphic object for the copy 
-  F.start_compound[];
-  drawobj(o)
-  C=F.end_compound[];
-  o.gr = C;
+  o=drawobj(o)
   F.draw_now[];
 
   scs_m_save=scs_m,nc_save=needcompile

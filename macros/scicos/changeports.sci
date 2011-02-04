@@ -26,15 +26,10 @@ function scs_m = changeports(scs_m, path, o_n)
     if pixmap then xset('wshow'),end,
     F=get_current_figure[];
     F.draw_latter[];
-    ishilited=%f
     if scs_m.objs(k).iskey['gr'] then
-      ishilited=scs_m.objs(k).gr.hilited
-      F.remove[scs_m.objs(k).gr];
+      F.remove[o.gr];
     end 
-    F.start_compound[];
-    drawobj(o_n);
-    o_n.gr=F.end_compound[];
-    o_n.gr.hilited=ishilited;
+    o_n=drawobj(o_n);
     o_n.gr.invalidate[];
     F.draw_now[];
   end
@@ -394,11 +389,13 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 
       if  or(curwin==winsid()) then
         F=get_current_figure[];
-        if oi.iskey['gr'] then F.remove[oi.gr], end 
-        F.start_compound[];
-        drawobj(oi);
-        oi.gr=F.end_compound[];
+        F.draw_latter[];
+        if oi.iskey['gr'] then
+          F.remove[oi.gr];
+        end
+        oi=drawobj(oi);
         oi.gr.invalidate[];
+        F.draw_now[];
       end
 
       scs_m.objs(Link_index) = oi; //** update the scs_m
@@ -452,11 +449,13 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 
       if  or(curwin==winsid()) then
         F=get_current_figure[];
-        if oi.iskey['gr'] then F.remove[oi.gr], end 
-        F.start_compound[];
-        drawobj(oi);
-        oi.gr=F.end_compound[];
+        F.draw_latter[];
+        if oi.iskey['gr'] then
+          F.remove[oi.gr];
+        end
+        oi=drawobj(oi);
         oi.gr.invalidate[];
+        F.draw_now[];
       end
 
       scs_m.objs(Link_index) = oi;    //** update the scs_m

@@ -41,10 +41,7 @@ function [%pt,scs_m]=do_ident_new(%pt,scs_m)
     if ok then
       F.remove[scs_m.objs(numero_objet).gr];
       objet.graphics.id = stripblanks(identification)
-      F.start_compound[];
-      drawobj(objet)
-      C=F.end_compound[];
-      objet.gr=C;
+      objet=drawobj(objet)
       scs_m.objs(numero_objet) = objet;
     end
   elseif type_objet == 'Link' then
@@ -64,11 +61,7 @@ function [%pt,scs_m]=do_ident_new(%pt,scs_m)
       for numero = c_links
 	objet = scs_m.objs(numero)
 	objet.id = identification
-	objet.delete['gr'];
-	F.start_compound[];
-	drawobj(objet)
-	C=F.end_compound[];
-	objet.gt=C;
+	objet=drawobj(objet)
 	scs_m.objs(numero_objet) = objet;
       end
     end				

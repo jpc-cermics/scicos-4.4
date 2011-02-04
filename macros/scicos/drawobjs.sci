@@ -1,7 +1,7 @@
 function scs_m=drawobjs(scs_m)
 // Copyright INRIA
 // adapted to a graphic object 
-  drawtitle(scs_m.props)
+    drawtitle(scs_m.props)
     F=get_current_figure();
     if length(scs_m.objs) == 0 then 
       F.draw_now[];
@@ -17,12 +17,9 @@ function scs_m=drawobjs(scs_m)
     F=get_current_figure();
     F.draw_latter[];
     for i=1:length(scs_m.objs);
-      F.start_compound[];
-      drawobj(scs_m.objs(i))
-      C=F.end_compound[];
-      scs_m.objs(i).gr=C;
+      scs_m.objs(i)=drawobj(scs_m.objs(i))
     end
     // will just activate a process_updates 
     F.draw_now[];
-  show_info(scs_m.props.doc)
+    show_info(scs_m.props.doc)
 endfunction

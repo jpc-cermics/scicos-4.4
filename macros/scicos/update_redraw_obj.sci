@@ -8,11 +8,8 @@ function scs_m=update_redraw_obj(scs_m,path,o)
   if size(path,'*')==2 then
     if o.type =='Link'| o.type =='Text' then
       if or(curwin==winsid()) then
-	F.remove[scs_m(path).gr];
-	F.start_compound[];
-	drawobj(o)
-	C=F.end_compound[];
-	o.gr=C;
+        F.remove[scs_m(path).gr];
+        o=drawobj(o)
       end
       scs_m(path)=o;
     else
@@ -21,11 +18,7 @@ function scs_m=update_redraw_obj(scs_m,path,o)
   else // change a block in a sub-level
     if or(curwin==winsid()) then
       F.remove[scs_m(path).gr];
-      F.start_compound[];
-      o.delete['gr'];
-      drawobj(o)
-      C=F.end_compound[];
-      o.gr=C;
+      o=drawobj(o)
     end
     scs_m(path)=o;
   end

@@ -1,4 +1,4 @@
-function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, hdl)
+function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, C)
 //** rotate compound : do a rotation of graphics elements
 //** in a compound
 //**
@@ -16,7 +16,7 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, hdl)
 //** output : nothing. This function directly work in the figure handle
 //**          gcf()
   printf('rotate_compound\n');
-  C=hdl.children(blk)
+  //C=hdl.children(blk)
   for i=1:size(C.children)
     select type(C.children(i),'string')
      case "GrRect" then
@@ -33,7 +33,28 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, hdl)
       
       case "Grstring" then
         printf("Grstring\n");
-        //C.children(i).angle=
+//pause
+
+//         rect=stringbox(C.children(i).text,C.children(i).x,C.children(i).y)
+//         x=rect(1,2);
+//         y=rect(2,2);
+//         w=rect(1,3)-rect(1,2);
+//         h=rect(2,2)-rect(2,4);
+// 
+//         xxx=rotate([x,x,x+w,x+w;...
+//                     y,y-h,y-h, y],theta*%pi/180,...
+//                     [sel_x+sel_w/2;sel_y-sel_h/2])
+
+        //rect=stringbox(C.children(i).text,C.children(i).x,C.children(i).y)
+        //x=C.children(i).x
+        //y=C.children(i).y
+
+        //xxx=rotate([x;y],theta*%pi/180,...
+        //            [sel_x+sel_w/2;sel_y-sel_h/2])
+
+        //C.children(i).x=xxx(1)
+        //C.children(i).y=xxx(2)
+        C.children(i).angle=theta
 
       case "Polyline" then
         printf("Polyline\n");
@@ -45,7 +66,7 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, hdl)
 
       case "Compound" then
         printf("Compound\n");
-        rotate_compound(sel_x, sel_y, sel_w, sel_h,i,theta,C)
+        rotate_compound(sel_x, sel_y, sel_w, sel_h,i,theta,C.children(i))
 
       case "Segments" then
         printf("Segments\n");

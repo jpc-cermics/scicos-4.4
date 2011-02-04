@@ -24,10 +24,7 @@ function Paste_()
           nc_save=needcompile;
           blk=Clipboard;
           blk.graphics.orig=Clipboard.graphics.orig+Clipboard.graphics.sz/2;
-          F.start_compound[];
-          drawobj(blk); //** draw the single object
-          C=F.end_compound[];
-          blk.gr=C;
+          blk=drawobj(blk); //** draw the single object
           scs_m.objs($+1)=blk //** add the object at the top
           edited=%t
           enable_undo=%t
@@ -53,10 +50,7 @@ function Paste_()
       end  
       blk=Clipboard;
       blk.graphics.orig=%ppt;
-      F.start_compound[];
-      drawobj(blk); //** draw the single object 
-      C=F.end_compound[];
-      blk.gr=C;
+      blk=drawobj(blk); //** draw the single object 
       scs_m.objs($+1)=blk
       edited=%t;
       enable_undo=%t;
@@ -111,10 +105,7 @@ function Paste_()
 	    o.graphics.orig(1) = o.graphics.orig(1)-rect(1)+xc
 	    o.graphics.orig(2) = o.graphics.orig(2)-rect(2)+yc
 	  end
-          F.start_compound[];
-	  drawobj(o); //** draw the object
-          C=F.end_compound[];
-          o.gr=C;
+	  o=drawobj(o); //** draw the object
 	  scs_m.objs($+1)=o;
 	  Select=[Select;size(scs_m.objs),%win]; //** it's a really dirty trick ;)
 	end

@@ -49,10 +49,8 @@ function [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
       F=get_current_figure();
       F.draw_latter[];
       // o is a copy we create a new graphic object for the copy 
-      F.start_compound[];
-      drawobj(o)
-      C=F.end_compound[];
-      o.gr = C;
+      o=drawobj(o)
+      F.draw_now[];
       while rep(3)==-1 then 
 	// get new position
 	//printf("In Copy moving %d\n",curwin);
@@ -78,6 +76,7 @@ function [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
     scs_m_save=scs_m,nc_save=needcompile
     scs_m.objs($+1)=o
     needcompile=4
+    Select = [length(scs_m.objs), curwin];
     xset('recording',xtape_status);      
     resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
   end

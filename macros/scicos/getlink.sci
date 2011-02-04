@@ -470,19 +470,13 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
     // 1 remove the o1 graphics 
     F.remove[o1.gr];
     // register the 3 new graphic objects 
-    F.start_compound[];
-    drawobj(link1);
-    link1.gr = F.end_compound[];
+    link1=drawobj(link1);
     scs_m.objs(ks)=link1;
 
-    F.start_compound[];
-    drawobj(sp);
-    sp.gr = F.end_compound[];
+    sp=drawobj(sp);
     scs_m.objs(nx)=sp;
     
-    F.start_compound[];
-    drawobj(link2);
-    link2.gr = F.end_compound[];
+    link2=drawobj(link2);
     scs_m.objs(nx+1)=link2;
     scs_m.objs(to1(1))=mark_prt(scs_m.objs(to1(1)),to1(2),outin(to1(3)+1),typ,nx+1)
   end
@@ -517,10 +511,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
     o.gr.translate[[dx dy]];
   end
 
-  F.start_compound[];
-  drawobj(lk)
-  C=F.end_compound[];
-  lk.gr = C;
+  lk=drawobj(lk)
   scs_m.objs($+1)=lk
   //update connected blocks
   scs_m.objs(kfrom)=mark_prt(scs_m.objs(kfrom),from(2),outin(from(3)+1),typ,nx)
