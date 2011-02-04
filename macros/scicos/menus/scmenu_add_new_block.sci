@@ -1,13 +1,13 @@
 function Addnewblock_()
   Cmenu=''
-  [scs_m,%fct]=do_addnew(scs_m)
+  [scs_m,%fct,Select]=do_addnew(scs_m,Select)
   if %fct<>"" then 
     exec(%fct),
     newblocks=[newblocks;%fct]
   end
 endfunction
 
-function [scs_m,fct]=do_addnew(scs_m)
+function [scs_m,fct,Select]=do_addnew(scs_m,Select)
 //add a new block (defined by its GUI function)
 //adapted to nsp new_graphics (jpc Feb 2011).
 // Copyright INRIA
@@ -74,12 +74,9 @@ function [scs_m,fct]=do_addnew(scs_m)
   // record the objects in graphics 
   F=get_current_figure();
   F.draw_latter[];
-  F.start_compound[];
-  drawobj(blk)
-  C=F.end_compound[];
-  blk.gr = C;
+  blk=drawobj(blk)
   F.draw_now[];
-  C.invalidate[];
+  blk.gr.invalidate[];
   rep(3)=-1
   while rep(3)==-1 then 
     // get new position
@@ -104,6 +101,7 @@ function [scs_m,fct]=do_addnew(scs_m)
   xinfo(' ')
   // update 
   scs_m.objs($+1)=blk
+  Select = [length(scs_m.objs), F.id];
 endfunction
 
 
