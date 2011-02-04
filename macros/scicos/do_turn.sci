@@ -58,17 +58,5 @@ function [scs_m]=do_turn(%pt,scs_m,theta)
   scs_m.objs(k)=o 
   o_n=o
   scs_m=changeports(scs_m,path,o_n)
-//   if o.graphics.theta<>0 then
-//     o=scs_m.objs(k)
-//     F=get_current_figure()
-//     F.draw_latter[]
-//     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-//     sel_x=orig(1);sel_y=orig(2)+sz(2);
-//     sel_w=sz(1);sel_h=sz(2);
-//     rotate_compound(sel_x, sel_y, sel_w, sel_h,1,o.graphics.theta, ...
-//  		      o.gr)
-//     F.draw_now[]
-//     scs_m.objs(k)=o
-//   end
   resume(scs_m_save,enable_undo=%t,edited=%t)
 endfunction

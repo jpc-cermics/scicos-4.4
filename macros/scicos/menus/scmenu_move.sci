@@ -9,8 +9,13 @@ function Move_()
       return
     end
   end
-  if SelectSize==1 & scs_m.objs(Select(1)).type=="Link" then
-    [%pt,scs_m]=do_stupidmove(%pt,Select,scs_m)
+
+  if ~isempty(Select) then
+    if SelectSize==1 & scs_m.objs(Select(1)).type=="Link" then
+      [%pt,scs_m]=do_stupidmove(%pt,Select,scs_m)
+    else
+      [scs_m]=do_stupidMultimove(%pt,Select,scs_m)
+    end
   else
     [scs_m]=do_stupidMultimove(%pt,Select,scs_m)
   end
@@ -317,7 +322,11 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   sel_link  = []; //** links
   sel_text  = []; //** text
 
-  SelectObject_id = Select(:,1)'  ; //** select all the object in the current window
+  if ~isempty(Select) then
+    SelectObject_id = Select(:,1)'  ; //** select all the object in the current window
+  else
+    SelectObject_id=[]
+  end
 
   if isempty(SelectObject_id) then
     k=getblocktext(scs_m,[xc;yc])
