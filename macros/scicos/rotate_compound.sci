@@ -26,15 +26,14 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, C)
       w=C.children(i).w;
       h=C.children(i).h;
       C.children(i).show=%f
-      xxx = rotate([x, x  , x+w, x+w;...
-		    y, y-h, y-h, y],theta*%pi/180,...
-		   [sel_x+sel_w/2;sel_y-sel_h/2])
+      xxx=rotate([x,x,x+w,x+w;...
+                  y,y-h,y-h,y],theta*%pi/180,...
+                 [sel_x+sel_w/2;sel_y-sel_h/2])
       xpoly(xxx(1,:),xxx(2,:),type="lines",close=%t);
       
       case "Grstring" then
         printf("Grstring\n");
 //pause
-
 //         rect=stringbox(C.children(i).text,C.children(i).x,C.children(i).y)
 //         x=rect(1,2);
 //         y=rect(2,2);
@@ -44,13 +43,6 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, C)
 //         xxx=rotate([x,x,x+w,x+w;...
 //                     y,y-h,y-h, y],theta*%pi/180,...
 //                     [sel_x+sel_w/2;sel_y-sel_h/2])
-
-        //rect=stringbox(C.children(i).text,C.children(i).x,C.children(i).y)
-        //x=C.children(i).x
-        //y=C.children(i).y
-
-        //xxx=rotate([x;y],theta*%pi/180,...
-        //            [sel_x+sel_w/2;sel_y-sel_h/2])
 
         //C.children(i).x=xxx(1)
         //C.children(i).y=xxx(2)
@@ -92,8 +84,8 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, C)
         y=C.children(i).y;
         w=C.children(i).w;
         h=C.children(i).h;
-        xxx = rotate([x+w/2; y-h/2],theta*%pi/180,...
-                     [sel_x+sel_w/2;sel_y-sel_h/2])
+        xxx=rotate([x+w/2; y-h/2],theta*%pi/180,...
+                   [sel_x+sel_w/2;sel_y-sel_h/2])
         C.children(i).x=xxx(1,1)-w/2
         C.children(i).y=xxx(2,1)+h/2
       else

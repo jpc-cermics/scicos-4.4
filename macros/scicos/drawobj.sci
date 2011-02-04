@@ -27,10 +27,6 @@ function o=drawobj(o,win)
      if %f && new_graphics() then
        xrect(sel_x,sel_y,sel_w,sel_h)
      end
-//     if o.graphics.theta<>0 then
-//       rotate_compound(sel_x, sel_y, sel_w, sel_h,1,o.graphics.theta, ...
-// 		      get_current_figure())
-//     end
      if ~ierr then
        // XXX message(['Block '+o.gui+ ' not defined ';
        // 'You must leave scicos and define it now.']),
@@ -53,4 +49,10 @@ function o=drawobj(o,win)
   C=F.end_compound[];
   o.gr=C;
   o.gr.hilited=ishilited
+  if ~isequal(otype,'Link') then
+     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+     sel_x=orig(1);sel_y=orig(2)+sz(2);
+     sel_w=sz(1);sel_h=sz(2);
+     rotate_compound(sel_x, sel_y, sel_w, sel_h,1,o.graphics.theta,o.gr)
+  end
 endfunction
