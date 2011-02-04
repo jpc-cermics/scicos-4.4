@@ -13,8 +13,9 @@ function [params,ok]=GetLitParam(str,flg)
    if or(tag) then 
      I=find(tag);
      mes = excl(I(1));
-     message('The context of a masked or atomic subsystem cannot contains the function ""'...
-	     +mes+'""');
+     message(['The context of a masked or atomic subsystem';
+	      'cannot contains the function ""'+mes+'""']);
+     ok = %f;
      return;
    end
  end
