@@ -1,36 +1,7 @@
 function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, C)
-//** rotate compound : do a rotation of graphics elements
-//** in a compound
-//**
-//** input : -sel_x, sel_y, sel_w, sel_h : give the coordinate
-//**          of the box surrounding the compound
-//**          (lower point,width, height).
-//**          The rotation will be done from the center
-//**          [sel_x+sel_w/2;sel_y-sel_h/2]
-//**
-//**         - blk the index of the compound (the i child of axe)
-//**
-//**         - theta : angle of rotation given in degree
-//**                   in trigonometric wise
-//**
-//** output : nothing. This function directly work in the figure handle
-//**          gcf()
-  printf('rotate_compound\n');
-  //C=hdl.children(blk)
+
   for i=1:size(C.children)
     select type(C.children(i),'string')
-     case "GrRect" then
-      printf("GrRect\n");
-      x=C.children(i).x;
-      y=C.children(i).y;
-      w=C.children(i).w;
-      h=C.children(i).h;
-      C.children(i).show=%f
-      xxx=rotate([x,x,x+w,x+w;...
-                  y,y-h,y-h,y],theta*%pi/180,...
-                 [sel_x+sel_w/2;sel_y-sel_h/2])
-      xpoly(xxx(1,:),xxx(2,:),type="lines",close=%t);
-      
       case "Grstring" then
         printf("Grstring\n");
 //pause
@@ -90,6 +61,28 @@ function rotate_compound(sel_x, sel_y, sel_w, sel_h, blk, theta, C)
         C.children(i).y=xxx(2,1)+h/2
       else
         printf("TODO : %s\n",type(C.children(i),'string'));
+    end
+  end
+endfunction
+
+function change_xrect(sel_x, sel_y, sel_w, sel_h, blk, theta,C)
+  for i=1:size(C.children)
+    select type(C.children(i),'string')
+    case "GrRect" then
+        if C.children(i).show then
+          x=C.children(i).x;
+          y=C.children(i).y;
+          w=C.children(i).w;
+          h=C.children(i).h;
+          C.children(i).show=%f
+          xxx=rotate([x,x,x+w,x+w;...
+                      y,y-h,y-h,y],0,...
+                     [sel_x+sel_w/2;sel_y-sel_h/2])
+          xpoly(xxx(1,:),xxx(2,:),type="lines",close=%t);
+        end
+
+    case "Compound" then
+        change_xrect(sel_x, sel_y, sel_w, sel_h,i,theta,C.children(i))
     end
   end
 endfunction

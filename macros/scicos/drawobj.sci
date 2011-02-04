@@ -46,13 +46,24 @@ function o=drawobj(o,win)
      end
   end
 
-  C=F.end_compound[];
-  o.gr=C;
-  o.gr.hilited=ishilited
-  if ~isequal(otype,'Link') then
-     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-     sel_x=orig(1);sel_y=orig(2)+sz(2);
-     sel_w=sz(1);sel_h=sz(2);
-     rotate_compound(sel_x, sel_y, sel_w, sel_h,1,o.graphics.theta,o.gr)
+  if ~isequal(otype,'Link') & ~isequal(otype,'Deleted') then
+     if o.graphics.theta<>0 then
+       [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+       sel_x=orig(1);sel_y=orig(2)+sz(2);
+       sel_w=sz(1);sel_h=sz(2);
+       change_xrect(sel_x, sel_y, sel_w, sel_h,1,o.graphics.theta,F.children(1))
+       C=F.end_compound[];
+       o.gr=C;
+       o.gr.hilited=ishilited
+       rotate_compound(sel_x, sel_y, sel_w, sel_h,1,o.graphics.theta,o.gr)
+     else
+       C=F.end_compound[];
+       o.gr=C;
+       o.gr.hilited=ishilited
+     end
+  else
+    C=F.end_compound[];
+    o.gr=C;
+    o.gr.hilited=ishilited
   end
 endfunction
