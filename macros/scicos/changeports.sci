@@ -27,7 +27,7 @@ function scs_m = changeports(scs_m, path, o_n)
     F=get_current_figure[];
     F.draw_latter[];
     if scs_m.objs(k).iskey['gr'] then
-      F.remove[o.gr];
+      F.remove[scs_m.objs(k).gr];
     end 
     o_n=drawobj(o_n);
     o_n.gr.invalidate[];
