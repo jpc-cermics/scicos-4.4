@@ -104,6 +104,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       typpfrom='in' 
       k=k-size(op,'*')-size(cop,'*')
 //      port_number=k,//out port
+      port_number=i_ImplIndx(k)
       if impi(port_number)<>0 then
         hilite_obj(kfrom)
 	message('selected port is already connected'),
