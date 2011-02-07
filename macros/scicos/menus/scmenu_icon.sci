@@ -51,9 +51,6 @@ function [%pt,scs_m]=do_block(%pt,scs_m)
       F.draw_latter[];
       // create new graphic object for the block.
       scs_m.objs(K).graphics.gr_i=list(gr_i_new,coli);
-      if scs_m.objs(K).iskey['gr'] then 
-        F.remove[scs_m.objs(K).gr];
-      end
       ok = execstr('scs_m.objs(K)=drawobj(scs_m.objs(K));',errcatch=%t);
       if ~ok then 
 	message(['error during drawblock evaluation';catenate(lasterror())]);

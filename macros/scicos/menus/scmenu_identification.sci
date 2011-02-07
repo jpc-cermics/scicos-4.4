@@ -39,7 +39,6 @@ function [%pt,scs_m]=do_ident_new(%pt,scs_m)
     [ok, identification] = getvalue(texte_1, texte_2, list('str', 1), 
     identification)
     if ok then
-      F.remove[scs_m.objs(numero_objet).gr];
       objet.graphics.id = stripblanks(identification)
       objet=drawobj(objet)
       scs_m.objs(numero_objet) = objet;
