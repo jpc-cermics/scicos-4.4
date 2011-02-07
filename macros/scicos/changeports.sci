@@ -390,9 +390,6 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
       if  or(curwin==winsid()) then
         F=get_current_figure[];
         F.draw_latter[];
-        if oi.iskey['gr'] then
-          F.remove[oi.gr];
-        end
         oi=drawobj(oi);
         oi.gr.invalidate[];
         F.draw_now[];
@@ -450,9 +447,6 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
       if  or(curwin==winsid()) then
         F=get_current_figure[];
         F.draw_latter[];
-        if oi.iskey['gr'] then
-          F.remove[oi.gr];
-        end
         oi=drawobj(oi);
         oi.gr.invalidate[];
         F.draw_now[];
