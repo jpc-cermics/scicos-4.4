@@ -8,6 +8,7 @@ function [scs_m,needcompile] = do_replace(scs_m, needcompile, Clipboard, Select)
   o_n.graphics.orig=[ox,oy]
   scs_m_save=scs_m
   path=list('objs',k)
+  if o_n.iskey['gr'] then o_n.delete['gr'], end
   scs_m=changeports(scs_m, path, o_n);
   nc_save=needcompile
   needcompile=4
