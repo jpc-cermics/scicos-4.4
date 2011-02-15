@@ -50,9 +50,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   %diagram_open=%t   //default choice
   if ~isempty(super_path) then
     if isequal(%diagram_path_objective,super_path) then
-      if %scicos_navig<>[] then
+      if ~isempty(%scicos_navig) then
         %diagram_open=%t
         %scicos_navig=[]
+        xset('window',curwin)
       end
     elseif ~isempty(%scicos_navig) then
       %diagram_open=%f
@@ -304,16 +305,60 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
   //initialize graphics
   if %diagram_open then
-    needsavetest=%f
-    xset('window',curwin);
-    xset('recording',0);
-    xtape_status=xget('recording');
-    %zoom=restore(curwin,menus,%zoom)
-    scs_m = drawobjs(scs_m);
-    if super_block then
-      Cmenu = 'Replot'
+    F=get_current_figure();
+    gh_current_window=nsp_graphic_widget(F.id)
+    if ~execstr('user_data=gh_current_window.user_data',errcatch=%t) then
+      gh_current_window.user_data=list([])
+      user_data=gh_current_window.user_data
+      lasterror();
     end
-    //TODO
+    if ~isequal(user_data(1),scs_m) then
+      ierr=execstr('load(getenv(''NSP_TMPDIR'')+''/AllWindowss'')',errcatch=%t)
+      if ierr then
+        x=winsid()
+        for win_i=AllWindows
+          if ~isempty(find(x==win_i)) then
+            //scf(win_i)
+            xset('window',win_i);
+            seteventhandler('')
+          end
+        end
+      else
+        lasterror();
+      end
+      if needsavetest & ~super_block then
+        printf("icicicicici\n");
+        pause
+      end
+      needsavetest=%f
+      xset('window',curwin);
+      xset('recording',0);
+      xtape_status=xget('recording');
+      %zoom=restore(curwin,menus,%zoom)
+      scs_m = drawobjs(scs_m);
+      if super_block then
+        Cmenu = 'Replot'
+      end
+    else
+      Select=user_data(2)
+      enable_undo=user_data(3)
+      scs_m_save=user_data(4)
+      nc_save=user_data(5)
+      xselect()
+    end
+  else
+    if or(curwin==winsid()) then
+      xset('window',curwin);
+      F=get_current_figure();
+      gh_current_window=nsp_graphic_widget(F.id)
+      if ~execstr('user_data=gh_current_window.user_data',errcatch=%t) then
+        gh_current_window.user_data=list([])
+        user_data=gh_current_window.user_data
+      end
+      if ~isequal(user_data(1),scs_m) then
+        Select=user_data(2)
+      end
+    end
   end
 
 // center the viewport 
@@ -347,6 +392,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
     if isempty(%scicos_navig) then 
       if ~isempty(Scicos_commands) then
+        //printf("    Scicos_commands(1) : %s \n",Scicos_commands(1))
         execstr(Scicos_commands(1))
         Scicos_commands(1)=[]
       end
@@ -358,7 +404,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         if ~isequal(%diagram_path_objective,super_path) then
           %diagram_open=%f
           Select_back=Select
-          [Cmenu,Select]=Find_Next_Step(%diagram_path_objective,super_path) 
+          [Cmenu,Select]=Find_Next_Step(%diagram_path_objective,super_path,Select) 
           if or(curwin==winsid()) & ~isequal(Select,Select_back) then
             selecthilite(Select_back,%f); // unHilite previous objects
             selecthilite(Select,%t);      // Hilite the actual selected object
@@ -450,15 +496,18 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   end
   if Cmenu=='Quit' then
     do_exit()
-    //TODO
-    // clear all globals defore leaving
-    clearglobal Clipboard  
-    clearglobal Scicos_commands 
-    clearglobal %tableau
-    clearglobal %scicos_navig
-    clearglobal %diagram_path_objective
-    //close_inactive_windows(inactive_windows,[])
-    clearglobal inactive_windows
+
+    if ~super_block then // even after quiting, workspace variables
+      //TODO
+      // clear all globals defore leaving
+      clearglobal Clipboard  
+      clearglobal Scicos_commands 
+      clearglobal %tableau
+      clearglobal %scicos_navig
+      clearglobal %diagram_path_objective
+      //close_inactive_windows(inactive_windows,[])
+      clearglobal inactive_windows
+    end
   elseif Cmenu=='Leave' then
     //TODO
     disablemenus();

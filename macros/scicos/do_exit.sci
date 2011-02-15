@@ -17,21 +17,60 @@ function do_exit()
     if alreadyran then do_terminate(),end
   end
 
-  ok=%t
-  if or(winsid()==curwin) then
-    xset('window',curwin)
-    xclear();// XX xbasc()
-    xset('alufunction',3)
-    if ~super_block then
-      delmenu(curwin,'stop'),
-      xset('window',curwin),xsetech([0 0 1 1])
-      clearglobal('%tableau');clear('%tableau');
+  winrem=[size(windows,1):-1:noldwin+1]
+
+  global %scicos_navig
+  global inactive_windows
+
+  if ~isempty(%scicos_navig) then
+    ii=winrem(find(windows(winrem,1)>0)) //find super block (not palette)
+    if size(ii,'*')<>1 then printf('non e possibile\n'),pause,end
+    winkeep=windows(ii(1),2)
+    inactive_windows(1)($+1)=super_path
+    inactive_windows(2)($+1)=winkeep  // (1) is for security
+    if or(winkeep==winsid()) then  // in case the current window is open and
+                            // remains open by becoming inactive
+      ww=get_current_figure();
+      //scf(winkeep)
+      xset('window',winkeep)
+      ha=get_current_figure();
+      ha=nsp_graphic_widget(ha.id)
+      if enable_undo then
+        ha.user_data=list(scs_m,Select,enable_undo,scs_m_save,nc_save);
+      else
+        ha.user_data=list(scs_m,Select,enable_undo,[],[]);  // no undo information
+      end
+      //scf(ww)
+      xset('window',ww.id)
+    end
+  else
+    ii=-1
+  end
+
+  for i=winrem
+    if i<>ii then
+      win=windows(i,2)
+      if or(win==winsid()) then
+        xbasc(win),xdel(win); 
+      end
     end
   end
-  
-  for win=windows(size(windows,1):-1:noldwin+1,2)'
-    if or(win==winsid()) then
-      xbasc(win),xdel(win);
-    end
-  end
+
+//   ok=%t
+//   if or(winsid()==curwin) then
+//     xset('window',curwin)
+//     xclear();// XX xbasc()
+//     xset('alufunction',3)
+//     if ~super_block then
+//       delmenu(curwin,'stop'),
+//       xset('window',curwin),xsetech([0 0 1 1])
+//       clearglobal('%tableau');clear('%tableau');
+//     end
+//   end
+//   
+//   for win=windows(size(windows,1):-1:noldwin+1,2)'
+//     if or(win==winsid()) then
+//       xbasc(win),xdel(win);
+//     end
+//   end
 endfunction

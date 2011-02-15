@@ -2,13 +2,17 @@ function SelectRegion_()
   Cmenu=''
   Select=[]
   F=get_current_figure()
-  F.draw_now[]
+  //F.draw_now[]
+  xset('window',%win);
+  G=get_current_figure()
+  G.draw_now[]
   [rect,button]=rubberbox([%pt(1);%pt(2);0;0],%t)
   if button==2 then // right button exit OR active window has been closed
     return
   end
   ox=rect(1),oy=rect(2),w=rect(3),h=rect(4);
   clear rect
+  xset('window',F.id);
   kc = find(%win==windows(:,2))
   if isempty(kc) then
     message('This window is not an active palette');
@@ -19,6 +23,7 @@ function SelectRegion_()
   elseif %win==curwin then //click inside the current window
     [in,out]=get_objs_in_rect(scs_m,ox,oy,w,h)
   elseif slevel>1 then
+    //CESTFAUXICI
     execstr('[in,out]=get_objs_in_rect(scs_m_'+string(windows(kc,1))',ox,oy,w,h)
   else
     return
@@ -91,9 +96,9 @@ function [rect,btn]=rubberbox(rect,edit_mode)
   C=F.end_compound[];
   R=C.children(1);
   R.invalidate[];
-  while rep(3)==-1 do
+  while rep(3)<>-5 do
     F.process_updates[];
-    rep=xgetmouse(clearq=%f,cursor=%f,getrelease=%t);
+    rep=xgetmouse(clearq=%f,cursor=%f,getrelease=edit_mode,getmotion=%t);
     R.invalidate[];
     xc1=rep(1);yc1=rep(2)
     R.x=min(xc,xc1)

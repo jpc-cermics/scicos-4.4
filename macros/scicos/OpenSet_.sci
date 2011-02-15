@@ -10,6 +10,7 @@ function OpenSet_()
      ierr=execstr('xxx=scs_m.objs(%kk).model.sim',errcatch=%t)
    end
    if ierr==%t then
+     ierr=0
      if ~isequal(xxx,'super') then
        ierr2=execstr('xxxx=scs_m.objs(%kk).gui',errcatch=%t)
        if ierr2==%t then
@@ -20,8 +21,10 @@ function OpenSet_()
          ierr=1;
        end
      end
+   else
+     ierr=1;
    end
-   if ierr==%f then
+   if ~isequal(ierr,0) then
      message(['This window is not active anymore or';
               'the browser is not up-to-date.'])
      %scicos_navig=[]  // stop navigation
@@ -30,15 +33,15 @@ function OpenSet_()
      return
    end
     
-//     inactive_windows(1)($+1)=super_path;inactive_windows(2)($+1)=curwin
+   inactive_windows(1)($+1)=super_path;inactive_windows(2)($+1)=curwin
 
    super_path=[super_path,%kk]
    [o,modified,newparametersb,needcompileb,editedb]=clickin( scs_m.objs(%kk));
 
-//     indx=find(curwin==inactive_windows(2))
-//     if ~isempty(indx) then
-//         inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
-//     end
+    indx=find(curwin==inactive_windows(2))
+    if ~isempty(indx) then
+        inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
+    end
     
    edited=edited|editedb
    super_path($-size(%kk,2)+1:$)=[]
@@ -65,17 +68,17 @@ function OpenSet_()
    Select_back=Select; 
    selecthilite(Select_back,%f); //  unHilite previous objects
    Select=[%kk %win];            //** select the double clicked block 
-   selecthilite(Select,%t) ;       
+   selecthilite(Select,%t) ;     
 
-//     inactive_windows(1)($+1)=super_path;inactive_windows(2)($+1)=curwin
+   inactive_windows(1)($+1)=super_path;inactive_windows(2)($+1)=curwin
 		       
    super_path=[super_path,%kk] ; 
    [o,modified,newparametersb,needcompileb,editedb]=clickin(scs_m(%Path));
 
-//     indx=find(curwin==inactive_windows(2))
-//     if ~isempty(indx) then
-//       inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
-//     end
+   indx=find(curwin==inactive_windows(2))
+   if ~isempty(indx) then
+     inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
+   end
     
    if Cmenu=="Link" then
      %pt=[%xc, %yc]

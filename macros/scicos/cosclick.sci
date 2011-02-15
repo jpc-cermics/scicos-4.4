@@ -34,13 +34,32 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     win=evstr(part(str,from:to))
   end
 
-//   if ~isempty(win) & ~isempty(find(win==inactive_windows(2))) then
-//     global Scicos_commands
-//     pathh=inactive_windows(1)(find(win==inactive_windows(2)))
-//     pause
-//   end
+  if ~isempty(win) & ~isempty(find(win==inactive_windows(2))) then
+    global Scicos_commands
+    pathh=inactive_windows(1)(find(win==inactive_windows(2)))
 
-  if btn==0 then
+    if (btn==-2) then
+      cmd='Cmenu='+part(str,9:length(str)-1)+';execstr(''Cmenu=''+Cmenu)'
+    elseif (btn==0) then
+      //if %scicos_action then
+        cmd='Cmenu = '"MoveLink'"'
+      //else
+      //  cmd='Cmenu = '"Smart Move'"'
+      //end
+    elseif (btn==10) then 
+      cmd='Cmenu='"Open/Set'"'
+    elseif or(btn==[2 5]) then
+      cmd='Cmenu = '"Popup'"';
+    //TOBECONTINUED
+    else
+      cmd='Cmenu=''SelectLink'''
+    end
+
+    Scicos_commands=['%diagram_path_objective='+sci2exp(pathh)+';%scicos_navig=1';
+                     cmd+';%win=curwin;%pt='+sci2exp(%pt)+';xselect();%scicos_navig=[]']
+    return
+
+  elseif btn==0 then
     Cmenu='MoveLink'
   elseif btn==1000 then
      Cmenu='Smart Move'

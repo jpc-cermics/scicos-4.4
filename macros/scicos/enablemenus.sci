@@ -1,14 +1,12 @@
 function enablemenus(men)
-// Copyright INRIA
-  if ~exists('curwin') then return,end;
-  if ~or(curwin==winsid()) then return,end
-  //curwin=xget('window')
+  %ws=intersect(winsid(),[inactive_windows(2)(:);curwin]')
   if nargin<1 then men=menus.items,end
-  for k=1:size(men,'*')
-    setmenu(curwin,men(k))
+  for %w=%ws
+    for k=1:size(men,'*')
+      setmenu(%w,men(k))
+      if Main_Scicos_window<>%w & men(k)=='Simulate' then
+        unsetmenu(%w,'Simulate')
+      end
+    end
   end
-  if super_block then
-    unsetmenu(curwin,'Simulate')
-  end
-  xinfo(' ')
 endfunction

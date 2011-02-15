@@ -1,9 +1,7 @@
 function win=get_new_window(windows)
-  wfree=find(windows(:,1)==0)
-  // Copyright INRIA
-  if ~isempty(wfree) then
-    win=wfree(1)
-  else
-    win=max(windows(:,2))+1
+  global inactive_windows
+  win=max(windows(:,2))+1
+  if ~isempty(inactive_windows(2)) then
+    win=max(win,max(inactive_windows(2))+1)
   end
 endfunction

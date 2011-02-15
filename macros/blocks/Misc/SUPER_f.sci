@@ -39,7 +39,8 @@ function [x,y,typ]=SUPER_f(job,arg1,arg2)
 	  global inactive_windows
 	  %scicos_navig=[];Scicos_commands=[]
 	  %diagram_open=%t
-	  scf(curwin)
+	  //scf(curwin)
+          xset('window',curwin)
 	  indx=find(curwin==inactive_windows(2))
 	  if size(indx,'*')==1 then
 	    inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]

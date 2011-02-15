@@ -15,11 +15,11 @@ function MoveLink_()
     end
     if ~isempty(%kk) then //** press over a valid block 
       Cmenu="Duplicate"
-      //Select=[%kk,%win] //ALANDISABLEITFORTHATTIME
+      Select=[%kk,%win] //ALANDISABLEITFORTHATTIME
     else //** press in the void   
-      //Cmenu="SelectRegion" //ALANDISABLEITFORTHATTIME
-      //Select=[]
-      Cmenu='';%pt=[];return;
+      Cmenu="SelectRegion" //ALANDISABLEITFORTHATTIME
+      Select=[]
+      //Cmenu='';%pt=[];return;
     end
   else //** the press is in the current window
     %kk=getobj(scs_m,%pt)
