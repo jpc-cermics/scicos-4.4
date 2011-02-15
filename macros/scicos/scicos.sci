@@ -209,7 +209,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   end
 
   if scs_m.type<>'diagram' then
-    error('first argument must be a scicos diagram')
+    error('First argument must be a scicos diagram')
   end
   
   if ~super_block then
@@ -300,7 +300,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
   MSDOS=%f; // XXXXX 
 
-  Cmenu='';%pt=[];%win=curwin;
+  Cmenu='';%pt=[];%win=curwin;%curwpar=[];
   Select=[];Select_back=[];%ppt=[];
 
   //initialize graphics
@@ -313,7 +313,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       lasterror();
     end
     if ~isequal(user_data(1),scs_m) then
-      ierr=execstr('load(getenv(''NSP_TMPDIR'')+''/AllWindowss'')',errcatch=%t)
+      ierr=execstr('load(getenv(''NSP_TMPDIR'')+''/AllWindows'')',errcatch=%t)
       if ierr then
         x=winsid()
         for win_i=AllWindows
@@ -335,9 +335,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       xset('recording',0);
       xtape_status=xget('recording');
       %zoom=restore(curwin,menus,%zoom)
-      scs_m = drawobjs(scs_m);
+      scs_m=drawobjs(scs_m);
       if super_block then
-        Cmenu = 'Replot'
+        Cmenu='Replot'
       end
     else
       Select=user_data(2)
@@ -354,6 +354,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       if ~execstr('user_data=gh_current_window.user_data',errcatch=%t) then
         gh_current_window.user_data=list([])
         user_data=gh_current_window.user_data
+        lasterror();
       end
       if ~isequal(user_data(1),scs_m) then
         Select=user_data(2)
@@ -499,19 +500,51 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
     if ~super_block then // even after quiting, workspace variables
       //TODO
+      execstr("file(""delete"",getenv(''NSP_TMPDIR'')+''/BackupSave.cos'')",errcatch=%t)
+      execstr("file(""delete"",getenv(''NSP_TMPDIR'')+''/BackupInfo'')",errcatch=%t)
       // clear all globals defore leaving
       clearglobal Clipboard  
       clearglobal Scicos_commands 
       clearglobal %tableau
       clearglobal %scicos_navig
       clearglobal %diagram_path_objective
-      //close_inactive_windows(inactive_windows,[])
+      close_inactive_windows(inactive_windows,[])
       clearglobal inactive_windows
     end
   elseif Cmenu=='Leave' then
-    //TODO
+    ok=do_save(scs_m,getenv('NSP_TMPDIR')+'/BackupSave.cos')  
+    if ok then  //need to save %cpr because the one in .cos cannot be
+                //used to continue simulation
+      if ~exists('%tcur') then %tcur=[];end
+      if ~exists('%scicos_solver') then %scicos_solver=0;end
+      save(getenv('NSP_TMPDIR')+'/BackupInfo', edited,needcompile,alreadyran, %cpr,%state0,%tcur,..
+                                            %scicos_solver,inactive_windows)
+
+      OpenPals=windows(find(windows(:,1)<0),2 )  //close palettes 
+      for winu=OpenPals'
+        if or(winu==winsid()) then
+          xbasc(winu),xdel(winu);
+        end
+      end
+    end
+    if ~ok then
+      message(['Problem saving a backup; I cannot activate ScicosLab.';
+	       'Save your diagram scs_m manually.'])
+      pause
+    end
+    AllWindows=unique([windows(:,2);inactive_windows(2)])
+    AllWindows=intersect(AllWindows',winsid())
+    for win_i= AllWindows
+      xset('window',win_i)
+      //seteventhandler('scilab2scicos')
+    end
     disablemenus();
+    save(getenv('NSP_TMPDIR')+'/AllWindows',AllWindows)
     printf('%s\n','To reactivate Scicos, click on a diagram or type '"scicos();'"')
+    if edited then
+      printf('%s\n','Your diagram is not saved. Do not quit ScicosLab or "+...
+             "open another Scicos diagram before returning to Scicos.')
+    end
   end
   // remove the gr graphics from scs_m 
   for k=1:length(scs_m.objs);
@@ -548,4 +581,53 @@ function restore_menu()
   for %Y=1:size(%scicos_menu,1)
     execstr(%scicos_menu(%Y)(1)+'_'+m2s(curwin,'%.0f')+'='+%scicos_menu(%Y)(1)+';')
   end
+endfunction
+
+function inactive_windows=close_inactive_windows(inactive_windows,path)
+  DELL=[]  // inactive windows to kill
+  if size(inactive_windows(2),'*')>0 then
+    n=size(path,'*');
+    mainopen=or(curwin==winsid()) // is current window open
+    for kk=1:size(inactive_windows(2),'*')
+      if isempty(path) then
+        if size(inactive_windows(1)(kk),'*')>n then
+          DELL=[DELL kk];
+          win=inactive_windows(2)(kk)
+          if or(win==winsid()) then
+            xbasc(win),xdel(win); 
+          end
+        end
+      else
+        if size(inactive_windows(1)(kk),'*')>n & isequal(inactive_windows(1)(kk)(1:n),path) then
+          DELL=[DELL kk];
+          win=inactive_windows(2)(kk)
+          if or(win==winsid()) then
+            xbasc(win),xdel(win); 
+          end
+        end
+      end
+    end
+    if mainopen then xset('window',curwin), end
+  end
+  for kk=DELL($:-1:1)  // backward to keep indices valid
+    inactive_windows(1)(kk)=null()
+    inactive_windows(2)(kk)=[]
+  end
+endfunction
+
+function scilab2scicos(win,x,y,ibut)
+  //utility function for the return to scicos by event handler
+  if ibut==-1000|ibut==-1 then return,end
+  ierr=execstr('load(getenv(''NSP_TMPDIR'')+''/AllWindows'')',errcatch=%t)
+  if ierr then
+    x=winsid()
+    for win_i=AllWindows
+      if ~isempty(find(x==win_i)) then
+        printf("  scilab2scicos : win_i=%d\n",win_i)
+        xset('window',win_i)
+        seteventhandler('')
+      end
+    end
+  end
+  scicos();
 endfunction

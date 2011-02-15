@@ -18,6 +18,8 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   %pt=[xc,yc]
   global inactive_windows
   printf("cosclick : btn =%d\n",btn);
+  printf("cosclick : str =%s\n",str);
+  printf("cosclick : win =%d\n",win);
   if btn==-100 then  
     if win==curwin then
       Cmenu='Quit',
@@ -28,7 +30,8 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     return
   end
 
-  if (win==-1)& (btn==-2)&part(str,1:7)=='execstr' then
+  //TODO Alan
+  if (btn==-2) & part(str,1:7)=='execstr' then
     from=max(strindex(str,'_'))+1;
     to=max(strindex(str,'('))-1
     win=evstr(part(str,from:to))
@@ -85,7 +88,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       // click in a scicos dynamic menu
       %pt=[]
       execstr('Cmenu='+part(str,9:length(str)-1))
-      execstr('Cmenu='+Cmenu)
+      execstr('Cmenu='+Cmenu,errcatch=%t)
       return
     elseif ~isempty(strindex(str,'PlaceDropped_info')) then
       // we have dropped a block in the window 
@@ -99,7 +102,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
         message("You can only drop in current window");
       end
     else // click in an other dynamic menu
-      execstr(str,errcatch=%t)
+      execstr(str)
       return
     end
   elseif btn>31 then
