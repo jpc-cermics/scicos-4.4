@@ -61,8 +61,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   end
 
   //TOBEREMOVED
-  scicos_ver='scicos2.7.3' // set current version of scicos
-  scicos_ver='scicos4.2' // set current version of scicos
+  scicos_ver='scicos2.7.3' //set current version of scicos
+  scicos_ver='scicos4.2' //set current version of scicos
   
   if ~super_block then
     // define scicos libraries
@@ -149,10 +149,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   %path='./';
   %exp_dir=getcwd();
   
-  if ~super_block then // global variables
+  if ~super_block then
     %zoom=1.4;
-    pal_mode=%f; // Palette edition mode
-    newblocks=[]; // table of added functions in pal_mode
+    pal_mode=%f; //Palette edition mode
+    newblocks=[]; //table of added functions in pal_mode
 
     scicos_paltmp=scicos_pal;
     if execstr('load(''.scicos_pal'')',errcatch=%t)==%t then
@@ -161,11 +161,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %palce=-sort(-%palce);
       scicos_pal=scicos_pal(%palce,:);
     else
-      lasterror(); // clear the error message stack 
+      lasterror(); //clear the error message stack 
     end
     ok = execstr('load(''.scicos_short'')',errcatch=%t)  //keyboard shortcuts
     if ~ok then 
-      lasterror(); // clear the error message stack 
+      lasterror(); //clear the error message stack 
     end
   end
 
@@ -307,7 +307,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if %diagram_open then
     F=get_current_figure();
     gh_current_window=nsp_graphic_widget(F.id)
-    if ~execstr('user_data=gh_current_window.user_data',errcatch=%t) then
+    ierr=execstr('user_data=gh_current_window.user_data',errcatch=%t)
+    if ~ierr then
       gh_current_window.user_data=list([])
       user_data=gh_current_window.user_data
       lasterror();
@@ -407,8 +408,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
           Select_back=Select
           [Cmenu,Select]=Find_Next_Step(%diagram_path_objective,super_path,Select) 
           if or(curwin==winsid()) & ~isequal(Select,Select_back) then
-            selecthilite(Select_back,%f); // unHilite previous objects
-            selecthilite(Select,%t);      // Hilite the actual selected object
+            selecthilite(Select_back,%f);
+            selecthilite(Select,%t);
           end
           if Cmenu=="OpenSet" then
             ierr=execstr('exec(OpenSet_);',errcatch=%t)
@@ -536,7 +537,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     AllWindows=intersect(AllWindows',winsid())
     for win_i= AllWindows
       xset('window',win_i)
-      //seteventhandler('scilab2scicos')
+      seteventhandler('scilab2scicos')
     end
     disablemenus();
     save(getenv('NSP_TMPDIR')+'/AllWindows',AllWindows)
@@ -555,12 +556,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 endfunction
 
 function [itype, mess] = CmType(Cmenu)
-//** look inside "%CmenuTypeOneVector" if the command is type 1 (need both Cmenu and %pt)
-  k = find (Cmenu == %CmenuTypeOneVector(:,1)); 
-  if isempty(k) then //** if is not type 1 (empty k)
-    itype = 0 ; //** set type to zero
-    mess=''   ; //** set message to empty
-    return    ; //** --> EXIT point : return back 
+  k=find(Cmenu==%CmenuTypeOneVector(:,1)); 
+  if isempty(k) then
+    itype=0
+    mess=''
+    return
   end
   if size(k,'*')>1 then //** if found more than one command 
     message('Warning '+string( size(k,'*'))+' menus have identical name '+Cmenu);
@@ -623,7 +623,6 @@ function scilab2scicos(win,x,y,ibut)
     x=winsid()
     for win_i=AllWindows
       if ~isempty(find(x==win_i)) then
-        printf("  scilab2scicos : win_i=%d\n",win_i)
         xset('window',win_i)
         seteventhandler('')
       end

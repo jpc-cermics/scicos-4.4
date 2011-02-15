@@ -16,7 +16,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     scicos_dblclk=[]
   end
   %pt=[xc,yc]
-  global inactive_windows
+  //global inactive_windows
   printf("cosclick : btn =%d\n",btn);
   printf("cosclick : str =%s\n",str);
   printf("cosclick : win =%d\n",win);

@@ -1,5 +1,6 @@
 function window_read_size()
-    xclear(curwin,gc_reset=%f);xselect()
+  xclear(curwin,gc_reset=%f);
+  xselect()
   xset("wresize",0);
   axsize=scs_m.props.wpar(5:6)
   xset("wdim",axsize(1),axsize(2))
