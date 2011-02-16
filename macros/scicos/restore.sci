@@ -4,7 +4,7 @@ function %zoom=restore(curwin,menus,%zoom)
   end
   xclear(curwin,gc_reset=%f);xselect()
   if size(scs_m.props.wpar,'*')>12 then
-    printf("Restore : window_read_size\n");
+    printf("***Restore : window_read_size\n");
     winsize=scs_m.props.wpar(9:10)
     winpos=scs_m.props.wpar(11:12)
 
@@ -22,9 +22,10 @@ function %zoom=restore(curwin,menus,%zoom)
 	
     %zoom=scs_m.props.wpar(13)
     pwindow_read_size()
-    window_read_size()
+    //window_read_size()
+    window_set_size()
   else
-    printf("Restore : window_set_size\n");
+    printf("***Restore : window_set_size\n");
     pwindow_set_size()
     window_set_size()
   end

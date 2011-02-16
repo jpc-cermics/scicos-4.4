@@ -173,46 +173,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if ~exists('needcompile') then needcompile=0; 
   else needcompile=needcompile;end
 
-  if nargin >=1 then
-    if type(scs_m,'string')== 'SMat' then //diagram is given by its filename
-      %fil=scs_m
-      alreadyran=%f
-      [ok,scs_m,%cpr,edited]=do_load(%fil,'diagram')
-      if ~ok then return, end
-
-      if size(%cpr)==0 then
-	needcompile=4
-	%state0=list()
-      else
-	%state0=%cpr.state;
-	needcompile=0
-      end
-    else //diagram is given by its data structure
-      if ~super_block then 
-	%cpr=list();needcompile=4;alreadyran=%f,%state0=list()
-      end
-    end
-    needsavetest=%t
-  else
-    xset('window',Main_Scicos_window);
-    xset('recording',0);
-
-    ok = execstr('load(getenv(''NSP_TMPDIR'')+''/BackupSave.cos'')',errcatch=%t)
-    if ~ok then
-      lasterror();
-      scs_m=get_new_scs_m();
-      %cpr=list();needcompile=4;alreadyran=%f;%state0=list();
-    else
-      load(getenv('NSP_TMPDIR')+'/BackupInfo')
-pause
-    end
-    needsavetest=%f
-  end
-
-  if scs_m.type<>'diagram' then
-    error('First argument must be a scicos diagram')
-  end
-  
   if ~super_block then
     %cor_item_exec=[];
     [menus]=scicos_menu_prepare(%scicos_menu);
@@ -248,10 +208,50 @@ pause
     end
   end
 
+  if nargin >=1 then
+    if type(scs_m,'string')== 'SMat' then //diagram is given by its filename
+      %fil=scs_m
+      alreadyran=%f
+      [ok,scs_m,%cpr,edited]=do_load(%fil,'diagram')
+      if ~ok then return, end
+
+      if size(%cpr)==0 then
+	needcompile=4
+	%state0=list()
+      else
+	%state0=%cpr.state;
+	needcompile=0
+      end
+    else //diagram is given by its data structure
+      if ~super_block then 
+	%cpr=list();needcompile=4;alreadyran=%f,%state0=list()
+      end
+    end
+    needsavetest=%t
+  else
+    xset('window',Main_Scicos_window);
+    xset('recording',0);
+
+    ok = execstr('load(getenv(''NSP_TMPDIR'')+''/BackupSave.cos'')',errcatch=%t)
+    if ~ok then
+      lasterror();
+      scs_m=get_new_scs_m();
+      %cpr=list();needcompile=4;alreadyran=%f;%state0=list();
+    else
+      load(getenv('NSP_TMPDIR')+'/BackupInfo')
+      scs_m=rec_restore_gr(scs_m,inactive_windows)
+    end
+    needsavetest=%f
+  end
+
+  if scs_m.type<>'diagram' then
+    error('First argument must be a scicos diagram')
+  end
+
   options=scs_m.props.options
   %scicos_solver=scs_m.props.tol(6)
   %browsehelp_sav=[]
-
+  
   if ~super_block then
     xset('window',Main_Scicos_window);
     curwin=xget('window');
@@ -514,12 +514,13 @@ pause
       clearglobal inactive_windows
     end
     // remove the gr graphics from scs_m 
-    for k=1:length(scs_m.objs);
+    for k=1:length(scs_m.objs)
       if scs_m.objs(k).iskey['gr'] then 
-        scs_m.objs(k).delete['gr'];
+        scs_m.objs(k).delete['gr']
       end
     end
   elseif Cmenu=='Leave' then
+    scs_m=rec_remove_gr(scs_m)
     ok=do_save(scs_m,getenv('NSP_TMPDIR')+'/BackupSave.cos')  
     if ok then  //need to save %cpr because the one in .cos cannot be
                 //used to continue simulation
@@ -630,4 +631,51 @@ function scilab2scicos(win,x,y,ibut)
     end
   end
   scicos();
+endfunction
+
+//remove the gr graphics from scs_m 
+function scs_m=rec_remove_gr(scs_m)
+  for k=1:length(scs_m.objs)
+    if scs_m.objs(k).iskey['gr'] then 
+      scs_m.objs(k).delete['gr'];
+    end
+    o=scs_m.objs(k)
+    if o.type=='Block' then
+      if o.model.sim.equal['super'] then
+        scs_m_n=o.model.rpar
+        scs_m_n=rec_remove_gr(scs_m_n)
+        o.model.rpar=scs_m_n
+        scs_m.objs(k)=o
+      end
+    end
+  end
+endfunction
+
+//restore the gr graphics from scs_m and inactive_windows
+function scs_m=rec_restore_gr(scs_m,inactive_windows)
+  options=scs_m.props.options
+  %scicos_solver=scs_m.props.tol(6)
+  n=size(inactive_windows(2),'*')
+  for i=1:n
+    wii=find(winsid()==inactive_windows(2)(i))
+    if ~isempty(wii) then
+      //lastwin=curwin
+      path=get_subobj_path(inactive_windows(1)(i))
+      o=scs_m(path)
+      scs_m_save=scs_m
+      scs_m=o.model.rpar
+      super_block=%t
+      curwin=inactive_windows(2)(i)
+      xset('window',curwin)
+      %zoom=restore(curwin,menus,%zoom)
+      %wdm=scs_m.props.wpar
+      window_set_size();
+      //pause
+      scs_m=do_replot(scs_m)
+      o.model.rpar=scs_m
+      scs_m=scs_m_save
+      scs_m(path)=o
+      //curwin=lastwin
+    end
+  end
 endfunction
