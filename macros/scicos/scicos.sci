@@ -204,6 +204,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %cpr=list();needcompile=4;alreadyran=%f;%state0=list();
     else
       load(getenv('NSP_TMPDIR')+'/BackupInfo')
+pause
     end
     needsavetest=%f
   end
@@ -512,6 +513,12 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       close_inactive_windows(inactive_windows,[])
       clearglobal inactive_windows
     end
+    // remove the gr graphics from scs_m 
+    for k=1:length(scs_m.objs);
+      if scs_m.objs(k).iskey['gr'] then 
+        scs_m.objs(k).delete['gr'];
+      end
+    end
   elseif Cmenu=='Leave' then
     ok=do_save(scs_m,getenv('NSP_TMPDIR')+'/BackupSave.cos')  
     if ok then  //need to save %cpr because the one in .cos cannot be
@@ -545,12 +552,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     if edited then
       printf('%s\n','Your diagram is not saved. Do not quit ScicosLab or "+...
              "open another Scicos diagram before returning to Scicos.')
-    end
-  end
-  // remove the gr graphics from scs_m 
-  for k=1:length(scs_m.objs);
-    if scs_m.objs(k).iskey['gr'] then 
-      scs_m.objs(k).delete['gr'];
     end
   end
 endfunction
@@ -589,7 +590,7 @@ function inactive_windows=close_inactive_windows(inactive_windows,path)
     n=size(path,'*');
     mainopen=or(curwin==winsid()) // is current window open
     for kk=1:size(inactive_windows(2),'*')
-      if isempty(path) then
+      if isempty(path)|isempty(inactive_windows(1)(kk)) then
         if size(inactive_windows(1)(kk),'*')>n then
           DELL=[DELL kk];
           win=inactive_windows(2)(kk)
