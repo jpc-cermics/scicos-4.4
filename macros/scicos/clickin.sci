@@ -14,7 +14,10 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
   modified=%f;newparameters=list();needcompile=0;
   if %diagram_open then
     Cmenu=check_edge(o, Cmenu, %pt); 
-    if Cmenu==("Link") then resume(Cmenu='Link'), end
+    if Cmenu==("Link") then
+      resume(Cmenu='Link')
+      return
+    end
   end
 
   if o.type =='Block' then

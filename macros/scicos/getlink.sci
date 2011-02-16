@@ -1,4 +1,3 @@
-
 function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 // edition of a link from an output block to an input  block
 // Copyright INRIA

@@ -21,7 +21,10 @@ function [scs_m]=do_move(%pt,scs_m)
  [k,wh]=getobj(scs_m,[xc;yc])
  if isempty(k) then return, end
  Cmenu=check_edge(scs_m.objs(k),"Smart Move",%pt);
- if isequal(Cmenu,"Link") then resume(Cmenu="Smart Link"), end
+ if isequal(Cmenu,"Link") then
+   resume(Cmenu="Smart Link")
+   return
+ end
  scs_m_save=scs_m
  xcursor(52);
  if scs_m.objs(k).type=='Block' | scs_m.objs(k).type =='Text' then
