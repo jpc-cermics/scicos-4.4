@@ -533,7 +533,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	       'Save your diagram scs_m manually.'])
       pause
     end
-    AllWindows=unique([windows(:,2);inactive_windows(2)])
+    AllWindows=unique([windows(:,2)(:);inactive_windows(2)])
     AllWindows=intersect(AllWindows',winsid())
     for win_i= AllWindows
       xset('window',win_i)

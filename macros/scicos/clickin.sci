@@ -54,7 +54,10 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
         end
       end
       curwin=lastwin
-      if(~(or(curwin==winsid()))) then resume(Cmenu='Open/Set'), end
+      if(~(or(curwin==winsid()))) then
+       resume(Cmenu='Open/Set')
+       return
+      end
       xset('window',curwin)
       //xselect()
 
