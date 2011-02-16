@@ -1,17 +1,26 @@
 function Open_()
-  Cmenu=''
+  Cmenu='';Select=[]
   if edited & ~super_block then
     num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
     if num==2 then return;end
     if alreadyran then do_terminate(),end  //terminate current simulation
+    clear('%scicos_solver')
     alreadyran=%f
   end
+  //xselect();
+  edited_sav=edited
   [ok,scs_m,%cpr,edited]=do_load()
+  if ok then
+     inactive_windows=close_inactive_windows(inactive_windows,super_path)
+    //TODO Alan
+    //closing the initialization GUI before opening another diagram
+  end
   if super_block then edited=%t;end
   if ~ok then
+    //Cmenu='Replot';
     return;
   end
-  
+
   if ~set_cmap(scs_m.props.options('Cmap')) then 
     scs_m.props.options('3D')(1)=%f //disable 3D block shape 
   end
@@ -45,9 +54,15 @@ function Open_()
   // draw the new diagram
   xclear(curwin,gc_reset=%f);xselect()
   set_background()
+
+  //TODO Alan
+  if size(scs_m.props.wpar,'*')>12 then
+  end
+
   // If we already have a window it's maybe not usefull to change it
   // pwindow_set_size()
   window_set_size()
+
   // be sure that graphic objects are recreated 
   // in case they were in saved file.
   scs_m=do_replot(scs_m);
