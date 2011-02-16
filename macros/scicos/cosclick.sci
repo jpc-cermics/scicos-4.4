@@ -2,7 +2,8 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
 // Copyright INRIA
   Cmenu_orig=Cmenu
   Cmenu="";%pt=[];btn=0;
-  if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end   
+  if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end
+  if ~exists('%scicos_action') then %scicos_action=%t, end
   enablemenus();
   global scicos_dblclk
   if isempty(scicos_dblclk) then
@@ -44,16 +45,29 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     if (btn==-2) then
       cmd='Cmenu='+part(str,9:length(str)-1)+';execstr(''Cmenu=''+Cmenu)'
     elseif (btn==0) then
-      //if %scicos_action then
-        cmd='Cmenu = '"MoveLink'"'
-      //else
-      //  cmd='Cmenu = '"Smart Move'"'
-      //end
+      if %scicos_action then
+        cmd='Cmenu='"MoveLink'"'
+      else
+        cmd='Cmenu='"Smart Move'"'
+      end
     elseif (btn==10) then 
       cmd='Cmenu='"Open/Set'"'
     elseif or(btn==[2 5]) then
-      cmd='Cmenu = '"Popup'"';
-    //TOBECONTINUED
+      cmd='Cmenu='"Popup'"';
+    elseif (btn>=32) & (btn<288)
+      if exists('%scicos_short') then //Search in %scicos_short the assiocated menu
+        ind=find(ascii(btn)==%scicos_short(:,1))
+        if ~isempty(ind) then
+          ind=ind($)
+          cmd='Cmenu='''+%scicos_short(ind,2)+''''
+        else
+          cmd='Cmenu=''SelectLink'''
+        end
+      else
+        cmd='Cmenu=''SelectLink'''
+      end
+    elseif (btn==1000) then
+      cmd='Cmenu='"Smart Move'"'
     else
       cmd='Cmenu=''SelectLink'''
     end
@@ -63,7 +77,11 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     return
 
   elseif btn==0 then
-    Cmenu='MoveLink'
+    if %scicos_action then
+      Cmenu='MoveLink'
+    else
+      Cmenu='Smart Move'
+    end
   elseif btn==1000 then
      Cmenu='Smart Move'
   elseif (btn==10) & (win==curwin) then  
