@@ -9,7 +9,7 @@ function OpenSet_()
    else
      ierr=execstr('xxx=scs_m.objs(%kk).model.sim',errcatch=%t)
    end
-   if ierr==%t then
+   if isequal(ierr,%t) then
      ierr=0
      if ~isequal(xxx,'super') then
        ierr2=execstr('xxxx=scs_m.objs(%kk).gui',errcatch=%t)
