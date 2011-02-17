@@ -239,6 +239,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %cpr=list();needcompile=4;alreadyran=%f;%state0=list();
     else
       load(getenv('NSP_TMPDIR')+'/BackupInfo')
+      inactive_windows=inactive_windows_sav
       scs_m=rec_restore_gr(scs_m,inactive_windows)
     end
     needsavetest=%f
@@ -526,8 +527,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
                 //used to continue simulation
       if ~exists('%tcur') then %tcur=[];end
       if ~exists('%scicos_solver') then %scicos_solver=0;end
+      inactive_windows_sav=inactive_windows
       save(getenv('NSP_TMPDIR')+'/BackupInfo', edited,needcompile,alreadyran, %cpr,%state0,%tcur,..
-                                            %scicos_solver,inactive_windows)
+                                            %scicos_solver,inactive_windows_sav)
 
       OpenPals=windows(find(windows(:,1)<0),2 )  //close palettes 
       for winu=OpenPals'
@@ -541,7 +543,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	       'Save your diagram scs_m manually.'])
       pause
     end
-    AllWindows=unique([windows(:,2)(:);inactive_windows(2)])
+    AllWindows=unique([windows(:,2);inactive_windows(2)(:)])
     AllWindows=intersect(AllWindows',winsid())
     for win_i= AllWindows
       xset('window',win_i)

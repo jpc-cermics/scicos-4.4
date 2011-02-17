@@ -1,5 +1,5 @@
 function OpenSet_()
- global inactive_windows
+ //global inactive_windows
  if or(curwin==winsid()) then xset('window',curwin) end
 
  if ~%diagram_open then
