@@ -55,6 +55,10 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
           o=o_n
           modified=prod(size(newparameters))>0
         end
+      else
+        //Alan : AVERIFER
+        global Scicos_commands
+        Scicos_commands=['Cmenu='''';%win=curwin;%pt=[];xselect();%scicos_navig=[]']
       end
       curwin=lastwin
       if(~(or(curwin==winsid()))) then
