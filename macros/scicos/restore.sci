@@ -2,9 +2,13 @@ function %zoom=restore(curwin,menus,%zoom)
   if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end
-  if length(scs_m.objs)>0 then
-    if ~(scs_m.objs(1).iskey['gr']) then 
-      xclear(curwin,gc_reset=%f);
+  if ~or(curwin==winsid()) then
+    xclear(curwin,gc_reset=%f);
+  else
+    if length(scs_m.objs)>0 then
+      if ~(scs_m.objs(1).iskey['gr']) then 
+        xclear(curwin,gc_reset=%f);
+      end
     end
   end
   xset('window',curwin);
