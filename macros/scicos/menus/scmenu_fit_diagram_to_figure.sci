@@ -12,7 +12,7 @@ function Fitdiagramtofigure_()
    h=(rect(4)-rect(2));
    margins = [0.02 0.02 0.02 0.02]
 
-   //Alan, 19/02/2010
+   //Alan, 19/02/2011
    Vbox=gh.get_children[]
    Vbox=Vbox(1)
    ScrolledWindow=Vbox.get_children[]
