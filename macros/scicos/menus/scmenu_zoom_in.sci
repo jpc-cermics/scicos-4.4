@@ -8,12 +8,10 @@ function Zoomin_()
   winsize=gh.get_size[]
   axsize=xget("wdim")
   viewport=xget("viewport");
-  viewport = viewport * zoomfactor - 0.5 * winsize*(1-zoomfactor)  ;
-  viewport=max([0,0],min(viewport,-winsize+axsize)) 
-  //window_set_size(gh_window, viewport);
+  viewport=viewport*zoomfactor-0.5*winsize*(1-zoomfactor)
+  viewport=max([0,0],min(viewport,-winsize+axsize))
   window_set_size(curwin,viewport)
   drawobjs(scs_m),
   xinfo(' ')
   if pixmap then xset('wshow'),end
 endfunction
-

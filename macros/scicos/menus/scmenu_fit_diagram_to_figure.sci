@@ -11,8 +11,21 @@ function Fitdiagramtofigure_()
    w=(rect(3)-rect(1));
    h=(rect(4)-rect(2));
    margins = [0.02 0.02 0.02 0.02]
-   %zoom_w=r(1)/(w*(1+margins(1)+margins(2)))
-   %zoom_h=r(2)/(h*(1+margins(3)+margins(4)))
+
+   //Alan, 19/02/2010
+   Vbox=gh.get_children[]
+   Vbox=Vbox(1)
+   ScrolledWindow=Vbox.get_children[]
+   ScrolledWindow=ScrolledWindow(3)
+   hscrollbar=ScrolledWindow.get_hscrollbar[]
+   vscrollbar=ScrolledWindow.get_vscrollbar[]
+   hrect=hscrollbar.allocation
+   vrect=vscrollbar.allocation
+
+   %zoom_w=(r(1)-vrect.width)/(w*(1+margins(1)+margins(2)))
+   //suppose for that time that menu bar & status bar have the same height
+   //like the scroolbar
+   %zoom_h=(r(2)-hrect.height*3)/(h*(1+margins(3)+margins(4)))
 
    %zoom=min(%zoom_w,%zoom_h);
 
