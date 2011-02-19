@@ -47,6 +47,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       end
       if ~ierr then
         printf('Error in GUI of block %s\n',o.gui);
+        printf("%s\",lasterror());
         return
       end
       if ~%exit then

@@ -1,5 +1,4 @@
 function [btn,%pt,win,Cmenu]=cosclick(flag)
-// Copyright INRIA
   Cmenu_orig=Cmenu
   Cmenu="";%pt=[];btn=0;
   if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end
@@ -17,10 +16,9 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     scicos_dblclk=[]
   end
   %pt=[xc,yc]
-  //global inactive_windows
+
   printf("cosclick : btn =%d\n",btn);
-  printf("cosclick : str =%s\n",str);
-  printf("cosclick : win =%d\n",win);
+
   if btn==-100 then  
     if win==curwin then
       Cmenu='Quit',
@@ -144,5 +142,4 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     printf("btn="+string(btn)+str_pt+"\n");
   end
   printf("Cmenu="+Cmenu+"\n");
-
 endfunction

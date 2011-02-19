@@ -55,13 +55,31 @@ function Open_()
   xclear(curwin,gc_reset=%f);xselect()
   set_background()
 
-  //TODO Alan
   if size(scs_m.props.wpar,'*')>12 then
-  end
 
-  // If we already have a window it's maybe not usefull to change it
-  // pwindow_set_size()
-  window_set_size()
+    //Alan : seems to be not needed
+    F=get_current_figure()
+    gh=nsp_graphic_widget(curwin)
+    winsize=scs_m.props.wpar(9:10)
+    winpos=scs_m.props.wpar(11:12)
+    screen=gh.get_screen[]
+    screensz=[screen.get_width[] screen.get_height[]]
+
+    if min(winsize)>0 then
+      winpos=max(0,winpos-max(0,-screensz+winpos+winsize) )
+      scs_m=scs_m;
+      scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
+    end
+
+    %zoom=scs_m.props.wpar(13)
+    pwindow_read_size();
+    window_read_size();
+  else
+    // If we already have a window it's maybe not usefull to change it
+    // Alan : si de temps en temps
+    //pwindow_set_size()
+    window_set_size()
+  end
 
   // be sure that graphic objects are recreated 
   // in case they were in saved file.

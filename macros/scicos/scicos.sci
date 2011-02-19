@@ -253,9 +253,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   %browsehelp_sav=[]
   
   if ~super_block then
-    xset('window',Main_Scicos_window);
-    curwin=xget('window');
-    palettes=list();
+    xset('window',Main_Scicos_window)
+    curwin=xget('window')
+    palettes=list()
     noldwin=0
     windows=[1 curwin]
     pixmap=%scicos_display_mode
@@ -290,11 +290,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if is(scs_m.props.context,%types.SMat) then
     %now_win=xget('window')
     if ~execstr(scs_m.props.context,errcatch=%t) then
-      message(['Error occur when evaluating context:']);
+      message(['Error occur when evaluating context:'])
       lasterror();
     end
     xset('window',%now_win)
-    xset('recording',0);
+    xset('recording',0)
   else
     scs_m.props.context=' ' 
   end
@@ -306,7 +306,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
   //initialize graphics
   if %diagram_open then
-    F=get_current_figure();
+    F=get_current_figure()
     gh_current_window=nsp_graphic_widget(F.id)
     ierr=execstr('user_data=gh_current_window.user_data',errcatch=%t)
     if ~ierr then
@@ -338,9 +338,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       xtape_status=xget('recording');
       %zoom=restore(curwin,menus,%zoom)
       scs_m=drawobjs(scs_m);
-      if super_block then
-        Cmenu='Replot'
-      end
+//       if super_block then
+//         Cmenu='Replot'
+//       end
     else
       Select=user_data(2)
       enable_undo=user_data(3)
@@ -350,8 +350,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
   else
     if or(curwin==winsid()) then
-      xset('window',curwin);
-      F=get_current_figure();
+      xset('window',curwin)
+      F=get_current_figure()
       gh_current_window=nsp_graphic_widget(F.id)
       if ~execstr('user_data=gh_current_window.user_data',errcatch=%t) then
         gh_current_window.user_data=list([])
@@ -364,28 +364,21 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
   end
 
-// center the viewport 
-// window_set_size() can do the same but it clears the window
-//   xflush();
-//   wd_=xget('wdim');
-//   wpd_=xget('wpdim');
-//   wshift=max((wd_-wpd_)/2,0);
-//   xset('viewport',wshift(1),wshift(2));
-
   exec(restore_menu)
   global Clipboard 
 
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
     if or(winsid()==curwin) then
+
+//       if or(winsize>axsize+21) then
+//         viewport=xget('viewport')
+//         viewport=max([0,0],min(viewport,-winsize+axsize))
+//         window_set_size(curwin,viewport)
+//       end
+
       if edited then
-        // store win dims, it should only be in do_exit but not possible now
-        [wrect,frect,logflag,arect]=xgetech()
-        data_bounds=frect
-        winpos=xget("wpos")
-        winsize=xget("wpdim")
-        axsize=xget("wdim")
-        %curwpar=[data_bounds(:)',axsize,..
-                  xget('viewport'),winsize,winpos,%zoom]
+        [frect,axsize,viewport,winsize,winpos,pagesize]=get_curwpar(curwin)
+        %curwpar=[frect,axsize,viewport,winsize,winpos,%zoom,pagesize]
         if ~isequal(scs_m.props.wpar,%curwpar) then
           scs_m.props.wpar=%curwpar
         end
@@ -409,8 +402,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
           Select_back=Select
           [Cmenu,Select]=Find_Next_Step(%diagram_path_objective,super_path,Select) 
           if or(curwin==winsid()) & ~isequal(Select,Select_back) then
-            selecthilite(Select_back,%f);
-            selecthilite(Select,%t);
+            selecthilite(Select_back,%f)
+            selecthilite(Select,%t)
           end
           if Cmenu=="OpenSet" then
             ierr=execstr('exec(OpenSet_);',errcatch=%t)
@@ -419,7 +412,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
               if ~or(curwin==winsid()) then 
                 %zoom=restore(curwin,menus,%zoom)
                 execstr('drawobjs(scs_m)',errcatch=%t) 
-                %scicos_navig=[];
+                %scicos_navig=[]
                 Select_back=[];Select=[]
               end  
             else
@@ -439,8 +432,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     else
       %diagram_open=%t
       if ~or(curwin==winsid()) then
-        xset('window',curwin);
-        xset('recording',0);
+        xset('window',curwin)
+        xset('recording',0)
         %zoom=restore(curwin,menus,%zoom)
         Cmenu='Replot'
         Select_back=[];Select=[]
@@ -469,20 +462,20 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         %win = win_n
       else
         disablemenus();
-        %koko=find(Cmenu==%cor_item_exec(:,1));
+        %koko=find(Cmenu==%cor_item_exec(:,1))
         if size(%koko,'*')==1 then
-          Select_back=Select;
-          %cor_item_fun=%cor_item_exec(%koko,2);
+          Select_back=Select
+          %cor_item_fun=%cor_item_exec(%koko,2)
           printf('Entering function ' + %cor_item_fun+'\n');
           ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
           if ierr==%f then 
             message(['Error in '+%cor_item_fun;catenate(lasterror())]);
-            Cmenu='Replot';%pt=[];
-            Select_back=[];Select=[];
+            Cmenu='Replot';%pt=[]
+            Select_back=[];Select=[]
           elseif or(curwin==winsid()) then
             if ~isequal(Select,Select_back) then
-              selecthilite(Select_back,%f); // unHilite previous objects
-              selecthilite(Select,%t);      // Hilite the actual selected object
+              selecthilite(Select_back,%f)
+              selecthilite(Select,%t)
             end
           else
             if isempty(%scicos_navig) then // in case window is not open
@@ -490,7 +483,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
               %diagram_path_objective=[]
             end
           end
-          printf('Quit function ' + %cor_item_fun+'\n'); 
+          printf('Quit function ' + %cor_item_fun+'\n');
         else
           Cmenu="";%pt=[]
         end
@@ -568,12 +561,12 @@ function [itype, mess] = CmType(Cmenu)
     message('Warning '+string( size(k,'*'))+' menus have identical name '+Cmenu);
     k=k(1); //** ? 
   end
-  itype = 1 ; 
-  mess = %CmenuTypeOneVector(k,2) ; 
+  itype=1
+  mess=%CmenuTypeOneVector(k,2)
 endfunction
 
 function [x,k]=gunique(x)
-  [x,k]=gsort(x);
+  [x,k]=gsort(x)
   keq=find(x(2:$)==x(1:$-1))
   x(keq)=[]
   k(keq)=[]
@@ -600,11 +593,13 @@ function inactive_windows=close_inactive_windows(inactive_windows,path)
           end
         end
       else
-        if size(inactive_windows(1)(kk),'*')>n & isequal(inactive_windows(1)(kk)(1:n),path) then
-          DELL=[DELL kk];
-          win=inactive_windows(2)(kk)
-          if or(win==winsid()) then
-            xbasc(win),xdel(win); 
+        if size(inactive_windows(1)(kk),'*')>n then 
+          if isequal(inactive_windows(1)(kk)(1:n),path) then
+            DELL=[DELL kk];
+            win=inactive_windows(2)(kk)
+            if or(win==winsid()) then
+              xbasc(win),xdel(win); 
+            end
           end
         end
       end
@@ -630,14 +625,15 @@ function scilab2scicos(win,x,y,ibut)
       end
     end
   end
-  scicos();
+  //scicos();
+  printf("\nReturn to scicos by eventhandler is disabled.\nUse -->scicos(); instead.\n");
 endfunction
 
 //remove the gr graphics from scs_m 
 function scs_m=rec_remove_gr(scs_m)
   for k=1:length(scs_m.objs)
     if scs_m.objs(k).iskey['gr'] then 
-      scs_m.objs(k).delete['gr'];
+      scs_m.objs(k).delete['gr']
     end
     o=scs_m.objs(k)
     if o.type=='Block' then
@@ -659,7 +655,6 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
   for i=1:n
     wii=find(winsid()==inactive_windows(2)(i))
     if ~isempty(wii) then
-      //lastwin=curwin
       path=get_subobj_path(inactive_windows(1)(i))
       o=scs_m(path)
       scs_m_save=scs_m
@@ -669,13 +664,11 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
       xset('window',curwin)
       %zoom=restore(curwin,menus,%zoom)
       %wdm=scs_m.props.wpar
-      window_set_size();
-      //pause
+      window_set_size()
       scs_m=do_replot(scs_m)
       o.model.rpar=scs_m
       scs_m=scs_m_save
       scs_m(path)=o
-      //curwin=lastwin
     end
   end
 endfunction

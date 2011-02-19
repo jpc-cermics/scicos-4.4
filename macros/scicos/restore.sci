@@ -15,30 +15,48 @@ function %zoom=restore(curwin,menus,%zoom)
   xselect()
 
   if size(scs_m.props.wpar,'*')>12 then
-    printf("***Restore : window_read_size\n");
+    F=get_current_figure()
+    gh=nsp_graphic_widget(curwin)
     winsize=scs_m.props.wpar(9:10)
     winpos=scs_m.props.wpar(11:12)
+    screen=gh.get_screen[]
+    screensz=[screen.get_width[] screen.get_height[]]
 
-    //FIXME!!
-    //if with_tk() then
-    //  screensz=evstr(TCL_EvalStr('wm  maxsize .')) 
-    //else
-    //  screensz=400
-    //end
-    //if min(winsize)>0  then  // window is not iconified
-    //  winpos=max(0,winpos-max(0,-screensz+winpos+winsize) )
-    //  scs_m=scs_m;  // only used locally, does not affect the real scs_m
-    //  scs_m.props.wpar(11:12)=winpos  // make sure window remains inside screen
-    //end
-	
+    if min(winsize)>0 then
+      winpos=max(0,winpos-max(0,-screensz+winpos+winsize) )
+      scs_m=scs_m;
+      scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
+    end
+
     %zoom=scs_m.props.wpar(13)
     pwindow_read_size()
-    //window_read_size()
-    window_set_size()
+    window_read_size()
   else
-    printf("***Restore : window_set_size\n");
     pwindow_set_size()
     window_set_size()
   end
   menu_stuff(curwin,menus)
+endfunction
+
+function [frect,axsize,viewport,winsize,winpos,pagesize]=get_curwpar(win)
+  frect=[];axsize=[];viewport=[]
+  winsize=[];winpos=[];pagesize=[]
+
+  F=get_current_figure()
+  A=F.children(1)
+  gh=nsp_graphic_widget(win)
+
+  winsize=gh.get_size[];
+  axsize=xget("wdim")
+  frect=A.frect;
+  winpos=gh.get_position[];
+
+  Vbox=gh.get_children[]
+  Vbox=Vbox(1)
+  ScrolledWindow=Vbox.get_children[]
+  ScrolledWindow=ScrolledWindow(3)
+  hscrollbar=ScrolledWindow.get_hadjustment[]
+  vscrollbar=ScrolledWindow.get_vadjustment[]
+  viewport=[hscrollbar.value vscrollbar.value]
+  pagesize=[hscrollbar.page_size vscrollbar.page_size]
 endfunction

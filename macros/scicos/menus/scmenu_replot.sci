@@ -3,7 +3,6 @@ function Replot_()
   %pt=[]
   Select=[]
   // we would need also a Replot without a resize 
-  %wdm=scs_m.props.wpar
   window_set_size();
   scs_m=do_replot(scs_m);
 endfunction

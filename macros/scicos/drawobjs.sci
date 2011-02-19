@@ -3,13 +3,13 @@ function scs_m=drawobjs(scs_m)
 // adapted to a graphic object 
     drawtitle(scs_m.props)
     F=get_current_figure();
-    if length(scs_m.objs) == 0 then 
+    if length(scs_m.objs) == 0 then
       F.draw_now[];
       return;
     end 
     // check if we already have internal graphic objects 
     if scs_m.objs(1).iskey['gr'] then 
-      // we already have stuffs recorded 
+      // we already have stuffs recorded
       F.invalidate[];
       return;
     end
@@ -19,7 +19,7 @@ function scs_m=drawobjs(scs_m)
     for i=1:length(scs_m.objs);
       scs_m.objs(i)=drawobj(scs_m.objs(i))
     end
-    // will just activate a process_updates 
     F.draw_now[];
+    // will just activate a process_updates 
     show_info(scs_m.props.doc)
 endfunction
