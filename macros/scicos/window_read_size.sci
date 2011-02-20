@@ -45,4 +45,5 @@ function window_read_size(win)
   hscrollbar.value=scs_m.props.wpar(7)
   vscrollbar.value=scs_m.props.wpar(8)
 
+  xflush()
 endfunction

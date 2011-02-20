@@ -71,9 +71,6 @@ function window_set_size(win,viewport)
     %YSHIFT=viewport(2)
   end
   xset('viewport',%XSHIFT,%YSHIFT)
-//   xselect();
 
-  F.invalidate[];
-  F.process_updates[];
   xflush()
 endfunction
