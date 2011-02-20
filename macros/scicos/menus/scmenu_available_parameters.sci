@@ -1,10 +1,12 @@
 function AvailableParameters_()
   Cmenu=''
-  //tree_show(%scicos_context,'Available parameters:')
-
-  //in=
-  //editvar('in')
-  //if ~in.equal[o] then
-  //  message('No change accepted')
-  //end
+  if ~exists('%scicos_context') then
+    message('No available parameters.')
+  else
+    in=%scicos_context
+    editvar('in',title='Available parameters')
+    if ~in.equal[%scicos_context] then
+      message('No change accepted')
+    end
+  end
 endfunction
