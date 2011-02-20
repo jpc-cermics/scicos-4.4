@@ -9,6 +9,8 @@ function cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,flag)
   end
   if ~exists('%scicos_solver') then %scicos_solver=0,end
   //correction of clkconnect.. Must be done before
+  if isempty(clkconnect) then clkconnect=zeros(0,4);end 
+    
   clkconnect(find(clkconnect(:,2)==0),2)=1;
 
   txt=["BLOCKS"

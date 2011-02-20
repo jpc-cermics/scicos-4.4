@@ -9,9 +9,19 @@ function ok=hilite_mult_objs(path,objs,mess)
   
   function temp2=check_csuper(temp,scs_m)
     temp2=[temp(1)];
-    if scs_m.objs(temp(1)).model.sim=='super' then
+    if scs_m.objs(temp(1)).model.sim.equal['super'] then
       temp2b=check_csuper(temp(2:$),scs_m.objs(temp(1)).model.rpar);
       temp2=[temp2 temp2b];
+    end
+  endfunction
+  
+  function append_command(mes,next)
+    global Scicos_commands
+    if isempty(Scicos_commands) then 
+      Scicos_commands =[mes;next];
+    else
+      Scicos_commands($) =Scicos_commands($) +mes;
+      Scicos_commands.concatd[next];
     end
   endfunction
   
@@ -20,9 +30,8 @@ function ok=hilite_mult_objs(path,objs,mess)
   Scicos_commands=[];
   if type(path,'short')=='m' then
     for i=1:size(objs,'*')
-      Scicos_commands=[Scicos_commands(1:$-1);
-		       Scicos_commands($)+'%diagram_path_objective='+sci2exp(path)+';%scicos_navig=1';
-		       'hilite_obj('+sci2exp(objs(i))+');'];
+      append_command('%diagram_path_objective='+sci2exp(path)+';%scicos_navig=1',...
+		     'hilite_obj('+sci2exp(objs(i))+');');
     end
   elseif type(path,'short')=='l' then
     for i=1:size(objs,'*')
@@ -31,17 +40,15 @@ function ok=hilite_mult_objs(path,objs,mess)
 	temppath=check_csuper(temppath)
 	nbr_obj=temppath($)
 	temppath2=temppath(1:$-1);     
-	Scicos_commands=[Scicos_commands(1:$-1);
-			 Scicos_commands($)+'%diagram_path_objective='+sci2exp(temppath2)+';%scicos_navig=1';
-			 'hilite_obj('+sci2exp(nbr_obj)+');'];
+	append_command('%diagram_path_objective='+sci2exp(temppath2)+';%scicos_navig=1',...
+		       'hilite_obj('+sci2exp(nbr_obj)+');');
       elseif type(temppath,'short')=='l' then
 	//modelica and sampleclk
 	for j=1:lstsize(temppath)
 	  nbr_obj=temppath(j)($)
-	  temppath2=temppath(j)(1:$-1)
-	  Scicos_commands=[Scicos_commands(1:$-1);
-			   Scicos_commands($)+'%diagram_path_objective='+sci2exp(temppath2)+';%scicos_navig=1';
-			   'hilite_obj('+sci2exp(nbr_obj)+');'];
+	  temppath2=temppath(j)(1:$-1);
+	  append_command('%diagram_path_objective='+sci2exp(temppath2)+';%scicos_navig=1',...
+			 'hilite_obj('+sci2exp(nbr_obj)+');');
 	end
       else
 	message('The path must be a vector or a list of vectors');
@@ -54,13 +61,12 @@ function ok=hilite_mult_objs(path,objs,mess)
     ok=%f;
     return;
   end
-  Scicos_commands=[Scicos_commands(1:$-1);
-		   Scicos_commands($)+'%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1';
-		   'Cmenu="""";']
-  if argn(2)==3 then
+  append_command('%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1',...
+		 'Cmenu="""";');
+  if nargin==3 then
     mess1='[""'+catenate(mess,sep='"";""')+'""]';
-    Scicos_commands=[Scicos_commands(1:$-1);
-		     Scicos_commands($)+'message('+mess1+');']
+    append_command('message('+mess1+');','');
   end
+  pause zzz
 endfunction
 

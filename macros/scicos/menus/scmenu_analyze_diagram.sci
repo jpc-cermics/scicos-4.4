@@ -20,6 +20,8 @@ function do_analyze_diagram(cpr)
   oz_size=diff(cpr.sim.ozptr)
   with_state=find((z_size>0)|(oz_size>0))
   ordclk=cpr.sim.ordclk
+  // to prevent bug extractions when ordclk =[] 
+  if isempty(ordclk) then ordclk = zeros(0,2);end 
   for i=with_state
     k=find(ordclk(:,1)==i)
     if max(ordclk(k,2))<0 then
@@ -89,7 +91,6 @@ function do_analyze_diagram(cpr)
       txt=["Analysis result for diagram "+scs_m.props.title(1)+":";
            "";txt;" ";"Do a replot to remove highlight marks."]
   end
-  pause; 
   if isempty(blks) 
     message(txt);
     return 

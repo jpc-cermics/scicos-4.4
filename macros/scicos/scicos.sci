@@ -329,8 +329,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         lasterror();
       end
       if needsavetest & ~super_block then
-        printf("icicicicici\n");
-        pause
+	// pause ici ici ici 
       end
       needsavetest=%f
       xset('window',curwin);
@@ -338,9 +337,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       xtape_status=xget('recording');
       %zoom=restore(curwin,menus,%zoom)
       scs_m=drawobjs(scs_m);
-//       if super_block then
-//         Cmenu='Replot'
-//       end
+      //       if super_block then
+      //         Cmenu='Replot'
+      //       end
     else
       Select=user_data(2)
       enable_undo=user_data(3)
