@@ -26,7 +26,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
         else
           file_mask = "*.cos*"
         end
-        path      =  getenv('SCI')+"/demos/scicos"
+        path      =  get_scicospath()+"/demos"
         // fname     = getfile(file_mask, path)
 	fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=path)
       end

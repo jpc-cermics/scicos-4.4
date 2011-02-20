@@ -4,7 +4,7 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
           %scicos_contrib,%scicos_libs,%scicos_cflags, ..
           %scicos_pal_list,scs_m_palettes] = initial_scicos_tables()
   
-  scicospath=getenv('NSP')+"/toolboxes/scicos-4.4";
+  scicospath=get_scicospath()
 
   %scicos_display_mode=0  // =1 if pixmap to be used for display
   %scicos_gif=scicospath+"/macros/scicos/scicos-images/";
