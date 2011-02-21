@@ -20,15 +20,8 @@ function [x,y,typ]=CURV_f(job,arg1,arg2)
     xx=rpar(1:n);yy=rpar(n+1:2*n)
     gc=list(rpar(2*n+1:2*n+4),ipar(2:5))
     while %t do
-      //XXX [ln,fun]=where();  
       //if or(fun == "clickin") then // cas standard
-      old_win=xget('window')
-      win=max(winsid())+1
-      xset('window',win);xsetech([0 0 1 1]);
-      pause xx;
       [xx,yy,ok,gc]=edit_curv(xx,yy,'axy',[' ',' ',' '],gc)
-      xdel(win)
-      xset('window',old_win)
       //else
       //ok=%t
       //end // no need anymore to overload edit_curv in do_eval

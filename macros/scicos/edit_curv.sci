@@ -18,6 +18,8 @@ function [x,y,ok,gc]=edit_curv(x,y,job,tit,gc)
 // interactive curve edition 
 // Sould be simplified by removing the locks which are
 // unsused here
+// 
+  if nargin <=0 then x=(1:5)',y=x.^2;end
   if nargin <=2 then job='axy';end 
   if nargin <=3 then tit=['','',''];end 
   if nargin <=4 then 
@@ -25,12 +27,23 @@ function [x,y,ok,gc]=edit_curv(x,y,job,tit,gc)
     axisdata=[2 10 2 10]
     gc=list(rect,axisdata)
   end
-  o=hash(x=x,y=y);
+  o=hash(x=x(:)',y=y(:)');
   sd=list('sd',[min(x),min(y),max(x),max(y)],list(o));
+  if ~isempty(winsid()) then 
+    cwin=xget('window')
+    win=max(winsid())+1
+  else
+    cwin=[];
+    win=1;
+  end
+  xselect(win);
   [sd,ok]=ec_main(sd);
+  xdel(win)
+  if ~isempty(cwin); xset('window',cwin);end 
   if ok then 
     x= sd(3)(1)('x');
     y= sd(3)(1)('y');
+    x=x(:);y=y(:);
     gc(1)=sd(2);
   end
 endfunction
@@ -113,7 +126,6 @@ function [sd,ok]=ec_main(sd)
     ec_eventhandler(win,xc,yc,btn);
   end
   [a,rect]=xgetech();
-  xdel(curwin);
   sd(3)=ec_objects;
   sd(2)=rect;
   clearglobal ec_objects;
