@@ -2,343 +2,338 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
 // Masoud Najafi 07/2007 --------
 // origine: serge Steer, Habib Jreij INRIA 1993
 // Copyright INRIA
-  
-x=[];y=[];typ=[];
-select job
-case 'plot' then
-  standard_draw(arg1)
-case 'getinputs' then
-  [x,y,typ]=standard_inputs(arg1)
-case 'getoutputs' then
-  [x,y,typ]=standard_outputs(arg1)
-case 'getorigin' then
-  [x,y]=standard_origin(arg1)
- case 'set' then
+  x=[];y=[];typ=[];
+  select job
+   case 'plot' then
+    standard_draw(arg1)
+   case 'getinputs' then
+    [x,y,typ]=standard_inputs(arg1)
+   case 'getoutputs' then
+    [x,y,typ]=standard_outputs(arg1)
+   case 'getorigin' then
+    [x,y]=standard_origin(arg1)
+   case 'set' then
 
-  x=arg1
-  model=arg1.model
-  graphics=arg1.graphics
-  exprs=graphics.exprs
-  ok=%f;
-  SaveExit=%f
-  while %t do
-    Ask_again=%f
-    [ok,Method,xx,yy,PeriodicOption,graf,exprs]=getvalue('Spline data',['Spline"+...
+    x=arg1
+    model=arg1.model
+    graphics=arg1.graphics
+    exprs=graphics.exprs
+    ok=%f;
+    SaveExit=%f
+    while %t do
+      Ask_again=%f
+      [ok,Method,xx,yy,PeriodicOption,graf,exprs]=getvalue('Spline data',['Spline"+...
 		    " Method (0..7)';'x';'y';'Periodic signal(y/n)?';'Launch"+...
 		    " graphic window(y/n)?'],list('vec',1,'vec',-1, ...
 						  'vec',-1,'str',1,'str',1),exprs)
-    if  ~ok then break;end    
-    if PeriodicOption=='y' | PeriodicOption=='Y' then,PO=1;else,exprs(4)='n';PO=0;end
-    mtd=int(Method); if mtd<0 then mtd=0;end; if mtd>7 then mtd=7;end;    
-    METHOD=getmethod(mtd);
-
-    if ~Ask_again then 
-      xx=xx(:);yy=yy(:);
-      [nx,mx]=size(xx); [ny,my]=size(yy);
-      if ~((nx==ny)&(mx==my)) then, x_message('incompatible size of x and y');  Ask_again=%t;end
-    end
-    
-    if ~Ask_again then//+++++++++++++++++++++++++++++++++++++++
-      xy=[xx,yy];
-      [xy]=cleandata(xy);// just for sorting to be able to compare data before and after poke_point(.)
-      N= size(xy,'r');
-      exprs(5)='n';// exprs.graf='n'
-      if graf=='y' | graf=='Y' then //_______Graphic editor___________
-	ipar=[N;mtd;PO];
-	rpar=[];
-        if ~exists('curwin') then
-         gh=gcf();
-         curwin=gh.figure_id
-        end
-        save_curwin=curwin;
-	curwin=max(winsid())+1; 
-	[orpar,oipar,ok]=poke_point(xy,ipar,rpar);   
-	curwin=save_curwin;
-	if ~ok then break;end;//  exit without save
-
-	// verifying the data change
-	N2=oipar(1);xy2=[orpar(1:N2),orpar(N2+1:2*N2)];
-	New_methhod=oipar(2);
-	DChange=%f;	
-	METHOD=getmethod(New_methhod);
-	if or(xy(:,1)<>xy2(:,1)) then, DChange=%t;end
-	if or(xy(1:N-1,2)<>xy2(1:N2-1,2)) then, DChange=%t;end
-	if (xy(N,2)<>xy2(N2,2) & (METHOD<>'periodic')) then, DChange=%t;end
-	if DChange then 
-	  exprs(2)=strcat(sci2exp(xy2(:,1)))
-	  exprs(3)=strcat(sci2exp(xy2(:,2)))
-	end
-
-	exprs(1)=sci2exp(New_methhod);
-	if oipar(3)==1 then,perop='y';else,perop='n';end
-	exprs(4)=perop;
-	SaveExit=%t
-       else//_____________________No graphics__________________________
-	[Xdummy,Ydummy,orpar]=Do_Spline(N,mtd,xy(:,1),xy(:,2));
-	if (METHOD=='periodic') then // periodic spline
-	  xy(N,2)=xy(1,2);
-	end	
-	if (METHOD=='order 2' | METHOD=='not_a_knot'|METHOD=='periodic' | METHOD=='monotone'| METHOD=='fast' | METHOD=='clamped') then 
-	  orpar=[xy(:,1);xy(:,2);orpar];		
-	else
-	  if (METHOD=='zero order'|METHOD=='linear')
-	    orpar=[xy(:,1);xy(:,2)]
-	  end	
-	end
-	exprs(1)=sci2exp(mtd);// pour le cas methode>7 | method<0
-	oipar=[N;mtd;PO]	
-	SaveExit=%t
-      end //___________________________________________________________
-    end //++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    
-    if (SaveExit) then            
-      xp=find(orpar(1:oipar(1))>=0);
-      if ~isempty(xp) then 
-	model.firing=orpar(xp(1)); //first positive event
-      else  
-	model.firing=-1;
+      if  ~ok then break;end    
+      if PeriodicOption=='y' | PeriodicOption=='Y' then,PO=1;else,exprs(4)='n';PO=0;end
+      mtd=int(Method); if mtd<0 then mtd=0;end; if mtd>7 then mtd=7;end;    
+      METHOD=getmethod(mtd);
+      
+      if ~Ask_again then 
+	xx=xx(:);yy=yy(:);
+	[nx,mx]=size(xx); [ny,my]=size(yy);
+	if ~((nx==ny)&(mx==my)) then, x_message('incompatible size of x and y');  Ask_again=%t;end
       end
-      model.rpar=orpar
-      model.ipar=oipar
-      graphics.exprs=exprs;
-      x.model=model      
-      x.graphics=graphics
-      break
+      
+      if ~Ask_again then//+++++++++++++++++++++++++++++++++++++++
+	xy=[xx,yy];
+	[xy]=cleandata(xy);// just for sorting to be able to compare data before and after poke_point(.)
+	N= size(xy,'r');
+	exprs(5)='n';// exprs.graf='n'
+	if graf=='y' | graf=='Y' then //_______Graphic editor___________
+	  ipar=[N;mtd;PO];
+	  rpar=[];
+	  if ~exists('curwin') then
+	    gh=gcf();
+	    curwin=gh.figure_id
+	  end
+	  save_curwin=curwin;
+	  curwin=max(winsid())+1; 
+	  [orpar,oipar,ok]=poke_point(xy,ipar,rpar);   
+	  curwin=save_curwin;
+	  if ~ok then break;end;//  exit without save
+	  
+	  // verifying the data change
+	  N2=oipar(1);xy2=[orpar(1:N2),orpar(N2+1:2*N2)];
+	  New_methhod=oipar(2);
+	  DChange=%f;	
+	  METHOD=getmethod(New_methhod);
+	  if or(xy(:,1)<>xy2(:,1)) then, DChange=%t;end
+	  if or(xy(1:N-1,2)<>xy2(1:N2-1,2)) then, DChange=%t;end
+	  if (xy(N,2)<>xy2(N2,2) & (METHOD<>'periodic')) then, DChange=%t;end
+	  if DChange then 
+	    exprs(2)=strcat(sci2exp(xy2(:,1)))
+	    exprs(3)=strcat(sci2exp(xy2(:,2)))
+	  end
+
+	  exprs(1)=sci2exp(New_methhod);
+	  if oipar(3)==1 then,perop='y';else,perop='n';end
+	  exprs(4)=perop;
+	  SaveExit=%t
+	else//_____________________No graphics__________________________
+	  [Xdummy,Ydummy,orpar]=Do_Spline(N,mtd,xy(:,1),xy(:,2));
+	  if (METHOD=='periodic') then // periodic spline
+	    xy(N,2)=xy(1,2);
+	  end	
+	  if (METHOD=='order 2' | METHOD=='not_a_knot'|METHOD=='periodic' | METHOD=='monotone'| METHOD=='fast' | METHOD=='clamped') then 
+	    orpar=[xy(:,1);xy(:,2);orpar];		
+	  else
+	    if (METHOD=='zero order'|METHOD=='linear')
+	      orpar=[xy(:,1);xy(:,2)]
+	    end	
+	  end
+	  exprs(1)=sci2exp(mtd);// pour le cas methode>7 | method<0
+	  oipar=[N;mtd;PO]	
+	  SaveExit=%t
+	end //___________________________________________________________
+      end //++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      
+      if (SaveExit) then            
+	xp=find(orpar(1:oipar(1))>=0);
+	if ~isempty(xp) then 
+	  model.firing=orpar(xp(1)); //first positive event
+	else  
+	  model.firing=-1;
+	end
+	model.rpar=orpar
+	model.ipar=oipar
+	graphics.exprs=exprs;
+	x.model=model      
+	x.graphics=graphics
+	break
+      end
     end
+   case 'define' then  
+    model=scicos_model()
+    xx=[0, 1, 2];yy=[10, 20, -30];  N=3;  Method=3;  PeriodicOption='y';  Graf='n'
+    model.sim=list('curve_c',4)
+    model.in=[]
+    model.out=1
+    model.rpar=[xx(:);yy(:)]
+    model.ipar=[N;Method;1]
+    model.blocktype='c'
+    model.dep_ut=[%f %t]
+    model.evtin=1
+    model.evtout=1
+    model.firing=0
+    exprs=[sci2exp(Method);sci2exp(xx);sci2exp(yy);PeriodicOption;Graf]
+    
+    gr_i=['rpar=arg1.model.rpar;n=model.ipar(1);order=model.ipar(2);';
+	  'xx=rpar(1:n);yy=rpar(n+1:2*n);';
+	  '[XX,YY,rpardummy]=Do_Spline(n,order,xx,yy)';
+	  'xmx=max(XX);xmn=min(XX);';
+	  'ymx=max(YY);ymn=min(YY);';
+	  'dx=xmx-xmn;if dx==0 then dx=max(xmx/2,1);end';
+	  'xmn=xmn-dx/20;xmx=xmx+dx/20;';
+	  'dy=ymx-ymn;if dy==0 then dy=max(ymx/2,1);end;';
+	  'ymn=ymn-dy/20;ymx=ymx+dy/20;';
+	  'xx2=orig(1)+sz(1)*((XX-xmn)/(xmx-xmn));';
+	  'yy2=orig(2)+sz(2)*((YY-ymn)/(ymx-ymn));';
+	  'xset(''color'',2)';
+	  'xpoly(xx2,yy2,type=''lines'');']
+    x=standard_define([2 2],model,exprs,gr_i,'CURVE_c');
   end
- case 'define' then  
-  model=scicos_model()
-  xx=[0, 1, 2];yy=[10, 20, -30];  N=3;  Method=3;  PeriodicOption='y';  Graf='n'
-  model.sim=list('curve_c',4)
-  model.in=[]
-  model.out=1
-  model.rpar=[xx(:);yy(:)]
-  model.ipar=[N;Method;1]
-  model.blocktype='c'
-  model.dep_ut=[%f %t]
-  model.evtin=1
-  model.evtout=1
-  model.firing=0
-  exprs=[sci2exp(Method);sci2exp(xx);sci2exp(yy);PeriodicOption;Graf]
-  
-  gr_i=['rpar=arg1.model.rpar;n=model.ipar(1);order=model.ipar(2);';
-	'xx=rpar(1:n);yy=rpar(n+1:2*n);';
-	'[XX,YY,rpardummy]=Do_Spline(n,order,xx,yy)';
-	'xmx=max(XX);xmn=min(XX);';
-	'ymx=max(YY);ymn=min(YY);';
-	'dx=xmx-xmn;if dx==0 then dx=max(xmx/2,1);end';
-	'xmn=xmn-dx/20;xmx=xmx+dx/20;';
-	'dy=ymx-ymn;if dy==0 then dy=max(ymx/2,1);end;';
-	'ymn=ymn-dy/20;ymx=ymx+dy/20;';
-	'xx2=orig(1)+sz(1)*((XX-xmn)/(xmx-xmn));';
-	'yy2=orig(2)+sz(2)*((YY-ymn)/(ymx-ymn));';
-	'xset(''color'',2)';
-	'xpoly(xx2,yy2,type=''lines'');']
-  x=standard_define([2 2],model,exprs,gr_i,'CURVE_c');
-end
 endfunction
 
-
-
 function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
-[lhs,rhs]=argn(0)
-//in line definition of get_click
-deff('[btn,xc,yc,win,Cmenu]=get_click(flag)',[
-'if ~or(winsid() == curwin) then   Cmenu = ''Quit'';return,end,';
-'if argn(2) == 1 then';
-'  [btn, xc, yc, win, str] = xclick(flag);';
-'else';
-'  [btn, xc, yc, win, str] = xclick();';
-'end;'; 
-'if btn == -100 then';
-'  if win == curwin then';
-'    Cmenu = ''Quit'';';
-'  else';
-'    Cmenu = ''Open/Set'';';
-'  end,';
-'  return,';
-'end';
-'if btn == -2 then';
-'  xc = 0;yc = 0;';
-'  try '    // added to handle unwanted menu actions in french version
-'    execstr(''Cmenu='' + part(str, 9:length(str) - 1));';
-'    execstr(''Cmenu='' + Cmenu);';
-'  catch'
-'    Cmenu=[]'    
-'  end '    
-'  return,';
-'end';
-'Cmenu=[]'])
- 
-ok=%f
-if rhs==0 then ixy=[];end;
-if size(xy,'c')<2 then 
-  xinfo(' No y provided');
-  return
-end
-
-[xy]=cleandata(ixy)
-N=size(xy,'r');
-
-if rhs<=1 then
-  NOrder=1;
-  PeridicOption=0;
-  ipar=[N;NOrder;PeridicOption]
-  rpar=[]
-else if rhs==2 then  
-    NOrder=iparin(2);
-    PeridicOption=iparin(3);
-    ipar=iparin;
-    rpar=[]
-else if rhs==3 then  
-    NOrder=iparin(2);
-    PeridicOption=iparin(3);
-    ipar=iparin;
-    rpar=rparin    
-end
-end
-end
-
-Amp=[];wp=[]; phase=[];offset=[];np1=[];
-Sin_exprs=list(string(Amp),string(wp), string(phase),string(offset),string(np1));
-sAmp=[];sTp=[]; sdelay=[];
-Sawt1_exprs=list(string(sAmp),string(sTp),string(sdelay));
-sAmp2=[];sTp2=[];
-Sawt2_exprs=list(string(sAmp2),string(sTp2));
-
-Amp3=[];Tp3=[];Pw3=[];Pd3=[];Bias3=[];
-Pulse_exprs=list(string(Amp3), string(Tp3),string(Pw3),string(Pd3),string(Bias3))
-
-mean4=[];var4=[];seed4=[];sample4=[];np4=[];
-random_n_exprs=list(string(mean4),string(var4), string(seed4),string(sample4),string(np4))
-
-min5=[];max5=[];seed5=[];sample5=[];np5=[];
-random_u_exprs=list(string(min5), string(max5), string(seed5),string(sample5),string(np5))
-
-// bornes initiales du graphique
-xmx=max(xy(:,1));xmn=min(xy(:,1)),xmn=max(xmn,0);
-ymx=max(xy(:,2));ymn=min(xy(:,2));
-dx=xmx-xmn;dy=ymx-ymn
-if dx==0 then dx=max(xmx/2,1),end;
-xmx=xmx+dx/50;
-if dy==0 then dy=max(ymx/2,1),end;
-ymn=ymn-dy/50;ymx=ymx+dy/50;
-
-rect=[xmn,ymn;xmx,ymx];
-//===================================================================
-f=scf();
-
-if ~MSDOS then
-  delmenu(curwin,'3D Rot.')
-  delmenu(curwin,'Edit')
-  delmenu(curwin,'File')
-  delmenu(curwin,'Insert')
-else
-  hidetoolbar(curwin)
- // French
-  delmenu(curwin,'&Fichier')
-  delmenu(curwin,'&Editer')
-  delmenu(curwin,'&Outils')
-  delmenu(curwin,'&Inserer')
-  // English
-  delmenu(curwin,'&File')
-  delmenu(curwin,'&Edit')
-  delmenu(curwin,'&Tools')
-  delmenu(curwin,'&Insert')
+  [lhs,rhs]=argn(0)
+  //in line definition of get_click
+  deff('[btn,xc,yc,win,Cmenu]=get_click(flag)',[
+      'if ~or(winsid() == curwin) then   Cmenu = ''Quit'';return,end,';
+      'if argn(2) == 1 then';
+      '  [btn, xc, yc, win, str] = xclick(flag);';
+      'else';
+      '  [btn, xc, yc, win, str] = xclick();';
+      'end;'; 
+      'if btn == -100 then';
+      '  if win == curwin then';
+      '    Cmenu = ''Quit'';';
+      '  else';
+      '    Cmenu = ''Open/Set'';';
+      '  end,';
+      '  return,';
+      'end';
+      'if btn == -2 then';
+      '  xc = 0;yc = 0;';
+      '  try '    // added to handle unwanted menu actions in french version
+      '    execstr(''Cmenu='' + part(str, 9:length(str) - 1));';
+      '    execstr(''Cmenu='' + Cmenu);';
+      '  catch'
+      '    Cmenu=[]'    
+      '  end '    
+      '  return,';
+      'end';
+      'Cmenu=[]'])
+  
+  ok=%f
+  if rhs==0 then ixy=[];end;
+  if size(xy,'c')<2 then 
+    xinfo(' No y provided');
+    return
   end
-//menuss=menus;menuss(1)=menus(1)(2:$);menubar(curwin,menuss)	  
 
-menu_r=[];
-menu_s=[];
-menu_o=['zero order','linear','order 2','not_a_knot','periodic','monotone','fast','clamped']
-menu_d=['Clear','Data Bounds','Load from text f"+...
-	"ile','Save to text file','Load from Excel','Periodic signal']
-menu_t=['sine','sawtooth1','sawtooth2','pulse','random normal','random uniform']
-menu_e=['Help','Exit without save','Save/Exit']
-MENU=['Autoscale','Spline','Data','Standards','Exit'];
-menus=list(MENU,menu_s,menu_o,menu_d,menu_t,menu_e);
-
-scam='menus(1)(1)'
-w='menus(3)(';r=')';Orderm=w(ones_deprecated(menu_o))+string(1:size(menu_o,'*'))+r(ones_deprecated(menu_o))
-w='menus(4)(';r=')';Datam=w(ones_deprecated(menu_d))+string(1:size(menu_d,'*'))+r(ones_deprecated(menu_d))
-w='menus(5)(';r=')';Standm=w(ones_deprecated(menu_t))+string(1:size(menu_t,'*'))+r(ones_deprecated(menu_t))
-w='menus(6)(';r=')';Exitm=w(ones_deprecated(menu_e))+string(1:size(menu_e,'*'))+r(ones_deprecated(menu_e))
-
-execstr('Autoscale_'+string(curwin)+'=scam')
-execstr('Spline_'+string(curwin)+'=Orderm')
-execstr('Data_'+string(curwin)+'=Datam')
-execstr('Standards_'+string(curwin)+'=Standm')
-execstr('Exit_'+string(curwin)+'=Exitm')
-
-addmenu(curwin,MENU(1))
-addmenu(curwin,MENU(2),menu_o)
-addmenu(curwin,MENU(3),menu_d)
-addmenu(curwin,MENU(4),menu_t)
-addmenu(curwin,MENU(5),menu_e)
-//===================================================================
-//initial draw
-f.pixmap='off';
-drawlater();
-a=gca();
-a.data_bounds=rect;
-a.axes_visible='on';
-a.clip_state='on';
-xtitle( '', 'time', 'Output' ) ; 
-a.title.font_size=2;
-a.title.font_style=4;
-a.title.foreground=2;
-
-a.grid=[2 2];
-xpolys(xy(:,1),xy(:,2),[-1]);   //children(2)
-xpolys(xy(:,1),xy(:,2),[5]);    //children(1)
-splines=a.children(1).children
-points=a.children(2).children
-//---------------------------------------
-[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-drawnow();
-// -- boucle principale
-lines(0);
-while %t then //=================================================
+  [xy]=cleandata(ixy)
   N=size(xy,'r');
-  [btn,xc,yc,win,Cmenu]=get_click();
-  if ((win>0) & (win<>curwin)) then
-    Cmenu='Mouse click is Offside!';
+
+  if rhs<=1 then
+    NOrder=1;
+    PeridicOption=0;
+    ipar=[N;NOrder;PeridicOption]
+    rpar=[]
+  elseif rhs==2 then  
+      NOrder=iparin(2);
+      PeridicOption=iparin(3);
+      ipar=iparin;
+      rpar=[]
+  elseif rhs==3 then  
+      NOrder=iparin(2);
+      PeridicOption=iparin(3);
+      ipar=iparin;
+      rpar=rparin    
   end
-  if isempty(Cmenu) then Cmenu='edit',end
-  if (Cmenu=='Exit') |(Cmenu=='Quit' ) then, ipar=[];rpar=[];ok=%f;return; end
-  //-------------------------------------------------------------------
-  if ((Cmenu=='zero order') | (Cmenu=='linear') | (Cmenu=='order 2')| ...
-      (Cmenu=='not_a_knot')| (Cmenu=='periodic')| (Cmenu=='monotone')| ...
-      (Cmenu=='fast')| (Cmenu=='clamped')) then
-        
-    select  Cmenu
-     case 'zero order' then
-      NOrder=0;
-     case 'linear' then
-      NOrder=1;
-     case 'order 2' then
-      NOrder=2;
-     case 'not_a_knot' then
-      NOrder=3;
-     case 'periodic' then
-      NOrder=4;
-     case 'monotone' then
-      NOrder=5;
-     case 'fast' then
-      NOrder=6;
-     case 'clamped' then
-      NOrder=7;
+  
+  Amp=[];wp=[]; phase=[];offset=[];np1=[];
+  Sin_exprs=list(string(Amp),string(wp), string(phase),string(offset),string(np1));
+  sAmp=[];sTp=[]; sdelay=[];
+  Sawt1_exprs=list(string(sAmp),string(sTp),string(sdelay));
+  sAmp2=[];sTp2=[];
+  Sawt2_exprs=list(string(sAmp2),string(sTp2));
+
+  Amp3=[];Tp3=[];Pw3=[];Pd3=[];Bias3=[];
+  Pulse_exprs=list(string(Amp3), string(Tp3),string(Pw3),string(Pd3),string(Bias3))
+
+  mean4=[];var4=[];seed4=[];sample4=[];np4=[];
+  random_n_exprs=list(string(mean4),string(var4), string(seed4),string(sample4),string(np4))
+
+  min5=[];max5=[];seed5=[];sample5=[];np5=[];
+  random_u_exprs=list(string(min5), string(max5), string(seed5),string(sample5),string(np5))
+
+  // bornes initiales du graphique
+  xmx=max(xy(:,1));xmn=min(xy(:,1)),xmn=max(xmn,0);
+  ymx=max(xy(:,2));ymn=min(xy(:,2));
+  dx=xmx-xmn;dy=ymx-ymn
+  if dx==0 then dx=max(xmx/2,1),end;
+  xmx=xmx+dx/50;
+  if dy==0 then dy=max(ymx/2,1),end;
+  ymn=ymn-dy/50;ymx=ymx+dy/50;
+
+  rect=[xmn,ymn;xmx,ymx];
+  //===================================================================
+  f=scf();
+
+  if ~MSDOS then
+    delmenu(curwin,'3D Rot.')
+    delmenu(curwin,'Edit')
+    delmenu(curwin,'File')
+    delmenu(curwin,'Insert')
+  else
+    hidetoolbar(curwin)
+    // French
+    delmenu(curwin,'&Fichier')
+    delmenu(curwin,'&Editer')
+    delmenu(curwin,'&Outils')
+    delmenu(curwin,'&Inserer')
+    // English
+    delmenu(curwin,'&File')
+    delmenu(curwin,'&Edit')
+    delmenu(curwin,'&Tools')
+    delmenu(curwin,'&Insert')
+  end
+  //menuss=menus;menuss(1)=menus(1)(2:$);menubar(curwin,menuss)	  
+
+  menu_r=[];
+  menu_s=[];
+  menu_o=['zero order','linear','order 2','not_a_knot','periodic','monotone','fast','clamped']
+  menu_d=['Clear','Data Bounds','Load from text f"+...
+	  "ile','Save to text file','Load from Excel','Periodic signal']
+  menu_t=['sine','sawtooth1','sawtooth2','pulse','random normal','random uniform']
+  menu_e=['Help','Exit without save','Save/Exit']
+  MENU=['Autoscale','Spline','Data','Standards','Exit'];
+  menus=list(MENU,menu_s,menu_o,menu_d,menu_t,menu_e);
+
+  scam='menus(1)(1)'
+  w='menus(3)(';r=')';Orderm=w(ones_deprecated(menu_o))+string(1:size(menu_o,'*'))+r(ones_deprecated(menu_o))
+  w='menus(4)(';r=')';Datam=w(ones_deprecated(menu_d))+string(1:size(menu_d,'*'))+r(ones_deprecated(menu_d))
+  w='menus(5)(';r=')';Standm=w(ones_deprecated(menu_t))+string(1:size(menu_t,'*'))+r(ones_deprecated(menu_t))
+  w='menus(6)(';r=')';Exitm=w(ones_deprecated(menu_e))+string(1:size(menu_e,'*'))+r(ones_deprecated(menu_e))
+
+  execstr('Autoscale_'+string(curwin)+'=scam')
+  execstr('Spline_'+string(curwin)+'=Orderm')
+  execstr('Data_'+string(curwin)+'=Datam')
+  execstr('Standards_'+string(curwin)+'=Standm')
+  execstr('Exit_'+string(curwin)+'=Exitm')
+
+  addmenu(curwin,MENU(1))
+  addmenu(curwin,MENU(2),menu_o)
+  addmenu(curwin,MENU(3),menu_d)
+  addmenu(curwin,MENU(4),menu_t)
+  addmenu(curwin,MENU(5),menu_e)
+  //===================================================================
+  //initial draw
+  f.pixmap='off';
+  drawlater();
+  a=gca();
+  a.data_bounds=rect;
+  a.axes_visible='on';
+  a.clip_state='on';
+  xtitle( '', 'time', 'Output' ) ; 
+  a.title.font_size=2;
+  a.title.font_style=4;
+  a.title.foreground=2;
+
+  a.grid=[2 2];
+  xpolys(xy(:,1),xy(:,2),[-1]);   //children(2)
+  xpolys(xy(:,1),xy(:,2),[5]);    //children(1)
+  splines=a.children(1).children
+  points=a.children(2).children
+  //---------------------------------------
+  [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+  drawnow();
+  // -- boucle principale
+  lines(0);
+  while %t then //=================================================
+    N=size(xy,'r');
+    [btn,xc,yc,win,Cmenu]=get_click();
+    if ((win>0) & (win<>curwin)) then
+      Cmenu='Mouse click is Offside!';
     end
-    ipar(2)=NOrder;
-   [rpar,ipar]=AutoScale(a,xy,ipar,rpar)  
-  end
-  //-------------------------------------------------------------------  
-  select Cmenu
-   case 'Data Bounds' then
+    if isempty(Cmenu) then Cmenu='edit',end
+    if (Cmenu=='Exit') |(Cmenu=='Quit' ) then, ipar=[];rpar=[];ok=%f;return; end
+    //-------------------------------------------------------------------
+    if ((Cmenu=='zero order') | (Cmenu=='linear') | (Cmenu=='order 2')| ...
+	(Cmenu=='not_a_knot')| (Cmenu=='periodic')| (Cmenu=='monotone')| ...
+	(Cmenu=='fast')| (Cmenu=='clamped')) then
+      
+      select  Cmenu
+       case 'zero order' then
+	NOrder=0;
+       case 'linear' then
+	NOrder=1;
+       case 'order 2' then
+	NOrder=2;
+       case 'not_a_knot' then
+	NOrder=3;
+       case 'periodic' then
+	NOrder=4;
+       case 'monotone' then
+	NOrder=5;
+       case 'fast' then
+	NOrder=6;
+       case 'clamped' then
+	NOrder=7;
+      end
+      ipar(2)=NOrder;
+      [rpar,ipar]=AutoScale(a,xy,ipar,rpar)  
+    end
+    //-------------------------------------------------------------------  
+    select Cmenu
+     case 'Data Bounds' then
       rectx=findrect(a);
       [mok,xmn1,xmx1,ymn1,ymx1]=getvalue('Enter new bounds',['xmin';'xmax'; ...
 		    'ymin';'ymax'],list('vec',1,'vec',1,'vec',1,'vec',1), ...
-				     string(rectx))
+					 string(rectx))
       //drawlater();
       if mok then 
 	if (xmn1>xmx1|ymn1>ymx1) then
@@ -354,218 +349,218 @@ while %t then //=================================================
 	end
       end
       //drawnow();//show_pixmap(); 
-    //-------------------------------------------------------------------  
-   case 'Autoscale' then 
-    [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
       //-------------------------------------------------------------------  
-   case 'Periodic signal' then 
-    if PeridicOption==1 then, ans0='y',else, ans0='n',end;
-    [mok,myans]=getvalue('Generating periodic signal',['y/n'],list('str',1),list(ans0));
-    if ((myans=='y')|(myans=='Y')) then,PeridicOption=1,else,PeridicOption=0;end;
-    ipar(3)=PeridicOption;
-    [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-    //-------------------------------------------------------------------
-   case 'sine' then 
-    [mok,Amp,wp,phase,offset,np1,Sin_exprs2]=getvalue(' Sine parameters', ...
-				['Amplitude';'Frequency(rad/sec)'; ...
-		    'Phase(rad)';'Bias';'number of points'],list('vec',1,'vec',1,'vec',1, ...
-					   'vec',1,'vec',1),Sin_exprs)
-    if np1< 2 then np1=2;end
-    if mok & wp>0  then
-      NOrder=3;
-      ipar(2)=NOrder;
-      phase=atan(tan(phase));
-      xt=linspace(0,%pi*2/wp,np1)';
-      yt=Amp*sin(wp*xt+phase)+offset;
-      xy=[xt,yt];	
+     case 'Autoscale' then 
       [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-      Sin_exprs=Sin_exprs2
-    end
-    //-------------------------------------------------------------------
-   case 'sawtooth1' then 
-    [mok,sAmp,sTp,sdelay,Sawt1_exprs2]=getvalue('Sawtooth signal parameters', ...
-			  ['Amplitude';'Period';'delay'], ...
-			  list('vec',1,'vec',1,'vec',1),Sawt1_exprs)   
-    if mok & sTp>0 then
-      NOrder=1;
-      ipar(2)=NOrder;
-      if sdelay<sTp then 
-	xt=[0;sdelay;sTp];
-	yt=[0;0;sAmp];
-      else
-	xt=[0];
-	yt=[0];
-      end	      
-      xy=[xt,yt];	
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar);
-      Sawt1_exprs=Sawt1_exprs2
-    end
-    //-------------------------------------------------------------------
-   case 'sawtooth2' then     
-    [mok,sAmp2,sTp2,Sawt2_exprs2]=getvalue('Sawtooth signal parameters', ...
-			  ['Amplitude';'Period'],list('vec',1,'vec',1),Sawt2_exprs)    
-    if mok & sTp2>0 then
-      NOrder=1;
-      ipar(2)=NOrder;
-      xt=[0;sTp2];
-      yt=[sAmp2;-sAmp2];
-      xy=[xt,yt];	
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar);
-      Sawt2_exprs=Sawt2_exprs2
-    end
-    //-------------------------------------------------------------------
-   case 'pulse' then
-    [mok,Amp3,Tp3,Pw3,Pd3,Bias3,Pulse_exprs2]=getvalue('Square wave pulse signal', ...
-				    ['Amplitude';'Period (sec)';'Pulse width(% o"+...
+      //-------------------------------------------------------------------  
+     case 'Periodic signal' then 
+      if PeridicOption==1 then, ans0='y',else, ans0='n',end;
+      [mok,myans]=getvalue('Generating periodic signal',['y/n'],list('str',1),list(ans0));
+      if ((myans=='y')|(myans=='Y')) then,PeridicOption=1,else,PeridicOption=0;end;
+      ipar(3)=PeridicOption;
+      [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+      //-------------------------------------------------------------------
+     case 'sine' then 
+      [mok,Amp,wp,phase,offset,np1,Sin_exprs2]=getvalue(' Sine parameters', ...
+							['Amplitude';'Frequency(rad/sec)'; ...
+		    'Phase(rad)';'Bias';'number of points'],list('vec',1,'vec',1,'vec',1, ...
+						  'vec',1,'vec',1),Sin_exprs)
+      if np1< 2 then np1=2;end
+      if mok & wp>0  then
+	NOrder=3;
+	ipar(2)=NOrder;
+	phase=atan(tan(phase));
+	xt=linspace(0,%pi*2/wp,np1)';
+	yt=Amp*sin(wp*xt+phase)+offset;
+	xy=[xt,yt];	
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+	Sin_exprs=Sin_exprs2
+      end
+      //-------------------------------------------------------------------
+     case 'sawtooth1' then 
+      [mok,sAmp,sTp,sdelay,Sawt1_exprs2]=getvalue('Sawtooth signal parameters', ...
+						  ['Amplitude';'Period';'delay'], ...
+						  list('vec',1,'vec',1,'vec',1),Sawt1_exprs)   
+      if mok & sTp>0 then
+	NOrder=1;
+	ipar(2)=NOrder;
+	if sdelay<sTp then 
+	  xt=[0;sdelay;sTp];
+	  yt=[0;0;sAmp];
+	else
+	  xt=[0];
+	  yt=[0];
+	end	      
+	xy=[xt,yt];	
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	Sawt1_exprs=Sawt1_exprs2
+      end
+      //-------------------------------------------------------------------
+     case 'sawtooth2' then     
+      [mok,sAmp2,sTp2,Sawt2_exprs2]=getvalue('Sawtooth signal parameters', ...
+					     ['Amplitude';'Period'],list('vec',1,'vec',1),Sawt2_exprs)    
+      if mok & sTp2>0 then
+	NOrder=1;
+	ipar(2)=NOrder;
+	xt=[0;sTp2];
+	yt=[sAmp2;-sAmp2];
+	xy=[xt,yt];	
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	Sawt2_exprs=Sawt2_exprs2
+      end
+      //-------------------------------------------------------------------
+     case 'pulse' then
+      [mok,Amp3,Tp3,Pw3,Pd3,Bias3,Pulse_exprs2]=getvalue('Square wave pulse signal', ...
+						  ['Amplitude';'Period (sec)';'Pulse width(% o"+...
 		    "f period)';'Phase delay (sec)';'Bias'],list('vec',1, ...
 						  'vec',1,'vec',1,'vec',1,'vec', ...
 						  1),Pulse_exprs)        
-    if mok & Tp3>0  then
-      NOrder=0;
-      ipar(2)=NOrder;
-      if (Pd3>0) then xt=0;yt=Bias3;else xt=[];yt=[]; end
-      //otherwise there	would be double	points at 0
-      if Pd3<Tp3 then 
-	if Pw3>0 then 
-	  xt=[xt;Pd3; Pw3*Tp3/100+Pd3;Tp3];
-	  yt=[yt;Amp3+Bias3;Bias3;Bias3];	
+      if mok & Tp3>0  then
+	NOrder=0;
+	ipar(2)=NOrder;
+	if (Pd3>0) then xt=0;yt=Bias3;else xt=[];yt=[]; end
+	//otherwise there	would be double	points at 0
+	if Pd3<Tp3 then 
+	  if Pw3>0 then 
+	    xt=[xt;Pd3; Pw3*Tp3/100+Pd3;Tp3];
+	    yt=[yt;Amp3+Bias3;Bias3;Bias3];	
+	  else
+	    xt=[0;Tp3];yt=[Bias3;Bias3];		  
+	  end      
 	else
 	  xt=[0;Tp3];yt=[Bias3;Bias3];		  
-	end      
-      else
-	xt=[0;Tp3];yt=[Bias3;Bias3];		  
+	end
+	
+	xy=[xt,yt];	
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	Pulse_exprs=Pulse_exprs2;
       end
-      
-      xy=[xt,yt];	
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar);
-      Pulse_exprs=Pulse_exprs2;
-    end
-     //-------------------------------------------------------------------
-   case 'random normal' then
-    [mok,mean4,var4,seed4,sample4,np4,random_n_exprs2]=getvalue('Normal (Gaussian) random signal', ...
-				    ['Mean';'Variance';'Initial seed';'Sample time';'Number of points'],list('vec',1, ...
+      //-------------------------------------------------------------------
+     case 'random normal' then
+      [mok,mean4,var4,seed4,sample4,np4,random_n_exprs2]=getvalue('Normal (Gaussian) random signal', ...
+						  ['Mean';'Variance';'Initial seed';'Sample time';'Number of points'],list('vec',1, ...
 						  'vec',1,'vec',1,'vec', ...
 						  1,'vec',1),random_n_exprs)        
-    if mok & sample4>0 then
-      NOrder=0;
-      ipar(2)=NOrder;      
-      rand('normal');  rand('seed',seed4);
-      xt=0:sample4:sample4*(np4-1);xt=xt(:);
-      yt=mean4+sqrt(var4)*rand(np4,1);
-      xy=[xt,yt];	
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar);
-      random_n_exprs2=random_n_exprs;
-    end
-     //-------------------------------------------------------------------
-   case 'random uniform' then
-    [mok,min5,max5,seed5,sample5,np5,random_u_exprs2]=getvalue('Uniform random signal', ...
-				    ['Minimum';'Maximum';'Initial seed';'Sample time';'Number of points'],list('vec',1, ...
+      if mok & sample4>0 then
+	NOrder=0;
+	ipar(2)=NOrder;      
+	rand('normal');  rand('seed',seed4);
+	xt=0:sample4:sample4*(np4-1);xt=xt(:);
+	yt=mean4+sqrt(var4)*rand(np4,1);
+	xy=[xt,yt];	
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	random_n_exprs2=random_n_exprs;
+      end
+      //-------------------------------------------------------------------
+     case 'random uniform' then
+      [mok,min5,max5,seed5,sample5,np5,random_u_exprs2]=getvalue('Uniform random signal', ...
+						  ['Minimum';'Maximum';'Initial seed';'Sample time';'Number of points'],list('vec',1, ...
 						  'vec',1,'vec',1,'vec', ...
 						  1,'vec',1),random_u_exprs)        
-    if mok & sample5>0 then
+      if mok & sample5>0 then
+	NOrder=0;
+	ipar(2)=NOrder;      
+	rand('uniform'); rand('seed',seed5);
+	xt=0:sample5:sample5*(np5-1);xt=xt(:);
+	yt=min5+(max5-min5)*rand(np5,1);
+	xy=[xt,yt];	
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	random_u_exprs2=random_u_exprs;
+
+      end   
+      //-------------------------------------------------------------------
+     case 'Save/Exit' then
+      NOrder=ipar(2);
+      PeridicOption=ipar(3);
+
+      METHOD=getmethod(NOrder);
+      if (METHOD=='periodic') then // periodic spline
+	xy(N,2)=xy(1,2);
+      end
+      
+      if (METHOD=='order 2' | METHOD=='not_a_knot'|METHOD=='periodic' | METHOD=='monotone'| METHOD=='fast' | METHOD=='clamped') then 
+	rpar=[xy(:,1);xy(:,2);rpar];
+      else
+	if (METHOD=='zero order'|METHOD=='linear')
+	  rpar=[xy(:,1);xy(:,2)]
+	end
+      end
+      
+      ok=%t
+      delete(f);
+      return 
+      //-------------------------------------------------------------------
+     case 'Exit without save' then 
+      ipar=[];
+      rpar=[];
+      ok=%f
+      delete(f);
+      return
+      //-------------------------------------------------------------------
+     case 'Clear' then    
+      xy=[0,0];
       NOrder=0;
-      ipar(2)=NOrder;      
-       rand('uniform'); rand('seed',seed5);
-      xt=0:sample5:sample5*(np5-1);xt=xt(:);
-      yt=min5+(max5-min5)*rand(np5,1);
-      xy=[xt,yt];	
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar);
-      random_u_exprs2=random_u_exprs;
-
-    end   
-    //-------------------------------------------------------------------
-   case 'Save/Exit' then
-    NOrder=ipar(2);
-    PeridicOption=ipar(3);
-
-    METHOD=getmethod(NOrder);
-    if (METHOD=='periodic') then // periodic spline
-      xy(N,2)=xy(1,2);
-    end
-    
-    if (METHOD=='order 2' | METHOD=='not_a_knot'|METHOD=='periodic' | METHOD=='monotone'| METHOD=='fast' | METHOD=='clamped') then 
-      rpar=[xy(:,1);xy(:,2);rpar];
-    else
-      if (METHOD=='zero order'|METHOD=='linear')
-	rpar=[xy(:,1);xy(:,2)]
-      end
-    end
-    
-    ok=%t
-    delete(f);
-    return 
-    //-------------------------------------------------------------------
-   case 'Exit without save' then 
-    ipar=[];
-    rpar=[];
-    ok=%f
-    delete(f);
-    return
-    //-------------------------------------------------------------------
-   case 'Clear' then    
-    xy=[0,0];
-    NOrder=0;
-    ipar(2)=NOrder;
-    [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-    //----------------------------------------------------------------
-   case 'Edit text data NOT IN USE' then
-    //  editvar xy;
-    [mok,xt,yt]=getvalue('Enter x and y data',['x';'y'],list('vec',-1,'vec',-1),list(strcat(sci2exp(xy(:,1))),strcat(sci2exp(xy(:,2)))));
-    if mok then,    
-      xy=[xt,yt];
-      [xy]=cleandata(xy), 
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-    end
-    //---------------------------------------------------------------  
-   case 'Help' then
-    t1='Mouse-left click: adding a new point'
-    t2='Mouse-right click: remove a point'
-    t3='Mouse-left double click: edit a point''s coordinates'
-    t4='Mouse-left button press/drag/release: move a  point'
-    t5='Change the window size: ''Data'' menu -> ''Databounds'''
-    x_message([t1;t2;t3;t4;t5]);
-    //---------------------------------------------------------------  
-   case 'Load from Excel' then
-    [tok,xytt]=ReadExcel()
-    if tok then
-      xy=xytt;
-      NOrder=1
       ipar(2)=NOrder;
       [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-    end
-   //---------------------------------------------------------------       
-    case 'Load from text file' then
-    [tok,xytt]=ReadFromFile()
-    if tok then
-      xy=xytt;
-      NOrder=1
-      ipar(2)=NOrder;
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-    end
-   //---------------------------------------------------------------     
-   case 'Save to text file' then    
-    [sok]=SaveToFile(xy)
-    //---------------------------------------------------------------       
-   case 'Replot' then
-    if ~isempty( xy) then 
-      drawlater();
-      points.data=xy;
-      [rpar,ipar]=drawSplin(a,xy,ipar,rpar);
-      drawnow()
-    end
-    //----------------------------------------------------------
-   case 'edit' then 
-    HIT=%f
-    if N<>0 then
-      xt=xy(:,1);yt=xy(:,2);
-      dist=((xt-ones(N,1)*xc)).^2+((yt-ones(N,1)*yc)).^2 // 
-      [dca,k]=min(dist);
-      rectx=a.data_bounds;
-      ex=abs(rectx(2,1)-rectx(1,1))/80;
-      ey=abs(rectx(2,2)-rectx(1,2))/80;
-      if (abs(xc-xt(k))<ex & abs(yc-yt(k))<ey) then 
-	HIT=%t
+      //----------------------------------------------------------------
+     case 'Edit text data NOT IN USE' then
+      //  editvar xy;
+      [mok,xt,yt]=getvalue('Enter x and y data',['x';'y'],list('vec',-1,'vec',-1),list(strcat(sci2exp(xy(:,1))),strcat(sci2exp(xy(:,2)))));
+      if mok then,    
+	xy=[xt,yt];
+	[xy]=cleandata(xy), 
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
       end
+      //---------------------------------------------------------------  
+     case 'Help' then
+      t1='Mouse-left click: adding a new point'
+      t2='Mouse-right click: remove a point'
+      t3='Mouse-left double click: edit a point''s coordinates'
+      t4='Mouse-left button press/drag/release: move a  point'
+      t5='Change the window size: ''Data'' menu -> ''Databounds'''
+      x_message([t1;t2;t3;t4;t5]);
+      //---------------------------------------------------------------  
+     case 'Load from Excel' then
+      [tok,xytt]=ReadExcel()
+      if tok then
+	xy=xytt;
+	NOrder=1
+	ipar(2)=NOrder;
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+      end
+      //---------------------------------------------------------------       
+     case 'Load from text file' then
+      [tok,xytt]=ReadFromFile()
+      if tok then
+	xy=xytt;
+	NOrder=1
+	ipar(2)=NOrder;
+	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+      end
+      //---------------------------------------------------------------     
+     case 'Save to text file' then    
+      [sok]=SaveToFile(xy)
+      //---------------------------------------------------------------       
+     case 'Replot' then
+      if ~isempty( xy) then 
+	drawlater();
+	points.data=xy;
+	[rpar,ipar]=drawSplin(a,xy,ipar,rpar);
+	drawnow()
+      end
+      //----------------------------------------------------------
+     case 'edit' then 
+      HIT=%f
+      if N<>0 then
+	xt=xy(:,1);yt=xy(:,2);
+	dist=((xt-ones(N,1)*xc)).^2+((yt-ones(N,1)*yc)).^2 // 
+	[dca,k]=min(dist);
+	rectx=a.data_bounds;
+	ex=abs(rectx(2,1)-rectx(1,1))/80;
+	ey=abs(rectx(2,2)-rectx(1,2))/80;
+	if (abs(xc-xt(k))<ex & abs(yc-yt(k))<ey) then 
+	  HIT=%t
+	end
     end
     
     //_________________________
