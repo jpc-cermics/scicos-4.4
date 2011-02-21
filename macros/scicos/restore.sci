@@ -1,22 +1,23 @@
 function %zoom=restore(curwin,menus,%zoom)
+// sets up proper parameters for the 
+// curwin graphic window. 
+// If the window already exists its graphic contents are 
+// cleared.
+
   if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end
-  if ~or(curwin==winsid()) then
+  gr_on = length(scs_m.objs) > 0 && ~(scs_m.objs(1).iskey['gr']);
+  if ~or(curwin==winsid()) || gr_on then 
     xclear(curwin,gc_reset=%f);
-  else
-    if length(scs_m.objs)>0 then
-      if ~(scs_m.objs(1).iskey['gr']) then 
-        xclear(curwin,gc_reset=%f);
-      end
-    end
   end
   xset('window',curwin);
-  xselect()
-
+  xselect();
+  
   if size(scs_m.props.wpar,'*')>12 then
-    F=get_current_figure()
-    gh=nsp_graphic_widget(curwin)
+    printf('first mode\n');
+    // we already have sizes recorded in scs_m
+    gh=nsp_graphic_widget(curwin);
     winsize=scs_m.props.wpar(9:10)
     winpos=scs_m.props.wpar(11:12)
     screen=gh.get_screen[]
@@ -27,11 +28,11 @@ function %zoom=restore(curwin,menus,%zoom)
       scs_m=scs_m;
       scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
     end
-
     %zoom=scs_m.props.wpar(13)
     pwindow_read_size()
     window_read_size()
   else
+    printf('second mode\n');
     pwindow_set_size()
     window_set_size()
   end

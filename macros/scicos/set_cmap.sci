@@ -1,5 +1,5 @@
 function ok=set_cmap(cmap)
-//appends new colors to the colormap
+// appends new colors to the current colormap
 // Copyright INRIA
   if isempty(cmap) then ok=%t,return,end
   d=xget('colormap');  

@@ -512,7 +512,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
     end
   elseif Cmenu=='Leave' then
-    scs_m=rec_remove_gr(scs_m)
+    scs_m=scs_m_remove_gr(scs_m)
     ok=do_save(scs_m,getenv('NSP_TMPDIR')+'/BackupSave.cos')  
     if ok then  //need to save %cpr because the one in .cos cannot be
                 //used to continue simulation
@@ -628,20 +628,18 @@ function scilab2scicos(win,x,y,ibut)
   printf("\nReturn to scicos by eventhandler is disabled.\nUse -->scicos(); instead.\n");
 endfunction
 
-//remove the gr graphics from scs_m 
-function scs_m=rec_remove_gr(scs_m)
+function scs_m=scs_m_remove_gr(scs_m)
+// remove the gr graphics from scs_m 
+// 
   for k=1:length(scs_m.objs)
-    if scs_m.objs(k).iskey['gr'] then 
-      scs_m.objs(k).delete['gr']
-    end
-    o=scs_m.objs(k)
-    if o.type=='Block' then
-      if o.model.sim.equal['super'] then
-        scs_m_n=o.model.rpar
-        scs_m_n=rec_remove_gr(scs_m_n)
-        o.model.rpar=scs_m_n
-        scs_m.objs(k)=o
-      end
+    // no use to check first if gr exists before deleting it 
+    scs_m.objs(k).delete['gr'];
+    o = scs_m.objs(k);
+    if o.type=='Block' && o.model.sim.equal['super'] then
+      scs_m_n=o.model.rpar
+      scs_m_n=scs_m_remove_gr(scs_m_n)
+      o.model.rpar=scs_m_n
+      scs_m.objs(k)=o
     end
   end
 endfunction

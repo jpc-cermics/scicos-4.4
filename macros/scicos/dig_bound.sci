@@ -1,7 +1,10 @@
 function [rect]=dig_bound(scs_m)
 // Copyright INRIA
-  n=size(scs_m.objs,1); // XXXXX 
-  if n < 1 then rect=[];return;end
+// compute bounds of a scicos schema.
+  rect=[];
+  if ~scs_m.iskey['objs'] then return;end
+  n=size(scs_m.objs,1);
+  if n < 1 then return;end
   vmin=[100000,100000]; 
   vmax=-vmin;
   for i=1:n ; //loop on objects

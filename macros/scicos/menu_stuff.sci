@@ -1,8 +1,11 @@
 function menu_stuff(win,menus)
+// updates menus of a graphic window 
+// 
   delmenu(win,'3D Rot.')
   delmenu(win,'UnZoom')
   delmenu(win,'Zoom')
   delmenu(win,'File')
+  if ~(type(menus,'short')== 'h') then return;end 
   for i=1:size(menus.items,'*')
     sname = menus.items(i);
     submenu=menus(sname);
@@ -10,11 +13,11 @@ function menu_stuff(win,menus)
     addmenu(win,sname,submenu(1),list(0,sname));    
   end
   if ~super_block then
-    delmenu(curwin,'stop')
-    addmenu(curwin,'stop||$scicos_stop');
-    unsetmenu(curwin,'stop')
+    delmenu(win,'stop')
+    addmenu(win,'stop||$scicos_stop');
+    unsetmenu(win,'stop')
   else
-    unsetmenu(curwin,'Simulate')
+    unsetmenu(win,'Simulate')
   end
 endfunction
 

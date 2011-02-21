@@ -1,25 +1,26 @@
 function window_set_size(win,viewport)
-  if nargin<1 then
-    win=curwin
-    viewport=%f
-  elseif nargin<2 then
-    viewport=%f
-  end
-
+// 
+  if ~exists('scs_m') then scs_m=hash();end 
+  if ~exists('curwin') then curwin=0;end
+  if ~exists('%zoom') then %zoom=1;end 
+  
+  if nargin < 1 then win=curwin;end 
+  if nargin < 2 then viewport=%f;end 
+  
   xset('window',win)
   F=get_current_figure()
   gh=nsp_graphic_widget(win)
 
   r=xget('wpdim');
   rect=dig_bound(scs_m);
-
+  
   if isempty(rect) then rect=[0,0,r(1),r(2)], end
 
   w = (rect(3)-rect(1));
   h = (rect(4)-rect(2));
   j = min(1.5,max(1,1600/(%zoom*w)),max(1,1200/(%zoom*h)))  ;
-
-  ax = (max(r(1)/(%zoom*w),j)); //** amplitute correction if the user resize the window
+  //** amplitute correction if the user resize the window
+  ax = (max(r(1)/(%zoom*w),j));
   ay = (max(r(2)/(%zoom*h),j));
   bx = (1-1/ax)/2; //**
   by = (1-1/ay)/2; //**
@@ -42,7 +43,7 @@ function window_set_size(win,viewport)
   arect=[0 0 0 0]
   mrect=[xmin ymin xmax ymax];
   wrect=[0,0,1,1];
-
+  
   if length(F.children)==0 then
     xsetech(arect=arect,frect=mrect,fixed=%t,clip=%f,axesflag=0,iso=%t)
   else
@@ -55,7 +56,7 @@ function window_set_size(win,viewport)
   end
 
   xflush()
-
+  
   // center the graphic viewport inside the graphic window
   if isequal(viewport,%f) then
     Vbox=gh.get_children[]
@@ -71,6 +72,5 @@ function window_set_size(win,viewport)
     %YSHIFT=viewport(2)
   end
   xset('viewport',%XSHIFT,%YSHIFT)
-
   xflush()
 endfunction

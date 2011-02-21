@@ -116,7 +116,7 @@ function fname=do_saveblockgui(o)
   model=o.model
   model.ipar=1;
   rpar=model.rpar
-  rpar=rec_remove_gr(rpar)
+  rpar=scs_m_remove_gr(rpar)
   model.rpar=rpar
   fprint(F,model,as_read=%t);
   exprs_txt='  exprs=['
