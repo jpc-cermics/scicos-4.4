@@ -15,7 +15,6 @@ function %zoom=restore(curwin,menus,%zoom)
   xselect();
   
   if size(scs_m.props.wpar,'*')>12 then
-    printf('first mode\n');
     // we already have sizes recorded in scs_m
     gh=nsp_graphic_widget(curwin);
     winsize=scs_m.props.wpar(9:10)
@@ -32,11 +31,12 @@ function %zoom=restore(curwin,menus,%zoom)
     pwindow_read_size()
     window_read_size()
   else
-    printf('second mode\n');
     pwindow_set_size()
     window_set_size()
   end
-  menu_stuff(curwin,menus)
+  if ~isempty(menus) then 
+    menu_stuff(curwin,menus)
+  end
 endfunction
 
 function [frect,axsize,viewport,winsize,winpos,pagesize]=get_curwpar(win)

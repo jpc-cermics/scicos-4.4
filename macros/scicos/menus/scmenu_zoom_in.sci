@@ -11,7 +11,8 @@ function Zoomin_()
   viewport=viewport*zoomfactor-0.5*winsize*(1-zoomfactor)
   viewport=max([0,0],min(viewport,-winsize+axsize))
   window_set_size(curwin,viewport)
-  drawobjs(scs_m),
+  // F.invalidate[] or  drawobjs(scs_m)
+  // are not usefull here window_set_size should produce a redraw
   xinfo(' ')
   if pixmap then xset('wshow'),end
 endfunction

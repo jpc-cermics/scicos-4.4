@@ -54,7 +54,7 @@ function window_set_size(win,viewport)
     A.clip=%f
     A.set[rect=mrect]; // rect is hidden but can be accessed through set and get
   end
-
+  
   xflush()
   
   // center the graphic viewport inside the graphic window

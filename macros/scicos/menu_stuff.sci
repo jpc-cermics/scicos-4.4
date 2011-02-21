@@ -4,7 +4,7 @@ function menu_stuff(win,menus)
   delmenu(win,'3D Rot.')
   delmenu(win,'UnZoom')
   delmenu(win,'Zoom')
-  delmenu(win,'File')
+  // delmenu(win,'File')
   if ~(type(menus,'short')== 'h') then return;end 
   for i=1:size(menus.items,'*')
     sname = menus.items(i);
