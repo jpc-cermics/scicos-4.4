@@ -635,13 +635,13 @@ endfunction
 
 function [btn,xc,yc,win,Cmenu]=ec_get_click(curwin)
   if ~or(winsid() == curwin) then  
-    btn= -100;xc=0;yc=0;win=curwin;Cmenu='Quit';
+    btn= -100;xc=0;yc=0;win=curwin;Cmenu='Abort';
     return,
   end;
   [btn, xc, yc, win, str] = xclick();
   if btn == -100 then
     if win == curwin then
-      Cmenu = 'Quit';
+      Cmenu = 'Abort';
     else;
       Cmenu = 'Open/Set';
     end;
