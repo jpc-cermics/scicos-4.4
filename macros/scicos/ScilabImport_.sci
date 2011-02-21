@@ -3,7 +3,7 @@ function ScilabImport_()
 // XXX we should change the name in order not to 
 // overwrite the Scilab Diagram when saving.
   Cmenu=''
-  if edited&~super_block then
+  if edited & ~super_block then
     num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
     if num==2 then return;end
     if alreadyran then do_terminate(),end  //terminate current simulation
@@ -32,7 +32,7 @@ function ScilabImport_()
       scs_m.props.context=' '
     end
     //xset('alufunction',6)
-    drawobjs(scs_m),
+    scs_m= drawobjs(scs_m),
     if pixmap then xset('wshow'),end
     if size(%cpr)==0 then
       needcompile=4

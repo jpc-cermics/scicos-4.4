@@ -53,6 +53,8 @@ function ok=do_save(scs_m,filenamepath)
     ok=%f
     return 
   end
+  // remove gr fields 
+  scs_m=scs_m_remove_gr(scs_m);
   // save current diagram 
   if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then 
     message(['Save error:']); // ;lasterror()])

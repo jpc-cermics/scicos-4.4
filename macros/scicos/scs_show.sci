@@ -1,6 +1,7 @@
 function scs_m=scs_show(scs_m,win)
-// shows diagram scs_m in a new graphic 
-// window win.
+// shows diagram scs_m in a new graphic window win.
+// This is very similar to do_export_gwin 
+// 
 // Copyright INRIA
   xset('window',win);
   xset('recording',0);

@@ -67,6 +67,5 @@ function ok=hilite_mult_objs(path,objs,mess)
     mess1='[""'+catenate(mess,sep='"";""')+'""]';
     append_command('message('+mess1+');','');
   end
-  pause zzz
 endfunction
 

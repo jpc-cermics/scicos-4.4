@@ -9,7 +9,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 // menus : vector of character strings,optional parameter giving usable menus 
 //!
 // Copyright INRIA
-
+  
   global %scicos_navig
   global %diagram_path_objective
   global inactive_windows
