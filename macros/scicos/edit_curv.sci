@@ -78,10 +78,10 @@ function [sd,ok]=ec_main(sd)
   // window initialize
   cdef = sd(2);
   xsetech(frect=cdef,fixed=%t);
-  //xrect([cdef(1),cdef(2)+cdef(4),cdef(3),cdef(4)]);
+  //plot2d([],[],rect=cdef,strf='151');
   dx2 = abs(cdef(3)-cdef(1)).^2;
   dy2 = abs(cdef(4)-cdef(2)).^2;
-  // xgrid();
+  //xgrid();
   curwin=xget('window')
   // menus 
   names = ['Edit','Objects'];
@@ -199,21 +199,18 @@ function sd1 =ec_poly(action,sd,pt,pt1)
     sdo.gr.invalidate[];
    case 'translate' then 
     // translate sd with translation vector pt 
-    if ec_objects(sd)('lock first')(1) <> 0 || ec_objects(sd)('lock last')(1) <> 0 then 
-      xinfo("you cannot move a locked polyline");
-    else
-      ec_objects(sd)('x')=ec_objects(sd)('x')+pt(1);
-      ec_objects(sd)('y')=ec_objects(sd)('y')+pt(2);
-      ec_objects(sd).gr.translate[pt];
-    end
+    ec_objects(sd)('x')=ec_objects(sd)('x')+pt(1);
+    ec_objects(sd)('y')=ec_objects(sd)('y')+pt(2);
+    ec_objects(sd).gr.translate[pt];
    case 'define' then 
-    ff=["poly","show","hilited","x","y","color","thickness",...
-	"lock first","lock last","locks status","pt"];
-    sdo= tlist(ff, %t,%f,sd(1,:),sd(2,:),1,2,0,0,0,[0,0]);
+    ff=["poly","show","hilited","x","y","color","thickness","pt"];
+    sdo= tlist(ff, %t,%f,sd(1,:),sd(2,:),1,2,[0,0]);
     F=get_current_figure();
     F.start_compound[];
     xpoly(sdo('x'),sdo('y'),type='lines',color=sdo('color'),thickness=sdo('thickness'));
     sdo.gr = F.end_compound[];
+    sdo.gr.children(1).hilited = %t;
+    sdo('hilited')=%t;
     ec_objects($+1)=sdo;
     sdo.gr.invalidate[];
    case 'move' then 
@@ -263,73 +260,10 @@ function sd1 =ec_poly(action,sd,pt,pt1)
 	xinfo('found '+string(pts(k(1),1))+' '+string(pts(k(1),2)));
 	ptnew= pts(k(1),:)
       end
-    elseif pt1==1 then 
-       // try to check if we are in the vivinity of 
-       // a lock point lock points ptl=[lock-number,point]
-       [k,ptl]=ec_lock(ptnew);
-       if k<>0 then 
-	 // we force the point to move to ptl(2:3) 
-	 // the lock point near ptnew position 
-	 ptnew=ptl(2:3);
-	 rr = ec_objects(sd)('lock first');
-	 if  rr(1) == 1 ; 
-	   // we were already locked somewhere; unlock 
-	   ec_objects(rr(2))('locks status')(rr(3))=0;// set unlock 
-	 end
-	 // lock at new point 
-	 xinfo('trying to lock '+string(k)+' '+string(ptl(1)));
-	 ec_objects(sd)('lock first')=[1,k,ptl(1)];
-	 ec_objects(k)('locks status')(ptl(1))= - sd ;// set lock (<0)
-	 
-       else
-	  // just test if unlock is necessary 
-	  rr= ec_objects(sd)('lock first');
-	  if  rr(1) == 1 ; 
-	    xinfo('trying to unlock '+string(rr(2))+' '+string(rr(3)));
-	    ec_objects(rr(2))('locks status')(rr(3))=0;// set unlock 
-	    ec_objects(sd)('lock first')=0;
-	  end
-       end
-    elseif pt1==n then 
-       // try to check if we are in the vivinity of 
-       // a lock point lock points ptl=[lock-number,point]
-       [k,ptl]=ec_lock(ptnew);
-       if k<>0 then 
-	 // we force the point to move to ptl(2:3) 
-	 // the lock point near ptnew position 
-	 ptnew=ptl(2:3);
-	 rr = ec_objects(sd)('lock last');
-	 if  rr(1) == 1 ; 
-	   // we were already locked somewhere; unlock 
-	   ec_objects(rr(2))('locks status')(rr(3))=0;// set unlock 
-	 end
-	 // lock at new point 
-	 xinfo('trying to lock '+string(k)+' '+string(ptl(1)));
-	 ec_objects(sd)('lock last')=[1,k,ptl(1)];
-	 ec_objects(k)('locks status')(ptl(1))=sd ;// set lock (>0)
-       else
-	  // just test if unlock is necessary 
-	  rr= ec_objects(sd)('lock last');
-	  if  rr(1) == 1 ; 
-	    xinfo('trying to unlock '+string(rr(2))+' '+string(rr(3)));
-	    ec_objects(rr(2))('locks status')(rr(3))=0;// set unlock 
-	    ec_objects(sd)('lock last')=0;
-	  end
-       end
     end
     ec_objects(sd)('x')(pt1)=ptnew(1);
     ec_objects(sd)('y')(pt1)=ptnew(2);
     ec_objects(sd).gr.invalidate[];
-   case 'params' then 
-    colors=m2s(1:xget("lastpattern")+2,"%1.0f");
-    lcols_bg=list('colors','Color',sd('color'),colors);
-    l_th=list('combo','Thickness',sd('thickness'),string(1:10));
-    [lrep,lres,rep]=x_choices('polyline settings',list(lcols_bg,l_th));
-    if ~isempty(rep) then
-      sd('color')=rep(1);
-      sd('thickness')=rep(2);
-    end
-    sd1=sd;
    case 'addpt' then 
     xinfo('adding a point')
     // is pointer near object 
@@ -375,45 +309,17 @@ function ec_create_polyline()
     wstop= size(find(rep(3)== kstop),'*');
     if rep(3) == 0 then   count =count +1;end 
     if rep(3) == 0 | rep(3) == -1 then 
-      // are we near a lock point 
-      [k,ptl]=ec_lock(rep(1:2));
-      if k<>0 then 
-	ec_objects(n)('x')(count)=ptl(2);
-	ec_objects(n)('y')(count)=ptl(3);
-	ec_objects(n)('lock last')=[1,k,ptl(1)];
-	if rep(3)==0;wstop=1;end
-      else 
-	 // try to keep horizontal and vertical lines 
-	 if abs(ec_objects(n)('x')(count-1) - rep(1)) < hvfactor then 
-	   rep(1)=ec_objects(n)('x')(count-1);end 
-	 if abs(ec_objects(n)('y')(count-1)- rep(2)) < hvfactor then 
-	   rep(2)=ec_objects(n)('y')(count-1);end 
-	 ec_objects(n)('x')(count)=rep(1);
-	 ec_objects(n)('y')(count)=rep(2);
-	 ec_objects(n)('lock last')=[0];
-      end
+      // try to keep horizontal and vertical lines 
+      if abs(ec_objects(n)('x')(count-1) - rep(1)) < hvfactor then 
+	rep(1)=ec_objects(n)('x')(count-1);
+      end 
+      if abs(ec_objects(n)('y')(count-1)- rep(2)) < hvfactor then 
+	rep(2)=ec_objects(n)('y')(count-1);
+      end 
+      ec_objects(n)('x')(count)=rep(1);
+      ec_objects(n)('y')(count)=rep(2);
     end
   end
-  // update and draw block
-  if ~ok then return ;end
-  // check if the polyline is locked at some rectangles lock point 
-  [k,ptl]=ec_lock([ec_objects(n)('x')(1),ec_objects(n)('y')(1)]);
-  if k<>0 then 
-    ec_objects(n)('x')(1)=ptl(2);
-    ec_objects(n)('y')(1)=ptl(3);
-    ec_objects(n)('lock first')=[1,k,ptl(1)];
-    ec_objects(k)('locks status')(ptl(1))= - n;// set lock (<0)
-  end 
-  //Attention ici $ est mal evalue XXXX
-  //[k,ptl]=ec_lock([poly('x')($),poly('y')($)]);
-  np=size(ec_objects(n)('x'),'*');
-  [k,ptl]=ec_lock([ec_objects(n)('x')(np),ec_objects(n)('y')(np)]);
-  if k<>0 then 
-    ec_objects(n)('x')(np)=ptl(2);
-    ec_objects(n)('y')(np)=ptl(3);
-    ec_objects(n)('lock last')=[1,k,ptl(1)];
-    ec_objects(k)('locks status')(ptl(1))=n;// set lock (>0)
-  end 
 endfunction
 
 function [sd1]=ec_clipoff(sd,del)
@@ -532,14 +438,6 @@ function [rep]=ec_frame_move(ko,pt,kstop,action,pt1)
   F.draw_now[];
 endfunction
 
-//---------------------------------
-// check if pt is in a lock point 
-//---------------------------------
-
-function [k,rep]=ec_lock(pt) 
-  k=0;rep=0;
-endfunction
-
 //--------------------------------------
 // find object k for which [x,y] is inside 
 //--------------------------------------
@@ -568,7 +466,6 @@ function ec_unhilite(win=-1,draw=%t)
     ec_objects(k)('hilited')=%f;
     execstr('ec_'+o.type+'(''update'',k);');
   end
-  // if ok & draw then ec_draw(win);end 
 endfunction 
 
 function ec_delete()
@@ -580,20 +477,9 @@ function ec_delete()
   for k=size(ec_objects):-1:1
     o=ec_objects(k);
     if o('hilited') then 
-      execstr('rep=ec_'+o.type+'(''unlock all'',k);');
       ec_objects(k).gr.invalidate[];
       F.remove[ ec_objects(k).gr];
       ec_objects(k)=null();
-      // we must update all the numbers contained in lock 
-      for j=1:size(ec_objects)
-	lkcs=ec_objects(j)('locks status')
-	for i=1:size(lkcs,'*')
-	  if lkcs(i) >= k then 
-	    ec_objects(j)('locks status')(i)= lkcs(i)-1;
-	    ec_objects(j).gr.invalidate[];
-	  end
-	end
-      end
       g_rep=%t ; 
     end 
   end
@@ -663,13 +549,6 @@ function [btn,xc,yc,win,Cmenu]=ec_get_click(curwin)
   end
   Cmenu="";
 endfunction
-
-function ec_draw(win)
-  F=get_current_figure();
-  F.draw_now[];
-endfunction
-
-
 
 function ec_savexy(x,y)
   while %t then 
