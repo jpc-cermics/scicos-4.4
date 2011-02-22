@@ -138,38 +138,39 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
 endfunction
 
 function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
-  [lhs,rhs]=argn(0)
   //in line definition of get_click
-  deff('[btn,xc,yc,win,Cmenu]=get_click(flag)',[
-      'if ~or(winsid() == curwin) then   Cmenu = ''Quit'';return,end,';
-      'if argn(2) == 1 then';
-      '  [btn, xc, yc, win, str] = xclick(flag);';
-      'else';
-      '  [btn, xc, yc, win, str] = xclick();';
-      'end;'; 
-      'if btn == -100 then';
-      '  if win == curwin then';
-      '    Cmenu = ''Quit'';';
-      '  else';
-      '    Cmenu = ''Open/Set'';';
-      '  end,';
-      '  return,';
-      'end';
-      'if btn == -2 then';
-      '  xc = 0;yc = 0;';
-      '  try '    // added to handle unwanted menu actions in french version
-      '    execstr(''Cmenu='' + part(str, 9:length(str) - 1));';
-      '    execstr(''Cmenu='' + Cmenu);';
-      '  catch'
-      '    Cmenu=[]'    
-      '  end '    
-      '  return,';
-      'end';
-      'Cmenu=[]'])
-  
+  function [btn,xc,yc,win,Cmenu]=get_click(flag)
+    if ~or(winsid() == curwin) then   Cmenu = 'Quit';return,end,;
+      if argn(2) == 1 then
+        [btn, xc, yc, win, str] = xclick(flag);
+      else
+        [btn, xc, yc, win, str] = xclick();
+      end 
+      if btn == -100 then
+        if win == curwin then
+          Cmenu = 'Quit';
+        else;
+          Cmenu = 'Open/Set';
+        end
+        return
+      end
+      if btn == -2 then
+        xc = 0;yc = 0;
+        try     
+	  // added to handle unwanted menu actions in french version
+          execstr('Cmenu=' + part(str, 9:length(str) - 1));
+          execstr('Cmenu=' + Cmenu);
+        catch
+          Cmenu=""    
+        end     
+        return
+      end
+      Cmenu=""
+  endfunction
+    
   ok=%f
-  if rhs==0 then ixy=[];end;
-  if size(xy,'c')<2 then 
+  if nargin ==0 then ixy=[];end;
+  if size(ixy,'c')<2 then 
     xinfo(' No y provided');
     return
   end
@@ -177,17 +178,17 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   [xy]=cleandata(ixy)
   N=size(xy,'r');
 
-  if rhs<=1 then
+  if nargin <=1 then
     NOrder=1;
     PeridicOption=0;
     ipar=[N;NOrder;PeridicOption]
     rpar=[]
-  elseif rhs==2 then  
+  elseif nargin == 2 then  
       NOrder=iparin(2);
       PeridicOption=iparin(3);
       ipar=iparin;
       rpar=[]
-  elseif rhs==3 then  
+  elseif nargin ==3 then  
       NOrder=iparin(2);
       PeridicOption=iparin(3);
       ipar=iparin;
@@ -221,28 +222,23 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 
   rect=[xmn,ymn;xmx,ymx];
   //===================================================================
-  f=scf();
+  // f=scf();
 
-  if ~MSDOS then
-    delmenu(curwin,'3D Rot.')
-    delmenu(curwin,'Edit')
-    delmenu(curwin,'File')
-    delmenu(curwin,'Insert')
-  else
-    hidetoolbar(curwin)
-    // French
-    delmenu(curwin,'&Fichier')
-    delmenu(curwin,'&Editer')
-    delmenu(curwin,'&Outils')
-    delmenu(curwin,'&Inserer')
-    // English
-    delmenu(curwin,'&File')
-    delmenu(curwin,'&Edit')
-    delmenu(curwin,'&Tools')
-    delmenu(curwin,'&Insert')
-  end
-  //menuss=menus;menuss(1)=menus(1)(2:$);menubar(curwin,menuss)	  
-
+  delmenu(curwin,'3D Rot.')
+  delmenu(curwin,'Edit')
+  delmenu(curwin,'File')
+  delmenu(curwin,'Insert')
+  // French
+  delmenu(curwin,'&Fichier')
+  delmenu(curwin,'&Editer')
+  delmenu(curwin,'&Outils')
+  delmenu(curwin,'&Inserer')
+  // English
+  delmenu(curwin,'&File')
+  delmenu(curwin,'&Edit')
+  delmenu(curwin,'&Tools')
+  delmenu(curwin,'&Insert')
+  
   menu_r=[];
   menu_s=[];
   menu_o=['zero order','linear','order 2','not_a_knot','periodic','monotone','fast','clamped']
@@ -282,12 +278,13 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   a.title.font_size=2;
   a.title.font_style=4;
   a.title.foreground=2;
-
   a.grid=[2 2];
   xpolys(xy(:,1),xy(:,2),[-1]);   //children(2)
   xpolys(xy(:,1),xy(:,2),[5]);    //children(1)
+
   splines=a.children(1).children
   points=a.children(2).children
+  
   //---------------------------------------
   [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
   drawnow();
