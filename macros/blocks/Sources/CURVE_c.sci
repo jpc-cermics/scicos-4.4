@@ -137,7 +137,24 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
   end
 endfunction
 
+function poke_test()
+// test: 
+  ixy=[1:10;sin(1:10)]'; N = size(ixy,1);
+  ipar=[N;2;1];
+  rpar=[];
+  curwin=0;
+  if ~new_graphics() then 
+    switch_graphics();
+  end
+  poke_point(ixy,ipar,rpar);
+endfunction
+
 function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
+  // test: 
+  // ixy=[1:10;sin(1:10)]'; N = size(ixy,1);
+  // ipar=[N;2;1];
+  // rpar=[];
+  // poke_point(ixy,ipar,rpar);
   //in line definition of get_click
   function [btn,xc,yc,win,Cmenu]=get_click(flag)
     if ~or(winsid() == curwin) then   Cmenu = 'Quit';return,end,;
@@ -170,14 +187,14 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
     
   ok=%f
   if nargin ==0 then ixy=[];end;
-  if size(ixy,'c')<2 then 
+  if size(ixy,'c') < 2 then 
     xinfo(' No y provided');
     return
   end
-
+  
   [xy]=cleandata(ixy)
   N=size(xy,'r');
-
+  
   if nargin <=1 then
     NOrder=1;
     PeridicOption=0;
@@ -268,28 +285,22 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   addmenu(curwin,MENU(5),menu_e)
   //===================================================================
   //initial draw
-  f.pixmap='off';
-  drawlater();
-  a=gca();
-  a.data_bounds=rect;
-  a.axes_visible='on';
-  a.clip_state='on';
+  
+  pause xxx;
+  
+  xsetech(frect=[rect(1),rect(3),rect(2),rect(4)]);
   xtitle( '', 'time', 'Output' ) ; 
-  a.title.font_size=2;
-  a.title.font_style=4;
-  a.title.foreground=2;
-  a.grid=[2 2];
+  // xgrid();
   xpolys(xy(:,1),xy(:,2),[-1]);   //children(2)
   xpolys(xy(:,1),xy(:,2),[5]);    //children(1)
-
-  splines=a.children(1).children
-  points=a.children(2).children
-  
+  F=get_current_figure();
+  a=F.children(1);
+  splines=F.children(1).children(1);
+  points=F.children(1).children(2);
   //---------------------------------------
   [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-  drawnow();
-  // -- boucle principale
-  lines(0);
+  // main loop 
+  pause; 
   while %t then //=================================================
     N=size(xy,'r');
     [btn,xc,yc,win,Cmenu]=get_click();
@@ -622,26 +633,27 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   //----------------------------------------------------------
 end
 endfunction
-//========================================================================
+
 function [orpar,oipar]=drawSplin(a,xy,iipar,irpar)
+// draw a spline 
   N=size(xy,'r');// new size of xy
   x=xy(:,1);  y=xy(:,2);
-  points=a.children(2).children
-  splines=a.children(1).children
   order=iipar(2);
   periodicoption=iipar(3);
   orpar=irpar;
-   
   METHOD=getmethod(order);
-  
-  if periodicoption==1 then PERIODIC='periodic, T='+string(x(N)-x(1));
-  else PERIODIC='aperiodic';end  
-  a.title.text=[string(N)+' points,  '+'Method: '+METHOD+',  '+PERIODIC];
-
+  if periodicoption==1 then 
+    PERIODIC='periodic, T='+string(x(N)-x(1));
+  else P
+    ERIODIC='aperiodic';
+  end  
+  // a.title.text=[string(N)+' points,  '+'Method: '+METHOD+',  '+PERIODIC];
   if (N==0) then, return; end
   if (N==1) then, order=0; end
-//  NP=50;// number of intermediate points between two data points 
+  //  NP=50;// number of intermediate points between two data points 
   [X,Y,orpar]=Do_Spline(N,order,x,y);
+  // XXXX dimension bizarres 
+  Y=Y(:);
   if (periodicoption==1) then 
     X=[X;X($)];
     Y=[Y;Y(1)];
@@ -653,20 +665,19 @@ function [orpar,oipar]=drawSplin(a,xy,iipar,irpar)
     X=[X;XMX];
     Y=[Y;Y($)];
   end
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  splines.data=[X,Y];    
+  a.children(1).children(1).x=X;
+  a.children(1).children(1).y=Y;
   oipar=[N;iipar(2);periodicoption]
 endfunction
-//=============================================================
+
 function [xyt,orpar,oipar]=movept(a,xy,iipar,irpar,k)
-//on bouge un point existant
+// on bouge un point existant
   points=a.children(2).children
   splines=a.children(1).children  
   oipar=iipar
   orpar=irpar
   order=iipar(2);
   x=xy(:,1);  y=xy(:,2);  
-  
   if (x(k)==0) then 
     zz=find(x==0);
     x(zz)=[];y(zz)=[];
@@ -676,9 +687,7 @@ function [xyt,orpar,oipar]=movept(a,xy,iipar,irpar,k)
     y(k)=[]; 
     ZERO_POINT=%f
   end 
-
   btn=-1
-
   while ~(btn==3 | btn==0| btn==10| btn==-5)
     rep=xgetmouse([%t %t]); xc=rep(1);yc=rep(2);btn=rep(3);
     if (ZERO_POINT) then 
@@ -691,41 +700,30 @@ function [xyt,orpar,oipar]=movept(a,xy,iipar,irpar,k)
 	xc=0;
       end
     end
-  
     xt=[x;xc];
     yt=[y;yc];
     [xt,k2]=gsort(xt,'r','i');yt=yt(k2)
     xyt=[xt,yt];
-    
     drawlater();
     points.data=xyt;    
     [orpar,oipar]=drawSplin(a,xyt,oipar,orpar); 
     show_pixmap();  
     drawnow()
   end
-
 endfunction
 
-//==========================================================
 function   rectx=findrect(a) 
   splines=a.children(1).children  
   points=a.children(2).children
-
   if isempty(points.data) then 
     rectx=a.data_bounds;
     return;
   end    
-
-
   ymx1=max(splines.data(:,2));  ymn1=min(splines.data(:,2))
-  
   xmx=max(points.data(:,1));xmn=min(points.data(:,1));
   ymx=max(points.data(:,2));ymn=min(points.data(:,2));
-
-  
   XMX=max(0,xmx);            XMN=max(0,xmn);
   YMX=max(ymx,ymx1);  YMN=min(ymn,ymn1);
-  
   dx=XMX-XMN;dy=YMX-YMN
   if dx==0 then dx=max(XMX/2,1),end;
   XMX=XMX+dx/50
@@ -734,7 +732,7 @@ function   rectx=findrect(a)
   rectx=[XMN,YMN;XMX,YMX];
 endfunction
 
-//============================================================
+
 function [tok,xyo]=ReadExcel()
   TA=['A';'B';'C';'D';'E';'F';'G';'H';'I';'J';'K';'L';'M';'N';'O';'P'; ...
       'Q';'R';'S';'T';'U';'V';'W';'X';'Y';'Z';'a';'b';'c';'d';'e';'f'; ...
@@ -859,22 +857,21 @@ function [xyo]=cleandata(xye)
  
   xyo=[xo,yo];
 endfunction
-//---------------------------------------------------------------
+
 function  [orpar,oipar]=AutoScale(a,xy,inipar,inrpar)   
-  drawlater();    
+  pause autoscale
   oipar=inipar
   orpar=inrpar
-  points=a.children(2).children
-  splines=a.children(1).children
-  points.data=xy;
-  splines.data=xy;
+  a.children(2).children(1).x = xy(:,1);  
+  a.children(2).children(1).y = xy(:,2);
+  a.children(1).children(1).x = xy(:,1);
+  a.children(1).children(1).y = xy(:,2);
   [orpar,oipar]=drawSplin(a,xy,oipar,orpar);
   rectx=findrect(a);     
-  a.data_bounds=rectx;
-  show_pixmap(); 
-  drawnow()
+  // a.data_bounds=rectx;
 endfunction
-//============================
+
+
 function METHOD=getmethod(order)
   select order
    case 0 then, METHOD='zero order'
