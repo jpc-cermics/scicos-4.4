@@ -1,4 +1,5 @@
 function [x,y,typ]=CURVE_c(job,arg1,arg2)
+// 
 // Masoud Najafi 07/2007 --------
 // origine: serge Steer, Habib Jreij INRIA 1993
 // Copyright INRIA
@@ -150,39 +151,30 @@ function poke_test()
 endfunction
 
 function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
-  // test: 
-  // ixy=[1:10;sin(1:10)]'; N = size(ixy,1);
-  // ipar=[N;2;1];
-  // rpar=[];
-  // poke_point(ixy,ipar,rpar);
-  //in line definition of get_click
-  function [btn,xc,yc,win,Cmenu]=get_click(flag)
+
+  function [btn,xc,yc,win,Cmenu]=get_click()
     if ~or(winsid() == curwin) then   Cmenu = 'Quit';return,end,;
-      if argn(2) == 1 then
-        [btn, xc, yc, win, str] = xclick(flag);
-      else
-        [btn, xc, yc, win, str] = xclick();
-      end 
-      if btn == -100 then
-        if win == curwin then
-          Cmenu = 'Quit';
-        else;
-          Cmenu = 'Open/Set';
-        end
-        return
+    [btn, xc, yc, win, str] = xclick();
+    if btn == -100 then
+      if win == curwin then
+	Cmenu = 'Quit';
+      else;
+	Cmenu = 'Open/Set';
       end
-      if btn == -2 then
-        xc = 0;yc = 0;
-        try     
-	  // added to handle unwanted menu actions in french version
-          execstr('Cmenu=' + part(str, 9:length(str) - 1));
-          execstr('Cmenu=' + Cmenu);
-        catch
-          Cmenu=""    
-        end     
-        return
-      end
-      Cmenu=""
+      return
+    end
+    if btn == -2 then
+      xc = 0;yc = 0;
+      try     
+	// added to handle unwanted menu actions in french version
+	execstr('Cmenu=' + part(str, 9:length(str) - 1));
+	execstr('Cmenu=' + Cmenu);
+      catch
+	Cmenu=""    
+      end     
+      return
+    end
+    Cmenu=""
   endfunction
     
   ok=%f
@@ -201,15 +193,15 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
     ipar=[N;NOrder;PeridicOption]
     rpar=[]
   elseif nargin == 2 then  
-      NOrder=iparin(2);
-      PeridicOption=iparin(3);
-      ipar=iparin;
-      rpar=[]
+    NOrder=iparin(2);
+    PeridicOption=iparin(3);
+    ipar=iparin;
+    rpar=[]
   elseif nargin ==3 then  
-      NOrder=iparin(2);
-      PeridicOption=iparin(3);
-      ipar=iparin;
-      rpar=rparin    
+    NOrder=iparin(2);
+    PeridicOption=iparin(3);
+    ipar=iparin;
+    rpar=rparin    
   end
   
   Amp=[];wp=[]; phase=[];offset=[];np1=[];
@@ -236,11 +228,11 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   xmx=xmx+dx/50;
   if dy==0 then dy=max(ymx/2,1),end;
   ymn=ymn-dy/50;ymx=ymx+dy/50;
-
   rect=[xmn,ymn;xmx,ymx];
-  //===================================================================
+  
   // f=scf();
-
+  // menus 
+  // 
   delmenu(curwin,'3D Rot.')
   delmenu(curwin,'Edit')
   delmenu(curwin,'File')
@@ -277,102 +269,89 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   execstr('Data_'+string(curwin)+'=Datam')
   execstr('Standards_'+string(curwin)+'=Standm')
   execstr('Exit_'+string(curwin)+'=Exitm')
-
+  
   addmenu(curwin,MENU(1))
   addmenu(curwin,MENU(2),menu_o)
   addmenu(curwin,MENU(3),menu_d)
   addmenu(curwin,MENU(4),menu_t)
   addmenu(curwin,MENU(5),menu_e)
-  //===================================================================
-  //initial draw
   
-  pause xxx;
-  
+  //initial drawings 
+    
   xsetech(frect=[rect(1),rect(3),rect(2),rect(4)]);
   xtitle( '', 'time', 'Output' ) ; 
   // xgrid();
-  xpolys(xy(:,1),xy(:,2),[-1]);   //children(2)
-  xpolys(xy(:,1),xy(:,2),[5]);    //children(1)
+  xpolys(xy(:,1),xy(:,2),[5]);
+  xpolys(xy(:,1),xy(:,2),[-1]);
   F=get_current_figure();
   a=F.children(1);
   splines=F.children(1).children(1);
   points=F.children(1).children(2);
-  //---------------------------------------
+  points.children(1).hilited=%t;
   [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-  // main loop 
-  pause; 
-  while %t then //=================================================
+  F.invalidate[];  
+  while %t then 
     N=size(xy,'r');
     [btn,xc,yc,win,Cmenu]=get_click();
     if ((win>0) & (win<>curwin)) then
       Cmenu='Mouse click is Offside!';
     end
-    if isempty(Cmenu) then Cmenu='edit',end
-    if (Cmenu=='Exit') |(Cmenu=='Quit' ) then, ipar=[];rpar=[];ok=%f;return; end
-    //-------------------------------------------------------------------
-    if ((Cmenu=='zero order') | (Cmenu=='linear') | (Cmenu=='order 2')| ...
-	(Cmenu=='not_a_knot')| (Cmenu=='periodic')| (Cmenu=='monotone')| ...
-	(Cmenu=='fast')| (Cmenu=='clamped')) then
-      
-      select  Cmenu
-       case 'zero order' then
-	NOrder=0;
-       case 'linear' then
-	NOrder=1;
-       case 'order 2' then
-	NOrder=2;
-       case 'not_a_knot' then
-	NOrder=3;
-       case 'periodic' then
-	NOrder=4;
-       case 'monotone' then
-	NOrder=5;
-       case 'fast' then
-	NOrder=6;
-       case 'clamped' then
-	NOrder=7;
-      end
+    if Cmenu.equal[""] then Cmenu='edit',end
+    if (Cmenu=='Exit') |(Cmenu=='Quit' ) then
+      ipar=[];rpar=[];ok=%f;return;
+    end
+    methods=['zero order';'linear';'order 2';'not_a_knot';'periodic'; ...
+	     'monotone';'fast';'clamped'];
+    NOrder = find(Cmenu== methods);
+    if ~isempty(NOrder) then 
+      NOrder = NOrder -1;
       ipar(2)=NOrder;
       [rpar,ipar]=AutoScale(a,xy,ipar,rpar)  
     end
-    //-------------------------------------------------------------------  
+    
     select Cmenu
      case 'Data Bounds' then
+      // fix data bounds getting new values through getvalue
+      //-------------------------------------------------------------------  
       rectx=findrect(a);
-      [mok,xmn1,xmx1,ymn1,ymx1]=getvalue('Enter new bounds',['xmin';'xmax'; ...
-		    'ymin';'ymax'],list('vec',1,'vec',1,'vec',1,'vec',1), ...
-					 string(rectx))
-      //drawlater();
+      str = ['xmin';'xmax';'ymin';'ymax'];
+      typ = list('vec',1,'vec',1,'vec',1,'vec',1);
+      [mok,xmn1,xmx1,ymn1,ymx1]=getvalue('Enter new bounds',str,typ,string(rectx));
       if mok then 
 	if (xmn1>xmx1|ymn1>ymx1) then
 	  xinfo('Incorrect bounds')
 	  mok=%f;
 	end
 	if xmn1<0 then
-	  xinfo('X soululd be positive')
+	  xinfo('x values should be positive')
 	  mok=%f;
 	end
 	if mok then 
-	  a.data_bounds=[xmn1,ymn1;xmx1,ymx1];
+	  xsetech(frect=[xmn1,ymn1,xmx1,ymx1],fixed=%t);
 	end
       end
-      //drawnow();//show_pixmap(); 
-      //-------------------------------------------------------------------  
+      a.invalidate[];
      case 'Autoscale' then 
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+      // reset the bounds using data
       //-------------------------------------------------------------------  
+      [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+
      case 'Periodic signal' then 
+      // setup periodicity
+      //-------------------------------------------------------------------  
       if PeridicOption==1 then, ans0='y',else, ans0='n',end;
-      [mok,myans]=getvalue('Generating periodic signal',['y/n'],list('str',1),list(ans0));
+      [mok,myans]=getvalue('Generating periodic signal',['y/n'],list('str',1),ans0);
       if ((myans=='y')|(myans=='Y')) then,PeridicOption=1,else,PeridicOption=0;end;
       ipar(3)=PeridicOption;
       [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
       //-------------------------------------------------------------------
      case 'sine' then 
-      [mok,Amp,wp,phase,offset,np1,Sin_exprs2]=getvalue(' Sine parameters', ...
-							['Amplitude';'Frequency(rad/sec)'; ...
-		    'Phase(rad)';'Bias';'number of points'],list('vec',1,'vec',1,'vec',1, ...
-						  'vec',1,'vec',1),Sin_exprs)
+      // a sine signal 
+      //-------------------------------------------------------------------  
+      values = ['Amplitude';'Frequency(rad/sec)';'Phase(rad)';'Bias';'number of points'];
+      typ = list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1);
+      [mok,Amp,wp,phase,offset,np1,Sin_exprs2]=getvalue(' Sine parameters',values, typ,...
+							Sin_exprs);
       if np1< 2 then np1=2;end
       if mok & wp>0  then
 	NOrder=3;
@@ -384,8 +363,8 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
 	Sin_exprs=Sin_exprs2
       end
-      //-------------------------------------------------------------------
      case 'sawtooth1' then 
+      //-------------------------------------------------------------------
       [mok,sAmp,sTp,sdelay,Sawt1_exprs2]=getvalue('Sawtooth signal parameters', ...
 						  ['Amplitude';'Period';'delay'], ...
 						  list('vec',1,'vec',1,'vec',1),Sawt1_exprs)   
@@ -403,10 +382,11 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
 	Sawt1_exprs=Sawt1_exprs2
       end
-      //-------------------------------------------------------------------
      case 'sawtooth2' then     
+      //-------------------------------------------------------------------
       [mok,sAmp2,sTp2,Sawt2_exprs2]=getvalue('Sawtooth signal parameters', ...
-					     ['Amplitude';'Period'],list('vec',1,'vec',1),Sawt2_exprs)    
+					     ['Amplitude';'Period'],...
+					     list('vec',1,'vec',1),Sawt2_exprs)    
       if mok & sTp2>0 then
 	NOrder=1;
 	ipar(2)=NOrder;
@@ -416,13 +396,12 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
 	Sawt2_exprs=Sawt2_exprs2
       end
-      //-------------------------------------------------------------------
      case 'pulse' then
-      [mok,Amp3,Tp3,Pw3,Pd3,Bias3,Pulse_exprs2]=getvalue('Square wave pulse signal', ...
-						  ['Amplitude';'Period (sec)';'Pulse width(% o"+...
-		    "f period)';'Phase delay (sec)';'Bias'],list('vec',1, ...
-						  'vec',1,'vec',1,'vec',1,'vec', ...
-						  1),Pulse_exprs)        
+      //-------------------------------------------------------------------
+      values=['Amplitude';'Period (sec)';'Pulse width(% of period)';'Phase delay (sec)';'Bias'];
+      typ = list('vec',1, 'vec',1,'vec',1,'vec',1,'vec',1);
+      [mok,Amp3,Tp3,Pw3,Pd3,Bias3,Pulse_exprs2]=getvalue('Square wave pulse signal',values, ...
+						  typ,Pulse_exprs);
       if mok & Tp3>0  then
 	NOrder=0;
 	ipar(2)=NOrder;
@@ -443,92 +422,90 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
 	Pulse_exprs=Pulse_exprs2;
       end
-      //-------------------------------------------------------------------
      case 'random normal' then
-      [mok,mean4,var4,seed4,sample4,np4,random_n_exprs2]=getvalue('Normal (Gaussian) random signal', ...
-						  ['Mean';'Variance';'Initial seed';'Sample time';'Number of points'],list('vec',1, ...
-						  'vec',1,'vec',1,'vec', ...
-						  1,'vec',1),random_n_exprs)        
+      //-------------------------------------------------------------------
+      tit= 'Normal (Gaussian) random signal';
+      values=['Mean';'Variance';'Initial seed';'Sample time';'Number of points'];
+      typ = list('vec',1,'vec',1,'vec',1,'vec', 1,'vec',1)
+      [mok,mean4,var4,seed4,sample4,np4,random_n_exprs2]=getvalue(tit,values,typ,...
+						  random_n_exprs);
       if mok & sample4>0 then
 	NOrder=0;
 	ipar(2)=NOrder;      
-	rand('normal');  rand('seed',seed4);
+	// rand('seed',seed4);
 	xt=0:sample4:sample4*(np4-1);xt=xt(:);
-	yt=mean4+sqrt(var4)*rand(np4,1);
+	yt=mean4+sqrt(var4)*randn(np4,1);
 	xy=[xt,yt];	
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
 	random_n_exprs2=random_n_exprs;
       end
-      //-------------------------------------------------------------------
      case 'random uniform' then
-      [mok,min5,max5,seed5,sample5,np5,random_u_exprs2]=getvalue('Uniform random signal', ...
-						  ['Minimum';'Maximum';'Initial seed';'Sample time';'Number of points'],list('vec',1, ...
-						  'vec',1,'vec',1,'vec', ...
-						  1,'vec',1),random_u_exprs)        
+      //-------------------------------------------------------------------
+      tit= 'Uniform random signal';
+      values= ['Minimum';'Maximum';'Initial seed';'Sample time';'Number of points'];
+      typ= list('vec',1,  'vec',1,'vec',1,'vec',  1,'vec',1);
+      [mok,min5,max5,seed5,sample5,np5,random_u_exprs2]=getvalue(tit,values,typ,...
+						  random_u_exprs);
       if mok & sample5>0 then
 	NOrder=0;
 	ipar(2)=NOrder;      
-	rand('uniform'); rand('seed',seed5);
+	// rand('seed',seed5);
 	xt=0:sample5:sample5*(np5-1);xt=xt(:);
 	yt=min5+(max5-min5)*rand(np5,1);
 	xy=[xt,yt];	
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
 	random_u_exprs2=random_u_exprs;
-
       end   
-      //-------------------------------------------------------------------
      case 'Save/Exit' then
+      //-------------------------------------------------------------------
       NOrder=ipar(2);
       PeridicOption=ipar(3);
-
       METHOD=getmethod(NOrder);
       if (METHOD=='periodic') then // periodic spline
 	xy(N,2)=xy(1,2);
       end
-      
-      if (METHOD=='order 2' | METHOD=='not_a_knot'|METHOD=='periodic' | METHOD=='monotone'| METHOD=='fast' | METHOD=='clamped') then 
+      if or(METHOD==['order 2','not_a_knot','periodic','monotone','fast','clamped']) then 
 	rpar=[xy(:,1);xy(:,2);rpar];
-      else
-	if (METHOD=='zero order'|METHOD=='linear')
+      elseif or(METHOD==['zero order,'linear'])
 	  rpar=[xy(:,1);xy(:,2)]
-	end
       end
-      
       ok=%t
-      delete(f);
+      xdel(curwin);
       return 
-      //-------------------------------------------------------------------
      case 'Exit without save' then 
+      //-------------------------------------------------------------------
       ipar=[];
       rpar=[];
       ok=%f
-      delete(f);
+      xdel(curwin);
       return
-      //-------------------------------------------------------------------
      case 'Clear' then    
+      //-------------------------------------------------------------------
       xy=[0,0];
       NOrder=0;
       ipar(2)=NOrder;
       [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-      //----------------------------------------------------------------
      case 'Edit text data NOT IN USE' then
+      //----------------------------------------------------------------
       //  editvar xy;
-      [mok,xt,yt]=getvalue('Enter x and y data',['x';'y'],list('vec',-1,'vec',-1),list(strcat(sci2exp(xy(:,1))),strcat(sci2exp(xy(:,2)))));
+      [mok,xt,yt]=getvalue('Enter x and y data',['x';'y'],...
+			   list('vec',-1,'vec',-1),...
+			   list(strcat(sci2exp(xy(:,1))),strcat(sci2exp(xy(:,2)))));
       if mok then,    
 	xy=[xt,yt];
 	[xy]=cleandata(xy), 
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
       end
-      //---------------------------------------------------------------  
      case 'Help' then
+      //---------------------------------------------------------------  
       t1='Mouse-left click: adding a new point'
       t2='Mouse-right click: remove a point'
       t3='Mouse-left double click: edit a point''s coordinates'
       t4='Mouse-left button press/drag/release: move a  point'
       t5='Change the window size: ''Data'' menu -> ''Databounds'''
       x_message([t1;t2;t3;t4;t5]);
-      //---------------------------------------------------------------  
      case 'Load from Excel' then
+      //---------------------------------------------------------------  
       [tok,xytt]=ReadExcel()
       if tok then
 	xy=xytt;
@@ -536,8 +513,8 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	ipar(2)=NOrder;
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
       end
-      //---------------------------------------------------------------       
      case 'Load from text file' then
+      //---------------------------------------------------------------       
       [tok,xytt]=ReadFromFile()
       if tok then
 	xy=xytt;
@@ -545,34 +522,32 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	ipar(2)=NOrder;
 	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
       end
-      //---------------------------------------------------------------     
      case 'Save to text file' then    
+      //---------------------------------------------------------------     
       [sok]=SaveToFile(xy)
-      //---------------------------------------------------------------       
      case 'Replot' then
+      //---------------------------------------------------------------       
       if ~isempty( xy) then 
 	drawlater();
 	points.data=xy;
 	[rpar,ipar]=drawSplin(a,xy,ipar,rpar);
 	drawnow()
       end
-      //----------------------------------------------------------
      case 'edit' then 
+      //----------------------------------------------------------
       HIT=%f
       if N<>0 then
 	xt=xy(:,1);yt=xy(:,2);
 	dist=((xt-ones(N,1)*xc)).^2+((yt-ones(N,1)*yc)).^2 // 
 	[dca,k]=min(dist);
-	rectx=a.data_bounds;
-	ex=abs(rectx(2,1)-rectx(1,1))/80;
-	ey=abs(rectx(2,2)-rectx(1,2))/80;
+	rectx=a.frect;
+	ex=abs(rectx(3)-rectx(1))/80;
+	ey=abs(rectx(4)-rectx(2))/80;
 	if (abs(xc-xt(k))<ex & abs(yc-yt(k))<ey) then 
 	  HIT=%t
 	end
-    end
-    
-    //_________________________
-  //  if ~((NOrder==-1|NOrder==-2|NOrder==-3|NOrder==-4)) then
+      end
+
       if (~HIT)&(btn==0 | btn==3) then    // add point
 	if (xc>=0) then 
 	  if (xc==0) then 
@@ -581,58 +556,45 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	  end 
 	  xy=[xy;xc,yc];
 	  [xtt,k2]=gsort(xy(:,1),'r','i');xy=xy(k2,:)
-	  f.pixmap='on';
-	  drawlater();
-	  points.data=xy;
+	  points.children(1).x=xy(:,1);
+	  points.children(1).y=xy(:,2);
 	  [rpar,ipar]=drawSplin(a,xy,ipar,rpar);  
-	  show_pixmap(); 
-	  drawnow()
-	  f.pixmap='off';
-	end	      
+	  F.invalidate[]
+	end
       end
       
       if (HIT)&(btn==2 | btn==5) then  //   remove point
-	f.pixmap='on';
 	if (xy(k,1)>0) |( xy(k,1)==0 & (size(find(xy(:,1)==0),'*')>1)) then 
 	  xy(k,:)=[];
 	end
-	drawlater();
-	points.data=xy;
+	points.children(1).x=xy(:,1);
+	points.children(1).y=xy(:,2);
 	[rpar,ipar]=drawSplin(a,xy,ipar,rpar);  
-	show_pixmap(); 
-	drawnow()
-	f.pixmap='off';
-      end   
+	F.invalidate[]
+      end  
 
-      if (HIT)&(btn==0) then             // move point
-	f.pixmap='on';
+      if (HIT)&(btn==0) then 
+	// move point
 	[xy,rpar,ipar]=movept(a,xy,ipar,rpar,k)   
-	f.pixmap='off';
       end
-            
-      if (HIT)&(btn==10) then             // change data:: double click
-	[mok,xt,yt]=getvalue('Enter new x and y',['x';'y'],list('vec', ...
-						  1,'vec',1),list(sci2exp(xy(k,1)),sci2exp(xy(k,2))));
+      
+      if (HIT)&(btn==10) then             
+	// change data:: double click
+	[mok,xt,yt]=getvalue('Enter new x and y',['x';'y'],...
+			     list('vec', 1,'vec',1),...
+			     list(sci2exp(xy(k,1)),sci2exp(xy(k,2))));
 	if mok then 
 	  xy(k,:)=[xt,yt];
 	  [xy]=cleandata(xy)
-	  f.pixmap='on';
-	  drawlater();
-	  points.data=xy;
+	  points.children(1).x=xy(:,1);
+	  points.children(1).y=xy(:,2);
 	  [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
-	  show_pixmap(); 
-	  drawnow()
-	  f.pixmap='off';
+	  F.invalidate[]
 	end
       end
-
-  //  end
-    //_________________________________
-   
-  end
-  //----------------------------------------------------------
-end
-endfunction
+      end
+    end
+  endfunction
 
 function [orpar,oipar]=drawSplin(a,xy,iipar,irpar)
 // draw a spline 
@@ -644,8 +606,8 @@ function [orpar,oipar]=drawSplin(a,xy,iipar,irpar)
   METHOD=getmethod(order);
   if periodicoption==1 then 
     PERIODIC='periodic, T='+string(x(N)-x(1));
-  else P
-    ERIODIC='aperiodic';
+  else 
+    PERIODIC='aperiodic';
   end  
   // a.title.text=[string(N)+' points,  '+'Method: '+METHOD+',  '+PERIODIC];
   if (N==0) then, return; end
@@ -658,10 +620,11 @@ function [orpar,oipar]=drawSplin(a,xy,iipar,irpar)
     X=[X;X($)];
     Y=[Y;Y(1)];
   else
-    xmx=max(points.data(:,1));  xmn=min(points.data(:,1));
+    points=a.children(2).children(1);
+    xmx=max(points.x);  xmn=min(points.x);
     XMX=max(0,xmx); XMN=max(0,xmn);
-    xmx1=max(a.x_ticks.locations)
-    XMX=max(XMX,xmx1);    
+    // xmx1=max(a.x_ticks.locations)
+    // XMX=max(XMX,xmx1);    
     X=[X;XMX];
     Y=[Y;Y($)];
   end
@@ -672,8 +635,9 @@ endfunction
 
 function [xyt,orpar,oipar]=movept(a,xy,iipar,irpar,k)
 // on bouge un point existant
-  points=a.children(2).children
-  splines=a.children(1).children  
+//  pause in movept 
+  splines=a.children(1).children(1)
+  points=a.children(2).children(1)
   oipar=iipar
   orpar=irpar
   order=iipar(2);
@@ -689,7 +653,8 @@ function [xyt,orpar,oipar]=movept(a,xy,iipar,irpar,k)
   end 
   btn=-1
   while ~(btn==3 | btn==0| btn==10| btn==-5)
-    rep=xgetmouse([%t %t]); xc=rep(1);yc=rep(2);btn=rep(3);
+    rep=xgetmouse(getmotion=%t,getrelease=%t);
+    xc=rep(1);yc=rep(2);btn=rep(3);
     if (ZERO_POINT) then 
       xc=0;
     else
@@ -704,25 +669,26 @@ function [xyt,orpar,oipar]=movept(a,xy,iipar,irpar,k)
     yt=[y;yc];
     [xt,k2]=gsort(xt,'r','i');yt=yt(k2)
     xyt=[xt,yt];
-    drawlater();
-    points.data=xyt;    
+    points.x=xt;
+    points.y=yt;
     [orpar,oipar]=drawSplin(a,xyt,oipar,orpar); 
-    show_pixmap();  
-    drawnow()
+    a.invalidate[];
   end
 endfunction
 
 function   rectx=findrect(a) 
-  splines=a.children(1).children  
-  points=a.children(2).children
-  if isempty(points.data) then 
-    rectx=a.data_bounds;
+// a is an axes 
+  splines=a.children(1).children(1)
+  points=a.children(2).children(1)
+  if isempty(points.x) then 
+    rectx=a.frect;
+    rectx=[rectx(1),rectx(2);rectx(3),rectx(4)];
     return;
   end    
-  ymx1=max(splines.data(:,2));  ymn1=min(splines.data(:,2))
-  xmx=max(points.data(:,1));xmn=min(points.data(:,1));
-  ymx=max(points.data(:,2));ymn=min(points.data(:,2));
-  XMX=max(0,xmx);            XMN=max(0,xmn);
+  ymx1=max(splines.y);  ymn1=min(splines.y);
+  xmx=max(points.x);xmn=min(points.x);
+  ymx=max(points.y);ymn=min(points.y);
+  XMX=max(0,xmx);     XMN=max(0,xmn);
   YMX=max(ymx,ymx1);  YMN=min(ymn,ymn1);
   dx=XMX-XMN;dy=YMX-YMN
   if dx==0 then dx=max(XMX/2,1),end;
@@ -822,19 +788,16 @@ function [tok,xyo]=ReadExcel()
 	 break
     end	 
   end
-  
 endfunction
-//---------------------------------------------------------------
+
 function [xyo]=cleandata(xye)
   xe=xye(:,1)
   ye=xye(:,2)
-  
   [nx,mx]=size(xe);// adjusting the x and y size
   [ny,my]=size(ye);
   N=min(nx,ny);
   xe=xe(1:N,:);
   ye=ye(1:N,:);
-
   // checking for NULL data
   for i=1:N
     if (xe(i)<>xe(i)) then 
@@ -851,15 +814,13 @@ function [xyo]=cleandata(xye)
     xe($+1)=0;
     ye($+1)=0;
   end
-  
   [xo,k2]=gsort(xe,'r','i');
   yo=ye(k2)    
- 
   xyo=[xo,yo];
 endfunction
 
 function  [orpar,oipar]=AutoScale(a,xy,inipar,inrpar)   
-  pause autoscale
+  // pause autoscale
   oipar=inipar
   orpar=inrpar
   a.children(2).children(1).x = xy(:,1);  
@@ -868,9 +829,9 @@ function  [orpar,oipar]=AutoScale(a,xy,inipar,inrpar)
   a.children(1).children(1).y = xy(:,2);
   [orpar,oipar]=drawSplin(a,xy,oipar,orpar);
   rectx=findrect(a);     
-  // a.data_bounds=rectx;
+  xsetech(frect= [rectx(1),rectx(3),rectx(2),rectx(4)],fixed=%t);
+  a.invalidate[];
 endfunction
-
 
 function METHOD=getmethod(order)
   select order
@@ -884,7 +845,7 @@ function METHOD=getmethod(order)
    case 7 then, METHOD='clamped'
   end
 endfunction
-//=======================================
+
 function [sok,xye]=ReadFromFile()
   xye=[];sok=%f;
   while %t
@@ -916,7 +877,7 @@ function [sok,xye]=ReadFromFile()
     sok=%t;break,
  end 
 endfunction
-//=======================================
+
 function [sok]=SaveToFile(xye)
   xe=xye(:,1)
   ye=xye(:,2)
@@ -944,12 +905,10 @@ function [sok]=SaveToFile(xye)
     sok=%t;break,
  end 
 endfunction
-//=========================================================
+
 function [X,Y,orpar]=Do_Spline(N,order,x,y)
   X=[];Y=[];orpar=[];
-
   METHOD=getmethod(order);
-
   if (METHOD=='zero order') then 
     X=x(1);Y=y(1);
     for i=1:N-1
@@ -958,7 +917,6 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
     end
     return
   end    
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='linear') then
     X=[];
     for i=1:N
@@ -1025,7 +983,6 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
     catch
     xinfo('ERROR in SPLINE: '+METHOD)
     end
-  
   end
    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='fast') then
@@ -1047,41 +1004,39 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       xinfo('ERROR in SPLINE: '+METHOD)    
     end
   end  
-  
 endfunction
-//=================================================  
+
 function [Z]=ORDER2(x,y)
-N=size(x,'*')-1;
-A=zeros(3*N-1,N*3);
-B=zeros(3*N-1,1);
-for i=1:N
-   j=3*(i-1)+1;
-   A(j,i+2*N)=1;
-   B(j)=y(i);
-   A(j+1,i)=(x(i+1)-x(i))^2;
-   A(j+1,i+N)=x(i+1)-x(i);
-   A(j+1,i+2*N)=1;
-   B(j+1)=y(i+1);
-end
+  N=size(x,'*')-1;
+  A=zeros(3*N-1,N*3);
+  B=zeros(3*N-1,1);
+  for i=1:N
+    j=3*(i-1)+1;
+    A(j,i+2*N)=1;
+    B(j)=y(i);
+    A(j+1,i)=(x(i+1)-x(i))^2;
+    A(j+1,i+N)=x(i+1)-x(i);
+    A(j+1,i+2*N)=1;
+    B(j+1)=y(i+1);
+  end
 
-for i=1:N-1
-   j=3*(i-1)+1;
-   A(j+2,i)=2*(x(i+1)-x(i));
-   A(j+2,i+N)=1;   
-   A(j+2,i+N+1)=-1;
-end
-
-Q=zeros(3*N,3*N);
-for i=1:N
-  Q(i,i)=4*(x(i+1)-x(i))^2
-  Q(i,i+N)=2*(x(i+1)-x(i))
-  Q(i+N,i)=2*(x(i+1)-x(i))
-  Q(i+N,i+N)=1;
-end
-
-At=[Q,A';A,zeros(3*N-1,3*N-1)]
-Bt=[zeros(3*N,1);B]
-Zt=At\Bt;
-Z=Zt(1:3*N,1)
+  for i=1:N-1
+    j=3*(i-1)+1;
+    A(j+2,i)=2*(x(i+1)-x(i));
+    A(j+2,i+N)=1;   
+    A(j+2,i+N+1)=-1;
+  end
+  
+  Q=zeros(3*N,3*N);
+  for i=1:N
+    Q(i,i)=4*(x(i+1)-x(i))^2
+    Q(i,i+N)=2*(x(i+1)-x(i))
+    Q(i+N,i)=2*(x(i+1)-x(i))
+    Q(i+N,i+N)=1;
+  end
+  At=[Q,A';A,zeros(3*N-1,3*N-1)]
+  Bt=[zeros(3*N,1);B]
+  Zt=At\Bt;
+  Z=Zt(1:3*N,1)
 endfunction
-//===================================================
+

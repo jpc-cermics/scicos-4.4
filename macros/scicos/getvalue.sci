@@ -1,9 +1,8 @@
 function [ok,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18]=getvalue(%desc,%labels,%typ,%ini)
-// getvalues - %window dialog for data acquisition 
-//%Synta%
-//  [ok,%1,..,%11]=getvalue(desc,labels,typ,ini)
+// getvalues - launch dialogs for acquiring data 
+// [ok,%1,..,%11]=getvalue(desc,labels,typ,ini)
 //%Parameters
-//  desc    : column vector of strings, dialog general comment 
+//  desc    : column vector of strings giving the dialog general comment 
 //  labels  : n column vector of strings, labels(i) is the label of 
 //            the ith required value
 //  typ     : list(typ1,dim1,..,typn,dimn)
@@ -57,6 +56,14 @@ function [ok,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18]=get
   %12=[];%13=[];%14=[];%15=[];%16=[];%17=[];%18=[];
 
   if nargin < 4  then %ini=smat_create(%nn,1);end;
+  
+  if type(%ini,'short')== 'l' then 
+    ini1=m2s([]);
+    for i=1:length(%ini)
+      ini1.concatd[catenate(%ini(i))];
+    end
+    %ini = ini1;
+  end
   
   ok=%t
   
