@@ -260,8 +260,8 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
   menu_r=[];
   menu_s=[];
   menu_o=['zero order','linear','order 2','not_a_knot','periodic','monotone','fast','clamped']
-  menu_d=['Clear','Data Bounds','Load from text f"+...
-	  "ile','Save to text file','Load from Excel','Periodic signal']
+  menu_d=['Clear','Data Bounds','Load from text file','Save to text file',...
+	  'Load from Excel','Edit points','Periodic signal']
   menu_t=['sine','sawtooth1','sawtooth2','pulse','random normal','random uniform']
   menu_e=['Help','Exit without save','Save/Exit']
   MENU=['Autoscale','Spline','Data','Standards','Exit'];
@@ -513,6 +513,11 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       t4='Mouse-left button press/drag/release: move a  point'
       t5='Change the window size: ''Data'' menu -> ''Databounds'''
       x_message([t1;t2;t3;t4;t5]);
+     case 'Edit points' then
+      //---------------------------------------------------------------  
+      editvar('xy');
+      [xy]=curve_cleandata(xy), 
+      [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
      case 'Load from Excel' then
       //---------------------------------------------------------------  
       [tok,xytt]=curve_read_excel()
