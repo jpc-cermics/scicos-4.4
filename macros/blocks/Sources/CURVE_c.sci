@@ -30,7 +30,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
       if  ~ok then break;end    
       if PeriodicOption=='y' | PeriodicOption=='Y' then,PO=1;else,exprs(4)='n';PO=0;end
       mtd=int(Method); if mtd<0 then mtd=0;end; if mtd>7 then mtd=7;end;    
-      METHOD=getmethod(mtd);
+      METHOD=curve_getmethod(mtd);
       
       if ~Ask_again then 
 	xx=xx(:);yy=yy(:);
@@ -40,7 +40,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
       
       if ~Ask_again then//+++++++++++++++++++++++++++++++++++++++
 	xy=[xx,yy];
-	[xy]=cleandata(xy);// just for sorting to be able to compare data before and after poke_point(.)
+	[xy]=curve_cleandata(xy);// just for sorting to be able to compare data before and after poke_point(.)
 	N= size(xy,'r');
 	exprs(5)='n';// exprs.graf='n'
 	if graf=='y' | graf=='Y' then //_______Graphic editor___________
@@ -52,7 +52,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
 	  end
 	  save_curwin=curwin;
 	  curwin=max(winsid())+1; 
-	  [orpar,oipar,ok]=poke_point(xy,ipar,rpar);   
+	  [orpar,oipar,ok]=edit_spline(xy,ipar,rpar);   
 	  curwin=save_curwin;
 	  if ~ok then break;end;//  exit without save
 	  
@@ -60,7 +60,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
 	  N2=oipar(1);xy2=[orpar(1:N2),orpar(N2+1:2*N2)];
 	  New_methhod=oipar(2);
 	  DChange=%f;	
-	  METHOD=getmethod(New_methhod);
+	  METHOD=curve_getmethod(New_methhod);
 	  if or(xy(:,1)<>xy2(:,1)) then, DChange=%t;end
 	  if or(xy(1:N-1,2)<>xy2(1:N2-1,2)) then, DChange=%t;end
 	  if (xy(N,2)<>xy2(N2,2) & (METHOD<>'periodic')) then, DChange=%t;end
@@ -138,7 +138,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
   end
 endfunction
 
-function poke_test()
+function test_edit_spline()
 // test: 
   ixy=[1:10;sin(1:10)]'; N = size(ixy,1);
   ipar=[N;2;1];
@@ -147,11 +147,13 @@ function poke_test()
   if ~new_graphics() then 
     switch_graphics();
   end
-  poke_point(ixy,ipar,rpar);
+  edit_spline(ixy,ipar,rpar);
 endfunction
 
-function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
+function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
 
+// utility functions 
+  
   function [btn,xc,yc,win,Cmenu]=get_click()
     if ~or(winsid() == curwin) then   Cmenu = 'Quit';return,end,;
     [btn, xc, yc, win, str] = xclick();
@@ -176,7 +178,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
     end
     Cmenu=""
   endfunction
-    
+  
   ok=%f
   if nargin ==0 then ixy=[];end;
   if size(ixy,'c') < 2 then 
@@ -184,7 +186,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
     return
   end
   
-  [xy]=cleandata(ixy)
+  [xy]=curve_cleandata(ixy)
   N=size(xy,'r');
   
   if nargin <=1 then
@@ -230,6 +232,13 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   ymn=ymn-dy/50;ymx=ymx+dy/50;
   rect=[xmn,ymn;xmx,ymx];
   
+  if ~exists('curwin') then
+    curwin=max(winsid())+1; 
+    if isempty(curwin) then 
+      curwin=0;
+    end
+  end
+  xset('window',curwin);  
   // f=scf();
   // menus 
   // 
@@ -277,7 +286,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   addmenu(curwin,MENU(5),menu_e)
   
   //initial drawings 
-    
+  
   xsetech(frect=[rect(1),rect(3),rect(2),rect(4)]);
   xtitle( '', 'time', 'Output' ) ; 
   // xgrid();
@@ -288,7 +297,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
   splines=F.children(1).children(1);
   points=F.children(1).children(2);
   points.children(1).hilited=%t;
-  [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+  [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
   F.invalidate[];  
   while %t then 
     N=size(xy,'r');
@@ -306,14 +315,14 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
     if ~isempty(NOrder) then 
       NOrder = NOrder -1;
       ipar(2)=NOrder;
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar)  
+      [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar)  
     end
     
     select Cmenu
      case 'Data Bounds' then
       // fix data bounds getting new values through getvalue
       //-------------------------------------------------------------------  
-      rectx=findrect(a);
+      rectx=curve_findrect(a);
       str = ['xmin';'xmax';'ymin';'ymax'];
       typ = list('vec',1,'vec',1,'vec',1,'vec',1);
       [mok,xmn1,xmx1,ymn1,ymx1]=getvalue('Enter new bounds',str,typ,string(rectx));
@@ -334,7 +343,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
      case 'Autoscale' then 
       // reset the bounds using data
       //-------------------------------------------------------------------  
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+      [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
 
      case 'Periodic signal' then 
       // setup periodicity
@@ -343,7 +352,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
       [mok,myans]=getvalue('Generating periodic signal',['y/n'],list('str',1),ans0);
       if ((myans=='y')|(myans=='Y')) then,PeridicOption=1,else,PeridicOption=0;end;
       ipar(3)=PeridicOption;
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+      [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
       //-------------------------------------------------------------------
      case 'sine' then 
       // a sine signal 
@@ -360,7 +369,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	xt=linspace(0,%pi*2/wp,np1)';
 	yt=Amp*sin(wp*xt+phase)+offset;
 	xy=[xt,yt];	
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
 	Sin_exprs=Sin_exprs2
       end
      case 'sawtooth1' then 
@@ -379,7 +388,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	  yt=[0];
 	end	      
 	xy=[xt,yt];	
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar);
 	Sawt1_exprs=Sawt1_exprs2
       end
      case 'sawtooth2' then     
@@ -393,7 +402,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	xt=[0;sTp2];
 	yt=[sAmp2;-sAmp2];
 	xy=[xt,yt];	
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar);
 	Sawt2_exprs=Sawt2_exprs2
       end
      case 'pulse' then
@@ -419,7 +428,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	end
 	
 	xy=[xt,yt];	
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar);
 	Pulse_exprs=Pulse_exprs2;
       end
      case 'random normal' then
@@ -436,7 +445,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	xt=0:sample4:sample4*(np4-1);xt=xt(:);
 	yt=mean4+sqrt(var4)*randn(np4,1);
 	xy=[xt,yt];	
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar);
 	random_n_exprs2=random_n_exprs;
       end
      case 'random uniform' then
@@ -453,21 +462,21 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	xt=0:sample5:sample5*(np5-1);xt=xt(:);
 	yt=min5+(max5-min5)*rand(np5,1);
 	xy=[xt,yt];	
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar);
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar);
 	random_u_exprs2=random_u_exprs;
       end   
      case 'Save/Exit' then
       //-------------------------------------------------------------------
       NOrder=ipar(2);
       PeridicOption=ipar(3);
-      METHOD=getmethod(NOrder);
+      METHOD=curve_getmethod(NOrder);
       if (METHOD=='periodic') then // periodic spline
 	xy(N,2)=xy(1,2);
       end
       if or(METHOD==['order 2','not_a_knot','periodic','monotone','fast','clamped']) then 
 	rpar=[xy(:,1);xy(:,2);rpar];
-      elseif or(METHOD==['zero order,'linear'])
-	  rpar=[xy(:,1);xy(:,2)]
+      elseif or(METHOD==['zero order','linear'])
+	rpar=[xy(:,1);xy(:,2)]
       end
       ok=%t
       xdel(curwin);
@@ -484,7 +493,7 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
       xy=[0,0];
       NOrder=0;
       ipar(2)=NOrder;
-      [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+      [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
      case 'Edit text data NOT IN USE' then
       //----------------------------------------------------------------
       //  editvar xy;
@@ -493,8 +502,8 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 			   list(strcat(sci2exp(xy(:,1))),strcat(sci2exp(xy(:,2)))));
       if mok then,    
 	xy=[xt,yt];
-	[xy]=cleandata(xy), 
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+	[xy]=curve_cleandata(xy), 
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
       end
      case 'Help' then
       //---------------------------------------------------------------  
@@ -506,32 +515,30 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
       x_message([t1;t2;t3;t4;t5]);
      case 'Load from Excel' then
       //---------------------------------------------------------------  
-      [tok,xytt]=ReadExcel()
+      [tok,xytt]=curve_read_excel()
       if tok then
 	xy=xytt;
 	NOrder=1
 	ipar(2)=NOrder;
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
       end
      case 'Load from text file' then
       //---------------------------------------------------------------       
-      [tok,xytt]=ReadFromFile()
+      [tok,xytt]=curve_read_from_file()
       if tok then
 	xy=xytt;
 	NOrder=1
 	ipar(2)=NOrder;
-	[rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
       end
      case 'Save to text file' then    
       //---------------------------------------------------------------     
-      [sok]=SaveToFile(xy)
+      [sok]=curve_save_to_file(xy)
      case 'Replot' then
       //---------------------------------------------------------------       
       if ~isempty( xy) then 
-	drawlater();
 	points.data=xy;
-	[rpar,ipar]=drawSplin(a,xy,ipar,rpar);
-	drawnow()
+	[rpar,ipar]=curve_update_spline(a,xy,ipar,rpar);
       end
      case 'edit' then 
       //----------------------------------------------------------
@@ -547,8 +554,9 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	  HIT=%t
 	end
       end
-
-      if (~HIT)&(btn==0 | btn==3) then    // add point
+      
+      if (~HIT)&(btn==0 | btn==3) then    
+	// add point
 	if (xc>=0) then 
 	  if (xc==0) then 
 	    zz=find(x==0);
@@ -558,24 +566,25 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 	  [xtt,k2]=gsort(xy(:,1),'r','i');xy=xy(k2,:)
 	  points.children(1).x=xy(:,1);
 	  points.children(1).y=xy(:,2);
-	  [rpar,ipar]=drawSplin(a,xy,ipar,rpar);  
+	  [rpar,ipar]=curve_update_spline(a,xy,ipar,rpar);  
 	  F.invalidate[]
 	end
       end
       
-      if (HIT)&(btn==2 | btn==5) then  //   remove point
+      if (HIT)&(btn==2 | btn==5) then 
+	//   remove point
 	if (xy(k,1)>0) |( xy(k,1)==0 & (size(find(xy(:,1)==0),'*')>1)) then 
 	  xy(k,:)=[];
 	end
 	points.children(1).x=xy(:,1);
 	points.children(1).y=xy(:,2);
-	[rpar,ipar]=drawSplin(a,xy,ipar,rpar);  
+	[rpar,ipar]=curve_update_spline(a,xy,ipar,rpar);  
 	F.invalidate[]
       end  
 
       if (HIT)&(btn==0) then 
 	// move point
-	[xy,rpar,ipar]=movept(a,xy,ipar,rpar,k)   
+	[xy,rpar,ipar]=curve_movept(a,xy,ipar,rpar,k)   
       end
       
       if (HIT)&(btn==10) then             
@@ -585,25 +594,28 @@ function [rpar,ipar,ok]=poke_point(ixy,iparin,rparin)
 			     list(sci2exp(xy(k,1)),sci2exp(xy(k,2))));
 	if mok then 
 	  xy(k,:)=[xt,yt];
-	  [xy]=cleandata(xy)
+	  [xy]=curve_cleandata(xy)
 	  points.children(1).x=xy(:,1);
 	  points.children(1).y=xy(:,2);
-	  [rpar,ipar]=AutoScale(a,xy,ipar,rpar) 
+	  [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
 	  F.invalidate[]
 	end
       end
-      end
     end
-  endfunction
+  end
+endfunction
 
-function [orpar,oipar]=drawSplin(a,xy,iipar,irpar)
-// draw a spline 
+function [orpar,oipar]=curve_update_spline(a,xy,iipar,irpar)
+// compute spline coordinates and 
+// updates the polyline object a.children(1).children(1) 
+// with computed data. a in an Axes 
+//
   N=size(xy,'r');// new size of xy
   x=xy(:,1);  y=xy(:,2);
   order=iipar(2);
   periodicoption=iipar(3);
   orpar=irpar;
-  METHOD=getmethod(order);
+  METHOD=curve_getmethod(order);
   if periodicoption==1 then 
     PERIODIC='periodic, T='+string(x(N)-x(1));
   else 
@@ -614,7 +626,7 @@ function [orpar,oipar]=drawSplin(a,xy,iipar,irpar)
   if (N==1) then, order=0; end
   //  NP=50;// number of intermediate points between two data points 
   [X,Y,orpar]=Do_Spline(N,order,x,y);
-  // XXXX dimension bizarres 
+  // XXXX strange X and Y 
   Y=Y(:);
   if (periodicoption==1) then 
     X=[X;X($)];
@@ -633,9 +645,8 @@ function [orpar,oipar]=drawSplin(a,xy,iipar,irpar)
   oipar=[N;iipar(2);periodicoption]
 endfunction
 
-function [xyt,orpar,oipar]=movept(a,xy,iipar,irpar,k)
-// on bouge un point existant
-//  pause in movept 
+function [xyt,orpar,oipar]=curve_movept(a,xy,iipar,irpar,k)
+// handler activated when moving a control point 
   splines=a.children(1).children(1)
   points=a.children(2).children(1)
   oipar=iipar
@@ -671,13 +682,16 @@ function [xyt,orpar,oipar]=movept(a,xy,iipar,irpar,k)
     xyt=[xt,yt];
     points.x=xt;
     points.y=yt;
-    [orpar,oipar]=drawSplin(a,xyt,oipar,orpar); 
+    [orpar,oipar]=curve_update_spline(a,xyt,oipar,orpar); 
     a.invalidate[];
   end
 endfunction
 
-function   rectx=findrect(a) 
-// a is an axes 
+function rectx=curve_findrect(a) 
+// recompute data bounds in the a axes 
+// This should be remove since a is 
+// able to give such informations. 
+//
   splines=a.children(1).children(1)
   points=a.children(2).children(1)
   if isempty(points.x) then 
@@ -699,7 +713,7 @@ function   rectx=findrect(a)
 endfunction
 
 
-function [tok,xyo]=ReadExcel()
+function [tok,xyo]=curve_read_excel()
   TA=['A';'B';'C';'D';'E';'F';'G';'H';'I';'J';'K';'L';'M';'N';'O';'P'; ...
       'Q';'R';'S';'T';'U';'V';'W';'X';'Y';'Z';'a';'b';'c';'d';'e';'f'; ...
       'g';'h';'i';'j';'k';'l';'m';'n';'o';'p';'q';'r';'s';'t';'u';'v'; ...
@@ -707,90 +721,80 @@ function [tok,xyo]=ReadExcel()
   TN=['0','1','2','3','4','5','6','7','8','9'];
   xyo=[];tok=%f;
   while %t
-    [zok,filen,sheetN,xa,ya]=getvalue('Excel data file ',['Filename';'Sheet #"+...
-		    " ';'X[start:Stop]';'Y[start:stop]'],list('str',1, ...
-						  'vec',1,'str',1, ...
-						  'str',1), ...
+    values=['Filename';'Sheet # ';'X[start:Stop]';'Y[start:stop]'];
+    [zok,filen,sheetN,xa,ya]=getvalue('Excel data file ',values,...
+				      list('str',1, 'vec',1,'str',1, 'str',1), ...
 				      list(['Classeur1.xls'],['1'],['C5:C25'],['D5:D25']));   
     if ~zok then break,end
-
     try
-        [fd,SST,Sheetnames,Sheetpos] = xls_open(filen);
+      [fd,SST,Sheetnames,Sheetpos] = xls_open(filen);
     catch
-        xinfo('Scicos canot find the excel file:'+filen);
-	break;
+      xinfo('Scicos canot find the excel file:'+filen);
+      break;
     end 
     try  
-    N=size(Sheetnames,'*');
-    if ((sheetN<=N) &(sheetN>0)) then 
-      [Value,TextInd] = xls_read(fd,Sheetpos(sheetN))
-      mclose(fd)
-    end
-    xa=strsubst(xa,' ',''); px=strindex(xa,':'); 
-    ya=strsubst(ya,' ',''); py=strindex(ya,':');
-    x1=part(xa,1:px-1); x2=part(xa,px+1:length(xa));
-    y1=part(ya,1:py-1); y2=part(ya,py+1:length(ya));
-
-    x1p=min(strindex(x1,TN));
-    if isempty(x1p) then, xinfo('Bad address in X:'+x1); break, end
-    x11=part(x1,1:x1p-1);x12=part(x1,x1p:length(x1));
-    
-    x2p=min(strindex(x2,TN));
-    if isempty(x2p) then, xinfo('Bad address in X:'+x2); break, end
-    x21=part(x2,1:x2p-1);x22=part(x2,x2p:length(x2));
-    
-    y1p=min(strindex(y1,TN));
-    if isempty(y1p) then, xinfo('Bad address in Y:'+y1); break, end
-    y11=part(y1,1:y1p-1);y12=part(y1,y1p:length(y1));
-
-    y2p=min(strindex(y2,TN));
-    if isempty(y2p) then, xinfo('Bad address in Y:'+y2); break, end
-    y21=part(y2,1:y2p-1);y22=part(y2,y2p:length(y2));
-       
-    // x11 x12: x21 x22
-    
-    lx11=length(x11);lx21=length(x21);
-    ly11=length(y11);ly21=length(y21)
-    xstC=0;for i=1:lx11,xstC=xstC+modulo(find(TA==part(x11,lx11-i+1)),26)*26^(i-1);end
-    xenC=0;for i=1:lx21,xenC=xenC+modulo(find(TA==part(x21,lx21-i+1)),26)*26^(i-1);end
-    ystC=0;for i=1:ly11,ystC=ystC+modulo(find(TA==part(y11,ly11-i+1)),26)*26^(i-1);end
-    yenC=0;for i=1:ly11,yenC=yenC+modulo(find(TA==part(y21,ly21-i+1)),26)*26^(i-1);end
-        
-    xstR=evstr(x12);
-    xenR=evstr(x22);
-    ystR=evstr(y12);
-    yenR=evstr(y22);
-    
-    [mv,nv]=size(Value)
-
-    if ~(xstR<=mv & xstR>0 & xenR<=mv & xenR>0&ystR<=mv & ystR>0&yenR<=mv&yenR>0 ) then 
-      xinfo('error in Row data addresses'); break
-    end
-    if ~(xstC<=nv & xstC>0 & xenC<=nv & xenC>0&ystC<=nv & ystC>0&yenC<=nv&yenC>0 ) then 
-      xinfo('error in Column data addresses'); break
-    end
-     
-    xo=Value(min(xstR,xenR):max(xstR,xenR),min(xstC,xenC):max(xstC,xenC));
-    yo=Value(min(ystR,yenR):max(ystR,yenR),min(ystC,yenC):max(ystC,yenC));
-    [nx,mx]=size(xo);// adjusting the x and y size
-    [ny,my]=size(yo);
-    N=min(nx,ny);
-    xo=xo(1:N,:);
-    yo=yo(1:N,:);
-    
-    xyo=[xo,yo];
-    [xyo]=cleandata(xyo)
-    
-    tok=%t;break,
+      N=size(Sheetnames,'*');
+      if ((sheetN<=N) &(sheetN>0)) then 
+	[Value,TextInd] = xls_read(fd,Sheetpos(sheetN))
+	mclose(fd)
+      end
+      xa=strsubst(xa,' ',''); px=strindex(xa,':'); 
+      ya=strsubst(ya,' ',''); py=strindex(ya,':');
+      x1=part(xa,1:px-1); x2=part(xa,px+1:length(xa));
+      y1=part(ya,1:py-1); y2=part(ya,py+1:length(ya));
+      
+      x1p=min(strindex(x1,TN));
+      if isempty(x1p) then, xinfo('Bad address in X:'+x1); break, end
+      x11=part(x1,1:x1p-1);x12=part(x1,x1p:length(x1));
+      
+      x2p=min(strindex(x2,TN));
+      if isempty(x2p) then, xinfo('Bad address in X:'+x2); break, end
+      x21=part(x2,1:x2p-1);x22=part(x2,x2p:length(x2));
+      
+      y1p=min(strindex(y1,TN));
+      if isempty(y1p) then, xinfo('Bad address in Y:'+y1); break, end
+      y11=part(y1,1:y1p-1);y12=part(y1,y1p:length(y1));
+      
+      y2p=min(strindex(y2,TN));
+      if isempty(y2p) then, xinfo('Bad address in Y:'+y2); break, end
+      y21=part(y2,1:y2p-1);y22=part(y2,y2p:length(y2));
+      // x11 x12: x21 x22
+      lx11=length(x11);lx21=length(x21);
+      ly11=length(y11);ly21=length(y21)
+      xstC=0;for i=1:lx11,xstC=xstC+modulo(find(TA==part(x11,lx11-i+1)),26)*26^(i-1);end
+      xenC=0;for i=1:lx21,xenC=xenC+modulo(find(TA==part(x21,lx21-i+1)),26)*26^(i-1);end
+      ystC=0;for i=1:ly11,ystC=ystC+modulo(find(TA==part(y11,ly11-i+1)),26)*26^(i-1);end
+      yenC=0;for i=1:ly11,yenC=yenC+modulo(find(TA==part(y21,ly21-i+1)),26)*26^(i-1);end
+      xstR=evstr(x12);
+      xenR=evstr(x22);
+      ystR=evstr(y12);
+      yenR=evstr(y22);
+      [mv,nv]=size(Value)
+      if ~(xstR<=mv & xstR>0 & xenR<=mv & xenR>0&ystR<=mv & ystR>0&yenR<=mv&yenR>0 ) then 
+	xinfo('error in Row data addresses'); break
+      end
+      if ~(xstC<=nv & xstC>0 & xenC<=nv & xenC>0&ystC<=nv & ystC>0&yenC<=nv&yenC>0 ) then 
+	xinfo('error in Column data addresses'); break
+      end
+      xo=Value(min(xstR,xenR):max(xstR,xenR),min(xstC,xenC):max(xstC,xenC));
+      yo=Value(min(ystR,yenR):max(ystR,yenR),min(ystC,yenC):max(ystC,yenC));
+      [nx,mx]=size(xo);// adjusting the x and y size
+      [ny,my]=size(yo);
+      N=min(nx,ny);
+      xo=xo(1:N,:);
+      yo=yo(1:N,:);
+      xyo=[xo,yo];
+      [xyo]=curve_cleandata(xyo)
+      tok=%t;break,
     catch
-         xinfo(' Scicos cannot read your Excel file, please verify"+...
-		   " the parameters '); 	 
-	 break
+      xinfo(' Scicos cannot read your Excel file, please verify"+...
+	    " the parameters '); 	 
+      break
     end	 
   end
 endfunction
 
-function [xyo]=cleandata(xye)
+function [xyo]=curve_cleandata(xye,strict=%t)
   xe=xye(:,1)
   ye=xye(:,2)
   [nx,mx]=size(xe);// adjusting the x and y size
@@ -798,17 +802,11 @@ function [xyo]=cleandata(xye)
   N=min(nx,ny);
   xe=xe(1:N,:);
   ye=ye(1:N,:);
-  // checking for NULL data
-  for i=1:N
-    if (xe(i)<>xe(i)) then 
-      xinfo('x contains no data:x('+string(i)+')'); 
-      return;
-    end
-    if (ye(i)<>ye(i)) then 
-      xinfo('Y contains no data:y('+string(i)+')'); 
-      return;
-    end      
-  end
+  // remove nans 
+  I=find(isnan(xe));
+  xe(I)=[];
+  ye(I)=[];
+  // remove negative x values 
   zz=find(xe<0);xe(zz)=[];ye(zz)=[]
   if isempty(find(xe==0)) then // add zero point
     xe($+1)=0;
@@ -816,24 +814,30 @@ function [xyo]=cleandata(xye)
   end
   [xo,k2]=gsort(xe,'r','i');
   yo=ye(k2)    
+  if strict then 
+    I=find(diff(xo)==0);
+    xo(I+1)=xo(I)+1.e-8;
+    // yo(I+1)=[];
+  end
   xyo=[xo,yo];
 endfunction
 
-function  [orpar,oipar]=AutoScale(a,xy,inipar,inrpar)   
-  // pause autoscale
+function  [orpar,oipar]=curve_autoscale(a,xy,inipar,inrpar)   
+// pause autoscale
   oipar=inipar
   orpar=inrpar
   a.children(2).children(1).x = xy(:,1);  
   a.children(2).children(1).y = xy(:,2);
   a.children(1).children(1).x = xy(:,1);
   a.children(1).children(1).y = xy(:,2);
-  [orpar,oipar]=drawSplin(a,xy,oipar,orpar);
-  rectx=findrect(a);     
+  [orpar,oipar]=curve_update_spline(a,xy,oipar,orpar);
+  rectx=curve_findrect(a);     
   xsetech(frect= [rectx(1),rectx(3),rectx(2),rectx(4)],fixed=%t);
   a.invalidate[];
 endfunction
 
-function METHOD=getmethod(order)
+function METHOD=curve_getmethod(order)
+// method id for spline.
   select order
    case 0 then, METHOD='zero order'
    case 1 then, METHOD='linear'
@@ -846,69 +850,110 @@ function METHOD=getmethod(order)
   end
 endfunction
 
-function [sok,xye]=ReadFromFile()
+function [sok,xye]=curve_read_from_file()
+// read a nx2 matrix in a file 
+// using fscanfMat
   xye=[];sok=%f;
   while %t
-    [sok,filen,Cformat,Cx,Cy]=getvalue('Text data file ',['Filename';'Reading [C] f"+...
-		    "ormat';'Abscissa column';'Output"+...
-		    " column'],list('str',1,'str',1,'vec',1,'vec',1), ...
-				      list(['mydatafile.dat'],['%g %g'],['1'],['2']));       
+    values = ['Filename';'format (C)';'Abscissa column';'Output column'];
+    [sok,filen,Cformat,Cx,Cy]=getvalue('Text data file ',values,...
+				       list('str',1,'str',1,'vec',1,'vec',1), ...
+				       list(['mydatafile.dat'],['%g'],['1'],['2']));       
     if ~sok then break,end
     px=strindex(Cformat,'%');
     NC=size(px,'*');    
-    if isempty(NC) then, xinfo('Bad format in reading data file');sok=%f;break;end
+    if isempty(NC) then, 
+      x_message('Bad format for reading data file (see fscanfMat)');
+      continue;
+    end
     Lx=[];
     try
-      fd=mopen(filen,'r');
-      Lx=mfscanf(-1,fd,Cformat);
-      mclose(fd);
+      Lx=fscanfMat(filen);
     catch
-      xinfo('Scicos canot open the data file:'+filen);
+      x_message('cannot open/read data file:'+filen);
       break;
     end 
-
+    pause 
     [nD,mD]=size(Lx);
-    if ((mD==0) | (nD==0)) then,  xinfo('No data read');sok=%f;break;end
-    if (mD<>NC) then, xinfo('Bad format');sok=%f;break;end
-    
+    if ((mD==0) | (nD==0)) then, x_message('No data read');sok=%f;break;end
+    if (mD < 2 ) then, x_message('unable to read two columns in data file');continue;end
     xe=Lx(:,Cx);ye=Lx(:,Cy);
     xye=[xe,ye];
-    [xye]=cleandata(xye)
+    [xye]=curve_cleandata(xye)
     sok=%t;break,
- end 
+  end 
 endfunction
 
-function [sok]=SaveToFile(xye)
-  xe=xye(:,1)
-  ye=xye(:,2)
+function [sok]=curve_save_to_file(xye)
+// save the nx2 matrix xye in a file 
+// using fprintfMat
   sok=%f;
   while %t
-    [sok,filen,Cformat]=getvalue('Text data file ',['Filename';'Writing [C] f"+...
-		    "ormat'],list('str',1,'str',1), ...
-				      list(['mydatafile.dat'],['%g %g']));       
+    values=['Filename';'format (C)']
+    [sok,filen,Cformat]=getvalue('Text data file ',values,list('str',1,'str',1), ...
+				 list(['mydatafile.dat'],['%g']));       
     if ~sok then break,end
     px=strindex(Cformat,'%');
     NC=size(px,'*');    
-    if NC<>2 then, xinfo('Bad format in writing data file');sok=%f;break;end
-
-    Cformat=Cformat+'\n';
-    
+    if NC<>1 then 
+      x_message('Bad format for writing data (see fprintfMat)');
+      sok=%f;
+      continue;
+    end
     try
-      fd=mopen(filen,'w');
-      mfprintf(fd,Cformat,xe,ye);
-      mclose(fd);
+      fprintfMat(filen,xye,format=Cformat)
     catch
-      xinfo('Scicos canot open the data file:'+filen);
-      break;
-    end 
-
-    sok=%t;break,
- end 
+      x_message('Cannot open or write with given format to data file '''+filen+'''');
+    finally
+      sok=%t;
+      break,
+    end
+  end 
 endfunction
 
 function [X,Y,orpar]=Do_Spline(N,order,x,y)
+
+  function [Z]=spline_order2(x,y)
+    N=size(x,'*')-1;
+    A=zeros(3*N-1,N*3);
+    B=zeros(3*N-1,1);
+    for i=1:N
+      j=3*(i-1)+1;
+      A(j,i+2*N)=1;
+      B(j)=y(i);
+      A(j+1,i)=(x(i+1)-x(i))^2;
+      A(j+1,i+N)=x(i+1)-x(i);
+      A(j+1,i+2*N)=1;
+      B(j+1)=y(i+1);
+    end
+
+    for i=1:N-1
+      j=3*(i-1)+1;
+      A(j+2,i)=2*(x(i+1)-x(i));
+      A(j+2,i+N)=1;   
+      A(j+2,i+N+1)=-1;
+    end
+    
+    Q=zeros(3*N,3*N);
+    for i=1:N
+      Q(i,i)=4*(x(i+1)-x(i))^2
+      Q(i,i+N)=2*(x(i+1)-x(i))
+      Q(i+N,i)=2*(x(i+1)-x(i))
+      Q(i+N,i+N)=1;
+    end
+    At=[Q,A';A,zeros(3*N-1,3*N-1)]
+    Bt=[zeros(3*N,1);B]
+    Zt=At\Bt;
+    Z=Zt(1:3*N,1)
+  endfunction
+
+  // be sure that x is increasing
+  [xyo]=curve_cleandata([x,y],strict=%t)
+  x=xyo(:,1);
+  y=xyo(:,2);
+  // 
   X=[];Y=[];orpar=[];
-  METHOD=getmethod(order);
+  METHOD=curve_getmethod(order);
   if (METHOD=='zero order') then 
     X=x(1);Y=y(1);
     for i=1:N-1
@@ -927,17 +972,17 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
   end
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (N<25) then NP=10;else
-   if (N<50) then NP=5;else
-    if (N<100) then NP=2;else
-      if (N<200) then NP=1;else
-        NP=0;end;end;end;
+    if (N<50) then NP=5;else
+      if (N<100) then NP=2;else
+	if (N<200) then NP=1;else
+	  NP=0;end;end;end;
   end
   for i=1:N-1
     X=[X;linspace(x(i),x(i+1),NP+2)']; // pour tous sauf "linear" et "zero order"
   end
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (N>2) & (METHOD=='order 2') then
-    Z=ORDER2(x,y);
+    Z=spline_order2(x,y);
     A=Z(1:N-1);
     B=Z(N:2*N-2);
     C=Z(2*N-1:3*N-3);
@@ -950,18 +995,17 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
     end    
     orpar=matrix(Z,-1,1)   
   end  
-   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='not_a_knot') then
     try
-    d = splin(x, y, METHOD);
-    Y = interp(X, x, y, d);    
-    orpar=d(:);
+      d = splin(x, y, METHOD);
+      Y = interp(X, x, y, d);    
+      orpar=d(:);
     catch
-     xinfo('ERROR in SPLINE: '+METHOD)
+      xinfo('ERROR in SPLINE: '+METHOD)
     end
-    
   end
-   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='periodic') then
     if y(1)<>y(N) then 
       y(N)=y(1)
@@ -971,20 +1015,20 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       Y = interp(X, x, y, d);  
       orpar=d(:);
     catch
-    xinfo('ERROR in SPLINE: '+METHOD)
+      xinfo('ERROR in SPLINE: '+METHOD)
     end
   end
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='monotone' ) then
     try
       d = splin(x, y, METHOD);
       Y = interp(X, x, y, d);  
       orpar=d(:);
     catch
-    xinfo('ERROR in SPLINE: '+METHOD)
+      xinfo('ERROR in SPLINE: '+METHOD)
     end
   end
-   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='fast') then
     try
       d = splin(x, y, METHOD);
@@ -994,7 +1038,7 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       xinfo('ERROR in SPLINE:  '+METHOD)    
     end  
   end  
-   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='clamped') then
     try
       d = splin(x, y, METHOD,[0;0]);
@@ -1004,39 +1048,5 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       xinfo('ERROR in SPLINE: '+METHOD)    
     end
   end  
-endfunction
-
-function [Z]=ORDER2(x,y)
-  N=size(x,'*')-1;
-  A=zeros(3*N-1,N*3);
-  B=zeros(3*N-1,1);
-  for i=1:N
-    j=3*(i-1)+1;
-    A(j,i+2*N)=1;
-    B(j)=y(i);
-    A(j+1,i)=(x(i+1)-x(i))^2;
-    A(j+1,i+N)=x(i+1)-x(i);
-    A(j+1,i+2*N)=1;
-    B(j+1)=y(i+1);
-  end
-
-  for i=1:N-1
-    j=3*(i-1)+1;
-    A(j+2,i)=2*(x(i+1)-x(i));
-    A(j+2,i+N)=1;   
-    A(j+2,i+N+1)=-1;
-  end
-  
-  Q=zeros(3*N,3*N);
-  for i=1:N
-    Q(i,i)=4*(x(i+1)-x(i))^2
-    Q(i,i+N)=2*(x(i+1)-x(i))
-    Q(i+N,i)=2*(x(i+1)-x(i))
-    Q(i+N,i+N)=1;
-  end
-  At=[Q,A';A,zeros(3*N-1,3*N-1)]
-  Bt=[zeros(3*N,1);B]
-  Zt=At\Bt;
-  Z=Zt(1:3*N,1)
 endfunction
 
