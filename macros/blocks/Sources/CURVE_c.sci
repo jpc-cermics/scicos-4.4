@@ -14,7 +14,6 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-
     x=arg1
     model=arg1.model
     graphics=arg1.graphics
@@ -34,7 +33,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
       
       [ok,Method,xx,yy,spo,graf,exprs]=getvalue('Spline data', ...
 						values, typ,exprs);
-      if  ~ok then break;end
+      if ~ok then break;end
       if spo=='yes' then PO=1;exprs(4)='yes'; else,PO=0; exprs(4)='no';end
       mtd=int(Method); if mtd<0 then mtd=0;end; if mtd>7 then mtd=7;end;    
       METHOD=curve_getmethod(mtd);
@@ -705,7 +704,6 @@ function rectx=curve_findrect(a)
   YMN=YMN-dy/50;YMX=YMX+dy/50;  
   rectx=[XMN,YMN;XMX,YMX];
 endfunction
-
 
 function [tok,xyo]=curve_read_excel()
   TA=['A';'B';'C';'D';'E';'F';'G';'H';'I';'J';'K';'L';'M';'N';'O';'P'; ...
