@@ -23,27 +23,35 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
     SaveExit=%f
     while %t do
       Ask_again=%f
-      [ok,Method,xx,yy,PeriodicOption,graf,exprs]=getvalue('Spline data',['Spline"+...
-		    " Method (0..7)';'x';'y';'Periodic signal(y/n)?';'Launch"+...
-		    " graphic window(y/n)?'],list('vec',1,'vec',-1, ...
-						  'vec',-1,'str',1,'str',1),exprs)
-      if  ~ok then break;end    
-      if PeriodicOption=='y' | PeriodicOption=='Y' then,PO=1;else,exprs(4)='n';PO=0;end
+      values= ['Spline Method (0..7)';'x';'y';'Periodic signal ?';
+	       'Launch a graphic window ?'];
+      typ = list('vec',1,'vec',-1,'vec',-1,...
+		 'combo',['yes','no'],'combo',['yes','no']);
+      if or(exprs(5)==['y','Y']) then exprs(5)='yes';end 
+      if or(exprs(5)==['n','N']) then exprs(5)='no';end 
+      if or(exprs(4)==['y','Y']) then exprs(4)='yes';end 
+      if or(exprs(4)==['n','N']) then exprs(4)='no';end 
+      
+      [ok,Method,xx,yy,spo,graf,exprs]=getvalue('Spline data', ...
+						values, typ,exprs);
+      if  ~ok then break;end
+      if spo=='yes' then PO=1;exprs(4)='yes'; else,PO=0; exprs(4)='no';end
       mtd=int(Method); if mtd<0 then mtd=0;end; if mtd>7 then mtd=7;end;    
       METHOD=curve_getmethod(mtd);
-      
       if ~Ask_again then 
 	xx=xx(:);yy=yy(:);
 	[nx,mx]=size(xx); [ny,my]=size(yy);
-	if ~((nx==ny)&(mx==my)) then, x_message('incompatible size of x and y');  Ask_again=%t;end
+	if ~((nx==ny)&(mx==my)) then, 
+	  x_message('incompatible size of x and y');
+	  Ask_again=%t;end
       end
-      
-      if ~Ask_again then//+++++++++++++++++++++++++++++++++++++++
+      if ~Ask_again then
 	xy=[xx,yy];
-	[xy]=curve_cleandata(xy);// just for sorting to be able to compare data before and after poke_point(.)
+	[xy]=curve_cleandata(xy);
 	N= size(xy,'r');
-	exprs(5)='n';// exprs.graf='n'
-	if graf=='y' | graf=='Y' then //_______Graphic editor___________
+	exprs(5)='no';// exprs.graf='n'
+	if graf=='yes' then
+	   //_______Graphic editor___________
 	  ipar=[N;mtd;PO];
 	  rpar=[];
 	  if ~exists('curwin') then
@@ -70,27 +78,28 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
 	  end
 
 	  exprs(1)=sci2exp(New_methhod);
-	  if oipar(3)==1 then,perop='y';else,perop='n';end
+	  if oipar(3)==1 then,perop='yes';else,perop='no';end
 	  exprs(4)=perop;
 	  SaveExit=%t
-	else//_____________________No graphics__________________________
+	else
+	  //_____________________No graphics__________________________
 	  [Xdummy,Ydummy,orpar]=Do_Spline(N,mtd,xy(:,1),xy(:,2));
 	  if (METHOD=='periodic') then // periodic spline
 	    xy(N,2)=xy(1,2);
 	  end	
-	  if (METHOD=='order 2' | METHOD=='not_a_knot'|METHOD=='periodic' | METHOD=='monotone'| METHOD=='fast' | METHOD=='clamped') then 
-	    orpar=[xy(:,1);xy(:,2);orpar];		
+	  if or(METHOD==['order 2','not_a_knot','periodic','monotone','fast','clamped']) then 
+	    orpar=[xy(:,1);xy(:,2);orpar];
 	  else
-	    if (METHOD=='zero order'|METHOD=='linear')
+	    if (part(METHOD,1:4) =='zero' || METHOD=='linear')
 	      orpar=[xy(:,1);xy(:,2)]
 	    end	
 	  end
 	  exprs(1)=sci2exp(mtd);// pour le cas methode>7 | method<0
 	  oipar=[N;mtd;PO]	
 	  SaveExit=%t
-	end //___________________________________________________________
-      end //++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      
+	end
+      end 
+            
       if (SaveExit) then            
 	xp=find(orpar(1:oipar(1))>=0);
 	if ~isempty(xp) then 
@@ -108,7 +117,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
     end
    case 'define' then  
     model=scicos_model()
-    xx=[0, 1, 2];yy=[10, 20, -30];  N=3;  Method=3;  PeriodicOption='y';  Graf='n'
+    xx=[0, 1, 2];yy=[10, 20, -30];N=3;Method=3;PeriodicOption='yes';Graf='no'
     model.sim=list('curve_c',4)
     model.in=[]
     model.out=1
@@ -150,7 +159,7 @@ function test_edit_spline()
   edit_spline(ixy,ipar,rpar);
 endfunction
 
-function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
+function [rpar,ipar,ok]=edit_spline(ixy,ipa,rpar)
 
 // utility functions 
   
@@ -188,41 +197,10 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
   
   [xy]=curve_cleandata(ixy)
   N=size(xy,'r');
-  
-  if nargin <=1 then
-    NOrder=1;
-    PeridicOption=0;
-    ipar=[N;NOrder;PeridicOption]
-    rpar=[]
-  elseif nargin == 2 then  
-    NOrder=iparin(2);
-    PeridicOption=iparin(3);
-    ipar=iparin;
-    rpar=[]
-  elseif nargin ==3 then  
-    NOrder=iparin(2);
-    PeridicOption=iparin(3);
-    ipar=iparin;
-    rpar=rparin    
-  end
-  
-  Amp=[];wp=[]; phase=[];offset=[];np1=[];
-  Sin_exprs=list(string(Amp),string(wp), string(phase),string(offset),string(np1));
-  sAmp=[];sTp=[]; sdelay=[];
-  Sawt1_exprs=list(string(sAmp),string(sTp),string(sdelay));
-  sAmp2=[];sTp2=[];
-  Sawt2_exprs=list(string(sAmp2),string(sTp2));
+  if nargin <=1 then  ipar=[N;1;0];end 
+  if nargin <=2 then  rpar=[];end 
 
-  Amp3=[];Tp3=[];Pw3=[];Pd3=[];Bias3=[];
-  Pulse_exprs=list(string(Amp3), string(Tp3),string(Pw3),string(Pd3),string(Bias3))
-
-  mean4=[];var4=[];seed4=[];sample4=[];np4=[];
-  random_n_exprs=list(string(mean4),string(var4), string(seed4),string(sample4),string(np4))
-
-  min5=[];max5=[];seed5=[];sample5=[];np5=[];
-  random_u_exprs=list(string(min5), string(max5), string(seed5),string(sample5),string(np5))
-
-  // bornes initiales du graphique
+  // compute initial bounds 
   xmx=max(xy(:,1));xmn=min(xy(:,1)),xmn=max(xmn,0);
   ymx=max(xy(:,2));ymn=min(xy(:,2));
   dx=xmx-xmn;dy=ymx-ymn
@@ -231,6 +209,8 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
   if dy==0 then dy=max(ymx/2,1),end;
   ymn=ymn-dy/50;ymx=ymx+dy/50;
   rect=[xmn,ymn;xmx,ymx];
+
+  // initialize graphic window.
   
   if ~exists('curwin') then
     curwin=max(winsid())+1; 
@@ -239,9 +219,11 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
     end
   end
   xset('window',curwin);  
-  // f=scf();
-  // menus 
-  // 
+
+  // update menus 
+  spline_methods=['zero order-below';'linear';'order 2';'not_a_knot';'periodic'; ...
+		  'monotone';'fast';'clamped';'zero order-above';'zero order-nearest'];
+  
   delmenu(curwin,'3D Rot.')
   delmenu(curwin,'Edit')
   delmenu(curwin,'File')
@@ -259,14 +241,13 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
   
   menu_r=[];
   menu_s=[];
-  menu_o=['zero order','linear','order 2','not_a_knot','periodic','monotone','fast','clamped']
+  menu_o=  spline_methods;
   menu_d=['Clear','Data Bounds','Load from text file','Save to text file',...
 	  'Load from Excel','Edit points','Periodic signal']
   menu_t=['sine','sawtooth1','sawtooth2','pulse','random normal','random uniform']
   menu_e=['Help','Exit without save','Save/Exit']
   MENU=['Autoscale','Spline','Data','Standards','Exit'];
   menus=list(MENU,menu_s,menu_o,menu_d,menu_t,menu_e);
-
   scam='menus(1)(1)'
   w='menus(3)(';r=')';Orderm=w(ones_deprecated(menu_o))+string(1:size(menu_o,'*'))+r(ones_deprecated(menu_o))
   w='menus(4)(';r=')';Datam=w(ones_deprecated(menu_d))+string(1:size(menu_d,'*'))+r(ones_deprecated(menu_d))
@@ -299,6 +280,9 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
   points.children(1).hilited=%t;
   [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
   F.invalidate[];  
+  
+  // start of interactive loop 
+  
   while %t then 
     N=size(xy,'r');
     [btn,xc,yc,win,Cmenu]=get_click();
@@ -309,12 +293,12 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
     if (Cmenu=='Exit') |(Cmenu=='Quit' ) then
       ipar=[];rpar=[];ok=%f;return;
     end
-    methods=['zero order';'linear';'order 2';'not_a_knot';'periodic'; ...
-	     'monotone';'fast';'clamped'];
+    methods=['zero order-below';'linear';'order 2';'not_a_knot';'periodic'; ...
+	     'monotone';'fast';'clamped';'zero order-above';'zero order-nearest'];
+        
     NOrder = find(Cmenu== methods);
     if ~isempty(NOrder) then 
-      NOrder = NOrder -1;
-      ipar(2)=NOrder;
+      ipar(2)= NOrder -1;
       [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar)  
     end
     
@@ -348,10 +332,9 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
      case 'Periodic signal' then 
       // setup periodicity
       //-------------------------------------------------------------------  
-      if PeridicOption==1 then, ans0='y',else, ans0='n',end;
+      if ipar(3)==1 then, ans0='y',else, ans0='n',end;
       [mok,myans]=getvalue('Generating periodic signal',['y/n'],list('str',1),ans0);
-      if ((myans=='y')|(myans=='Y')) then,PeridicOption=1,else,PeridicOption=0;end;
-      ipar(3)=PeridicOption;
+      ipar(3) = b2m(((myans=='y')|(myans=='Y')));
       [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
       //-------------------------------------------------------------------
      case 'sine' then 
@@ -359,12 +342,14 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       //-------------------------------------------------------------------  
       values = ['Amplitude';'Frequency(rad/sec)';'Phase(rad)';'Bias';'number of points'];
       typ = list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1);
-      [mok,Amp,wp,phase,offset,np1,Sin_exprs2]=getvalue(' Sine parameters',values, typ,...
+      if ~exists('Sin_exprs') then 
+	Sin_exprs=list("1","%pi","0","0","10");
+      end
+      [mok,Amp,wp,phase,offset,np1,Sin_exprs2]=getvalue('Sine parameters',values,typ,...
 							Sin_exprs);
       if np1< 2 then np1=2;end
       if mok & wp>0  then
-	NOrder=3;
-	ipar(2)=NOrder;
+	ipar(2)=3;// NOrder;
 	phase=atan(tan(phase));
 	xt=linspace(0,%pi*2/wp,np1)';
 	yt=Amp*sin(wp*xt+phase)+offset;
@@ -374,12 +359,15 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       end
      case 'sawtooth1' then 
       //-------------------------------------------------------------------
+      if ~exists('Sawt1_exprs') then 
+	Sawt1_exprs=list("1","3","2");
+      end
       [mok,sAmp,sTp,sdelay,Sawt1_exprs2]=getvalue('Sawtooth signal parameters', ...
 						  ['Amplitude';'Period';'delay'], ...
-						  list('vec',1,'vec',1,'vec',1),Sawt1_exprs)   
+						  list('vec',1,'vec',1,'vec',1),...
+						  Sawt1_exprs);
       if mok & sTp>0 then
-	NOrder=1;
-	ipar(2)=NOrder;
+	ipar(2)=1; //NOrder;
 	if sdelay<sTp then 
 	  xt=[0;sdelay;sTp];
 	  yt=[0;0;sAmp];
@@ -393,12 +381,14 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       end
      case 'sawtooth2' then     
       //-------------------------------------------------------------------
+      if ~exists('Sawt2_exprs') then 
+	Sawt2_exprs=list("1","3");
+      end
       [mok,sAmp2,sTp2,Sawt2_exprs2]=getvalue('Sawtooth signal parameters', ...
 					     ['Amplitude';'Period'],...
 					     list('vec',1,'vec',1),Sawt2_exprs)    
       if mok & sTp2>0 then
-	NOrder=1;
-	ipar(2)=NOrder;
+	ipar(2)=1; // NOrder;
 	xt=[0;sTp2];
 	yt=[sAmp2;-sAmp2];
 	xy=[xt,yt];	
@@ -407,13 +397,17 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       end
      case 'pulse' then
       //-------------------------------------------------------------------
-      values=['Amplitude';'Period (sec)';'Pulse width(% of period)';'Phase delay (sec)';'Bias'];
+      values=['Amplitude';'Period (sec)';'Pulse width(% of period)';
+	      'Phase delay (sec)';'Bias'];
       typ = list('vec',1, 'vec',1,'vec',1,'vec',1,'vec',1);
-      [mok,Amp3,Tp3,Pw3,Pd3,Bias3,Pulse_exprs2]=getvalue('Square wave pulse signal',values, ...
+      if ~exists('Pulse_exprs') then 
+	Pulse_exprs=list("1","3","2","0","0");
+      end
+      tit = 'Square wave pulse signal';
+      [mok,Amp3,Tp3,Pw3,Pd3,Bias3,Pulse_exprs2]=getvalue(tit,values, ...
 						  typ,Pulse_exprs);
       if mok & Tp3>0  then
-	NOrder=0;
-	ipar(2)=NOrder;
+	ipar(2)=0;// NOrder;
 	if (Pd3>0) then xt=0;yt=Bias3;else xt=[];yt=[]; end
 	//otherwise there	would be double	points at 0
 	if Pd3<Tp3 then 
@@ -436,11 +430,13 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       tit= 'Normal (Gaussian) random signal';
       values=['Mean';'Variance';'Initial seed';'Sample time';'Number of points'];
       typ = list('vec',1,'vec',1,'vec',1,'vec', 1,'vec',1)
+      if ~exists('random_n_exprs') then 
+	random_n_exprs=list("0","1","0","3","10");
+      end
       [mok,mean4,var4,seed4,sample4,np4,random_n_exprs2]=getvalue(tit,values,typ,...
 						  random_n_exprs);
       if mok & sample4>0 then
-	NOrder=0;
-	ipar(2)=NOrder;      
+	ipar(2)=0;//NOrder;      
 	// rand('seed',seed4);
 	xt=0:sample4:sample4*(np4-1);xt=xt(:);
 	yt=mean4+sqrt(var4)*randn(np4,1);
@@ -453,11 +449,13 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       tit= 'Uniform random signal';
       values= ['Minimum';'Maximum';'Initial seed';'Sample time';'Number of points'];
       typ= list('vec',1,  'vec',1,'vec',1,'vec',  1,'vec',1);
+      if ~exists('random_u_exprs') then 
+	random_u_exprs=list("-1","1","0","3","10");
+      end
       [mok,min5,max5,seed5,sample5,np5,random_u_exprs2]=getvalue(tit,values,typ,...
 						  random_u_exprs);
       if mok & sample5>0 then
-	NOrder=0;
-	ipar(2)=NOrder;      
+	ipar(2)=0;//NOrder;      
 	// rand('seed',seed5);
 	xt=0:sample5:sample5*(np5-1);xt=xt(:);
 	yt=min5+(max5-min5)*rand(np5,1);
@@ -467,9 +465,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       end   
      case 'Save/Exit' then
       //-------------------------------------------------------------------
-      NOrder=ipar(2);
-      PeridicOption=ipar(3);
-      METHOD=curve_getmethod(NOrder);
+      METHOD=curve_getmethod(ipar(2));
       if (METHOD=='periodic') then // periodic spline
 	xy(N,2)=xy(1,2);
       end
@@ -491,8 +487,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
      case 'Clear' then    
       //-------------------------------------------------------------------
       xy=[0,0];
-      NOrder=0;
-      ipar(2)=NOrder;
+      ipar(2)=0;
       [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
      case 'Edit text data NOT IN USE' then
       //----------------------------------------------------------------
@@ -507,12 +502,9 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       end
      case 'Help' then
       //---------------------------------------------------------------  
-      t1='Mouse-left click: adding a new point'
-      t2='Mouse-right click: remove a point'
-      t3='Mouse-left double click: edit a point''s coordinates'
-      t4='Mouse-left button press/drag/release: move a  point'
-      t5='Change the window size: ''Data'' menu -> ''Databounds'''
-      x_message([t1;t2;t3;t4;t5]);
+      t1='Add or remove control points with mouse right button press'
+      t2='Move control points with mouse left button press/move'
+      x_message([t1;t2]);
      case 'Edit points' then
       //---------------------------------------------------------------  
       editvar('xy');
@@ -523,8 +515,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       [tok,xytt]=curve_read_excel()
       if tok then
 	xy=xytt;
-	NOrder=1
-	ipar(2)=NOrder;
+	ipar(2)=1;
 	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
       end
      case 'Load from text file' then
@@ -532,8 +523,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
       [tok,xytt]=curve_read_from_file()
       if tok then
 	xy=xytt;
-	NOrder=1
-	ipar(2)=NOrder;
+	ipar(2)=1;
 	[rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
       end
      case 'Save to text file' then    
@@ -559,8 +549,9 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
 	  HIT=%t
 	end
       end
-      
-      if (~HIT)&(btn==0 | btn==3) then    
+      // HIT is true if we are near a control point 
+      // 
+      if ~HIT && ( btn==2 | btn== 5 ) then    
 	// add point
 	if (xc>=0) then 
 	  if (xc==0) then 
@@ -568,15 +559,14 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
 	    xy(zz,:)=[];
 	  end 
 	  xy=[xy;xc,yc];
-	  [xtt,k2]=gsort(xy(:,1),'r','i');xy=xy(k2,:)
+	  xy=curve_cleandata(xy);
 	  points.children(1).x=xy(:,1);
 	  points.children(1).y=xy(:,2);
 	  [rpar,ipar]=curve_update_spline(a,xy,ipar,rpar);  
 	  F.invalidate[]
 	end
       end
-      
-      if (HIT)&(btn==2 | btn==5) then 
+      if HIT &&  ( btn==2 | btn==5 ) then 
 	//   remove point
 	if (xy(k,1)>0) |( xy(k,1)==0 & (size(find(xy(:,1)==0),'*')>1)) then 
 	  xy(k,:)=[];
@@ -587,7 +577,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,iparin,rparin)
 	F.invalidate[]
       end  
 
-      if (HIT)&(btn==0) then 
+      if HIT && btn==0 then 
 	// move point
 	[xy,rpar,ipar]=curve_movept(a,xy,ipar,rpar,k)   
       end
@@ -683,10 +673,9 @@ function [xyt,orpar,oipar]=curve_movept(a,xy,iipar,irpar,k)
     end
     xt=[x;xc];
     yt=[y;yc];
-    [xt,k2]=gsort(xt,'r','i');yt=yt(k2)
-    xyt=[xt,yt];
-    points.x=xt;
-    points.y=yt;
+    [xyt]=curve_cleandata([xt,yt]);
+    points.x=xyt(:,1);
+    points.y=xyt(:,2);
     [orpar,oipar]=curve_update_spline(a,xyt,oipar,orpar); 
     a.invalidate[];
   end
@@ -844,7 +833,7 @@ endfunction
 function METHOD=curve_getmethod(order)
 // method id for spline.
   select order
-   case 0 then, METHOD='zero order'
+   case 0 then, METHOD='zero order-below'
    case 1 then, METHOD='linear'
    case 2 then, METHOD='order 2'
    case 3 then, METHOD='not_a_knot'
@@ -852,6 +841,8 @@ function METHOD=curve_getmethod(order)
    case 5 then, METHOD='monotone'
    case 6 then, METHOD='fast'
    case 7 then, METHOD='clamped'
+   case 8 then, METHOD='zero order-above'
+   case 9 then, METHOD='zero order-nearest'
   end
 endfunction
 
@@ -917,7 +908,8 @@ function [sok]=curve_save_to_file(xye)
 endfunction
 
 function [X,Y,orpar]=Do_Spline(N,order,x,y)
-
+// compute the spline points 
+// ---------------------------------------
   function [Z]=spline_order2(x,y)
     N=size(x,'*')-1;
     A=zeros(3*N-1,N*3);
@@ -952,30 +944,88 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
     Z=Zt(1:3*N,1)
   endfunction
 
-  // be sure that x is increasing
+  // be sure that x is increasing (strictly)
   [xyo]=curve_cleandata([x,y],strict=%t)
   x=xyo(:,1);
   y=xyo(:,2);
   // 
   X=[];Y=[];orpar=[];
   METHOD=curve_getmethod(order);
-  if (METHOD=='zero order') then 
-    X=x(1);Y=y(1);
+  
+  // if (METHOD=='zero order') then 
+  //   X=x(1);Y=y(1);
+  //   for i=1:N-1
+  //     X=[X;x(i);x(i+1);x(i+1)];
+  //     Y=[Y;y(i);y(i);y(i+1)];
+  //   end
+  //   return
+  // end    
+  
+  xmx=max(x);xmn=min(x);
+  
+  if (METHOD=='zero order-below') || (METHOD=='zero order') then 
+    X=[xmn;x(1)];
+    Y=[y(1);y(1)];
     for i=1:N-1
-      X=[X;x(i);x(i+1);x(i+1)];
-      Y=[Y;y(i);y(i);y(i+1)];
+      X=[X;x(i+1);x(i+1)];
+      Y=[Y;y(i);y(i+1)];
     end
+    X=[X;xmx];
+    Y=[Y;y(N)];
     return
   end    
+  
+  if (METHOD=='zero order-above') then 
+    X=[xmn;x(1)];
+    Y=[y(1);y(1)];
+    for i=1:N-1
+      X=[X;x(i);x(i+1)];
+      Y=[Y;y(i+1);y(i+1)];
+    end
+    X=[X;xmx];
+    Y=[Y;y(N)];
+    return
+  end    
+
+  if (METHOD=='zero order-nearest') then 
+    X=[xmn;x(1)];
+    Y=[y(1);y(1)];
+    for i=1:N-1
+      X=[X;(x(i)+x(i+1))/2;(x(i)+x(i+1))/2];
+      Y=[Y;y(i);y(i+1)];
+    end
+    X=[X;xmx];
+    Y=[Y;y(N)];
+    return
+  end    
+  
+  extrapo=1;
   if (METHOD=='linear') then
-    X=[];
+    X=[];Y=[];
+    if N<=1 then return; end
+    if extrapo==0 then 
+      X=[xmn];
+      Y=[y(1)];
+    end
+    if extrapo==1 then 
+      X=[xmn];    
+      Y=y(1)+(xmn-x(1))*(y(1)-y(2))/(x(1)-x(2)); 
+    end
     for i=1:N
       X=[X;x(i)];
       Y=[Y;y(i)];
     end
+    if extrapo==0 then 
+      X=[X;xmx];
+      Y=[Y;y(N)];
+    end
+    if extrapo==1 then 
+      X=[X;xmx];    
+      Y=[Y;y(N)+(xmx-x(N))*(y(N)-y(N-1))/(x(N)-x(N-1))]; 
+    end
     return
   end
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   if (N<25) then NP=10;else
     if (N<50) then NP=5;else
       if (N<100) then NP=2;else
@@ -983,15 +1033,18 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
 	  NP=0;end;end;end;
   end
   for i=1:N-1
-    X=[X;linspace(x(i),x(i+1),NP+2)']; // pour tous sauf "linear" et "zero order"
+    X=[X;linspace(x(i),x(i+1),NP+2)'];
   end
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+  if extrapo==1 then 
+    X=[linspace(xmn,x(1),NP+2)';X;linspace(x(N),xmx,NP+2)'];
+  end
+
   if (N>2) & (METHOD=='order 2') then
     Z=spline_order2(x,y);
     A=Z(1:N-1);
     B=Z(N:2*N-2);
     C=Z(2*N-1:3*N-3);
-    
     for j=1:size(X,'*')
       for i=N-1:-1:1
 	if X(j)>=x(i) then,break;end
@@ -1000,8 +1053,9 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
     end    
     orpar=matrix(Z,-1,1)   
   end  
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
   if (METHOD=='not_a_knot') then
+    //--------------------
     try
       d = splin(x, y, METHOD);
       Y = interp(X, x, y, d);    
@@ -1010,8 +1064,8 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       xinfo('ERROR in SPLINE: '+METHOD)
     end
   end
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='periodic') then
+    //--------------------
     if y(1)<>y(N) then 
       y(N)=y(1)
     end
@@ -1023,8 +1077,8 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       xinfo('ERROR in SPLINE: '+METHOD)
     end
   end
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='monotone' ) then
+    //--------------------
     try
       d = splin(x, y, METHOD);
       Y = interp(X, x, y, d);  
@@ -1033,8 +1087,8 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       xinfo('ERROR in SPLINE: '+METHOD)
     end
   end
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='fast') then
+    //--------------------
     try
       d = splin(x, y, METHOD);
       Y = interp(X, x, y, d);    
@@ -1043,8 +1097,8 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       xinfo('ERROR in SPLINE:  '+METHOD)    
     end  
   end  
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if (METHOD=='clamped') then
+    //--------------------
     try
       d = splin(x, y, METHOD,[0;0]);
       Y = interp(X, x, y, d);    
@@ -1053,5 +1107,11 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y)
       xinfo('ERROR in SPLINE: '+METHOD)    
     end
   end  
+  if extrapo==0 then 
+    X=[X;xmx];
+    Y=[Y(:);y(N)];
+  end
+
 endfunction
+
 
