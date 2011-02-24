@@ -1,8 +1,9 @@
 function [x,y,typ]=CURVE_c(job,arg1,arg2)
 // 
-// Masoud Najafi 07/2007 --------
-// origine: serge Steer, Habib Jreij INRIA 1993
+// Masoud Najafi 07/2007
+// origine: serge Steer, Habib Jreij 1993
 // Copyright INRIA
+//
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -19,9 +20,8 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
     graphics=arg1.graphics
     exprs=graphics.exprs
     ok=%f;
-    SaveExit=%f
     while %t do
-      Ask_again=%f
+      // while loop to change data 
       values= ['Spline Method (0..7)';'x';'y';'Periodic signal ?';
 	       'Launch a graphic window ?'];
       typ = list('vec',1,'vec',-1,'vec',-1,...
@@ -30,65 +30,55 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
       if or(exprs(5)==['n','N']) then exprs(5)='no';end 
       if or(exprs(4)==['y','Y']) then exprs(4)='yes';end 
       if or(exprs(4)==['n','N']) then exprs(4)='no';end 
-      
+      printf('\n before getvalue\n");
       [ok,Method,xx,yy,spo,graf,exprs]=getvalue('Spline data', ...
 						values, typ,exprs);
-      if ~ok then break;end
+      printf('\n after getvalue\n");
+      if ~ok then  break; end 
       if spo=='yes' then PO=1;exprs(4)='yes'; else,PO=0; exprs(4)='no';end
-      mtd=max(min(int(Method),7,0));
-      METHOD=curve_getmethod(mtd);
-      if ~Ask_again then 
-	xx=xx(:);yy=yy(:);
-	[nx,mx]=size(xx); [ny,my]=size(yy);
-	if ~((nx==ny)&(mx==my)) then, 
-	  x_message('incompatible size of x and y');
-	  Ask_again=%t;end
+      mtd=max(min(int(Method),9),0);
+      xx=xx(:);yy=yy(:);
+      if ~size(xx).equal[size(yy)] then 
+	x_message('incompatible size of x and y');
+	// return to while 
+	continue; 
       end
-      if ~Ask_again then
-	xy=[xx,yy];
-	[xy]=curve_cleandata(xy);
-	N= size(xy,'r');
-	exprs(5)='no';// exprs.graf='n'
-	ipar=[N;mtd;PO];
-	rpar=[];
-	if graf=='yes' then
-	  [orpar,oipar,ok]=edit_spline(xy,ipar,rpar);   
-	else 
-	  [orpar,oipar,ok]=edit_spline(xy,ipar,rpar,win=%f);   
-	end
-	if ~ok then break; end;
-	// verifying the data change
-	N2=oipar(1);xy2=[orpar(1:N2),orpar(N2+1:2*N2)];
-	New_method=oipar(2);
-	DChange=%f;	
-	METHOD=curve_getmethod(New_method);
-	if or(xy(:,1)<>xy2(:,1)) then, DChange=%t;end
-	if or(xy(1:N-1,2)<>xy2(1:N2-1,2)) then, DChange=%t;end
-	if (xy(N,2)<>xy2(N2,2) & (METHOD<>'periodic')) then, DChange=%t;end
-	if DChange then 
-	  exprs(2)=strcat(sci2exp(xy2(:,1)))
-	  exprs(3)=strcat(sci2exp(xy2(:,2)))
-	end
-	exprs(1)=sci2exp(New_methhod);
-	if oipar(3)==1 then,perop='yes';else,perop='no';end
-	exprs(4)=perop;
-	SaveExit=%t
-      end 
-      
-      if (SaveExit) then            
-	xp=find(orpar(1:oipar(1))>=0);
-	if ~isempty(xp) then 
-	  model.firing=orpar(xp(1)); //first positive event
-	else  
-	  model.firing=-1;
-	end
-	model.rpar=orpar
-	model.ipar=oipar
-	graphics.exprs=exprs;
-	x.model=model      
-	x.graphics=graphics
-	break
+      xy=[xx,yy];
+      // [xy]=curve_cleandata(xy);
+      N= size(xy,'r');
+      exprs(5)='no';// exprs.graf='n'
+      ipar=[N;mtd;PO];
+      rpar=[];
+      if graf=='yes' then
+	[orpar,oipar,ok]=edit_spline(xy,ipar,rpar);   
+      else 
+	[orpar,oipar,ok]=edit_spline(xy,ipar,rpar,win=%f);   
       end
+      if ~ok then break; end;
+      // verifying the data change
+      N2=oipar(1);xy2=[orpar(1:N2),orpar(N2+1:2*N2)];
+      if ~xy.equal[xy2] then 
+	exprs(2)=strcat(sci2exp(xy2(:,1)))
+	exprs(3)=strcat(sci2exp(xy2(:,2)))
+      end
+      exprs(1)=sci2exp(oipar(2));
+      if oipar(3)==1 then,perop='yes';else,perop='no';end
+      exprs(4)=perop;
+      ok= %t;
+      break;
+    end 
+    if ok then 
+      xp=find(orpar(1:oipar(1))>=0);
+      if ~isempty(xp) then 
+	model.firing=orpar(xp(1)); //first positive event
+      else  
+	model.firing=-1;
+      end
+      model.rpar=orpar
+      model.ipar=oipar
+      graphics.exprs=exprs;
+      x.model=model      
+      x.graphics=graphics
     end
    case 'define' then  
     model=scicos_model()
@@ -180,6 +170,10 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
     if (N==0) then, return; end
     if (N==1) then, order=0; end
     //  NP=50;// number of intermediate points between two data points 
+    // be sure that x is increasing (strictly)
+    [xyo]=curve_cleandata([x,y],strict=%t)
+    x=xyo(:,1);
+    y=xyo(:,2);
     [X,Y,orpar]=Do_Spline(N,order,x,y,extrapo);
     // XXXX strange X and Y 
     Y=Y(:);
@@ -524,14 +518,14 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
     // no interactive part compute and return;
     [rpar,ipar]=curve_update_spline([],xy,ipar,rpar,win=%f);
     rpar = curve_return_rpar(xy,rpar,ipar);
+    ok=%t;
     return;
   end
-  
-  if ~exists('curwin') then
-    curwin=max(winsid())+1; 
-    if isempty(curwin) then 
-      curwin=0;
-    end
+
+  // set up a new graphic window 
+  curwin=max(winsid())+1; 
+  if isempty(curwin) then 
+    curwin=0;
   end
   xset('window',curwin);  
 
@@ -930,8 +924,24 @@ endfunction
 function [X,Y,orpar]=Do_Spline(N,order,x,y,extrapo)
 // compute the spline points 
 // ---------------------------------------
-  
+    
   if nargin <=4 then extrapo=0;end 
+  
+  function METHOD=curve_getmethod(order)
+  // method id for spline.
+    select order
+     case 0 then, METHOD='zero order-below'
+     case 1 then, METHOD='linear'
+     case 2 then, METHOD='order 2'
+     case 3 then, METHOD='not_a_knot'
+     case 4 then, METHOD='periodic'
+     case 5 then, METHOD='monotone'
+     case 6 then, METHOD='fast'
+     case 7 then, METHOD='clamped'
+     case 8 then, METHOD='zero order-above'
+     case 9 then, METHOD='zero order-nearest'
+    end
+  endfunction
   
   function [Z]=spline_order2(x,y)
     N=size(x,'*')-1;
@@ -967,10 +977,6 @@ function [X,Y,orpar]=Do_Spline(N,order,x,y,extrapo)
     Z=Zt(1:3*N,1)
   endfunction
 
-  // be sure that x is increasing (strictly)
-  [xyo]=curve_cleandata([x,y],strict=%t)
-  x=xyo(:,1);
-  y=xyo(:,2);
   // 
   X=[];Y=[];orpar=[];
   METHOD=curve_getmethod(order);
