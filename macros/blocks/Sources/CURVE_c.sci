@@ -35,7 +35,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
 						values, typ,exprs);
       if ~ok then break;end
       if spo=='yes' then PO=1;exprs(4)='yes'; else,PO=0; exprs(4)='no';end
-      mtd=int(Method); if mtd<0 then mtd=0;end; if mtd>7 then mtd=7;end;    
+      mtd=max(min(int(Method),7,0));
       METHOD=curve_getmethod(mtd);
       if ~Ask_again then 
 	xx=xx(:);yy=yy(:);
@@ -49,53 +49,30 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
 	[xy]=curve_cleandata(xy);
 	N= size(xy,'r');
 	exprs(5)='no';// exprs.graf='n'
+	ipar=[N;mtd;PO];
+	rpar=[];
 	if graf=='yes' then
-	  //_______Graphic editor___________
-	  ipar=[N;mtd;PO];
-	  rpar=[];
-	  if ~exists('curwin') then
-	    gh=gcf();
-	    curwin=gh.figure_id
-	  end
-	  save_curwin=curwin;
-	  curwin=max(winsid())+1; 
 	  [orpar,oipar,ok]=edit_spline(xy,ipar,rpar);   
-	  curwin=save_curwin;
-	  if ~ok then break;end;//  exit without save
-	  // verifying the data change
-	  N2=oipar(1);xy2=[orpar(1:N2),orpar(N2+1:2*N2)];
-	  New_methhod=oipar(2);
-	  DChange=%f;	
-	  METHOD=curve_getmethod(New_methhod);
-	  if or(xy(:,1)<>xy2(:,1)) then, DChange=%t;end
-	  if or(xy(1:N-1,2)<>xy2(1:N2-1,2)) then, DChange=%t;end
-	  if (xy(N,2)<>xy2(N2,2) & (METHOD<>'periodic')) then, DChange=%t;end
-	  if DChange then 
-	    exprs(2)=strcat(sci2exp(xy2(:,1)))
-	    exprs(3)=strcat(sci2exp(xy2(:,2)))
-	  end
-
-	  exprs(1)=sci2exp(New_methhod);
-	  if oipar(3)==1 then,perop='yes';else,perop='no';end
-	  exprs(4)=perop;
-	  SaveExit=%t
-	else
-	  //_____________________No graphics__________________________
-	  [Xdummy,Ydummy,orpar]=Do_Spline(N,mtd,xy(:,1),xy(:,2));
-	  if (METHOD=='periodic') then // periodic spline
-	    xy(N,2)=xy(1,2);
-	  end	
-	  if or(METHOD==['order 2','not_a_knot','periodic','monotone','fast','clamped']) then 
-	    orpar=[xy(:,1);xy(:,2);orpar];
-	  else
-	    if (part(METHOD,1:4) =='zero' || METHOD=='linear')
-	      orpar=[xy(:,1);xy(:,2)]
-	    end	
-	  end
-	  exprs(1)=sci2exp(mtd);// pour le cas methode>7 | method<0
-	  oipar=[N;mtd;PO]	
-	  SaveExit=%t
+	else 
+	  [orpar,oipar,ok]=edit_spline(xy,ipar,rpar,win=%f);   
 	end
+	if ~ok then break; end;
+	// verifying the data change
+	N2=oipar(1);xy2=[orpar(1:N2),orpar(N2+1:2*N2)];
+	New_method=oipar(2);
+	DChange=%f;	
+	METHOD=curve_getmethod(New_method);
+	if or(xy(:,1)<>xy2(:,1)) then, DChange=%t;end
+	if or(xy(1:N-1,2)<>xy2(1:N2-1,2)) then, DChange=%t;end
+	if (xy(N,2)<>xy2(N2,2) & (METHOD<>'periodic')) then, DChange=%t;end
+	if DChange then 
+	  exprs(2)=strcat(sci2exp(xy2(:,1)))
+	  exprs(3)=strcat(sci2exp(xy2(:,2)))
+	end
+	exprs(1)=sci2exp(New_methhod);
+	if oipar(3)==1 then,perop='yes';else,perop='no';end
+	exprs(4)=perop;
+	SaveExit=%t
       end 
       
       if (SaveExit) then            
