@@ -59,6 +59,8 @@ function [sd]=ngr_menu(sd,flag,noframe)
   end
   unsetmenu(curwin,'File',7) //close
   unsetmenu(curwin,'3D Rot.')
+  // insert objects in the Figure 
+  // graphics objects are created here 
   F=get_current_figure();
   A=F.children(1);
   if init==0 then 
@@ -67,14 +69,14 @@ function [sd]=ngr_menu(sd,flag,noframe)
       ngr_objects=sd(3);
       for k=1:size(ngr_objects)
 	o=ngr_objects(k);
-	A.children($+1) = o.gr;
+	execstr('o=ngr_'+o.type+'(''create_gr'',o);');
+	ngr_objects(k)=o;
       end
     end
   end
   if flag==1; xclip();return ;end
   [menus]=resume(menus);
   async=%f;
-  // ngr_draw_scene([],1);
   if async then 
     seteventhandler('ngr_eventhandler');
   else
@@ -86,6 +88,7 @@ function [sd]=ngr_menu(sd,flag,noframe)
     xdel(curwin);
   end
   sd(3)=ngr_objects;
+  sd(3)=ngr_delete_gr(sd(3));
   clearglobal ngr_objects;
   clearglobal ngr_options;
 endfunction
@@ -104,11 +107,11 @@ function str=ngr_Edit(ind,win)
     F=get_current_figure();
     F.invalidate[];
    case 'delete all' then 
-    ngr_objects=list();
-    ngr_draw(win); 
+    ngr_delete_all();
+    // ngr_draw(win); 
    case 'delete' then 
     ngr_delete();
-    ngr_draw(win);
+    // ngr_draw(win);
    case 'copy'   then ngr_copy();
    case 'random' then 
     for i=1:10
@@ -161,6 +164,7 @@ function [sd1]=ngr_rect(action,sd,pt,pt1)
     ngr_rect('locks',sd);
     ngr_objects(sd).gr.translate[pt];
    case 'define' then 
+    printf('in ngr_rect action define\n');
     // define the object 
     sd1= tlist(["rect","show","hilited","data","color","thickness","locks","locks status","pt"],...
                %t,%f,sd,30*rand(1),2,[],[],[0,0]);
@@ -168,15 +172,21 @@ function [sd1]=ngr_rect(action,sd,pt,pt1)
     ngr_objects($+1)=sd1;
     n=size(ngr_objects,0);
     ngr_rect('locks',n);
-    sd1=ngr_objects($);
+    ngr_objects($)= ngr_rect('create_gr',ngr_objects($));
+    sd1 = ngr_objects($);
+   case 'create_gr' then
+    // create the gr field 
+    sd1 = sd;
     F=get_current_figure();
-    F.draw_latter[];
     F.start_compound[];
-    xrect(sd1('data'),thickness=sd1('thickness'),color=1,background=sd1('color'));
-    rr= sd1('locks');
-    cp= sd1('locks status');
-    for i=1:length(cp) ; xrect([rr(i,1:2)+[-1,1],2,2],color=1);end 
-    ngr_objects($).gr = F.end_compound[];
+    xrect(sd('data'),thickness=sd('thickness'),color=1,background=sd('color'));
+    rr= sd('locks');
+    cp= sd('locks status');
+    for i=1:length(cp);
+      xrect([rr(i,1:2)+[-1,1],2,2],color=1);
+    end 
+    sd1.gr = F.end_compound[];
+    // sd1.gr.invalidate[];
    case 'move' then  
     // used during copy this is to be changed 
     ngr_rect('translate',sd,[5,5]);
@@ -325,12 +335,16 @@ function sd1 =ngr_poly(action,sd,pt,pt1)
     ff=["poly","show","hilited","x","y","color","thickness",...
 	"lock first","lock last","locks status","pt"];
     sdo= tlist(ff, %t,%f,sd(1,:),sd(2,:),30*rand(1),2,0,0,0,[0,0]);
+    sdo =ngr_poly('create_gr',sdo);
+    ngr_objects($+1)=sdo;
+    // sdo.gr.invalidate[];
+   case 'create_gr' then
+    // create the gr field 
+    sd1 = sd;
     F=get_current_figure();
     F.start_compound[];
-    xpoly(sdo('x'),sdo('y'),type='lines',color=sdo('color'),thickness=sdo('thickness'));
-    sdo.gr = F.end_compound[];
-    ngr_objects($+1)=sdo;
-    sdo.gr.invalidate[];
+    xpoly(sd('x'),sd('y'),type='lines',color=sd('color'),thickness=sd('thickness'));
+    sd1.gr = F.end_compound[];
    case 'move' then 
     ngr_poly('translate',sd,[5,5]);
    case 'inside' then 
@@ -502,6 +516,9 @@ function ngr_create_polyline()
       rep =rep(3);
       return; 
     end ;
+    // invalidate the old position before changing 
+    sdo = ngr_objects(n);
+    sdo.gr.invalidate[];
     wstop= size(find(rep(3)== kstop),'*');
     if rep(3) == 0 then   count =count +1;end 
     if rep(3) == 0 | rep(3) == -1 then 
@@ -882,7 +899,6 @@ function [rep]=ngr_frame_move(ko,pt,kstop,action,pt1)
       end
     end
     // get new position
-    F.draw_now[];
     rep=xgetmouse(clearq=%f,getmotion=%t,getrelease=%t);
     if rep(3)== -100 then 
       rep =rep(3);
@@ -897,7 +913,6 @@ function [rep]=ngr_frame_move(ko,pt,kstop,action,pt1)
   end
   // update and draw block
   rep=rep(3);
-  F.draw_now[];
 endfunction
 
 //---------------------------------
@@ -978,6 +993,19 @@ function ngr_delete()
   if g_rep==%f then 
     xinfo('No object selected fo deletion');
   end
+endfunction 
+
+function ngr_delete_all()
+  // delete all objects 
+  global('ngr_objects');
+  F=get_current_figure();
+  F.draw_latter[];
+  for k=size(ngr_objects):-1:1
+    F.remove[ ngr_objects(k).gr];
+    ngr_objects(k)=null();
+  end
+  F.draw_now[];
+  F.process_events[];
 endfunction 
 
 function ngr_copy()
@@ -1105,6 +1133,14 @@ function [btn,xc,yc,win,Cmenu]=ngr_get_click(curwin,flag)
   Cmenu="";
 endfunction
 
+function sd=ngr_delete_gr(sd)
+// converts a sd to list to a string matrix
+// giving the same graphics.
+  for i=1:length(sd)
+    sd(i).delete['gr'];
+  end
+endfunction
+
 
 function S=ngr_sd_to_string(sd)
 // converts a sd to list to a string matrix
@@ -1116,15 +1152,21 @@ function S=ngr_sd_to_string(sd)
     select obj.type 
      case 'poly' 
       tt=sprint(obj('x'),as_read=%t);
-      S.concatd['px='+tt(2:$)];
+      tt=tt(2:$);
+      tt(1)='px='+tt(1);
+      S.concatd[tt];
       tt=sprint(obj('y'),as_read=%t);
-      S.concatd['py='+tt(2:$)];
-      tt=sprintf('xpoly(px*sz(1)/100+orig(1),py*sz(2)/100+orig(2),type=''lines'')');
+      tt=tt(2:$);
+      tt(1)='py='+tt(1);
+      S.concatd[tt];
+      S.concatd['px=px*sz(1)/100+orig(1);py=py*sz(2)/100+orig(2)'];
+      tt=sprintf('xpoly(px,py,type=''lines'',color=%d,thickness=%d)',...
+		 obj('color'),obj('thickness'));
       S.concatd[tt];
      case 'rect' 
       tt=sprint(obj('data'),as_read=%t);
       S.concatd['r='+tt(2:$)];
-      S.concatd['r=r.*[sz(1),sz(2),sz(1),sz(2)]/100;'+tt(2:$)];
+      S.concatd['r=r.*[sz(1),sz(2),sz(1),sz(2)]/100;'];
       S.concatd['r=[r(1)+orig(1),r(2)+orig(2),r(3),r(4)]'];
       tt=sprintf('xrect(r,color=%d,background=%d,thickness=%d);',...
 		 obj('color'),obj('color'),obj('thickness'));
@@ -1133,40 +1175,3 @@ function S=ngr_sd_to_string(sd)
   end
 endfunction
 
-//--------------------------------------
-// draw all objects 
-//--------------------------------------
-
-function ngr_draw_scene(excluded,mode)
-// draw the scene excluding objects contained in excluded vector 
-// the redraw is recorded if mode is 1 
-  global('ngr_objects');
-  others=1:length(ngr_objects);
-  others(excluded)=[]
-  xtape_status=xget('recording')
-  [echa,echb]=xgetech();
-  xclear(curwin,%t);
-  xset("recording",mode);
-  xsetech(wrect=echa,frect=echb,fixed=%t);
-  xrect([0,100,100,100]);
-  for i=others
-    o=ngr_objects(i);
-    execstr('ngr_'+o.type+'(''update'',i);');
-  end
-  xset('recording',xtape_status);
-endfunction
-
-function ngr_redraw_scene()
-// redraw the scene using the 
-// recorded objects 
-  xclear(curwin,%f);
-  xtape_status=xget('recording')
-  xset("recording",1);
-  xtape('replay',curwin);
-  xset("recording",xtape_status);
-endfunction
-
-function ngr_draw(win)
-  F=get_current_figure();
-  F.draw_now[];
-endfunction

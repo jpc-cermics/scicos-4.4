@@ -15,7 +15,6 @@ function [scs_m]=do_icon_edit(%pt,scs_m)
   //** get the current win ID
   win=%win;
   //**--------- check Select ------------------
-  
   k= [] ; 
   SelectSize=size(Select,1);
   if SelectSize==1 && Select(1,2)==%win then
@@ -35,21 +34,20 @@ function [scs_m]=do_icon_edit(%pt,scs_m)
   o=scs_m.objs(k)
   
   if o.type=='Link' then
-    //**disable rotation for link
+    //** disable rotation for link
     return
   end 
-
+  // update gr_i 
   gr_i=o.graphics.gr_i
   if type(gr_i,'short')<>'l' then
     gr_i=list(gr_i,[],list('sd',[0 0 1 1]))
   end
   if size(gr_i,'*')==2 then gr_i(3)=list('sd',[0 0 1 1]);end
+  // create a new window 
   oldwin=xget('window')
-  win=winsid()
+  win=max(winsid())+1;
   if isempty(win) then
     win=0
-  else
-    win=max(win)+1
   end
   xset('window',win)
   xselect()
@@ -57,19 +55,24 @@ function [scs_m]=do_icon_edit(%pt,scs_m)
   sd=gr_i(3)
   sd=ngr_menu(sd);
   if or(win==winsid()) then xdel(win);end
-  gr_i = gr_sd_to_string(sd);
+  gr_i = ngr_sd_to_string(sd);
   xset('window',oldwin)
-    
   // chek that gr_i has a correct syntax;
   if execstr(['function gr_void()';gr_i;'endfunction'],errcatch=%t) == %f then
     message(['Incorrect syntax in icon graphics ']);
     return;
   end
   // update and redraw 
-  o.graphics.gr_i=list(gr_i,coli,sd)
-  if ~execstr('drawblock(o)',errcatch=%t) then 
-    message(['errof during drawblock evaluation: '])//    lasterror()])
+  o.graphics.gr_i=list(gr_i,coli,sd);
+  F=get_current_figure();
+  gr_old = o.gr;
+  if ~execstr('o=drawobj(o,oldwin)',errcatch=%t) then 
+    message(['errof during drawblock evaluation: ']);
+    lasterror();
   else
+    // remove the old graphics from the figure 
+    F.remove[gr_old];
+    // update scs_m;
     scs_m.objs(k)=o;
   end
 endfunction
