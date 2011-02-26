@@ -7,8 +7,7 @@ function txt=icon_edit()
   end
   xset('window',win)
   xselect()
-
-  sd=gr_menu([0 0 1 1])
+  sd=ngr_menu([0 0 1 1])
   txt=sd2sci(sd,['sz(1)','sz(2)'],['orig(1)','orig(2)'])
   txt(1)=[]
   txt=['thick=xget(''thickness'')';
@@ -18,8 +17,5 @@ function txt=icon_edit()
        'xset(''thickness'',thick)'
        'xset(''pattern'',pat)'
        'xset(''font'',fnt(1),fnt(2))']
-
   xdel(win)
-  
-  
 endfunction

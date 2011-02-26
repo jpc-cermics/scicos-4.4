@@ -1,30 +1,45 @@
 function IconEditor_()
+  scs_m_save=scs_m
+  nc_save=needcompile
+  [scs_m]=do_icon_edit(%pt,scs_m);
   Cmenu=''
-  scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
-  [%pt,scs_m]=do_icon_edit(%pt,scs_m)
-  Cmenu='Open/Set'
-  xinfo(' ')
+  %pt=[]
+  Cmenu=''
   edited=%t  
 endfunction
 
-function [%pt,scs_m]=do_icon_edit(%pt,scs_m) 
+function [scs_m]=do_icon_edit(%pt,scs_m) 
 // do_block - edit a block icon
 // Copyright INRIA
-  while %t
-    if isempty(%pt) then
-      [btn,%pt,win,Cmenu]=cosclick()
-      if Cmenu<>"" then
-        resume(%win=win,Cmenu=Cmenu,btn=btn)
-        return;
-      end
-    else
-      win=%win;
-    end
-    xc=%pt(1);yc=%pt(2);%pt=[];
-    K=getblock(scs_m,[xc;yc])
-    if ~isempty(K) then break,end
+
+  //** get the current win ID
+  win=%win;
+  //**--------- check Select ------------------
+  
+  k= [] ; 
+  SelectSize=size(Select,1);
+  if SelectSize==1 && Select(1,2)==%win then
+    k=Select(1,1);
   end
-  gr_i=scs_m.objs(K).graphics.gr_i
+  if ~isempty(%pt) then 
+    k= getobj(scs_m,%pt);
+  end
+  //**--------- check k and scs_m.objs(k) ------------------
+  if isempty(k) then
+    //** if you click in the void ... return back
+    return
+  end 
+  
+  scs_m_save=scs_m
+  path=list('objs',k)
+  o=scs_m.objs(k)
+  
+  if o.type=='Link' then
+    //**disable rotation for link
+    return
+  end 
+
+  gr_i=o.graphics.gr_i
   if type(gr_i,'short')<>'l' then
     gr_i=list(gr_i,[],list('sd',[0 0 1 1]))
   end
@@ -40,7 +55,7 @@ function [%pt,scs_m]=do_icon_edit(%pt,scs_m)
   xselect()
   coli=gr_i(2)
   sd=gr_i(3)
-  sd=gr_menu(sd);
+  sd=ngr_menu(sd);
   if or(win==winsid()) then xdel(win);end
   gr_i = gr_sd_to_string(sd);
   xset('window',oldwin)
@@ -51,12 +66,10 @@ function [%pt,scs_m]=do_icon_edit(%pt,scs_m)
     return;
   end
   // update and redraw 
-  o=scs_m.objs(K)
-  drawblock(o)
   o.graphics.gr_i=list(gr_i,coli,sd)
   if ~execstr('drawblock(o)',errcatch=%t) then 
     message(['errof during drawblock evaluation: '])//    lasterror()])
   else
-    scs_m.objs(K)=o
+    scs_m.objs(k)=o;
   end
 endfunction

@@ -1,4 +1,6 @@
 function [scs_m]=do_turn(%pt,scs_m,theta)
+  
+
   //** get the current win ID
   win=%win;
 
@@ -14,7 +16,7 @@ function [scs_m]=do_turn(%pt,scs_m,theta)
     if SelectSize==1 & Select(1,2)==%win then
       k=Select(1,1)
     elseif SelectSize>1 then
-      if find(Select(:,2)==%win)<>[] then
+      if ~isempty(find(Select(:,2)==%win)) then
         //scs_m=do_multiturn(scs_m,win)
         k=getobj(scs_m,[xc;yc]);
       else
