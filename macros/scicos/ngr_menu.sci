@@ -1169,7 +1169,7 @@ function S=ngr_sd_to_string(sd)
       S.concatd['r=r.*[sz(1),sz(2),sz(1),sz(2)]/100;'];
       S.concatd['r=[r(1)+orig(1),r(2)+orig(2),r(3),r(4)]'];
       tt=sprintf('xrect(r,color=%d,background=%d,thickness=%d);',...
-		 obj('color'),obj('color'),obj('thickness'));
+		 1,obj('color'),obj('thickness'));
       S.concatd[tt];
     end
   end
