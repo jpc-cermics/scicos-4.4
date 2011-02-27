@@ -2,6 +2,7 @@ function r=validvar(s)
 // Copyright INRIA
 // check if the string s is a valid identifier
 // rewriten for nsp (jpc Nov 2010) 
+// 
   s=stripblanks(s)
   r=%f
   if size(s,'*')<>1 then return,end
@@ -12,6 +13,7 @@ function r=validvar(s)
   ast = pl2l(foo);
   ok= execstr('name = ast(3)(2)(2)',errcatch=%t);
   if ~ok then  lasterror(); return;end 
-  if type(name,'short')== 'astnode' && name.get_idname[] == 'NAME' then r=%t;return;end 
-  return;
+  if type(name,'short')== 'astnode' && name.get_idname[] == 'NAME' then 
+    r=%t;
+  end 
 endfunction

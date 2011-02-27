@@ -56,7 +56,8 @@ function do_export_gwin(scs_m)
 endfunction
 
 function do_export_gfile(scs_m,fname) 
-// export to a graphic file
+// export to a graphic file according to
+// file extensions.
 // jpc 2011 
   cwin=xget('window');
   xexport(cwin,fname);

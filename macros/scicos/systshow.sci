@@ -1,32 +1,18 @@
-function win=systshow(scs_m,win)
+function systshow(scs_m,zoom=1)
 // Copyright INRIA
-  [lhs,rhs]=argn(0)
-  if rhs<2 then win=xget('window'),end
-  xset('window',win);
-  xclear();
-  wpar=scs_m.props
-
-  wsiz=wpar.wpar
-  options=wpar.options
-
-
-  Xshift=wsiz(3)
-  Yshift=wsiz(4)
-
-  xset('wdim',wsiz(1),wsiz(2))
-  [frect1,frect]=xgetech()
-  xsetech([-1,-1,8,8]./6,[Xshift,Yshift ,Xshift+wsiz(1),Yshift+wsiz(2)])
-
-  drawobjs(scs_m)
-
+// display a diagram recursively displaying 
+// super blocks. 
+//
+  curwin = max(winsid())+1;
+  if isempty(curwin) then curwin=0;end 
+  xset('window',curwin);
+  scs_m=scs_m_remove_gr(scs_m);
+  %zoom=restore(curwin,[],zoom);
+  drawobjs(scs_m);
   for k=1:length(scs_m.objs)
     o=scs_m.objs(k)
-    if o.type =='Block' then
-      model=o.model
-      if model.sim(1)=='super' then
-	win=win+1
-	win=systshow(model.rpar,win)
-      end
+    if o.type =='Block' && o.model.sim(1)=='super' then 
+      systshow(o.model.rpar,zoom=zoom);
     end
   end
 endfunction

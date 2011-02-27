@@ -16,22 +16,20 @@ function ScilabImport_()
       scs_m.props.options('3D')(1)=%f //disable 3D block shape 
     end
     options=scs_m.props.options
-    xset('alufunction',3);
-    xclear();//xbasc();
+    xclear();
     xselect();
     set_background()
     window_set_size()
-    xselect();
     if is(scs_m.props.context,%types.SMat) then
       %now_win=xget('window')
       if ~execstr(scs_m.props.context,errcatch=%t) then
-	message(['Error occur when evaluating context:']); //   lasterror() ])
+	message(['Error occur when evaluating context:']);
+	lasterror();
       end
       xset('window',%now_win)
     else
       scs_m.props.context=' '
     end
-    //xset('alufunction',6)
     scs_m= drawobjs(scs_m),
     if pixmap then xset('wshow'),end
     if size(%cpr)==0 then
