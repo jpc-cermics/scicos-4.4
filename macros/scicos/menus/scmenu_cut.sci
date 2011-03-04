@@ -1,4 +1,7 @@
 function Cut_()
+// Cut selection and store 
+// selection in Clipboard.
+  
   if isempty(Select) then
     Cmenu='';%pt=[];%ppt=[];
     return

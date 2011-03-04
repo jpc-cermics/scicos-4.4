@@ -1,6 +1,6 @@
 function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
-//perform deletion of scs_m object whose index are given in the vector 
-// K and all other relevant objects (link, splits,..)
+// deletes scs_m objects whose index are given in the vector K 
+// and all other relevant objects (link, splits,..)
 // if gr==%t objects are also graphicaly erased.
 //
 // deleted objects are replaced by the value : mlist('Deleted') not to 
@@ -37,7 +37,6 @@ function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
       end
 
       // erase and delete link
-      if ~ng &&  gr==%t then drawobj(o),end
       fromblock=scs_m.objs(from(1));
       toblock=scs_m.objs(to(1));
       if or(fromblock.gui==['SPLIT_f' 'CLKSPLIT_f' 'IMPSPLIT_f']) then
@@ -51,7 +50,6 @@ function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
 	  if ~isempty(find(connected(2)==DEL)) then // delete split
 	    K=[from(1) K]
 	  else
-	    if ~ng && gr==%t then drawobj(scs_m.objs(from(1))),end // clear  split block
 	    ksplit=from(1)
 	    DEL=[DEL  ksplit]       //suppress split block
 	    o1=scs_m.objs(connected(1));from1=o1.to;
@@ -119,7 +117,6 @@ function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
 	  if ~isempty(find(connected(2)==DEL)) then // delete split
 	    K=[to(1) K]
 	  else
-	    if ~ng && gr==%t then drawobj(scs_m.objs(to(1))),end // clear  split block
 	    DEL=[DEL  to(1)]       //suppress split block
 
 	    o1=scs_m.objs(connected(1));
@@ -161,17 +158,12 @@ function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
       //ask for connected links deletion
       K=[K connected]
       // erase and delete block
-      if ~ng && gr==%t then drawobj(scs_m.objs(k)),end
     elseif typ=='Text' then
-      if ~ng && gr==%t then drawobj(o),end
+      // 
     elseif typ=='Deleted' then
     else
       message('This object can''t be deleted')
     end 
-  end
-
-  if gr==%t then 
-    if pixmap then xset('wshow'),end,
   end
     
   if ~isempty(DEL) then 

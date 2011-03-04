@@ -293,13 +293,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
     if or(winsid()==curwin) then
-
-//       if or(winsize>axsize+21) then
-//         viewport=xget('viewport')
-//         viewport=max([0,0],min(viewport,-winsize+axsize))
-//         window_set_size(curwin,viewport)
-//       end
-
       if edited then
         [frect,axsize,viewport,winsize,winpos,pagesize]=get_curwpar(curwin)
         %curwpar=[frect,axsize,viewport,winsize,winpos,%zoom,pagesize]
@@ -309,7 +302,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
       drawtitle(scs_m.props)
     end
-
+    
     if isempty(%scicos_navig) then 
       if ~isempty(Scicos_commands) then
         //printf("    Scicos_commands(1) : %s \n",Scicos_commands(1))
