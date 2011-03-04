@@ -48,8 +48,7 @@ function [palettes,windows]=do_palettes(palettes,windows)
   end
   
   xselect();
-  xset('alufunction',3)
-  if pixmap then xset('pixmap',1),end,xclear();// XX xbasc();
+  xclear();
   rect=dig_bound(palettes(kpal));
   if isempty(rect) then rect=[0 0 400,600],end
   %wsiz=[rect(3)-rect(1),rect(4)-rect(2)];
@@ -65,33 +64,34 @@ function [palettes,windows]=do_palettes(palettes,windows)
     rect(4)=rect(4)+(300-%wsiz(2))/2
     %wsiz(2)=300 
   end
-
   %zoom=1.2
   h=%zoom*%wsiz(2)
   w=%zoom*%wsiz(1)
-
   if ~MSDOS then h1=h+50,else h1=h,end
   xset('wresize',1)
   xset('wpdim',w,h1)
   xset('wdim',w,h)
-
-  xsetech(wrect=[0 0 1 1],frect=rect,arect=[1 1 1 1]/32,fixed=%t)
+  xsetech(wrect=[0 0 1 1],frect=rect,arect=[1 1 1 1]/32,fixed=%t,axesflag=0,iso=%t)
   // FIXME: 
   TMPDIR=getenv('NSP_TMPDIR')
   graph=TMPDIR+'/'+scicos_pal(kpal,1)+'.pal'
   //Check if the graph file exists
   f_ = file('exists',graph)
-  
-  if f_ == %f then
+  if %t || f_ == %f then
     options=palettes(kpal).props.options
     set_background()
     if ~set_cmap(palettes(kpal).props.options('Cmap')) then 
       palettes(kpal).props.options('3D')(1)=%f //disable 3D block shape 
     end
-    drawobjs(palettes(kpal))
-    if pixmap then xset('wshow'),end
+    // draw the palette. Here palettes(kpal) should 
+    // not contain graphics thus we remove them in case 
+    pal = palettes(kpal);
+    pal =scs_m_remove_gr(pal);
+    pal=drawobjs(pal);
+    palettes(kpal)=pal;
     xsave(graph)
   else
+    // a revoir 
     xload(graph)
     xname(palettes(kpal).props.title(1))
   end
@@ -103,8 +103,10 @@ endfunction
 
 function [palettes,windows]=do_all_palettes(windows)
 // Copyright Jean-Philippe Chancelier 
-// made fom do_palettes 
-// window and notebook for palettes 
+// This function is not used 
+// It creates a notebook and each notebook page 
+// is s nsp graphic window 
+// 
   window = gtkwindow_new();// (GTK.WINDOW_TOPLEVEL);
   window.set_title["Scicos Palettes"]
   hbox = gtkhbox_new(homogeneous=%f,spacing=0);
@@ -117,8 +119,6 @@ function [palettes,windows]=do_all_palettes(windows)
   // loop on each palette 
   npal= size(scicos_pal,1);
   lastwin=curwin
-  // XXXXX 7 10 11 a régler !! 
-  // 
   for kpal=[1:size(scicos_pal,1)]
     curwin=get_new_window(windows)
     if or(curwin==winsid()) then
@@ -157,20 +157,27 @@ function [palettes,windows]=do_all_palettes(windows)
       delmenu(curwin,'UnZoom')
       delmenu(curwin,'Zoom')
       delmenu(curwin,'File')
-      xsetech(wrect=[0 0 1 1],frect=rect,arect=[1 1 1 1]/32,fixed=%t)
+      xsetech(wrect=[0 0 1 1],frect=rect,arect=[1 1 1 1]/32,fixed=%t,axesflag=0,iso=%t)
       graph=getenv('NSP_TMPDIR')+'/'+scicos_pal(kpal,1)+'.pal'
       //Check if the graph file exists
       f_ = file('exists',graph)
-      if f_ == %f then
+      if %t ||  f_ == %f then
 	options=palettes(kpal).props.options
 	set_background()
 	if ~set_cmap(palettes(kpal).props.options('Cmap')) then 
 	  palettes(kpal).props.options('3D')(1)=%f //disable 3D block shape 
 	end
-	drawobjs(palettes(kpal))
+	// draw the palette. Here palettes(kpal) should 
+	// not contain graphics thus we remove them in case 
+	pal = palettes(kpal);
+	pal =scs_m_remove_gr(pal);
+	pal=drawobjs(pal);
+	palettes(kpal)=pal;
 	if pixmap then xset('wshow'),end
 	xsave(graph)
       else
+	// XXX: cette partie ne marche pas 
+	// xsave/xload nouveau graphique
 	xload(graph)
 	xname(palettes(kpal).props.title(1))
       end

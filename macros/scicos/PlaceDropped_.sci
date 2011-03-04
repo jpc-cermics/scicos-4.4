@@ -35,7 +35,7 @@ function [%pt,scs_m,needcompile]=do_place_dropped_new(scs_m,blk)
   scs_m_save=scs_m,nc_save=needcompile
   scs_m.objs($+1)=o
   needcompile=4
-  xset('recording',xtape_status);      
+  //xset('recording',xtape_status);      
   resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
 endfunction
 

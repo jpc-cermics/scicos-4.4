@@ -22,31 +22,17 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   slevel = slevel +1;
   super_block = slevel > 1;
 
+  // print the banner on first call 
+  scicos_print_banner() 
+  
   if ~super_block then
-    global next_scicos_call
-    if isempty(next_scicos_call) then
-      next_scicos_call=1
-      [verscicos,minver]=get_scicos_version()
-      verscicos=part(verscicos,7:length(verscicos))
-      if minver<>'' then
-        verscicos=verscicos+'.'+minver
-      end
-      ttxxtt=['Scicos version '+verscicos
-              'Copyright (c) 1992-2010 Metalau project INRIA'
-              '']
-      printf("%s\n",ttxxtt)
-    end
-
-    //prepare from and to workspace stuff
-    //needed ?
-
-    //set up navigation
-    super_path=[] // path to the currently opened superblock
-    %scicos_navig=[]
-    inactive_windows=list(list(),[])
-    Scicos_commands=[]
+    // initialize variables used for navigation
+    super_path=[]; // path to the currently opened superblock
+    %scicos_navig=[]; // 
+    inactive_windows=list(list(),[]); // 
+    Scicos_commands=[];
   end
-
+  
   %diagram_open=%t   //default choice
   if ~isempty(super_path) then
     if isequal(%diagram_path_objective,super_path) then
@@ -59,71 +45,15 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %diagram_open=%f
     end
   end
-
+  
   //TOBEREMOVED
   scicos_ver='scicos2.7.3' //set current version of scicos
   scicos_ver='scicos4.2' //set current version of scicos
   
   if ~super_block then
     // define scicos libraries
-    if exists('scicos_pal')==%f | exists('%scicos_menu')==%f | exists('%scicos_short')==%f |..
-	  exists('%scicos_display_mode')==%f| exists('scicos_pal_libs') ==%f |..
-          exists('%scicos_lhb_list')==%f | exists('%CmenuTypeOneVector')==%f |..
-          exists('%scicos_gif')==%f | exists('%scicos_contrib')==%f |..
-          exists('%scicos_libs')==%f | exists('%scicos_cflags')==%f then
-
-      [scicos_pal_0,%scicos_menu_0,%scicos_short_0,%scicos_help_0,..
-       %scicos_display_mode_0,modelica_libs_0,scicos_pal_libs_0, ..
-       %scicos_lhb_list_0, %CmenuTypeOneVector_0, %scicos_gif_0,..
-       %scicos_contrib_0,%scicos_libs_0,%scicos_cflags_0,..
-       %scicos_pal_list_0,scs_m_palettes_0]=initial_scicos_tables();
-
-      if exists('scicos_pal')==%f then
-        scicos_pal=scicos_pal_0;
-      end
-      if exists('%scicos_menu')==%f then
-        %scicos_menu=%scicos_menu_0;
-      end
-      if exists('%scicos_short')==%f then
-        %scicos_short=%scicos_short_0;
-      end
-      if exists('%scicos_help')==%f then
-        %scicos_help=%scicos_help_0;
-      end
-      if exists('%scicos_display_mode')==%f then
-        %scicos_display_mode=%scicos_display_mode_0;
-      end
-      if exists('modelica_libs')==%f then
-        modelica_libs=modelica_libs_0
-      end
-      if exists('scicos_pal_libs')==%f then
-        scicos_pal_libs=scicos_pal_libs_0
-      end
-      if exists('%scicos_lhb_list')==%f then
-        %scicos_lhb_list = %scicos_lhb_list_0;
-      end
-      if exists('%CmenuTypeOneVector')==%f then
-        %CmenuTypeOneVector = %CmenuTypeOneVector_0;
-      end
-      if exists('%scicos_gif')==%f then
-        %scicos_gif = %scicos_gif_0;
-      end
-      if exists('%scicos_contrib')==%f then
-        %scicos_contrib = %scicos_contrib_0;
-      end
-      if exists('%scicos_libs')==%f then
-        %scicos_libs = %scicos_libs_0;
-      end
-      if exists('%scicos_cflags')==%f then
-        %scicos_cflags = %scicos_cflags_0;
-      end
-      if exists('%scicos_pal_list')==%f then
-        %scicos_pal_list = %scicos_pal_list_0;
-      end
-      if exists('scs_m_palettes')==%f then
-        scs_m_palettes = scs_m_palettes_0;
-      end
-    end
+    scicos_library_initialize()
+    //     
     modelica_libs=unique(modelica_libs);
     if exists('%scicos_with_grid')==%f then
       %scicos_with_grid=%f;
@@ -140,7 +70,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   end
   
   Main_Scicos_window=1000
-
+  
   //Initialisation
   newparameters=list();
   enable_undo=%f;
@@ -150,10 +80,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   %exp_dir=getcwd();
   
   if ~super_block then
+  
     %zoom=1.4;
     pal_mode=%f; //Palette edition mode
     newblocks=[]; //table of added functions in pal_mode
-
+    
     scicos_paltmp=scicos_pal;
     if execstr('load(''.scicos_pal'')',errcatch=%t)==%t then
       scicos_pal=[scicos_paltmp;scicos_pal];
@@ -207,7 +138,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %tableau(-31+ascii(%scicos_short(%Y,1)))=%scicos_short(%Y,2);
     end
   end
-
+  
   if nargin >=1 then
     if type(scs_m,'string')== 'SMat' then //diagram is given by its filename
       %fil=scs_m
@@ -304,16 +235,14 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   Cmenu='';%pt=[];%win=curwin;%curwpar=[];
   Select=[];Select_back=[];%ppt=[];
 
-  //initialize graphics
   if %diagram_open then
+    //initialize graphics
     F=get_current_figure()
-    gh_current_window=nsp_graphic_widget(F.id)
-    ierr=execstr('user_data=gh_current_window.user_data',errcatch=%t)
-    if ~ierr then
-      gh_current_window.user_data=list([])
-      user_data=gh_current_window.user_data
-      lasterror();
+    gh_current_window=nsp_graphic_widget(F.id);
+    if ~gh_current_window.check_data['user_data'] then 
+      gh_current_window.user_data=list([]);
     end
+    user_data=gh_current_window.user_data;
     if ~isequal(user_data(1),scs_m) then
       ierr=execstr('load(getenv(''NSP_TMPDIR'')+''/AllWindows'')',errcatch=%t)
       if ierr then
@@ -333,13 +262,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
       needsavetest=%f
       xset('window',curwin);
-      xset('recording',0);
-      xtape_status=xget('recording');
       %zoom=restore(curwin,menus,%zoom)
+      scs_m=scs_m_remove_gr(scs_m)
       scs_m=drawobjs(scs_m);
-      //       if super_block then
-      //         Cmenu='Replot'
-      //       end
     else
       Select=user_data(2)
       enable_undo=user_data(3)
@@ -348,21 +273,21 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       xselect()
     end
   else
+    // ~diagram_open
     if or(curwin==winsid()) then
       xset('window',curwin)
       F=get_current_figure()
       gh_current_window=nsp_graphic_widget(F.id)
-      if ~execstr('user_data=gh_current_window.user_data',errcatch=%t) then
-        gh_current_window.user_data=list([])
-        user_data=gh_current_window.user_data
-        lasterror();
+      if ~gh_current_window.check_data['user_data'] then 
+	gh_current_window.user_data=list([]);
       end
+      user_data=gh_current_window.user_data;
       if ~isequal(user_data(1),scs_m) then
         Select=user_data(2)
       end
     end
   end
-
+  
   exec(restore_menu)
   global Clipboard 
 
@@ -572,12 +497,14 @@ function [x,k]=gunique(x)
 endfunction
 
 function restore_menu()
+// -------------------
   for %Y=1:size(%scicos_menu,1)
     execstr(%scicos_menu(%Y)(1)+'_'+m2s(curwin,'%.0f')+'='+%scicos_menu(%Y)(1)+';')
   end
 endfunction
 
 function inactive_windows=close_inactive_windows(inactive_windows,path)
+// -------------------------------------------------------------------
   DELL=[]  // inactive windows to kill
   if size(inactive_windows(2),'*')>0 then
     n=size(path,'*');
@@ -612,7 +539,8 @@ function inactive_windows=close_inactive_windows(inactive_windows,path)
 endfunction
 
 function scilab2scicos(win,x,y,ibut)
-  //utility function for the return to scicos by event handler
+//utility function for the return to scicos by event handler
+// -------------------------------------
   if ibut==-1000|ibut==-1 then return,end
   ierr=execstr('load(getenv(''NSP_TMPDIR'')+''/AllWindows'')',errcatch=%t)
   if ierr then
@@ -630,7 +558,7 @@ endfunction
 
 function scs_m=scs_m_remove_gr(scs_m)
 // remove the gr graphics from scs_m 
-// 
+// ----------------------------------
   for k=1:length(scs_m.objs)
     // no use to check first if gr exists before deleting it 
     scs_m.objs(k).delete['gr'];
@@ -644,8 +572,10 @@ function scs_m=scs_m_remove_gr(scs_m)
   end
 endfunction
 
-//restore the gr graphics from scs_m and inactive_windows
+
 function scs_m=rec_restore_gr(scs_m,inactive_windows)
+//restore the gr graphics from scs_m and inactive_windows
+//-------------------------------------------
   options=scs_m.props.options
   %scicos_solver=scs_m.props.tol(6)
   n=size(inactive_windows(2),'*')
@@ -669,3 +599,48 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
     end
   end
 endfunction
+
+function scicos_print_banner() 
+// print the banner when first called 
+// ---------------------------------
+  global next_scicos_call
+  if isempty(next_scicos_call) then
+    next_scicos_call=1
+    [verscicos,minver]=get_scicos_version()
+    verscicos=part(verscicos,7:length(verscicos))
+    if minver<>'' then
+      verscicos=verscicos+'.'+minver
+    end
+    ttxxtt=['Scicos version '+verscicos
+	    'Copyright (c) 1992-2010 Metalau project INRIA'
+	    '']
+    printf("%s\n",ttxxtt)
+  end
+endfunction
+
+
+function scicos_library_initialize()
+// names are the names which are to be set 
+// with the values returned by function initial_scicos_tables. 
+// Thus if one entry in names is not defined then initial_scicos_tables
+// is called and the returned values are used to set variables with name 
+// from names if they are not already set.
+// ----------------------------------------
+  names = ['scicos_pal';'%scicos_menu';'%scicos_short';'%scicos_help';
+	   '%scicos_display_mode';'modelica_libs';'scicos_pal_libs';
+	   '%scicos_lhb_list';' %CmenuTypeOneVector';' %scicos_gif';
+	   '%scicos_contrib';'%scicos_libs';'%scicos_cflags';
+	   '%scicos_pal_list';'scs_m_palettes'];
+  Enames = exists(names);
+  if ~and(Enames) then 
+    // at least one of names is not defined 
+    L=list();
+    L(1:size(names,'*'))= initial_scicos_tables();
+    for i=1:size(Enames,'*')
+      if Enames(i)== %f then 
+	execstr('resume('+ names(i)+'=L('+string(i)+'));');
+      end
+    end
+  end
+endfunction
+

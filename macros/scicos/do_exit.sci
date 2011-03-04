@@ -18,7 +18,7 @@ function do_exit()
   end
 
   winrem=[size(windows,1):-1:noldwin+1]
-
+  
   global %scicos_navig
   global inactive_windows
 

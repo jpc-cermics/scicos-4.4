@@ -137,7 +137,7 @@ function scicos_view(scs_m)
   end
   if pixmap then xset('wwpc');end
   xclear(curwin,gc_reset=%f);xselect()
-  xtape_status=xget('recording');
+  //xtape_status=xget('recording');
   xset('recording',0);
   //set_background()
 

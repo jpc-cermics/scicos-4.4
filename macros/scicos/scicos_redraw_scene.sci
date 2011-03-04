@@ -3,7 +3,7 @@ function scicos_redraw_scene(scs_m,excluded,mode)
 // and using recording mode given by mode 
   others=1:length(scs_m.objs);
   others(excluded)=[]
-  xtape_status=xget('recording')
+  //xtape_status=xget('recording')
   [echa,echb]=xgetech();
   xclear(curwin,%t);
   xset("recording",mode);
@@ -13,7 +13,7 @@ function scicos_redraw_scene(scs_m,excluded,mode)
   end
   drawtitle(scs_m.props)
   show_info(scs_m.props.doc)
-  xset('recording',xtape_status);
+  //xset('recording',xtape_status);
 endfunction
 
     

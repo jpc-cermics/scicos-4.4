@@ -78,7 +78,7 @@ function [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
     scs_m.objs($+1)=o
     needcompile=4
     Select = [length(scs_m.objs), curwin];
-    xset('recording',xtape_status);      
+    //xset('recording',xtape_status);      
     resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
   end
 endfunction
