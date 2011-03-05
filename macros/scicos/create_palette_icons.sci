@@ -42,14 +42,36 @@ function build_palette_icons(lisf)
       blk.graphics.orig=[0,0];
       scs_m.objs(1)=blk
     end
-    ok=execstr('scicos_view(scs_m)',errcatch=%t);
+    fname= file('join',[name+'.svg']);
+    str = 'scs_m_to_graphic_file(scs_m,fname,figure_background=%f);';
+    ok=execstr(str,errcatch=%t);
     if ~ok then 
       message(['Error when drawing '+name;catenate(lasterror())] );
-    else
-      win=xget('window');
-      xexport(win,file('join',[name+'.svg']),figure_background=%f);
     end
   end
 endfunction
 
-
+function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
+// export scs_m to graphic file (type given by name extension)
+// by first drawing scs_m to a graphic window and then exporting.
+// similar to what is done in export but here we have to display 
+// scs_m first.
+// jpc 2011 
+  if ~isempty(winsid()) then 
+    old_curwin=xget('window')
+    curwin=max(winsid())+1
+  else
+    old_curwin=[];
+    curwin=0;
+  end
+  xset('window',curwin);
+  options=scs_m.props.options
+  set_background();
+  scs_m=scs_m_remove_gr(scs_m);
+  %zoom=restore(curwin,[],1.0);
+  drawobjs(scs_m);
+  // reset the extension just in case 
+  xexport(curwin,name,figure_background=figure_background);
+  xdel(curwin);
+  if ~isempty(old_curwin) then xset('window',old_curwin);end
+endfunction
