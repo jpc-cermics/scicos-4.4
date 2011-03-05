@@ -108,10 +108,8 @@ function str=ngr_Edit(ind,win)
     F.invalidate[];
    case 'delete all' then 
     ngr_delete_all();
-    // ngr_draw(win); 
    case 'delete' then 
     ngr_delete();
-    // ngr_draw(win);
    case 'copy'   then ngr_copy();
    case 'random' then 
     for i=1:10
@@ -867,11 +865,9 @@ function ngr_eventhandler(win,x,y,ibut)
   elseif ibut==100 
     //printf('ibut==100\n')
     ngr_delete();
-    ngr_draw(win);
   elseif ibut==99
     printf('ibut==99\n')
     ngr_copy();
-    ngr_draw(win);
   else
     xinfo('Mouse action: ['+string(ibut)+']');
   end
@@ -962,7 +958,6 @@ function ngr_unhilite(win=-1,draw=%t)
     ngr_objects(k)('hilited')=%f;
     execstr('ngr_'+o.type+'(''update'',k);');
   end
-  // if ok & draw then ngr_draw(win);end 
 endfunction 
 
 function ngr_delete()

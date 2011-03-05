@@ -1,79 +1,55 @@
 function scs_m = changeports(scs_m, path, o_n)
 // Copyright INRIA
 // Last Update Fady: 15 Dec 2008
-//** 27 July 2007
-//** This function is able to replace any block with any other block. We made a reasonable effort
-//** to reutilize the information associated at the ports with the aim to mantain the connections.
-//**
-//** When the connection are incompatible, the links are removed.
-//**
-//** The existing links are moved in order to match the port's positions.
-//**
-//** ToDo : adjust the links in square angle (horizontal and vertical links only).
-//**
-//** 16 Oct. 2007 : some observations
-//**                a) utilise a forced, fixed, two pass approach it is a bit redundant for "trivial
-//**                   operation" (e.g. replace a block not connected) ...
-//**
-//**                b) we not exclude the possibility of the necessity of a multiple pass approach,
-//**                   e.g. implement a "while(LinkToDel<>[])" loop. 
-//** This code can be validate by visual inspection only : look at the results !  
-//** ------- Update  block --------------------------------------------
+//
+// This function is able to replace any block with any other block. 
+// We made a reasonable effort to reutilize the information associated 
+// at the ports with the aim to mantain the connections.
+// When the connection are incompatible, the links are removed.
+// The existing links are moved in order to match the port's positions.
+// ToDo : adjust the links in square angle (horizontal and vertical links only).
+// some observations:
+//  a) utilise a forced, fixed, two pass approach it is a bit redundant for "trivial
+//     operation" (e.g. replace a block not connected) ...
+//  b) we do not exclude the possibility of the necessity of a multiple pass approach,
+//     e.g. implement a "while(LinkToDel<>[])" loop. 
+//  This code can be validate by visual inspection only : look at the
+//  results !  
+//
   k = path($) ; //** the scs_m index of the target 
   if or(curwin==winsid()) then
-    //** ------- Graphics ---------------
-    //** redraw block
-    if pixmap then xset('wshow'),end,
     F=get_current_figure[];
-    F.draw_latter[];
     if scs_m.objs(k).iskey['gr'] then
       F.remove[scs_m.objs(k).gr];
     end 
     o_n=drawobj(o_n);
     o_n.gr.invalidate[];
-    F.draw_now[];
   end
 
-  //** The very first time the this routine try to match the ports of the new blocks over the ports
-  //** of the old one.
-  //** "LinkToDel" is a vector of "scs_m" index of connected links of the old blocks that cannot be
-  //** relocated on the new one and must be deleted  
+  // The very first time the this routine try to match the ports of the new blocks over the ports
+  // of the old one.
+  // "LinkToDel" is a vector of "scs_m" index of connected links of the old blocks that cannot be
+  // relocated on the new one and must be deleted  
+  // A second pass is indispensable because...
+  // a) the deletion of some links can create new unconnected ports on the original block;
+  // b) do_delete1() can create some brand new links that need to be deleted again (this is
+  //    a side effect of the deletion in sequence); 
 
-  [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n);
-
-  //**---------- Delete the links relative at the unconnected (non allocated) ports --------------
-
-  for i=1:size(LinkToDel,'*')
-     Link_index = LinkToDel(i) ; //** the Link to be deleted
-     gr = %t                   ; //** update the screen
-     [scs_m, DEL, DELL] = do_delete1(scs_m, Link_index, gr) ; //** delete the links
-  end 
-
-  //**--------------------------------------------------------------------------------------------- 
-
-  //** A second pass is indispensable because...
-  //** a) the deletion of some links can create new unconnected ports on the original block;
-  //** b) do_delete1() can create some brand new links that need to be deleted again (this is
-  //**    a side effect of the deletion in sequence); 
-  //**
-  //** The same procedure is reused twice. 
-
-  [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
-
-  //**---------- Delete the links relative at the unconnected (non allocated) ports --------------
-
-  for i=1:size(LinkToDel,'*')
-     Link_index = LinkToDel(i) ; //** the Link to be deleted
-     gr = %t                   ; //** update the screen
-     [scs_m, DEL, DELL] = do_delete1(scs_m, Link_index, gr) ; //** delete the links
-  end 
-  //**-------- Scicos -----------------
-  //** update block in scicos structure
-  F.draw_latter[];
-  F.draw_now[];
+  for pass=1:2 
+    
+    [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n);
+    // Delete the links relative at the unconnected (non allocated) ports 
+    for i=1:size(LinkToDel,'*')
+      Link_index = LinkToDel(i) ; //** the Link to be deleted
+      gr = %t                   ; //** update the screen
+      [scs_m, DEL, DELL] = do_delete1(scs_m, Link_index, gr) ; //** delete the links
+    end 
+  end
+    
+  // update scs_m 
+  
   scs_m.objs(k) = o_n ;
 endfunction
-
 
 function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 //** ---- INITIALIZATION ----

@@ -1,28 +1,24 @@
 function scs_m=update_redraw_obj(scs_m,path,o)
-// Copyright INRIA/Enpc 
-// 
+// Copyright INRIA/Enpc
+// performs scs_m(path)=o
+// or transfert control to changeports
+// Moreover if curwin is active then 
+// addition and removal of associated graphic objects 
+// is performed.
+// i.e a graphic object is associated to o 
+// and graphic object associated to scs_m(path)
+// is removed from current figure.
+  
+  lt = o.type =='Link'| o.type =='Text';
+  if size(path,'*')==2 && ~lt then 
+    scs_m=changeports(scs_m,path,o)
+    return;
+  end;
+  
   if or(curwin==winsid()) then
     F=get_current_figure();
-    F.draw_latter[];
+    F.remove[scs_m(path).gr];
+    o=drawobj(o)    
   end
-  if size(path,'*')==2 then
-    if o.type =='Link'| o.type =='Text' then
-      if or(curwin==winsid()) then
-        F.remove[scs_m(path).gr];
-        o=drawobj(o)
-      end
-      scs_m(path)=o;
-    else
-      scs_m=changeports(scs_m,path,o)
-    end
-  else // change a block in a sub-level
-    if or(curwin==winsid()) then
-      F.remove[scs_m(path).gr];
-      o=drawobj(o)
-    end
-    scs_m(path)=o;
-  end
-  if or(curwin==winsid()) then
-    F.draw_now[];
-  end
+  scs_m(path)=o;
 endfunction
