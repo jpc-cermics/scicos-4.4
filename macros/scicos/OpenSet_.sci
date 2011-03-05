@@ -4,28 +4,20 @@ function OpenSet_()
   if or(curwin==winsid()) then xset('window',curwin) end
 
  if ~%diagram_open then
-   %kk=Select(1)
-   if size(scs_m.objs)<%kk then
-     ierr=1
-   else
-     ierr=execstr('xxx=scs_m.objs(%kk).model.sim',errcatch=%t)
-   end
-   if isequal(ierr,%t) then
-     ierr=0
-     if ~isequal(xxx,'super') then
-       ierr2=execstr('xxxx=scs_m.objs(%kk).gui',errcatch=%t)
-       if ierr2==%t then
-         if ~isequal(xxxx,'PAL_f') then
-           ierr=1;
-         end
-       else
-         ierr=1;
-       end
-     end
-   else
-     ierr=1;
-   end
-   if ~isequal(ierr,0) then
+   // we can arrive here if we click on an opened super 
+   // block 
+   %kk=Select(1);
+   // test if %kk is valid i.e the selection is 
+   // in scs_m and is a super block or a palette
+   [%ok,%H] = execstr(['o=scs_m.objs(%kk)';
+		       'rep= o.model.sim == ""super"" | o.gui == ""PAL_f""' ],...
+		      errcatch=%t);
+   // get rid of the error message;
+   if ~%ok then lasterror();end 
+   // we are happy if execstr succeeded and ans is %t 
+   %ok = %ok && %H.rep
+   if ~%ok then
+     // stop 
      message(['This window is not active anymore or';
               'the browser is not up-to-date.'])
      %scicos_navig=[]  // stop navigation
@@ -33,7 +25,7 @@ function OpenSet_()
      Cmenu='';%pt=[]
      return
    end
-    
+   
    inactive_windows(1)($+1)=super_path;inactive_windows(2)($+1)=curwin
 
    super_path=[super_path,%kk]
