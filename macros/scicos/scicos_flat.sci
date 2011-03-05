@@ -72,7 +72,7 @@ block_tag=['GotoTagVisibility','CLKGotoTagVisibility','GotoTagVisibilityMO']
 n=length(scs_m.objs) //number of "objects" in the data structure
 //-------------- initialize outputs --------------
 nb=0;
-links_table=[]; // 
+links_table=zeros(0,4); // 
 corinv=list();
 cor=list();for k=1:n, cor(k)=0;end
 
@@ -310,7 +310,12 @@ for k=1:n //loop on all objects
       
       //catenate superbloc data with current data
       
-      f=find(lt(:,1)>0&lt(:,1)<=nbs);if ~isempty(f) then lt(f,1)=lt(f,1)+nb,end
+      if isempty(lt) then 
+	f=[];
+      else
+	f=find(lt(:,1)>0&lt(:,1)<=nbs);
+      end
+      if ~isempty(f) then lt(f,1)=lt(f,1)+nb,end
       links_table=[links_table;lt]
 
       for kk=1:nbs
@@ -374,12 +379,12 @@ for k=Links
   if o.ct(2)==2 //implicit links
     //if abs(o.from(1))==125|abs(o.to(1))==125 then pause,end
     links_table=[links_table
-	o.from(1:3)    o.ct(2) 
-	o.to(1:3)      o.ct(2) ]
+		 o.from(1:3),    o.ct(2) 
+		 o.to(1:3),      o.ct(2) ]
   else //regular or event links
     links_table=[links_table
-	o.from(1:2)  -1  o.ct(2) //outputs are tagged with -1 
-	o.to(1:2)    1   o.ct(2) ] //inputs are tagged with 1
+		 o.from(1:2),  -1,  o.ct(2) //outputs are tagged with -1 
+		 o.to(1:2),    1,   o.ct(2) ] //inputs are tagged with 1
   end
 end
 // Warning in case of modelica's blocks in an enabled diagram.

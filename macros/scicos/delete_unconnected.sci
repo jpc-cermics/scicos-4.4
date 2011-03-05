@@ -1,13 +1,9 @@
 function scs_m=delete_unconnected(scs_m)
-  scs_m=delete_unconnected_new(scs_m);
-endfunction
-
-function scs_m=delete_unconnected_new(scs_m);
 //delete unconnected blocks and all relevant parts of a diagram
 //may be used before compilation
 // Copyright INRIA
 // printf("In delete unconnected\n");
-  scs_m_old=scs_m;
+
   n=length(scs_m.objs)
   DEL=[]
   DELL=[]
@@ -49,19 +45,20 @@ function scs_m=delete_unconnected_new(scs_m);
       end
     end 
   end
-  
-  //suppress rigth-most deleted elements
+
+    //Suppress rigth-most deleted elements
   while scs_m.objs($).type =='Deleted' then
     scs_m.objs($)=null();
     if length(scs_m.objs)==0 then break,end
   end
+  
   // Notify by hiliting and message edition
-
   if ~isempty(DEL) then 
     wins=xget('window')
-    //XXX if flgcdgen<>-1 then path=[numk path]; scs_m_s=all_scs_m; end
+    // recursively show in graphic window 
+    // and hilite the super blocks which lead to 
+    // this scs_m 
     if ~isempty(path) then
-      // XXXXX a finir le hilite recurssif 
       mxwin=max(winsid())
       for k=1:size(path,'*')
 	hilite_obj(scs_m_s.objs(path(k)))
@@ -69,24 +66,24 @@ function scs_m=delete_unconnected_new(scs_m);
 	scs_m_s=scs_show(scs_m_s,mxwin+k)
       end
     end
+    // hilite the blocks which are in DELL and not in 
+    // DELL
     F=get_current_figure()
-    F.draw_latter[];
     for k=DEL
-      if isempty(find(k==DELL)) then hilite_obj(scs_m_s.objs(k),draw=%f),end
+      if isempty(find(k==DELL)) then hilite_obj(scs_m_s.objs(k)),end
     end
-    F.draw_now[];
-    //pause hilited;
     message(['Hilited blocks or links are ignored because of'
 	     'undefined input(s)'])
     for k=size(path,'*'):-1:1,xdel(mxwin+k),end
-    //scs_m_s=null()
-    clear('scs_m_s');
+    // back to the initial window    
     xset('window',wins)
-    F=get_current_figure()
-    F.draw_latter[];
-    for k=DEL
-      if isempty(find(k==DELL)) then unhilite_obj(scs_m_s.objs(k),draw=%f),end
+    // if the blocks were in the already opened window 
+    // then unhilite them.
+    if isempty(path) then 
+      F=get_current_figure()
+      for k=DEL
+	if isempty(find(k==DELL)) then unhilite_obj(scs_m_s.objs(k)),end
+      end
     end
-    F.draw_now[]
   end
 endfunction

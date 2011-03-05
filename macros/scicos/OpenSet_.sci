@@ -1,9 +1,11 @@
 function OpenSet_()
 //global inactive_windows
   
-  if or(curwin==winsid()) then xset('window',curwin) end
-
- if ~%diagram_open then
+  printf('In OpenSet ......%d\n",curwin);
+  
+  if or(curwin==winsid()) then xset('window',curwin); end
+  
+  if ~%diagram_open then
    // we can arrive here if we click on an opened super 
    // block 
    %kk=Select(1);
@@ -31,10 +33,10 @@ function OpenSet_()
    super_path=[super_path,%kk]
    [o,modified,newparametersb,needcompileb,editedb]=clickin( scs_m.objs(%kk));
 
-    indx=find(curwin==inactive_windows(2))
-    if ~isempty(indx) then
-        inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
-    end
+   indx=find(curwin==inactive_windows(2))
+   if ~isempty(indx) then
+     inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
+   end
     
    edited=edited|editedb
    super_path($-size(%kk,2)+1:$)=[]

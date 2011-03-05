@@ -5,7 +5,6 @@ function scs_m=scs_show(scs_m,win)
 // This is very similar to do_export_gwin 
 // 
 // Copyright INRIA
-  pause xxx
   xset('window',win);
   xclear();
   xselect();
