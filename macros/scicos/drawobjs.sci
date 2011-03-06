@@ -32,6 +32,7 @@ function scs_m=drawobjs(scs_m)
   for i=1:length(scs_m.objs);
     scs_m.objs(i)=drawobj(scs_m.objs(i),win)
   end
+  pause zzz; 
   F.draw_now[];
   // will just activate a process_updates 
   show_info(scs_m.props.doc)

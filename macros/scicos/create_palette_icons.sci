@@ -2,13 +2,10 @@ function create_palette_icons(palette='all')
 // jpc April 2009 
 // 
 // This function will populate the current 
-// directory with svg files 
+// directory with svg files, one for each 
+// palette element.
 // 
-  if nargin < 1 then bidon='all';end
-  scicos_ver='scicos2.7.3'
-  
   path=getenv('NSP')+'/macros/blocks'
-  
   if palette=='all' then
     palette=scicos_get_palette_content('all');
   else

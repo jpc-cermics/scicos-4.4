@@ -325,10 +325,12 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
           if Cmenu=="OpenSet" then
             ierr=execstr('exec(OpenSet_);',errcatch=%t)
             if ierr==%f then message(catenate(lasterror())),end
-            if isequal(%diagram_path_objective,super_path) then // must add after testing &%scicos_navig<>[] 
+            if isequal(%diagram_path_objective,super_path) then 
+	      // must add after testing &%scicos_navig<>[] 
               if ~or(curwin==winsid()) then 
                 %zoom=restore(curwin,menus,%zoom)
-                execstr('drawobjs(scs_m)',errcatch=%t) 
+		scs_m=scs_m_remove_gr(scs_m);
+		execstr('drawobjs(scs_m)',errcatch=%t) 
                 %scicos_navig=[]
                 Select_back=[];Select=[]
               end  
