@@ -18,14 +18,11 @@ function scs_m = changeports(scs_m, path, o_n)
 //
   k = path($) ; //** the scs_m index of the target 
   if or(curwin==winsid()) then
-    F=get_current_figure[];
-    if scs_m.objs(k).iskey['gr'] then
-      F.remove[scs_m.objs(k).gr];
-    end 
-    o_n=drawobj(o_n);
-    o_n.gr.invalidate[];
+    F=get_figure(curwin);
+    o_n=drawobj(o_n,F);
+    o_n.gr.invalidate[]; // maybe useless 
   end
-
+  
   // The very first time the this routine try to match the ports of the new blocks over the ports
   // of the old one.
   // "LinkToDel" is a vector of "scs_m" index of connected links of the old blocks that cannot be
@@ -366,7 +363,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
       if  or(curwin==winsid()) then
         F=get_current_figure[];
         F.draw_latter[];
-        oi=drawobj(oi);
+        oi=drawobj(oi,F);
         oi.gr.invalidate[];
         F.draw_now[];
       end
@@ -423,7 +420,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
       if  or(curwin==winsid()) then
         F=get_current_figure[];
         F.draw_latter[];
-        oi=drawobj(oi);
+        oi=drawobj(oi,F);
         oi.gr.invalidate[];
         F.draw_now[];
       end

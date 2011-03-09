@@ -27,7 +27,7 @@ function scs_m=drawobjs(scs_m,win)
   // draw the objets and keep their associated graphic objects
   F.draw_latter[];
   for i=1:length(scs_m.objs);
-    scs_m.objs(i)=drawobj(scs_m.objs(i),win)
+    scs_m.objs(i)=drawobj(scs_m.objs(i),F)
   end
   F.draw_now[]; // will just activate a process_updates 
   show_info(scs_m.props.doc)

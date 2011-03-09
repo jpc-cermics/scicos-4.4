@@ -50,7 +50,7 @@ function [scs_m,needcompile,Select]=do_duplicate(%pt,scs_m,needcompile,Select)
       F.draw_latter[];
       // o is a copy we create a new graphic object for the copy 
       if o.iskey['gr'] then o.delete['gr'], end
-      o=drawobj(o)
+      o=drawobj(o,F)
       F.draw_now[];
       while rep(3)==-1 then 
 	// get new position

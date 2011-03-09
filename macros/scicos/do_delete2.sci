@@ -32,18 +32,13 @@ while ~isempty(K) do
 	 scs_m.objs(from(1))=mark_prt(scs_m.objs(from(1)),from(2),'out',ct(2),0)
        end
     end
-    // erase and delete link - Alan  : Not used in nsp for scicos 2.7
-    // if gr==%t then drawobj(o),end
   elseif typ=='Block' then
     // get connected links
     connected=get_connected(scs_m,k)
     //ask for connected links deletion
     K=[K connected]
-    // erase and delete block - Alan  : Not used in nsp for scicos 2.7
-    //if gr==%t then drawobj(scs_m.objs(k)),end
   elseif typ=='Text' then
     // Alan  : Not used in nsp for scicos 2.7
-    //if gr==%t then drawobj(o),end
   elseif typ=='Deleted' then
   else
     message('This object can''t be deleted')

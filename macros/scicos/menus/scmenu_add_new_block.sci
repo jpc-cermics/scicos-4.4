@@ -73,9 +73,7 @@ function [scs_m,fct,Select]=do_addnew(scs_m,Select)
   blk.graphics.orig=[pt-blk.graphics.sz/2];
   // record the objects in graphics 
   F=get_current_figure();
-  F.draw_latter[];
-  blk=drawobj(blk)
-  F.draw_now[];
+  blk=drawobj(blk,F)
   blk.gr.invalidate[];
   rep(3)=-1
   while rep(3)==-1 then 
@@ -84,10 +82,8 @@ function [scs_m,fct,Select]=do_addnew(scs_m,Select)
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f)
     tr = rep(1:2) - pt;
     pt = rep(1:2)
-    F.draw_latter[];
-    blk.gr.translate[tr];
+    blk.gr.translate[tr]; // this will properly invalidate blk
     blk.graphics.orig=blk.graphics.orig + tr;
-    F.draw_now[];
   end
   if rep(3)==2 then 
     // this is a cancel 

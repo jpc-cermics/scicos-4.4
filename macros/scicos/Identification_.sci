@@ -40,7 +40,7 @@ function [%pt,scs_m]=do_ident_new(%pt,scs_m)
     identification)
     if ok then
       objet.graphics.id = stripblanks(identification)
-      objet=drawobj(objet)
+      objet=drawobj(objet,F)
       scs_m.objs(numero_objet) = objet;
     end
   elseif type_objet == 'Link' then

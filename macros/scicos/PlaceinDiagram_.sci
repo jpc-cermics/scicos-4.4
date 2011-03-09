@@ -23,7 +23,7 @@ function [%pt,scs_m,needcompile]=do_placeindiagram_new(scs_m,blk)
   F=get_current_figure();
   xset('process_updates'); // process the expose events
   // o is a copy we create a new graphic object for the copy
-  o=drawobj(o)
+  o=drawobj(o,F)
   while rep(3)==-1 then 
     // get new position
     // printf("In Copy moving %d\n",curwin);

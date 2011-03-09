@@ -90,10 +90,8 @@ function [%pt,scs_m]=do_region2block(%pt,scs_m)
   end
 
   // add super block
-  // drawobj(sup)
-
   F.draw_latter[];
-  sup=drawobj(sup);
+  sup=drawobj(sup,F);
   
   scs_m.objs($+1)=sup
   // connect it
@@ -232,7 +230,7 @@ function [%pt,scs_m]=do_region2block(%pt,scs_m)
     end
     lk=scicos_link(xx=xl,yy=yl,ct=prt(k,4:5),from=from,to=to)
     if lk.ct(2)==3 then lk.thick=[2 2];end
-    lk=drawobj(lk);
+    lk=drawobj(lk,F);
     scs_m.objs($+1)=lk
     scs_m.objs(k1)=o1
     nnk=nnk+1
@@ -457,14 +455,7 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m)
     scs_m.objs(k)=mlist('Deleted');
   end
   // add super block
-  // drawobj(sup)
-
-  F.draw_latter[];
-  sup=drawobj(sup);
-  
-  //[scs_m,DEL] = do_delete2(scs_m,keep,%f) //** Quick speed improvement using %f (was %t)
-  //drawobj(sup)
-  
+  sup=drawobj(sup,F);
   scs_m.objs($+1)=sup
   // connect it
   nn=length(scs_m.objs)  //superblock number
@@ -609,7 +600,7 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m)
 
     lk=scicos_link(xx=xl,yy=yl,ct=prt(k,4:5),from=from,to=to)
     if lk.ct(2)==3 then lk.thick=[2 2];end
-    lk=drawobj(lk);
+    lk=drawobj(lk,F);
     scs_m.objs($+1)=lk
     scs_m.objs(k1)=o1
     nnk=nnk+1

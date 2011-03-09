@@ -64,9 +64,9 @@ function [scs_m]=do_icon_edit(%pt,scs_m)
   end
   // update and redraw 
   o.graphics.gr_i=list(gr_i,coli,sd);
-  F=get_current_figure();
+  F=get_figure(oldwin);
   gr_old = o.gr;
-  if ~execstr('o=drawobj(o,oldwin)',errcatch=%t) then 
+  if ~execstr('o=drawobj(o,F)',errcatch=%t) then 
     message(['errof during drawblock evaluation: ']);
     lasterror();
   else

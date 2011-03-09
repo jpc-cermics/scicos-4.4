@@ -89,7 +89,7 @@ function scicos_test_anim2(N=100,opengl=%f,poly_d=%t);
   Co=list();
   for i=1:length(scs_m.objs);
     F.start_compound[];
-    drawobj(scs_m.objs(i))
+    drawobj(scs_m.objs(i),F)
     C=F.end_compound[];
     Co(i)=C;
     C.show=%t
@@ -133,7 +133,7 @@ function scicos_test_draw1(opengl=%f)
   window_set_size();
   F=get_current_figure();
   F.draw_latter[];
-  drawobjs(scs_m),
+  drawobjs(scs_m,F),
   F.draw_now[]; 
 endfunction 
 
@@ -153,7 +153,7 @@ function fps=scicos_test_anim3(runtime,opengl=%f)
   Co=list();
   for i=1:length(scs_m.objs);
     F.start_compound[];
-    drawobj(scs_m.objs(i))
+    drawobj(scs_m.objs(i),F)
     C=F.end_compound[];
     Co(i)=C;
   end

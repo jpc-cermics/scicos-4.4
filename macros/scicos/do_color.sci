@@ -55,7 +55,7 @@ function [%pt,scs_m]=do_color(%pt,scs_m)
       F=get_current_figure();
       F.draw_latter[];
       F.remove[scs_m.objs(K).gr];
-      o=drawobj(o);
+      o=drawobj(o,F);
       scs_m.objs(K)=o
       F.draw_now[];
     end

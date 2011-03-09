@@ -25,7 +25,7 @@ function Paste_()
           blk=Clipboard;
           blk.graphics.orig=Clipboard.graphics.orig+Clipboard.graphics.sz/2;
           if blk.iskey['gr'] then blk.delete['gr'], end
-          blk=drawobj(blk); //** draw the single object
+          blk=drawobj(blk,F); //** draw the single object
           scs_m.objs($+1)=blk //** add the object at the top
           edited=%t
           enable_undo=%t
@@ -52,7 +52,7 @@ function Paste_()
       blk=Clipboard;
       blk.graphics.orig=%ppt;
       if blk.iskey['gr'] then blk.delete['gr'], end
-      blk=drawobj(blk); //** draw the single object 
+      blk=drawobj(blk,F); //** draw the single object 
       scs_m.objs($+1)=blk
       edited=%t;
       enable_undo=%t;
@@ -108,7 +108,7 @@ function Paste_()
 	    o.graphics.orig(2) = o.graphics.orig(2)-rect(2)+yc
 	  end
           if o.iskey['gr'] then o.delete['gr'], end
-	  o=drawobj(o); //** draw the object
+	  o=drawobj(o,F); //** draw the object
 	  scs_m.objs($+1)=o;
 	  Select=[Select;size(scs_m.objs),%win]; //** it's a really dirty trick ;)
 	end
