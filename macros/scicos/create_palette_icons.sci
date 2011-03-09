@@ -66,7 +66,7 @@ function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
   set_background();
   scs_m=scs_m_remove_gr(scs_m);
   %zoom=restore(curwin,[],1.0);
-  drawobjs(scs_m);
+  drawobjs(scs_m,curwin);
   // reset the extension just in case 
   xexport(curwin,name,figure_background=figure_background);
   xdel(curwin);

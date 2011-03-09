@@ -26,7 +26,7 @@ function [palettes,windows]=do_load_as_palette(palettes,windows)
   delmenu(curwin,'3D Rot.')
   delmenu(curwin,'UnZoom')
   delmenu(curwin,'Zoom')
-  scs_m=drawobjs(scs_m);
+  scs_m=drawobjs(scs_m,curwin);
   palettes(kpal)=scs_m;
   xinfo('Palette: may be used to copy  blocks or regions')
   xset('window',lastwin)

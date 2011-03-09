@@ -32,7 +32,7 @@ function do_export(scs_m,fname)
     scs_m=scs_m_remove_gr(scs_m);
     scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);
     %zoom=restore(curwin,[],1.0);
-    drawobjs(scs_m);
+    drawobjs(scs_m,curwin);
     if ~isempty(old_curwin) then xset('window',old_curwin);end
   endfunction
 
@@ -92,7 +92,7 @@ function do_export_all()
     set_background();
     scs_m=scs_m_remove_gr(scs_m);
     %zoom=restore(curwin,[],1.0);
-    drawobjs(scs_m);
+    drawobjs(scs_m,curwin);
     xexport(curwin,file('join',[path,scs_m.props.title(1)+extension]));
     xdel(curwin);
     if ~isempty(old_curwin) then xset('window',old_curwin);end

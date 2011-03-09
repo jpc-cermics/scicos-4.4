@@ -87,7 +87,7 @@ function [palettes,windows]=do_palettes(palettes,windows)
     // not contain graphics thus we remove them in case 
     pal = palettes(kpal);
     pal =scs_m_remove_gr(pal);
-    pal=drawobjs(pal);
+    pal=drawobjs(pal,curwin);
     palettes(kpal)=pal;
     xsave(graph)
   else
@@ -171,7 +171,7 @@ function [palettes,windows]=do_all_palettes(windows)
 	// not contain graphics thus we remove them in case 
 	pal = palettes(kpal);
 	pal =scs_m_remove_gr(pal);
-	pal=drawobjs(pal);
+	pal=drawobjs(pal,curwin);
 	palettes(kpal)=pal;
 	if pixmap then xset('wshow'),end
 	xsave(graph)

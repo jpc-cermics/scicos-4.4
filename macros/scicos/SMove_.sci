@@ -93,7 +93,7 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
   // move a block and connected links
   //=================================
   
-  if ~isempty(connected) then 
+  if %t then 
     // move a block and connected links
     F=get_current_figure()
     pat=xget('pattern')
@@ -183,11 +183,6 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
       o.gr.translate[[xc,yc]-pt];
       scs_m.objs(k)=o;
     end
-  else 
-    // move an unconnected block
-    // stupid_moveblock_new does a good job 
-    // in that case.
-    scs_m=stupid_moveblock_new(scs_m,k,xc,yc);
   end
 endfunction
 
