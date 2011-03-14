@@ -125,6 +125,9 @@ function o=drawobj(o,F)
     F.remove[C];
     return;
   end
+  if (otype.equal['Block'] ||otype.equal['Text']) && ~o.graphics.iskey['theta'] then
+     o.graphics.theta=0;
+  end
   
   if ( otype.equal['Block'] ||otype.equal['Text']) && o.graphics.theta<>0 then
     // we need to rotate the object 

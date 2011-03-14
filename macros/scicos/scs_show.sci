@@ -3,7 +3,6 @@ function scs_m=scs_show(scs_m,win)
 // in a new graphic window win.
 // This is very similar to do_export_gwin 
 // Copyright INRIA/Enpc
-  
   xset('window',win);
   xclear();
   xselect();  
