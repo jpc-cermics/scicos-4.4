@@ -13,17 +13,15 @@ function [o,needcompile,ok]=do_CreateAtomic(o,k,scs_m)
   end
   ALL=%f;
   xx=CodeGeneration_;
-  ierr=execstr('[ok, XX, gui_path,flgcdgen, szclkINTemp, freof,c_atomic_code,cpr] ='+ ...
-	       'do_compile_superblock42(scs_m, k, %t);','errcatch');
-  if ierr<>0 then
+  ok=execstr('[ok, XX, gui_path,flgcdgen, szclkINTemp, freof,c_atomic_code,cpr] ='+ ...
+	       'do_compile_superblock42(scs_m, k, %t);',errcatch=%t);
+  if ~ok then
     message(lasterror());
-    ok=%f
+    return; 
   end
-  if ~ok then return; end
-
+  
   if ~isempty(freof) then 
-    message('An Atomic Superblock cannot contain sample clocks');
-    ok=%f
+    message('An Atomic Superblock cannot contain sample clocks');ok=%f
     return
   elseif (XX.model.dep_ut($)==%t & XX.model.evtin<>[]) then
     message('A Triggered Atomic Subsystem cannot contain blocks with continuous time');ok=%f
