@@ -1,4 +1,5 @@
 function Open_()
+
   Cmenu='';Select=[]
   if edited & ~super_block then
     num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
@@ -20,7 +21,7 @@ function Open_()
     //Cmenu='Replot';
     return;
   end
-
+  
   if ~set_cmap(scs_m.props.options('Cmap')) then 
     scs_m.props.options('3D')(1)=%f //disable 3D block shape 
   end

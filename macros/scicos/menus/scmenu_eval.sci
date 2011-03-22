@@ -38,7 +38,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr)
   %scicos_prob=%f
 
   function [ok,tt]=FORTR(funam,tt,i,o) ; ok=%t; endfunction
-  function [ok,tt]=CFORTR2(funam,tt,i,o); ok=%t; endfunction
+  function [ok,tt,cancel]=CFORTR2(funam,tt,i,o); ok=%t;cancel=%f; endfunction
   function [ok,tt]=CFORTR(funam,tt,i,o); ok=%t; endfunction
   function [x,y,ok,gc]=edit_curv(x,y,job,tit,gc); ok=%t; endfunction
   function [ok,tt,dep_ut]=genfunc1(tt,ni,no,nci,nco,nx,nz,nrp,type_) ;dep_ut=model.dep_ut;ok=%t; endfunction

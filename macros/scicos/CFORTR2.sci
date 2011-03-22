@@ -1,6 +1,9 @@
-function [ok,tt]=CFORTR2(funam,tt)
-// *flag for nsp 
-// This is maybe to be fixed
+function [ok,tt,cancel]=CFORTR2(funam,tt)
+// Copyright INRIA
+//  *flag for nsp (This is maybe to be fixed).
+//
+  cancel=%f
+  
   if isempty(tt) then
     
     textmp=['void '+funam+'(scicos_block *block,int flag)';
