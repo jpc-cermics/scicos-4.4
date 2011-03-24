@@ -107,7 +107,7 @@ function [x,y,typ]=CBLOCK4(job,arg1,arg2)
       end
 
       if ok then
-	pause xx
+
         libss  = graphics.exprs(1)(20)
         cflags = graphics.exprs(1)(21)
         while %t
