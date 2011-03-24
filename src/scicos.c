@@ -2898,8 +2898,11 @@ static void callf (const double *t, scicos_block * block, int *flag)
 	    return;		/* error in debug block */
 	}
     }
-
-  /* unused: C2F(scsptr).ptr = block->scsptr; */
+  
+  /* this parameters can be transmited with Scicos */
+  Scicos->params.scsptr = block->scsptr; 
+  Scicos->params.scsptr_flag = block->scsptr_flag;
+  
 
   /* get pointer of the function */
   loc = block->funpt;
