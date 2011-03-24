@@ -11,16 +11,28 @@ function y=sci2exp(exp,nam)
 // XXXX a sprint(.,as_read=%t) without line breaks 
 //      should be usefull
   if (type(exp,'short')=='m' & size(exp,2)==1) then 
+    // column vector 
     y= sprint(exp,as_read=%t);
     y=y(2:$);
     y=strcat(stripblanks(y));
   elseif (type(exp,'short')=='m' & size(exp,1)==1) then 
+    // raw vector 
     y=sprint(exp',as_read=%t);
     y=y(2:$);
     // transpose to avoid breaks
     y=strcat(stripblanks(y));
     y=strsubst(y,';',',');
+  elseif type(exp,'short')=='l' then 
+    y="";
+    if length(exp) >= 1 then 
+      y=sci2exp(exp(1));
+      for i=2:length(exp) 
+	y = y+ ','+ sci2exp(exp(i));
+      end
+    end
+    y = 'list('+y+')';
   else
+    // general case 
     y=sprint(exp,as_read=%t);
     // remove header
     y=y(2:$);

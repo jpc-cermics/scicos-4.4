@@ -1,18 +1,18 @@
 function [x,y,typ]=CBLOCK4(job,arg1,arg2)
 //
 // Copyright INRIA
-x=[];y=[];typ=[];
+  x=[];y=[];typ=[];
 
-select job
-  case 'plot' then
-     standard_draw(arg1)
-  case 'getinputs' then
+  select job
+   case 'plot' then
+    standard_draw(arg1)
+   case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
-  case 'getoutputs' then
+   case 'getoutputs' then
     [x,y,typ]=standard_outputs(arg1)
-  case 'getorigin' then
+   case 'getorigin' then
     [x,y]=standard_origin(arg1)
-  case 'set' then
+   case 'set' then
     x=arg1
     model=arg1.model;
     graphics=arg1.graphics;
@@ -20,31 +20,33 @@ select job
     label_2=graphics.exprs(2);
 
     while %t do
-    [ok,junction_name,impli,in,it,out,ot,ci,co,xx,z,oz,...
-     rpar,ipar,opar,nmode,nzcr,auto0,depu,dept,lab]=..
-        getvalue('Set C-Block4 block parameters',..
-        ['Simulation function';
-         'Is block implicit? (y,n)';
-         'Input ports sizes';
-         'Input ports type';
-         'Output port sizes';
-         'Output ports type';
-         'Input event ports sizes';
-         'Output events ports sizes';
-         'Initial continuous state';
-         'Initial discrete state';
-         'Initial object state';
-         'Real parameters vector';
-         'Integer parameters vector';
-         'Object parameters list';
-         'Number of modes';
-         'Number of zero crossings';
-         'Initial firing vector (<0 for no firing)';
-         'Direct feedthrough (y or n)';
-         'Time dependence (y or n)'],..
-         list('str',1,'str',1,'mat',[-1 2],'vec',-1,'mat',[-1 2],'vec',-1,'vec',-1,'vec',-1,..
-              'vec',-1,'vec',-1,'lis',-1,'vec',-1,'vec',-1,'lis',-1,'vec',1,'vec',1,'vec','sum(%8)',..
-              'str',1,'str',1),label_1)
+
+      [ok,junction_name,impli,in,it,out,ot,ci,co,xx,z,oz,...
+       rpar,ipar,opar,nmode,nzcr,auto0,depu,dept,lab]=..
+	  getvalue('Set C-Block4 block parameters',..
+		   ['Simulation function';
+		    'Is block implicit? (y,n)';
+		    'Input ports sizes';
+		    'Input ports type';
+		    'Output port sizes';
+		    'Output ports type';
+		    'Input event ports sizes';
+		    'Output events ports sizes';
+		    'Initial continuous state';
+		    'Initial discrete state';
+		    'Initial object state';
+		    'Real parameters vector';
+		    'Integer parameters vector';
+		    'Object parameters list';
+		    'Number of modes';
+		    'Number of zero crossings';
+		    'Initial firing vector (<0 for no firing)';
+		    'Direct feedthrough (y or n)';
+		    'Time dependence (y or n)'],..
+		   list('str',1,'str',1,'mat',[-1 2],'vec',-1,'mat',[-1 2],'vec',-1,'vec',-1,'vec',-1,..
+			'vec',-1,'vec',-1,'lis',-1,'vec',-1,'vec',-1,'lis',-1,'vec',1,'vec',1,'vec','sum(%8)',..
+			'str',1,'str',1),label_1)
+
       if ~ok then
         break
       end
@@ -62,9 +64,9 @@ select job
       co=int(co(:));
       nevout=size(co,1);
       if part(impli,1)=='y' then
-         funtyp=12004
+	funtyp=12004
       else
-         funtyp=2004
+	funtyp=2004
       end
       if ~isempty([ci;co]) then
         if max([ci;co])>1 then
@@ -94,9 +96,9 @@ select job
 
         //cross checking
         if model.sim(1)<>funam|sign(size(model.state,'*'))<>sign(nx)|..
-           sign(size(model.dstate,'*'))<>sign(nz)|model.nzcross<>nzcr|..
-           sign(size(model.evtout,'*'))<>sign(nevout) then
-             tt=[]
+	      sign(size(model.dstate,'*'))<>sign(nz)|model.nzcross<>nzcr|..
+	      sign(size(model.evtout,'*'))<>sign(nevout) then
+	  tt=[]
         end
 
         tt=label_2;
@@ -105,6 +107,7 @@ select job
       end
 
       if ok then
+	pause xx
         libss  = graphics.exprs(1)(20)
         cflags = graphics.exprs(1)(21)
         while %t
@@ -137,12 +140,11 @@ select job
           break
         end
       end
-  end
+    end
 
-  case 'define' then
+   case 'define' then
 
     funam='toto'
-
     model=scicos_model()
     model.sim=list(' ',2004)
 
@@ -178,7 +180,7 @@ select job
 
     gr_i=['xstringb(orig(1),orig(2),''C block4'',sz(1),sz(2),''fill'');']
     x=standard_define([2 2],model,label,gr_i,'CBLOCK4');
-end
+  end
 endfunction
 
 
