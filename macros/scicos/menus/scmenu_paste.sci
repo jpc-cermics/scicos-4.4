@@ -19,7 +19,7 @@ function Paste_()
       Sel_obj = scs_m.objs(Select(1,1)) ; 
       if (Clipboard.type=="Block" & Sel_obj.type=="Block")
         if and(Clipboard.graphics.sz==Sel_obj.graphics.sz)  & ...
-           (Clipboard.graphics.orig == Sel_obj.graphics.orig) then
+           and(Clipboard.graphics.orig == Sel_obj.graphics.orig) then
           scs_m_save=scs_m;
           nc_save=needcompile;
           blk=Clipboard;
