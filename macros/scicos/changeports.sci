@@ -19,8 +19,10 @@ function scs_m = changeports(scs_m, path, o_n)
   k = path($) ; //** the scs_m index of the target 
   if or(curwin==winsid()) then
     F=get_figure(curwin);
+    F.draw_latter[];
     o_n=drawobj(o_n,F);
     o_n.gr.invalidate[]; // maybe useless 
+    F.draw_now[];
   end
   
   // The very first time the this routine try to match the ports of the new blocks over the ports
