@@ -76,9 +76,11 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   //second pass
   if ext=='cos'|ext=='COS' then
     ierr=execstr('load(fname)',errcatch=%t)
+    if isempty(scs_m) then ierr=%f, end
     ok=%t
   elseif ext=='cosf'|ext=='COSF' then
     ierr=execstr('exec(fname,-1)',errcatch=%t)
+    if isempty(scs_m) then ierr=%f, end
     ok=%t
   elseif ext=='xml'|ext=='XML' then
     printf('Opening an XML file. Please wait ...............')
