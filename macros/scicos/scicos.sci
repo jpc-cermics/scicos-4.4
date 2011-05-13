@@ -49,6 +49,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   //TOBEREMOVED
   scicos_ver='scicos2.7.3' //set current version of scicos
   scicos_ver='scicos4.2' //set current version of scicos
+  scicos_ver=get_scicos_version(); //set current version of scicos
   
   if ~super_block then
     // define scicos libraries

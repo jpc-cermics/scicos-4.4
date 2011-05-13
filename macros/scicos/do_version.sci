@@ -1,6 +1,7 @@
 function scs_m=do_version(scs_m,version)
 // Copyright INRIA
 //translate scicos data structure to new version
+  printf("do_version : version=%s\n",version);
   Versions_old='scicos'+['2.2','2.3','2.3.1','2.4','2.5.1'];
   Versions='scicos'+['2.7','2.7.1','2.7.2','2.7.3'];
   if ~isempty(find(version==Versions_old)) then 
@@ -23,6 +24,29 @@ function scs_m=do_version(scs_m,version)
     scs_m=do_version42(scs_m);
     scs_m.version = version;
   end
+  if version=='scicos4.2' then
+    version='scicos4.3';
+    //*** do certification ***//
+    scs_m=update_scs_m(scs_m,version);
+    scs_m=do_version43(scs_m);
+    scs_m.version = version;
+  end
+  if version=='scicos4.3' then
+    version='scicos4.4';
+    scs_m=update_scs_m(scs_m,version);
+    scs_m=do_version44(scs_m);
+    scs_m.version = version;
+  end
+endfunction
+
+function scs_m_new=do_version44(scs_m)
+  //disp('do_version44');
+  scs_m_new=scs_m
+endfunction
+
+function scs_m_new=do_version43(scs_m)
+  //disp('do_version43');
+  scs_m_new=scs_m;
 endfunction
 
 //*** update scope ***//

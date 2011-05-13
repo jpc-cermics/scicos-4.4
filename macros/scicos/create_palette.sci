@@ -1,7 +1,7 @@
 function routines=create_palette(bidon)
 //load SCI/macros/scicos/lib;
   if nargin < 1 then bidon='all';end
-  scicos_ver='scicos2.7.3'
+  scicos_ver=get_scicos_version();
   lisf=glob('*.sci');
   if nargin == 0 then
     // search the current directory for all the *.sci 
@@ -50,7 +50,7 @@ function routines=create_palette(bidon)
 endfunction
 
 function [routines]=build_palette(lisf,path,fname)
-  scs_m=scicos_diagram()
+  scs_m=get_new_scs_m()
   X=0
   Y=0
   yy=0

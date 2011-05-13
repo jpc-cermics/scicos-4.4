@@ -10,7 +10,6 @@ function [scicos_ver]=find_scicos_version(scs_m)
   else
     scicos_ver = scicos_ver;
   end
-  
   if scs_m.iskey['version'] then
     if scs_m.version<>'' then
       // version is stored in the structure.
