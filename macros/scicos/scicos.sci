@@ -551,18 +551,19 @@ function scilab2scicos(win,x,y,ibut)
   printf("\nReturn to scicos by eventhandler is disabled.\nUse -->scicos(); instead.\n");
 endfunction
 
-function scs_m=scs_m_remove_gr(scs_m)
+function scs_m_out=scs_m_remove_gr(scs_m_in)
 // remove the gr graphics from scs_m 
 // ----------------------------------
-  for k=1:length(scs_m.objs)
+  scs_m_out=scs_m_in
+  for k=1:length(scs_m_out.objs)
     // no use to check first if gr exists before deleting it 
-    scs_m.objs(k).delete['gr'];
-    o = scs_m.objs(k);
+    scs_m_out.objs(k).delete['gr'];
+    o = scs_m_out.objs(k);
     if o.type=='Block' && o.model.sim.equal['super'] then
       scs_m_n=o.model.rpar
       scs_m_n=scs_m_remove_gr(scs_m_n)
       o.model.rpar=scs_m_n
-      scs_m.objs(k)=o
+      scs_m_out.objs(k)=o
     end
   end
 endfunction

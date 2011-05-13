@@ -15,7 +15,10 @@ function Save_()
       return
     end
   end
-  ok=do_save(scs_m) 
+  scs_m_rec=scs_m
+  ok=do_save(scs_m)
+  scs_m=scs_m_rec
+  clear scs_m_rec
   if ok&~super_block then edited=%f,end
 endfunction
 
@@ -54,13 +57,12 @@ function ok=do_save(scs_m,filenamepath)
     return 
   end
   // remove gr fields
-  scs_m_rec=scs_m
-  scs_m_rec=scs_m_remove_gr(scs_m_rec);
+  scs_m=scs_m_remove_gr(scs_m);
   // save current diagram 
-  if ~execstr('save(fname,scicos_ver,scs_m_rec,%cpr);',errcatch=%t) then 
+  if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then 
     message(['Save error:']); // ;lasterror()])
     ok=%f
-    return 
+    return
   end
   if pal_mode then update_scicos_pal(path,scs_m.props.title(1),fname),end
   ok=%t
