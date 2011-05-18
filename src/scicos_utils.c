@@ -1,9 +1,5 @@
 
-#include "nsp/object.h" 
-#include "nsp/graphics-old/Graphics.h" 
-#include "nsp/blas.h"
-#include "nsp/lapack-c.h"
-#include "nsp/cnumeric.h"
+#include <nsp/nsp.h> 
 #include <scicos/scicos4.h>
 #include <scicos/blocks.h>
 

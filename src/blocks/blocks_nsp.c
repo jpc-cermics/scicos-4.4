@@ -39,6 +39,10 @@
 #include "../system/files.h"	/*  FSIZE */
 
 #include "blocks.h"
+extern BCG *scicos_set_win(int wid,int *oldwid);
+extern void scicos_clip(BCG *Xgc,int n) ;
+extern int scicos_setblockwin (BCG *Xgc,int *win, int *cur);
+
 
 static void scicos_intp (double x, const double *xd, const double *yd, int n,
 			 int nc, double *y);

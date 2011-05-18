@@ -390,7 +390,7 @@ void fromws_c (scicos_block * block, int flag)
     }
   else if (flag == 5)
     {
-      fromws_data *D = (fromws_data *) (*block->work);
+      /* fromws_data *D = (fromws_data *) (*block->work); */
       Sciprintf ("fromws_c is to be done for nsp \n");
     }
 }
@@ -418,9 +418,9 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
   if ( !IsMat(Time) ) return FAIL;
   /* be sure that matrix is double converted */
   Mat2double((NspMatrix *) Time);
-  D->time = Time;
+  D->time = (NspMatrix *) Time;
   if ( !IsCells(Values) == FAIL) return FAIL;
-  D->values = Values;
+  D->values = (NspCells *) Values;
   if ( ((NspMatrix *) Time)->mn != ((NspCells *) Values)->mn) 
     {
       Coserror("Time and Values have incompatible size");

@@ -41,6 +41,11 @@
 #include <nsp/matutil.h>
 #include "blocks.h"
 
+/* should be replaced by new in the future */
+extern int nsp_plot2d_old(BCG *Xgc,double x[],double y[],int *n1,int *n2,
+		      int style[],char *strflag,const char *legend,
+		      int leg_pos,double brect[],int aaint[]);
+
 /* to be moved elsewhere XXXX  */
 
 #if WIN32
