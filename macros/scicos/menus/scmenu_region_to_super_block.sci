@@ -50,7 +50,11 @@ function [%pt,scs_m]=do_region2block(%pt,scs_m)
   sup = SUPER_f('define')
   sup.graphics.orig   = [rect(1)+rect(3)/2-20,rect(2)+rect(4)/2-20]
   sup.graphics.sz     = [40 40]
-  sup.graphics.flip   = or(m2b(is_flip))
+  if isempty(is_flip) then
+    sup.graphics.flip = %f
+  else
+    sup.graphics.flip = or(is_flip)
+  end
   sup.model.in        = 1
   sup.model.out       = 1
   sup.model.rpar      = scs_mb
