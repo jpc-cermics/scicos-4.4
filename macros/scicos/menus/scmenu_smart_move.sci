@@ -175,8 +175,8 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
     else
       // we need to restore back the links
       for i=connected
-	scs_m.objs(i).gr.children(1).x(:) = scs_m.objs(i).xx;
-	scs_m.objs(i).gr.children(1).y(:) = scs_m.objs(i).yy;
+	scs_m.objs(i).gr.children(1).x = scs_m.objs(i).xx(:);
+	scs_m.objs(i).gr.children(1).y = scs_m.objs(i).yy(:);
 	scs_m.objs(i).gr.invalidate[];
       end
       // we need to move the block where it was
