@@ -73,13 +73,16 @@ function [scs_m,fct,Select]=do_addnew(scs_m,Select)
   blk.graphics.orig=[pt-blk.graphics.sz/2];
   // record the objects in graphics 
   F=get_current_figure();
+  F.draw_latter[];
   blk=drawobj(blk,F)
   blk.gr.invalidate[];
   rep(3)=-1
   while rep(3)==-1 then 
     // get new position
     //printf("In Copy moving %d\n",curwin);
+    F.draw_now[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f)
+    F.draw_latter[];
     tr = rep(1:2) - pt;
     pt = rep(1:2)
     blk.gr.translate[tr]; // this will properly invalidate blk
@@ -95,9 +98,16 @@ function [scs_m,fct,Select]=do_addnew(scs_m,Select)
   end
   xcursor();
   xinfo(' ')
+
+  F.draw_now[];
+  scs_m_save=scs_m
+  nc_save=needcompile
+
   // update 
   scs_m.objs($+1)=blk
   Select = [length(scs_m.objs), F.id];
+
+  resume(scs_m_save,nc_save,enable_undo=%t,edited=%t,needcompile=4)
 endfunction
 
 
