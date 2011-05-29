@@ -9,5 +9,6 @@ function Zoomout_()
   viewport=xget("viewport");
   viewport=viewport/zoomfactor-0.5*winsize*(1-1/zoomfactor)
   window_set_size(curwin,viewport)
+  scs_m=do_replot(scs_m);
   xinfo(' ')
 endfunction

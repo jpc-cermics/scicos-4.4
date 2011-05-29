@@ -11,4 +11,5 @@ function Zoomin_()
   viewport=viewport*zoomfactor-0.5*winsize*(1-zoomfactor)
   viewport=max([0,0],min(viewport,-winsize+axsize))
   window_set_size(curwin,viewport)
+  scs_m=do_replot(scs_m);
 endfunction
