@@ -31,9 +31,16 @@ function [k,wh]=getobj(scs_m,pt)
    o=scs_m.objs(i);
    select o.type
       case "Text" then
-       [orig,sz]=(o.graphics.orig, o.graphics.sz);
-       sz=sz+2*eps;
-       orig=orig-eps;
+
+       rect=xstringbox(scs_m.objs(i).gr)
+       xstr=rect(1,1);
+       ystr=rect(2,1);
+       wstr=rect(1,3)-rect(1,2);
+       hstr=rect(2,2)-rect(2,4);
+       orig(1)=xstr
+       orig(2)=ystr
+       sz(1)=wstr
+       sz(2)=hstr
        if ~isempty(pt) then
 	 xxx=rotate([pt(1);pt(2)],..
 		    -o.graphics.theta * %pi/180,...
