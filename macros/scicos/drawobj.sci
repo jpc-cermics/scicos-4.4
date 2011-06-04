@@ -31,6 +31,7 @@ function o=drawobj(o,F)
 	del{$+1}=C.children(i);
        case "Compound" then
 	change_xrect(F,C.children(i),px,py);
+        del{$+1}=C.children(i);
       end
     end
     for i=1:size(del,'*') 
