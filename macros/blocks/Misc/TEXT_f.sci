@@ -68,7 +68,6 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
 	break
       end
     end // of while 
-    pause out
    case 'define' then
     font = 2 ;
     siz  = 1 ;
