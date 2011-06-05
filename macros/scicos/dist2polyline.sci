@@ -1,11 +1,12 @@
 function [d,pt,ind]=dist2polyline(xp,yp,pt)
 // computes minimum distance from a point to a polyline
-//d    minimum distance to polyline
-//pt   coordinate of the polyline closest point
-//ind  
-//     if negative polyline closest point is a polyline corner:pt=[xp(-ind) yp(-ind)]
-//     if positive pt lies on segment [ind ind+1]
+// d:    minimum distance to polyline
+// pt:   coordinate of the polyline closest point
+// ind: if negative polyline closest point is a polyline 
+//      corner:pt=[xp(-ind) yp(-ind)]
+//      if positive pt lies on segment [ind ind+1]
 // Copyright INRIA
+//
   x=pt(1)
   y=pt(2)
   xp=xp(:);yp=yp(:)
