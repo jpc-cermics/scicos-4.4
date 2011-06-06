@@ -342,7 +342,7 @@ model=scicos_model(..
 	'rect=[xmn,ymn;xmx,ymx];';
 	'xx2=orig(1)+sz(1)*((XX-xmn)/(xmx-xmn));';
 	'yy2=orig(2)+sz(2)*((YY-ymn)/(ymx-ymn));';
-	'xset(''color'',2)';
+	'xset(''color'',2);pause xxx';
 	'xpoly(xx2,yy2,type=''lines'');']
     
   x=standard_define([2 2],model,[],gr_i,'Sigbuilder');

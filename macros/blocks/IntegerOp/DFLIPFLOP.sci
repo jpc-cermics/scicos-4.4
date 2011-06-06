@@ -1764,7 +1764,6 @@ function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
 endfunction
 
 function draw_flipflop(orig,sz,o)
-  pause 
   [x,y,typ]=standard_inputs(o)
   dd=sz(1)/8,de=sz(1)*(1/2+1/8);
   if ~exists('%zoom') then %zoom=1, end;
