@@ -31,6 +31,7 @@ function build_palette_icons(lisf)
     fil = lisf(k);
     scs_m=scicos_diagram();
     name=file('rootname',fil);
+    //printf('  Block ' + name );
     ok=execstr('blk='+name+'(''define'')',errcatch=%t)
     if ~ok then
       message(['Error in '+name+'(''define'')';lasterror()] );

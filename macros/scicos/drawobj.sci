@@ -30,10 +30,8 @@ function o=drawobj(o,F)
 	       thickness=o.thickness);
 	del{$+1}=C.children(i);
        case "Compound" then
-	dell=change_xrect(F,C.children(i),px,py);
-        if ~isempty(dell) then
-          del{$+1}=C.children(i);
-        end
+	change_xrect(F,C.children(i),px,py);
+	// Note that here, if C is empty we could delete it
       end
     end
     for i=1:size(del,'*') 
