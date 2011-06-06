@@ -1758,44 +1758,26 @@ function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
     	model.firing=%f
     	model.dep_ut=[%t %f]
     	model.rpar=scs_m
-        gr_i=['[x,y,typ]=standard_inputs(o) ';
-              'dd=sz(1)/8,de=5.5*sz(1)/8';
-              'if ~exists(''%zoom'') then %zoom=1, end;'
-              'txt=''D'';'
-              'rectstr=stringbox(txt,orig(1)+dd,y(1)-4,0,1,1);'
-              'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
-              'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
-              'xstringb(orig(1)+dd,y(1)-4,txt,w,h,''fill'')';
-              'txt=''clk'';'
-              'rectstr=stringbox(txt,orig(1)+dd,y(2)-4,0,1,1);'
-              'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
-              'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
-              'xstringb(orig(1)+dd,y(2)-4,txt,w,h,''fill'')';
-              'txt=''en'';'
-              'rectstr=stringbox(txt,orig(1)+dd,y(3)-4,0,1,1);'
-              'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
-              'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
-              'xstringb(orig(1)+dd,y(3)-4,txt,w,h,''fill'')';
-              '[x,y,typ]=standard_outputs(o) ';
-              'txt=''Q'';'
-              'rectstr=stringbox(txt,orig(1)+de,y(1)-4,0,1,1);'
-              'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
-              'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
-              'xstringb(orig(1)+de,y(1)-4,txt,w,h,''fill'')';
-              'txt=''!Q'';'
-              'rectstr=stringbox(txt,orig(1)+4.5*dd,y(2)-4,0,1,1);'
-              'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
-              'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
-              'xstringb(orig(1)+4.5*dd,y(2)-4,txt,w,h,''fill'')';
-              'txt=''D FLIP-FLOP'';'
-              'style=5;'
-              'rectstr=stringbox(txt,orig(1),orig(2),0,style,1);'
-              'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
-              'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
-              'xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,''fill'');'
-              '//e=gce();'
-              '//e.font_style=style;']
-    	x=standard_define([2 3],model,[],gr_i,'DFLIPFLOP');
+        gr_i=['draw_flipflop(orig,sz,o);'];
+	x=standard_define([2 3],model,[],gr_i,'DFLIPFLOP');
   end
 endfunction
 
+function draw_flipflop(orig,sz,o)
+  pause 
+  [x,y,typ]=standard_inputs(o)
+  dd=sz(1)/8,de=sz(1)*(1/2+1/8);
+  if ~exists('%zoom') then %zoom=1, end;
+  w=sz(1)*(1/2-1/8);
+  h=sz(2)/4;
+  xstringb(orig(1)+dd,y(1)-4,'D',w,h,'fill');
+  xstringb(orig(1)+dd,y(2)-4,'clk',w,h,'fill');
+  xstringb(orig(1)+dd,y(3)-4,'en',w,h,'fill');
+  [x,y,typ]=standard_outputs(o) ;
+  txt='Q'
+  xstringb(orig(1)+de,y(1)-4,'Q',w,h,'fill');
+  xstringb(orig(1)+de,y(2)-4,'!Q',w,h,'fill');
+  w = sz(1);
+  h = sz(2)*(1/4)
+  xstringb(orig(1),orig(2)-1.5*h,'D FLIP-FLOP',w,h,'fill');
+endfunction
