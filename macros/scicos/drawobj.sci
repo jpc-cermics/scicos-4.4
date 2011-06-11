@@ -31,14 +31,9 @@ function o=drawobj(o,F)
     for i=1:size(C.children)
       select type(C.children(i),'string')
        case "Grstring" then
-	if %f then 
-	  C.children(i).angle=theta
-	else
-	  C.children(i).translate[-[px,py]];
-	  C.children(i).rotate[[cos(-theta*%pi/180),sin(-theta*%pi/180)]];
-	  C.children(i).translate[[px,py]];
-	  //C.children(i).angle=theta
-	end
+	C.children(i).translate[-[px,py]];
+	C.children(i).rotate[[cos(-theta*%pi/180),sin(-theta*%pi/180)]];
+	C.children(i).translate[[px,py]];
        case "Compound" then
 	rotate_compound(px,py,theta,C.children(i))
        case "GrArc" then

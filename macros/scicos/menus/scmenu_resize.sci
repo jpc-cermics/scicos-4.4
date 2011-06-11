@@ -2,23 +2,19 @@ function Resize_()
   Cmenu=''
   scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
   [%pt,scs_m]=do_resize(%pt,scs_m)
-  edited=%t
-  %pt=[]
+  edited=%t;
+  %pt=[];
 endfunction
 
 function [%pt,scs_m]=do_resize(%pt,scs_m)
   win=%win
   if isempty(Select) then
-    xc=%pt(1)
-    yc=%pt(2)
-    %pt=[]
-    K=getblocklink(scs_m,[xc;yc])
+    K=getblocklink(scs_m,%pt(:));
   else
     K=Select(:,1)'
-    %pt=[]
     if size(K,'*')>1 | %win<>Select(1,2) then
       message("Only one block can be selected in current window for this operation.")
-      Cmenu='';%pt=[];return;
+      Cmenu='';return;
     end
   end
   if ~isempty(K) then
@@ -31,13 +27,28 @@ function [%pt,scs_m]=do_resize(%pt,scs_m)
       sz=graphics.sz
       orig=graphics.orig
       %scs_help='Resize_block'
-      [ok,w,h]=getvalue('Set Block sizes',['width';'height'],..
-                     list('vec',1,'vec',1),string(sz(:)))
-      if ok then
-        graphics.sz=[w;h]
-        graphics.orig=orig
-        o_n.graphics=graphics
-        scs_m=changeports(scs_m, path, o_n)
+      if %t then 
+	rect=[orig(1);orig(2)+sz(2);0;0]
+	if size(%pt,'*')==2 then 
+	  rect(3:4)=%pt(:);
+	end
+	[rect,button]=rubberbox(rect,%t);
+	w=rect(3);h=rect(4);ok = %t;
+	if ok && rect(1)==orig(1) then 
+	  graphics.sz=[w;h]
+	  graphics.orig=[orig(1),orig(2)+sz(2)-h];
+	  o_n.graphics=graphics
+	  scs_m=changeports(scs_m, path, o_n)
+	end
+      else
+	[ok,w,h]=getvalue('Set Block sizes',['width';'height'],..
+			  list('vec',1,'vec',1),string(sz(:)))
+	if ok then
+	  graphics.sz=[max(w,10);max(h,10)];
+	  graphics.orig=orig
+	  o_n.graphics=graphics
+	  scs_m=changeports(scs_m, path, o_n)
+	end
       end
     elseif scs_m.objs(K).type=='Link' then
       [pos,ct]=(scs_m.objs(K).thick, scs_m.objs(K).ct)
