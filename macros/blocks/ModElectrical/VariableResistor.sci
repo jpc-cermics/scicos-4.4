@@ -107,9 +107,8 @@ function [x,y,typ]=VR_inputs(o)
   else
     xo=orig(1)+sz(1);dx=yf/7
   end
-  y=orig(2)+sz(2)/2
-  x=(xo+dx)*ones(y)
-  
+  y=orig(2)+sz(2)/2;
+  x=(xo+dx);
   x=[x,orig(1)+(sz(1)/2)]
   y=[y,orig(2)+yf/7+sz(2)]
   typ=[2 1]
