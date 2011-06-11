@@ -50,13 +50,13 @@ function [%pt,scs_m]=do_ident_new(%pt,scs_m)
     end
     texte_1 = 'Set link Identification'
     texte_2 = 'ID'
-    [ok, identification] = getvalue(texte_1, texte_2, list('str', 1),identification);
+    [ok, identification] = getvalue(texte_1, texte_2, list('str', 1),
+    identification);
     //
     if ok then
       identification = stripblanks(identification)
       c_links = connected_links(scs_m,numero_objet)
       //- set identification to all connected links
-      //
       for numero = c_links
 	objet = scs_m.objs(numero)
 	objet.id = identification
@@ -68,6 +68,7 @@ function [%pt,scs_m]=do_ident_new(%pt,scs_m)
     x_message('It is impossible to set ID for this type of object')
   end
   //
+  
   if pixmap then
     xset('wshow')
   end

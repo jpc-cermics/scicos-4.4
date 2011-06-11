@@ -12,33 +12,6 @@ function o=drawobj(o,F)
 // Adapted to nsp new graphics: Chancelier, Layec 2011.
 //
 
-  function del=change_xrect(F,C,px,py)
-  // changes the "GrRect" to polylines in C 
-  // and remove the "GrRect" from F.
-  // This function is used in a situation 
-  // where F is a figure and we are inside 
-  // a F.start_compound[], F.end_compound[]
-  // process.
-    del={};
-    for i=1:size(C.children)
-      select type(C.children(i),'string')
-       case "GrRect" then
-	o = C.children(i);
-	x=o.x; y=o.y; w=o.w; h=o.h;
-	xxx=rotate([x,x,x+w,x+w; y,y-h,y-h,y],0,[px,py]);
-	xfpoly(xxx(1,:),xxx(2,:),color=o.color,fill_color=o.fill_color,...
-	       thickness=o.thickness);
-	del{$+1}=C.children(i);
-       case "Compound" then
-	change_xrect(F,C.children(i),px,py);
-	// Note that here, if C is empty we could delete it
-      end
-    end
-    for i=1:size(del,'*') 
-      F.remove[del{i}];
-    end
-  endfunction
-
   function rotate_compound(px,py,theta,C)
   // Rotate the objects contained in the graphic object 
   // theta is the angle rotation and the rotation center is 
@@ -58,7 +31,14 @@ function o=drawobj(o,F)
     for i=1:size(C.children)
       select type(C.children(i),'string')
        case "Grstring" then
-	C.children(i).angle=theta
+	if %f then 
+	  C.children(i).angle=theta
+	else
+	  C.children(i).translate[-[px,py]];
+	  C.children(i).rotate[[cos(-theta*%pi/180),sin(-theta*%pi/180)]];
+	  C.children(i).translate[[px,py]];
+	  //C.children(i).angle=theta
+	end
        case "Compound" then
 	rotate_compound(px,py,theta,C.children(i))
        case "GrArc" then
@@ -126,26 +106,29 @@ function o=drawobj(o,F)
     F.remove[C];
     return;
   end
-  if (otype.equal['Block'] ||otype.equal['Text']) && ~o.graphics.iskey['theta'] then
+  if (otype.equal['Block'] || otype.equal['Text']) && ~o.graphics.iskey['theta'] then
      o.graphics.theta=0;
   end
   
-  if ( otype.equal['Block'] ||otype.equal['Text']) && o.graphics.theta<>0 then
+  if ( otype.equal['Block'] || otype.equal['Text']) && o.graphics.theta<>0 then
     // we need to rotate the object 
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
     sel_x=orig(1);sel_y=orig(2)+sz(2);
     sel_w=sz(1);sel_h=sz(2);
-    // change rectangles to polylines to be able to rotate them
-    change_xrect(F,F.children(1),sel_x+sel_w/2,sel_y-sel_h/2);
     C=F.end_compound[];
-    if o.iskey['gr'] then F.remove[o.gr];end 
+    if o.iskey['gr'] then 
+      // XXX we should clear the associated zone 
+      F.remove[o.gr];
+    end 
     o.gr=C;
     o.gr.hilited=ishilited;
     // rotate the objects contained in the compound C
     rotate_compound(sel_x+sel_w/2,sel_y-sel_h/2,o.graphics.theta,o.gr)
   else
     C=F.end_compound[];
-    if o.iskey['gr'] then F.remove[o.gr];end 
+    if o.iskey['gr'] then 
+      F.remove[o.gr];
+    end 
     o.gr=C;
     o.gr.hilited=ishilited
   end

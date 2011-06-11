@@ -54,7 +54,7 @@ function standard_draw_new(o,frame,draw_ports)
   end
   
   // Draw the frame of the block if requested 
-  // i.e draw boundaries + paint the backaground 
+  // i.e draw boundaries + paint the background 
   
   if frame then
     // offset when using with 3d 
@@ -63,7 +63,6 @@ function standard_draw_new(o,frame,draw_ports)
     if With3D then
       // 3D aspect
       color=options(f__3D)(2)
-      //xrect(orig(1)+e,orig(2)+sz(2),sz(1),sz(2),background=coli,color=color)
       xx= [orig(1)+e;orig(1)+sz(1);orig(1)+sz(1);orig(1)+e];
       yy= [orig(2)+sz(2);orig(2)+sz(2);orig(2)+e;orig(2)+e];
       xfpoly(xx,yy,color =color,fill_color=coli,thickness=0);
@@ -85,22 +84,20 @@ function standard_draw_new(o,frame,draw_ports)
     end
   end
   
+  // draw ports using the function transmited 
   draw_ports(o)
 
   // draw Identification
-  //------------------------
   ident = o.graphics.id;
   fnt=xget('font');
   if ~isempty(ident) & ident <> ''  then
-    xset('font', options.ID(1)(1), options.ID(1)(2))
-    rectangle = xstringl(orig(1), orig(2), ident)
-    w = max(rectangle(3), sz(1))
-    h = rectangle(4) * 1.3
-    xstringb(orig(1) + sz(1) / 2 - w / 2, orig(2) - h ,	..
-	     ident , w, h)
-    xset('font', fnt(1), fnt(2))
+    if ~exists("%zoom") then %zoom=1, end;
+    fz= 2*%zoom*4;
+    xset('font', options.ID(1)(1), options.ID(1)(2));
+    xstring(orig(1)+sz(1)/2, orig(2),ident,posx='center',posy='up',size=fz);
+    xset('font', fnt(1), fnt(2));
   end
-    
+  
   xset('thickness',thick)
 
   function c=scs_color(c); if flag=='background' then c=coli,end;endfunction;
@@ -116,7 +113,6 @@ function standard_draw_new(o,frame,draw_ports)
     printf("%s",lasterror());
     message(['Error in Icon defintion';
 	     'See error message in nsp window']);
-    
   end
   xset('pattern',pat)
   xset('font',fnt(1),fnt(2))
