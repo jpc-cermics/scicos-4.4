@@ -5,12 +5,19 @@ function y=sci2exp(exp,nam)
 // when exp is a vector it is assumed that 
 // sci2exp must return a 1x1 value 
 // 
-// we have to take carte tha sprint can split the string 
+// we have to take carte that sprint can split the string 
 // with continuation and this is not good for getvalue. 
 //
 // XXXX a sprint(.,as_read=%t) without line breaks 
 //      should be usefull
-  if (type(exp,'short')=='m' & size(exp,2)==1) then 
+  if (type(exp,'short')=='m' & size(exp,'*')==1) then 
+    // scalar 
+    y= sprint(exp,as_read=%t);
+    y=y(2:$);
+    y=strsubst(y,'[','');
+    y=strsubst(y,']','');
+    y=stripblanks(y);
+  elseif (type(exp,'short')=='m' & size(exp,2)==1) then 
     // column vector 
     y= sprint(exp,as_read=%t);
     y=y(2:$);

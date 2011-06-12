@@ -159,7 +159,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
 	end
       end
       // get a new point waiting for click
-      rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f)
+      rep=xgetmouse(clearq=%t,getrelease=%f,cursor=%f)
       F.draw_latter[];
       if rep(3)==2 then 
 	xset('color',dash)
