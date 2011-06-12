@@ -54,20 +54,10 @@ function [x,y,typ]=GotoTagVisibilityMO(job,arg1,arg2)
          '0;';
          '360*64],scs_color(3));';
          'txt=[''Goto Tag'';''Visibility'' ];'
-         'style=5;'
-         '//gh_axes = gca();'
-         '//axes_font_style = gh_axes.font_style ;'
-         '//axes_font_size  = gh_axes.font_size  ;'
-         '//gh_axes.font_style = 5;'
-         '//gh_axes.font_size  = 1;'
-         'rectstr=stringbox(txt,orig(1),orig(2),0,style,1);'
          'if ~exists(''%zoom'') then %zoom=1, end;'
-         'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
-         'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
-         'xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-5,txt,w,h,''fill'');'
-         '//gh_axes.font_style = axes_font_style ;'
-         '//gh_axes.font_size  = axes_font_size  ;'
-         'xset(''thickness'',thick)']
+	 'fz=1.5*%zoom*4;'
+	 'xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx=''center'',posy=''bottom'',size=fz);'
+	 'xset(''thickness'',thick)']
    x=standard_define([2 2],model,exprs,gr_i,'GotoTagVisibilityMO');
   end
 endfunction

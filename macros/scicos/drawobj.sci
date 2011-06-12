@@ -12,50 +12,13 @@ function o=drawobj(o,F)
 // Adapted to nsp new graphics: Chancelier, Layec 2011.
 //
 
-  function rotate_compound(px,py,theta,C)
-  // Rotate the objects contained in the graphic object 
-  // theta is the angle rotation and the rotation center is 
-  // the center of the rectangle [sel_x, sel_y, sel_w, sel_h] 
-  //
-    if %f then 
-      // XXX: we could directly use this on the compound 
-      // but it poses pbs with strings and xrect 
-      // when nsp graphics will take care of that the 
-      // code will be simplified.
-      C.translate[-[px,py]];
-      C.rotate[[cos(-theta*%pi/180),sin(-theta*%pi/180)]];
-      C.translate[[px,py]];
-      return
-    end
-    
-    for i=1:size(C.children)
-      select type(C.children(i),'string')
-       case "Grstring" then
-	C.children(i).translate[-[px,py]];
-	C.children(i).rotate[[cos(-theta*%pi/180),sin(-theta*%pi/180)]];
-	C.children(i).translate[[px,py]];
-       case "Compound" then
-	rotate_compound(px,py,theta,C.children(i))
-       case "GrArc" then
-	// should correct grarcs.c
-	o=C.children(i);
-	xxx=rotate([o.x+o.w/2; o.y-o.h/2],theta*%pi/180, [px,py])
-	C.children(i).x=xxx(1,1)-o.w/2
-	C.children(i).y=xxx(2,1)+o.h/2
-      else
-	C.children(i).translate[-[px,py]];
-	C.children(i).rotate[[cos(-theta*%pi/180),sin(-theta*%pi/180)]];
-	C.children(i).translate[[px,py]];
-      end
-    end
-  endfunction
-
   if nargin<=1 then F= get_figure(curwin); end
   // keep track of previous hilited field 
   ishilited=%f
   if o.iskey['gr'] then 
     ishilited=o.gr.hilited
   end
+  // record graphics 
   F.start_compound[];
   otype = o.type;
   ok = %t;
@@ -63,7 +26,7 @@ function o=drawobj(o,F)
    case 'Block' then
     // draw  a block 
     if o.gui == "" then 
-      message(['Block with an undefined field gui';
+      message(['Block with an undefined gui field';
 	       'You must leave scicos and define it now.']),
       ok = %f;
       break;
@@ -84,6 +47,7 @@ function o=drawobj(o,F)
       C.thickness=max(o.thick(1),1)*max(o.thick(2),1)
     end
    case 'Text' then
+    // draw text 
     ok=execstr(o.gui+'(''plot'',o)' ,errcatch=%t)
     if ~ok then
       message(['Error in '+ o.gui+'(''plot'',o) evaluation\n'; ...
@@ -101,31 +65,28 @@ function o=drawobj(o,F)
     F.remove[C];
     return;
   end
-  if (otype.equal['Block'] || otype.equal['Text']) && ~o.graphics.iskey['theta'] then
-     o.graphics.theta=0;
-  end
-  
-  if ( otype.equal['Block'] || otype.equal['Text']) && o.graphics.theta<>0 then
-    // we need to rotate the object 
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    sel_x=orig(1);sel_y=orig(2)+sz(2);
-    sel_w=sz(1);sel_h=sz(2);
-    C=F.end_compound[];
-    if o.iskey['gr'] then 
-      // XXX we should clear the associated zone 
-      F.remove[o.gr];
-    end 
-    o.gr=C;
-    o.gr.hilited=ishilited;
-    // rotate the objects contained in the compound C
-    rotate_compound(sel_x+sel_w/2,sel_y-sel_h/2,o.graphics.theta,o.gr)
-  else
-    C=F.end_compound[];
-    if o.iskey['gr'] then 
-      F.remove[o.gr];
-    end 
-    o.gr=C;
-    o.gr.hilited=ishilited
+
+  C=F.end_compound[];
+  if o.iskey['gr'] then 
+    // remove previous graphic object 
+    F.remove[o.gr];
+  end 
+  o.gr=C;
+  o.gr.hilited=ishilited;
+
+  // check for needed rotation 
+    
+  if (otype.equal['Block'] || otype.equal['Text']) then 
+    if ~o.graphics.iskey['theta'] then o.graphics.theta=0; end 
+    if o.graphics.theta<>0 then
+      // rotate the objects contained in the compound C
+      [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+      tr=[orig(1)+sz(1)/2,orig(2)+sz(2)/2];
+      theta=o.graphics.theta;
+      o.gr.translate[-tr];
+      o.gr.rotate[[cos(-theta*%pi/180),sin(-theta*%pi/180)]];
+      o.gr.translate[tr];
+    end
   end
 endfunction
 

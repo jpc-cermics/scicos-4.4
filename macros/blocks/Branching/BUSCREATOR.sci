@@ -7,7 +7,7 @@ case 'plot' then
 case 'getinputs' then
   [x,y,typ]=standard_inputs(arg1)
 case 'getoutputs' then
-  [x,y,typ]=standard_outputs(arg1)
+ [x,y,typ]=standard_outputs(arg1)
 case 'getorigin' then
   [x,y]=standard_origin(arg1)
 case 'set' then

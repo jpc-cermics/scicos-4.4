@@ -197,6 +197,7 @@ function [x,y,typ]=standard_inputs(o)
 // Copyright INRIA
   xf=60
   yf=40
+  typ=[]
   graphics=o.graphics
   model=o.model
   orig=graphics.orig;sz=graphics.sz;orient=graphics.flip;
@@ -249,7 +250,7 @@ function [x,y,typ]=standard_outputs(o)
 // Copyright INRIA
   xf=60
   yf=40
-
+  typ=[]
   graphics=o.graphics
   model=o.model
   orig=graphics.orig;sz=graphics.sz;orient=graphics.flip;
