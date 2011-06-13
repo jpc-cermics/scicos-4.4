@@ -120,3 +120,4 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
     x = standard_define([3 2],model,exprs,gr_i,'AFFICH_m');
   end
 endfunction
+

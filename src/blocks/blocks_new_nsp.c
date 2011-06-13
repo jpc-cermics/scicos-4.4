@@ -33,6 +33,8 @@
 #include <nsp/figuredata.h>
 #include <nsp/figure.h>
 #include <nsp/qcurve.h>
+#include <nsp/grstring.h>
+#include <nsp/compound.h>
 #else 
 #include <nsp/graphics-old/Graphics.h> 
 #endif 
@@ -2835,3 +2837,119 @@ void scicos_csslti4_block (scicos_block * block, int flag)
       nsp_calpack_dmmul1 (&rpar[lb], &nx, u, insz, xd, &nx, &nx, insz, &un);
     }
 }
+
+/* 
+ *
+ *
+ */
+
+static NspGrstring *scicos_affich2_getstring(NspCompound *C);
+static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int m,int n);
+
+int scicos_affich2_block (scicos_args_F0)
+{
+  static NspGrstring *S=NULL;
+  /*     ipar(1) = font */
+  /*     ipar(2) = fontsize */
+  /*     ipar(3) = color */
+  /*     ipar(4) = win */
+  /*     ipar(5) = nt : total number of output digits */
+  /*     ipar(6) = nd number of rationnal part digits */
+  /*     ipar(7) = nu2= nu/ipar(7); */
+  /*     z(1)=value */
+  /*     z(2)=window */
+  /*     z(3)=x */
+  /*     z(4)=y */
+  /*     z(5)=width */
+  /*     z(6)=height */
+  /*     z(6:6+nu*nu2)=value */
+  --y;
+  --u;
+  --ipar;
+  --rpar;
+  --tvec;
+  --z__;
+  --x;
+  --xd;
+  if (*flag__ == 2)
+    {
+      int i;
+      /*     state evolution */
+      for ( i= 1 ; i <= *nu ; i++)
+	{
+	  z__[5+i]=u[i];
+	}
+      /* draw the string matrix */
+      if ( S != NULL) 
+	{
+	  scicos_affich2_update(S,&ipar[5],&z__[6],ipar[7],*nu/ipar[7]);
+	}
+    }
+  else if (*flag__ == 4)
+    {
+      int cb = Scicos->params.curblk -1;
+      NspGraphic *Gr = Scicos->Blocks[cb].grobj;
+      if ( Gr != NULL && IsCompound((NspObject *) Gr))
+	{
+	  S = scicos_affich2_getstring((NspCompound *)Gr);
+	  if ( S != NULL) 
+	    {
+	      printf("found a string matrix \n");
+	    }
+	}
+    }
+  return 0;
+}
+
+static NspGrstring *scicos_affich2_getstring(NspCompound *C)
+{
+  NspGrstring *S;
+  NspList *L = C->obj->children;
+  Cell *cloc = L->first;
+  while ( cloc != NULLCELL ) 
+    {
+      if ( cloc->O != NULLOBJ ) 
+	{
+	  if (IsCompound(cloc->O))
+	    {
+	      S=scicos_affich2_getstring((NspCompound *) cloc->O);
+	      if ( S != NULL) return S;
+	    }
+	  else if ( IsGrstring(cloc->O) )
+	    {
+	      return (NspGrstring *) cloc->O;
+	    }
+	}
+      cloc = cloc->next;
+    }
+  /* explore the compound for a grstring */
+  return NULL;
+}
+
+static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int m,int n)
+{
+  int i,j;
+  NspSMatrix *Str = S->obj->text;
+  nsp_graphic_invalidate((NspGraphic *) S);
+  printf("%d %d\n",form[0], form[1]);
+  for (i = 0; i < Str->m ; i++)
+    {
+      char *st=S->obj->text->S[i];
+      int k=0;
+      char buf[128];
+      for ( j= 0 ; j < n ; j++) 
+	{
+	  int kj =sprintf(buf+k, "%*.*f" , form[0], form[1], v[i+m*j]);
+	  if ( kj > form[0]) 
+	    {
+	      kj = sprintf(buf+k,"%*s",form[0],"*");
+	    }
+	  k += kj;
+	  if ( j != n-1) sprintf(buf+k," ");k++;
+	}
+      sprintf(st,"%s",buf);
+    }
+  nsp_graphic_invalidate((NspGraphic *) S);
+}
+
+

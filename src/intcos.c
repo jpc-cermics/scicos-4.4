@@ -31,10 +31,15 @@
 #include <nsp/smatrix.h>
 #include <nsp/hash.h>
 #include <nsp/list.h>
+#include <nsp/cells.h>
+#include <nsp/graphic.h>
 #include <nsp/interf.h>
 #include "scicos/scicos4.h"
 
+
 extern void create_scicos_about(void);
+static int scicos_fill_gr(scicos_run *r_scicos, NspCells *Gr);
+
 
 static int int_scicos_about (Stack stack, int rhs, int opt, int lhs)
 {
@@ -45,7 +50,7 @@ static int int_scicos_about (Stack stack, int rhs, int opt, int lhs)
 }
 
 /* 
- * [state,t]=scicosim(state,tcur,tf,sim,'start' ,tol) 
+ * [state,t]=scicosim(state,tcur,tf,sim,'start',tol,graphics) 
  * 
  * sim=tlist(['scs','funs','xptr','zptr','zcptr','inpptr',..
  *           'outptr','inplnk','outlnk','lnkptr','rpar',..
@@ -68,6 +73,7 @@ static int int_scicos_about (Stack stack, int rhs, int opt, int lhs)
  *     oz: list of scilab objects 
  *     outtb: is now a list of scilab objects 
  *     
+ * graphic if present is a cell containing graphic objects or %f
  */
 
 static int curblk = 0;		/* kept static to be given to curblock in case of 
@@ -82,8 +88,9 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
   static char *action_name[] = { "finish", "linear", "run", "start", NULL };
   NspHash *State, *Sim;
   NspMatrix *Msimpar;
+  NspCells *Gr=NULL;
   double simpar[7];
-  CheckRhs (6, 6);
+  CheckRhs (6, 7);
   CheckLhs (1, 3);
   /* first variable : the state */
   if ((State = GetHashCopy (stack, 1)) == NULLHASH)
@@ -115,12 +122,21 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
   /* [atol  rtol ttol, deltat, scale, impl, hmax] */
   if ((Msimpar = GetRealMat (stack, 6)) == NULLMAT)
     return RET_BUG;
+  if ( rhs == 7 )
+    {
+      if ((Gr = GetCells(stack,7))== NULLCELLS) 
+	return RET_BUG;
+    }
+
   for (i = Min (Msimpar->mn, 7); i < 7; i++)
     simpar[i] = 0.0;
   for (i = 0; i < Min (Msimpar->mn, 7); i++)
     simpar[i] = Msimpar->R[i];
-
+  
   if (scicos_fill_run (&r_scicos, Sim, State) == FAIL)
+    return RET_BUG;
+
+  if (scicos_fill_gr(&r_scicos,Gr) == FAIL) 
     return RET_BUG;
 
   scicos_main (&r_scicos, &tcur, &tf, simpar, &flag, &ierr);
@@ -202,6 +218,26 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
   return Max (lhs, 1);
 }
 
+static int scicos_fill_gr(scicos_run *sr, NspCells *Gr)
+{
+  int kf;
+  scicos_sim *scsim = &sr->sim;
+  int nb = scsim->nblk;
+  scicos_block *Blocks = sr->Blocks;
+  for (kf = 0; kf < scsim->nblk; ++kf)
+    {
+      Blocks[kf].grobj = NULL;
+    }
+  if ( Gr == NULL || Gr->mn != scsim->nblk ) return OK;
+  for (kf = 0; kf < scsim->nblk; ++kf)
+    { 
+      if ( Gr->objs[kf] != NULLOBJ && IsGraphic(Gr->objs[kf])) 
+	{
+	  Blocks[kf].grobj = Gr->objs[kf];
+	}
+    }
+  return OK;
+}
 
 static int int_sctree (Stack stack, int rhs, int opt, int lhs)
 {

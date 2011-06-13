@@ -72,8 +72,10 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       state=%cpr.state
       needstart=%t
       tf=scs_m.props.tf;
+      // keep track of graphic objects 
+      grs=scicos_graphic_array(%cpr,scs_m);
       execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%"+...
-		     "cpr.sim,''finish'',tolerances)',errcatch=%t)
+		     "cpr.sim,''finish'',tolerances,grs)',errcatch=%t)
       %cpr.state=state
       alreadyran=%f
       if ~execok  then
@@ -112,7 +114,8 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       x_message(['Simulation parameters not set';'use setup button']);
       return;
     end
-    execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''start'',tolerances)',errcatch=%t)
+    grs=scicos_graphic_array(%cpr,scs_m);
+    execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''start'',tolerances,grs)',errcatch=%t)
     %cpr.state=state
     if ~execok then
       kfun=curblock()
@@ -140,8 +143,8 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
   setmenu(curwin,'stop')
   timer()
   needreplay=%t
-  
-  execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''run'',tolerances)',errcatch=%t)
+  grs=scicos_graphic_array(%cpr,scs_m);
+  execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''run'',tolerances,grs)',errcatch=%t)
   
   %cpr.state=state
   if execok then
@@ -172,3 +175,26 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
   unsetmenu(curwin,'stop')
   resume(needreplay);
 endfunction
+
+function grs=scicos_graphic_array(%cpr,scs_m)
+// create an array containing the graphic objects 
+// of the blocks which are on the main window 
+// The array is indexed using corinv 
+// This array is used internally for block which need 
+// to perform graphics in their icons. 
+// We first limit the usage to main window 
+// jpc: 2011
+  if ~exists('slevel') then slevel=0;end 
+  grs={};
+  for i=1:size(%cpr.corinv,'*')
+    path=%cpr.corinv(i)
+    if exists('windows')==%f || slevel<>1 || size(path,'*')<>1 then 
+      grs{i}=%f ;
+    else
+      grs{i}= scs_m.objs(path).gr;
+    end
+  end
+endfunction
+
+
+  
