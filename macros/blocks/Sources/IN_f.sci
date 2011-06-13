@@ -25,8 +25,8 @@ function [x,y,typ]=IN_f(job,arg1,arg2)
     else
       xfpoly(x,y,color=color,thickness=2);
     end
-    //xstringb(xo,yo,string(prt),sz(1)/1.5,sz(2),'fill');
-    xstringb(xo,yo,string(prt),sz(1)/1.5,sz(2));
+    xstringb(xo,yo,string(prt),sz(1)/1.5,sz(2),'fill');
+    //xstringb(xo,yo,string(prt),sz(1)/1.5,sz(2));
     // Identification 
     ident = arg1.graphics.id
     if ~isempty(ident) && length(ident)<>0 then
