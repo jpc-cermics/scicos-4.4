@@ -55,11 +55,11 @@ function bad_connection(path_out,prt_out,nout,path_in,prt_in,nin)
     if isempty(path) then
       hilite_obj(scs_m.objs(path_out))
       if or(path_in<>path_out) then hilite_obj(scs_m.objs(path_in)),end
-
+      pause xxx;
       message(['Hilited block(s) have connected ports ';
 	       'with  incompatible sizes';
-	       ' output port '+string(prt_out)+' size is :'+string(nout);
-	       ' input port '+string(prt_in)+' size is  :'+string(nin)]); 
+	       ' output port '+string(prt_out)+' size is :'+sci2exp(nout);
+	       ' input port '+string(prt_in)+' size is  :'+sci2exp(nin)]); 
       unhilite_obj(scs_m.objs(path_out))
       if or(path_in<>path_out) then unhilite_obj(scs_m.objs(path_in)),end
     else
@@ -73,8 +73,8 @@ function bad_connection(path_out,prt_out,nout,path_in,prt_in,nin)
       if or(path_in<>path_out) then hilite_obj(scs_m.objs(path_in)),end
       message(['Hilited block(s) have connected ports ';
 	       'with  incompatible sizes';
-	       string(prt_out)+' output port size is :'+string(nout);
-	       string(prt_in)+' input port size is  :'+string(nin)]); 
+	       string(prt_out)+' output port size is :'+sci2exp(nout);
+	       string(prt_in)+' input port size is  :'+sci2exp(nin)]); 
       for k=size(path,'*'):-1:1,xdel(mxwin+k),end
       //TODO Alan
       //bad_connection(path,
