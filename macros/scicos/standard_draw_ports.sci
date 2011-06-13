@@ -24,7 +24,7 @@ function standard_draw_ports(o)
   outtype= ones_new(1,nout);
   outtype(outporttype.equal['I'])=5;
   for k=1:nout
-    //if outporttype(k)=='B' then xset('pattern',default_color(3));end 
+    if ~isempty(outporttype) && outporttype(k)=='B' then xset('pattern',default_color(3));end;
     scicos_lock_draw([xpos_out,orig(2)+sz(2)-dy*k],xf,yf,select_face_out,outtype(k));
     xset('pattern',default_color(1));
   end
@@ -32,7 +32,7 @@ function standard_draw_ports(o)
   outtype= zeros_new(1,nin);
   outtype(inporttype.equal['I'])=4;
   for k=1:nin
-    //if inporttype(k)=='B' then xset('pattern',default_color(3));end 
+    if ~isempty(inporttype) && inporttype(k)=='B' then xset('pattern',default_color(3));end;
     scicos_lock_draw([xpos_in,orig(2)+sz(2)-dy*k],xf,yf,select_face_in,outtype(k));
     xset('pattern',default_color(1))
   end
