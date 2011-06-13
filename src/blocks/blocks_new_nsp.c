@@ -2838,9 +2838,15 @@ void scicos_csslti4_block (scicos_block * block, int flag)
     }
 }
 
-/* 
- *
- *
+/*
+ *  This is an old block but with new graphics 
+ * 
+ *  ipar = [font, fontsize, color, win, nt, nd, ipar7 ]
+ *     nt : total number of output digits 
+ *     nd : number of rationnal part digits
+ *     nu2: nu/ipar(7);
+ *  z(6:6+nu*nu2)=value 
+ *  z(1) is used to keep the pointer of graphic object 
  */
 
 static NspGrstring *scicos_affich2_getstring(NspCompound *C);
@@ -2848,54 +2854,24 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
 
 int scicos_affich2_block (scicos_args_F0)
 {
-  static NspGrstring *S=NULL;
-  /*     ipar(1) = font */
-  /*     ipar(2) = fontsize */
-  /*     ipar(3) = color */
-  /*     ipar(4) = win */
-  /*     ipar(5) = nt : total number of output digits */
-  /*     ipar(6) = nd number of rationnal part digits */
-  /*     ipar(7) = nu2= nu/ipar(7); */
-  /*     z(1)=value */
-  /*     z(2)=window */
-  /*     z(3)=x */
-  /*     z(4)=y */
-  /*     z(5)=width */
-  /*     z(6)=height */
-  /*     z(6:6+nu*nu2)=value */
-  --y;
-  --u;
+  NspGrstring **S= (NspGrstring **) &z__[0] ;
   --ipar;
-  --rpar;
-  --tvec;
-  --z__;
-  --x;
-  --xd;
-  if (*flag__ == 2)
+  if (*flag__ == 1)
     {
-      int i;
-      /*     state evolution */
-      for ( i= 1 ; i <= *nu ; i++)
-	{
-	  z__[5+i]=u[i];
-	}
       /* draw the string matrix */
-      if ( S != NULL) 
+      if ( *S != NULL) 
 	{
-	  scicos_affich2_update(S,&ipar[5],&z__[6],ipar[7],*nu/ipar[7]);
+	  scicos_affich2_update(*S,&ipar[5],u,ipar[7],*nu/ipar[7]);
 	}
     }
   else if (*flag__ == 4)
     {
       int cb = Scicos->params.curblk -1;
       NspGraphic *Gr = Scicos->Blocks[cb].grobj;
+      *S = NULL;
       if ( Gr != NULL && IsCompound((NspObject *) Gr))
 	{
-	  S = scicos_affich2_getstring((NspCompound *)Gr);
-	  if ( S != NULL) 
-	    {
-	      printf("found a string matrix \n");
-	    }
+	  *S = scicos_affich2_getstring((NspCompound *)Gr);
 	}
     }
   return 0;
@@ -2922,16 +2898,13 @@ static NspGrstring *scicos_affich2_getstring(NspCompound *C)
 	}
       cloc = cloc->next;
     }
-  /* explore the compound for a grstring */
   return NULL;
 }
 
 static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int m,int n)
 {
-  int i,j;
+  int i,j, ok = FALSE;
   NspSMatrix *Str = S->obj->text;
-  nsp_graphic_invalidate((NspGraphic *) S);
-  printf("%d %d\n",form[0], form[1]);
   for (i = 0; i < Str->m ; i++)
     {
       char *st=S->obj->text->S[i];
@@ -2947,9 +2920,14 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
 	  k += kj;
 	  if ( j != n-1) sprintf(buf+k," ");k++;
 	}
-      sprintf(st,"%s",buf);
+      if ( strlen(st) != strlen(buf) )
+	{
+	  Sciprintf("Warning: buffer has wrong size\n");
+	}
+      if ( strcmp(st,buf) != 0 ) ok = TRUE;
+      snprintf(st,strlen(st)+1,"%s",buf);
     }
-  nsp_graphic_invalidate((NspGraphic *) S);
+  if ( ok )  nsp_graphic_invalidate((NspGraphic *) S);
 }
 
 
