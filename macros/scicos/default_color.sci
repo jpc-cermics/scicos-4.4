@@ -10,8 +10,12 @@ function clr=default_color(typ)
       clr=1
     end
   elseif typ==1 | typ==2 then //regular links
-    clr=options('Link')(1),
-  elseif typ==1 then //regular links
-    clr=options('Link')(1),
+    clr=options('Link')(1)
+  elseif typ==3 then //BUS
+    if size(options('Link'),'*')>=3 then //compatibility
+      clr=options('Link')(3), 
+    else
+      clr=2
+    end
   end
 endfunction

@@ -222,6 +222,8 @@ function [x,y,typ]=standard_inputs(o)
           typ=[typ ones(size(x(k)))]
         elseif  o.graphics.in_implicit(k)=='I' then
           typ=[typ 2*ones(size(x(k)))]
+	elseif  o.graphics.in_implicit(k)=='B' then //buses
+	  typ=[typ 3*ones(size(x(k)))]
         end
       end
     end
@@ -280,6 +282,8 @@ function [x,y,typ]=standard_outputs(o)
            typ=[typ ones(size(x(k)))]
          elseif  o.graphics.out_implicit(k)=='I' then
            typ=[typ 2*ones(size(x(k)))]
+	 elseif  o.graphics.out_implicit(k)=='B' then
+	   typ=[typ 3*ones(size(x(k)))]
          end
        end
     end
