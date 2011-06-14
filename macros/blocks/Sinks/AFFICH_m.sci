@@ -115,7 +115,7 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
 	  'xset(''font'',ipar(1),ipar(2))';
 	  'str = sprintf('"%*.*f'" , ipar(5),ipar(6),0.0);';
           'str = strcat(smat_create(1,model.in2,str),'' '');';
-	  'str  = smat_create(model.in,1,strl);';
+	  'str  = smat_create(model.in,1,str);';
 	  'xstringb(orig(1),orig(2),str,sz(1),sz(2));'
 	  'xset(''font'',fnt(1),fnt(2))']
     x = standard_define([3 2],model,exprs,gr_i,'AFFICH_m');
