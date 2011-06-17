@@ -3,11 +3,9 @@ function [ok,tt]=CFORTR(funam,tt,inp,out)
   ni=size(inp,'*')
   no=size(out,'*')
   if isempty(tt) then
-
     tete1=['#include <machine.h>';'#include <math.h>';
 	   'void '+funam+'(flag,nevprt,t,xd,x,nx,z,nz,tvec,';
 	   '             ntvec,rpar,nrpar,ipar,nipar']
-
     tete2= '      '
     decl=''
     for i=1:ni
@@ -19,11 +17,8 @@ function [ok,tt]=CFORTR(funam,tt,inp,out)
       decl=decl+',*ny'+string(i)
     end
     tete2=tete2+')'
-
     tete3=['      double *t,xd[],x[],z[],tvec[];';
 	   '      integer *flag,*nevprt,*nx,*nz,*ntvec,*nrpar,ipar[],*nipar'+decl+';']
-
-
     tete4= '      double rpar[]'
     for i=1:ni
       tete4=tete4+',u'+string(i)+'[]'
@@ -42,7 +37,7 @@ function [ok,tt]=CFORTR(funam,tt,inp,out)
     textmp=tt;
   end
   
-  while 1==1
+  while %t
     [txt]=x_dialog(['Function definition in C';
 		    'Here is a skeleton of the functions which you shoud edit'],
     textmp);
@@ -58,6 +53,4 @@ function [ok,tt]=CFORTR(funam,tt,inp,out)
       ok=%f;break;
     end  
   end
-  
-  
 endfunction

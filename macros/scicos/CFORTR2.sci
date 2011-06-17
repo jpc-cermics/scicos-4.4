@@ -2,10 +2,9 @@ function [ok,tt,cancel]=CFORTR2(funam,tt)
 // Copyright INRIA
 //  *flag for nsp (This is maybe to be fixed).
 //
-  cancel=%f
-  
+  cancel=%f;
+  ok =%f;
   if isempty(tt) then
-    
     textmp=['void '+funam+'(scicos_block *block,int flag)';
 	    '\t{'; 
 	    '\tswitch (flag)';
@@ -15,7 +14,7 @@ function [ok,tt,cancel]=CFORTR2(funam,tt)
 
     ttext=['#include <math.h>';
 	   '#include <stdlib.h>';
-	   '#include <scicos/scicos_block.h>';
+	   '#include <scicos/scicos_block4.h>';
 	   '';
 	   'static int '+funam+"_bloc_init(scicos_block *block,int flag)";
 	   '\t{\n\treturn 0;\n\t}'];
@@ -85,11 +84,16 @@ function [ok,tt,cancel]=CFORTR2(funam,tt)
     textmp=tt;
   end
 
-  while 1==1
-    [txt]=x_dialog(['Function definition in C';
-		    'Here is a skeleton of the functions which';'you shoud edit'],..
-		   textmp);
-    
+  comment= ['Function definition in C';
+	    'Here is a skeleton of the functions which';
+	    'you shoud edit'];
+  while %t 
+    if %f then 
+      txt=x_dialog(comment, textmp);
+    else
+      // new version with editsmat 
+      txt= editsmat('CBLOCK Edition',textmp,comment=catenate(comment,sep='\n'));
+    end
     if ~isempty(txt) then
       tt=txt
       [ok]=scicos_block_link(funam,tt,'c')
@@ -98,9 +102,7 @@ function [ok,tt,cancel]=CFORTR2(funam,tt)
       end
       break;
     else
-      ok=%f;break;
+      cancel=%t;break;
     end  
   end
-
-
 endfunction

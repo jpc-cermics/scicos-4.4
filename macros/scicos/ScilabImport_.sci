@@ -104,7 +104,7 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
   scs_m.props.title=[scs_m.props.title(1),path]
 
   if typ=='diagram' then
-    if %cpr<>list() then
+    if ~%cpr.equal[list()] then
       for jj=1:size(%cpr.sim.funtyp,'*')
 	if %cpr.sim.funtyp(jj)<10000 then
 	  if %cpr.sim.funtyp(jj)>999 then

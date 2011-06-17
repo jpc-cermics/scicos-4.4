@@ -383,7 +383,7 @@ function [texte,L_out] = standard_document(objet, k)
 	       'Bloc type                  ',typ;             
 	       'Direct feed through        ',dependance_u;    
 	       'Permanently active         ',dependance_t]
-      if %cpr<>list()&needcompile<>4 then
+      if ~%cpr.equal[list()] &needcompile<>4 then
 	cor = %cpr.cor
 	corinv = %cpr.corinv
 	path=list()
@@ -480,7 +480,7 @@ function [texte,L_out] = standard_document(objet, k)
 	     'Object number in diagram   ',string(k)];
         
     from=objet.from
-    if %cpr<>list() then
+    if ~%cpr.equal[list()] then
       if sous_type == 'Regular Link' then 
 	while %t
 	  if scs_m.objs(from(1)).model.sim(1)=='lsplit' then

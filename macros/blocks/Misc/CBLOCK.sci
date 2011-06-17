@@ -63,7 +63,6 @@ function [x,y,typ]=CBLOCK(job,arg1,arg2)
 
       tt=label(2);
       while %t
-
 	[ok,tt,cancel]=CFORTR2(funam,tt)
 	if ~ok then
 	  if cancel then break,end
