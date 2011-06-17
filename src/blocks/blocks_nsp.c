@@ -46,9 +46,6 @@ extern int scicos_setblockwin (BCG *Xgc,int *win, int *cur);
 
 static void scicos_intp (double x, const double *xd, const double *yd, int n,
 			 int nc, double *y);
-static int scicos_affdraw (BCG * Xgc, const int fontd[], const int form[],
-			   const double *val, const double r[]);
-static int scicos_recterase (BCG * Xgc, const double r[]);
 static int scicos_getgeom (double *);
 
 /* 
@@ -3451,131 +3448,6 @@ void scicos_writeau_block (int *flag, int *nevprt, const double *t,
 }
 
 
-/*  Displays the value of the input in the diagram block */
-
-int scicos_affich_block (scicos_args_F0)
-{
-  BCG *Xgc;
-  int record, cur = 0, wid;
-  double ur;
-  /*     ipar(1) = font */
-  /*     ipar(2) = fontsize */
-  /*     ipar(3) = color */
-  /*     ipar(4) = win */
-  /*     ipar(5) = nt : total number of output digits */
-  /*     ipar(6) = nd number of rationnal part digits */
-  /*     z(1)=value */
-  /*     z(2)=window */
-  /*     z(3)=x */
-  /*     z(4)=y */
-  /*     z(5)=width */
-  /*     z(6)=height */
-  --y;
-  --u;
-  --ipar;
-  --rpar;
-  --tvec;
-  --z__;
-  --x;
-  --xd;
-  if (*flag__ == 2)
-    {
-      /*     state evolution */
-      ur = pow (10.0, ipar[6]);
-      ur = anint (u[1] * ur) / ur;	/* round */
-      if (ur == z__[1])
-	{
-	  return 0;
-	}
-      wid = (int) z__[2];
-      if (wid < 0)
-	return 0;
-      Xgc = scicos_set_win (wid, &cur);
-      record = Xgc->graphic_engine->xget_recording (Xgc);
-      Xgc->graphic_engine->xset_recording (Xgc, FALSE);
-      scicos_recterase (Xgc, &z__[3]);
-      z__[1] = ur;
-      scicos_affdraw (Xgc, &ipar[1], &ipar[5], &z__[1], &z__[3]);
-      Xgc->graphic_engine->xset_recording (Xgc, record);
-    }
-  else if (*flag__ == 4)
-    {
-      /*     .  initial value */
-      z__[1] = 0.;
-      if (scicos_getgeom (&z__[2]) == FAIL)
-	return 0;
-      wid = (int) z__[2];
-      if (wid < 0)
-	return 0;
-      Xgc = scicos_set_win (wid, &cur);
-      record = Xgc->graphic_engine->xget_recording (Xgc);
-      Xgc->graphic_engine->xset_recording (Xgc, FALSE);
-      scicos_recterase (Xgc, &z__[3]);
-      scicos_affdraw (Xgc, &ipar[1], &ipar[5], &z__[1], &z__[3]);
-      Xgc->graphic_engine->xset_recording (Xgc, record);
-    }
-  return 0;
-}
-
-static int scicos_recterase (BCG * Xgc, const double r[])
-{
-  const double dx = .06, dy = .06;
-  double w, x, y, h;
-  x = r[0] + dx * r[2];
-  y = r[1] + r[3];
-  w = r[2] * (1. - dx);
-  h = r[3] * (1. - dy);
-  Xgc->graphic_engine->scale->cleararea (Xgc, x, y, w, h);
-  return 0;
-}
-
-static int scicos_affdraw (BCG * Xgc, const int fontd[], const int form[],
-			   const double *val, const double r[])
-{
-  int fontid[2], rect[4], flag = 0, pixmode;
-  char buf[128];
-  double x, y, angle = 0.0;
-  sprintf (buf, "%*.*f", form[0], form[1], *val);
-  Xgc->graphic_engine->xget_font (Xgc, fontid);
-  Xgc->graphic_engine->xset_font (Xgc, fontd[0], fontd[1]);
-  Xgc->graphic_engine->boundingbox (Xgc, buf, r[0], r[1], rect);
-  x = r[0] + Max (0.0, (r[2] - rect[2]) / 2.);
-  y = r[1] + Max (0.0, (r[3] - rect[3]) / 2.);
-  Xgc->graphic_engine->scale->displaystring (Xgc, buf, x, y, flag, angle);
-  Xgc->graphic_engine->xset_font (Xgc, fontid[0], fontid[1]);
-  pixmode = Xgc->graphic_engine->xget_pixmapOn (Xgc);
-  if (pixmode == 1)
-    Xgc->graphic_engine->xset_show (Xgc);
-  return 0;
-}
-
-
-int scicos_getgeom (double *g)
-{
-  NspObject *targs[1];
-  NspObject *nsp_ret;
-  int nret = 1, nargs = 0;
-  NspObject *func;
-  int i;
-  g[0] = -1;
-  if ((func = nsp_find_macro ("getgeom")) == NULLOBJ)
-    return FAIL;
-  /* FIXME : a changer pour metre une fonction eval standard */
-  if (nsp_gtk_eval_function ((NspPList *) func, targs, nargs, &nsp_ret, &nret)
-      == FAIL)
-    return FAIL;
-  if (nret == 1 && IsMat (nsp_ret) && ((NspMatrix *) nsp_ret)->rc_type == 'r'
-      && ((NspMatrix *) nsp_ret)->mn == 5)
-    {
-      for (i = 0; i < 5; i++)
-	g[i] = ((NspMatrix *) nsp_ret)->R[i];
-      return OK;
-    }
-  else
-    return FAIL;
-}
-
-
 /*------------------------------------------------
  *     returns Absolute value of the input 
  *------------------------------------------------*/
@@ -4994,4 +4866,33 @@ scicos_ifthel_block (int *flag__, int *nevprt, int *ntvec, double *rpar,
       *ntvec = (u[0] <= 0.) ? 2 : 1;
     }
   return 0;
+}
+
+/* utilisty function 
+ *
+ */
+
+int scicos_getgeom (double *g)
+{
+  NspObject *targs[1];
+  NspObject *nsp_ret;
+  int nret = 1, nargs = 0;
+  NspObject *func;
+  int i;
+  g[0] = -1;
+  if ((func = nsp_find_macro ("getgeom")) == NULLOBJ)
+    return FAIL;
+  /* FIXME : a changer pour metre une fonction eval standard */
+  if (nsp_gtk_eval_function ((NspPList *) func, targs, nargs, &nsp_ret, &nret)
+      == FAIL)
+    return FAIL;
+  if (nret == 1 && IsMat (nsp_ret) && ((NspMatrix *) nsp_ret)->rc_type == 'r'
+      && ((NspMatrix *) nsp_ret)->mn == 5)
+    {
+      for (i = 0; i < 5; i++)
+ 	g[i] = ((NspMatrix *) nsp_ret)->R[i];
+      return OK;
+    }
+  else
+    return FAIL;
 }

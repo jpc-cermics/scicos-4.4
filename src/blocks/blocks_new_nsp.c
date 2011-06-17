@@ -1,6 +1,7 @@
 /* Nsp
- * Copyright (C) 2007-2010 Ramine Nikoukhah (Inria) 
+ * Copyright (C) 2007-2011 Ramine Nikoukhah (Inria) 
  *               See the note at the end of banner
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either
@@ -2839,14 +2840,22 @@ void scicos_csslti4_block (scicos_block * block, int flag)
 }
 
 /*
- *  This is an old block but with new graphics 
+ *  This is an old block but with new graphics (that's why 
+ *  it is temporary here).
  * 
  *  ipar = [font, fontsize, color, win, nt, nd, ipar7 ]
  *     nt : total number of output digits 
  *     nd : number of rationnal part digits
  *     nu2: nu/ipar(7);
+ * 
  *  z(6:6+nu*nu2)=value 
  *  z(1) is used to keep the pointer of graphic object 
+ *  
+ *  To be done: values could be moved to z(2) since we 
+ *  do not use the z(2:5).
+ *  some ipar values are not taken into account 
+ * 
+ *  Copyright: J.Ph Chancelier Enpc 
  */
 
 static NspGrstring *scicos_affich2_getstring(NspCompound *C);
@@ -2930,4 +2939,37 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
   if ( ok )  nsp_graphic_invalidate((NspGraphic *) S);
 }
 
+/*
+ *  This is an old block but with new graphics (that's why 
+ *  it is temporary here).
+ *  This block is only here for backward compatibility since 
+ *  it is superseded by affich2.
+ * 
+ *  Copyright: J.Ph Chancelier Enpc 
+ */
+
+int scicos_affich_block (scicos_args_F0)
+{
+  NspGrstring **S= (NspGrstring **) &z__[0] ;
+  --ipar;
+  if (*flag__ == 1)
+    {
+      /* draw the string matrix */
+      if ( *S != NULL) 
+	{
+	  scicos_affich2_update(*S,&ipar[5],u,1,1);
+	}
+    }
+  else if (*flag__ == 4)
+    {
+      int cb = Scicos->params.curblk -1;
+      NspGraphic *Gr = Scicos->Blocks[cb].grobj;
+      *S = NULL;
+      if ( Gr != NULL && IsCompound((NspObject *) Gr))
+	{
+	  *S = scicos_affich2_getstring((NspCompound *)Gr);
+	}
+    }
+  return 0;
+}
 
