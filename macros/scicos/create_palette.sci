@@ -108,7 +108,7 @@ function lisf=scicos_get_palette_content(txt)
 	  'CFSCOPE.sci';   'WRITEAU_f.sci';
 	  'CSCOPXY3D.sci';   'CANIMXY3D.sci';
 	  'CMATVIEW.sci';	'CMAT3D.sci'; 
-	  'TOWS_c.sci';'BUSOUT_f.sci';'ACTUATOR_f.sci']
+	  'TOWS_c.sci';'BUSOUT_f.sci';'ACTUATOR_f.sci';'SLIDER_f.sci']
   
   elseif txt=='Branching' then
     lisf=['DEMUX.sci';
@@ -120,7 +120,8 @@ function lisf=scicos_get_palette_content(txt)
 	  'Extract_Activation.sci';'GOTO.sci';'FROM.sci';
 	  'GotoTagVisibility.sci';'CLKGOTO.sci';'CLKFROM.sci';
 	  'CLKGotoTagVisibility.sci';'GOTOMO.sci';'FROMMO.sci';
-	  'GotoTagVisibilityMO.sci';'BUSCREATOR.sci';'BUSSELECTOR.sci']
+	  'GotoTagVisibilityMO.sci';'BUSCREATOR.sci';'BUSSELECTOR.sci';
+	  'TRANSMIT.sci';'M_VSWITCH.sci']
 	
   elseif txt=='Non_linear' then
 	lisf=['ABS_VALUE.sci'; 'TrigFun.sci';

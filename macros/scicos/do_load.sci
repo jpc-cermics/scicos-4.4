@@ -148,10 +148,9 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   end
   if ~ok then scs_m = get_new_scs_m();return;end
   if typ=='diagram' then
-    if %cpr<>list() then
-
+    if ~%cpr.equal[list()] then
       for jj=1:size(%cpr.sim.funtyp,'*')
-	if type(%cpr.corinv(jj))==15 then
+	if type(%cpr.corinv(jj),'short')=='l' then
 	  //force recompilation if diagram contains Modelica Blocks
 	  //Can be improved later, re-generating C code only...
 	  %cpr=list()
