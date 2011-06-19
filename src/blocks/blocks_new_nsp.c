@@ -36,6 +36,7 @@
 #include <nsp/qcurve.h>
 #include <nsp/grstring.h>
 #include <nsp/compound.h>
+#include <nsp/qcurve.h>
 #else 
 #include <nsp/graphics-old/Graphics.h> 
 #endif 
@@ -2165,9 +2166,15 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
 }
 
 
-/*
- * a scope 
- */
+/**
+ * scicos_cscope_block:
+ * @block: 
+ * @flag: 
+ * 
+ * a scope:
+ * new nsp graphics jpc 
+ **/
+
 
 typedef struct _cscope_ipar cscope_ipar;
 struct _cscope_ipar
@@ -2182,9 +2189,6 @@ struct _cscope_rpar
   double dt, ymin, ymax, per;
 };
 
-
-#ifdef NEW_GRAPHICS
-
 typedef struct _cscope_data cscope_data;
 
 struct _cscope_data
@@ -2194,6 +2198,9 @@ struct _cscope_data
   NspAxes *Axes;
   NspList *L;
 };
+
+static void scicos_cscope_axes_update(cscope_data *D,double t, double Ts,
+				      double ymin,double ymax);
 
 void scicos_cscope_block (scicos_block * block, int flag)
 {
@@ -2225,11 +2232,12 @@ void scicos_cscope_block (scicos_block * block, int flag)
       D->tlast = t;
       /* add nu points for time t, nu is the number of curves */
       nsp_oscillo_add_point (D->L, t, block->inptr[0], nu);
-      if ( D->count % csi->n == 0 ) 
+      if (  D->count % csi->n == 0 ) 
 	{
 	  /* redraw each csi->n accumulated points 
 	   * first check if we need to change the xscale 
 	   */
+	  scicos_cscope_axes_update(D,t,csr->per,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
 	}
     }
@@ -2240,12 +2248,14 @@ void scicos_cscope_block (scicos_block * block, int flag)
       NspList *L;
       /* XXX :
        * buffer size for scope 
-       * this should be set to the numebr of points to keep 
-       * in order to cover a csr->per horizon 
+       * this should be set to the number of points to keep 
+       * in order to cover a csr->per horizon. Unfortunately 
+       * this number is not known a-priori.
        */
-      int scopebs = 1000;
+      int scopebs = 10000;
+      /* create an axe with predefined limits */
       NspAxes *Axes =
-	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE,csr->ymin,csr->ymax, &L);
+	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE, -1, 1, &L);
       if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -2285,133 +2295,164 @@ void scicos_cscope_block (scicos_block * block, int flag)
     }
 }
 
-#else
+/* this function could certainly be replaced by the corresponding 
+ * function present in axes.
+ */
 
-/* code for `old' graphics */
-
-void scicos_cscope_block (scicos_block * block, int flag)
+static int scicos_cscope_get_bounds(NspList *L, double *bounds)
 {
+  double l_bounds[4];
+  Cell *cloc = L->first ;
+  if ( cloc == NULLCELL) 
+    {
+      bounds[0]=bounds[1]=0;
+      bounds[2]=bounds[3]=0;
+      return FALSE;
+    }
+  bounds[0]=bounds[1]=LARGEST_REAL;
+  bounds[2]=bounds[3]=-LARGEST_REAL;
+  while ( cloc != NULLCELL ) 
+    {
+      if ( cloc->O != NULLOBJ ) 
+	{
+	  NspGraphic *G= (NspGraphic *) cloc->O;
+	  G->type->bounds(G,l_bounds);
+	  if ( l_bounds[0] < bounds[0] ) 
+	    bounds[0]= l_bounds[0];
+	  if (  l_bounds[2] > bounds[2])
+	    bounds[2]= l_bounds[2];
+	  if ( l_bounds[1] < bounds[1] ) 
+	    bounds[1]= l_bounds[1];
+	  if (  l_bounds[3] > bounds[3])
+	    bounds[3]= l_bounds[3];
+	}
+      cloc = cloc->next;
+    }
+  return TRUE;
+}
+
+static void scicos_cscope_axes_update(cscope_data *D,double t, double Ts,
+				      double ymin,double ymax)
+{
+  double frect[4]={ Max(t-Ts,0) , ymin, t, ymax};
+  int tag = FALSE;
+  double bounds[4];
+  if ( isinf(ymin) || isinf(ymax))
+    {
+      /* only usefull, if ymin or ymax is inf */
+      tag = scicos_cscope_get_bounds(D->L,bounds);
+    }
+  if ( isinf(ymin) && tag == TRUE ) frect[1]= bounds[1];
+  if ( isinf(ymax) && tag == TRUE ) frect[3]= bounds[3];
+  if ( ~isinf(Ts) )
+    {
+      frect[0]= Max(0,t-Ts);
+      frect[2]= t;
+    }
+  else
+    {
+      frect[0]= 0; /*XXX min of stored values */
+      frect[2]= t;
+    }
+  memcpy(D->Axes->obj->frect->R,frect,4*sizeof(double));
+  memcpy(D->Axes->obj->rect->R,frect,4*sizeof(double));
+  D->Axes->obj->fixed = TRUE; 
+}
+
+
+/**
+ * scicos_cscopxy_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
+
+typedef struct _cscopxy_ipar cscopxy_ipar;
+struct _cscopxy_ipar
+{
+  /* n is the number of data to accumulate before redrawing */
+  int wid, color_flag, n, color, line_size, animed , wpos[2], wdim[2];
+};
+
+typedef struct _cscopxy_rpar cscopxy_rpar;
+struct _cscopxy_rpar
+{
+  double xmin, xmax, ymin, ymax;
+};
+
+static void  scicos_cscopxy_add_point(NspList *L,const double *x,const double *y, int n);
+static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
+				       double ymin,double ymax);
+
+void scicos_cscopxy_block (scicos_block * block, int flag)
+{
+  int cur = 0, k,nu;
   char *str;
   BCG *Xgc;
   /* used to decode parameters by name */
-  cscope_ipar *csi = (cscope_ipar *) block->ipar;
-  cscope_rpar *csr = (cscope_rpar *) block->rpar;
-  double frect[4] = { 0., 0., 1., 1. };
-  double t, *z__, c_b84 = 0.0;
-  double tsave, rect[4];
-  int nax[] = { 2, 10, 2, 6 };
-  int c_n1 = -1, c__1 = 1;
-  int nu, cur = 0, i__1, i, i__, k;
-  int n1, n2, wid;
-
-  nu = Min (block->insz[0], 8);
-  t = scicos_get_scicos_time ();
-
-  wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
-
+  cscopxy_ipar *csi = (cscopxy_ipar *) block->ipar;
+  cscopxy_rpar *csr = (cscopxy_rpar *) block->rpar;
+  int nu1 = GetInPortRows (block, 1);/* number of curves */
+  int nu2 = GetInPortRows (block, 2);/* number of curves */
+  double t = scicos_get_scicos_time ();
+  int wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
+  nu = Min(nu1,nu2);
   if (flag == 2)
     {
-      z__ = *block->work;
-      --z__;
-      k = (int) z__[1];
-      if (k > 0)
+      
+      double *u1 = GetRealInPortPtrs (block, 1);
+      double *u2 = GetRealInPortPtrs (block, 2);
+      cscope_data *D = (cscope_data *) (*block->work);
+      D->count++;
+      D->tlast = t;
+      /* add nu points for time t, nu is the number of curves */
+      scicos_cscopxy_add_point(D->L, u1, u2, nu);
+      if (  D->count % csi->n == 0 ) 
 	{
-	  n1 = (int) (z__[k + 1] / csr->per);
-	  if (z__[k + 1] < 0.)
-	    {
-	      --n1;
-	    }
+	  /* redraw each csi->n accumulated points 
+	   * first check if we need to change the xscale 
+	   */
+	  scicos_cscopxy_axes_update(D,csr->xmin, csr->xmax,csr->ymin,csr->ymax);
+	  nsp_axes_invalidate((NspGraphic *) D->Axes);
 	}
-      else
-	{
-	  n1 = 0;
-	}
-
-      tsave = t;
-      if (csr->dt > 0.)
-	{
-	  t = z__[k + 1] + csr->dt;
-	}
-
-      n2 = (int) (t / csr->per);
-      if (t < 0.)
-	{
-	  --n2;
-	}
-
-      /*     add new point to the buffer */
-      ++k;
-      z__[k + 1] = t;
-      for (i = 0; i < nu; ++i)
-	{
-	  z__[csi->n + 1 + i * csi->n + k] = block->inptr[0][i];
-	}
-      z__[1] = (double) k;
-      if (n1 == n2 && k < csi->n)
-	{
-	  t = tsave;
-	  return;
-	}
-      /*     plot 1:K points of the buffer */
-      Xgc = scicos_set_win (wid, &cur);
-      Xgc->graphic_engine->xset_recording (Xgc, TRUE);
-      if (k > 0)
-	{
-	  Xgc->graphic_engine->scale->xset_clipgrf (Xgc);
-	  for (i__ = 0; i__ < nu; ++i__)
-	    {
-	      Xgc->graphic_engine->scale->drawpolylines (Xgc, &z__[2],
-							 &z__[csi->n + 2 +
-							      i__ * csi->n],
-							 &csi->type[i__],
-							 c__1, k);
-	    }
-	  Xgc->graphic_engine->scale->xset_unclip (Xgc);
-	}
-      /*     shift buffer left */
-      z__[2] = z__[k + 1];
-      for (i__ = 0; i__ < nu; ++i__)
-	{
-	  z__[csi->n + 1 + i__ * csi->n + 1] =
-	    z__[csi->n + 1 + i__ * csi->n + k];
-	}
-      z__[1] = 1.;
-      if (n1 != n2)
-	{
-	  /*     clear window */
-	  Xgc->graphic_engine->clearwindow (Xgc);
-	  Xgc->graphic_engine->scale->xset_usecolor (Xgc, csi->color_flag);
-	  Xgc->graphic_engine->tape_clean_plots (Xgc, wid);
-	  rect[0] = csr->per * (n1 + 1);
-	  rect[1] = csr->ymin;
-	  rect[2] = csr->per * (n1 + 2);
-	  rect[3] = csr->ymax;
-	  Xgc->graphic_engine->scale->xset_dash (Xgc, 0);
-	  nsp_plot2d_old (Xgc, rect, &rect[1], &c__1, &c__1, &c_n1, "011", "",
-			  0, rect, nax);
-	}
-      t = tsave;
     }
   else if (flag == 4)
     {
-      /* the workspace is used as scope store buffer */
-      if ((*block->work =
-	   scicos_malloc (sizeof (double) * (1 + csi->n * (1 + nu)))) == NULL)
+      /* initialize a scope window */
+      cscope_data *D;
+      NspList *L;
+#define MAXXY 10
+      int colors[MAXXY]; /* max number of curves ? */
+      /* XXX :
+       * buffer size for scope 
+       * this should be set to the number of points to keep 
+       * in order to cover a csr->per horizon. Unfortunately 
+       * this number is not known a-priori.
+       */
+      int scopebs = 10000;
+      /* create an axe with predefined limits */
+      NspAxes *Axes;
+      nu = Min(nu,MAXXY);
+      for ( k= 0 ; k < MAXXY ; k++) colors[k]=csi->color+k;
+      Axes=nsp_oscillo_obj (wid, nu, colors, scopebs, TRUE, -1, 1, &L);
+      if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
 	  return;
 	}
-      z__ = *block->work;
-      --z__;
-      z__[1] = -1.0;
-
-      n1 = (int) (t / csr->per);
-      if (t <= 0.)
+      if ((*block->work = scicos_malloc (sizeof (cscope_data))) == NULL)
 	{
-	  --n1;
+	  scicos_set_block_error (-16);
+	  return;
 	}
+      /* store created data in work area of block */
+      D = (cscope_data *) (*block->work);
+      D->Axes = Axes;
+      D->L = L;
+      D->count = 0;
+      D->tlast = t;
       Xgc = scicos_set_win (wid, &cur);
-      Xgc->graphic_engine->xset_recording (Xgc, TRUE);
       if (csi->wpos[0] >= 0)
 	{
 	  Xgc->graphic_engine->xset_windowpos (Xgc, csi->wpos[0],
@@ -2422,52 +2463,55 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	  Xgc->graphic_engine->xset_windowdim (Xgc, csi->wdim[0],
 					       csi->wdim[1]);
 	}
-      rect[0] = csr->per * (n1 + 1);
-      rect[1] = csr->ymin;
-      rect[2] = csr->per * (n1 + 2);
-      rect[3] = csr->ymax;
-      Nsetscale2d_old (Xgc, frect, NULL, rect, "nn");
-      Xgc->graphic_engine->scale->xset_usecolor (Xgc, csi->color_flag);
-      Xgc->graphic_engine->scale->xset_alufunction1 (Xgc, 3);
-      Xgc->graphic_engine->clearwindow (Xgc);
-      Xgc->graphic_engine->tape_clean_plots (Xgc, wid);
-      Xgc->graphic_engine->scale->xset_dash (Xgc, 0);
-      nsp_plot2d_old (Xgc, rect, &rect[1], &c__1, &c__1, &c_n1, "011", "", 0,
-		      rect, nax);
       str = block->label;
       if (str != NULL && strlen (str) != 0 && strcmp (str, " ") != 0)
 	Xgc->graphic_engine->setpopupname (Xgc, str);
-      z__[1] = 0.;
-      z__[2] = t;
-      i__1 = nu * csi->n;
-      nsp_dset (&i__1, &c_b84, &z__[3], &c__1);
     }
   else if (flag == 5)
     {
-      z__ = *block->work;
-      --z__;
-      k = (int) z__[1];
-      if (k <= 1)
-	{
-	  scicos_free (*block->work);
-	  return;
-	}
-      Xgc = scicos_set_win (wid, &cur);
-      Xgc->graphic_engine->scale->xset_clipgrf (Xgc);
-      for (i__ = 0; i__ < nu; ++i__)
-	{
-	  Xgc->graphic_engine->scale->drawpolylines (Xgc, &z__[2],
-						     &z__[csi->n + 2 +
-							  i__ * csi->n],
-						     &csi->type[i__], c__1,
-						     k);
-	}
-      Xgc->graphic_engine->scale->xset_unclip (Xgc);
-      scicos_free (*block->work);
+      cscope_data *D = (cscope_data *) (*block->work);
+      scicos_free (D);
+      /* Xgc = scicos_set_win(wid,&cur); */
     }
 }
 
-#endif
+static void  scicos_cscopxy_add_point(NspList *L,const double *x,const double *y, int n)
+{
+  int count =0;
+  Cell *Loc = L->first;
+  while ( Loc != NULLCELL ) 
+    {
+      if ( Loc->O != NULLOBJ )
+	{ 
+	  NspQcurve *curve =(NspQcurve *) Loc->O;
+	  if ( count >= n ) return;
+	  nsp_qcurve_addpt(curve,&x[count],&y[count],1);
+	  count++;
+	}
+      Loc = Loc->next;
+    }
+}
+
+static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
+				       double ymin,double ymax)
+{
+  double frect[4]={ xmin , ymin, xmax, ymax};
+  int tag = FALSE;
+  double bounds[4];
+  if ( isinf(xmin) || isinf(xmax) || isinf(ymin) || isinf(ymax) )
+    {
+      /* only usefull, if some values are inf */
+      tag = scicos_cscope_get_bounds(D->L,bounds);
+    }
+  if ( isinf(xmin) && tag == TRUE ) frect[0]= bounds[0];
+  if ( isinf(xmax) && tag == TRUE ) frect[1]= bounds[1];
+  if ( isinf(ymin) && tag == TRUE ) frect[2]= bounds[2];
+  if ( isinf(ymax) && tag == TRUE ) frect[3]= bounds[3];
+  memcpy(D->Axes->obj->frect->R,frect,4*sizeof(double));
+  memcpy(D->Axes->obj->rect->R,frect,4*sizeof(double));
+  D->Axes->obj->fixed = TRUE; 
+}
+
 
 
 /* multiscope 

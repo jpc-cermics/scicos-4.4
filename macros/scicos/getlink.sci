@@ -1,8 +1,8 @@
-function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
+function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile,smart)
 // edition of a link from an output block to an input  block
 // Copyright INRIA
   dash=xget('color')
-  if nargin<4 then smart=%f,end
+  if nargin<4 then smart=%t,end
   rel=15/100
   outin=['out','in']
   //----------- get link origin --------------------------------------
@@ -395,6 +395,8 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       end
       d=[xl,yl]
     elseif kto==kfrom then
+      // XXX here we should change the path to 
+      // avoid crossing the block 
       xl=[xl;(xl+xc2)/2]
       yl=[yl;(yl+yc2)/2]
     end
@@ -410,11 +412,10 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
       xl=[xl;xc2];yl=[yl;yc2]
     end
   end  
-
   // remove temporary path 
   F.draw_latter[]
   F.remove[C]
-  
+    
   // prepare new link 
   lk=scicos_link(xx=xl,yy=yl,ct=[clr,typ],from=from,to=to)
   if typ==3 then
@@ -511,6 +512,11 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile)
     o.gr.translate[[dx dy]];
   end
 
+  if smart then 
+    // improve link routing 
+    lk=scicos_route(lk,scs_m),
+  end
+  
   lk=drawobj(lk,F)
   scs_m.objs($+1)=lk
   //update connected blocks

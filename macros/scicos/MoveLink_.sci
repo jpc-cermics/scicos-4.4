@@ -22,12 +22,14 @@ function MoveLink_()
       //Cmenu='';%pt=[];return;
     end
   else //** the press is in the current window
+    move_action ="Smart Move";
+    move_action ="Move";
     %kk=getobj(scs_m,%pt)
     if ~isempty(%kk) then
       ObjSel=size(Select);
       ObjSel=ObjSel(1);
       if ObjSel<=1 then //** with zero or one object already selected 
-        Cmenu=check_edge(scs_m.objs(%kk),"Move",%pt);
+        Cmenu=check_edge(scs_m.objs(%kk),move_action,%pt);
         if Cmenu=="Link" then
           Select=[]
         else
@@ -36,9 +38,9 @@ function MoveLink_()
       else //** more than one object is selected 
         SelectedObjs = Select(:,1)';
         if or(%kk==SelectedObjs) then //** check if the user want to move the aggregate
-          Cmenu="Move";
+          Cmenu=move_action;
         else
-          Cmenu="Move";
+          Cmenu=move_action;
 	  Select=[%kk,%win];
         end 
       end    
