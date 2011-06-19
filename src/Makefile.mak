@@ -36,7 +36,7 @@ BLOCKS_CODE=evtdly.obj cstblk.obj \
 	ifthel.obj eselect.obj
 
 BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj writeau.obj \
-	readau.obj plusblk.obj slider.obj  zcross2.obj mswitch.obj logicalop.obj \
+	readau.obj plusblk.obj slider.obj  sliderm.obj zcross2.obj mswitch.obj logicalop.obj \
 	switch2.obj variable_delay.obj time_delay.obj cscope.obj cmscope.obj \
 	satur.obj step_func.obj integral_func.obj absolute_value.obj bounce_ball.obj \
 	bouncexy.obj extractor.obj scalar2vector.obj minmax.obj signum.obj product.obj \

@@ -33,7 +33,7 @@ BLOCKS_CODE=evtdly.o cstblk.o \
 	ifthel.o eselect.o
 
 BLOCKSC=selector.o sum.o prod.o switchn.o relay.o readc.o writec.o writeau.o \
-	readau.o plusblk.o slider.o  zcross2.o mswitch.o logicalop.o \
+	readau.o plusblk.o slider.o  sliderm.o zcross2.o mswitch.o logicalop.o \
 	switch2.o variable_delay.o time_delay.o cscope.o cmscope.o \
 	satur.o step_func.o integral_func.o absolute_value.o bounce_ball.o \
 	bouncexy.o extractor.o scalar2vector.o minmax.o signum.o product.o \
