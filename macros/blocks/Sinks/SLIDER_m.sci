@@ -43,7 +43,7 @@ function [x,y,typ]=SLIDER_m(job,arg1,arg2)
 	message(['Some specified values are inconsistent:'; ' ';mess])
       end
       if ok then
-	[model,graphics,ok]=check_io(model,graphics,1,[],ones_new(1-herit,1),[])
+	[model,graphics,ok]=check_io(model,graphics,-1,[],ones_new(1-herit,1),[])
       end
       if ok then
 	ipar=[sl_type;color;xget('window')];
