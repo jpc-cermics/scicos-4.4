@@ -5,6 +5,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   global %scicos_demo_mode ; 
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
+  if ~exists('alreadyran') then alreadyran = %f;end 
   
   if alreadyran & typ=="diagram" then
     do_terminate(); //end current simulation
@@ -15,37 +16,37 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   current_version = get_scicos_version()
   if ~isempty(winsid) then
     xpause(100)  // quick and dirty fix for windows bug on fast
-                 // computers
+    // computers
   end
   
   if %scicos_demo_mode==1 then
-      //** open a demo file
-      if isempty(fname) then
-        if %scicos_gui_mode==1 then
-          file_mask = ["*.cos*","*.xml"]
-        else
-          file_mask = "*.cos*"
-        end
-        path      =  get_scicospath()+"/demos"
-        // fname     = getfile(file_mask, path)
-	fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=path)
+    //** open a demo file
+    if isempty(fname) then
+      if %scicos_gui_mode==1 then
+	file_mask = ["*.cos*","*.xml"]
+      else
+	file_mask = "*.cos*"
       end
+      path      =  get_scicospath()+"/demos"
+      // fname     = getfile(file_mask, path)
+      fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=path)
+    end
   else
-      //** conventional Open
-      if isempty(fname) then
-        if %scicos_gui_mode==1 then
-          // fname = getfile(['*.cos*','*.xml'])
-	  fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t);
-        else
-          // fname = getfile('*.cos*')
-	  fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t);
-        end
+    //** conventional Open
+    if isempty(fname) then
+      if %scicos_gui_mode==1 then
+	// fname = getfile(['*.cos*','*.xml'])
+	fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t);
+      else
+	// fname = getfile('*.cos*')
+	fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t);
       end
+    end
   end 
   %scicos_demo_mode = []; //** clear the variable
 
   fname = stripblanks(fname)
-      
+  
   if fname.equal[""] then 
     // We have canceled the open 
     ok=%f
@@ -79,7 +80,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     if isempty(scs_m) then ierr=%f, end
     ok=%t
   elseif ext=='cosf'|ext=='COSF' then
-    ierr=execstr('exec(fname,-1)',errcatch=%t)
+    ierr=execstr('exec(fname)',errcatch=%t)
     if isempty(scs_m) then ierr=%f, end
     ok=%t
   elseif ext=='xml'|ext=='XML' then
@@ -206,12 +207,12 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
 	end
       end
     end
-//    if ext=='xml'|ext=='XML' then
-      //if the diagram contains an affiche block a window is openend on eval action
-//      open_win=winsid();
-//      k=find(open_win==0);
-//      xdel(open_win(k));
-//    end
+    //    if ext=='xml'|ext=='XML' then
+    //if the diagram contains an affiche block a window is openend on eval action
+    //      open_win=winsid();
+    //      k=find(open_win==0);
+    //      xdel(open_win(k));
+    //    end
   elseif typ=='palette' then
     //## Extract palette only if the pallette is composed
     //## by only one PAL_f block

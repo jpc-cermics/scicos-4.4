@@ -31,13 +31,19 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
     depp=strcat(dep([1:5,6]))
     w=[]
     for k=1:no,w=[w;'y'+string(k)+' (size: '+string(out(k))+')'],end
+    
+    comment=['Define function which computes the output';
+	     ' '
+	     'Enter Scilab instructions defining';
+	     w;
+	     'as a functions of '+depp];
     while %t do
-      txt1=dialog(['Define function which computes the output';
-		   ' '
-		   'Enter Scilab instructions defining';
-		   w;
-		   'as a functions of '+depp],txt1)
-      if isempty(txt1) then return,end	
+      // new version with editsmat 
+      txt1= editsmat('Genfunc1 Edition',txt1,comment=catenate(comment,sep='\n'));
+      if isempty(txt1) then
+	// aborting edition
+	return,
+      end	
       // check if txt defines y from u
       //mac=null(); deff('[]=mac()',txt1,'n')
       ok=execstr(['function []=mac()';txt1;'endfunction'],errcatch=%t);
@@ -75,14 +81,15 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
   if nx>0 then
     // xdot
     depp=strcat(dep([1:4,6]))
+    comment=['Define continuous states evolution';
+	     ' '
+	     'Enter Scilab instructions defining:';
+	     'derivative of continuous state xd (size:'+string(nx)+')'
+	     'as  function(s) of '+depp];
     while %t do
       if isempty(txt0) then txt0=' ',end
-      txt0=dialog(['Define continuous states evolution';
-		   ' '
-		   'Enter Scilab instructions defining:';
-		   'derivative of continuous state xd (size:'+string(nx)+')'
-		   'as  function(s) of '+depp],txt0)
-
+      // new version with editsmat 
+      txt0= editsmat('Genfunc1 Edition',txt0,comment=catenate(comment,sep='\n'));
       if isempty(txt0) then return,end	
       mac=null();deff('[]=mac()',txt0,'n')
       ok1=check_mac(mac)	
@@ -109,10 +116,11 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
       if nz>0 then
 	t1=[t1;'-new discrete state z (size:'+string(nz)+')']
       end
-
-      txt2=dialog(['You may define:';
-		   t1
-		   'at event time, as functions of '+depp],txt2)
+      comment = ['You may define:';
+		 t1
+		 'at event time, as functions of '+depp];
+      // new version with editsmat 
+      txt2= editsmat('Genfunc1 Edition',txt2,comment=catenate(comment,sep='\n'));
       if isempty(txt2) then return,end	
       //ZZZ
       ok=execstr(['function []=mac()';txt2;'endfunction'],errcatch=%t);
@@ -141,9 +149,10 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
 
     while %t do
       if isempty(txt3) then txt3=' ',end
-      txt3=dialog(['Using '+depp+',you may set '
-		   'vector of output time events t_evo (size:'+string(nco)+')'
-		   'at event time. '],txt3)
+      comment=['Using '+depp+',you may set '
+	       'vector of output time events t_evo (size:'+string(nco)+')'
+	       'at event time. '];
+      txt3=editsmat('Genfunc1 Edition',txt3,comment=catenate(comment,sep='\n'));
       if isempty(txt3) then return,end	
       ok=execstr(['function []=mac()';txt3;'endfunction'],errcatch=%t);
       if ~ok then 
@@ -178,10 +187,11 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
   end
   while %t do
     if isempty(txt4) then txt4=' ',end
-    txt4=dialog(['You may do whatever needed for initialization :'
-		 'File or graphic opening,'
-		 t1
-		 'as  function(s) of '+depp],txt4)
+    comment= ['You may do whatever needed for initialization :'
+	      'File or graphic opening,'
+	      t1
+	      'as  function(s) of '+depp];
+    txt4=editsmat('Genfunc1 Edition',txt4,comment=catenate(comment, sep='\n'));
     if isempty(txt4) then return,end	
     ok=execstr(['function []=mac()';txt4;'endfunction'],errcatch=%t);
     if ~ok then 
@@ -206,10 +216,11 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
   end
   while %t do
     if isempty(txt5) then txt5=' ',end
-    txt5=dialog(['You may do whatever needed to finish :'
-		 'File or graphic closing,'
-		 t1
-		 'as  function(s) of '+depp],txt5)
+    comment = ['You may do whatever needed to finish :'
+	       'File or graphic closing,'
+	       t1
+	       'as  function(s) of '+depp];
+    txt5= editsmat('Genfunc1 Edition',txt5,comment=catenate(comment,sep='\n'));
     if isempty(txt5) then return,end	
     ok=execstr(['function []=mac()';txt5;'endfunction'],errcatch=%t);
     if ~ok then 
@@ -238,13 +249,14 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
     depp=strcat(dep([2:4,6]))
 
     while %t do
-      txt6=dialog(['You may define here functions imposing contraints';
-		   'on initial inputs, states and outputs';
-		   'Note: these functions may be called more than once';
-		   ' ';
-		   'Enter Scilab instructions defining:'
-		   t1;
-		   'as a function of '+depp],txt6)
+      comment= ['You may define here functions imposing contraints';
+		'on initial inputs, states and outputs';
+		'Note: these functions may be called more than once';
+		' ';
+		'Enter Scilab instructions defining:'
+		t1;
+		'as a function of '+depp];
+      txt6= editsmat('Genfunc1 Edition',txt6,comment=catenate(comment,sep='\n'));
       if isempty(txt6) then return,end	
       ok=execstr(['function []=mac()';txt6;'endfunction'],errcatch=%t);
       if ~ok then 

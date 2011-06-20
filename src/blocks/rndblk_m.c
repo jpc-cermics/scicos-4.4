@@ -16,6 +16,8 @@ void rndblk_m (scicos_block * block, int flag)
   y = GetRealOutPortPtrs (block, 1);
   z = GetDstate (block);
 
+  /* printf("Z est de taille %d et (%d,%d)\n",block->nz,my,ny); */
+
   if (flag == 2 || flag == 4)
     {
       if (ipar[0] == 0)

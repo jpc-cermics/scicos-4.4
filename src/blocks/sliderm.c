@@ -61,7 +61,7 @@ void scicos_sliderm_block (scicos_block * block, int flag)
   /* int nuc = GetInPortCols(block,1); */
   double *z = block->z;
   /* double nz= block->nz; */
-  double val,percent;
+  double val,percent=0;
   NspCompound **S= (NspCompound **) &z[0] ;
   NspGraphic *Gr=Scicos->Blocks[Scicos->params.curblk -1].grobj;
   switch (flag)
@@ -81,11 +81,15 @@ void scicos_sliderm_block (scicos_block * block, int flag)
 		NspGrRect *R = 	(NspGrRect *) cloc->O;
 		val = Min (rpar[1], Max (rpar[0], u[count]));
 		percent = (val - rpar[0]) / (rpar[1] - rpar[0]);
-		z[1] = percent;
 		if ( vert ) 
-		  R->obj->w= z[2]*percent;
+		  {
+		    R->obj->w= z[1]*percent;
+		  }
 		else
-		  R->obj->h= z[2]*percent;
+		  {
+		    R->obj->y = z[1] - z[2]*(1-percent);
+		    R->obj->h= z[2]*percent;
+		  }
 		count++;
 	      }
 	    cloc = cloc->next;
@@ -94,7 +98,6 @@ void scicos_sliderm_block (scicos_block * block, int flag)
       break;
     case Initialization:
       /* initial case  */
-      z[1] = 0.0;
       Gr = Scicos->Blocks[Scicos->params.curblk -1].grobj;
       *S = NULL;
       if ( Gr != NULL && IsCompound((NspObject *) Gr))
@@ -109,9 +112,14 @@ void scicos_sliderm_block (scicos_block * block, int flag)
 		  if ( cloc->O != NULLOBJ ) 
 		    {
 		      if (vert) 
-			z[2] = ((NspGrRect *) cloc->O)->obj->w;
+			{
+			  z[1] = ((NspGrRect *) cloc->O)->obj->w;
+			}
 		      else			
-			z[2] = ((NspGrRect *) cloc->O)->obj->h;
+			{
+			  z[1] = ((NspGrRect *) cloc->O)->obj->y;
+			  z[2] = ((NspGrRect *) cloc->O)->obj->h;
+			}
 		      break;
 		    }
 		  cloc = cloc->next;
@@ -122,7 +130,7 @@ void scicos_sliderm_block (scicos_block * block, int flag)
       break;
     case Ending:
       /* reset back default size */
-      /* if ( *S != NULL)  (*S)->obj->w= z[2]; */
+      /* if ( *S != NULL)  (*S)->obj->w= z[]; */
       break;
     }
 }

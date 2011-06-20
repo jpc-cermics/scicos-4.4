@@ -8,8 +8,6 @@ function [ok,mac,txt]=genfunc(txt)
 		' '
 		'Enter Scilab instructions defining'
 		'y as a function of u'],txt)
-
-
     if isempty(txt) then ok=%f,return,end
     // check if txt defines y from u
     deff('[]=mac()',txt)
