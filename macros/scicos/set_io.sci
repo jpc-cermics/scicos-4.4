@@ -227,7 +227,9 @@ function [model, graphics, ok]=set_io(model, graphics,...
   graphics.pout=op1
   graphics.pein=cip1
   graphics.peout=cop1
+  if type(in_impl,'short')== 'm' then in_impl=m2s(in_impl);end
   graphics.in_implicit=in_impl
+  if type(out_impl,'short')== 'm' then out_impl=m2s(out_impl);end
   graphics.out_implicit=out_impl
   if isempty(in) then  in = zeros(0,2);end 
   model.in=in(:,1)

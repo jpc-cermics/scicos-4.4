@@ -8,7 +8,7 @@ nin=0;nout=0;nclkin=0;nclkout=0;
 in=[],out=[],in2=[],out2=[],cin=[],cout=[];
 intyp=[];outtyp=[];
 inp=[],outp=[],cinp=[],coutp=[];
-out_implicit=[];in_implicit=[];in_bus=[];out_bus=[];
+out_implicit=[];in_implicit=[];in_bus=[];out_bus=[]; // 
 //INIMPL_f';'IMP2';'OUTIMPL_f
 
 scs_m=model.rpar
