@@ -766,8 +766,7 @@ static int int_buildouttb (Stack stack, int rhs, int opt, int lhs)
    * which is not considered with 2xn but nx2 
    */
   m1 = A->m;
-  if ((A->m == A->n) && (B->m == A->m))
-    m1 = -1;
+  if (A->m == A->n && A->m == 2)  m1 = -1;
 
   /* fills the list */
   if ((L = nsp_list_create (NVOID)) == NULLLIST)
