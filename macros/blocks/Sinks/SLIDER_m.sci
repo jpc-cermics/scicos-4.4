@@ -78,7 +78,7 @@ function [x,y,typ]=SLIDER_m(job,arg1,arg2)
 	   string(sl_type);
 	   string(color);
 	   string(0)]
-    gr_i='xfrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=ipar(2));'
+    gr_i='xrects([orig(1);orig(2)+sz(2);sz(1);sz(2)],color=ipar(2));'
     x=standard_define([3 1],model,exprs,gr_i,'SLIDER_m')
   end
 endfunction

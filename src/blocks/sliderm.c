@@ -35,8 +35,12 @@
 #include <nsp/matutil.h>
 #include "blocks.h"
 
-static NspCompound *scicos_sliderm_getrects(NspCompound *C,int nu,int color);
-static NspCompound *scicos_sliderm_rects(NspGrRect *R, int nu,int color);
+
+static int scicos_sliderm_check_coumpound(NspCompound *C);
+static int scicos_sliderm_update_rects(NspCompound *C,const double *u, 
+				       const double *rpar);
+static int scicos_sliderm_initialize_rects(NspCompound *C,int n);
+static NspCompound *scicos_sliderm_getrects(NspCompound *C);
 
 /*
  * XXX: this is unfinished 
@@ -61,7 +65,6 @@ void scicos_sliderm_block (scicos_block * block, int flag)
   /* int nuc = GetInPortCols(block,1); */
   double *z = block->z;
   /* double nz= block->nz; */
-  double val,percent=0;
   NspCompound **S= (NspCompound **) &z[0] ;
   NspGraphic *Gr=Scicos->Blocks[Scicos->params.curblk -1].grobj;
   switch (flag)
@@ -69,64 +72,20 @@ void scicos_sliderm_block (scicos_block * block, int flag)
     case StateUpdate:
       /* standard case */
       if ( *S == NULL) return;
-      {
-	int count = 0;
-	/* loop */
-	NspList *L = (*S)->obj->children;
-	Cell *cloc = L->first;
-	while ( cloc != NULLCELL ) 
-	  {
-	    if ( cloc->O != NULLOBJ ) 
-	      {
-		NspGrRect *R = 	(NspGrRect *) cloc->O;
-		val = Min (rpar[1], Max (rpar[0], u[count]));
-		percent = (val - rpar[0]) / (rpar[1] - rpar[0]);
-		if ( vert ) 
-		  {
-		    R->obj->w= z[1]*percent;
-		  }
-		else
-		  {
-		    R->obj->y = z[1] - z[2]*(1-percent);
-		    R->obj->h= z[2]*percent;
-		  }
-		count++;
-	      }
-	    cloc = cloc->next;
-	  }
-	nsp_graphic_invalidate(Gr);
+      scicos_sliderm_update_rects(*S,u,rpar);
+      nsp_graphic_invalidate(Gr);
       break;
     case Initialization:
       /* initial case  */
-      Gr = Scicos->Blocks[Scicos->params.curblk -1].grobj;
       *S = NULL;
-      if ( Gr != NULL && IsCompound((NspObject *) Gr))
+      Gr = Scicos->Blocks[Scicos->params.curblk -1].grobj;
+      if (!(Gr != NULL && IsCompound((NspObject *) Gr))) break;
+      *S = scicos_sliderm_getrects((NspCompound *) Gr);
+      if ( *S == NULL) break;
+      if ( scicos_sliderm_initialize_rects(*S,nur+1)== FAIL)
 	{
-	  *S = scicos_sliderm_getrects((NspCompound *) Gr,nur,block->ipar[1]);
-	  if ( *S != NULL) 
-	    {
-	      NspList *L = (*S)->obj->children;
-	      Cell *cloc = L->first;
-	      while ( cloc != NULLCELL ) 
-		{
-		  if ( cloc->O != NULLOBJ ) 
-		    {
-		      if (vert) 
-			{
-			  z[1] = ((NspGrRect *) cloc->O)->obj->w;
-			}
-		      else			
-			{
-			  z[1] = ((NspGrRect *) cloc->O)->obj->y;
-			  z[2] = ((NspGrRect *) cloc->O)->obj->h;
-			}
-		      break;
-		    }
-		  cloc = cloc->next;
-		}
-	    }
+	  *S = NULL; break;
 	}
-      }
       break;
     case Ending:
       /* reset back default size */
@@ -135,10 +94,11 @@ void scicos_sliderm_block (scicos_block * block, int flag)
     }
 }
 
-static NspCompound *scicos_sliderm_getrects(NspCompound *C,int nu,int color)
+/* explore C to get a compound filled with rects */
+
+static NspCompound *scicos_sliderm_getrects(NspCompound *C)
 {
-  NspGrRect *R;
-  NspCompound *Cr=NULL,*S;
+  NspCompound *S;
   NspList *L = C->obj->children;
   Cell *cloc = L->first;
   while ( cloc != NULLCELL ) 
@@ -147,63 +107,149 @@ static NspCompound *scicos_sliderm_getrects(NspCompound *C,int nu,int color)
 	{
 	  if (IsCompound(cloc->O))
 	    {
-	      S=scicos_sliderm_getrects((NspCompound *) cloc->O,nu,color);
-	      if ( S != NULL) return S;
+	      NspCompound *C = (NspCompound *) cloc->O;
+	      if ( scicos_sliderm_check_coumpound(C) == TRUE ) 
+		{
+		  return C ;
+		}
+	      else 
+		{
+		  S = scicos_sliderm_getrects(C);
+		  if ( S != NULL) return S;
+		}
 	    }
-	  else if ( IsGrRect(cloc->O) )
-	    {
-	      /* if R is found we insert multiple rectangle */
-	      R=(NspGrRect *) cloc->O;
-	      ((NspGraphic *) R)->obj->show = FALSE;
-	      Cr = scicos_sliderm_rects(R, nu,color);
-	      break;
-	    }
+	  cloc = cloc->next;
 	}
-      cloc = cloc->next;
-    }
-  if ( Cr != NULL ) 
-    {
-      if ( nsp_list_end_insert(L,(NspObject *) Cr )== FAIL)
-	return NULL;
-      return Cr;
     }
   return NULL;
 }
 
-/* make a set of rects and put them in a compound */
 
-static NspCompound *scicos_sliderm_rects(NspGrRect *R, int nu,int color)
+/* checks that a compound contains only a list of 
+ * rectangle. 
+ */
+
+static int scicos_sliderm_check_coumpound(NspCompound *C) 
+{
+  NspList *L = C->obj->children;
+  Cell *cloc = L->first;
+  while ( cloc != NULLCELL ) 
+    {
+      if ( cloc->O != NULLOBJ ) 
+	{
+	  if ( IsGrRect(cloc->O) == FALSE )
+	    {
+	      return FALSE;
+	    }
+	}
+      cloc = cloc->next;
+    }
+  return TRUE;
+}
+
+/* changes the Compound object in such a way that it 
+ * contains @n GrRect in its children list. 
+ * Note that the initial given C contains on entry at least one 
+ * GrRect object which is used to get default values;
+ */
+
+static int scicos_sliderm_initialize_rects(NspCompound *C,int n)
 {
   int i;
-  NspList *L;
-  NspCompound *C = NULL;
-  NspGraphic *G;
-  NspGraphic *gobj = NULL;
+  NspGraphic *G = (NspGraphic *) C;
+  NspList *L = C->obj->children;
+  int ln = nsp_list_length(L);
+  Cell *cloc = L->first;
+  NspGrRect *R = (NspGrRect *) cloc->O;
+  /* first element should alway be present */
   double x= R->obj->x, y = R->obj->y, w= R->obj->w, h=R->obj->h;
-  double hr = h/nu;
-  double wr = w/nu;
-  if ((C= nsp_compound_create("c",NULL,NULL,NULL))== NULL) return NULL;
-  L = C->obj->children;
-  for ( i = 0 ; i < nu ; i++)
+  int color = R->obj->fill_color;
+  double hr = h/(n-1);
+  double wr = w/(n-1);
+  int icolor=-1,iback=color,ithickness=-1;
+  if ( ln < n ) 
     {
-      int icolor=-1,iback=color,ithickness=-1;
+      NspGraphic *gobj = NULL;
+      for ( i = 0 ; i < n-ln ; i++) 
+	{
+      	  if ((gobj =(NspGraphic *) nsp_grrect_create("rect",0,0,0,0,iback,
+						      ithickness,icolor,0.0,NULL))== NULL)
+	    return FAIL;
+	  if ( nsp_list_end_insert(L,(NspObject *) gobj )== FAIL)
+	    return FAIL;
+	}
+    }
+  else
+    {
+      for (i=0; i < ln -n ; i++ ) 
+	{
+	  nsp_list_delete_elt(L,ln);
+	}
+    }
+  
+  /* second pass to fix values 
+   * the first rectangle is just used to give default values.
+   */
+  cloc =  cloc->next;
+  i = 0;
+  while ( cloc != NULLCELL ) 
+    {
+      R = (NspGrRect *) cloc->O;
       if ( vert ) 
 	{
-	  if ((gobj =(NspGraphic *) nsp_grrect_create("rect",x,y -i*hr,w,hr,
-						      iback,ithickness,icolor,0.0,NULL))== NULL)
-	    return NULL;
+	  R->obj->x= x; R->obj->y= y-i*hr; R->obj->w= w; R->obj->h= hr;
 	}
       else
 	{
-	  if ((gobj =(NspGraphic *) nsp_grrect_create("rect",x+i*wr,y,wr,h,
-						      iback,ithickness,icolor,0.0,NULL))== NULL)
-	    return NULL;
+	  R->obj->x= x+i*wr; R->obj->y= y; R->obj->w= wr; R->obj->h= h;
 	}
-      /* insert in the compound */
-      if ( nsp_list_end_insert(L,(NspObject *) gobj )== FAIL)
-	return NULL;
+      cloc = cloc->next;
+      i++;
     }
-  G= (NspGraphic *) C;
-  G->type->link_figure(G,((NspGraphic *) R)->obj->Fig,((NspGraphic *) R)->obj->Axe);
-  return C;
-} 
+  G->type->link_figure(G,G->obj->Fig,G->obj->Axe);
+  return OK;
+}
+
+
+static int scicos_sliderm_update_rects(NspCompound *C,const double *u, 
+				       const double *rpar)
+{
+  NspList *L = C->obj->children;
+  Cell *cloc = L->first;
+  double val, percent;
+  NspGrRect *R;
+  int count = 0;
+  double z1=0.0,z2=0.0;
+  /* first one */
+  R = (NspGrRect *) cloc->O;
+  if (vert) 
+    {
+      z1 = R->obj->w;
+    }
+  else			
+    {
+      z1 = R->obj->y;
+      z2 = R->obj->h;
+    }
+  
+  cloc = cloc->next;
+  while ( cloc != NULLCELL ) 
+    {
+      R = (NspGrRect *) cloc->O;
+      val = Min (rpar[1], Max (rpar[0], u[count]));
+      percent = (val - rpar[0]) / (rpar[1] - rpar[0]);
+      if ( vert ) 
+	{
+	  R->obj->w= z1*percent;
+	}
+      else
+	{
+	  R->obj->y = z1 - z2*(1-percent);
+	  R->obj->h= z2*percent;
+	}
+      count++;
+      cloc = cloc->next;
+    }
+  return TRUE;
+}
+
