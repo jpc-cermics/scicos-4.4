@@ -166,6 +166,7 @@ static int scicos_sliderm_initialize_rects(NspCompound *C,int n)
   int color = R->obj->fill_color;
   double hr = h/(n-1);
   double wr = w/(n-1);
+  ((NspGraphic *) R)->obj->show = FALSE;
   int icolor=-1,iback=color,ithickness=-1;
   if ( ln < n ) 
     {
@@ -183,8 +184,11 @@ static int scicos_sliderm_initialize_rects(NspCompound *C,int n)
     {
       for (i=0; i < ln -n ; i++ ) 
 	{
-	  nsp_list_delete_elt(L,ln);
+	  int ln1;
+	  nsp_list_delete_elt(L,ln-i);
+	  ln1 = nsp_list_length(L);
 	}
+      ln = nsp_list_length(L);
     }
   
   /* second pass to fix values 
