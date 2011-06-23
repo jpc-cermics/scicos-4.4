@@ -1,5 +1,6 @@
 function connected=connected_links(scs_m,k)
-//given a link number returns all links connected with him through split
+// given a link number returns all links connected 
+// with him through a split
 // Copyright INRIA
 
   if scs_m.objs(k).type <>'Link' then
@@ -23,8 +24,7 @@ function connected=connected_links(scs_m,k)
 		    bloc.graphics.peout]
       end
     end
-    for i = connected
-      liaisons_a_traiter = liaisons_a_traiter(find(liaisons_a_traiter <> i))
-    end
+    // remove connected from liaisons_a_traiter;
+    liaisons_a_traiter=setdiff(liaisons_a_traiter,connected);
   end
 endfunction

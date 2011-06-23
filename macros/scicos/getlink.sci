@@ -438,33 +438,32 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile,smart)
     link2.xx   = [d(1);xx(wh+1:size(xx,1))];
     link2.yy   = [d(2);yy(wh+1:size(yy,1))];
     link2.from = [nx,1,0];
-    
     // create split block
     if typo==1 then
       sp=SPLIT_f('define')
       sp.graphics.orig = d;
       sp.graphics.pin  = ks;
       sp.graphics.pout = [nx+1;nx+2];
-      SPLIT_f('plot',sp)
+      //SPLIT_f('plot',sp)
     elseif typo==2 then
       sp=IMPSPLIT_f('define')
       sp.graphics.orig = d;
       sp.graphics.pin  = ks;
       sp.graphics.pout = [nx+1;nx+2];
       inoutfrom='out'
-      IMPSPLIT_f('plot',sp)
+      //IMPSPLIT_f('plot',sp)
     elseif typo==3 then
       sp=BUSSPLIT('define')
       sp.graphics.orig = d;
       sp.graphics.pin  = ks;
       sp.graphics.pout = [nx+1;nx+2];
-      BUSSPLIT('plot',sp)
+      //BUSSPLIT('plot',sp)
     else
       sp=CLKSPLIT_f('define')
       sp.graphics.orig  = d;
       sp.graphics.pein  = ks;
       sp.graphics.peout = [nx+1;nx+2];
-      CLKSPLIT_f('plot',sp)
+      // CLKSPLIT_f('plot',sp)
     end
 
     // update the graphic parts 
