@@ -95,7 +95,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
     model.firing=0
     exprs=[sci2exp(Method);sci2exp(xx);sci2exp(yy);PeriodicOption;Graf]
     
-    gr_i=['rpar=arg1.model.rpar;n=model.ipar(1);order=model.ipar(2);';
+    gr_i=['rpar=arg1.model.rpar;n=arg1.model.ipar(1);order=arg1.model.ipar(2);';
 	  'xx=rpar(1:n);yy=rpar(n+1:2*n);';
 	  '[XX,YY,rpardummy]=Do_Spline(n,order,xx,yy)';
 	  'xmx=max(XX);xmn=min(XX);';
