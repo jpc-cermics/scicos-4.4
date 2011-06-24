@@ -47,21 +47,22 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
 // Move  block k and modify connected links if any
 //!
 //look at connected links
-    
+  printf("In a moveblock_new \n");
   connected=unique(get_connected(scs_m,k))
   o=scs_m.objs(k)
-  xx=[];yy=[];ii=[];clr=[];mx=[];my=[];mv=[];
-
-  // build movable segments for all connected links
-  //===============================================
+  xx=[];yy=[];ii=[];clr=[];
+  
+  // explore the  connected links
+  // to detect links of size 2 which are 
+  // vertical or horizontal.
   for i=connected
     oi=scs_m.objs(i)
     // [xl,yl,ct,from,to]=oi([2,3,7:9])
     [xl,yl,ct,from,to]=(oi.xx,oi.yy,oi.ct,oi.from,oi.to)
     clr=[clr ct(1)]
     nl=size(xl,'*');
-    //xtape_status=xget('recording');xset('recording',0);
-    //xpolys(xl,yl,ct(1))// redraw thin link
+    // If the link is of size 2 and is vertical 
+    // or horizontal then we add an intermediate middle point
     if from(1)==k then
       // change the links for a link starting at moving point 
       if xl(1)==xl(2)|yl(1)==yl(2) then 
@@ -71,118 +72,111 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
 	  oi.gr.children(1).x= [xl(1);xm;xm;xl(2:$)];
 	  oi.gr.children(1).y= [yl(1);ym;ym;yl(2:$)];
 	end
-	mv=[mv,2]; // move 2 points ;
-      else
-	mv=[mv,1];
       end
     elseif to(1)==k then
       // change the links for a link ending at moving point
       if xl($)==xl($-1)|yl($)==yl($-1) then 
 	if nl == 2  then 
-	  xm=(xl(1)+xl(2))/2;
-	  ym=(yl(1)+yl(2))/2;
-	  oi.gr.children(1).x= [xl(1);xm;xm;xl(2:$)];
-	  oi.gr.children(1).y= [yl(1);ym;ym;yl(2:$)];
+	  xm=(xl($)+xl($-1))/2;
+	  ym=(yl($)+yl($-1))/2;
+	  oi.gr.children(1).x= [xl(1:$-1);xm;xm;xl($)];
+	  oi.gr.children(1).y= [yl(1:$-1);ym;ym;yl($)];
 	end
-	mv=[mv,2]; // move 2 points ;
-      else
-	mv=[mv,1];
       end
     end
   end
   // move a block and connected links
   //=================================
-  
-  if %t then 
-    // move a block and connected links
-    F=get_current_figure()
-    pat=xget('pattern')
-    xset('pattern',default_color(0))
-    pto=[xc,yc];
-    pt = pto;
-    while 1
-      // move loop
-      // get new position
-      rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-      if rep(3)==3 then
-        global scicos_dblclk
-        scicos_dblclk=[rep(1),rep(2),curwin]
-      end
-      if or(rep(3)==[0,-5, 2, 3, 5]) then
-        break
-      end
-      pt = rep(1:2);
-      tr= pt - pto;
-      // draw block shape
-      o.gr.translate[tr];
-      // draw moving links
-      for ii=1:length(connected)
-	i=connected(ii);	
-	oi=scs_m.objs(i)
-	if oi.from(1)==k then
-	  // translate the first 
-	  xl= oi.gr.children(1).x(1:2);
-	  yl= oi.gr.children(1).y(1:2);
-	  if xl(1)==xl(2) then 
-	    oi.gr.children(1).x(1:2)= xl+ tr(1);
-	    oi.gr.children(1).y(1)= yl(1)+ tr(2);
-	  elseif yl(1)==yl(2) then 
-	    oi.gr.children(1).x(1)= xl(1)+ tr(1);
-	    oi.gr.children(1).y(1:2)= yl+ tr(2);
-	  else
-	    oi.gr.children(1).x(1)= xl(1)+ tr(1);
-	    oi.gr.children(1).y(1)= yl(1)+ tr(2);
-	  end
-	elseif to(1)==k then
-	  xl= oi.gr.children(1).x($-1:$);
-	  yl= oi.gr.children(1).y($-1:$);
-	  if xl(1)==xl(2) then 
-	    oi.gr.children(1).x($-1:$)= xl+ tr(1);
-	    oi.gr.children(1).y($)= yl(2)+ tr(2);
-	  elseif yl(1)==yl(2) then 
-	    oi.gr.children(1).x($)= xl(2)+ tr(1);
-	    oi.gr.children(1).y($-1:$)= yl+ tr(2);
-	  else
-	    oi.gr.children(1).x($)= xl(2)+ tr(1);
-	    oi.gr.children(1).y($)= yl(2)+ tr(2);
-	  end
+  // move a block and connected links
+  F=get_current_figure()
+  pat=xget('pattern')
+  xset('pattern',default_color(0))
+  pto=[xc,yc];
+  pt = pto;
+  while %t 
+    // move loop
+    // get new position
+    rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    if rep(3)==3 then
+      global scicos_dblclk
+      scicos_dblclk=[rep(1),rep(2),curwin]
+    end
+    if or(rep(3)==[0,-5, 2, 3, 5]) then
+      break
+    end
+    pt = rep(1:2);
+    tr= pt - pto;
+    // draw block shape
+    o.gr.translate[tr];
+    // draw moving links
+    for ii=1:length(connected)
+      i=connected(ii);	
+      oi=scs_m.objs(i)
+      // translate the first point or the first 
+      // to points to preserve vertical or horizontal 
+      // first link;
+      if oi.from(1)==k then
+	xl= oi.gr.children(1).x(1:2);
+	yl= oi.gr.children(1).y(1:2);
+	if xl(1)==xl(2) then 
+	  oi.gr.children(1).x(1:2)= xl+ tr(1);
+	  oi.gr.children(1).y(1)= yl(1)+ tr(2);
+	elseif yl(1)==yl(2) then 
+	  oi.gr.children(1).x(1)= xl(1)+ tr(1);
+	  oi.gr.children(1).y(1:2)= yl+ tr(2);
+	else
+	  oi.gr.children(1).x(1)= xl(1)+ tr(1);
+	  oi.gr.children(1).y(1)= yl(1)+ tr(2);
 	end
-	oi.gr.invalidate[];
+      elseif oi.to(1)==k then
+	xl= oi.gr.children(1).x($-1:$);
+	yl= oi.gr.children(1).y($-1:$);
+	if xl(1)==xl(2) then 
+	  oi.gr.children(1).x($-1:$)= xl+ tr(1);
+	  oi.gr.children(1).y($)= yl(2)+ tr(2);
+	elseif yl(1)==yl(2) then 
+	  oi.gr.children(1).x($)= xl(2)+ tr(1);
+	  oi.gr.children(1).y($-1:$)= yl+ tr(2);
+	else
+	  oi.gr.children(1).x($)= xl(2)+ tr(1);
+	  oi.gr.children(1).y($)= yl(2)+ tr(2);
+	end
       end
-      pto=pt;
+      oi.gr.invalidate[];
     end
-    // update the block structure and connected links
-    if rep(3)<>2 then
-      // updates
-      o.graphics.orig.redim[1,-1]; // be sure that we are a row
-      o.graphics.orig= o.graphics.orig + pt - [xc,yc];
-      o.gr.invalidate[];
-      for i=connected
-	xl= scs_m.objs(i).gr.children(1).x(:);
-	yl= scs_m.objs(i).gr.children(1).y(:);
-	nl=size(xl,'*');
-	//eliminate double points
-	kz=find((xl(2:nl)-xl(1:nl-1)).^2+(yl(2:nl)-yl(1:nl-1)).^2==0)
-	xl(kz)=[];yl(kz)=[]
-	scs_m.objs(i).xx = xl;
-	scs_m.objs(i).yy = yl;
-	scs_m.objs(i).gr.children(1).x = xl;
-	scs_m.objs(i).gr.children(1).y = yl;
-	scs_m.objs(i).gr.invalidate[];
-      end
-      //redraw block
-      scs_m.objs(k)=o;
-    else
-      // we need to restore back the links
-      for i=connected
-	scs_m.objs(i).gr.children(1).x = scs_m.objs(i).xx(:);
-	scs_m.objs(i).gr.children(1).y = scs_m.objs(i).yy(:);
-	scs_m.objs(i).gr.invalidate[];
-      end
-      // we need to move the block where it was
-      o.gr.translate[[xc,yc]-pt];
-      scs_m.objs(k)=o;
+    pto=pt;
+  end
+  // update the block structure and connected links
+  if rep(3)<>2 then
+    // updates
+    o.graphics.orig.redim[1,-1]; // be sure that we are a row
+    o.graphics.orig= o.graphics.orig + pt - [xc,yc];
+    o.gr.invalidate[];
+    for i=connected
+      xl= scs_m.objs(i).gr.children(1).x(:);
+      yl= scs_m.objs(i).gr.children(1).y(:);
+      nl=size(xl,'*');
+      //eliminate double points
+      kz=find((xl(2:nl)-xl(1:nl-1)).^2+(yl(2:nl)-yl(1:nl-1)).^2==0)
+      xl(kz)=[];yl(kz)=[]
+      scs_m.objs(i).xx = xl;
+      scs_m.objs(i).yy = yl;
+      scs_m.objs(i).gr.children(1).x = xl;
+      scs_m.objs(i).gr.children(1).y = yl;
+      scs_m.objs(i).gr.invalidate[];
     end
+    //redraw block
+    scs_m.objs(k)=o;
+  else
+    // we need to restore back the links
+    for i=connected
+      scs_m.objs(i).gr.children(1).x = scs_m.objs(i).xx(:);
+      scs_m.objs(i).gr.children(1).y = scs_m.objs(i).yy(:);
+      scs_m.objs(i).gr.invalidate[];
+    end
+    // we need to move the block where it was
+    o.gr.translate[[xc,yc]-pt];
+    scs_m.objs(k)=o;
   end
 endfunction
 
