@@ -47,46 +47,31 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
 // Move  block k and modify connected links if any
 //!
 //look at connected links
-  printf("In a moveblock_new \n");
+  //printf("In a moveblock_new \n");
   connected=unique(get_connected(scs_m,k))
   o=scs_m.objs(k)
   xx=[];yy=[];ii=[];clr=[];
-  
-  // explore the  connected links
-  // to detect links of size 2 which are 
-  // vertical or horizontal.
   for i=connected
+    // explore the  connected links
+    // to detect links of size 2 which are 
+    // vertical or horizontal.
     oi=scs_m.objs(i)
-    // [xl,yl,ct,from,to]=oi([2,3,7:9])
     [xl,yl,ct,from,to]=(oi.xx,oi.yy,oi.ct,oi.from,oi.to)
     clr=[clr ct(1)]
     nl=size(xl,'*');
     // If the link is of size 2 and is vertical 
-    // or horizontal then we add an intermediate middle point
-    if from(1)==k then
-      // change the links for a link starting at moving point 
-      if xl(1)==xl(2)|yl(1)==yl(2) then 
-	if nl == 2  then 
-	  xm=(xl(1)+xl(2))/2;
-	  ym=(yl(1)+yl(2))/2;
-	  oi.gr.children(1).x= [xl(1);xm;xm;xl(2:$)];
-	  oi.gr.children(1).y= [yl(1);ym;ym;yl(2:$)];
-	end
-      end
-    elseif to(1)==k then
-      // change the links for a link ending at moving point
-      if xl($)==xl($-1)|yl($)==yl($-1) then 
-	if nl == 2  then 
-	  xm=(xl($)+xl($-1))/2;
-	  ym=(yl($)+yl($-1))/2;
-	  oi.gr.children(1).x= [xl(1:$-1);xm;xm;xl($)];
-	  oi.gr.children(1).y= [yl(1:$-1);ym;ym;yl($)];
-	end
+    // or horizontal then we add intermediate middle points
+    if nl == 2  then 
+      if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end 
+      if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end 
+      if xl(1)==xl(2) || yl(1)==yl(2) then 
+	xm=(xl(1)+xl(2))/2;
+	ym=(yl(1)+yl(2))/2;
+	oi.gr.children(1).x= [xl(1);xm;xm;xl(2)];
+	oi.gr.children(1).y= [yl(1);ym;ym;yl(2)];
       end
     end
   end
-  // move a block and connected links
-  //=================================
   // move a block and connected links
   F=get_current_figure()
   pat=xget('pattern')
@@ -113,17 +98,23 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
       i=connected(ii);	
       oi=scs_m.objs(i)
       // translate the first point or the first 
-      // to points to preserve vertical or horizontal 
+      // two points to preserve vertical or horizontal 
       // first link;
+      nl=size(oi.gr.children(1).x,'*');
       if oi.from(1)==k then
 	xl= oi.gr.children(1).x(1:2);
 	yl= oi.gr.children(1).y(1:2);
-	if xl(1)==xl(2) then 
-	  oi.gr.children(1).x(1:2)= xl+ tr(1);
-	  oi.gr.children(1).y(1)= yl(1)+ tr(2);
-	elseif yl(1)==yl(2) then 
-	  oi.gr.children(1).x(1)= xl(1)+ tr(1);
-	  oi.gr.children(1).y(1:2)= yl+ tr(2);
+	if nl > 2 then 
+	  if xl(1)==xl(2) then 
+	    oi.gr.children(1).x(1:2)= xl+ tr(1);
+	    oi.gr.children(1).y(1)= yl(1)+ tr(2);
+	  elseif yl(1)==yl(2) then 
+	    oi.gr.children(1).x(1)= xl(1)+ tr(1);
+	    oi.gr.children(1).y(1:2)= yl+ tr(2);
+	  else
+	    oi.gr.children(1).x(1)= xl(1)+ tr(1);
+	    oi.gr.children(1).y(1)= yl(1)+ tr(2);
+	  end
 	else
 	  oi.gr.children(1).x(1)= xl(1)+ tr(1);
 	  oi.gr.children(1).y(1)= yl(1)+ tr(2);
@@ -131,12 +122,17 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
       elseif oi.to(1)==k then
 	xl= oi.gr.children(1).x($-1:$);
 	yl= oi.gr.children(1).y($-1:$);
-	if xl(1)==xl(2) then 
-	  oi.gr.children(1).x($-1:$)= xl+ tr(1);
-	  oi.gr.children(1).y($)= yl(2)+ tr(2);
-	elseif yl(1)==yl(2) then 
-	  oi.gr.children(1).x($)= xl(2)+ tr(1);
-	  oi.gr.children(1).y($-1:$)= yl+ tr(2);
+	if nl > 2 then
+	  if xl(1)==xl(2) then 
+	    oi.gr.children(1).x($-1:$)= xl+ tr(1);
+	    oi.gr.children(1).y($)= yl(2)+ tr(2);
+	  elseif yl(1)==yl(2) then 
+	    oi.gr.children(1).x($)= xl(2)+ tr(1);
+	    oi.gr.children(1).y($-1:$)= yl+ tr(2);
+	  else
+	    oi.gr.children(1).x($)= xl(2)+ tr(1);
+	    oi.gr.children(1).y($)= yl(2)+ tr(2);
+	  end
 	else
 	  oi.gr.children(1).x($)= xl(2)+ tr(1);
 	  oi.gr.children(1).y($)= yl(2)+ tr(2);

@@ -385,7 +385,7 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile,smart)
   typ=typo;
   to=[kto,port_number,b2m(typpto=='in'|typpto=='evtin')]
   nx=prod(size(xl))
-
+  
   if nx==1 then
     if fromsplit&(xl<>xc2|yl<>yc2) then
       if xx(wh)==xx(wh+1) then
@@ -510,21 +510,17 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile,smart)
     o=scs_m.objs(movedblock)
     o.gr.translate[[dx dy]];
   end
-
   if smart then 
     // improve link routing 
     lk=scicos_route(lk,scs_m),
   end
-  
   lk=drawobj(lk,F)
   scs_m.objs($+1)=lk
   //update connected blocks
   scs_m.objs(kfrom)=mark_prt(scs_m.objs(kfrom),from(2),outin(from(3)+1),typ,nx)
   scs_m.objs(kto)=mark_prt(scs_m.objs(kto),to(2),outin(to(3)+1),typ,nx)
-  
   F.draw_now[];
   xset('color',dash)
   needcompile=4
-  
   resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
 endfunction
