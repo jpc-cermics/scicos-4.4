@@ -1,5 +1,16 @@
 function [x,y,typ]=LOOKUP2D(job,arg1,arg2)
 // Copyright INRIA
+
+  function METHOD=getmethod(order)
+    select order
+     case 1 then, METHOD='Interpolation-extrapolation(biliniear)'
+     case 2 then, METHOD='Interpolation_endvalues'
+     case 3 then, METHOD='use input nearest'
+     case 4 then, METHOD='use input below'
+     case 5 then, METHOD='use input above'
+     case 6 then, METHOD='Interpolation-extrapolation'
+    end
+  endfunction
   
   x=[];y=[];typ=[];
   select job
@@ -12,7 +23,6 @@ function [x,y,typ]=LOOKUP2D(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    
     x=arg1
     model=arg1.model
     graphics=arg1.graphics
@@ -20,7 +30,6 @@ function [x,y,typ]=LOOKUP2D(job,arg1,arg2)
     ok=%f;
     SaveExit=%f
     while %t do
-
       Ask_again=%f
       [ok,xx,yy,zz,Method,graf,exprs]=getvalue('2D Lookup table parameters',['Row index input values';'Column index input values';'Table data';'Lookup method(1..5)';'Launch graphic window(y/n)?'],list('vec',-1,'vec',-1,'matrix',[-1,-1],'vec',1,'str',1),exprs)
       // 1 : Interpolation-extrapolation (Bilinear)
@@ -31,11 +40,10 @@ function [x,y,typ]=LOOKUP2D(job,arg1,arg2)
       // 6 : Interpolation-extrapolation (linear)
 
       if  ~ok then break;end    
-      mtd=int(Method); if mtd<1 then mtd=1;end; if mtd>6 then mtd=6;end;    
+      mtd=min(6,max(1,int(Method)));
       if graf<>'y' & graf<>'Y' then  graf='n'; end
       exprs(5)='n';// exprs.graf='n'
-      exprs(4)=sci2exp(mtd);// pour le cas methode>7 | method<0
-
+      exprs(4)=sci2exp(mtd);
       METHOD=getmethod(mtd);
       if ~Ask_again then 
 	xx=xx(:);yy=yy(:);
@@ -47,16 +55,12 @@ function [x,y,typ]=LOOKUP2D(job,arg1,arg2)
       end
       if ~Ask_again then 
 	if (graf=='Y' | graf=='y') then 
-	  gh=gcf();
-	  curwin=gh.figure_id;
-	  save_curwin=curwin;
-	  gh2=scf();
-	  curwin=max(winsid())+1; 
-	  plot3d(xx,yy,zz,35,45,'X@Y@Z',[5,2,4]) ;
-	  curwin=save_curwin;
-	  gh.figure_id=curwin;
+	  s_curwin=xget('window');
+	  xset('window',max(winsid())+1);
+	  contour(xx,yy,zz,10);
+	  // plot3d(xx,yy,zz,alpha=35,theta=45);//,'X@Y@Z',[5,2,4]) ;
+	  xset('window',s_curwin);
 	end
-	
 	model.rpar=[xx(:);yy(:);zz(:)]
 	model.ipar=[nx;ny;mtd]
 	graphics.exprs=exprs;
@@ -97,32 +101,17 @@ endfunction
 function [ok]=test_increasing(xx)
   ok=%f
   [nx,mx]=size(xx);// adjusting the x and y size
-
   for i=1:mx
     if (xx(i)<>xx(i)) then 
       xinfo('x contains no data in x('+string(i)+')'); 
       return;
     end
-   
   end
-  
-   for i=1:mx-1
+  for i=1:mx-1
     if (xx(i)>xx(i+1)) then 
       return;
     end   
   end
-
   ok=%t
 endfunction
-//============================
-function METHOD=getmethod(order)
-  select order
-   case 1 then, METHOD='Interpolation-extrapolation(biliniear)'
-   case 2 then, METHOD='Interpolation_endvalues'
-   case 3 then, METHOD='use input nearest'
-   case 4 then, METHOD='use input below'
-   case 5 then, METHOD='use input above'
-   case 6 then, METHOD='Interpolation-extrapolation'
-  end
-endfunction
-//=========================================================
+

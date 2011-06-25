@@ -1,232 +1,278 @@
+#include <nsp/nsp.h>
+#include <nsp/objects.h>
+#include <nsp/graphics-new/Graphics.h> 
+#include <nsp/objs3d.h>
+#include <nsp/axes.h>
+#include <nsp/figuredata.h>
+#include <nsp/figure.h>
+#include <nsp/qcurve.h>
+#include <nsp/grstring.h>
+#include <nsp/compound.h>
+#include <nsp/qcurve.h>
+#include <nsp/interf.h>
+#include <nsp/blas.h>
+#include <nsp/matutil.h>
+#include "blocks.h"
+
+/**
+ * scicos_cscope_block:
+ * @block: 
+ * @flag: 
+ * 
+ * a scope:
+ * new nsp graphics jpc 
+ **/
+
 /*
-  \file cmscope.c
-  \author Benoit Bayol
-  \version 1.0
-  \date September 2006 - January 2007
-  \brief CMSCOPE is a typical scope which links its input to the simulation time
-  \see CMSCOPE.sci in macros/scicos_blocks/Sinks/
-*/
+ * ipar = [win_num, number of subwindows (input ports),  buffer size,
+ *         wpos(1),wpos(2) //  window position 
+ *         wdim(1),wdim(2) // window dimension 
+ *         ipar(8:7+ipar(2)) // input port sizes 
+ *         ipar(8+ipar(2):7+ipar(2)+nu) // line type for ith curve 
+ */
 
-#include "blocks.h"
-
-void cmscope (scicos_block * block, int flag)
+typedef struct _cmscope_ipar cmscope_ipar;
+struct _cmscope_ipar
 {
-  Sciprintf ("cscope is to be done for nsp \n");
-}
+  /* n is the number of data to accumulate before redrawing */
+  int wid, number_of_subwin, buffer_size , wpos[2], wdim[2];
+};
 
-#if 0
-#include "scoMemoryScope.h"
-#include "scoWindowScope.h"
-#include "scoMisc.h"
-#include "scoGetProperty.h"
-#include "scoSetProperty.h"
-#include "blocks.h"
-
-/** \fn cmscope_draw(scicos_block * block, ScopeMemory ** pScopeMemory, int firstdraw)
-    \brief Function to draw or redraw the window
-*/
-void cmscope_draw (scicos_block * block, ScopeMemory ** pScopeMemory,
-		   int firstdraw)
+typedef struct _cmscope_rpar cmscope_rpar;
+struct _cmscope_rpar
 {
-  int i;			//As usual
-  int *ipar;			//Integer Parameters
-  int *colors;			//Colors
-  int win;			//Windows ID : To give a name to the window
-  int buffer_size;		//Buffer Size
-  int win_pos[2];		//Position of the Window
-  int win_dim[2];		//Dimension of the Window
-  int inherited_events;
-  int nipar;
-  int dimension = 2;
-  double *rpar;			//Reals parameters
-  double dt;			//Time++
-  double *period;		//Refresh Period of the scope is a vector here
-  double *ymin, *ymax;		//Ymin and Ymax are vectors here
-  double *xmin, *xmax;
-  int nbr_period;
-  int *number_of_curves_by_subwin;
-  int number_of_subwin;
-  int nbr_total_curves;
-  char *label;
+  double dt, ymin, ymax, per;
+};
 
-  /*Retrieving Parameters */
-  rpar = GetRparPtrs (block);
-  ipar = GetIparPtrs (block);
-  nipar = GetNipar (block);
-  win = ipar[0];
-  number_of_subwin = ipar[1];
-  buffer_size = ipar[2];
-  win_pos[0] = ipar[3];
-  win_pos[1] = ipar[4];
-  win_dim[0] = ipar[5];
-  win_dim[1] = ipar[6];
-  label = GetLabelPtrs (block);
-  nbr_total_curves = 0;
-  //Don't forget malloc for 'type *'
-  number_of_curves_by_subwin =
-    (int *) scicos_malloc (number_of_subwin * sizeof (int));
-  for (i = 7; i < 7 + number_of_subwin; i++)
-    {
-      number_of_curves_by_subwin[i - 7] = ipar[i];
-      nbr_total_curves = nbr_total_curves + ipar[i];
-    }
-  colors = (int *) scicos_malloc (nbr_total_curves * sizeof (int));
-  for (i = 0; i < nbr_total_curves; i++)
-    {
-      colors[i] = ipar[i + 7 + number_of_subwin];
-    }
-  inherited_events = ipar[7 + number_of_subwin + number_of_subwin];
+typedef struct _cmscope_data cmscope_data;
 
-  dt = rpar[0];
+struct _cmscope_data
+{
+  int count;    /* number of points inserted in the scope buffer */
+  double tlast; /* last time inserted in csope data */
+  NspFigure *F;
+};
 
-  nbr_period = 0;
-  period = (double *) scicos_malloc (number_of_subwin * sizeof (double));
-  for (i = 0; i < number_of_subwin; i++)
+NspAxes *nsp_moscillo_new_axe(int ncurves,const int *style, double ymin, double ymax)
+{
+  char strflag[]="151";
+  char *curve_l=NULL;
+  int bufsize= 10000, yfree=TRUE;
+  int i;
+  double frect[4];
+  /* create a new axes */
+  NspAxes *axe= nsp_axes_create_default("axe");
+  if ( axe == NULL) return NULL;
+  frect[0]=0;frect[1]=ymin;frect[2]=100;frect[3]=ymax;
+  /* create a set of qcurves and insert them in axe */
+  for ( i = 0 ; i < ncurves ; i++) 
     {
-      period[i] = rpar[i + 1];
-      nbr_period++;
-    }
-  ymin = (double *) scicos_malloc (number_of_subwin * sizeof (double));
-  ymax = (double *) scicos_malloc (number_of_subwin * sizeof (double));
-  for (i = 0; i < number_of_subwin; i++)
-    {
-      ymin[i] = rpar[2 * i + nbr_period + 1];
-      ymax[i] = rpar[2 * i + nbr_period + 2];
-    }
-
-  /*Allocating memory */
-  if (firstdraw == 1)
-    {
-
-      scoInitScopeMemory (GetPtrWorkPtrs (block), pScopeMemory,
-			  number_of_subwin, number_of_curves_by_subwin);
-      for (i = 0; i < number_of_subwin; i++)
+      int mark=-1;
+      NspQcurve *curve;
+      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2); 
+      if ( Pts == NULL) return NULL;
+      if ( style[i] <= 0 ) mark = -style[i];
+      curve= nsp_qcurve_create("curve",mark,0,0,( style[i] > 0 ) ?  style[i] : -1,
+			       qcurve_std,Pts,curve_l,-1,-1,NULL);
+      if ( curve == NULL) return NULL;
+      /* insert the new curve */
+      if ( nsp_axes_insert_child(axe,(NspGraphic *) curve,FALSE)== FAIL) 
 	{
-	  scoSetLongDrawSize (*pScopeMemory, i, 5000);
-	  scoSetShortDrawSize (*pScopeMemory, i, buffer_size);
-	  scoSetPeriod (*pScopeMemory, i, period[i]);
+	  return NULL;
 	}
     }
-
-  /* Xmin and Xmax are calculated here because we need a variable which is only existing in the pScopeMemory. pScopeMemory is allocated just few lines before. Indeed in this TimeAmplitudeScope Xmin and Xmax have to change often. To be sure to redraw in the correct scale we have to calculate xmin and xmax thanks to the period_counter. If the window haven't to be redraw (recreate)  it wouldn't be necessary */
-  xmin = (double *) scicos_malloc (number_of_subwin * sizeof (double));
-  xmax = (double *) scicos_malloc (number_of_subwin * sizeof (double));
-  for (i = 0; i < number_of_subwin; i++)
-    {
-      xmin[i] = period[i] * (scoGetPeriodCounter (*pScopeMemory, i));
-      xmax[i] = period[i] * (scoGetPeriodCounter (*pScopeMemory, i) + 1);
-    }
-
-  /*Creating the Scope */
-  scoInitOfWindow (*pScopeMemory, dimension, win, win_pos, win_dim, xmin,
-		   xmax, ymin, ymax, NULL, NULL);
-  if (scoGetScopeActivation (*pScopeMemory) == 1)
-    {
-      scoAddTitlesScope (*pScopeMemory, label, "t", "y", NULL);
-
-      /*Add a couple of polyline : one for the shortdraw and one for the longdraw */
-      /*        scoAddPolylineLineStyle(*pScopeMemory,colors); */
-      scoAddCoupleOfPolylines (*pScopeMemory, colors);
-    }
-  scicos_free (number_of_curves_by_subwin);
-  scicos_free (colors);
-  scicos_free (period);
-  scicos_free (ymin);
-  scicos_free (ymax);
-  scicos_free (xmin);
-  scicos_free (xmax);
+  /* updates the axes scale information */
+  nsp_strf_axes( axe , frect, strflag[1]);
+  memcpy(axe->obj->frect->R,frect,4*sizeof(double));
+  memcpy(axe->obj->rect->R,frect,4*sizeof(double));
+  axe->obj->axes = 1;
+  axe->obj->xlog = FALSE;
+  axe->obj->ylog=  FALSE;
+  axe->obj->iso = FALSE;
+  /* use free scales if requested  */
+  axe->obj->fixed = ( yfree == TRUE ) ? FALSE: TRUE ;
+  return axe;
 }
 
-/** \fn void cmscope(scicos_block * block, int flag)
-    \brief the computational function
-    \param block A pointer to a scicos_block
-    \param flag An int which indicates the state of the block (init, update, ending)
-*/
-void cmscope (scicos_block * block, int flag)
+/* nswin : number of subwindows
+ * ncs[i] : number of curves in subsin i
+ * style[k]: style for curve k 
+ */
+
+NspFigure *nsp_moscillo_obj(int win,int nswin,const int *ncs,const int *style,
+			    const double *period, int yfree,const double *yminmax)
 {
-  void **_work = GetPtrWorkPtrs (block);
-  /* Declarations */
-  ScopeMemory *pScopeMemory;
-  int NbrPtsShort;
-  double *u1;
-  double t;			//GetScicosTime(block)
-  scoGraphicalObject pShortDraw;
-  int i, j;
-  int **user_data_ptr, *size_ptr;
+  const int *cstyle = style;
+  NspFigure *F;
+  NspAxes *axe;
+  BCG *Xgc;
+  int i,l;
+  /*
+   * set current window
+   */
+  if ((Xgc = window_list_get_first()) != NULL) 
+    Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
+  else 
+    Xgc= set_graphic_window_new(Max(win,0));
+  /*
+   * Gc of new window 
+   */
+  if ((Xgc = window_list_get_first())== NULL) return NULL;
+  if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return NULL;
 
-
-  /* Initializations and Allocations */
-  //Allocations are done here because there are dependent of some values presents below
-
-  /* State Machine Control */
-  switch (flag)
+  /* clean the figure */
+  l =  nsp_list_length(F->obj->children);
+  for ( i = 0 ; i < l  ; i++)
+    nsp_list_remove_first(F->obj->children);
+  /* create nswin axes */
+  for ( i = 0 ; i < nswin ; i++) 
     {
-    case Initialization:
-      {
-	cmscope_draw (block, &pScopeMemory, 1);
-	break;			//Break of the switch condition don t forget it
-      }				//End of Initialization
+      if ((axe = nsp_moscillo_new_axe(ncs[i],cstyle,-1,1))== NULL)
+	return NULL;
+      /* set the wrect */
+      axe->obj->wrect->R[1]= ((double ) i)/nswin;
+      axe->obj->wrect->R[3]= 1.0/nswin;
+      /* store in Figure */
+      if ( nsp_list_end_insert(F->obj->children,(NspObject *) axe)== FAIL) 
+	{
+	  nsp_axes_destroy(axe);
+	  return NULL;
+	}
+      cstyle += ncs[i];
+    }
+  nsp_list_link_figure(F->obj->children, F->obj, NULL);
+  nsp_figure_invalidate((NspGraphic *) F);
+  return F;
+}
 
-    case StateUpdate:
-      {
-	/*Retreiving Scope in the _work */
-	scoRetrieveScopeMemory (_work, &pScopeMemory);
-	if (scoGetPointerScopeWindow (pScopeMemory) == NULL)
+static void scicos_cmscope_axes_update(NspAxes *axe,double t, double Ts,
+				      double ymin,double ymax);
+
+void scicos_cmscope_block (scicos_block * block, int flag)
+{
+  char *str;
+  BCG *Xgc;
+  /* used to decode parameters by name */
+  cmscope_ipar *csi = (cmscope_ipar *) GetIparPtrs (block);
+  cmscope_rpar *csr = (cmscope_rpar *) GetRparPtrs (block);
+  /* int nipar = GetNipar (block); */
+  int cur = 0, k;
+  /* number of curves in each subwin */
+  int *nswin = ((int *) csi) +7 ;
+  /* colors */
+  int *colors = ((int *) csi) + 7 + csi->number_of_subwin;
+  /* refresh period for each curve */
+  double *period = ((double *) csr) + 1; 
+  /* ymin,ymax for each curve */
+  double *yminmax =((double *) csr) + 1 + csi->number_of_subwin;
+  double t = scicos_get_scicos_time ();
+  int wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
+  
+  if (flag == 2)
+    {
+      cmscope_data *D = (cmscope_data *) (*block->work);
+      t = GetScicosTime (block);
+      k = D->count;
+      D->count++;
+      D->tlast = t;
+      if (  D->count %  csi->buffer_size == 0 ) 
+	{
+	  int i=0;
+	  /* redraw each csi->buffer_size accumulated points 
+	   * first check if we need to change the xscale 
+	   */
+	  NspList *L = D->F->obj->children;
+	  Cell *cloc = L->first ;
+	  while ( cloc != NULLCELL ) 
+	    {
+	      if ( cloc->O != NULLOBJ ) 
+		{
+		  double *u1 = GetRealInPortPtrs (block, i + 1);
+		  double ymin = yminmax[2*i];
+		  double ymax = yminmax[2*i+1];
+		  NspAxes *axe = (NspAxes *) cloc->O;
+		  /* add nu points for time t, nu is the number of curves */
+		  nsp_oscillo_add_point (axe->obj->children, t, u1,nswin[i]);
+		  scicos_cmscope_axes_update(axe,t,period[i],ymin,ymax);
+		  nsp_axes_invalidate((NspGraphic *)axe);
+		  i++;
+		}
+	      cloc = cloc->next;
+	    }
+	}
+    }
+  else if (flag == 4)
+    {
+      /* initialize a scope window */
+      cmscope_data *D;
+      /* create a figure with axes and qcurves  */
+      NspFigure *F = nsp_moscillo_obj(wid,csi->number_of_subwin,nswin,colors,
+				      period, TRUE,yminmax);
+      if (F == NULL)
+	{
+	  scicos_set_block_error (-16);
 	  return;
-	if (scoGetScopeActivation (pScopeMemory) == 1)
-	  {
-	    /* Charging Elements */
-	    t = GetScicosTime (block);
-	    /* If window has been destroyed we recreate it */
-
-
-	    scoRefreshDataBoundsX (pScopeMemory, t);
-
-	    //Here we are calculating the points in the polylines
-	    for (i = 0; i < scoGetNumberOfSubwin (pScopeMemory); i++)
-	      {
-		u1 = GetRealInPortPtrs (block, i + 1);
-		pShortDraw = scoGetPointerShortDraw (pScopeMemory, i, 0);
-		NbrPtsShort = pPOLYLINE_FEATURE (pShortDraw)->n1;
-		for (j = 0;
-		     j < scoGetNumberOfCurvesBySubwin (pScopeMemory, i); j++)
-		  {
-		    pShortDraw = scoGetPointerShortDraw (pScopeMemory, i, j);
-		    pPOLYLINE_FEATURE (pShortDraw)->pvx[NbrPtsShort] = t;
-		    pPOLYLINE_FEATURE (pShortDraw)->pvy[NbrPtsShort] = u1[j];
-		    pPOLYLINE_FEATURE (pShortDraw)->n1++;
-		  }
-	      }
-
-	    scoDrawScopeAmplitudeTimeStyle (pScopeMemory, t);
-
-
-	    //Break of the switch don t forget it !
-	  }			//End of stateupdate
-	break;
-	//This case is activated when the simulation is done or when we close scicos
-      }
-    case Ending:
-      {
-	scoRetrieveScopeMemory (_work, &pScopeMemory);
-	if (scoGetScopeActivation (pScopeMemory) == 1)
-	  {
-	    if (scoGetPointerScopeWindow (pScopeMemory) != NULL)
-	      {
-		sciSetUsedWindow (scoGetWindowID (pScopeMemory));
-		pShortDraw = sciGetCurrentFigure ();
-		sciGetPointerToUserData (pShortDraw, &user_data_ptr,
-					 &size_ptr);
-		FREE (*user_data_ptr);
-		*user_data_ptr = NULL;
-		*size_ptr = 0;
-		scoDelCoupleOfPolylines (pScopeMemory);
-	      }
-	  }
-	scoFreeScopeMemory (_work, &pScopeMemory);
-
-	break;
-      }
+	}
+      if ((*block->work = scicos_malloc (sizeof (cmscope_data))) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      /* store created data in work area of block */
+      D = (cmscope_data *) (*block->work);
+      D->F = F;
+      D->count = 0;
+      D->tlast = t;
+      Xgc = scicos_set_win (wid, &cur);
+      if (csi->wpos[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowpos (Xgc, csi->wpos[0],
+					       csi->wpos[1]);
+	}
+      if (csi->wdim[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowdim (Xgc, csi->wdim[0],
+					       csi->wdim[1]);
+	}
+      str = block->label;
+      if (str != NULL && strlen (str) != 0 && strcmp (str, " ") != 0)
+	Xgc->graphic_engine->setpopupname (Xgc, str);
+    }
+  else if (flag == 5)
+    {
+      cmscope_data *D = (cmscope_data *) (*block->work);
+      scicos_free (D);
+      /* Xgc = scicos_set_win(wid,&cur); */
     }
 }
-#endif
+
+extern int scicos_cscope_get_bounds(NspList *L, double *bounds);
+
+
+static void scicos_cmscope_axes_update(NspAxes *axe,double t, double Ts,
+				      double ymin,double ymax)
+{
+  double frect[4]={ Max(t-Ts,0) , ymin, t, ymax};
+  int tag = FALSE;
+  double bounds[4];
+  if ( isinf(ymin) || isinf(ymax))
+    {
+      /* only usefull, if ymin or ymax is inf */
+      tag = scicos_cscope_get_bounds(axe->obj->children,bounds);
+    }
+  if ( isinf(ymin) && tag == TRUE ) frect[1]= bounds[1];
+  if ( isinf(ymax) && tag == TRUE ) frect[3]= bounds[3];
+  if ( ~isinf(Ts) )
+    {
+      frect[0]= Max(0,t-Ts);
+      frect[2]= t;
+    }
+  else
+    {
+      frect[0]= 0; /*XXX min of stored values */
+      frect[2]= t;
+    }
+  memcpy(axe->obj->frect->R,frect,4*sizeof(double));
+  memcpy(axe->obj->rect->R,frect,4*sizeof(double));
+  axe->obj->fixed = TRUE; 
+}
