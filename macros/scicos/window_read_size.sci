@@ -2,23 +2,23 @@ function window_read_size(win)
   if nargin<1 then
     win=curwin
   end
-
   F=get_current_figure()
   gh=nsp_graphic_widget(win)
-
   xset("wresize",0);
-
   xflush()
-
   axsize=scs_m.props.wpar(5:6)
   xset("wdim",axsize(1),axsize(2))
-
   xflush()
-
-  arect=[0 0 0 0]
-  mrect=scs_m.props.wpar(1:4)
+  arect=[0 0 0 0];
+  // (xmin,ymin,xmax,ymax)
+  mrect=scs_m.props.wpar(1:4);
+  // Pb here: schéma imported from 
+  // scicoslab have not a proper wpar. 
+  // mrect=mrect([1,3,2,4]);
+  // we merge mrect with frect 
+  [frect,wdim]=windows_compute_size();
+  mrect=[min(mrect(1:2),frect(1:2)),max(mrect(3:4),frect(3:4))];
   wrect=[0,0,1,1];
-
   if length(F.children)==0 then
     xsetech(arect=arect,frect=mrect,fixed=%t,clip=%f,axesflag=0,iso=%t)
   else
@@ -27,11 +27,10 @@ function window_read_size(win)
     A.frect=mrect
     A.fixed=%t
     A.clip=%f
-    A.set[rect=mrect]; // rect is hidden but can be accessed through set and get
+    // rect is hidden but can be accessed through set and get
+    A.set[rect=mrect];
   end
-
   xflush()
-
   Vbox=gh.get_children[]
   Vbox=Vbox(1)
   ScrolledWindow=Vbox.get_children[]
@@ -44,6 +43,5 @@ function window_read_size(win)
   end
   hscrollbar.value=scs_m.props.wpar(7)
   vscrollbar.value=scs_m.props.wpar(8)
-
   xflush()
 endfunction

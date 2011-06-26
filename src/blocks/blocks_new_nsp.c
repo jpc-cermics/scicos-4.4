@@ -23,11 +23,8 @@
  * 
  *--------------------------------------------------------------------------*/
 
-#define NEW_GRAPHICS
-
 #include <nsp/nsp.h>
 #include <nsp/objects.h>
-#ifdef NEW_GRAPHICS
 #include <nsp/graphics-new/Graphics.h> 
 #include <nsp/objs3d.h>
 #include <nsp/axes.h>
@@ -37,21 +34,13 @@
 #include <nsp/grstring.h>
 #include <nsp/compound.h>
 #include <nsp/qcurve.h>
-#else 
-#include <nsp/graphics-old/Graphics.h> 
-#endif 
+#include <nsp/grarc.h>
 #include <nsp/interf.h>
 #include <nsp/blas.h>
 #include <nsp/matutil.h>
 #include "blocks.h"
 
-/* should be replaced by new in the future */
-extern int nsp_plot2d_old(BCG *Xgc,double x[],double y[],int *n1,int *n2,
-		      int style[],char *strflag,const char *legend,
-		      int leg_pos,double brect[],int aaint[]);
-
 /* to be moved elsewhere XXXX  */
-
 #if WIN32
 extern double asinh (double x);
 extern double acosh (double x);
@@ -65,36 +54,32 @@ extern double atanh (double x);
 BCG *scicos_set_win (int wid, int *oldwid)
 {
   BCG *Xgc;
-#ifdef  NEW_GRAPHICS 
   if ((Xgc = window_list_get_first ()) != NULL)
-#else 
-  if ((Xgc = window_list_get_first_old ()) != NULL)
-#endif 
     {
       *oldwid = Xgc->graphic_engine->xget_curwin ();
       if (*oldwid != wid)
 	{
 	  Xgc->graphic_engine->xset_curwin (Max (wid, 0), TRUE);
-#ifdef  NEW_GRAPHICS 
 	  Xgc = window_list_get_first ();
-#else
-	  Xgc = window_list_get_first_old ();
-#endif
 	}
     }
   else
     {
-#ifdef  NEW_GRAPHICS 
       Xgc = set_graphic_window (Max (wid, 0));
-#else 
-      Xgc = set_graphic_window_old(Max (wid, 0));
-#endif 
     }
   return Xgc;
 }
 
 
 
+
+/**
+ * scicos_absolute_value_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 
 void scicos_absolute_value_block (scicos_block * block, int flag)
 {
@@ -167,6 +152,14 @@ void scicos_absolute_value_block (scicos_block * block, int flag)
 
 
 
+/**
+ * scicos_acos_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
+
 void scicos_acos_block (scicos_block * block, int flag)
 {
   int j;
@@ -179,6 +172,13 @@ void scicos_acos_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_acosh_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_acosh_block (scicos_block * block, int flag)
 {
   int j;
@@ -190,6 +190,14 @@ void scicos_acosh_block (scicos_block * block, int flag)
 	}
     }
 }
+
+/**
+ * scicos_asin_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 
 void scicos_asin_block (scicos_block * block, int flag)
 {
@@ -203,6 +211,13 @@ void scicos_asin_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_asinh_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_asinh_block (scicos_block * block, int flag)
 {
   int j;
@@ -215,6 +230,13 @@ void scicos_asinh_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_atan_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_atan_block (scicos_block * block, int flag)
 {
   int j;
@@ -227,6 +249,13 @@ void scicos_atan_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_atanh_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_atanh_block (scicos_block * block, int flag)
 {
   int j;
@@ -240,6 +269,13 @@ void scicos_atanh_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_tanh_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_tanh_block (scicos_block * block, int flag)
 {
   int j;
@@ -253,6 +289,13 @@ void scicos_tanh_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_tan_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_tan_block (scicos_block * block, int flag)
 {
   int j;
@@ -266,6 +309,14 @@ void scicos_tan_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_sin_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
+
 void scicos_sin_block (scicos_block * block, int flag)
 {
   int j;
@@ -278,6 +329,13 @@ void scicos_sin_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_sinh_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_sinh_block (scicos_block * block, int flag)
 {
   int j;
@@ -292,11 +350,20 @@ void scicos_sinh_block (scicos_block * block, int flag)
 
 
 
+/**
+ * scicos_backlash_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
+
 void scicos_backlash_block (scicos_block * block, int flag)
 {
   double *rw, t;
   if (flag == 4)
-    {				/* the workspace is used to store previous values */
+    {			
+      /* the workspace is used to store previous values */
       if ((*block->work = scicos_malloc (sizeof (double) * 4)) == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -354,6 +421,14 @@ void scicos_backlash_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_cos_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
+
 void scicos_cos_block (scicos_block * block, int flag)
 {
   int j;
@@ -366,6 +441,13 @@ void scicos_cos_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_cosh_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_cosh_block (scicos_block * block, int flag)
 {
   int j;
@@ -378,8 +460,16 @@ void scicos_cosh_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_deadband_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_deadband_block (scicos_block * block, int flag)
-{				/* rpar[0]:upper limit,  rpar[1]:lower limit */
+{			
+  /* rpar[0]:upper limit,  rpar[1]:lower limit */
   if (flag == 1)
     {
       if (scicos_get_phase_simulation () == 1 || block->ng == 0)
@@ -436,13 +526,22 @@ void scicos_deadband_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_deriv_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
+
 void scicos_deriv_block (scicos_block * block, int flag)
 {
   double *rw;
   double t, dt;
   int i;
   if (flag == 4)
-    {				/* the workspace is used to store previous values */
+    {
+      /* the workspace is used to store previous values */
       if ((*block->work =
 	   scicos_malloc (sizeof (double) * 2 * (1 + block->insz[0]))) ==
 	  NULL)
@@ -492,6 +591,13 @@ void scicos_deriv_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_extractor_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_extractor_block (scicos_block * block, int flag)
 {
   int i, j;
@@ -510,6 +616,13 @@ void scicos_extractor_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_gainblk_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_gainblk_block (scicos_block * block, int flag)
 {
   int i, un = 1;
@@ -531,13 +644,22 @@ void scicos_gainblk_block (scicos_block * block, int flag)
 
 
 
+/**
+ * scicos_time_delay_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_time_delay_block (scicos_block * block, int flag)
-{				/*  rpar[0]=delay, rpar[1]=init value, ipar[0]=buffer length */
+{				
+  /*  rpar[0]=delay, rpar[1]=init value, ipar[0]=buffer length */
   double *pw, del, t, td;
   int *iw;
   int i, j, k;
   if (flag == 4)
-    {				/* the workspace is used to store previous values */
+    {			
+      /* the workspace is used to store previous values */
       if ((*block->work =
 	   scicos_malloc (sizeof (int) + sizeof (double) *
 			  block->ipar[0] * (1 + block->insz[0]))) == NULL)
@@ -655,13 +777,22 @@ void scicos_time_delay_block (scicos_block * block, int flag)
 
 
 
+/**
+ * scicos_variable_delay_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_variable_delay_block (scicos_block * block, int flag)
-{				/*  rpar[0]=max delay, rpar[1]=init value, ipar[0]=buffer length */
+{
+  /*  rpar[0]=max delay, rpar[1]=init value, ipar[0]=buffer length */
   double *pw, del, t, td;
   int *iw;
   int i, j, k;
   if (flag == 4)
-    {				/* the workspace is used to store previous values */
+    {
+      /* the workspace is used to store previous values */
       if ((*block->work =
 	   scicos_malloc (sizeof (int) + sizeof (double) *
 			  block->ipar[0] * (1 + block->insz[0]))) == NULL)
@@ -765,6 +896,13 @@ void scicos_variable_delay_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_step_func_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_step_func_block (scicos_block * block, int flag)
 {
   int i;
@@ -786,6 +924,13 @@ void scicos_step_func_block (scicos_block * block, int flag)
 
 
 
+/**
+ * scicos_signum_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_signum_block (scicos_block * block, int flag)
 {
   int i, j;
@@ -847,6 +992,13 @@ void scicos_signum_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_summation_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_summation_block (scicos_block * block, int flag)
 {
   int j, k;
@@ -884,6 +1036,13 @@ void scicos_summation_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_switch2_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_switch2_block (scicos_block * block, int flag)
 {
   int i = 0, j, phase;
@@ -961,8 +1120,16 @@ void scicos_switch2_block (scicos_block * block, int flag)
 
 
 
+/**
+ * scicos_satur_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_satur_block (scicos_block * block, int flag)
-{				/* rpar[0]:upper limit,  rpar[1]:lower limit */
+{
+  /* rpar[0]:upper limit,  rpar[1]:lower limit */
   if (flag == 1)
     {
       if (scicos_get_phase_simulation () == 1 || block->ng == 0)
@@ -1019,6 +1186,13 @@ void scicos_satur_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_logicalop_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_logicalop_block (scicos_block * block, int flag)
 {
   int i, j, k, l;
@@ -1191,6 +1365,13 @@ void scicos_logicalop_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_multiplex_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_multiplex_block (scicos_block * block, int flag)
 {
   int i, j, k;
@@ -1221,6 +1402,13 @@ void scicos_multiplex_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_hystheresis_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_hystheresis_block (scicos_block * block, int flag)
 {
   if (flag == 1)
@@ -1268,6 +1456,13 @@ void scicos_hystheresis_block (scicos_block * block, int flag)
 
 
 
+/**
+ * scicos_ramp_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_ramp_block (scicos_block * block, int flag)
 {
   double dt;
@@ -1315,6 +1510,13 @@ void scicos_ramp_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_minmax_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_minmax_block (scicos_block * block, int flag)
 {
   /*ipar[0]=1 -> min,  ipar[0]=2 -> max */
@@ -1457,6 +1659,13 @@ void scicos_minmax_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_modulo_count_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_modulo_count_block (scicos_block * block, int flag)
 {
   if (flag == 1)
@@ -1471,6 +1680,13 @@ void scicos_modulo_count_block (scicos_block * block, int flag)
 
 
 
+/**
+ * scicos_mswitch_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_mswitch_block (scicos_block * block, int flag)
 {
   int i, j = 0;
@@ -1515,6 +1731,13 @@ void scicos_mswitch_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_product_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_product_block (scicos_block * block, int flag)
 {
   int j, k;
@@ -1559,15 +1782,22 @@ void scicos_product_block (scicos_block * block, int flag)
     }
 }
 
-/*
- * rpar[0]=rising rate limit, rpar[1]=falling rate limit 
- */
-
+/**
+ * scicos_ratelimiter_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_ratelimiter_block (scicos_block * block, int flag)
 {
+  /*
+   * rpar[0]=rising rate limit, rpar[1]=falling rate limit 
+   */
   double *pw, rate = 0.0, t;
   if (flag == 4)
-    {				/* the workspace is used to store previous values */
+    {
+      /* the workspace is used to store previous values */
       if ((*block->work = scicos_malloc (sizeof (double) * 4)) == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -1622,6 +1852,14 @@ void scicos_ratelimiter_block (scicos_block * block, int flag)
       pw[3] = block->outptr[0][0];
     }
 }
+
+/**
+ * scicos_integral_func_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 
 void scicos_integral_func_block (scicos_block * block, int flag)
 {
@@ -1698,6 +1936,13 @@ void scicos_integral_func_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_evtvardly_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_evtvardly_block (scicos_block * block, int flag)
 {
   if (flag == 3)
@@ -1707,6 +1952,13 @@ void scicos_evtvardly_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_relationalop_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_relationalop_block (scicos_block * block, int flag)
 {
   int i;
@@ -1860,61 +2112,44 @@ void scicos_relationalop_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_bounce_ball_block:
+ * @block: 
+ * @flag: 
+ * 
+ * computes the dynamics of a multi balls in a box 
+ * 
+ **/
+
 void scicos_bounce_ball_block (scicos_block * block, int flag)
 {
-  int nevprt, nx, *ipar;
-  int *outsz;
-  double *x, *xd, *rpar;
-  double *g;
-  int ng;
-  int *jroot;
-
-  int i1;
-  double d1, d2, d3;
-
-  static double a, b, c;
-  static int i, j, k, n;
-  static double s1, s2, s3, s4, xsi, *y1, *y2;
-
-  /*     Scicos block simulator */
-  /*     bouncing ball */
-  /*     rpar(i): mass of ball i */
-  /*     rpar(i+n): radius of ball i */
-  /*     rpar(2n+1:2n+4); [xmin,xmax,ymin,ymax] */
-  /*     x: [x1,x1',y1,y1',x2,x2',y2,y2',...,yn'] */
-  /*     n:number of ball=ny1=ny2 */
-  /*     y1: x-coord des balles */
-  /*     y2: y-coord des balles */
-  /*     ipar: storage de taille [nx(n-1)/2=ng]*2 */
-  nevprt = block->nevprt;
-  nx = block->nx;
-  ipar = block->ipar;
-  outsz = block->outsz;
-  x = block->x;
-  xd = block->xd;
-  rpar = block->rpar;
-
-  g = block->g;
-  ng = block->ng;
-  jroot = block->jroot;
-  /* Parameter adjustments to index vectors as in Scilab (fortran) */
-  --g;
-  --ipar;
-  --rpar;
-  --x;
-  --xd;
-  y1 = block->outptr[0];
-  y2 = block->outptr[1];
-  --y2;
-  --y1;
-  --jroot;
-
-  n = outsz[0];
+  /* rpar(i): mass of ball i
+   * rpar(i+n): radius of ball i 
+   * rpar(2n+1:2n+4); [xmin,xmax,ymin,ymax]
+   * x: [x1,x1',y1,y1',x2,x2',y2,y2',...,yn']
+   * n:number of ball=ny1=ny2 
+   * y1: x-coord of balls 
+   * y2: y-coord of balls 
+   *     ipar: storage de taille [nx(n-1)/2=ng]*2 
+   */
+  int *ipar = block->ipar;
+  int *outsz = block->outsz;
+  double *x=block->x, *xd= block->xd, *rpar= block->rpar;
+  double *g= block->g;
+  int ng = block->ng ;
+  int *jroot= block->jroot;
+  int i, j, k, n= outsz[0];
+  double *y1= block->outptr[0], *y2= block->outptr[1];
+  
+  /* Parameter adjustments to use index vectors starting at 1 
+   * as in Scilab (fortran) 
+   */
+  --g;  --ipar;  --rpar;  --x;  --xd;  --y2;  --y1;  --jroot;
+  
   if (flag == 0)
     {
-      c = rpar[(n << 1) + 6];
-      i1 = n;
-      for (i = 1; i <= i1; ++i)
+      double c = rpar[(n << 1) + 6];
+      for (i = 1; i <= n; ++i)
 	{
 	  xd[((i - 1) << 2) + 1] = x[((i - 1) << 2) + 2];
 	  xd[((i - 1) << 2) + 3] = x[((i - 1) << 2) + 4];
@@ -1925,8 +2160,7 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
     }
   else if (flag == 1)
     {
-      i1 = n;
-      for (i = 1; i <= i1; ++i)
+      for (i = 1; i <= n; ++i)
 	{
 	  y1[i] = x[((i - 1) << 2) + 1];
 	  y2[i] = x[((i - 1) << 2) + 3];
@@ -1934,9 +2168,10 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
     }
   else if (flag == 9)
     {
-      i1 = ng - (n << 2);
+      int i1 = ng - (n << 2);
       for (k = 1; k <= i1; ++k)
 	{
+	  double d1, d2, d3;
 	  i = ipar[((k - 1) << 1) + 1];
 	  j = ipar[((k - 1) << 1) + 2];
 	  d1 = x[((i - 1) << 2) + 1] - x[((j - 1) << 2) + 1];
@@ -1945,8 +2180,7 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
 	  g[k] = d1 * d1 + d2 * d2 - d3 * d3;
 	}
       k = ng - (n << 2) + 1;
-      i1 = n;
-      for (i = 1; i <= i1; ++i)
+      for (i = 1; i <= n; ++i)
 	{
 	  g[k] = x[((i - 1) << 2) + 3] - rpar[i + n] - rpar[(n << 1) + 3];
 	  ++k;
@@ -1959,13 +2193,14 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
 	}
 
     }
-  else if (flag == 2 && nevprt < 0)
+  else if (flag == 2 && block->nevprt < 0)
     {
-      i1 = ng - (n << 2);
+      int i1 = ng - (n << 2);
       for (k = 1; k <= i1; ++k)
 	{
 	  if (jroot[k] < 0)
 	    {
+	      double s1,s2,s3,s4,xsi,a,b;
 	      i = ipar[((k - 1) << 1) + 1];
 	      j = ipar[((k - 1) << 1) + 2];
 	      s1 = x[((j - 1) << 2) + 1] - x[((i - 1) << 2) + 1];
@@ -1987,8 +2222,7 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
 	    }
 	}
       k = ng - (n << 2) + 1;
-      i1 = n;
-      for (i = 1; i <= i1; ++i)
+      for (i = 1; i <= n ; ++i)
 	{
 	  if (jroot[k] < 0)
 	    {
@@ -2015,156 +2249,13 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
 }
 
 
-void scicos_bouncexy_block (scicos_block * block, int flag)
-{
-  char *str;
-  BCG *Xgc = NULL;
-  int c__1 = 1;
-  int c_n1 = -1;
-  int c__5 = 5;
-  int c__0 = 0;
-  int c__3 = 3;
-  int nevprt = block->nevprt;
-  double t;
-  double *z__;
-  int nz;
-  double *rpar;
-  int nrpar, *ipar, nipar;
-  double *u, *y;
-  int nu;
-
-  static int cur = 0;
-  static int c400 = 400;
-  int i__1;
-
-  static double rect[4];
-  static double xmin, ymin, xmax, ymax;
-  static int i__, n;
-  static int on;
-  static double zz[10];
-  static char buf[40];
-  static int wid, nax[4];
-
-  /*     ipar(1) = win_num */
-  /*     ipar(2) = mode : animated =0 fixed=1 */
-  /*     ipar(3:3+nu-1) = colors of balls */
-
-  /*     rpar(1)=xmin */
-  /*     rpar(2)=xmax */
-  /*     rpar(3)=ymin */
-  /*     rpar(4)=ymax */
-  nevprt = block->nevprt;
-  nz = block->nz;
-  nrpar = block->nrpar;
-  nipar = block->nipar;
-  nu = block->insz[0];
-  z__ = block->z;
-  rpar = block->rpar;
-  ipar = block->ipar;
-  u = block->inptr[0];
-  y = block->inptr[1];
-  t = scicos_get_scicos_time ();
-
-
-  /* Parameter adjustments */
-  --u;
-  --y;
-  --ipar;
-  --rpar;
-  --z__;
-
-  /* Function Body */
-
-  if (flag == 2)
-    {
-      wid = ipar[1];
-      n = nu;
-      Xgc = scicos_set_win (wid, &cur);
-      Xgc->graphic_engine->xset_recording (Xgc, FALSE);
-      rect[0] = xmin;
-      rect[1] = ymin;
-      rect[2] = xmax;
-      rect[3] = ymax;
-      nsp_plot2d_old (Xgc, rect, &rect[1], &c__1, &c__1, &c_n1, "030", buf, 0,
-		      rect, nax);
-      /*     draw new point */
-      i__1 = nu;
-      for (i__ = 1; i__ <= i__1; ++i__)
-	{
-	  z__[(i__ - 1) * 6 + 1] = u[i__] - z__[(i__ - 1) * 6 + 3] / 2;
-	  z__[(i__ - 1) * 6 + 2] = y[i__] + z__[(i__ - 1) * 6 + 4] / 2;
-	}
-      Xgc->graphic_engine->xset_pixmapclear (Xgc);
-      Xgc->graphic_engine->scale->fillarcs (Xgc, &z__[1], &ipar[3], n);
-      xmin = rpar[1];
-      xmax = rpar[2];
-      ymin = rpar[3];
-      ymax = rpar[4];
-      zz[0] = xmin;
-      zz[1] = xmin;
-      zz[2] = xmax;
-      zz[3] = xmax;
-      zz[4] = xmin;
-      zz[5] = ymax;
-      zz[6] = ymin;
-      zz[7] = ymin;
-      zz[8] = ymax;
-      zz[9] = ymax;
-      Xgc->graphic_engine->scale->drawpolylines (Xgc, zz, &zz[5], &c__1, c__1,
-						 c__5);
-      Xgc->graphic_engine->xset_show (Xgc);
-      Xgc->graphic_engine->xset_recording (Xgc, TRUE);
-    }
-  else if (flag == 4)
-    {
-      wid = ipar[1];
-      n = nu;
-      xmin = rpar[1];
-      xmax = rpar[2];
-      ymin = rpar[3];
-      ymax = rpar[4];
-      nax[0] = 2;
-      nax[1] = 10;
-      nax[2] = 2;
-      nax[3] = 10;
-      Xgc = scicos_set_win (wid, &cur);
-      Xgc->graphic_engine->xset_windowdim (Xgc, c400, c400);
-      Xgc = scicos_set_win (wid, &cur);
-      Xgc->graphic_engine->xset_recording (Xgc, FALSE);
-      on = 1;
-      Xgc->graphic_engine->xset_pixmapOn (Xgc, on);
-      rect[0] = xmin;
-      rect[1] = ymin;
-      rect[2] = xmax;
-      rect[3] = ymax;
-      Xgc->graphic_engine->xset_usecolor (Xgc, c__1);
-      Xgc->graphic_engine->xset_alufunction1 (Xgc, c__3);
-      Xgc->graphic_engine->clearwindow (Xgc);
-      Xgc->graphic_engine->tape_clean_plots (Xgc, wid);
-      Xgc->graphic_engine->xset_thickness (Xgc, c__1);
-      Xgc->graphic_engine->xset_dash (Xgc, c__0);
-      nsp_plot2d_old (Xgc, rect, &rect[1], &c__1, &c__1, &c_n1, "030", buf, 0,
-		      rect, nax);
-      zz[0] = xmin;
-      zz[1] = xmin;
-      zz[2] = xmax;
-      zz[3] = xmax;
-      zz[4] = xmin;
-      zz[5] = ymax;
-      zz[6] = ymin;
-      zz[7] = ymin;
-      zz[8] = ymax;
-      zz[9] = ymax;
-      Xgc->graphic_engine->scale->drawpolylines (Xgc, zz, &zz[5], &c__1, c__1,
-						 c__5);
-      Xgc->graphic_engine->xset_show (Xgc);
-      str = block->label;
-      if (str != NULL && strlen (str) != 0 && strcmp (str, " ") != 0)
-	Xgc->graphic_engine->setpopupname (Xgc, str);
-      /* XXXXXXXXX C2F(sxevents)(); */
-    }
-}
-
+/**
+ * scicos_bouncexy_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 
 /**
  * scicos_cscope_block:
@@ -2199,7 +2290,7 @@ struct _cscope_data
   NspList *L;
 };
 
-static void scicos_cscope_axes_update(cscope_data *D,double t, double Ts,
+static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
 				      double ymin,double ymax);
 
 void scicos_cscope_block (scicos_block * block, int flag)
@@ -2237,7 +2328,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	  /* redraw each csi->n accumulated points 
 	   * first check if we need to change the xscale 
 	   */
-	  scicos_cscope_axes_update(D,t,csr->per,csr->ymin,csr->ymax);
+	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
 	}
     }
@@ -2295,43 +2386,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
     }
 }
 
-/* this function could certainly be replaced by the corresponding 
- * function present in axes.
- */
-
-int scicos_cscope_get_bounds(NspList *L, double *bounds)
-{
-  double l_bounds[4];
-  Cell *cloc = L->first ;
-  if ( cloc == NULLCELL) 
-    {
-      bounds[0]=bounds[1]=0;
-      bounds[2]=bounds[3]=0;
-      return FALSE;
-    }
-  bounds[0]=bounds[1]=LARGEST_REAL;
-  bounds[2]=bounds[3]=-LARGEST_REAL;
-  while ( cloc != NULLCELL ) 
-    {
-      if ( cloc->O != NULLOBJ ) 
-	{
-	  NspGraphic *G= (NspGraphic *) cloc->O;
-	  G->type->bounds(G,l_bounds);
-	  if ( l_bounds[0] < bounds[0] ) 
-	    bounds[0]= l_bounds[0];
-	  if (  l_bounds[2] > bounds[2])
-	    bounds[2]= l_bounds[2];
-	  if ( l_bounds[1] < bounds[1] ) 
-	    bounds[1]= l_bounds[1];
-	  if (  l_bounds[3] > bounds[3])
-	    bounds[3]= l_bounds[3];
-	}
-      cloc = cloc->next;
-    }
-  return TRUE;
-}
-
-static void scicos_cscope_axes_update(cscope_data *D,double t, double Ts,
+static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
 				      double ymin,double ymax)
 {
   double frect[4]={ Max(t-Ts,0) , ymin, t, ymax};
@@ -2340,7 +2395,7 @@ static void scicos_cscope_axes_update(cscope_data *D,double t, double Ts,
   if ( isinf(ymin) || isinf(ymax))
     {
       /* only usefull, if ymin or ymax is inf */
-      tag = scicos_cscope_get_bounds(D->L,bounds);
+      tag = nsp_grlist_compute_inside_bounds(axe->obj->children,bounds);
     }
   if ( isinf(ymin) && tag == TRUE ) frect[1]= bounds[1];
   if ( isinf(ymax) && tag == TRUE ) frect[3]= bounds[3];
@@ -2354,9 +2409,231 @@ static void scicos_cscope_axes_update(cscope_data *D,double t, double Ts,
       frect[0]= 0; /*XXX min of stored values */
       frect[2]= t;
     }
-  memcpy(D->Axes->obj->frect->R,frect,4*sizeof(double));
-  memcpy(D->Axes->obj->rect->R,frect,4*sizeof(double));
-  D->Axes->obj->fixed = TRUE; 
+  memcpy(axe->obj->frect->R,frect,4*sizeof(double));
+  memcpy(axe->obj->rect->R,frect,4*sizeof(double));
+  axe->obj->fixed = TRUE; 
+}
+
+/**
+ * scicos_cmscope_block:
+ * @block: 
+ * @flag: 
+ * 
+ * a multi scope:
+ * new nsp graphics jpc 
+ **/
+
+typedef struct _cmscope_ipar cmscope_ipar;
+struct _cmscope_ipar
+{
+  /* n is the number of data to accumulate before redrawing */
+  int wid, number_of_subwin, buffer_size , wpos[2], wdim[2];
+};
+
+typedef struct _cmscope_rpar cmscope_rpar;
+struct _cmscope_rpar
+{
+  /* dt: unused, yminmax: start of ymin, ymax */
+  double dt, yminmax;
+};
+
+typedef struct _cmscope_data cmscope_data;
+
+struct _cmscope_data
+{
+  int count;    /* number of points inserted in the scope buffer */
+  double tlast; /* last time inserted in csope data */
+  NspFigure *F;
+};
+
+static NspAxes *nsp_mscope_new_axe(int ncurves,const int *style, double ymin, double ymax)
+{
+  char strflag[]="151";
+  char *curve_l=NULL;
+  int bufsize= 10000, yfree=TRUE;
+  int i;
+  double frect[4];
+  /* create a new axes */
+  NspAxes *axe= nsp_axes_create_default("axe");
+  if ( axe == NULL) return NULL;
+  frect[0]=0;frect[1]=ymin;frect[2]=100;frect[3]=ymax;
+  /* create a set of qcurves and insert them in axe */
+  for ( i = 0 ; i < ncurves ; i++) 
+    {
+      int mark=-1;
+      NspQcurve *curve;
+      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2); 
+      if ( Pts == NULL) return NULL;
+      if ( style[i] <= 0 ) mark = -style[i];
+      curve= nsp_qcurve_create("curve",mark,0,0,( style[i] > 0 ) ?  style[i] : -1,
+			       qcurve_std,Pts,curve_l,-1,-1,NULL);
+      if ( curve == NULL) return NULL;
+      /* insert the new curve */
+      if ( nsp_axes_insert_child(axe,(NspGraphic *) curve,FALSE)== FAIL) 
+	{
+	  return NULL;
+	}
+    }
+  /* updates the axes scale information */
+  nsp_strf_axes( axe , frect, strflag[1]);
+  memcpy(axe->obj->frect->R,frect,4*sizeof(double));
+  memcpy(axe->obj->rect->R,frect,4*sizeof(double));
+  axe->obj->axes = 1;
+  axe->obj->xlog = FALSE;
+  axe->obj->ylog=  FALSE;
+  axe->obj->iso = FALSE;
+  /* use free scales if requested  */
+  axe->obj->fixed = ( yfree == TRUE ) ? FALSE: TRUE ;
+  return axe;
+}
+
+/* nswin : number of subwindows
+ * ncs[i] : number of curves in subsin i
+ * style[k]: style for curve k 
+ */
+
+static NspFigure *nsp_mscope_obj(int win,int nswin,const int *ncs,const int *style,
+				 const double *period, int yfree,const double *yminmax)
+{
+  const int *cstyle = style;
+  NspFigure *F;
+  NspAxes *axe;
+  BCG *Xgc;
+  int i,l;
+  /*
+   * set current window
+   */
+  if ((Xgc = window_list_get_first()) != NULL) 
+    Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
+  else 
+    Xgc= set_graphic_window_new(Max(win,0));
+  /*
+   * Gc of new window 
+   */
+  if ((Xgc = window_list_get_first())== NULL) return NULL;
+  if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return NULL;
+
+  /* clean the figure */
+  l =  nsp_list_length(F->obj->children);
+  for ( i = 0 ; i < l  ; i++)
+    nsp_list_remove_first(F->obj->children);
+  /* create nswin axes */
+  for ( i = 0 ; i < nswin ; i++) 
+    {
+      if ((axe = nsp_mscope_new_axe(ncs[i],cstyle,-1,1))== NULL)
+	return NULL;
+      /* set the wrect */
+      axe->obj->wrect->R[1]= ((double ) i)/nswin;
+      axe->obj->wrect->R[3]= 1.0/nswin;
+      /* store in Figure */
+      if ( nsp_list_end_insert(F->obj->children,(NspObject *) axe)== FAIL) 
+	{
+	  nsp_axes_destroy(axe);
+	  return NULL;
+	}
+      cstyle += ncs[i];
+    }
+  nsp_list_link_figure(F->obj->children, F->obj, NULL);
+  nsp_figure_invalidate((NspGraphic *) F);
+  return F;
+}
+
+void scicos_cmscope_block (scicos_block * block, int flag)
+{
+  char *str;
+  BCG *Xgc;
+  /* used to decode parameters by name */
+  cmscope_ipar *csi = (cmscope_ipar *) GetIparPtrs (block);
+  cmscope_rpar *csr = (cmscope_rpar *) GetRparPtrs (block);
+  /* int nipar = GetNipar (block); */
+  int cur = 0, k;
+  /* number of curves in each subwin */
+  int *nswin = ((int *) csi) +7 ;
+  /* colors */
+  int *colors = ((int *) csi) + 7 + csi->number_of_subwin;
+  /* refresh period for each curve */
+  double *period = ((double *) csr) + 1; 
+  /* ymin,ymax for each curve */
+  double *yminmax =((double *) csr) + 1 + csi->number_of_subwin;
+  double t = scicos_get_scicos_time ();
+  int wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
+  
+  if (flag == 2)
+    {
+      cmscope_data *D = (cmscope_data *) (*block->work);
+      t = GetScicosTime (block);
+      k = D->count;
+      D->count++;
+      D->tlast = t;
+      if (  D->count %  csi->buffer_size == 0 ) 
+	{
+	  int i=0;
+	  /* redraw each csi->buffer_size accumulated points 
+	   * first check if we need to change the xscale 
+	   */
+	  NspList *L = D->F->obj->children;
+	  Cell *cloc = L->first ;
+	  while ( cloc != NULLCELL ) 
+	    {
+	      if ( cloc->O != NULLOBJ ) 
+		{
+		  double *u1 = GetRealInPortPtrs (block, i + 1);
+		  double ymin = yminmax[2*i];
+		  double ymax = yminmax[2*i+1];
+		  NspAxes *axe = (NspAxes *) cloc->O;
+		  /* add nu points for time t, nu is the number of curves */
+		  nsp_oscillo_add_point (axe->obj->children, t, u1,nswin[i]);
+		  scicos_cscope_axes_update(axe,t,period[i],ymin,ymax);
+		  nsp_axes_invalidate((NspGraphic *)axe);
+		  i++;
+		}
+	      cloc = cloc->next;
+	    }
+	}
+    }
+  else if (flag == 4)
+    {
+      /* initialize a scope window */
+      cmscope_data *D;
+      /* create a figure with axes and qcurves  */
+      NspFigure *F = nsp_mscope_obj(wid,csi->number_of_subwin,nswin,colors,
+				    period, TRUE,yminmax);
+      if (F == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      if ((*block->work = scicos_malloc (sizeof (cmscope_data))) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      /* store created data in work area of block */
+      D = (cmscope_data *) (*block->work);
+      D->F = F;
+      D->count = 0;
+      D->tlast = t;
+      Xgc = scicos_set_win (wid, &cur);
+      if (csi->wpos[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowpos (Xgc, csi->wpos[0],
+					       csi->wpos[1]);
+	}
+      if (csi->wdim[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowdim (Xgc, csi->wdim[0],
+					       csi->wdim[1]);
+	}
+      str = block->label;
+      if (str != NULL && strlen (str) != 0 && strcmp (str, " ") != 0)
+	Xgc->graphic_engine->setpopupname (Xgc, str);
+    }
+  else if (flag == 5)
+    {
+      cmscope_data *D = (cmscope_data *) (*block->work);
+      scicos_free (D);
+      /* Xgc = scicos_set_win(wid,&cur); */
+    }
 }
 
 
@@ -2501,7 +2778,7 @@ static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
   if ( isinf(xmin) || isinf(xmax) || isinf(ymin) || isinf(ymax) )
     {
       /* only usefull, if some values are inf */
-      tag = scicos_cscope_get_bounds(D->L,bounds);
+      tag = nsp_grlist_compute_inside_bounds(D->L,bounds);
     }
   if ( isinf(xmin) && tag == TRUE ) frect[0]= bounds[0];
   if ( isinf(xmax) && tag == TRUE ) frect[1]= bounds[1];
@@ -2512,9 +2789,13 @@ static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
   D->Axes->obj->fixed = TRUE; 
 }
 
-
-
-
+/**
+ * scicos_scalar2vector_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_scalar2vector_block (scicos_block * block, int flag)
 {
   int i;
@@ -2527,10 +2808,17 @@ void scicos_scalar2vector_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_cstblk4_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
+
 void scicos_cstblk4_block (scicos_block * block, int flag)
 {
   /*
-   * Scicos block simulator
    * output a vector of constants out(i)=rpar(i)
    * rpar(1:nrpar) : given constants 
    */
@@ -2538,6 +2826,13 @@ void scicos_cstblk4_block (scicos_block * block, int flag)
 }
 
 
+/**
+ * scicos_transmit_or_zero_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 void scicos_transmit_or_zero_block (scicos_block * block, int flag)
 {
   int j;
@@ -2551,13 +2846,17 @@ void scicos_transmit_or_zero_block (scicos_block * block, int flag)
     }
 }
 
-
-/* switch selected with ipar 
- *
- */
+/**
+ * scicos_mvswitch_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 
 void scicos_mvswitch_block (scicos_block * block, int flag)
 {
+  /* switch selected with ipar  */
   int i, j = 0;
   j = Min (Max (block->ipar[0], 0), block->nin - 1);
   for (i = 0; i < block->insz[j]; i++)
@@ -2566,17 +2865,23 @@ void scicos_mvswitch_block (scicos_block * block, int flag)
     }
 }
 
-/*  Copyright INRIA
- *    Scicos block simulator
- *   continuous state space linear system simulator
- *   rpar(1:nx*nx)=A
- *   rpar(nx*nx+1:nx*nx+nx*nu)=B
- *   rpar(nx*nx+nx*nu+1:nx*nx+nx*nu+nx*ny)=C
- *   rpar(nx*nx+nx*nu+nx*ny+1:nx*nx+nx*nu+nx*ny+ny*nu)=D 
- */
+
+/**
+ * scicos_csslti4_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
 
 void scicos_csslti4_block (scicos_block * block, int flag)
 {
+  /*   continuous state space linear system simulator
+   *   rpar(1:nx*nx)=A
+   *   rpar(nx*nx+1:nx*nx+nx*nu)=B
+   *   rpar(nx*nx+nx*nu+1:nx*nx+nx*nu+nx*ny)=C
+   *   rpar(nx*nx+nx*nu+nx*ny+1:nx*nx+nx*nu+nx*ny+ny*nu)=D 
+   */
   int un = 1, lb, lc, ld;
   int nx = block->nx;
   double *x = block->x;
@@ -2748,5 +3053,196 @@ int scicos_affich_block (scicos_args_F0)
 	}
     }
   return 0;
+}
+
+
+
+/**
+ * scicos_bouncexy_block:
+ * @block: 
+ * @flag: 
+ * 
+ * a multi scope:
+ * new nsp graphics jpc 
+ **/
+
+typedef struct _bouncexy_data bouncexy_data;
+
+struct _bouncexy_data
+{
+  int count;    /* number of points inserted in the scope buffer */
+  double tlast; /* last time inserted in csope data */
+  NspFigure *F;
+  NspList *L;   /* list of grarcs */
+};
+
+static NspAxes *nsp_bouncexy_new_axe(int nb,const int *colors,const double *xminmax)
+{
+  NspGraphic *gobj = NULL;
+  double frect[4];
+  char strflag[]="151";
+  int i;
+  /* create a new axes */
+  NspAxes *axe= nsp_axes_create_default("axe");
+  if ( axe == NULL) return NULL;
+  frect[0]=xminmax[0];frect[1]=xminmax[2];frect[2]=xminmax[1];frect[3]=xminmax[3];
+  /* create a set of arcs and insert them in axe */
+  for ( i = 0 ; i < nb ; i++) 
+    {
+      int icolor=-1,iback=colors[i],ithickness=-1;
+      if ((gobj =(NspGraphic *) nsp_grarc_create("arc",0,0,0.1,0.1,0,360*64,
+						 iback,ithickness,icolor,0.0,NULL)) == NULL)
+	    return NULL;
+      if (  nsp_axes_insert_child(axe,(NspGraphic *) gobj, TRUE)== FAIL) 
+	return NULL;
+    }
+  /* updates the axes scale information */
+  nsp_strf_axes( axe , frect, strflag[1]);
+  memcpy(axe->obj->frect->R,frect,4*sizeof(double));
+  memcpy(axe->obj->rect->R,frect,4*sizeof(double));
+  axe->obj->axes = 1;
+  axe->obj->xlog = FALSE;
+  axe->obj->ylog=  FALSE;
+  axe->obj->iso = FALSE;
+  axe->obj->fixed = TRUE;
+  return axe;
+}
+
+/* nswin : number of subwindows
+ * ncs[i] : number of curves in subsin i
+ * style[k]: style for curve k 
+ */
+
+static NspFigure *nsp_bouncexy_obj(int win,int nb,const int *colors,const double *yminmax,
+				   NspList **L)
+{
+  NspFigure *F;
+  NspAxes *axe;
+  BCG *Xgc;
+  int i,l;
+  /*
+   * set current window
+   */
+  if ((Xgc = window_list_get_first()) != NULL) 
+    Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
+  else 
+    Xgc= set_graphic_window_new(Max(win,0));
+  /*
+   * Gc of new window 
+   */
+  if ((Xgc = window_list_get_first())== NULL) return NULL;
+  if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return NULL;
+  
+  /* clean the figure */
+  l =  nsp_list_length(F->obj->children);
+  for ( i = 0 ; i < l  ; i++)
+    nsp_list_remove_first(F->obj->children);
+  /* a new axe with arcs */
+  if ((axe = nsp_bouncexy_new_axe(nb,colors,yminmax)) == NULL)
+    return NULL;
+  /* store in Figure */
+  if ( nsp_list_end_insert(F->obj->children,(NspObject *) axe)== FAIL) 
+    {
+      nsp_axes_destroy(axe);
+      return NULL;
+    }
+  nsp_list_link_figure(F->obj->children, F->obj, NULL);
+  nsp_figure_invalidate((NspGraphic *) F);
+  *L = axe->obj->children;
+  return F;
+}
+
+void scicos_bouncexy_block (scicos_block * block, int flag)
+{
+  /* decode ipar : win,imode, colors[] */
+  int *ipar = GetIparPtrs (block);
+  /* int nipar = GetNipar (block); */
+  int win = ipar[0], *colors = ipar + 2;
+  /* int imode = ipar[1], */
+  /* xmin,xmax,ymin,ymax */
+  double *xminmax = GetRparPtrs (block);
+  char *str;
+  BCG *Xgc;
+  int cur = 0;
+  double t = scicos_get_scicos_time ();
+  int wid = (win == -1) ? 20000 + scicos_get_block_number () : win;
+  
+  if (flag == 2)
+    {
+      bouncexy_data *D = (bouncexy_data *) (*block->work);
+      Cell *cloc = D->L->first ;
+      double *u1 = GetRealInPortPtrs (block, 1);
+      double *u2 = GetRealInPortPtrs (block, 2);
+      double *z = GetDstate (block);
+      int i=0;
+      /* 
+	 t = GetScicosTime (block);
+	 k = D->count;
+	 D->count++;
+	 D->tlast = t;
+      */
+      while ( cloc != NULLCELL ) 
+	{
+	  if ( cloc->O != NULLOBJ ) 
+	    {
+	      double size = z[6 * i + 2];
+	      NspGrArc *A = (NspGrArc *)  cloc->O;
+	      nsp_graphic_invalidate((NspGraphic *) A);
+	      A->obj->x = u1[i] - size / 2;
+	      A->obj->y = u2[i] + size / 2;
+	      A->obj->w = A->obj->h = size;
+	      nsp_graphic_invalidate((NspGraphic *) A);
+	      i++;
+	    }
+	  cloc = cloc->next;
+	}
+    }
+  else if (flag == 4)
+    {
+      int wdim[]={400,400};
+      int wpos[]={-1,-1};
+      int nballs = GetInPortRows (block, 1);
+      /* balls radius in z[6 * i + 2] */
+      /* double *z = GetDstate (block); */
+      /* initialize a scope window */
+      bouncexy_data *D;
+      /* create a figure with axes and qcurves  */
+      NspList *L = NULL;
+      NspFigure *F = nsp_bouncexy_obj(wid,nballs,colors,xminmax,&L);
+      if (F == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      if ((*block->work = scicos_malloc (sizeof (bouncexy_data))) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      /* store created data in work area of block */
+      D = (bouncexy_data *) (*block->work);
+      D->F = F;
+      D->L = L;
+      D->count = 0;
+      D->tlast = t;
+      Xgc = scicos_set_win (wid, &cur);
+      if (wpos[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowpos (Xgc,wpos[0],wpos[1]);
+	}
+      if (wdim[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowdim (Xgc,wdim[0],wdim[1]);
+	}
+      str = block->label;
+      if (str != NULL && strlen (str) != 0 && strcmp (str, " ") != 0)
+	Xgc->graphic_engine->setpopupname (Xgc, str);
+    }
+  else if (flag == 5)
+    {
+      bouncexy_data *D = (bouncexy_data *) (*block->work);
+      scicos_free (D);
+      /* Xgc = scicos_set_win(wid,&cur); */
+    }
 }
 

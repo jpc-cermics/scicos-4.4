@@ -1,5 +1,5 @@
 function window_set_size(win,viewport)
-// 
+  
   if ~exists('scs_m') then scs_m=hash();end 
   if ~exists('curwin') then curwin=0;end
   if ~exists('%zoom') then %zoom=1;end 
@@ -11,37 +11,11 @@ function window_set_size(win,viewport)
   F=get_current_figure()
   gh=nsp_graphic_widget(win)
 
-  r=xget('wpdim');
-  rect=dig_bound(scs_m);
-  
-  if isempty(rect) then rect=[0,0,r(1),r(2)], end
-
-  w = (rect(3)-rect(1));
-  h = (rect(4)-rect(2));
-  j = min(1.5,max(1,1600/(%zoom*w)),max(1,1200/(%zoom*h)))  ;
-  //** amplitute correction if the user resize the window
-  ax = (max(r(1)/(%zoom*w),j));
-  ay = (max(r(2)/(%zoom*h),j));
-  bx = (1-1/ax)/2; //**
-  by = (1-1/ay)/2; //**
-
+  [mrect,wdim]=windows_compute_size();
   xset("wresize",0);
-
-  width  = %zoom * w * ax  ;   //** compute and set the axes dimensions
-  height = %zoom * h * ay  ;
-  xset('wdim',width,height);
-
-  xflush()
-
-  margins=[0.02 0.02 0.02 0.02]
-  wp=w*(ax+margins(1)+margins(2))
-  hp=h*(ay+margins(3)+margins(4))
-  xmin=rect(3)-wp*(bx+(1/ax))+margins(1)*wp
-  ymin=rect(4)-hp*(by+(1/ay))+margins(3)*hp
-  xmax=xmin+wp; ymax=ymin+hp;
-
+  xset('wdim',wdim(1),wdim(2));
+  
   arect=[0 0 0 0]
-  mrect=[xmin ymin xmax ymax];
   wrect=[0,0,1,1];
   
   if length(F.children)==0 then
@@ -52,11 +26,10 @@ function window_set_size(win,viewport)
     A.frect=mrect
     A.fixed=%t
     A.clip=%f
-    A.set[rect=mrect]; // rect is hidden but can be accessed through set and get
+    // rect is hidden but can be accessed through set and get
+    A.set[rect=mrect];
   end
-  
   xflush()
-  
   // center the graphic viewport inside the graphic window
   if isequal(viewport,%f) then
     Vbox=gh.get_children[]
@@ -74,3 +47,30 @@ function window_set_size(win,viewport)
   xset('viewport',%XSHIFT,%YSHIFT)
   xflush()
 endfunction
+
+function [frect,wdim]=windows_compute_size()
+// compute proper frect and proper wdim 
+// from scs_m 
+  r=xget('wpdim');
+  rect=dig_bound(scs_m);
+  if isempty(rect) then rect=[0,0,r(1),r(2)], end
+  w = (rect(3)-rect(1));
+  h = (rect(4)-rect(2));
+  j = min(1.5,max(1,1600/(%zoom*w)),max(1,1200/(%zoom*h)))  ;
+  // amplitute correction if the user resize the window
+  ax = (max(r(1)/(%zoom*w),j));
+  ay = (max(r(2)/(%zoom*h),j));
+  bx = (1-1/ax)/2; 
+  by = (1-1/ay)/2; 
+  // window dim 
+  wdim = %zoom*[ w * ax, h * ay];
+  // 
+  margins=[0.02 0.02 0.02 0.02]
+  wp=w*(ax+margins(1)+margins(2))
+  hp=h*(ay+margins(3)+margins(4))
+  xmin=rect(3)-wp*(bx+(1/ax))+margins(1)*wp
+  ymin=rect(4)-hp*(by+(1/ay))+margins(3)*hp
+  xmax=xmin+wp; ymax=ymin+hp;
+  frect=[xmin ymin xmax ymax];
+endfunction
+

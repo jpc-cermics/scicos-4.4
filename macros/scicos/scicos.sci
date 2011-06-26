@@ -265,6 +265,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       xset('window',curwin);
       %zoom=restore(curwin,menus,%zoom)
       scs_m=scs_m_remove_gr(scs_m)
+      window_set_size();
       scs_m=drawobjs(scs_m,curwin);
     else
       Select=user_data(2)
@@ -291,7 +292,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   
   exec(restore_menu)
   global Clipboard 
-
+  
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
     if or(winsid()==curwin) then
       if edited then
@@ -312,7 +313,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
     end
     if Cmenu=='Quit' then break,end
-
     if ~isempty(%scicos_navig) then //** navigation mode active
       while ~isempty(%scicos_navig) do
         if ~isequal(%diagram_path_objective,super_path) then
@@ -331,7 +331,12 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
               if ~or(curwin==winsid()) then 
                 %zoom=restore(curwin,menus,%zoom)
 		scs_m=scs_m_remove_gr(scs_m);
-		execstr('drawobjs(scs_m,curwin)',errcatch=%t) 
+		window_set_size();
+		ok=execstr('drawobjs(scs_m,curwin)',errcatch=%t);
+		if ~ok then 
+		  message(['Failed to draw diagram'])
+		  lasterror();
+		end
                 %scicos_navig=[]
                 Select_back=[];Select=[]
               end  

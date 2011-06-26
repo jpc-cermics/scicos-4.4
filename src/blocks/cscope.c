@@ -6,6 +6,6 @@
 
 void cscope (scicos_block * block, int flag)
 {
-  Sciprintf ("cscope is to be done for nsp \n");
+  Sciprintf ("cscope is unused \n");
 }
 

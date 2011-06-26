@@ -71,7 +71,7 @@ function Open_()
       scs_m=scs_m;
       scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
     end
-
+    
     %zoom=scs_m.props.wpar(13)
     pwindow_read_size();
     window_read_size();

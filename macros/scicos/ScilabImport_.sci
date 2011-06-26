@@ -31,7 +31,7 @@ function ScilabImport_()
       scs_m.props.context=' '
     end
     scs_m= drawobjs(scs_m),
-    if pixmap then xset('wshow'),end
+    //if pixmap then xset('wshow'),end
     if size(%cpr)==0 then
       needcompile=4
       alreadyran=%f
@@ -228,7 +228,7 @@ function scs_m=do_update_scilab_schema(scs_m)
     o=scs_m.objs(i); 
     if o.type =='Block' then
       omod=o.model;
-      if o.model.sim=='super' | o.model.sim=='csuper' then
+      if o.model.sim.equal['super'] | o.model.sim.equal['csuper'] then
 	o.model.rpar=do_update_scilab_schema(o.model.rpar)
       end
       scs_m.objs(i)=o;
