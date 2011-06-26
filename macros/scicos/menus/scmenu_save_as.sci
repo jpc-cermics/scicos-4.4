@@ -66,11 +66,10 @@ endfunction
 function scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver)
 // open the selected file
   [path,name,ext]=splitfilepath(fname)
-  
-  scs_m;
+  scs_m = scs_m;
   scs_m.props.title=[name,path]; // Change the title
   scs_m = do_purge(scs_m);
-
+  scs_m= scs_m_remove_gr(scs_m);
   if ext=='cos' then
     // save in binary mode 
     rep = execstr('save('''+fname+''',scicos_ver,scs_m,%cpr)',errcatch=%t);
@@ -86,7 +85,6 @@ function scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver)
       return
     end
     fprint(F,scicos_ver,as_read=%t);
-    scs_m = do_purge(scs_m);
     fprint(F,scs_m,as_read=%t);
     //fprint(F,%cpr,'as_read');
     F.close[];
