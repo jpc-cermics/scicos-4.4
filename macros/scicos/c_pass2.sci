@@ -166,12 +166,8 @@ function cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,flag)
 
   //initialize agenda
   [tevts,evtspt,pointi]=init_agenda(initexe,clkptr)
-
   //mod=0*ones(modptr($)-1,1)
-
-  outtb=list();
   outtb=buildouttb(lnksz,lnktyp);
-
   iz0=zeros(nb,1);
 
   if max(funtyp)>10000 &%scicos_solver<100 then

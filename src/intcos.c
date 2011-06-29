@@ -736,6 +736,10 @@ static int int_buildouttb (Stack stack, int rhs, int opt, int lhs)
   if (A->mn == 0)
     {
       /* return empty list */
+      if ((L = nsp_list_create (NVOID)) == NULLLIST)
+	return RET_BUG;
+      MoveObj (stack, 1, NSP_OBJECT (L));
+      return 1;
     }
   if (A->m == 2)
     n_lnksz = A->n;

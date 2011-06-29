@@ -1,11 +1,24 @@
+/* 
+ * Copyright (C) 2007-2011 Ramine Nikoukhah (Inria) 
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ *--------------------------------------------------------------------------*/
+
 #include "blocks.h"
-
-//  10/2007 --------
-// Copyright INRIA
-
-#ifndef NULL
-#define NULL    0
-#endif
 
 #define InterpExtrapBlin  1
 #define InterpEndValue    2
@@ -14,9 +27,10 @@
 #define InputAbove        5
 #define InterpExtraplin   6
 
-double computeZ2 (double *X, double *Y, double *Z, int nx, int ny, int method,
-		  double x, double y);
-int indexfinder2 (double x, int n, double *LT);
+static double computeZ2 (const double *X,const double *Y,const double *Z,
+			 int nx, int ny, int method,
+			 double x, double y);
+static int indexfinder2 (double x, int n,const double *LT);
 
 void lookup2d (scicos_block * block, int flag)
 {
@@ -51,8 +65,9 @@ void lookup2d (scicos_block * block, int flag)
     }
 }
 
-double computeZ2 (double *X, double *Y, double *Z, int nx, int ny, int method,
-		  double x, double y)
+static double computeZ2 (const double *X,const double *Y,const double *Z,
+			 int nx, int ny, int method,
+			 double x, double y)
 {
   int i, j, im, jm;
   double fq11, fq12, fq21, fq22, w, w1, w2, z = 0.;
@@ -168,7 +183,7 @@ double computeZ2 (double *X, double *Y, double *Z, int nx, int ny, int method,
   return z;
 }
 
-int indexfinder2 (double x, int n, double *LT)
+static int indexfinder2 (double x, int n,const double *LT)
 {
   int i1, i2, i_mid;
 

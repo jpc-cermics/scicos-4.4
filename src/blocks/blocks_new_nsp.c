@@ -40,12 +40,19 @@
 #include <nsp/matutil.h>
 #include "blocks.h"
 
+static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
+				int yfree,double ymin,double ymax,
+				nsp_qcurve_mode mode,NspList **Lc);
+
+static void  nsp_oscillo_add_point(NspList *L,double t,const double *y, int n);
+
 /* to be moved elsewhere XXXX  */
 #if WIN32
 extern double asinh (double x);
 extern double acosh (double x);
 extern double atanh (double x);
 #endif
+
 
 /*
  * utility to set wid as the current graphic window
@@ -2248,15 +2255,6 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
     }
 }
 
-
-/**
- * scicos_bouncexy_block:
- * @block: 
- * @flag: 
- * 
- * 
- **/
-
 /**
  * scicos_cscope_block:
  * @block: 
@@ -2346,7 +2344,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
       int scopebs = 10000;
       /* create an axe with predefined limits */
       NspAxes *Axes =
-	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE, -1, 1, &L);
+	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE, -1, 1,qcurve_std, &L);
       if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -2636,6 +2634,19 @@ void scicos_cmscope_block (scicos_block * block, int flag)
     }
 }
 
+/**
+ * scicos_canimxy_block:
+ * @block: 
+ * @flag: 
+ * 
+ * 
+ **/
+
+void scicos_canimxy_block(scicos_block * block, int flag)
+{
+  scicos_cscopxy_block(block,flag);
+}
+
 
 /**
  * scicos_cscopxy_block:
@@ -2677,7 +2688,6 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
   nu = Min(nu1,nu2);
   if (flag == 2)
     {
-      
       double *u1 = GetRealInPortPtrs (block, 1);
       double *u2 = GetRealInPortPtrs (block, 2);
       cscope_data *D = (cscope_data *) (*block->work);
@@ -2701,18 +2711,22 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       NspList *L;
 #define MAXXY 10
       int colors[MAXXY]; /* max number of curves ? */
-      /* XXX :
-       * buffer size for scope 
+      /* buffer size for scope 
        * this should be set to the number of points to keep 
        * in order to cover a csr->per horizon. Unfortunately 
-       * this number is not known a-priori.
+       * this number is not known a-priori except for the animated case
        */
       int scopebs = 10000;
+      if ( csi->animed == 0 )
+	{
+	  /* when animated we just want to keep an horizon of n */
+	  scopebs = csi->n;
+	}
       /* create an axe with predefined limits */
       NspAxes *Axes;
       nu = Min(nu,MAXXY);
       for ( k= 0 ; k < MAXXY ; k++) colors[k]=csi->color+k;
-      Axes=nsp_oscillo_obj (wid, nu, colors, scopebs, TRUE, -1, 1, &L);
+      Axes=nsp_oscillo_obj (wid, nu, colors, scopebs, TRUE, -1, 1,qcurve_std, &L);
       if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -3062,7 +3076,6 @@ int scicos_affich_block (scicos_args_F0)
  * @block: 
  * @flag: 
  * 
- * a multi scope:
  * new nsp graphics jpc 
  **/
 
@@ -3245,4 +3258,226 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
       /* Xgc = scicos_set_win(wid,&cur); */
     }
 }
+
+
+
+
+/**
+ * scicos_cevscpe_block:
+ * @block: 
+ * @flag: 
+ * 
+ * a scope:
+ * new nsp graphics jpc 
+ **/
+
+typedef struct _cevscpe_ipar cevscpe_ipar;
+struct _cevscpe_ipar
+{
+  int wid, color_flag, colors[8], wpos[2], wdim[2];
+};
+
+typedef struct _cevscpe_data cevscpe_data;
+
+struct _cevscpe_data
+{
+  int count;    /* number of points inserted in the scope buffer */
+  double tlast; /* last time inserted in csope data */
+  NspAxes *Axes;
+  NspList *L;
+};
+
+void scicos_cevscpe_block (scicos_block * block, int flag)
+{
+  char *label = GetLabelPtrs (block);
+  BCG *Xgc;
+  /* used to decode parameters by name */
+  cevscpe_ipar *csi = (cevscpe_ipar *) block->ipar;
+  int nipar = GetNipar (block);
+  int nbc = nipar - 6; /* nbre de couleur et de courbes */
+  int *wpos = block->ipar + nipar -4;
+  int *wdim = block->ipar + nipar -2;
+  double *rpar = GetRparPtrs (block);
+  double period = rpar[0];
+  double t;
+  int cur = 0, k;
+  int wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
+  t = scicos_get_scicos_time ();
+  
+  if (flag == 2)
+    {
+      int i;
+      double vals[10]; /* 10 max a revoir */
+      cevscpe_data *D = (cevscpe_data *) (*block->work);
+      k = D->count;
+      D->count++;
+      D->tlast = t;
+      /* A revoir */
+      for (i = 0; i < nbc ; i++)
+	{
+	  vals[i]=0.0;
+	  if ((GetNevIn (block) & (1 << i)) == (1 << i))
+	    {
+	      vals[i]= 0.8;
+	    }
+	}
+      nsp_oscillo_add_point (D->L, t, vals, nbc);
+      scicos_cscope_axes_update(D->Axes,t,period,0,1.0);
+      nsp_axes_invalidate((NspGraphic *) D->Axes);
+    }
+  else if (flag == 4)
+    {
+      /* initialize a scope window */
+      cevscpe_data *D;
+      NspList *L;
+      /* XXX :
+       * buffer size for scope 
+       * this should be set to the number of points to keep 
+       * in order to cover a csr->per horizon. Unfortunately 
+       * this number is not known a-priori.
+       */
+      int scopebs = 10000;
+      /* create an axe with predefined limits */
+      NspAxes *Axes =
+	nsp_oscillo_obj (wid, nbc , csi->colors, scopebs, TRUE, -1, 1,qcurve_stem, &L);
+      if (Axes == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      if ((*block->work = scicos_malloc (sizeof (cevscpe_data))) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      /* store created data in work area of block */
+      D = (cevscpe_data *) (*block->work);
+      D->Axes = Axes;
+      D->L = L;
+      D->count = 0;
+      D->tlast = t;
+      Xgc = scicos_set_win (wid, &cur);
+      if ( wpos[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowpos (Xgc, wpos[0],wpos[1]);
+	}
+      if ( wdim[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowdim (Xgc, wdim[0],wdim[1]);
+	}
+      label = block->label;
+      if (label != NULL && strlen (label) != 0 && strcmp (label, " ") != 0)
+	Xgc->graphic_engine->setpopupname (Xgc, label);
+    }
+  else if (flag == 5)
+    {
+      cevscpe_data *D = (cevscpe_data *) (*block->work);
+      scicos_free (D);
+      /* Xgc = scicos_set_win(wid,&cur); */
+    }
+}
+
+
+/**
+ * nsp_oscillo_obj:
+ * @win: integer giving the window id
+ * @ncurves: number of curve to create in the graphic window
+ * @style: style for each curve
+ * @bufsize: size of points in each curve
+ * @yfree: ignored (means that ymin and ymax can move freely).
+ * @ymin: min y value 
+ * @ymax: max y value 
+ * @Lc: If requested returns the list of curves.
+ * 
+ * 
+ * 
+ * Returns: a #NspFigure or %NULL
+ **/
+
+static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
+				int yfree,double ymin,double ymax,
+				nsp_qcurve_mode mode,NspList **Lc)
+{
+  double frect[4];
+  char strflag[]="151";
+  NspAxes *axe;
+  BCG *Xgc;
+  char *curve_l=NULL;
+  int i,l;
+  /*
+   * set current window
+   */
+  if ((Xgc = window_list_get_first()) != NULL) 
+    Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
+  else 
+    Xgc= set_graphic_window_new(Max(win,0));
+
+  /*
+   * Gc of new window 
+   */
+  if ((Xgc = window_list_get_first())== NULL) return NULL;
+  if ((axe=  nsp_check_for_axes(Xgc,NULL)) == NULL) return NULL;
+
+  /* clean previous plots 
+   */ 
+
+  l =  nsp_list_length(axe->obj->children);
+  for ( i = 0 ; i < l  ; i++)
+    nsp_list_remove_first(axe->obj->children);
+  frect[0]=0;frect[1]=ymin;frect[2]=100;frect[3]=ymax;
+  
+  /* create a set of qcurves and insert them in axe */
+  for ( i = 0 ; i < ncurves ; i++) 
+    {
+      int mark=-1;
+      NspQcurve *curve;
+      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2); 
+      if ( Pts == NULL) return NULL;
+      if ( style[i] <= 0 ) mark = -style[i];
+      curve= nsp_qcurve_create("curve",mark,0,0,( style[i] > 0 ) ?  style[i] : -1,
+			       mode,Pts,curve_l,-1,-1,NULL);
+      if ( curve == NULL) return NULL;
+      /* insert the new curve */
+      if ( nsp_axes_insert_child(axe,(NspGraphic *) curve,FALSE)== FAIL) 
+	{
+	  return NULL;
+	}
+    }
+  /* updates the axes scale information */
+  nsp_strf_axes( axe , frect, strflag[1]);
+  memcpy(axe->obj->frect->R,frect,4*sizeof(double));
+  memcpy(axe->obj->rect->R,frect,4*sizeof(double));
+  axe->obj->axes = 1;
+  axe->obj->xlog = FALSE;
+  axe->obj->ylog=  FALSE;
+  axe->obj->iso = FALSE;
+  /* use free scales if requested  */
+  axe->obj->fixed = ( yfree == TRUE ) ? FALSE: TRUE ;
+  nsp_axes_invalidate((NspGraphic *) axe);
+  if ( Lc != NULL) *Lc = axe->obj->children;
+  return axe;
+}
+
+/* add one point for each curve in qcurve data  */
+
+static void  nsp_oscillo_add_point(NspList *L,double t,const double *y, int n)
+{
+  int count =0;
+  Cell *Loc = L->first;
+  while ( Loc != NULLCELL ) 
+    {
+      if ( Loc->O != NULLOBJ )
+	{ 
+	  NspQcurve *curve =(NspQcurve *) Loc->O;
+	  if ( count >= n ) return;
+	  nsp_qcurve_addpt(curve,&t,&y[count],1);
+	  count++;
+	}
+      Loc = Loc->next;
+    }
+}
+
+
+
+     
 
