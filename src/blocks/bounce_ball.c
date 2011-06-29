@@ -19,14 +19,11 @@ void bounce_ball (scicos_block * block, int flag)
   double *g;
   int ng;
   int *jroot;
-
-
   int i1;
   double d1, d2, d3;
-
-  static double a, b, c;
-  static int i, j, k, n;
-  static double s1, s2, s3, s4, xsi, *y1, *y2;
+  int i, j, k, n;
+  double *y1 = _y1;
+  double *y2 = _y2;
 
   /*     Scicos block simulator */
   /*     bouncing ball */
@@ -44,18 +41,16 @@ void bounce_ball (scicos_block * block, int flag)
   x = _x;
   xd = _xd;
   rpar = _rpar;
-
   g = _g;
   ng = _ng;
   jroot = _jroot;
+
   /* Parameter adjustments to index vectors as in Scilab (fortran) */
   --g;
   --ipar;
   --rpar;
   --x;
   --xd;
-  y1 = _y1;
-  y2 = _y2;
   --y2;
   --y1;
   --jroot;
@@ -63,7 +58,7 @@ void bounce_ball (scicos_block * block, int flag)
   n = GetOutPortRows (block, 1);
   if (flag == 0)
     {
-      c = rpar[(n << 1) + 6];
+      double c = rpar[(n << 1) + 6];
       i1 = n;
       for (i = 1; i <= i1; ++i)
 	{
@@ -117,6 +112,7 @@ void bounce_ball (scicos_block * block, int flag)
 	{
 	  if (jroot[k] < 0)
 	    {
+	      double a, b, s1,s2,s3,s4, xsi;
 	      i = ipar[((k - 1) << 1) + 1];
 	      j = ipar[((k - 1) << 1) + 2];
 	      s1 = x[((j - 1) << 2) + 1] - x[((i - 1) << 2) + 1];
