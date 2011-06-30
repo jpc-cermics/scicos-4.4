@@ -51,7 +51,7 @@ function Open_()
   else
     scs_m.props.context=' '
   end
-
+    
   // draw the new diagram
   xclear(curwin,gc_reset=%f);xselect()
   set_background()

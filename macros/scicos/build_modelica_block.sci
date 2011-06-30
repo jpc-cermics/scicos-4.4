@@ -315,9 +315,6 @@ function [ok,Paro]=construct_Pars(Pari,opari,Parembed)
       x_message("type ""Complex"" is not suported in Modelica");
       ok=%f;return;
     end
-//  elseif (typeof(C)=="int32") | (typeof(C)=="int16") |...
-//	(typeof(C)=="int8") |(typeof(C)=="uint32") |...
-//	(typeof(C)=="uint16") | (typeof(C)=="uint8") then
   elseif (type(C,'string')=='IMat') then
     par_type='Integer'
     FIXED='true'
@@ -333,12 +330,12 @@ function [ok,Paro]=construct_Pars(Pari,opari,Parembed)
   
   if (npi==1) then // scalar
     if par_type=='Real' then
-      //eopari=msprintf("%e",C)
-      eopari=m2s(C,"%e")
+      // eopari=m2s(C,"%e")
+      eopari=sprintf("%e",C);
     end  
     if par_type=='Integer' then
-      //eopari=msprintf("%d",C)
-      eopari=m2s(C,"%d")
+      //eopari=m2s(C,"%d")
+      eopari=sprintf("%.0f",i2m(C))
     end  
     fixings='(fixed='+FIXED+') '
   else
@@ -362,40 +359,40 @@ endfunction
 
 
 function [ok,r]=write_nD_format(x)
-  sx=size(x)
-  
+// 
+  x= real(x); // ignore complex part 
+  sx=size(x);
   if size(sx,'*')==2 then // Matrix/Vector
-      [nD1,nD2]=size(x)
-      if nD1==1 then //row vector or scaler
-	if nD2==1 then 
-	  r=msprintf("%e",x)//scaler
-	else
-	  r=msprintf("%e,",x(1:$-1)')+msprintf("%e",x($))// row vector
-	end
-	r='{'+strcat(r,',')+'}' 
-	ok=%t;return;
+    [nD1,nD2]=size(x)
+    if nD1==1 then //row vector or scalar
+      if nD2==1 then 
+	r=sprintf("{%e}",x)//scalar
       else
-	r=[];
-	for i=1:nD1
-	  [ok,ri]=write_nD_format(x(i,:));//matrix or column vector
-	  if ok then r(i)=ri;else return;end
-	end
-	r='{'+strcat(r,',')+'}';
-	ok=%t;return;
-      end 
+	//r=msprintf("%e,",x(1:$-1)')+msprintf("%e",x($))// row vector
+	r= '{'+catenate(sprintf("%e",x(:)),sep=',')+'}';
+      end
+      ok=%t;return;
+    else
+      r=m2s([]);
+      for i=1:nD1
+	[ok,ri]=write_nD_format(x(i,:));//matrix or column vector
+	if ok then r(i)=ri;else return;end
+      end
+      r='{'+catenate(r,sep=',')+'}';
+      ok=%t;return;
+    end 
   else // hypermatrix
-       // typeof(x)==hypermat
-       //  xd=x.entries
-       //  sdims=x.dims(2:$)
-       //  N=x.dims(1)
-       //  cmd=':)' 
-       //  n=size(sx,'c') 
-       //  for i=1:n-2;cmd=':,'+cmd;end;
-       //  cmd=','+cmd;
-       r='';
-       ok=%f;return;
+    // typeof(x)==hypermat
+    //  xd=x.entries
+    //  sdims=x.dims(2:$)
+    //  N=x.dims(1)
+    //  cmd=':)' 
+    //  n=size(sx,'c') 
+    //  for i=1:n-2;cmd=':,'+cmd;end;
+    //  cmd=','+cmd;
+    r='';
+    ok=%f;return;
   end
-
 endfunction
 
 function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(filemo,Mblocks)
@@ -474,7 +471,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     mlibsM=TMPDIR+'/Modelica'
     mlib1=[mlibs,mlibsM];
     translator_libs=strcat(' -lib ""'+mlib1+'""');
-    //---->>>>>>>>>-------------------just for OS limitation-------
+    //-----------------------just for OS limitation-------
     if MSDOS then, Limit=1000;else, Limit=3500;end
     if (length(translator_libs)>Limit) then 
       mprintf("\n %s",['WARNING!';..
@@ -516,7 +513,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       scicos_mputl(txt,mymopac);     
       translator_libs= strcat(' -lib ""'+mymopac+'""');
     end    
-    //---<<<<<<<------------------just for OS limitation-------
+    //---------------------just for OS limitation-------
     //---------------------------------------------------------------------
     if %Modelica_Init then with_ixml=" -with-init ";else with_ixml=" ";end    
     

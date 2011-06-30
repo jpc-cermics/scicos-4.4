@@ -76,7 +76,7 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
   else
     message(['Only scilab *.cos (binary) files allowed for import']);
     ok=%f
-    scs_m=list()
+    scs_m = get_new_scs_m();
     return
   end
   if ~ierr then
