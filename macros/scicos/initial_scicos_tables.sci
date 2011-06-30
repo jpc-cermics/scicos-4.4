@@ -28,6 +28,7 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
   File     = ['File',..
               'New',..
               'Open',..
+	      'Scicoslab Import',..
               'Save',..
               'Save As',..
               'Save as Interf Func',..
@@ -355,6 +356,10 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
                 " containing a saved block diagram or palette.";
                 " A dialog box allows user choosing the file."])
 
+  %scs_help_menu=scicos_help(%scs_help_menu,...
+               'Import',...
+               [" Select the Import menu item to load a Scicoslab diagram"]);
+  
   %scs_help_menu=scicos_help(%scs_help_menu,...
                'Save',...
                [" Select the save menu item to save the block diagram";

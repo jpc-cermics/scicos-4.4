@@ -1,9 +1,11 @@
 function [x,y,typ]=CLOCK_c(job,arg1,arg2)
 // Copyright INRIA
+
   x=[];y=[],typ=[]
   select job
    case 'plot' then
-    standard_draw(arg1)
+    // ident str is to be up.
+    standard_draw(arg1,%t,standard_draw_ports,%f,%t);
    case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then

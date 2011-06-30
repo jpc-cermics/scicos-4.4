@@ -1,18 +1,15 @@
-function standard_draw(o,frame,draw_ports,up)
-  if nargin==1 then
-    frame=%t
-  end
-  
-  if nargin<3 then
-    draw_ports=standard_draw_ports;
-  elseif nargin==4 then
+function standard_draw(o,frame,draw_ports,up,identup)
+  if nargin <= 1 then frame=%t;  end
+  if nargin <= 2 then draw_ports= standard_draw_ports;end 
+  if nargin <= 3 then up=%f ;end 
+  if nargin <= 4 then identup=%f ;end 
+  if up then 
     draw_ports=standard_draw_ports_up;
   end
-  standard_draw_new(o,frame,draw_ports)
+  standard_draw_new(o,frame,draw_ports,identup)
 endfunction
 
-function standard_draw_new(o,frame,draw_ports)
-//
+function standard_draw_new(o,frame,draw_ports,identup)
 // Copyright INRIA
 // modified for nsp new_graphics by jpc 
   
@@ -94,7 +91,11 @@ function standard_draw_new(o,frame,draw_ports)
     if ~exists("%zoom") then %zoom=1, end;
     fz= 2*%zoom*4;
     xset('font', options.ID(1)(1), options.ID(1)(2));
-    xstring(orig(1)+sz(1)/2, orig(2),ident,posx='center',posy='up',size=fz);
+    if identup then 
+      xstring(orig(1)+sz(1)/2, orig(2)+sz(2),ident,posx='center',posy='bottom', size=fz);
+    else
+      xstring(orig(1)+sz(1)/2, orig(2),ident,posx='center',posy='up', size=fz);
+    end
     xset('font', fnt(1), fnt(2));
   end
   

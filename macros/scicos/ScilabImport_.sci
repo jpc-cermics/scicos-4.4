@@ -1,4 +1,4 @@
-function ScilabImport_()
+function ScicoslabImport_()
 // Import a Scilab Diagram in Nsp scicos.
 // XXX we should change the name in order not to 
 // overwrite the Scilab Diagram when saving.
@@ -46,7 +46,11 @@ endfunction
 function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
 // Copyright INRIA
   if nargin < 2 then typ='diagram',end
-
+  if ~exists('alreadyran') then alreadyran = %f;end 
+  //default version set to scicos2.2, 
+  //for previous version scicos_ver is stored in files
+  if ~exists('scicos_ver') then scicos_ver='scicos2.2';end 
+  
   if alreadyran & typ=='diagram' then 
     do_terminate(),//end current simulation
   end  
@@ -55,54 +59,52 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
   %cpr=list()
   scs_m=[]
 
-  current_version=scicos_ver
-  //default version set to scicos2.2, 
-  //for previous version scicos_ver is stored in files
-  scicos_ver='scicos2.2' 
-
-  if nargin <= 0 then fname=xgetfile(masks=['Scicos cos file';'*.cos'],open=%t),end
-  if fname<>emptystr() then
-    [path,name,ext]=splitfilepath(fname)
-    select ext
-     case 'cos' then
-      ierr=execstr('sci_load(fname);',errcatch=%t)
-      ok=%t
-    else
-      message(['Only scilab *.cos (binary) files allowed for import']);
-      ok=%f
-      scs_m=list()
-      return
-    end
-    if ~ierr then
-      message([name+' cannot be loaded.';lasterror()]) 
-      ok=%f;
-      return
-    end
-    // check if version is inside scs_m;
-    if scs_m.iskey['version'] then 
-      scicos_ver = scs_m.version
-    end
-    if scicos_ver=='scicos2.2' then
-      if isempty(scs_m) then scs_m=x,end //for compatibility
-    end
-    scs_m=do_update_scilab_schema(scs_m);
-    // we could here make an eval 
-    // if ~exists('%cpr') then %cpr=list();end ;
-    // [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr);
-    if scicos_ver<>current_version then 
-      scs_m=do_version(scs_m,scicos_ver),
-      %cpr=list()
-      edited=%t
-    end
-    // just in case we make a save 
-    scs_m.props.title(1)=  scs_m.props.title(1)+'_nsp' ;
+  current_version = get_scicos_version();
+  if nargin <= 0 then 
+    fname=xgetfile(masks=['Scicos cos file';'*.cos'],open=%t);
+  end
+  if fname.equal[emptystr()] then
+    ok=%f;
+    scs_m = get_new_scs_m();
+    return
+  end
+  [path,name,ext]=splitfilepath(fname)
+  select ext
+   case 'cos' then
+    ierr=execstr('sci_load(fname);',errcatch=%t)
+    ok=%t
   else
+    message(['Only scilab *.cos (binary) files allowed for import']);
     ok=%f
     scs_m=list()
     return
   end
+  if ~ierr then
+    message([name+' cannot be loaded.';lasterror()]) 
+    ok=%f;
+    return
+  end
+  // check if version is inside scs_m;
+  if scs_m.iskey['version'] then 
+    scicos_ver = scs_m.version
+  end
+  if scicos_ver=='scicos2.2' then
+    if isempty(scs_m) then scs_m=x,end //for compatibility
+  end
+  // we could here make an eval 
+  // if ~exists('%cpr') then %cpr=list();end ;
+  // [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr);
+  if scicos_ver<>current_version then 
+    scs_m=do_version(scs_m,scicos_ver),
+    %cpr=list()
+    edited=%t
+  end
+  // convert from scilab 
+  scs_m=do_update_scilab_schema(scs_m);
+  // just in case we make a save 
+  scs_m.props.title(1)=  scs_m.props.title(1)+'_nsp' ;
   scs_m.props.title=[scs_m.props.title(1),path]
-
+  
   if typ=='diagram' then
     if ~%cpr.equal[list()] then
       for jj=1:size(%cpr.sim.funtyp,'*')

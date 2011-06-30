@@ -24,7 +24,6 @@ function [%state0,state,sim]=modipar(newparameters,%state0,state,sim,scs_m,cor)
     st0=st0(1:$/2)
     Impl=%t
   end
-
   nb=prod(size(rpptr))-1
 
   for k=newparameters
