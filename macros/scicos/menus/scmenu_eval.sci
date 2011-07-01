@@ -27,7 +27,6 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr)
   needcompile1=max(2,needcompile)
   // %mprt=funcprot()
   // funcprot(0) 
-  
   getvalue=setvalue; // XXXXX Bof ? 
   
   function message(txt)
@@ -48,11 +47,11 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr)
     ok=%t,cancel=%f;
   endfunction
       
-
   // funcprot(%mprt)
   %nx=length(scs_m.objs)
   
   for %kk=1:%nx
+    printf("%d\n",%kk);
     o=scs_m.objs(%kk)
     if o.type =='Block' then		// 
       model=o.model
