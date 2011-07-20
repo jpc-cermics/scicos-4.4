@@ -64,29 +64,17 @@ model=scicos_model(sim=list(name,10004),..
 endfunction
 
 function id_out=cleanID1(id)
+// replace characters of id which are no alphabetic or digit to _
+// moreover if starting character is a digit it is replaced by '_'.
   if id=='' then
     id_out='';
     return;
-  end
-  lid=length(id)
+  end;
+  T=isalnum(id);
   ida=ascii(id);
-  ido=ida;
-  for i=1:length(id)
-    C1= ascii('0')<=ida(i) & ida(i)<=ascii('9');
-    C2= ascii('a')<=ida(i) & ida(i)<=ascii('z');
-    C3= ascii('A')<=ida(i) & ida(i)<=ascii('Z');    
-    if C1 | C2 | C3 then 
-      ido(i)=ida(i)
-    else
-      ido(i)=ascii('_')
-    end    
-  end  
-  
-  if ( ascii('0')<=ida(1) & ida(1)<=ascii('9')) then 
-    ido(1)=ascii('_')
-  end
-
-  id_out=ascii(ido);
+  ida(~T)=ascii('_');
+  if isdigit(ascii(ida(1))) then ida(1)=ascii('_');end;
+  id_out=ascii(ida);
 endfunction
 
 function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
@@ -539,8 +527,9 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       //FIXME
       //commandresult=execstr('unix_s(instr)',errcatch=%t);
       //system(instr)
-      commandresult=0
+      commandresult=0;
       printf('ZZZ: %s\n',instr);
+      pause zzz;
     end
     
     if commandresult==0 then
