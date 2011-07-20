@@ -1,7 +1,7 @@
 function  [%cpr,ok]=do_compile(scs_m)
 // Copyright INRIA
-  show_trace=%f
-  if show_trace then disp('c_pass0:'+string(timer())),end
+  show_trace=%t
+  if show_trace then printf('c_pass0: %s\n',string(timer())),end
   if ~exists('%scicos_solver') then %scicos_solver=0,end
   if ~exists('alreadyran') then alreadyran=%f; end
   par=scs_m.props;
@@ -37,9 +37,10 @@ function  [%cpr,ok]=do_compile(scs_m)
     message('Output ports are not numbered properly.')
     return
   end
+
   [bllst,connectmat,clkconnect,cor,corinv,ok]=c_pass1(scs_m);
 
-  if show_trace then disp('c_pass1:'+string(timer())),end
+  if show_trace then printf('c_pass1: %s\n',string(timer())),end
   if ~ok then %cpr=list(), return,end
   if size(connectmat,2)==6 then connectmat=connectmat(:,[1 2 4 5]),end
   // remove from local frame 

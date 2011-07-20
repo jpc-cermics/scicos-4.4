@@ -3,7 +3,7 @@ function res = tabule(tab)
 // so as to be of the same length (white padding on left). 
 // string of type '-' are to be expanded. 
 // Then the columns of tab are concatenated with separator '|' 
-// FIXME: this option shoul dbe added to catenate 
+// FIXME: this option should be added to catenate 
   [n_lignes, n_colonnes] = size(tab)
   res = smat_create(n_lignes,1,val="|");
   for i = 1 : n_colonnes

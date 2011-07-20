@@ -8,7 +8,6 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
 // dynamically linked with Scilab.
 // The correspondind model data structure is returned.
 
-
 //## get the name of the generated main modelica file
 name=stripblanks(scs_m.props.title(1))+'_im'; 
 
@@ -421,13 +420,8 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
   if (%_winId <> "nothing") then  
     running=TCL_EvalStr("winfo exists [sciGUIName "+%_winId+"]")
   end
-  
-  tmpdir=TMPDIR+'\';
-  //FIXME
-  //tmpdir=pathconvert(tmpdir,%f,%t)    
-  ext='\*.mo';
-  //FIXME
-  //ext=pathconvert(ext,%f,%t)  
+  // tmpdir is a column matrix 
+  tmpdir=file('split',TMPDIR);
   [ok,modelicac,translator,xml2modelica]=Modelica_execs();
   if ~ok then,
     name='';
@@ -435,19 +429,19 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     return;
   end
 
-  //FIXME
-  //filemo=pathconvert(filemo,%f,%t)  
-  name=basename(filemo)
+  //basename in nsp is not the same as in scilab 
+  //we must add file('root' 
+  name=file('root',basename(filemo));
   namef=name+'f';
-  Flat=tmpdir+name+'f.mo';
-  Flatxml=tmpdir+name+'f.xml';
-  Flat_functions=tmpdir+name+'f_functions.mo';
-  xmlfile=tmpdir+name+'f_init.xml';       
-  Relfile=tmpdir+name+'f_relations.xml';
-  incidence=tmpdir+name+"_incidence_matrix.xml"
-  xmlfileTMP=tmpdir+name+'Sim.xml';  if MSDOS then,xmlfileTMP=strsubst(xmlfileTMP,'\','\\') ;end
-  Cfile=tmpdir+name+'.c'
-  
+  Flat=file('join',[tmpdir;name+'f.mo']);
+  Flatxml=file('join',[tmpdir;name+'f.xml']);
+  Flat_functions=file('join',[tmpdir;name+'f_functions.mo']);
+  xmlfile=file('join',[tmpdir;name+'f_init.xml']);       
+  Relfile=file('join',[tmpdir;name+'f_relations.xml']);
+  incidence=file('join',[tmpdir;name+"_incidence_matrix.xml"])
+  xmlfileTMP=file('join',[tmpdir;name+'Sim.xml']) 
+  Cfile=file('join',[tmpdir;name+'.c']);
+    
   // macros/scicos/compile_modelica.sci
   // macros/auto/scicos_simulate.sci
   // macros/scicos/clickin.sci
@@ -460,54 +454,52 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
   
   //do not update C code if needcompile==0 this allows C code
   //modifications for debuggingS_translator.er purposes  
+  if exists('needcompile','all');needcompile=needcompile;else needcompile=4;end
 
   updateC=needcompile<>0|~file("exists",Cfile)
   updateC=updateC | %Modelica_Init 
   if updateC  then
-    //FIXME
-    //mlibs=pathconvert(modelica_libs,%f,%t)
-    //mlibsM=pathconvert(TMPDIR+'/Modelica',%f,%t)      
+    if ~exists('modelica_libs','all') then 
+      // to use do_compile outside of scicos
+      modelica_libs=get_scicospath()+'/macros/blocks/'+...
+	  ['ModElectrical','ModHydraulics','ModLinear'];
+    end
     mlibs=modelica_libs
-    mlibsM=TMPDIR+'/Modelica'
+    mlibsM=file('join',[tmpdir;'Modelica'])
     mlib1=[mlibs,mlibsM];
     translator_libs=strcat(' -lib ""'+mlib1+'""');
     //-----------------------just for OS limitation-------
-    if MSDOS then, Limit=1000;else, Limit=3500;end
+    if getenv('WIN32','NO')=='OK' then, Limit=1000;else, Limit=3500;end
     if (length(translator_libs)>Limit) then 
-      mprintf("\n %s",['WARNING!';..
-		       'There are too many Modelica files.';..
-		       'it would be better to define several ';..
-		       'Modelica programs in a single file.'])
+      // FIXME this part should be tested by setting Limit to a smaller 
+      // size 
+      printf("%s\n",['WARNING:';..
+		     '\tThere are too many Modelica files.';..
+		     '\tit would be better to define several ';..
+		     '\tModelica programs in a single file.'])
       molibs=[]
       for k=1:size(Mblocks,'r')
 	funam=stripblanks(Mblocks(k))
-	[dirF,nameF,extF]=fileparts(funam);
+	extF=file('extension',funam);
 	if (extF=='.mo') then
 	  molibs=[molibs;""""+funam+""""];
 	else
-          if MSDOS then
-	    molibs=[molibs;""""+mlibsM+'\'+funam+'.mo'+""""]
-          else
-            molibs=[molibs;""""+mlibsM+'/'+funam+'.mo'+""""]
-          end
+	  molibs=[molibs;""""+file('join',[mlibsM;funam+'.mo'])+""""];
 	end
       end
       
       for k=1:size(mlibs,'*')
-	modelica_file=listfiles(mlibs(k)+ext); 
-	if modelica_file<> [] then 
+	modelica_file=glob(file('join',[mlibs(k);'*.mo']));
+	if ~isempty(modelica_file) then 
 	  molibs=[molibs;""""+modelica_file+""""];
 	end
       end
-      
-      //FIXME
-      //mymopac= pathconvert(TMPDIR+'/MYMOPACKAGE.mo',%f,%t)
-      mymopac= TMPDIR+'/MYMOPACKAGE.mo'
+      mymopac=file('join',[tmpdir;'MYMOPACKAGE.mo']);
       txt=[];
       for k=1:size(molibs,'*')
-	[pathx,fnamex,extensionx]=fileparts(molibs(k));
-	if (fnamex<>'MYMOPACKAGE') then 
-	  txt=[txt;mgetl(evstr(molibs(k)))];
+	fnamex=file('root',file('tail',molibs(k)));
+	if fnamex<>'MYMOPACKAGE' then 
+	  txt=[txt;scicos_mgetl(evstr(molibs(k)))];
 	end
       end
       scicos_mputl(txt,mymopac);     
@@ -517,9 +509,14 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     //---------------------------------------------------------------------
     if %Modelica_Init then with_ixml=" -with-init ";else with_ixml=" ";end    
     
-    instr='""'+translator+'"" '+translator_libs+' -lib ""'+filemo+'"" -o ""'+Flat+'""'+with_ixml+'  -command ""'+name+' '+namef+';"" > ""'+tmpdir+'S_translator.err""';
-    if MSDOS then,   scicos_mputl(instr,tmpdir+'gent.bat'), instr=tmpdir+'gent.bat';end
-  //  pause    
+    instr='""'+translator+'"" '+translator_libs+' -lib ""'+filemo+'"" -o ""'+...
+	  Flat+'""'+with_ixml+'  -command ""'+name+' '+namef+';"" > ""'+ ...
+	  file('join',[tmpdir;'S_translator.err'])+'""';
+    if getenv('WIN32','NO')=='OK' then
+      instr = file('join',[tmpdir;'gent.bat']);
+      scicos_mputl(instr,instr);
+    end
+    //  pause    
     if ( %Modelica_Init ) then 
       if ~file("exists",xmlfile) then 
 	overwrite=1;//Yes
@@ -543,7 +540,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       //commandresult=execstr('unix_s(instr)',errcatch=%t);
       //system(instr)
       commandresult=0
-      printf('%s\n',instr);
+      printf('ZZZ: %s\n',instr);
     end
     
     if commandresult==0 then
@@ -572,7 +569,7 @@ ok=%t
 //	end
       end
     else
-      MSG2=scicos_mgetl(tmpdir+'S_translator.err');
+      MSG2=scicos_mgetl(file('join',[tmpdir;'S_translator.err']));
       x_message(['-------Modelica translator error message:-----';MSG2]);
       ok=%f,
       dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;
@@ -591,13 +588,18 @@ ok=%t
     else
       XMLfiles='';
     end      
-    instr='""'+modelicac+'"" ""'+Flat+'""  '+Flat_functions+' '+XMLfiles+' -o ""'+Cfile+'"" '+JAC+' 1> ""'+tmpdir+'S_modelicac.out""'+' 2> ""'+tmpdir+'S_modelicac.err""';    
-    if MSDOS then,   scicos_tl(instr,tmpdir+'genm2.bat'), instr=tmpdir+'genm2.bat';end
+    instr='""'+modelicac+'"" ""'+Flat+'""  '+Flat_functions+' '+XMLfiles+' -"+...
+	  " o ""'+Cfile+'"" '+JAC+' 1> ""'+file('join',[tmpdir;'S_modelicac.out'])+'""'+' 2> ""'+ ...
+	  file('join',[tmpdir;'S_modelicac.err'])+'""';    
+    if getenv('WIN32','NO')=='OK' then
+      instr=file('join',[tmpdir;'genm2.bat']);
+      scicos_tl(instr,instr), 
+    end
     //if execstr('unix_s(instr)','errcatch')==0 then  
     if system(instr)<>0 then
-      MSG3= scicos_mgetl(tmpdir+'S_modelicac.out');
+      MSG3= scicos_mgetl(file('join',[tmpdir;'S_modelicac.out']));
       printf("\n %s",MSG3)      
-      MSG3= scicos_mgetl(tmpdir+'S_modelicac.err');      
+      MSG3= scicos_mgetl(file('join',[tmpdir;'S_modelicac.err']));      
       [nl,nc]=size(MSG3); Index=1;
       for i=1:nl
 	if strindex(MSG3(i),"Trying to reduce state... Failed")==1 then Index=2;break;end
@@ -611,7 +613,7 @@ ok=%t
 	printf("\n  ---------------------------------------------------")
       end
     else
-      MSG3= scicos_mgetl(tmpdir+'S_modelicac.err');
+      MSG3= scicos_mgetl(file('join',[tmpdir;'S_modelicac.err']));
       x_message(['-------Modelica compiler error:-------';MSG3]);	    
       ok=%f,dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;      
       return
@@ -752,26 +754,28 @@ function [txt]=set_fix(txt)
   t=strsubst(t,'false','true')
   txt(txtline)=t;
 endfunction
+
 function model_name=get_model_name(mo_model,id,AllNames)
 //Copyright INRIA
-//## return an unique name for a modelica model
+//## return a unique name for a modelica model
 //## for the compiled modelica structure
 //##
 //## inputs :
 //##   mo_model : a string that gives the name of the model
 //##              in the modelica list (equations) of a modelica block.
 //##
-//##   Bnames   : vector of strings of already attribuate models name
+//##   Bnames   : vector of strings of already attribuated model names
 //##
 //## output :
 //##   model_name : the output string of the model name
 //##
+  // pause get_model_name 
   ido=cleanID(id);
   mo_model=cleanID(mo_model)
   ind = 1
   model_name=mo_model+'_'+ido
   if ~isempty(AllNames) then
-    while find(model_name==AllNames)<>[] then
+    while ~isempty(find(model_name==AllNames)) then
       model_name=mo_model+'_'+ido+string(ind)
       ind = ind + 1
     end
