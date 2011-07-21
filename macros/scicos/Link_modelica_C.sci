@@ -19,7 +19,6 @@ function  [ok]=Link_modelica_C(Cfile)
   libs=[];
   if MSDOS then ext='*.ilib',else ext='*.a',end 
   // removing .a or .ilib sufixs
-  pause xxx
   for k=1:size(mlibs,'*')
     aa=glob(file('join',[mlibs(k),ext]));
     for j=1:size(aa,'*')
