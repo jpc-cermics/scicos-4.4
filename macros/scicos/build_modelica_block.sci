@@ -23,7 +23,7 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
   // write txt in the file path+name+'.mo'
   //FIXME
   //path=pathconvert(stripblanks(path),%t,%t)
-  scicos_mputl(txt,file('join',[file('split',path),name+'.mo']);
+  scicos_mputl(txt,file('join',[file('split',path);name+'.mo']));
   printf('--------------------------------------------\n\r');
   printf('%s',' Main Modelica : '+path+name+'.mo'); printf('\n\r');
   // search for Modelica blocks 
@@ -587,35 +587,28 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
   end // if update
     
   printf('Modelica: compilation end\n');
-  pause eee
   [nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=reading_incidence(incidence)
-  
-  printf('\n\r Modelica blocks are reduced to a block with:');
-  printf('\n\r Number of differential states: %d',nx_der);
-  printf('\n\r Number of algebraic states: %d',nx-nx_der);
-  printf('\n\r Number of discrete time states  : %d',nz);
-  printf('\n\r Number of zero-crossing surfaces: %d',ng);
-  printf('\n\r Number of modes  : %d',nm);
-  printf('\n\r Number of inputs : %d',nin);
-  printf('\n\r Number of outputs: %d',nout);
-  printf('\n\r Input/output dependency:[ ');
-  for i=1:nin,if dep_u(i) then mprintf('T ');else,mprintf('F ');end;end; mprintf(']');
+  printf(' Modelica blocks are reduced to a block with:\n');
+  printf(' Number of differential states: %d\n',nx_der);
+  printf(' Number of algebraic states: %d\n',nx-nx_der);
+  printf(' Number of discrete time states  : %d\n',nz);
+  printf(' Number of zero-crossing surfaces: %d\n',ng);
+  printf(' Number of modes  : %d\n',nm);
+  printf(' Number of inputs : %d\n',nin);
+  printf(' Number of outputs: %d\n',nout);
+  printf(' Input/output dependency:[ ');
+  for i=1:nin,if dep_u(i) then printf('T ');else,printf('F ');end;end; printf(']\n');
   if %Jacobian then 
-    printf('\n\r Analytical Jacobian: enabled  (\%Jacobian=\%t)');
+    printf(' Analytical Jacobian: enabled  (%%Jacobian=%%t)\n');
   else
-    printf('\n\r Analytical Jacobian: disabled (\%Jacobian=\%f)');
+    printf(' Analytical Jacobian: disabled (%%Jacobian=%%f)\n');
   end
-  
   if %Modelica_ParEmb then 
-    printf('\n\r Parameter embedding mode: enabled  (\%Modelica_ParEmb=\%t)');
+    printf(' Parameter embedding mode: enabled  (%%Modelica_ParEmb=%%t)\n');
   else
-    printf('\n\r Parameter embedding mode: disabled (\%Modelica_ParEmb=\%f)');
+    printf(' Parameter embedding mode: disabled (%%Modelica_ParEmb=%%f)\n');
   end
-
-  printf('\n\r ');
-  
   ok=Link_modelica_C(Cfile)
-
 endfunction
 
 
