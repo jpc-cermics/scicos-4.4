@@ -1,66 +1,60 @@
 function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,path)
 // Serge Steer 2003, Copyright INRIA
+//   
 // given the blocks definitions in blklstm and connections in cmmat this
-// function first create  the associated modelicablock  and writes its code
+// function first creates the associated modelicablock  and writes its code
 // in the file named 'imppart_'+name+'.mo' in the directory given by path
 // Then modelica compiler is called to produce the C code of scicos block
 // associated to this modelica block. filbally the C code is compiled and
-// dynamically linked with Scilab.
+// dynamically linked. 
 // The correspondind model data structure is returned.
-
-//## get the name of the generated main modelica file
-name=stripblanks(scs_m.props.title(1))+'_im'; 
-
-if (name<> cleanID1(name) )
-  x_message('Error: '''+name+''' is not a valid name for a Modelica model.');
-  ok=%f
-  return
-end
-
-//## generation of the txt for the main modelica file
-//## plus return ipar/rpar for the model of THE modelica block
-[ok,txt,ipar, opar]=create_modelica(blklstm,corinvm,cmmat,name,scs_m);
-if ~ok then return,end
-
-//## write txt in the file path+name+'.mo'
-//FIXME
-//path=pathconvert(stripblanks(path),%t,%t)
-scicos_mputl(txt,path+name+'.mo');
-printf('--------------------------------------------\n\r');
-printf('%s',' Main Modelica : '+path+name+'.mo'); printf('\n\r');
-
-//## search for 
-
-Mblocks = [];
-for i=1:size(blklstm)
-  if type(blklstm(i).sim,'string')=='List' then
-    if blklstm(i).sim(2)==30004 then
-      o = scs_m(scs_full_path(corinvm(i)))
-      Mblocks=[Mblocks;
-	       o.graphics.exprs.nameF]
+// get the name of the generated main modelica file
+  name=stripblanks(scs_m.props.title(1))+'_im'; 
+  if (name<> cleanID1(name) )
+    x_message('Error: '''+name+''' is not a valid name for a Modelica model.');
+    ok=%f
+    return
+  end
+  // generation of the txt for the main modelica file
+  // plus return ipar/rpar for the model of THE modelica block
+  [ok,txt,ipar, opar]=create_modelica(blklstm,corinvm,cmmat,name,scs_m);
+  if ~ok then return,end
+  
+  // write txt in the file path+name+'.mo'
+  //FIXME
+  //path=pathconvert(stripblanks(path),%t,%t)
+  scicos_mputl(txt,file('join',[file('split',path),name+'.mo']);
+  printf('--------------------------------------------\n\r');
+  printf('%s',' Main Modelica : '+path+name+'.mo'); printf('\n\r');
+  // search for Modelica blocks 
+  Mblocks = [];
+  for i=1:size(blklstm)
+    if type(blklstm(i).sim,'string')=='List' then
+      if blklstm(i).sim(2)==30004 then
+	o = scs_m(scs_full_path(corinvm(i)))
+	Mblocks=[Mblocks;
+		 o.graphics.exprs.nameF]
+      end
     end
   end
-end
+  //generating XML and Flat_Model
+  // compile modelica files
+  [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(path+name+'.mo',Mblocks);
 
-//generating XML and Flat_Model
-//## compile modelica files
-[ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(path+name+'.mo',Mblocks);
+  if ~ok then return,end
 
-
-if ~ok then return,end
-
-//nx is the state dimension
-//ng is the number of surfaces
-//name1 of the model+flat
-
-//build model data structure of the block equivalent to the implicit part
-model=scicos_model(sim=list(name,10004),.. 
-                   in=ones(nin,1),out=ones(nout,1),..
-                   state=zeros(nx*2,1),..
-                   dstate=zeros(nz,1),..
-                   ipar=ipar,..
-                   opar=opar,..
-                   dep_ut=[dep_u %t],nzcross=ng,nmode=nm)
+  //nx is the state dimension
+  //ng is the number of surfaces
+  //name1 of the model+flat
+  //build model data structure of the block equivalent to the implicit part
+  model=scicos_model(sim=list(name,10004),.. 
+		     in=ones(nin,1),out=ones(nout,1),..
+		     state=zeros(nx*2,1),..
+		     dstate=zeros(nz,1),..
+		     ipar=ipar,..
+		     opar=opar,..
+		     dep_ut=[dep_u %t],nzcross=ng,nmode=nm);
+  
 endfunction
 
 function id_out=cleanID1(id)
@@ -86,7 +80,7 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
   Parembed=%Modelica_ParEmb & ~%Modelica_Init;
 
   txt=[];tab=ascii(9)
-//  rpar=[];//will contain all parameters associated with the all modelica blocs
+  //  rpar=[];//will contain all parameters associated with the all modelica blocs
   opar=list();
   ipar=[];//will contain the "adress" of each block in rpar
   models=[]//will contain the model declaration part
@@ -100,7 +94,6 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
   for k=1:nb
     ipar(k)=0
     o=blklst(k)
-
     //#########
     //## Params
     //#########
@@ -261,7 +254,6 @@ endfunction
 
 function r=validvar_modelica(s)
  r=validvar(s);
-
  if r then
    bad_char=['%' '#' '$']
    for j=1:size(bad_char,2)
@@ -273,9 +265,7 @@ function r=validvar_modelica(s)
  end
 endfunction
 
-
 function [ok,Paro]=construct_Pars(Pari,opari,Parembed)
-
   Paro='';
   if isempty(Pari) then
     ok=%f;return
@@ -283,12 +273,6 @@ function [ok,Paro]=construct_Pars(Pari,opari,Parembed)
   C=opari;
   [a1,b1]=size(C);
   npi=a1*b1;
-
-  //FIXME !!
-  //if typeof(C)== 'hypermat' then   
-  //  x_message('type ""Hyper Matrix"" is not supported')
-  //  ok=%f;return;
-  //end
   
   if (type(C,'string')=='Mat') then
     if isreal(C) then
