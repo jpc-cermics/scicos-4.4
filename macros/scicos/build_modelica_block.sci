@@ -12,7 +12,7 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
 name=stripblanks(scs_m.props.title(1))+'_im'; 
 
 if (name<> cleanID1(name) )
-  x_message(' Error: '''+name+''' is not a valid name for a Modelica model.');
+  x_message('Error: '''+name+''' is not a valid name for a Modelica model.');
   ok=%f
   return
 end
@@ -66,14 +66,10 @@ endfunction
 function id_out=cleanID1(id)
 // replace characters of id which are no alphabetic or digit to _
 // moreover if starting character is a digit it is replaced by '_'.
-  if id=='' then
-    id_out='';
-    return;
-  end;
   T=isalnum(id);
   ida=ascii(id);
   ida(~T)=ascii('_');
-  if isdigit(ascii(ida(1))) then ida(1)=ascii('_');end;
+  if length(ida)>= 1 && isdigit(ascii(ida(1))) then ida(1)=ascii('_');end;
   id_out=ascii(ida);
 endfunction
 
@@ -429,34 +425,30 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
   incidence=file('join',[tmpdir;name+"_incidence_matrix.xml"])
   xmlfileTMP=file('join',[tmpdir;name+'Sim.xml']) 
   Cfile=file('join',[tmpdir;name+'.c']);
-    
-  // macros/scicos/compile_modelica.sci
-  // macros/auto/scicos_simulate.sci
-  // macros/scicos/clickin.sci
-  // macros/scicos/do_eval.sci
-  // macros/scicos/do_run.sci
-  // compile_init_modelica
-  // MIHM
   
-  if %Jacobian then, JAC=' -jac '; else, JAC=' '; end
+  if %Jacobian then, JAC='-jac'; else, JAC=m2s([]); end
   
   //do not update C code if needcompile==0 this allows C code
-  //modifications for debuggingS_translator.er purposes  
+  //modifications for debugging purposes  
   if exists('needcompile','all');needcompile=needcompile;else needcompile=4;end
 
   updateC=needcompile<>0|~file("exists",Cfile)
   updateC=updateC | %Modelica_Init 
+  
   if updateC  then
     if ~exists('modelica_libs','all') then 
       // to use do_compile outside of scicos
       modelica_libs=get_scicospath()+'/macros/blocks/'+...
 	  ['ModElectrical','ModHydraulics','ModLinear'];
     end
-    mlibs=modelica_libs
-    mlibsM=file('join',[tmpdir;'Modelica'])
-    mlib1=[mlibs,mlibsM];
-    translator_libs=strcat(' -lib ""'+mlib1+'""');
+    mlibs=modelica_libs;
+    mlibsM=file('join',[tmpdir;'Modelica']);
+    mlib1=[modelica_libs(:);mlibsM];
+    translator_libs=[smat_create(size(mlib1,'*'),1,'-lib'),mlib1]';
+    translator_libs.redim[-1,1]
+    translator_libs=translator_libs(:);
     //-----------------------just for OS limitation-------
+    // used when command line is too long 
     if getenv('WIN32','NO')=='OK' then, Limit=1000;else, Limit=3500;end
     if (length(translator_libs)>Limit) then 
       // FIXME this part should be tested by setting Limit to a smaller 
@@ -495,16 +487,19 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     end    
     //---------------------just for OS limitation-------
     //---------------------------------------------------------------------
-    if %Modelica_Init then with_ixml=" -with-init ";else with_ixml=" ";end    
-    
-    instr='""'+translator+'"" '+translator_libs+' -lib ""'+filemo+'"" -o ""'+...
-	  Flat+'""'+with_ixml+'  -command ""'+name+' '+namef+';"" > ""'+ ...
-	  file('join',[tmpdir;'S_translator.err'])+'""';
-    if getenv('WIN32','NO')=='OK' then
-      instr = file('join',[tmpdir;'gent.bat']);
-      scicos_mputl(instr,instr);
+    if %Modelica_Init then with_ixml=" -with-init ";else with_ixml=m2s([]);end    
+    // instruction to be executed 
+    instr=[file('native',translator);
+	   translator_libs;
+	   '-lib';filemo;
+	   '-o';  Flat;
+	   with_ixml;
+	   '-command'; name+' '+namef+';'];
+    if %f && getenv('WIN32','NO')=='OK' then
+      instrc = file('join',[tmpdir;'gent.bat']);
+      scicos_mputl(instr,instrc);
+      instr=instrc;
     end
-    //  pause    
     if ( %Modelica_Init ) then 
       if ~file("exists",xmlfile) then 
 	overwrite=1;//Yes
@@ -524,92 +519,91 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     if (overwrite==2) then 
       commandresult=0;
     else
-      //FIXME
       //commandresult=execstr('unix_s(instr)',errcatch=%t);
-      //system(instr)
+      // spawn the execution;
       commandresult=0;
-      printf('ZZZ: %s\n',instr);
-      pause zzz;
+      [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
+      // FIXME: take care that ok just means that 
+      // the function runs and returned. 
+      // Then it is necessary to check sp_e 
+      if ~ok | sp_e <> ""  then 
+	commandresult=1;
+      end 
     end
-    
-    if commandresult==0 then
-      if (%Modelica_Init) then //---------------------------
-	printf('%s',' Init XML file : '+xmlfile); printf('\n\r');
-	printf('%s',' Init Rel file : '+Relfile); printf('\n\r');
-	name=Flat;dep_u=%t;//<<ALERT
-	// dep_u of the initialization block is obtained onley when the  C
-        // code is generated.
-	ok=%t,nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;      
-	return;
-      else
-	if ~((running=="1" )& (file("exists",xmlfile))) then 
-	 // ok=fix_parameters(Flatxml,'bottom');
-ok=%t
-	end  
-//	instr='""'+xml2modelica+'"" ""'+Flatxml+'"" -o ""'+Flat+'""  > ""'+tmpdir+'xml2modelica.err""';
-//	if MSDOS then, mputl(instr,tmpdir+'genx.bat');instr=tmpdir+'genx.bat';end	
-//	if ok & execstr('unix_s(instr)','errcatch')==0 then
-//	  mprintf('%s',' Flat Modelica : '+Flat); mprintf('\n\r');
-//	else 
-//	  MSG3= mgetl(tmpdir+'xml2modelica.err');
-//	  x_message(['------- XML to Modelica error message:-------';MSG3]);
-//	  ok=%f,dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;
-//	  return	         
-//	end
-      end
-    else
-      MSG2=scicos_mgetl(file('join',[tmpdir;'S_translator.err']));
-      x_message(['-------Modelica translator error message:-----';MSG2]);
+
+    if commandresult<>0 then
+      // failed 
+      x_message(['Error:';'Modelica translation failed';sp_e;sp_m]);
       ok=%f,
       dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;
       return
     end
- 
+
+    if (%Modelica_Init) then //---------------------------
+      printf('%s',' Init XML file : '+xmlfile); printf('\n\r');
+      printf('%s',' Init Rel file : '+Relfile); printf('\n\r');
+      name=Flat;dep_u=%t;//<<ALERT
+      // dep_u of the initialization block is obtained onley when the  C
+      // code is generated.
+      ok=%t,nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;      
+      return;
+    else
+      if ~((running=="1" )& (file("exists",xmlfile))) then 
+	// ok=fix_parameters(Flatxml,'bottom');
+	ok=%t
+      end  
+      //	instr='""'+xml2modelica+'"" ""'+Flatxml+'"" -o ""'+Flat+'""  > ""'+tmpdir+'xml2modelica.err""';
+      //	if MSDOS then, mputl(instr,tmpdir+'genx.bat');instr=tmpdir+'genx.bat';end	
+      //	if ok & execstr('unix_s(instr)','errcatch')==0 then
+      //	  mprintf('%s',' Flat Modelica : '+Flat); mprintf('\n\r');
+      //	else 
+      //	  MSG3= mgetl(tmpdir+'xml2modelica.err');
+      //	  x_message(['------- XML to Modelica error message:-------';MSG3]);
+      //	  ok=%f,dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;
+      //	  return	         
+      //	end
+    end
+    //
+    printf('Modelica: translation end\n');
     //---------------------------------------------------------------------
     if ~file("exists",Flat_functions) then,
-      Flat_functions=" "; 
+      Flat_functions=m2s([]); 
     else
       Flat_functions='""'+Flat_functions+'""';
     end
-
+    XMLfiles=m2s([]);
     if ((running=="1" )& (file("exists",xmlfile))) then // if GUI is running
       XMLfiles=' -with-init-in ""'+xmlfileTMP+'"" -with-init-out ""'+xmlfileTMP+'""';
-    else
-      XMLfiles='';
     end      
-    instr='""'+modelicac+'"" ""'+Flat+'""  '+Flat_functions+' '+XMLfiles+' -"+...
-	  " o ""'+Cfile+'"" '+JAC+' 1> ""'+file('join',[tmpdir;'S_modelicac.out'])+'""'+' 2> ""'+ ...
-	  file('join',[tmpdir;'S_modelicac.err'])+'""';    
-    if getenv('WIN32','NO')=='OK' then
-      instr=file('join',[tmpdir;'genm2.bat']);
-      scicos_tl(instr,instr), 
+    // run modelicac 
+    instr=[file('native',modelicac); Flat;  Flat_functions;
+	   XMLfiles; '-o'; Cfile; JAC];
+    if %f && getenv('WIN32','NO')=='OK' then
+      instrc = file('join',[tmpdir;'genm2.bat']);
+      scicos_mputl(instr,instrc);
+      instr=instrc;
     end
-    //if execstr('unix_s(instr)','errcatch')==0 then  
-    if system(instr)<>0 then
-      MSG3= scicos_mgetl(file('join',[tmpdir;'S_modelicac.out']));
-      printf("\n %s",MSG3)      
-      MSG3= scicos_mgetl(file('join',[tmpdir;'S_modelicac.err']));      
-      [nl,nc]=size(MSG3); Index=1;
-      for i=1:nl
-	if strindex(MSG3(i),"Trying to reduce state... Failed")==1 then Index=2;break;end
-      end
-      if Index==2 then 
-	MSG3=["Warning: This model is a high index DAE          ";..
-	      "The solver may be unable to simulate this system.";..
-	      "Please try to reduce the system index.           "];
-	printf("\n  ---------------------------------------------------")
-	printf("\n ! %s !",MSG3);
-	printf("\n  ---------------------------------------------------")
-      end
-    else
-      MSG3= scicos_mgetl(file('join',[tmpdir;'S_modelicac.err']));
-      x_message(['-------Modelica compiler error:-------';MSG3]);	    
+    [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
+    if ~ok | sp_e <> "" then
+      x_message(['Error:';'Modelica compilation failed ';sp_e;sp_m]);	    
       ok=%f,dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;      
       return
-    end     
+    end
+    // printf("%s\n",sp_o);
+    I=strstr(sp_e,"Trying to reduce state... Failed");
+    if sum(I)<>0 then
+      MSG3=["Warning: This model is a high index DAE          ";..
+	    "The solver may be unable to simulate this system.";..
+	    "Please try to reduce the system index.           "];
+      printf("---------------------------------------------------\n")
+      printf("! %s !\n",MSG3);
+      printf("---------------------------------------------------\n")
+    end
     //---------------------------------------------------------------------
   end // if update
-  
+    
+  printf('Modelica: compilation end\n');
+  pause eee
   [nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=reading_incidence(incidence)
   
   printf('\n\r Modelica blocks are reduced to a block with:');
@@ -642,41 +636,56 @@ endfunction
 
 
 function [ok]=fix_parameters(Flatxml,flag)
-  // flag='all' => set fixed of all parameters to true
-  // flag='top' => set fixed of only top level parameters to true
-  // flag='bottom' => set fixed of only second level parameters to true
+// flag='all' => set fixed of all parameters to true
+// flag='top' => set fixed of only top level parameters to true
+// flag='bottom' => set fixed of only second level parameters to true
+  function [txt]=set_fix(txt)
+    t=txt(txtline)
+    t=strsubst(t,'false','true')
+    txt(txtline)=t;
+  endfunction
 
-  res=execstr('xmlformat=mgetl(Flatxml)',errcatch=%t);
+  function typ=fp_get_typ(txt)
+    global txtline
+    txtline=txtline+1;
+    t=txt(txtline)
+    typ=split(t);
+    typ(length(typ)==0)=[];
+    typ=split(typ(1),sep='>',msep=%f);
+    typ(length(typ)==0)=[];
+  endfunction
+  
+  res=execstr('xmlformat=scicos_mgetl(Flatxml)',errcatch=%t);
   if (res~=0) then, ok=%f; return; end
-    
-  typ=[];input_name=[];order=[];depend=[];
+  
+  typ=m2s([]);input_name=[];order=[];depend=[];
   global txtline;txtline=0;
   touch=%f
   while and(typ<>'</model') do
-    [typ,val]=get_typ(xmlformat);
+    [typ,val]=fp_get_typ(xmlformat);
     if typ(1)=='<elements' then
-      [typ,val]=get_typ(xmlformat);      
+      [typ,val]=fp_get_typ(xmlformat);      
       while typ(1)<>'</elements' do
 	if typ(1)=='<terminal' then
-	  [typ,val]=get_typ(xmlformat);      
+	  [typ,val]=fp_get_typ(xmlformat);      
 	  txtline_save=txtline;
 	  while typ(1)<>'</terminal' do
 	    if typ(1)=='<name' then 
-	     ttyp=tokens(typ(2),'<');
+	     ttyp=split(typ(2),sep='<');
 	     Item_name=ttyp(1);
 	    end
 	    if typ(1)=='<id' then 
-	     ttyp=tokens(typ(2),'<');
+	     ttyp=split(typ(2),sep='<');
 	     Item_id=ttyp(1);
 	    end
  	    if typ(1)=='<kind' then 
-	     ttyp=tokens(typ(2),'<');
+	     ttyp=split(typ(2),sep='<');
 	     Item_kind=ttyp(1);
 	    end
  	    if typ(1)=='<fixed' then 
 	     Item_fixed=val;
 	    end
- 	    [typ,val]=get_typ(xmlformat);
+ 	    [typ,val]=fp_get_typ(xmlformat);
 	  end
 	  
 	  if Item_kind=='fixed_parameter' then
@@ -694,19 +703,19 @@ function [ok]=fix_parameters(Flatxml,flag)
 	    //----------
 	    if fixit then 
 	      txtline=txtline_save;
-	      [typ,val]=get_typ(xmlformat);      
+	      [typ,val]=fp_get_typ(xmlformat);      
 	      while typ(1)<>'</terminal' do
 		if typ(1)=='<fixed' then 
 		  [xmlformat]=set_fix(xmlformat);
 		  touch=%t
 		end
-		[typ,val]=get_typ(xmlformat);      
+		[typ,val]=fp_get_typ(xmlformat);      
 	      end
 	    end
 	    //-----------
 	  end
 	end
-	[typ,val]=get_typ(xmlformat);
+	[typ,val]=fp_get_typ(xmlformat);
       end
     end
   end
@@ -717,31 +726,6 @@ function [ok]=fix_parameters(Flatxml,flag)
     if (res~=0) then, ok=%f; return; end    
   end 
   ok=%t
-endfunction
-
-
-function t=read_new_line(txt)
-  global txtline
-  txtline=txtline+1;
-  t=txt(txtline)
-endfunction
-
-function [typx,value]=get_typ(txt)
-  t=read_new_line(txt);
-  typ=tokens(t);  
-  typx=tokens(typ(1),'>');
-  if size(typ,'*')==2 & typ=='value' then 
-    valx=tokens(typ(2),['>','/'])
-    execstr(valx,'errcatch')
-  else
-    value=[];
-  end
-endfunction
-
-function [txt]=set_fix(txt)
-  t=txt(txtline)
-  t=strsubst(t,'false','true')
-  txt(txtline)=t;
 endfunction
 
 function model_name=get_model_name(mo_model,id,AllNames)
@@ -772,47 +756,33 @@ function model_name=get_model_name(mo_model,id,AllNames)
 endfunction
 
 function id_out=cleanID(id)
-  if id=='' then
-    id_out='';
-    return;
-  end
-  lid=length(id)
+// replace characters of id which are no alphabetic or digit to _
+  T=isalnum(id);
   ida=ascii(id);
-  ido=ida;
-  for i=1:length(id)
-    C1= ascii('0')<=ida(i) & ida(i)<=ascii('9');
-    C2= ascii('a')<=ida(i) & ida(i)<=ascii('z');
-    C3= ascii('A')<=ida(i) & ida(i)<=ascii('Z');    
-    if C1 | C2 | C3 then 
-      ido(i)=ida(i)
-    else
-      ido(i)=ascii('_')
-    end    
-  end  
-  id_out=ascii(ido);
+  ida(~T)=ascii('_');
+  id_out=ascii(ida);
 endfunction
 
 function [ok,modelicac,translator,xml2modelica]=Modelica_execs()
-  //FIXME
-  //ok=%f
-  
-  //modelicac=pathconvert(SCI+'/bin/modelicac.exe',%f,%t)         
-  //translator=pathconvert(SCI+'/bin/translator.exe',%f,%t) 
-  //xml2modelica=pathconvert(SCI+'/bin/XML2Modelica.exe',%f,%t)
-  //ok =%t
-  
-  //if strindex(modelicac,' ')<>[] then modelicac='""'+modelicac+'""',end
-  //if strindex(translator,' ')<>[] then translator='""'+translator+'""',end
-  //if strindex(xml2modelica,' ')<>[] then xml2modelica='""'+xml2modelica+'""',end
-
-  //if (fileinfo(modelicac)==[])    then x_message(['Scilab cannot find the Modelica compiler:';modelicac]);ok=%f;return;end
-  //if (fileinfo(translator)==[])   then x_message(['Scilab cannot find the Modelica translator:';translator]);ok=%f;return;end
-  //if (fileinfo(xml2modelica)==[]) then x_message(['Scilab cannot find the XML to modelica convertor:';xml2modelica]);ok=%f;return;end
-  
+// find executables 
   ok=%t
   modelicac=getenv('NSP')+'/bin/modelicac.exe'
   translator=getenv('NSP')+'/bin/translator.exe'
   xml2modelica=getenv('NSP')+'/bin/XML2Modelica.exe'
-
+  if ~file('exists',modelicac) then 
+    x_message(['Error: cannot find the Modelica compiler:';modelicac]);
+    ok=%f;
+    return;
+  end
+  if ~file('exists',translator) then 
+    x_message(['Error: cannot find the Modelica translator:';translator]);
+    ok=%f;
+    return;
+  end
+  if ~file('exists',xml2modelica) then 
+    x_message(['Error: cannot find the XML to modelica converter:';xml2modelica]);
+    ok=%f;
+    return;
+  end
 endfunction
 
