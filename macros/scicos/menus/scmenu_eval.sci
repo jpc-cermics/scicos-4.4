@@ -51,7 +51,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr)
   %nx=length(scs_m.objs)
   
   for %kk=1:%nx
-    printf("%d\n",%kk);
+    // printf("%d\n",%kk);
     o=scs_m.objs(%kk)
     if o.type =='Block' then		// 
       model=o.model

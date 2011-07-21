@@ -231,7 +231,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     scs_m.props.context=' ' 
   end
 
-  MSDOS=%f; // XXXXX 
+  MSDOS=%f; // XXXXX
+  function ret=with_lcc()
+    ret=%f
+  endfunction
 
   Cmenu='';%pt=[];%win=curwin;%curwpar=[];
   Select=[];Select_back=[];%ppt=[];

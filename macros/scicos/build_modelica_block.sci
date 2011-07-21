@@ -41,7 +41,10 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
   // compile modelica files
   [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(path+name+'.mo',Mblocks);
 
-  if ~ok then return,end
+  if ~ok then 
+    model=list();
+    return
+  end
 
   //nx is the state dimension
   //ng is the number of surfaces
@@ -69,11 +72,11 @@ endfunction
 
 function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
 // Copyright INRIA
-  if exists('%Modelica_Init','global')==%f then 
+  if exists('%Modelica_Init')==%f then 
     // Modelica_Init becomes true only in "Modelicainitialize_.sci"
     %Modelica_Init=%f;
   end
-  if exists('%Modelica_ParEmb','global')==%f then 
+  if exists('%Modelica_ParEmb')==%f then 
     %Modelica_ParEmb=%t;
   end  
   
@@ -365,16 +368,16 @@ endfunction
 function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(filemo,Mblocks)
 // Copyright INRIA
   //lines(0)
-  if exists('%Modelica_Init','global')==%f then 
+  if exists('%Modelica_Init')==%f then 
     // Modelica_Init becomes true only in "Modelicainitialize_.sci"
     %Modelica_Init=%f;
   end
 
-  if exists('%Jacobian','global')==%f then 
+  if exists('%Jacobian')==%f then 
     %Jacobian=%t;
   end
 
-  if exists('%Modelica_ParEmb','global')==%f then 
+  if exists('%Modelica_ParEmb')==%f then 
     %Modelica_ParEmb=%t;
   end
     

@@ -1,5 +1,5 @@
 function scicos_utils()
-// a set of function which emulate scilab funcitons.
+// a set of function which emulate scilab functions.
 endfunction
 
 
@@ -60,10 +60,31 @@ endfunction
 
 function str=scicos_mgetl(fname)
     F=fopen(fname,mode="r");
-    str=F.get_smatrix[];
+    ierr=execstr('str=F.get_smatrix[]',errcatch=%t)
+    if ~ierr then
+      str=[]
+      lasterror()
+    end
     F.close[];
 endfunction
 
 function y=isequal(a,b)
   y=a.equal[b] 
+endfunction
+
+function y=newest(varargin)
+  if nargin==1 then str=varargin(1),else str=varargin,end
+  n=prod(size(str))
+  dat=zeros(1,n)
+  for i=1:n
+    ierr=execstr('dd=file(""mtime"",str(i))',errcatch=%t)
+    if ~ierr then
+      dat(i)=0
+      lasterror()
+    else
+      dat(i)=dd
+    end
+  end
+  [dat,y]=sort(dat)
+  y=y(1)
 endfunction

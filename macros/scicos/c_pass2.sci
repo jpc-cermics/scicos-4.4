@@ -171,7 +171,7 @@ function cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,flag)
   iz0=zeros(nb,1);
 
   if max(funtyp)>10000 &%scicos_solver<100 then
-      mprintf("\n\r\n\-Diagram contains implicit blocks => switching to the implicit solver\n\n\r");
+    printf("\nDiagram contains implicit blocks => switching to the implicit solver\n");
     %scicos_solver=100
   end
   if %scicos_solver>=100 then xc0=[xc0;xcd0],end

@@ -53,7 +53,11 @@ function [scs_m,edited]=do_SaveAs()
   else
     %cpr=list()
   end
+  scs_m_rec=scs_m
   scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver);
+  scs_m_rec.props=scs_m.props
+  scs_m=scs_m_rec
+  clear scs_m_rec
   drawtitle(scs_m.props)  // draw the new title
   edited=%f
   if pal_mode then 
