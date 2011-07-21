@@ -113,18 +113,17 @@ static int read_id (ezxml_t *, char *, double *);
 static int Convert_number (char *, double *);
 static int CallKinsol (double *);
 
-#if 0
-static void Set_Jacobian_flag (int flag);
-static double Get_Scicos_SQUR (void);
-static int KinJacobians0 (long int, DenseMat, N_Vector, N_Vector, void *,
+void Set_Jacobian_flag (int flag);
+double Get_Scicos_SQUR (void);
+int KinJacobians0 (long int, DenseMat, N_Vector, N_Vector, void *,
 			  N_Vector, N_Vector);
+#if 0 
 static int rhojac_ (double *a, double *lambda, double *x, double *jac,
 		    int *col, double *rpar, int *ipar);
 static int rho_ (double *, double *, double *, double *, double *, int *);
 static int fx_ (double *, double *);
 static int hfjac_ (double *, double *, int *);
-#endif
-
+#endif 
 
 /* simplify some calls to Scicos->sim */
 
@@ -1735,7 +1734,8 @@ int Setup_IDA (void **ida_mem, int N, N_Vector * yy, double *x, N_Vector * yp,
   /*--------*/
   /*Jacobian_Flag=0; */
   if (AJacobian_block > 0)
-    {				/* set by the block with A-Jac in flag-4 using Set_Jacobian_flag(1); */
+    {			
+      /* set by the block with A-Jac in flag-4 using Set_Jacobian_flag(1); */
       Jn = *Scicos->params.neq;
       Jnx = Blocks[AJacobian_block - 1].nx;
       Jno = Blocks[AJacobian_block - 1].nout;
@@ -5343,13 +5343,11 @@ char *scicos_get_label (int kf)
   return Blocks[kf - 1].label;
 }
 
-#if 0
-static void Set_Jacobian_flag (int flag)
+void Set_Jacobian_flag (int flag)
 {
   Jacobian_Flag = flag;
   return;
 }
-#endif
 
 double Get_Jacobian_ci (void)
 {
@@ -5361,12 +5359,11 @@ double Get_Jacobian_cj (void)
   return CJ;
 }
 
-#if 0
+
 double Get_Scicos_SQUR (void)
 {
   return SQuround;
 }
-#endif
 
 /*-----------------------------------------------------------------------*/
 
@@ -5831,7 +5828,7 @@ int write_xml_states (int nvar, const char *xmlfile, char **ids, double *x)
 }
 
 #if 0
-int fx_ (double *x, *residual);
+static int fx_ (double *x, *residual);
 {
   double *xdot, t;
   xdot = x + *Scicos->params.neq;
@@ -5846,7 +5843,7 @@ int fx_ (double *x, *residual);
 
 
 #if 0
-int rho_ (double *a, double *L, double *x, double *rho, double *rpar,
+static int rho_ (double *a, double *L, double *x, double *rho, double *rpar,
 	  int *ipar)
 {
   int i, N = *Scicos->params.neq;
@@ -5858,7 +5855,7 @@ int rho_ (double *a, double *L, double *x, double *rho, double *rpar,
 #endif
 
 #if 0
-int rhojac_ (double *a, double *lambda, double *x, double *jac, int *col,
+static int rhojac_ (double *a, double *lambda, double *x, double *jac, int *col,
 	     double *rpar, int *ipar)
 {
   /* MATRIX [d_RHO/d_LAMBDA, d_RHO/d_X_col] */
@@ -5901,7 +5898,7 @@ int rhojac_ (double *a, double *lambda, double *x, double *jac, int *col,
 #endif
 
 #if 0
-int hfjac_ (double *x, double *jac, int *col)
+static int hfjac_ (double *x, double *jac, int *col)
 {
   int N, j;
   double *work;
@@ -6072,7 +6069,8 @@ static int CallKinsol (double *told)
 
   /*Jacobian_Flag=0; */
   if (AJacobian_block > 0)
-    {				/* set by the block with A-Jac in flag-4 using Set_Jacobian_flag(1); */
+    {				
+      /* set by the block with A-Jac in flag-4 using Set_Jacobian_flag(1); */
       Jn = *Scicos->params.neq;
       Jnx = Blocks[AJacobian_block - 1].nx;
       Jno = Blocks[AJacobian_block - 1].nout;
@@ -6223,9 +6221,9 @@ static int CallKinsol (double *told)
   return status;
 }
 
-#if 0
-static int KinJacobians0 (long int n, DenseMat J, N_Vector u, N_Vector fu,
-			  void *jac_data, N_Vector tmp1, N_Vector tmp2)
+
+int KinJacobians0 (long int n, DenseMat J, N_Vector u, N_Vector fu,
+		   void *jac_data, N_Vector tmp1, N_Vector tmp2)
 {
   double inc, inc_inv, ujsaved, ujscale, sign;
   double *tmp2_data, *u_data, *uscale_data;
@@ -6271,7 +6269,6 @@ static int KinJacobians0 (long int n, DenseMat J, N_Vector u, N_Vector fu,
 
   return (0);
 }
-#endif
 
 int KinJacobians1 (long int Neq, DenseMat Jacque, N_Vector yy,
 		   N_Vector resvec, void *jac_data, N_Vector tmp1,
