@@ -161,8 +161,8 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
           //force compilation if an implicit block has been edited
           modified=or(model_n<>model)
           eq=model.equations;eqn=model_n.equations;
-          if or(eq.model<>eqn.model)|or(eq.inputs<>eqn.inputs)|..
-              or(eq.outputs<>eqn.outputs) then
+	  if or(eq.model<>eqn.model)|| ~eq.inputs.equal[eqn.inputs] ||  ...
+		~eq.outputs.equal[eqn.outputs] then
             needcompile=4
           end
 
