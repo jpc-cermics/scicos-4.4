@@ -83,7 +83,7 @@ function class_txt=build_classhead(funam,vinp,vout,vparam,vparamv,vpprop)
 //build_classhead : build the head of the modelica function
 //
   
-  //[dirF,nameF,extF]=fileparts(funam);
+//[dirF,nameF,extF]=fileparts(funam);
   [dirF,nameF,extF]=splitfilepath(funam);
   
   ni=size(vinp,'r');   //** number of inputs
