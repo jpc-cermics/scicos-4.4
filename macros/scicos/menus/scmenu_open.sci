@@ -41,17 +41,13 @@ function Open_()
     else
       context_same = H1.equal[%scicos_context];
       %scicos_context = H1;
-      //perform eval only if context contains functions which may give
-      //different results from one execution to next
-      //XXXX : we have to check here if context contains rand exec or load 
-      if ~context_same then
-	[scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
-      end
+      // make a do_eval 
+      [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
     end
   else
     scs_m.props.context=' '
   end
-    
+  
   // draw the new diagram
   xclear(curwin,gc_reset=%f);xselect()
   set_background()
