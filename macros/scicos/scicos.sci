@@ -146,7 +146,27 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       alreadyran=%f
       [ok,scs_m,%cpr,edited]=do_load(%fil,'diagram')
       if ~ok then return, end
-
+      // make a first eval ? 
+      // 
+      if is(scs_m.props.context,%types.SMat) then
+	// we have a context to evaluate. 
+	// execute the context 
+	if ~exists('%scicos_context') then 
+	  %scicos_context=hash_create(0);
+	end
+	[ok,H1]=execstr(scs_m.props.context,env=%scicos_context,errcatch=%t);
+	if ~ok then 
+	  message(['Error occur when evaluating context:']); //   lasterror() ])
+	else
+	  context_same = H1.equal[%scicos_context];
+	  %scicos_context = H1;
+	  // make a do_eval 
+	  // XXXX [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
+	end
+      else
+	scs_m.props.context=' '
+      end
+      // 
       if size(%cpr)==0 then
 	needcompile=4
 	%state0=list()
@@ -163,7 +183,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   else
     xset('window',Main_Scicos_window);
     xset('recording',0);
-
+    
     ok = execstr('load(getenv(''NSP_TMPDIR'')+''/BackupSave.cos'')',errcatch=%t)
     if ~ok then
       lasterror();
