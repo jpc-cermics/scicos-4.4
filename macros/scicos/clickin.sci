@@ -175,7 +175,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
               needcompile=4
             else
               for i=1:length(model.equations.parameters(2))
-                if or((eq.parameters(2)(i))<> (eqn.parameters(2)(i))) then
+                if eq.parameters(2)(i).equal[(eqn.parameters(2)(i))] then
                   needcompile=0
                   TMPDIR=getenv('NSP_TMPDIR')
                   XML=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
