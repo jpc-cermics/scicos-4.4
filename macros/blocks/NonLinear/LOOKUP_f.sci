@@ -11,7 +11,7 @@ function [x,y,typ]=LOOKUP_f(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    pause xxx
+    //pause xxx
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;rpar=model.rpar;
