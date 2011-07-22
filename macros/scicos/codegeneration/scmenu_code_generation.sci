@@ -2108,9 +2108,8 @@ function ok=gen_gui();
   end
 endfunction
   
-  
 
-function ok=gen_loader()
+function ok=gen_loader_old()
 //generates the Scilab script for defining the newly created block
 //into Scilab.
  
@@ -2144,7 +2143,7 @@ function ok=gen_loader()
   end
 endfunction
 
-function Makename=gen_make(name,files,libs,Makename)
+function Makename=gen_make_old(name,files,libs,Makename)
   if getenv('WIN32','NO')=='OK' then
     Makename=gen_make_win32(name,files,libs,Makename)
   else
@@ -2152,7 +2151,7 @@ function Makename=gen_make(name,files,libs,Makename)
   end
 endfunction
 
-function Makename=gen_make_unix(name,files,libs,Makename)
+function Makename=gen_make_unix_old(name,files,libs,Makename)
   //   "OBJSSTAN="+strcat(strsubst(files,'_void_io','_standalone')+'.o',' ...
   //		')+' '+rdnom+'_act_sens_events.o'
 
@@ -2175,7 +2174,7 @@ function Makename=gen_make_unix(name,files,libs,Makename)
   scicos_mputl(T,Makename)
 endfunction
 
-function Makename=gen_make_win32(name,files,libs,Makename)
+function Makename=gen_make_win32_old(name,files,libs,Makename)
   SCI=getenv('SCI');
   WSCI=strsubst(SCI,'/','\') 
   //  "OBJSSTAN="+strcat(strsubst(files,'_void_io','_standalone')+'.obj','
