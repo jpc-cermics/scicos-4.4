@@ -44,6 +44,8 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
 // Copyright INRIA
 // Last Updated 14 Jan 2009 Fady NASSIF
 
+  if ~exists('needcompile') then needcompile=0;end 
+  
   global %err_mess_eval
   if nargin < 2 then cpr=list(); end
   if ~exists('%scicos_context') then 
@@ -86,6 +88,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
   function result= dialog(labels,valueini); result=valueini;endfunction
   function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=0;endfunction
   function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
+    printf('In Eval MODCOM \n');
     ok = %t;
     nameF=file('root',file('tail',funam));
     extF =file('extension',funam);
