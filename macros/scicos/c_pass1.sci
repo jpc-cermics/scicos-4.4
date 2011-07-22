@@ -42,7 +42,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
     end
   end
   if ~ok then 
-    blklst=[];cmat=[],ccmat=[],cor=[],corinv=[]
+    blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
     return;
   end
   index1=find((sco_mat(:,2)=='-1')& (sco_mat(:,5)<>'10')& (sco_mat(:,5)<>'4'))
@@ -53,7 +53,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       if flgcdgen<>-1 then full_path=[numk full_path];scs_m=all_scs_m;end
       hilite_path(full_path,"Error in compilation, There is a FROM ''"+(sco_mat(i,3))+ "'' without a GOTO",%t)
       ok=%f;
-      blklst=[];cmat=[],ccmat=[],cor=[],corinv=[]
+      blklst=[];cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
       return;
     end
   end
@@ -79,13 +79,13 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       ind(kb)=-km;
       [modelx,okx]=build_block(o); // compile modelica block type 30004
       if ~okx then 
-	cmat=[],ccmat=[],cor=[],corinv=[]
+	cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
 	return
       end
     else
       [model,ok]=build_block(o);
       if ~ok then 
-	cmat=[],ccmat=[],cor=[],corinv=[]
+	cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
 	return,
       end
       if or(model.sim(1).equal['plusblk']) then
@@ -106,7 +106,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       //    [links_table,blklst,corinvt,cor,ind,sco_mat,ok,flgcdgen,freof]=sample_clk(sco_mat,links_table,blklst,corinvt,cor,scs_m,ind,flgcdgen)
     end
     if ~ok then
-      cmat=[],ccmat=[],cor=[],corinv=[]
+      cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
       return,
     end
     smplk=find(ind==0);
@@ -229,7 +229,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   if size(busmat,1)>0
     [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,ccmat,busmat,cor,corinv,reg,MaxBlock,sco_mat,scs_m);
     if ~ok then 
-      blklst=[];cmat=[],ccmat=[],cor=[],corinv=[]
+      blklst=[];cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
       return;
     end
   end
@@ -335,7 +335,7 @@ function mat=cmatfromT(Ts,nb)
   K=unique(Ts(k,1));
   Ts=remove_fictitious(Ts,K)
   
-  if isempty(Ts) then mat=[],return,end
+  if isempty(Ts) then mat=zeros(0,4),return,end
   //  if size(Ts,1)<>int(size(Ts,1)/2)*2 then disp('PB'),pause,end
   [s,k]=gsort(Ts(:,[4,3]),'lr','i');Ts=Ts(k,:)
   // modified to support the CLKGOTO/CLKFROM
