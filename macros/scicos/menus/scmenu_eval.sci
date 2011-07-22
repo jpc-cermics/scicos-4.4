@@ -4,6 +4,9 @@ function Eval_()
     // not super block 
     Cmenu='Replot'
     %now_win=xget('window')
+    if ~exists('%scicos_context') then 
+      %scicos_context=hash_create(0);
+    end
     [%scicos_context,ierr]=script2var(scs_m.props.context,%scicos_context)
     //for backward compatibility for scifunc
     if ierr==0 then
@@ -135,6 +138,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
 // This function (re)-evaluates blocks in the scicos data structure scs_m 
 // Copyright INRIA
 // Last Updated 14 Jan 2009 Fady NASSIF
+
   global %err_mess_eval
   if nargin < 2 then cpr=list(); end
   if nargin < 3 && ~exists('%scicos_context') then
@@ -175,15 +179,15 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
   endfunction
   function result= dialog(labels,valueini); result=valueini;endfunction
   function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=0;endfunction
-  function [ok,tt]        = MODCOM(funam,tt,vinp,vout,vparam,vparamv, vpprop)
+  function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
     nameF=file('root',file('tail',funam));
     extF =file('extension',funam);
     if extF=='' then 
-      funam1=file('join',[TMPDIR;'Modelica';nameF+'.mo']);
-      mputl(tt,funam1);
+      funam1=file('join',[getenv('NSP_TMPDIR');'Modelica';nameF+'.mo']);
+      scicos_mputl(tt,funam1);
     elseif ~file('exists',funam) then
       funam1=funam;
-      mputl(tt,funam1);
+      scicos_mputl(tt,funam1);
     end
   endfunction
   

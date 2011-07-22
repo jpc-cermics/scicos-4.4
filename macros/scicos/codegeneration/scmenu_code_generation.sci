@@ -36,10 +36,12 @@ function  CodeGeneration_()
   end    
 endfunction
 
-function [ok,Makename]=buildnewblock() 
-// compiles the generated C code and link it with Scilab
-//Copyright INRIA
-//Author : Rachid Djenidi
+function [ok,Makename]=buildnewblock_old() 
+// Replaced by a new function see buildnewblock.sci
+//
+// compiles the generated C code and link it.
+// Copyright INRIA
+// Author : Rachid Djenidi
   files=[rdnom rdnom+'_void_io' rdnom+'_Cblocks']
   ok =execstr("fd=fopen(''"+rpat+'/'+rdnom+'f.f'+"'',mode=""r"")", errcatch=%t);
   if ok then fd.close[];files=[files,rdnom+'f'],end
