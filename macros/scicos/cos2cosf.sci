@@ -3,8 +3,25 @@ function cos2cosf(u,scs_m,count)
 //returns the  value of scicos data structure scs_m.
 // in the opened file associated with logical unit u
 // Copyright INRIA
-  [lhs,rhs]=argn(0)
-  if rhs<3 then 
+
+// FIXME: not used and it is very easy to obtain 
+// with print and as_read = %t;
+  
+  return;
+  
+  function t=catinstr(t,t1,n)
+  sep=','
+  dots='.'+'.';
+  if size(t1,'*')==1&(lmax==0|max(length(t1))+length(t($))<lmax) then
+    t($)=t($)+sep+t1
+  else
+    t($)=t($)+sep+dots
+    bl1=' ';bl1=part(bl1,1:n)
+    t=[t;bl1(ones_new(size(t1,1),1))+t1]
+  end
+  endfunction
+  
+  if nargin < 3 then 
     count=0,
     lname='scs_m'
   else
@@ -79,14 +96,3 @@ function cos2cosf(u,scs_m,count)
 
 endfunction
 
-function t=catinstr(t,t1,n)
-  sep=','
-  dots='.'+'.';
-  if size(t1,'*')==1&(lmax==0|max(length(t1))+length(t($))<lmax) then
-    t($)=t($)+sep+t1
-  else
-    t($)=t($)+sep+dots
-    bl1=' ';bl1=part(bl1,1:n)
-    t=[t;bl1(ones_new(size(t1,1),1))+t1]
-  end
-endfunction

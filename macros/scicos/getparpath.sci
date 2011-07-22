@@ -11,9 +11,8 @@ function ppath=getparpath(scs_m,bpath,ppath)
 //!
 // Copyright INRIA
   excluded=['IN_f','OUT_f','CLKIN_f','CLKOUT_f','CLKINV_f','CLKOUTV_f']
-  [lhs,rhs]=argn(0)
-  if rhs<2 then bpath=[],end
-  if rhs<3 then ppath=list(),end
+  if nargin < 2 then bpath=[],end
+  if nargin < 3 then ppath=list(),end
   for k=1:length(scs_m.objs)
     o=scs_m.objs(k)
     if o.type =='Block' then

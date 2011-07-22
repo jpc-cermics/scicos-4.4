@@ -281,7 +281,7 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
     mputl(tt,funam1);
   endfunction
   context=scs_m.props.context
-  if argn(2)<2 then
+  if nargin < 2 then
     global %scicos_context;
     [%scicos_context,ierr]=script2var(context,struct());
   else
