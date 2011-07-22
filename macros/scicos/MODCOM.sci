@@ -1,6 +1,7 @@
 function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
 // Copyright INRIA
 //
+  ok = %t;
   //[dirF,nameF,extF]=fileparts(funam);
   [dirF,nameF,extF]=splitfilepath(funam);
 
@@ -53,10 +54,8 @@ function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
       ok=%t;
       // saving in the filename
       if ok then
-	//tarpath=pathconvert(getenv('NSP_TMPDIR')+'/Modelica/',%f,%t);
-	tarpath=getenv('NSP_TMPDIR')+'/Modelica/';
 	if (extF=='')  then
-	  funam=tarpath+nameF+'.mo';
+	  funam=file('join',[getenv('NSP_TMPDIR'),'Modelica',nameF+'.mo']);
 	  scicos_mputl(txt,funam);
 	elseif ~file('exists',funam) then
 	  scicos_mputl(txt,funam);
