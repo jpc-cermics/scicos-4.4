@@ -74,12 +74,12 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
       //put string symbolic parameters in variable
       //take care that 
       eok = %t;
-      eok= eok && execstr("in=stripblanks(evstr(Tin))",errcatch=%t);
-      eok= eok && execstr("intype=stripblanks(evstr(Tintype));",errcatch=%t)
-      eok= eok && execstr("intype=stripblanks(evstr(Tintype));",errcatch=%t)
-      eok= eok && execstr("out=stripblanks(evstr(Tout));",errcatch=%t)
-      eok= eok && execstr("outtype=stripblanks(evstr(Touttype));",errcatch=%t)
-      eok= eok && execstr("param=stripblanks(evstr(Tparam));",errcatch=%t)
+      vars=['in','intype','out','outtype','param'];
+      for var=vars
+	cmd= sprintf('%s=evstr(T%s);if isempty(%s) then %s=m2s([]);else %s=stripblanks(%s);end',...
+		     var,var,var,var,var,var);
+	eok= eok && execstr(cmd,errcatch=%t);
+      end
       eok= eok && execstr("funam=stripblanks(Tfunam)",errcatch=%t);
       if ~eok then
 	//You loose ! Try again ! Insert coin !
@@ -139,7 +139,6 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
 		     "Please choose another variable name."] );
 	end
       end
-
       // type checking
       //typeok=%t;
       if ok then
