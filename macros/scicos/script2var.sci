@@ -6,6 +6,7 @@ function [H,ierr] = script2var(txt,Hin)
 // In case of error lasterror() can be called 
 // jpc Aug 2010 
   if nargin <= 1 then Hin=hash(1);end 
+  if isempty(txt) then txt=m2s([]);end 
   ierr = 0 ;
   [ok,H]=execstr(txt,env=Hin, errcatch=%t);
   if ~ok then

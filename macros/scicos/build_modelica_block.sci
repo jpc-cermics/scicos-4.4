@@ -503,30 +503,32 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
 	overwrite=1;//yes
       end        
     end
-    if (overwrite==2) then 
-      commandresult=0;
-    else
-      //commandresult=execstr('unix_s(instr)',errcatch=%t);
-      // spawn the execution;
-      commandresult=0;
+    
+    commandok=%t;
+    if ~(overwrite==2) then 
+      // run translator 
       [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
-      // FIXME: take care that ok just means that 
+      // FIXME: translator should report errors in sp_e !
+      // take care that ok just means that 
       // the function runs and returned. 
       // Then it is necessary to check sp_e 
-      if ~ok | sp_e <> ""  then 
-	commandresult=1;
+      // and in the case of translator ERROR is 
+      // reported in sp_o
+      if ~ok | sp_e <> "" | sum(strstr(sp_o,'ERROR'))<>0 then 
+	commandok=%f;
       end 
     end
-
-    if commandresult<>0 then
-      // failed 
-      x_message(['Error:';'Modelica translation failed';sp_e;sp_m]);
+    if ~commandok then
+      // spawn command failed, report and return.
+      x_message(['Error:';'Modelica translation failed';sp_o;sp_e;sp_m]);
       ok=%f,
-      dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;
+      dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;
+      nx_ns=0;nin=0;nout=0;nm=0;ng=0;
       return
     end
-
-    if (%Modelica_Init) then //---------------------------
+    
+    if (%Modelica_Init) then 
+      //---------------------------
       printf('%s',' Init XML file : '+xmlfile); printf('\n\r');
       printf('%s',' Init Rel file : '+Relfile); printf('\n\r');
       name=Flat;dep_u=%t;//<<ALERT
