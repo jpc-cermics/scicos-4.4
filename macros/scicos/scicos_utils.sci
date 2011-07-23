@@ -72,6 +72,10 @@ function y=isequal(a,b)
   y=a.equal[b] 
 endfunction
 
+function y=isequalbitwise(a,b)
+  y=a.equal[b] 
+endfunction
+
 function y=newest(varargin)
   if nargin==1 then str=varargin(1),else str=varargin,end
   n=prod(size(str))

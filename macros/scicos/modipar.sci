@@ -98,8 +98,8 @@ if nargin<7 then job="default",end
         end
       end
 
-      [fun,statek,dstatek,rpark,ipark,opark]=...
-          (om.sim,om.state,om.dstate,om.rpar,om.ipar,om.opar);
+      [fun,statek,dstatek,odstatek,rpark,ipark,opark]=...
+          (om.sim,om.state,om.dstate,om.odstate,om.rpar,om.ipar,om.opar);
       if type(fun,'short')=='l' then
 	if (fun(2)==3 | fun(2)==5 |  fun(2)==10005) then 
 	  if ~isempty(rpark) then rpark=var2vec(rpark); end
