@@ -161,7 +161,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	  context_same = H1.equal[%scicos_context];
 	  %scicos_context = H1;
 	  // make a do_eval 
-	  // XXXX [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
+	  [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
 	end
       else
 	scs_m.props.context=' '
