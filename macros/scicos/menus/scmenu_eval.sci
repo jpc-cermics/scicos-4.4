@@ -87,20 +87,8 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
   endfunction
   function result= dialog(labels,valueini); result=valueini;endfunction
   function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=0;endfunction
-  function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
-    printf('In Eval MODCOM \n');
-    ok = %t;
-    nameF=file('root',file('tail',funam));
-    extF =file('extension',funam);
-    if extF=='' then 
-      funam1=file('join',[getenv('NSP_TMPDIR');'Modelica';nameF+'.mo']);
-      scicos_mputl(tt,funam1);
-    elseif ~file('exists',funam) then
-      funam1=funam;
-      scicos_mputl(tt,funam1);
-    end
-  endfunction
-  
+  MODCOM= MODCOM_NI;
+    
   %nx=length(scs_m.objs)
   // funcprot(%mprt)
   for %kk=1:%nx

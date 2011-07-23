@@ -120,6 +120,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
                    ~model.opar.equal[model_n.opar]|..
                    ~model.label.equal[model_n.label]
           if ~modified then
+	    pause zzzz
             for i=1:size(model.opar)
               //TOBEFIXED
               if ~typeof(model.opar(i)).equal[typeof(model_n.opar(i))] then

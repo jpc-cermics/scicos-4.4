@@ -1,22 +1,36 @@
 function [edited,options]=do_options(opt,flag)
-//
 // Copyright INRIA
-//if xget('use color')==1
-// colors=string(1:xget("lastpattern")+2);
-// XXXXX JPC 
+// nsp adpatations jpc 
+    
+  function rgb=do_options_color_rgb()
+  // interactive selection of a new color 
+  // 
+    window = gtkcolorselectiondialog_new ("Color selection dialog");
+    window.help_button.hide[];
+    window.set_position[GTK.WIN_POS_MOUSE]
+    window.colorsel.set_has_opacity_control[%t];
+    window.colorsel.set_has_palette[%t];
+    window.help_button.destroy[];// remove help button 
+    window.show_all[];
+    // a gtkcolorselectiondialog is also a dialog.
+    response = window.run[];
+    if response == GTK.RESPONSE_ACCEPT || response == GTK.RESPONSE_OK ;
+      color = window.colorsel.get_current_color[];
+      rgb = [color.red,color.green,color.blue]/65535;
+    else
+      rgb =[];
+    end
+    window.destroy[];
+  endfunction
+
   colors=m2s(1:xget("lastpattern")+2,"%1.0f");
-  //else
-  //  colors=['black','pat 1','pat 2','pat 3','pat 4','pat 5','pat 6','pat 7',
-  //	  'pat 8','pat 9','pat 10','pat 11','pat 12','pat 13','pat 14',
-  //	  'pat 15','white'];
-  //end
   fontsSiz=['08','10','12','14','18','24'];
-  fontsIds=[ 'Courrier','Symbol','Times','Times Italic','Times Bold','Times B. It.'];
+  fontsIds=[ 'Courrier','Symbol','Times','Times Italic',...
+	     'Times Bold','Times B. It.'];
   marksIds=['.','+','x','*','diamond fill.','diamond','triangle up',...
 	    'triangle down','trefle','circle'];
   DashesIds=['Solid','-2-  -2-','-5-  -5-','-5-  -2-','-8-  -2-',...
 	     '-11- -2-','-11- -5-'];
-  //
   ok=%f
   edited=%f
   options=opt
@@ -43,7 +57,8 @@ function [edited,options]=do_options(opt,flag)
     if size(bac,'*')<2 then bac(2)=1,end //compatibility
     lcols_bg=list('colors','Background',bac(1),colors);
     lcols_fg=list('colors','Foreground',bac(2),colors);
-    [lrep,lres,rep]=x_choices('Background/Foreground color settings',list(lcols_bg,lcols_fg));
+    [lrep,lres,rep]=x_choices('Background/Foreground color settings',...
+			      list(lcols_bg,lcols_fg));
     if ~isempty(rep) then
       ok=%t
       options('Background')=rep
@@ -84,24 +99,3 @@ function [edited,options]=do_options(opt,flag)
   end
 endfunction
 
-      
-
-
-function rgb=do_options_color_rgb()
-  window = gtkcolorselectiondialog_new ("Color selection dialog");
-  window.help_button.hide[];
-  window.set_position[GTK.WIN_POS_MOUSE]
-  window.colorsel.set_has_opacity_control[%t];
-  window.colorsel.set_has_palette[%t];
-  window.help_button.destroy[];// remove help button 
-  window.show_all[];
-  // a gtkcolorselectiondialog is also a dialog.
-  response = window.run[];
-  if response == GTK.RESPONSE_ACCEPT || response == GTK.RESPONSE_OK ;
-    color = window.colorsel.get_current_color[];
-    rgb = [color.red,color.green,color.blue]/65535;
-  else
-    rgb =[];
-  end
-  window.destroy[];
-endfunction

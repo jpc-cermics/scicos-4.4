@@ -147,7 +147,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       [ok,scs_m,%cpr,edited]=do_load(%fil,'diagram')
       if ~ok then return, end
       // make a first eval ? 
-      // 
+      // -----------------
       if is(scs_m.props.context,%types.SMat) then
 	// we have a context to evaluate. 
 	// execute the context 
@@ -166,7 +166,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       else
 	scs_m.props.context=' '
       end
-      // 
+      // -------------------
       if size(%cpr)==0 then
 	needcompile=4
 	%state0=list()

@@ -41,7 +41,10 @@ function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
   while %t
     if (extF=='' | (extF=='.mo' & ~file('exists',funam))) then
       editblk=%t;
-      [txt,Quit] = scstxtedit(textmp,ptxtedit);
+      //[txt,Quit] = scstxtedit(textmp,ptxtedit);
+      cm = catenate(ptxtedit.head,sep='\n');
+      txt = editsmat('Cfunc edition',textmp,comment=cm);
+      Quit = %t;
     elseif (extF=='.mo' && file('exists',funam)) then
       txt=tt;
     end
@@ -52,8 +55,11 @@ function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
 
     if ~isempty(txt) then
       ok=%t;
-      // saving in the filename
       if ok then
+	// create Modelica dir if it does not exists 
+	md =file('join',[getenv('NSP_TMPDIR');'Modelica'])
+	if ~file('exists',md) then file('mkdir',md);end 
+	// saving in a file
 	if (extF=='')  then
 	  funam=file('join',[getenv('NSP_TMPDIR'),'Modelica',nameF+'.mo']);
 	  scicos_mputl(txt,funam);
@@ -185,3 +191,23 @@ function class_txt=build_classhead(funam,vinp,vout,vparam,vparamv,vpprop)
              '  ////automatically generated ////';
              tete1b;tete2;tete3;tete4]
 endfunction
+
+function [ok,tt]=MODCOM_NI(funam,tt,vinp,vout,vparam,vparamv,vpprop)
+// This is the non interactive version used in eval or load 
+  printf('In non interactive MODCOM \n');
+  ok = %t;
+  // create Modelica dir if it does not exists 
+  md =file('join',[getenv('NSP_TMPDIR');'Modelica'])
+  if ~file('exists',md) then file('mkdir',md);end 
+  // fill the funam file 
+  nameF=file('root',file('tail',funam));
+  extF =file('extension',funam);
+  if extF=='' then 
+    funam1=file('join',[getenv('NSP_TMPDIR');'Modelica';nameF+'.mo']);
+    scicos_mputl(tt,funam1);
+  elseif ~file('exists',funam) then
+    funam1=funam;
+    scicos_mputl(tt,funam1);
+  end
+endfunction
+

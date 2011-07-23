@@ -263,23 +263,12 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
   function result         = dialog(labels,valueini)
     result=valueini
   endfunction
-  
   function [result,Quit]  = scstxtedit(valueini,v2)
     result=valueini,Quit=0
   endfunction
-  function [ok,tt]        = MODCOM(funam,tt,vinp,vout,vparam,vparamv, ...
-				   vpprop)
-    // FIXME: 
-    TMPDIR=getenv('NSP_TMPDIR')
-    [dirF,nameF,extF]=fileparts(funam);
-    tarpath=pathconvert(TMPDIR+'/Modelica/',%f,%t);
-    if (extF=='')  then
-      funam1=tarpath+nameF+'.mo';
-    elseif isempty(fileinfo) then,
-      funam1=funam;
-    end;
-    mputl(tt,funam1);
-  endfunction
+  // use a non interactive version
+  MODCOM=MODCOM_NI;
+    
   context=scs_m.props.context
   if nargin < 2 then
     global %scicos_context;
