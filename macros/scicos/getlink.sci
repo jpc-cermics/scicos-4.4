@@ -62,7 +62,12 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile,smart)
     op    = graphics1.pout
     impi  = graphics1.pin
     cop   = graphics1.peout
-    [xout,yout,typout]=getoutputports(o1)
+    [xout,yout,typout]=getoutputports(o1);
+    // compatibility with imported schemas
+    // in_implicit must be string
+    if isempty(graphics1.in_implicit) then 
+      graphics1.in_implicit=m2s([]);
+    end
     i_ImplIndx=find(graphics1.in_implicit=='I')
     if isempty(xout) then
       hilite_obj(kfrom)
@@ -192,6 +197,9 @@ function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile,smart)
       impo  = graphics2.pout
       cip   = graphics2.pein
       [xin,yin,typin]=getinputports(o2)
+      if isempty(graphics2.out_implicit) then 
+	graphics2.out_implicit=m2s([]);
+      end
       o_ImplIndx=find(graphics2.out_implicit=='I')
       //-- check connection
       if isempty(xin) then

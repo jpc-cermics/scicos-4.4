@@ -14,7 +14,7 @@ function [blocks] = bplatform2(blocks,flag)
     // initialization
     xset("window",win)
     xclear()
-    xsetech(frect=rpar(4:7),iso=%t)
+    xsetech(frect=[rpar(4),rpar(6),rpar(5),rpar(7)],iso=%t)
     x0=(xmin+xmax)/2;
     y0=(ymin+ymax)/2;
     XY1=[x0-3, x0+3,x0+3,x0-3,x0-3]
