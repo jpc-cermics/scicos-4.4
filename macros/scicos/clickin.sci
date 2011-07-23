@@ -119,6 +119,15 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
                    ~model.ipar.equal[model_n.ipar]|..
                    ~model.opar.equal[model_n.opar]|..
                    ~model.label.equal[model_n.label]
+          if ~modified then
+            for i=1:size(model.opar)
+              //TOBEFIXED
+              if ~typeof(model.opar(i)).equal[typeof(model_n.opar(i))] then
+                modified=%t
+                break
+              end
+            end
+          end
           if or(model.in<>model_n.in)|or(model.out<>model_n.out)|..
              or(model.in2<>model_n.in2)|or(model.out2<>model_n.out2)|..
              or(model.outtyp<>model_n.outtyp)|or(model.intyp<>model_n.intyp) then
