@@ -87,7 +87,6 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
   endfunction
   function result= dialog(labels,valueini); result=valueini;endfunction
   function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=0;endfunction
-  MODCOM= MODCOM_NI;
     
   %nx=length(scs_m.objs)
   // funcprot(%mprt)

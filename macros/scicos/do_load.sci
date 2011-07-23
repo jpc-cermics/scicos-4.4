@@ -267,7 +267,6 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
     result=valueini,Quit=0
   endfunction
   // use a non interactive version
-  MODCOM=MODCOM_NI;
     
   context=scs_m.props.context
   if nargin < 2 then
