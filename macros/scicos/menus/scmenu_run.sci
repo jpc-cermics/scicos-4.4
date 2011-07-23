@@ -114,6 +114,26 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       x_message(['Simulation parameters not set';'use setup button']);
       return;
     end
+
+    //** run scicosim via 'start' flag
+
+    TMPDIR=getenv('NSP_TMPDIR')
+    XML=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
+    XMLTMP=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imSim.xml']);
+    
+    if file("exists",XML) then
+      isok=execstr("file(""copy"",[XML,XMLTMP])",errcatch=%t)
+      if ~isok then
+        x_message(['Unable to copy XML files']);
+      end
+
+      //x_message(['Scicos cannot find the XML data file required for the simulation';..
+      //	 'please either compile the diagram, in this case Sccios uses'; 
+      //	 'parameters defined in Scicos blocks and the Scicos context';
+      //	 'or you can save the XML file defined in the initialization GUI']);
+      //return;
+    end
+
     grs=scicos_graphic_array(%cpr,scs_m);
     execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''start'',tolerances,grs)',errcatch=%t)
     %cpr.state=state

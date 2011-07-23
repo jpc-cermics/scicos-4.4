@@ -8,7 +8,7 @@ function [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0,needcom
   if exists('alreadyran','all');alreadyran=alreadyran ;else alreadyran=%f;end;
 //  printf("XXX: in do_update with needcompile = %d\n",needcompile);
   select needcompile
-   case 0 then  // only parameter changes 
+   case 0 then  // only parameter changes
     if size(newparameters)<>0 then
       cor=%cpr.cor
       [%state0,state,sim]=modipar(newparameters,%state0,%cpr.state,%cpr.sim)

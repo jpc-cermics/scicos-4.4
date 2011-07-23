@@ -20,11 +20,11 @@ if ~super_block then
   xmlfile=path+name+'f_init.xml';
 //========================================
   compile=%f;
-  
+
   err1=file("exists",xmlfile)
   err2=file("exists",mofile)
 
-  if (err1 & err2) then,   
+  if (err1 & err2) then
     if (newest(xmlfile,mofile)==2) then compile=%t;end;
   else 
     compile=%t;
@@ -49,7 +49,7 @@ if ~super_block then
     if ok then
       err1=file("exists",xmlfile)
       if err1 then
-        pause
+
 // 	scimihm xmlfile
         demo_xml(xmlfile)
       end  

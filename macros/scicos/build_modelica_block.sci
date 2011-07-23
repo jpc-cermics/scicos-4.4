@@ -420,8 +420,8 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
   if exists('needcompile','all');needcompile=needcompile;else needcompile=4;end
 
   updateC=needcompile<>0|~file("exists",Cfile)
-  updateC=updateC | %Modelica_Init 
-  
+  updateC=updateC | %Modelica_Init
+
   if updateC  then
     if ~exists('modelica_libs','all') then 
       // to use do_compile outside of scicos
@@ -474,7 +474,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     end    
     //---------------------just for OS limitation-------
     //---------------------------------------------------------------------
-    if %Modelica_Init then with_ixml=" -with-init ";else with_ixml=m2s([]);end    
+    if %Modelica_Init then with_ixml="-with-init";else with_ixml=m2s([]);end    
     // instruction to be executed 
     instr=[file('native',translator);
 	   translator_libs;
@@ -503,7 +503,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
 	overwrite=1;//yes
       end        
     end
-    
+
     commandok=%t;
     if ~(overwrite==2) then 
       // run translator 
