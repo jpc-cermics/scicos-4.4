@@ -49,7 +49,7 @@ function [edited,options]=do_options(opt,flag)
     if ~isempty(rep) then
       ok=%t
       options(f__3D)(1)=rep(1)==2
-      options(f__3D)(2)=rep(2)
+      options(f__3D)(2)=rep(2);
     end
   elseif flag=='Background' then
     bac=options('Background')
@@ -83,12 +83,9 @@ function [edited,options]=do_options(opt,flag)
       options('ID')(2)=rep(3:4)-1
     end
   elseif flag=='Cmap' then
+    // add a color to colormap.
     cmap=options('Cmap')
     rgb=do_options_color_rgb();
-//     [ok,R,G,B]=getvalue(['Enter RGB description of new colors';
-// 		    'Each component must be greater or equal to 0';
-// 		    'and less or equal to 1'],['R','G','B'],
-//     list('vec','1','vec','1','vec','1'),[' ',' ',' '])
     options('Cmap')=[options('Cmap');rgb];
     if options('Background')==xget('lastpattern')+2 then
       options('Background')=options('Background')+size(R,'*')
