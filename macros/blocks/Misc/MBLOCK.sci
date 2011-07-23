@@ -38,7 +38,7 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
 
     // check if this is an interactive MBLOCK('set',o);
     non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
-    
+
     while %t do
       // block parameters 
       [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,funam,lab_1]= ...
@@ -46,6 +46,7 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
       if cancel then return;end 
       if ~ok && non_interactive then return;end 
       if ~ok then continue;end 
+
       //============================
       //generate second dialog box from Tparam
       [ok,cancel,paramv,lab_2]= MBLOCK_get_parameters_values(param, ...
@@ -62,14 +63,14 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
 	mo=model.equations
       end
       if non_interactive then 
-	[ok,tt]=MODCOM_NI(funam,tt,vinp,vout,vparam,vparamv,vpprop)
+	[ok,tt]=MODCOM_NI(funam,tt,in,out,param,paramv,pprop);
       else 
 	[ok,tt]=MODCOM(funam,tt,in,out,param,paramv,pprop);
       end
       // here ok = %f means cancel in edition
       break;
     end
-    
+
     if ~ok then return;end 
     // define new model 
     mo=modelica()
@@ -293,6 +294,7 @@ endfunction
 
 function [ok,cancel,paramv,lab_2]=MBLOCK_get_parameters_values(param,exprs)
 // get parameters values 
+  ok=%t;
   paramv=list();
   cancel=%f;
   lab_2 = exprs.paramv;
@@ -501,7 +503,7 @@ endfunction
 
 function [ok,tt]=MODCOM_NI(funam,tt,vinp,vout,vparam,vparamv,vpprop)
 // This is the non interactive version used in eval or load 
-  printf('In non interactive MODCOM \n');
+//printf('In non interactive MODCOM \n');
   ok = %t;
   // create Modelica dir if it does not exists 
   md =file('join',[getenv('NSP_TMPDIR');'Modelica'])
