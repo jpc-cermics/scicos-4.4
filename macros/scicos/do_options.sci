@@ -87,6 +87,7 @@ function [edited,options]=do_options(opt,flag)
     cmap=options('Cmap')
     rgb=do_options_color_rgb();
     options('Cmap')=[options('Cmap');rgb];
+    set_cmap(options('Cmap'));    
     if options('Background')==xget('lastpattern')+2 then
       options('Background')=options('Background')+size(R,'*')
     end
