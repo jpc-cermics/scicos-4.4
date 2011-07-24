@@ -1,4 +1,4 @@
-function [%state0,state,sim]=modipar(newparameters,%state0,state,sim,scs_m,cor)
+function [%state0,state,sim,ok]=modipar(newparameters,%state0,state,sim,scs_m,cor,job)
 ok=%t
 if nargin<7 then job="default",end
 // store modified parameters in compiled structure state,sim
@@ -31,8 +31,8 @@ if nargin<7 then job="default",end
     st0=st0(1:$/2)
     Impl=%t
   end
-  nb=prod(size(rpptr))-1
 
+  nb=prod(size(rpptr))-1
   for k=newparameters
     if prod(size(k))==1 then //parameter of a sImple block
       kc=cor(k) //index of modified block in compiled structure
@@ -41,7 +41,6 @@ if nargin<7 then job="default",end
       kc=get_tree_elt(cor,k); 
       o=scs_m(get_subobj_path(k))
     end
-    
     if is_modelica_block(o) then
       parameters=o.model.equations.parameters
 
@@ -55,6 +54,7 @@ if nargin<7 then job="default",end
          opark($+1)=Parjv_plat(jjop)
         end
       end
+
 
       ipark=ipar(ipptr(kc):ipptr(kc+1)-1)
       corinvm=%cpr.corinv(kc);
@@ -276,7 +276,8 @@ if nargin<7 then job="default",end
           opar = n_opar;
           clear n_opar;
         end
-      
+
+
         //Change simulation routine
         if type(sim('funs')(kc),'short')<>'pl' then   //scifunc
 	  sim('funs')(kc)=fun(1);
@@ -286,6 +287,7 @@ if nargin<7 then job="default",end
 	    sim('funtyp')(kc)==0;
 	  end
         end
+
 	//Change label
 	labels(kc)=o.model.label
       end
@@ -310,11 +312,13 @@ if nargin<7 then job="default",end
   end
 
   state.z=dst
+  state.oz=odst
   if Impl then
     %state0.x=[st0;std0]
   else
     %state0.x=st0
   end
   %state0.z=dst0
+  %state0.oz=odst0
 
 endfunction

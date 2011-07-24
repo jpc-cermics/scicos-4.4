@@ -1,24 +1,32 @@
 function [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0,needcompile)
 //Update an already compiled scicos diagram compilation result according to 
 //parameter changes
-//!
 // Copyright INRIA
   ok=%t 
-
   if exists('alreadyran','all');alreadyran=alreadyran ;else alreadyran=%f;end;
-//  printf("XXX: in do_update with needcompile = %d\n",needcompile);
   select needcompile
    case 0 then  // only parameter changes
     if size(newparameters)<>0 then
       cor=%cpr.cor
-      [%state0,state,sim]=modipar(newparameters,%state0,%cpr.state,%cpr.sim)
-      %cpr.state=state,%cpr.sim=sim
+      [%state0,state,sim,ok]=modipar(newparameters,%state0,%cpr.state,%cpr.sim,scs_m,cor,"compile")
+      if ~ok then 
+        printf("Partial compilation failed. Attempting a full compilation.\n"); 
+        needcompile=4; 
+        [%cpr,ok]=do_compile(scs_m)
+        if ok then
+          %state0=%cpr.state
+          needcompile=0
+        end
+      else
+        needcompile=0
+        %cpr.state=state,%cpr.sim=sim
+      end
     end
    case 1 then // parameter changes and/or port sizes changes
     if size(newparameters)<>0 then
       // update parameters or states
       cor=%cpr.cor
-      [%state0,state,sim]=modipar(newparameters,%state0,%cpr.state,%cpr.sim)
+      [%state0,state,sim]=modipar(newparameters,%state0,%cpr.state,%cpr.sim,scs_m,cor)
       %cpr.state=state,%cpr.sim=sim
     end
     //update port sizes
@@ -35,31 +43,77 @@ function [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0,needcom
 	  for l=corinv(k)(1:$-1),
             path($+1)=l;
             path($+1)='model';
-            path($+1)= 'rpar';
-            path($+1)='objs';
+            path($+1)= 'rpar';path($+1)='objs';
           end
 	  path($+1)=corinv(k)($);
 	  path($+1)='model';
 	  bllst(k)=scs_m(path);
         end
       else // modelica block
-        //build a fake bllst(k) only for in and out fields
-        m=scicos_model();
-        m.in=ones(1,sim.inpptr(k+1)-sim.inpptr(k))
-        m.out=ones(1,sim.outptr(k+1)-sim.outptr(k))
-        bllst(k)=m;
+        elem=corinv(k)(1)
+        if size(elem,'*')==1 then
+          oo=scs_m.objs(elem);
+        else
+          ppath=list('objs');
+          for l=elem(1:$-1),
+            ppath($+1)=l;
+            ppath($+1)='model';
+            ppath($+1)='rpar';ppath($+1)='objs';
+          end
+          ppath($+1)=elem($);
+          oo=scs_m(ppath);
+        end
+        if is_modelica_block(oo) then
+          //build a fake bllst(k) only for in and out fields
+          m=scicos_model();
+          m.in=ones(sim.inpptr(k+1)-sim.inpptr(k),1)
+          m.out=ones(sim.outptr(k+1)-sim.outptr(k),1)
+          bllst(k)=m;
+        else  //sampleclk
+          printf("Partial compilation failed. Attempting a full compilation.");
+          alreadyran=do_terminate();
+          [%cpr,ok]=do_compile(scs_m)
+          if ok then
+            %state0=%cpr.state
+            needcompile=0;
+            return
+          else
+            message("compilation failed"),
+            return
+          end
+        end
       end
     end
     [ok,bllst]=adjust(bllst,sim('inpptr'),sim('outptr'),sim('inplnk'),..
-		    sim('outlnk'))
+        sim('outlnk'))
     if ok then
-      %cpr.sim('lnkptr')=lnkptrcomp(bllst,sim('inpptr'),sim('outptr'),..
-				  sim('inplnk'),sim('outlnk'))
-      %cpr.state('outtb')=0*ones(%cpr.sim('lnkptr')($)-1,1)
-      %state0('outtb')=0*ones(%cpr.sim('lnkptr')($)-1,1)
+      [lnksz,lnktyp]=lnkptrcomp(bllst,sim('inpptr'),sim('outptr'),...
+          sim('inplnk'),sim('outlnk'))
+      // assign int32 to boolean type
+      bool_index=find(lnktyp(:)==9)
+      lnktyp(bool_index(:))=3
+      %cpr.state('outtb')=buildouttb(lnksz,lnktyp)
+      %state0('outtb')=%cpr.state('outtb')
       needcompile=0
+
+      [%state0,state,sim,ok]=...
+           modipar(%cpr.corinv,%state0,%cpr.state,%cpr.sim,scs_m,%cpr.cor,"compile")
+      if ~ok then 
+        printf("Partial compilation failed. Attempting a full compilation.\n"); 
+        needcompile=4; 
+        [%cpr,ok]=do_compile(scs_m)
+        if ok then
+          %state0=%cpr.state
+          needcompile=0
+        end
+        return,
+      else
+        %cpr.state=state,%cpr.sim=sim
+      end
     end
-   case 2 then 
+
+   case 2 then
+    //TODO Alan
     // partial recompilation is wrong 
     // so we temporary use the full compilation. 
     if %f then 

@@ -231,36 +231,19 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
   end
 
   for i=1:nbl
-
-    //## 06/04/09 : Add a second call to the interfacing function (job 'compile')
     if type(corinv(i),'short')=='m' & ~corinv(i).equal[0] then
       o=scs_m(scs_full_path(corinv(i)))
-      ok =execstr('[bllst_out]='+o.gui+'(""compile"",bllst(i),i);',errcatch=%t);
-      if ok then
-        if ~isempty(bllst_out) then
-          //##check input/output size/type
-          if (~isequal(bllst_out.in,bllst(i).in) |...
-              ~isequal(bllst_out.in2,bllst(i).in2) |...
-              ~isequal(bllst_out.out,bllst(i).out) |...
-              ~isequal(bllst_out.out2,bllst(i).out2) |...
-              ~isequal(bllst_out.intyp,bllst(i).intyp) |...
-              ~isequal(bllst_out.outtyp,bllst(i).outtyp)) then
-             hilite_obj(scs_full_path(corinv(i)))
-             message([" Error in Gui for job ''compile'' : ";
-                      "Size or type of regular port(s) have changed.";
-                      "Compilation aborted."]);
-             unhilite_obj(scs_full_path(corinv(i)))
-             lnksz=[],lnktyp=[],inplnk=[],outlnk=[],clkptr=[],cliptr=[],inpptr=[],outptr=[],..
-             xptr=[],zptr=[],ozptr=[],rpptr=[],ipptr=[],opptr=[],xc0=[],..
-             xcd0=[],xd0=[],oxd0=list(),rpar=[],ipar=[],opar=list(),..
-             typ_z=[],typ_x=[],typ_m=[],funs=[],funtyp=[],initexe=[],..
-             labels=[],bexe=[],boptr=[],blnk=[],blptr=[]
-             ok=%f;
-             return;
-          else
-            bllst(i)=bllst_out;
-          end
-        end
+      [bllsti,ok]=do_job_compile(o,bllst(i),i)
+      if ~ok then
+        lnksz=[],lnktyp=[],inplnk=[],outlnk=[],..
+        clkptr=[],cliptr=[],inpptr=[],outptr=[],..
+        xptr=[],zptr=[],ozptr=[],rpptr=[],ipptr=[],opptr=[],xc0=[],..
+        xcd0=[],xd0=[],oxd0=list(),rpar=[],ipar=[],opar=list(),..
+        typ_z=[],typ_x=[],typ_m=[],funs=[],funtyp=[],initexe=[],..
+        labels=[],bexe=[],boptr=[],blnk=[],blptr=[]
+        return
+      else
+        bllst(i)=bllsti
       end
     end
 
