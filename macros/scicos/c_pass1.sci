@@ -310,12 +310,11 @@ endfunction
 
 function mat=matfromT(Ts,nb)
 //S. Steer, R. Nikoukhah 2003. Copyright INRIA
-
+  if isempty(Ts) then mat=zeros(0,4);return;end
   Ts(:,1)=abs(Ts(:,1))
   K=unique(Ts(find(Ts(:,1)>nb),1)); // identificator of blocks to be removed
   //remove superblocks port and split connections 
   Ts=remove_fictitious(Ts,K)
-
   // from connection matrix
   Imat=zeros(0,2);
   for u=matrix(unique(Ts(:,4)),1,-1)
@@ -334,8 +333,6 @@ function mat=cmatfromT(Ts,nb)
   k=find(Ts(:,1)<0) //superblock ports links and CLKGOTO/CLKFROM
   K=unique(Ts(k,1));
   Ts=remove_fictitious(Ts,K)
-  
-  if isempty(Ts) then mat=zeros(0,4),return,end
   //  if size(Ts,1)<>int(size(Ts,1)/2)*2 then disp('PB'),pause,end
   [s,k]=gsort(Ts(:,[4,3]),'lr','i');Ts=Ts(k,:)
   // modified to support the CLKGOTO/CLKFROM
@@ -368,6 +365,7 @@ endfunction
 function Ts=remove_fictitious(Ts,K)
 //removes fictitious blocks connected links are replaced by a single one
 //S. Steer, R. Nikoukhah 2003. Copyright INRIA
+//
   count=min(Ts(:,4))
   for i=1:size(K,'*')
     ki=K(i);
@@ -388,6 +386,8 @@ function Ts=remove_fictitious(Ts,K)
       end
     end
   end
+  // returned value should be 0x4 
+  if isempty(Ts) then Ts=zeros(0,4),end
 endfunction
 
 function cor=update_cor(cor,reg)

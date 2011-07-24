@@ -27,7 +27,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
       else
 	file_mask = "*.cos*"
       end
-      path      =  get_scicospath()+"/demos"
+      path=file('join',[get_scicospath();"demos"]);
       // fname     = getfile(file_mask, path)
       fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=path)
     end
@@ -61,8 +61,9 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   edited = %f
   [path,name,ext]=splitfilepath(fname);
   //first pass
-  if ext=='cos'|ext=='COS'|ext=='cosf'|ext=='COSF'|ext==''|ext=='XML'|ext=='xml' then
-    if ext=='' then  // to allow user not to enter necessarily the extension
+  if or(ext==['cos','COS','cosf','COSF','','XML','xml']) then
+    if ext=='' then  
+      // to allow user not to enter necessarily the extension
       fname=fname+'.cos'
       ext='cos'
     end
@@ -76,33 +77,25 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   end
   //second pass
   if ext=='cos'|ext=='COS' then
-    ierr=execstr('load(fname)',errcatch=%t)
-    if isempty(scs_m) then ierr=%f, end
-    ok=%t
+    ok=execstr('load(fname)',errcatch=%t)
   elseif ext=='cosf'|ext=='COSF' then
-    ierr=execstr('exec(fname)',errcatch=%t)
-    if isempty(scs_m) then ierr=%f, end
-    ok=%t
+    ok=execstr('exec(fname)',errcatch=%t);
   elseif ext=='xml'|ext=='XML' then
     printf('Opening an XML file. Please wait ...............')
-    ierr=execstr('scs_m=xml2cos(fname)',errcatch=%t)
-    ok=%t
+    ok=execstr('scs_m=xml2cos(fname)',errcatch=%t)
   elseif ext=='new'
     ok=%t
     ierr=%t
     scs_m=scicos_diagram(version=current_version)
     scs_m.props.title=name
   end
-  if ~ierr then
-    if ext=='xml'|ext=='XML' then
-      message(['An error has occur during execution of '+name+'.';
-	       'Please check the format of your XML file'])
-      printf('Error\n');
-    else
-      message('An error has occur during execution of '+name+'.')
-    end
+  if ~ok then
+    str=lasterror();
+    if length(str)>= 4 then str=str(1:$-4);end 
+    message(['An error has occur during execution of ""'+name+'""';
+	     catenate(str)]);
     ok=%f
-    scs_m=get_new_scs_m();     
+    scs_m=get_new_scs_m();    
     return
   end
   if ext=='xml'|ext=='XML' then

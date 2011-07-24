@@ -35,7 +35,7 @@ function [palettes,windows]=do_palettes(palettes,windows)
   end
   //
   xset('window',curwin),
-  if ~MSDOS then
+  if ~(%win32) then
     delmenu(curwin,'3D Rot.')
     delmenu(curwin,'UnZoom')
     delmenu(curwin,'Zoom')
@@ -67,7 +67,7 @@ function [palettes,windows]=do_palettes(palettes,windows)
   %zoom=1.2
   h=%zoom*%wsiz(2)
   w=%zoom*%wsiz(1)
-  if ~MSDOS then h1=h+50,else h1=h,end
+  if ~(%win32) then h1=h+50,else h1=h,end
   xset('wresize',1)
   xset('wpdim',w,h1)
   xset('wdim',w,h)

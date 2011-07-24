@@ -5,6 +5,8 @@ function scs_m=delete_unconnected(scs_m)
 // printf("In delete unconnected\n");
 
   n=length(scs_m.objs)
+  if n==0 then return;end 
+  
   DEL=[]
   DELL=[]
   finish=%f
@@ -46,7 +48,7 @@ function scs_m=delete_unconnected(scs_m)
     end 
   end
 
-    //Suppress rigth-most deleted elements
+  //Suppress rigth-most deleted elements
   while scs_m.objs($).type =='Deleted' then
     scs_m.objs($)=null();
     if length(scs_m.objs)==0 then break,end

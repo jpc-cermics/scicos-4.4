@@ -1,4 +1,6 @@
 function [btn,%pt,win,Cmenu]=cosclick(flag)
+// select action from an activated event 
+// 
   Cmenu_orig=Cmenu
   Cmenu="";%pt=[];btn=0;
   if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end
@@ -16,9 +18,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     scicos_dblclk=[]
   end
   %pt=[xc,yc]
-
-  printf("cosclick : btn =%d\n",btn);
-
+  
   if btn==-100 then  
     if win==curwin then
       Cmenu='Quit',
@@ -29,19 +29,30 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
     return
   end
 
-  //TODO Alan
-  if (btn==-2) & part(str,1:7)=='execstr' then
-    from=max(strindex(str,'_'))+1;
-    to=max(strindex(str,'('))-1
-    win=evstr(part(str,from:to))
+  if (btn==-2) then 
+    // menu activated 
+    if part(str,1:7)=='execstr' then
+      // A menu was activated and str is like 
+      // str='execstr(Name_<win>(<number>))' 
+      str1=part(str,9:length(str)-1);
+      win=sscanf(str1,"%*[^_]_%d");
+      mcmd='Cmenu='+str1+';execstr(''Cmenu=''+Cmenu)';
+    elseif part(str,1:9)=='scicos_tb' then 
+      // A toolbar item was activated 
+      // str='scicos_tb(name,win)';
+      [str1,win]=sscanf(str,'scicos_tb(%[^,],%d)');
+      mcmd='Cmenu=""'+str1+'""';
+    else
+      mcmd="";
+    end
   end
-
+  
   if ~isempty(win) & ~isempty(find(win==inactive_windows(2))) then
     global Scicos_commands
     pathh=inactive_windows(1)(find(win==inactive_windows(2)))
 
     if (btn==-2) then
-      cmd='Cmenu='+part(str,9:length(str)-1)+';execstr(''Cmenu=''+Cmenu)'
+      cmd= mcmd;
     elseif (btn==0) then
       if %scicos_action then
         cmd='Cmenu='"MoveLink'"'
@@ -104,8 +115,12 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       // click in a scicos dynamic menu
       %pt=[]
       execstr('Cmenu='+part(str,9:length(str)-1))
-      execstr('Cmenu='+Cmenu,errcatch=%t)
+      execstr('Cmenu='+Cmenu,errcatch=%t);
       return
+    elseif ~isempty(strindex(str,'scicos_tb')) then 
+      // click in a scicos toolbar menu 
+      [mcmd,vwin]=sscanf(str,'scicos_tb(%[^,],%d)');
+      Cmenu = mcmd;
     elseif ~isempty(strindex(str,'PlaceDropped_info')) then
       // we have dropped a block in the window 
       ok = execstr('[ptd,path,win]='+str,errcatch=%t);

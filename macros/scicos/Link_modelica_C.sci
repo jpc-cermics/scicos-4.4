@@ -4,7 +4,7 @@ function  [ok]=Link_modelica_C(Cfile)
   name=file('root',file('tail',Cfile))
   // path=strsubst(stripblanks(Cfile),name+'.c','')
   path=file('dirname',Cfile)
-  if MSDOS then ext = '.obj'; else ext='.o'; end
+  if (%win32) then ext = '.obj'; else ext='.o'; end
   Ofile=file('join',[path,name+ext]);
   //below newest(Cfile,Ofile) is used instead of  updateC in case where
   //Cfile has been manually modified (debug,...)
@@ -17,7 +17,7 @@ function  [ok]=Link_modelica_C(Cfile)
   mlibs = unique(mlibs);
   //--------------------------------
   libs=[];
-  if MSDOS then ext='*.ilib',else ext='*.a',end 
+  if (%win32) then ext='*.ilib',else ext='*.a',end 
   // removing .a or .ilib sufixs
   for k=1:size(mlibs,'*')
     aa=glob(file('join',[mlibs(k),ext]));
@@ -26,7 +26,7 @@ function  [ok]=Link_modelica_C(Cfile)
     end
   end
   //##add libraries provided by %scicos_libs
-  if ~isempty(%scicos_libs) then
+  if exists('%scicos_libs') &&  ~isempty(%scicos_libs) then
     libs=[libs,%scicos_libs(:)'];
   end
   // add modelica_libs to the list of directories to be searched for *.h

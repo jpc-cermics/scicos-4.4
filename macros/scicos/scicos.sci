@@ -220,9 +220,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     //if %scicos_gui_mode==1 then
     //  getfile=tk_getfile;
     //  savefile=tk_savefile;
-    //  if MSDOS then getvalue=tk_getvalue,end
-    //  if MSDOS then mpopup=tk_mpopup, else mpopup=tk_mpopupX,end
-    //  if MSDOS then choose=tk_choose; else
+    //  if (%win32) then getvalue=tk_getvalue,end
+    //  if (%win32) then mpopup=tk_mpopup, else mpopup=tk_mpopupX,end
+    //  if (%win32) then choose=tk_choose; else
     //    deff('x=choose(varargin)','x=x_choose(varargin(1:$))');
     //  end
     //  funcprot(0);getcolor=tk_getcolor;funcprot(1);
@@ -250,11 +250,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   else
     scs_m.props.context=' ' 
   end
-
-  MSDOS=%f; // XXXXX
-  function ret=with_lcc()
-    ret=%f
-  endfunction
 
   Cmenu='';%pt=[];%win=curwin;%curwpar=[];
   Select=[];Select_back=[];%ppt=[];

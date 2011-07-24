@@ -34,8 +34,9 @@ function window_set_size(win,viewport)
   if isequal(viewport,%f) then
     Vbox=gh.get_children[]
     Vbox=Vbox(1)
-    ScrolledWindow=Vbox.get_children[]
-    ScrolledWindow=ScrolledWindow(3)
+    ScrolledWindow=Vbox.get_children[];
+    // scrolled window is the mast one 
+    ScrolledWindow=ScrolledWindow($)
     hscrollbar=ScrolledWindow.get_hadjustment[]
     vscrollbar=ScrolledWindow.get_vadjustment[]
     %XSHIFT=(hscrollbar.upper-hscrollbar.page_size)/2

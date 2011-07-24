@@ -10,6 +10,7 @@ function menu_stuff(win,menus)
     sname = menus.items(i);
     submenu=menus(sname);
     delmenu(win,sname);
+    // printf("addmenu with %s %s\n",sname,submenu(1) );
     addmenu(win,sname,submenu(1),list(0,sname));    
   end
   if ~super_block then

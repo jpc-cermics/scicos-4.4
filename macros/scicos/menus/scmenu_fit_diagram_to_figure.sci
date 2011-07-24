@@ -16,7 +16,7 @@ function Fitdiagramtofigure_()
    Vbox=gh.get_children[]
    Vbox=Vbox(1)
    ScrolledWindow=Vbox.get_children[]
-   ScrolledWindow=ScrolledWindow(3)
+   ScrolledWindow=ScrolledWindow($)
    hscrollbar=ScrolledWindow.get_hscrollbar[]
    vscrollbar=ScrolledWindow.get_vscrollbar[]
    hrect=hscrollbar.allocation
@@ -26,9 +26,7 @@ function Fitdiagramtofigure_()
    //suppose for that time that menu bar & status bar have the same height
    //like the scroolbar
    %zoom_h=(r(2)-hrect.height*3)/(h*(1+margins(3)+margins(4)))
-
    %zoom=min(%zoom_w,%zoom_h);
-
    window_set_size();
    xinfo(' ');
 endfunction

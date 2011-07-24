@@ -209,7 +209,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
 			//XML=pathconvert(XML,%f,%t);    
 			XMLTMP=file('join',[TMPDIR;stripblanks(scs_m.props.title(1))+'_imSim.xml']);
 			//XMLTMP=pathconvert(XMLTMP,%f,%t);
-			if MSDOS then 
+			if (%win32) then 
 			  cmnd='del /F '+XML+' '+XMLTMP;
 			else
 			  cmnd='rm -f '+XML+' '+XMLTMP

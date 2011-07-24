@@ -436,7 +436,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     translator_libs=translator_libs(:);
     //-----------------------just for OS limitation-------
     // used when command line is too long 
-    if getenv('WIN32','NO')=='OK' then, Limit=1000;else, Limit=3500;end
+    if %win32 then, Limit=1000;else, Limit=3500;end
     if (length(translator_libs)>Limit) then 
       // FIXME this part should be tested by setting Limit to a smaller 
       // size 
@@ -482,7 +482,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
 	   '-o';  Flat;
 	   with_ixml;
 	   '-command'; name+' '+namef+';'];
-    if %f && getenv('WIN32','NO')=='OK' then
+    if %f && %win32 then
       instrc = file('join',[tmpdir;'gent.bat']);
       scicos_mputl(instr,instrc);
       instr=instrc;
@@ -542,7 +542,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
 	ok=%t
       end  
       //	instr='""'+xml2modelica+'"" ""'+Flatxml+'"" -o ""'+Flat+'""  > ""'+tmpdir+'xml2modelica.err""';
-      //	if MSDOS then, mputl(instr,tmpdir+'genx.bat');instr=tmpdir+'genx.bat';end	
+      //	if (%win32) then, mputl(instr,tmpdir+'genx.bat');instr=tmpdir+'genx.bat';end	
       //	if ok & execstr('unix_s(instr)','errcatch')==0 then
       //	  mprintf('%s',' Flat Modelica : '+Flat); mprintf('\n\r');
       //	else 
@@ -567,7 +567,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     // run modelicac 
     instr=[file('native',modelicac); Flat;  Flat_functions;
 	   XMLfiles; '-o'; Cfile; JAC];
-    if %f && getenv('WIN32','NO')=='OK' then
+    if %f && %win32 then
       instrc = file('join',[tmpdir;'genm2.bat']);
       scicos_mputl(instr,instrc);
       instr=instrc;

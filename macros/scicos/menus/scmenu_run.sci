@@ -25,7 +25,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
   if exists('alreadyran','all');alreadyran=alreadyran ;else alreadyran=%f;end;
   if exists('needcompile','all');needcompile=needcompile;else needcompile=4;end
   if exists('%state0','all');%state0=%state0;else %state0=list(); end 
-  
+    
   tolerances=scs_m.props.tol
   solver=tolerances(6)
   // update parameters or compilation results

@@ -18,7 +18,7 @@ function lst=lstfiles(path,opt)
   [np,mp]=size(path);np=np*mp;path=matrix(path,np,1);
   lst=[]
   for k=1:np
-    if MSDOS then 
+    if (%win32) then 
       cmd='dir /b'+path(k);
       tmp = strsubst(TMPDIR,'/','\')+'\unix.out';
       host(cmd+'> '+ tmp);

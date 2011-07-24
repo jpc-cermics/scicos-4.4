@@ -34,7 +34,7 @@ function window_read_size(win)
   Vbox=gh.get_children[]
   Vbox=Vbox(1)
   ScrolledWindow=Vbox.get_children[]
-  ScrolledWindow=ScrolledWindow(3)
+  ScrolledWindow=ScrolledWindow($)
   hscrollbar=ScrolledWindow.get_hadjustment[]
   vscrollbar=ScrolledWindow.get_vadjustment[]
   if size(scs_m.props.wpar,'*')>13 then

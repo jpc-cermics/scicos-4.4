@@ -91,7 +91,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   Makename=rpat+'/'+'Makefile_'+blknam;
 
   //@@ generation of Makefiles
-  if ~MSDOS then //@@ not windows
+  if ~(%win32) then //@@ not windows
     //SCI_sav = SCI
     //[n]=predef(0)
     SCI = 'E:\scicoslab_43_cross'
@@ -123,7 +123,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
     //predef(n(1))
     clear SCI
   else //@@ windows
-    if with_lcc()==%T then
+    if with_lcc()==%f then
       //@@ win32
       txt=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags);
       //Makename2 = strsubst(Makename,'/','\')+'.mak';
@@ -227,7 +227,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
      Makename=rpat+'/'+'Makefile_'+blknamint;
 
      //@@ generation of Makefiles
-     if ~MSDOS then //@@ not windows
+     if ~(%win32) then //@@ not windows
        //SCI_sav = SCI
        //[n]=predef(0)
        SCI='E:\scicoslab_43_cross'
@@ -257,7 +257,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
        //predef(n(1))
        clear SCI
      else //@@ windows
-       if with_lcc()==%T then
+       if with_lcc()==%f then
          //@@ win32
          txt=gen_make_win32(blknamint,filesint,'',libs,ldflags,cflags);
          Makename2 = strsubst(Makename,'/','\')+'.mak';
@@ -518,7 +518,7 @@ function [SCode]=gen_loader(blknam,for_link,with_int)
          'libn=ilib_compile('+sci2exp('lib'+blknam)+',Makename);'
          ''
          '//** Adjust path name of object files'
-         'if MSDOS then'
+         'if %win32 then'
          '  fileso=strsubst(libn,''/'',''\'');'
          'else'
          '  fileso=strsubst(libn,''\'',''/'');'
@@ -577,7 +577,7 @@ function [SCode]=gen_loader(blknam,for_link,with_int)
            'libn=ilib_compile('+sci2exp('lib'+blknamint)+',Makename);'
            ''
            '//** Adjust path name of object files'
-           'if MSDOS then'
+           'if %win32 then'
            '  fileso=strsubst(libn,''/'',''\'');'
            'else'
            '  fileso=strsubst(libn,''\'',''/'');'
@@ -754,7 +754,7 @@ function [Makename,txt]=gen_make(blknam,files,filestan,libs,Makename,ldflags,cfl
     Makename = Makename+'.lcc'
 
   //** generate Makefile for Crosoft compilator
-  elseif getenv('WIN32','NO')=='OK' then
+  elseif %win32 then
 
     txt=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
     select COMPILER;
@@ -978,7 +978,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
   if isempty(libs) then return, end
 
   //** LCC
-  if with_lcc()==%T then
+  if with_lcc()==%t then
     //** add lcc.lib
     //   for compatibility with dll of
     //   msvc
@@ -1095,7 +1095,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
     end
 
   //** MSVC
-  elseif getenv('WIN32','NO')=='OK' then
+  elseif %win32 then
     //** add .lib or .ilib
     libs=libs(:)';
     for x=libs
@@ -1289,7 +1289,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
   //** add double quote for include in
   //   Makefile
   libs=xlibs
-  if MSDOS then
+  if (%win32) then
       libs='""'+libs+'""'
    else
      libs=''''+libs+''''

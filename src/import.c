@@ -285,5 +285,6 @@ void scicos_getouttb (int nsize, int *nvec, double *outtc)
 
 void scicos_send_halt (void)
 {
-  Scicos->params.halt = 1;
+  if ( Scicos != NULL) 
+    Scicos->params.halt = 1;
 }
