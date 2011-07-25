@@ -219,7 +219,7 @@ if nargin<7 then job="default",end
         end
 
         rpptr(kc+1:$)=rpptr(kc+1:$)+nek
-        rpar(rpptr(kc):rpptr(kc+1)-1)=rpark,
+        rpar(rpptr(kc):rpptr(kc+1)-1)=rpark(:),
 
         //Change integer parameters
         if type(ipark,'short')=='m' then   //scifunc
@@ -320,5 +320,33 @@ if nargin<7 then job="default",end
   end
   %state0.z=dst0
   %state0.oz=odst0
+
+endfunction
+
+function ot=do_get_type(C)
+
+ if (type(C,'string')=='Mat') then
+   if isreal(C) then
+     ot=1
+   else
+     ot=2
+   end
+ elseif (type(C,'string')=='IMat') then
+   if (C.itype[]=='int32') then
+     ot=3
+   elseif (C.itype[]=='int16') then
+     ot=4
+   elseif (C.itype[]=='int8') then
+     ot=5
+   elseif (C.itype[]=='uint32') then
+     ot=6
+   elseif (C.itype[]=='uint16') then
+     ot=7
+   elseif (C.itype[]=='uint8') then
+     ot=8
+   end
+ else
+   ot=9
+ end
 
 endfunction

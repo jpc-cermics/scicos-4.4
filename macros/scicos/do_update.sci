@@ -112,22 +112,34 @@ function [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0,needcom
       end
     end
 
-   case 2 then
-    //TODO Alan
-    // partial recompilation is wrong 
-    // so we temporary use the full compilation. 
-    if %f then 
-      alreadyran=do_terminate()
-      [%cpr,ok]=c_pass3(scs_m,%cpr)
-      %state0=%cpr.state
-      if ~ok then return,end
+   case 2 then // partial recompilation
+    alreadyran=do_terminate()
+    [%cpr,ok]=c_pass3(scs_m,%cpr)
+    if ok then
+      [%state0,state,sim,ok]=...
+         modipar(%cpr.corinv,%state0,%cpr.state,%cpr.sim,scs_m,%cpr.cor,"compile")
+      if ~ok then 
+        printf("Partial compilation failed. Attempting a full compilation.\n"); 
+        needcompile=4; 
+        [%cpr,ok]=do_compile(scs_m)
+        if ok then
+          %state0=%cpr.state
+          needcompile=0
+        end
+        return
+      else
+        %cpr.state=state,%cpr.sim=sim
+        %state0=%cpr.state
+        needcompile=0; 
+        return
+      end
     else
-      // make a full compilation
-      alreadyran=%f
+      printf("Partial compilation failed. Attempting a full compilation.\n"); 
+      needcompile=4; 
       [%cpr,ok]=do_compile(scs_m)
       if ok then
-	%state0=%cpr.state
-	needcompile=0
+        %state0=%cpr.state
+        needcompile=0
       end
     end
    case 4 then  // full compilation

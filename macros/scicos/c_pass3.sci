@@ -65,9 +65,10 @@ function [cpr,ok]=c_pass3(scs_m,cpr)
     end
   end
   //
-
-  [inpptr,outptr,inplnk,outlnk,clkptr]=
-      sim(['inpptr','outptr','inplnk','outlnk','clkptr'])
+  inpptr=sim('inpptr');outptr=sim('outptr');inplnk=sim('inplnk');
+  outlnk=sim('outlnk');clkptr=sim('clkptr');
+//   [inpptr,outptr,inplnk,outlnk,clkptr]=..
+//      [sim('inpptr'),sim('outptr'),sim('inplnk'),sim('outlnk'),sim('clkptr')])
   // computes undetermined port sizes
   [ok,bllst]=adjust(bllst,inpptr,outptr,inplnk,outlnk)
   if ~ok then return; end
@@ -120,14 +121,14 @@ function [cpr,ok]=c_pass3(scs_m,cpr)
     //object discrete state
     if type(ll.odstate,'short')=='l' then
       if ((funtyp(i,1)==5) | (funtyp(i,1)==10005)) then //sciblocks : don't extract
-        if lstsize(ll.odstate)>0 then
+        if size(ll.odstate)>0 then
           oxd0($+1)=ll.odstate
           ozptr=[ozptr;ozptr($)+1];
         else
           ozptr=[ozptr;ozptr($)];
         end
       elseif ((funtyp(i,1)==4) | (funtyp(i,1)==10004) | (funtyp(i,1)==2004))  //C blocks : extract
-        ozsz=lstsize(ll.odstate);
+        ozsz=size(ll.odstate);
         if ozsz>0 then
           for j=1:ozsz, oxd0($+1)=ll.odstate(j), end;
           ozptr=[ozptr;ozptr($)+ozsz];
@@ -162,14 +163,14 @@ function [cpr,ok]=c_pass3(scs_m,cpr)
     //opar
     if type(ll.opar,'short')=='l' then
       if ((funtyp(i,1)==5) | (funtyp(i,1)==10005)) then //sciblocks : don't extract
-        if lstsize(ll.opar)>0 then
+        if size(ll.opar)>0 then
           opar($+1)=ll.opar
           opptr=[opptr;opptr($)+1];
          else
            opptr=[opptr;opptr($)];
          end
       elseif ((funtyp(i,1)==4) | (funtyp(i,1)==10004) | (funtyp(i,1)==2004)) then //C blocks : extract
-        oparsz=lstsize(ll.opar);
+        oparsz=size(ll.opar);
         if oparsz>0 then
           for j=1:oparsz, opar($+1)=ll.opar(j), end;
           opptr=[opptr;opptr($)+oparsz];
