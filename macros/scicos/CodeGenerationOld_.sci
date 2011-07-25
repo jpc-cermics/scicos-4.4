@@ -1,4 +1,4 @@
-function  old_CodeGeneration_()
+function  CodeGenerationOld_()
   Cmenu=''
   xinfo('Click on a Superblock (without activation output)'+..
 	' to obtain a coded block ! ')
