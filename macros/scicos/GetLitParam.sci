@@ -1,5 +1,8 @@
 function [params,ok]=GetLitParam(str,flg)
- // flg=%t when the function is called by FindSBParams
+// get variable names contained in str 
+// flg is set to %t when the function is called 
+// by FindSBParams
+// 
  if nargin <= 1 then flg=%f;end
  ok=%t;
  // we search here the parameters called in function 

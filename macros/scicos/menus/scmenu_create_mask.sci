@@ -1,5 +1,12 @@
 function CreateMask_()
 // Copyright INRIA
+// Used to transform a super block into a masked superblock. 
+// Masked super blocks are super blocks for which the 
+// Open menu opens a getvalue menu instead of opening the super 
+// block. The variables which can be edited by the Open menu 
+// are collected by the FindSBParams function 
+// 
+  
   Cmenu="";%pt=[];
   if size(Select,1)<>1 || curwin<>Select(1,2) then
     return
@@ -10,6 +17,11 @@ function CreateMask_()
     message('Mask can only be created for Super Blocks.')
     return;
   end
+  if (o.model.sim =='csuper' & isequal(o.model.ipar,1))  then
+    message('This block is already masked.')
+    return;
+  end
+    
   model=o.model
   graphics=o.graphics;
   if type(model.sim,'short')<>'s' || model.sim <> 'super' then

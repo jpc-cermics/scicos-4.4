@@ -1,6 +1,8 @@
 function [ok,params,param_types]=FindSBParams(scs_m,params)
 // Copyright INRIA
 
+  if nargin <= 1 then params=[];end 
+    
   function varargout=getvalue(a,b,c,d)
     global par_types
     par_types=c
@@ -10,7 +12,7 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
   global par_types
   ok = %t;
   
-  // enrich %scicos_context 
+  // enrich %scicos_context with diagram context 
   Fun=scs_m.props.context;
   if exists('%scicos_context','callers') then 
     [%scicos_context,ierr] = script2var(Fun,%scicos_context);
@@ -37,7 +39,7 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
           if type(o.graphics.exprs,'short')=='h' && o.graphics.exprs.type =="MBLOCK" then 
 	    //modelica block
             Funi=[];
-            for j=1:lenght(o.graphics.exprs.paramv)
+            for j=1:length(o.graphics.exprs.paramv)
                Funi=[Funi;
                      '['+o.graphics.exprs.paramv(j)+']'];
             end
@@ -70,7 +72,6 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
   end
   //   
   [params,ok]=GetLitParam(Fun,%t)
-  // pause FindSBParams;
   if ~ok then return;end
   for X=params'
     select evstr('type(%scicos_context.'+X+')')
