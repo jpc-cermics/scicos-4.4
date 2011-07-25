@@ -111,23 +111,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
         model=o.model
         model_n=o_n.model
         if ~is_modelica_block(o) then
-          modified=or(model.sim<>model_n.sim)|..
-                   ~model.state.equal[model_n.state]|..
-                   ~model.dstate.equal[model_n.dstate]|..
-                   ~model.odstate.equal[model_n.odstate]|..
-                   ~model.rpar.equal[model_n.rpar]|..
-                   ~model.ipar.equal[model_n.ipar]|..
-                   ~model.opar.equal[model_n.opar]|..
-                   ~model.label.equal[model_n.label]
-          if ~modified then
-            for i=1:size(model.opar)
-              //TOBEFIXED
-              if ~typeof(model.opar(i)).equal[typeof(model_n.opar(i))] then
-                modified=%t
-                break
-              end
-            end
-          end
+          modified=~model.equal[model_n]
           if or(model.in<>model_n.in)|or(model.out<>model_n.out)|..
              or(model.in2<>model_n.in2)|or(model.out2<>model_n.out2)|..
              or(model.outtyp<>model_n.outtyp)|or(model.intyp<>model_n.intyp) then
