@@ -72,7 +72,7 @@ function scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver)
   [path,name,ext]=splitfilepath(fname)
   scs_m = scs_m;
   scs_m.props.title=[name,path]; // Change the title
-  scs_m = do_purge(scs_m);
+  scs_m=do_purge(scs_m);
   scs_m= scs_m_remove_gr(scs_m);
   if ext=='cos' then
     // save in binary mode 

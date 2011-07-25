@@ -1,4 +1,4 @@
-function [scs_m,needcompile]=getlink_new(%pt,scs_m,needcompile,smart)
+function [scs_m,needcompile]=getlink(%pt,scs_m,needcompile,smart)
 // edition of a link from an output block to an input  block
 // Copyright INRIA
   dash=xget('color')
