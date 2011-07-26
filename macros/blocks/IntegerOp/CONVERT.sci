@@ -3,10 +3,14 @@ function [x,y,typ]=CONVERT(job,arg1,arg2)
 x=[];y=[];typ=[];
 select job
 case 'plot' then
-  sgn=arg1.model.ipar
   VOP=['    double ','    double ','    int32 ','    int16 ',...
        '    int8 ','    uint32 ','    uint16 ','    uint8 ']
-  OPER=VOP(evstr( arg1.graphics.exprs(2)))
+  if or(stripblanks(arg1.graphics.exprs(2))==['1','2','3','4','5','6','7','8']) then
+      iid=evstr( arg1.graphics.exprs(2))
+  else
+      iid=0
+  end
+  if iid>0 then  OPER=VOP(iid), else OPER="other type",end
   standard_draw(arg1)
 case 'getinputs' then
   [x,y,typ]=standard_inputs(arg1)
@@ -21,17 +25,45 @@ case 'set' then
   exprs=graphics.exprs
   while %t do
     [ok,it,ot,np,exprs]=getvalue('Set CONVERT block parameters',..
-			    ['Input type (1= double 3=int32  4=int16 5=int8 ...)';..
-			     'Output type (1= double 3=int32  4=int16 5=int8 ...)';..
+			    ['Input type (-1=inherit 1=double 3=int32  4=int16 5=int8 ...)';..
+			     'Output type (-2=inherit 1=double 3=int32 4=int16 ...)';..
                              'Do on Overflow(0=Nothing 1=Saturate 2=Error)'],..
                              list('vec',1,'vec',1,'vec',1),exprs)
     if ~ok then break,end
     if (np~=0 & np~=1 & np~=2) then message ("type is not supported");ok=%f;end
     if it==2 then it =1;end
     if ot==2 then ot=1;end
-    if (it>9|it<1) then message ("input type is not supported");ok=%f;end
-    if (ot>9|ot<1) then message ("output type is not supported");ok=%f;end
+    if (it>9|it==0|it<-1) then message ("input type is not supported");ok=%f;end
+    if (ot>9|ot==0|ot<-2) then message ("output type is not supported");ok=%f;end
     model.sim=list('convert',4)
+    model.ipar=-np-1;
+    in=[model.in model.in2]
+    out=[model.out model.out2]
+    if ok then
+      [model,graphics,ok]=set_io(model,graphics,...
+                                 list(in,it),...
+                                 list(out,ot),[],[])
+    end
+    if ok then
+      graphics.exprs=exprs
+      x.graphics=graphics;x.model=model
+      break
+    end
+  end
+
+case 'compile'
+    model=arg1
+    if model.ipar<0 then 
+        np= -model.ipar-1
+    elseif model.ipar<38 then
+        np=0
+    elseif model.ipar<65 then
+        np=1
+    else
+        np=2        
+    end
+    it=model.intyp
+    ot=model.outtyp
     if (it==ot) then
 	model.ipar=1;
     elseif it==9 then
@@ -223,22 +255,12 @@ case 'set' then
 	    end
 	end
     end
-    in=[model.in model.in2]
-    out=[model.out model.out2]
-    if ok then
-      [model,graphics,ok]=set_io(model,graphics,...
-                                 list(in,it),...
-                                 list(out,ot),[],[])
-    end
-    if ok then
-      graphics.exprs=exprs
-      x.graphics=graphics;x.model=model
-      break
-    end
-  end
+    model.intyp=it
+    model.outtyp=ot
+    x=model
 case 'define' then
   
-  sgn=2
+  np=0
   model=scicos_model()
   model.sim=list('convert',4)
   model.in=-1
@@ -248,13 +270,13 @@ case 'define' then
   model.intyp=1
   model.outtyp=3
   model.rpar=[]
-  model.ipar=sgn
+  model.ipar=-np-1
   model.blocktype='c'
   model.dep_ut=[%t %f]
 
   
-  exprs=[sci2exp(1);sci2exp(3);sci2exp(0)]
+  exprs=[sci2exp(1);sci2exp(3);sci2exp(np)]
   gr_i=['xstringb(orig(1),orig(2),[''convert to'';OPER],sz(1),sz(2),''fill'');']
-  x=standard_define([3 2],model, exprs,gr_i,'CONVERT');
+  x=standard_define([3 2],model, exprs,gr_i,'CONVERT')
 end
 endfunction
