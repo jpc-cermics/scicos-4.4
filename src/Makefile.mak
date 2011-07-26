@@ -89,9 +89,9 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	matbyscal.obj matbyscal_s.obj matbyscal_e.obj matmul2_s.obj matmul2_e.obj constraint_c.obj lookup2d.obj \
 	diffblk_c.obj andlog.obj foriterator.obj assignment.obj whileiterator.obj loopbreaker.obj
 
-BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP absolute_valuei_SCSINT32_COP \
-	absolute_valuei_SCSINT16_COP absolute_valuei_SCSINT8_COP absolute_valuei_SCSUINT32_COP \
-	absolute_valuei_SCSUINT16_COP absolute_valuei_SCSUINT8_COP
+BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP.obj absolute_valuei_SCSINT32_COP.obj  \
+	absolute_valuei_SCSINT16_COP.obj  absolute_valuei_SCSINT8_COP.obj  absolute_valuei_SCSUINT32_COP.obj  \
+	absolute_valuei_SCSUINT16_COP.obj  absolute_valuei_SCSUINT8_COP.obj 
 
 OBJSF=  intcos.obj coselm.obj sciblk.obj  \
 	sctree.obj ftree2.obj ftree3.obj ftree4.obj skipvars.obj scierr.obj scifunc.obj \
