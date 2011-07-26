@@ -89,6 +89,10 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	matbyscal.obj matbyscal_s.obj matbyscal_e.obj matmul2_s.obj matmul2_e.obj constraint_c.obj lookup2d.obj \
 	diffblk_c.obj andlog.obj foriterator.obj assignment.obj whileiterator.obj loopbreaker.obj
 
+BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP absolute_valuei_SCSINT32_COP \
+	absolute_valuei_SCSINT16_COP absolute_valuei_SCSINT8_COP absolute_valuei_SCSUINT32_COP \
+	absolute_valuei_SCSUINT16_COP absolute_valuei_SCSUINT8_COP
+
 OBJSF=  intcos.obj coselm.obj sciblk.obj  \
 	sctree.obj ftree2.obj ftree3.obj ftree4.obj skipvars.obj scierr.obj scifunc.obj \
 	list2vars.obj dtosci.obj itosci.obj scitoi.obj scitod.obj vvtosci.obj \
@@ -126,13 +130,13 @@ SUNDIALS=cvode.obj cvode_io.obj cvode_dense.obj nvector_serial.obj ida.obj ida_d
 
 OBJSC=  import.obj scicos.obj intcos.obj simul.obj sciblk2.obj trees.obj ezxml.obj scicos_utils.obj \
 	evaluate_expr.obj about.obj \
-	blocks/blocks_new_nsp.obj blocks/blocks_nsp.obj blocks/gtkrange.obj \
+	blocks/blocks_new_nsp.obj blocks/blocks_nsp.obj blocks/gtkrange.obj blocks/absolute_valuei.obj\
 	$(addprefix sundials/,$(SUNDIALS)) \
 	$(addprefix blocks/,$(BLOCKSC)) \
 	$(addprefix control/,$(CONTROL)) \
 	$(addprefix calelm/,$(CALELM)) 
 
-BLOCKS=$(BLOCKSF) $(BLOCKSC)
+BLOCKS=$(BLOCKSF) $(BLOCKSC) $(BLOCKS_MULTIC)
 
 include $(SCIDIR)/Makefile.incl.mak
 

@@ -90,7 +90,11 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	matbyscal.obj matbyscal_s.obj matbyscal_e.obj matmul2_s.obj matmul2_e.obj constraint_c.obj lookup2d.obj \
 	diffblk_c.obj andlog.obj foriterator.obj assignment.obj whileiterator.obj loopbreaker.obj
 
-OBJSC=  $(BLOCKSC) blocks_new_nsp.obj blocks_nsp.obj gtkrange.obj
+BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP absolute_valuei_SCSINT32_COP \
+	absolute_valuei_SCSINT16_COP absolute_valuei_SCSINT8_COP absolute_valuei_SCSUINT32_COP \
+	absolute_valuei_SCSUINT16_COP absolute_valuei_SCSUINT8_COP
+
+OBJSC=  $(BLOCKSC) blocks_new_nsp.obj blocks_nsp.obj gtkrange.obj absolute_valuei.obj
 
 include $(SCIDIR)/Makefile.incl.mak
 

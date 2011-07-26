@@ -125,7 +125,7 @@ function lisf=scicos_get_palette_content(txt)
 	  'TRANSMIT.sci';'M_VSWITCH.sci']
 	
   elseif txt=='Non_linear' then
-	lisf=['ABS_VALUE.sci'; 'TrigFun.sci';
+	lisf=['ABS_VALUEi.sci'; 'TrigFun.sci';
 	      'EXPBLK_m.sci';  'INVBLK.sci';
 	      'LOGBLK_f.sci'; 'LOOKUP_f.sci'; 'MAXMIN.sci';
 	      'POWBLK_f.sci'; 'PROD_f.sci';

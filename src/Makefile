@@ -86,6 +86,10 @@ BLOCKSC=selector.o sum.o prod.o switchn.o relay.o readc.o writec.o writeau.o \
 	matbyscal.o matbyscal_s.o matbyscal_e.o matmul2_s.o matmul2_e.o constraint_c.o lookup2d.o \
 	diffblk_c.o andlog.o foriterator.o assignment.o whileiterator.o loopbreaker.o
 
+BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP absolute_valuei_SCSINT32_COP \
+	absolute_valuei_SCSINT16_COP absolute_valuei_SCSINT8_COP absolute_valuei_SCSUINT32_COP \
+	absolute_valuei_SCSUINT16_COP absolute_valuei_SCSUINT8_COP
+
 OBJSF=  intcos.o coselm.o sciblk.o  \
 	sctree.o ftree2.o ftree3.o ftree4.o skipvars.o scierr.o scifunc.o \
 	list2vars.o dtosci.o itosci.o scitoi.o scitod.o vvtosci.o \
@@ -123,13 +127,13 @@ SUNDIALS=cvode.o cvode_io.o cvode_dense.o nvector_serial.o ida.o ida_dense.o \
 
 OBJSC=  import.o scicos.o intcos.o simul.o sciblk2.o trees.o ezxml.o scicos_utils.o \
 	evaluate_expr.o about.o \
-	blocks/blocks_new_nsp.o blocks/blocks_nsp.o blocks/gtkrange.o \
+	blocks/blocks_new_nsp.o blocks/blocks_nsp.o blocks/gtkrange.o blocks/absolute_valuei.o\
 	$(addprefix sundials/,$(SUNDIALS)) \
 	$(addprefix blocks/,$(BLOCKSC)) \
 	$(addprefix control/,$(CONTROL)) \
 	$(addprefix calelm/,$(CALELM)) 
 
-BLOCKS=$(BLOCKSF) $(BLOCKSC)
+BLOCKS=$(BLOCKSF) $(BLOCKSC) $(BLOCKS_MULTIC)
 
 include $(SCIDIR)/Makefile.incl
 
