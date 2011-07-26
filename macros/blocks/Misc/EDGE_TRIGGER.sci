@@ -18,64 +18,21 @@ case 'set' then
     np=size(path,'*')
     spath=list()
     for k=1:np
-      spath($+1)='model'
-      spath($+1)='rpar'
-      spath($+1)='objs'
-      spath($+1)=path(k)
+      spath($+1:$+4)=('model','rpar','objs',path(k));
     end
     xx=arg1(spath)// get the block
-    execstr('xxn='+xx.gui+'(''set'',xx)')
-    if diffobjs(xxn,xx) then 
-	model=xx.model
-	 model_n=xxn.model
-	 if ~is_modelica_block(xx) then
-             modified=or(model.sim<>model_n.sim)|..
-	     ~isequal(model.state,model_n.state)|..
-	     ~isequal(model.dstate,model_n.dstate)|..
-	     ~isequal(model.rpar,model_n.rpar)|..
-	     ~isequal(model.ipar,model_n.ipar)|..
-	     ~isequal(model.label,model_n.label)
-      if or(model.in<>model_n.in)|or(model.out<>model_n.out) then  
-	  needcompile=1
-	end
-	if or(model.firing<>model_n.firing)  then 
-	  needcompile=2
-	end
-	if (size(model.in,'*')<>size(model_n.in,'*'))|..
-        (size(model.out,'*')<>size(model_n.out,'*')) then  
-         needcompile=4  
-       end  
-	if model.sim.equal['input']|model.sim.equal['output'] then
-	  if model.ipar<>model_n.ipar then
-	    needcompile=4
-	  end
-	end
-	if or(model.blocktype<>model_n.blocktype)|..
-	      or(model.dep_ut<>model_n.dep_ut)  then 
-	  needcompile=4
-	end
-	if (model.nzcross<>model_n.nzcross)|(model.nmode<>model_n.nmode) then 
-	  needcompile=4
-	end
-	if prod(size(model_n.sim))>1 then
-	  if model_n.sim(2)>1000 then 
-	    if model.sim(1)<>model_n.sim(1) then
-	      needcompile=4
-	    end
-	  end
-	end
-      else 
-	modified=or(model_n<>model)
-	eq=model.equations;eqn=model_n.equations;
-	if or(eq.model<>eqn.model)|or(eq.inputs<>eqn.inputs)|..
-				      or(eq.outputs<>eqn.outputs) then  
-	  needcompile=4
-	end
-      end
+    ok=execstr('xxn='+xx.gui+'(''set'',xx)',errcatch=%t);
+    if ~ok then 
+      message(['Error: failed to set parameter block in EDGE_TRIGGER ';
+	       catenate(lasterror())]);
+      continue;
+    end
+    if ~xx.equal[xxn] then 
+      [needcompile]=scicos_object_check_needcompile(xx,xxn);
       // parameter or states changed
       arg1(spath)=xxn// Update
-      newpar(size(newpar)+1)=path// Notify modification
-      y=max(y,needcompile)
+      newpar(size(newpar)+1)=path // Notify modification
+      y=max(y,needcompile);
     end
   end
   x=arg1
