@@ -166,29 +166,25 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
             param_name_n = eqn.parameters(1);
             if ~isequal(param_name,param_name_n) then
               needcompile=4
-            else
-              for i=1:length(model.equations.parameters(2))
-                if eq.parameters(2)(i).equal[(eqn.parameters(2)(i))] then
-                  needcompile=0
-                  TMPDIR=getenv('NSP_TMPDIR')
-                  XML=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
-                  isok=execstr("file(""delete"",XML)",errcatch=%t)
-                  if ~isok then
-                    x_message(['Unable to delete the XML file'])
-                    lasterror();
-                  end
-                  XMLTMP=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imSim.xml']);
-		  isok=execstr("file(""delete"",XMLTMP)",errcatch=%t)
-                  if ~isok then
-                    x_message(['Unable to delete the XML file'])
-                    lasterror();
-                  end
-                  break;
-                end
-              end
-            end
-          end
-
+	      return;
+            elseif ~eq.parameters(2).equal[eqn.parameters(2)] then
+	      needcompile=0 // BIZARRE !!!!
+	      TMPDIR=getenv('NSP_TMPDIR')
+	      XML=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
+	      isok=execstr("file(""delete"",XML)",errcatch=%t)
+	      if ~isok then
+		x_message(['Unable to delete the XML file'])
+		lasterror();
+	      end
+	      XMLTMP=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imSim.xml']);
+	      isok=execstr("file(""delete"",XMLTMP)",errcatch=%t)
+	      if ~isok then
+		x_message(['Unable to delete the XML file'])
+		lasterror();
+	      end
+	      return;
+	    end
+	  end
           if size(o.model.sim,'*')>1 then
             if (o.model.sim(2)==30004) then // only if it is the Modelica generic block
               if or(o.graphics.exprs<>o_n.graphics.exprs) then  // if equation in generic Modelica Mblock change
@@ -197,7 +193,6 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
               end
             end
           end
-
         end
         o=o_n
       end

@@ -25,25 +25,20 @@ function  [needcompile]=scicos_object_check_needcompile(xx,xxn)
       if ~param_name.equal[param_name_n] then
 	needcompile=4;
 	return;
-      else
-	for i=1:length(eq.parameters(2))
-	  if eq.parameters(2)(i).equal[(eqn.parameters(2)(i))] then
-	    needcompile=0;
-	    TMPDIR=getenv('NSP_TMPDIR')
-	    XML=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
-	    isok=execstr("file(""delete"",XML)",errcatch=%t)
-	    if ~isok then
-	      x_message(['Unable to delete the XML file'])
-	      lasterror();
-	    end
-	    XMLTMP=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imSim.xml']);
-	    isok=execstr("file(""delete"",XMLTMP)",errcatch=%t)
-	    if ~isok then
-	      x_message(['Unable to delete the XML file'])
-	      lasterror();
-	    end
-	    break;
-	  end
+      elseif ~eq.parameters(2).equal[eqn.parameters(2)] then
+	needcompile=0;
+	TMPDIR=getenv('NSP_TMPDIR')
+	XML=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
+	isok=execstr("file(""delete"",XML)",errcatch=%t)
+	if ~isok then
+	  x_message(['Unable to delete the XML file'])
+	  lasterror();
+	end
+	XMLTMP=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imSim.xml']);
+	isok=execstr("file(""delete"",XMLTMP)",errcatch=%t)
+	if ~isok then
+	  x_message(['Unable to delete the XML file'])
+	  lasterror();
 	end
       end
     end
