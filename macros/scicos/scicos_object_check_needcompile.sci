@@ -1,7 +1,9 @@
 function  [needcompile]=scicos_object_check_needcompile(xx,xxn)
-// xx and xxn are to blocks. 
-// xxn is a new version of xx and we check here the 
-// needcompile level requested to replace xx by xxn
+// This function is used to detect the proper needcompile 
+// level requested to replace the blco xx by its new version xxn.
+// When calling the function xx and xxn are to be two blocks.
+// Jean-Philippe Chancelier (2011)
+//
   needcompile = 0;
   if xxn.equal[xx] then return;end 
   // now xxn <> xx 
