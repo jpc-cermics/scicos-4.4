@@ -8,11 +8,53 @@ function  [needcompile]=scicos_object_check_needcompile(xx,xxn)
   // get the models 
   model=xx.model;
   model_n=xxn.model;
-  // a modelia block 
   if is_modelica_block(xx) then 
+    // Modelia block case 
     if model_n.equal[model] then return;end 
-    if ~model.equations.equal[model_n.equations] then 
-      needcompile=4
+    eq=model.equations;
+    eqn=model_n.equations;
+    if ~eq.model.equal[eqn.model] || ~eq.inputs.equal[eqn.inputs] ||  ...
+	  ~eq.outputs.equal[eqn.outputs] then
+      needcompile=4;
+      return;
+    end
+    // test parameter changes
+    if ~eq.parameters.equal[eqn.parameters] then
+      param_name   = eq.parameters(1);
+      param_name_n = eqn.parameters(1);
+      if ~param_name.equal[param_name_n] then
+	needcompile=4;
+	return;
+      else
+	for i=1:length(eq.parameters(2))
+	  if eq.parameters(2)(i).equal[(eqn.parameters(2)(i))] then
+	    needcompile=0;
+	    TMPDIR=getenv('NSP_TMPDIR')
+	    XML=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
+	    isok=execstr("file(""delete"",XML)",errcatch=%t)
+	    if ~isok then
+	      x_message(['Unable to delete the XML file'])
+	      lasterror();
+	    end
+	    XMLTMP=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imSim.xml']);
+	    isok=execstr("file(""delete"",XMLTMP)",errcatch=%t)
+	    if ~isok then
+	      x_message(['Unable to delete the XML file'])
+	      lasterror();
+	    end
+	    break;
+	  end
+	end
+      end
+    end
+    if size(o.model.sim,'*') > 1 then
+      if (o.model.sim(2)==30004) then 
+	// only if it is the Modelica generic block
+	if or(o.graphics.exprs<>xxn.graphics.exprs) then  
+	  // if equation in generic Modelica Mblock change
+	  needcompile=4;
+	end
+      end
     end
     return;
   end

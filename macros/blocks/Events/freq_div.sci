@@ -41,7 +41,6 @@ function [x,y,typ]=freq_div(job,arg1,arg2)
 	break
       end
     end
-    pause xx;
     if ~xx.equal[xxn] then 
       [needcompile]=scicos_object_check_needcompile(xx,xxn);
       // parameter or states changed
