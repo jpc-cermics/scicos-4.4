@@ -138,7 +138,6 @@ function CodeGeneration_()
     //## call do_compile_superblock
     ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code, cpr] ='+ ...
 		 'do_compile_superblock42(scs_m, -1);',errcatch=%t)
-    pause xxx 
     //## display error message if any
     if ~ierr then
       //@@ silent_mode
@@ -1729,25 +1728,18 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
   if CCode<>list() then
     CodeC=[]
     //@@ test for blocks directory
-    if ~MSDOS then
-      //rpat_blocks=rpat+'/cblocks'
-      rpat_blocks=rpat
-    else
-      //rpat_blocks=rpat+'\cblocks'
-      rpat_blocks=rpat
-    end
-    dirinfo=fileinfo(rpat_blocks)
-    if isempty(dirinfo) then
-      [pathrp,fnamerp,extensionrp]=fileparts(rpat_blocks)
-      if ~MSDOS then
+    rpat_blocks=rpat
+    if ~file('exists',rpat_blocks) then
+      [pathrp,fnamerp,extensionrp]=splitfilepath(rpat_blocks)
+      if ~%win32 then
         fnamerp=strsubst(fnamerp," ",""" """)
       end
-      ok=mkdir(pathrp,fnamerp+extensionrp)
+      ok=execstr('file(''mkdir'',file(''join'',[pathrp;fnamerp;extensionrp]));',errcatch=%t);
       if ~ok then
         x_message('Directory '+rpat_blocks+' cannot be created');
         return
       end
-    elseif filetype(dirinfo(2))<>'Directory' then
+    elseif ~file("isdirectory",rpat_blocks) then
       ok=%f;
       x_message(rpat_blocks+' is not a directory');
       return
@@ -1755,10 +1747,14 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
 
     //@@include scicos_block/scicos_block4.h
     txt=mgetl(SCI+'/routines/scicos/scicos_block4.h');
+    
+    Date=gdate_new();
+    str= Date.strftime["%d %B %Y"];
+    
     txt=['/* Scicos computational function header */'
          '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
 	 get_scicos_version()+' */'
-         '/*     date : '+date()+' */'
+         '/*     date : '+str+' */'
          ''
          '/* Copyright (c) 1989-2011 Metalau project INRIA */'
          ''
@@ -1771,10 +1767,12 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     end
 
     txt=mgetl(SCI+'/routines/scicos/scicos_block.h');
+    Date=gdate_new();
+    str= Date.strftime["%d %B %Y"];
     txt=['/* Scicos computational function header */'
          '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
 	 get_scicos_version()+' */'
-         '/*     date : '+date()+' */'
+         '/*     date : '+str+' */'
          ''
          '/* Copyright (c) 1989-2011 Metalau project INRIA */'
          ''
@@ -1786,11 +1784,15 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
       return
     end
 
+    Date=gdate_new();
+    str= Date.strftime["%d %B %Y"];
+    
     for i=1:2:length(CCode)
+            
       CCode(i+1)=['/* Code of '+CCode(i)+' routine */'
                   '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
 		  get_scicos_version()+' */'
-                  '/*     date : '+date()+' */'
+                  '/*     date : '+str+' */'
                   ''
                   '/* Copyright (c) 1989-2011 Metalau project INRIA */'
                   ''
@@ -1860,10 +1862,13 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     end
 
     txt=mgetl(SCI+'/routines/scicos/scicos_block4.h');
+    Date=gdate_new();
+    str= Date.strftime["%d %B %Y"];
+
     txt=['/* Scicos computational function header */'
          '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
 	 get_scicos_version()+' */'
-         '/*     date : '+date()+' */'
+         '/*     date : '+str+' */'
          ''
          '/* Copyright (c) 1989-2011 Metalau project INRIA */'
          ''
@@ -1876,10 +1881,13 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     end
 
     txt=mgetl(SCI+'/routines/scicos/scicos_block.h');
+    Date=gdate_new();
+    str= Date.strftime["%d %B %Y"];
+
     txt=['/* Scicos computational function header */'
          '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
 	 get_scicos_version()+' */'
-         '/*     date : '+date()+' */'
+         '/*     date : '+str+' */'
          ''
          '/* Copyright (c) 1989-2011 Metalau project INRIA */'
          ''
@@ -1903,24 +1911,19 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
 
     //## Generate _act_sens_events.c
     [Code]=make_act_sens_events()
-
-    created=[]
-    reponse=[]
-
-    created=fileinfo(rpat+'/'+rdnom+'_act_sens_events.c')
-
+    reponse=[];
+    ffname=file('join',[rpat;rdnom;'_act_sens_events.c']);
+    created=file('exists',ffname);
     if silent_mode <> 1 then
-      if ~isempty(created) then
+      if created then
         reponse=x_message(['File: ""'+rdnom+'_act_sens_events.c"" already exists,';
                            'do you want to replace it ?'],['Yes','No'])
       end
     else
       reponse=1
     end
-
     if reponse==1 |  isempty(reponse) then
-      ierr=execstr('mputl(Code,rpat+''/''+rdnom+''_act_sens_events.c'')', ...
-                   errcatch=%t)
+      ierr=execstr('scicos_mputl(Code,ffname)', errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -1939,8 +1942,8 @@ function [ok]=gen_gui42()
 // Output : ok : output flag to say if the generation  is ok
 //
 
-  clkinput=ones(clkIN)';
-  clkoutput=ones(clkOUT)';
+  clkinput=ones_deprecated(clkIN)';
+  clkoutput=ones_deprecated(clkOUT)';
   //outtb=outtb;
   oz=cpr.state.oz;
 
@@ -1955,11 +1958,17 @@ function [ok]=gen_gui42()
   new_oz_str='list('+strcat(new_oz_str,',...'+ascii(10)+'                ')+')';
 
   //outtb($+1) = zeros(nblk,1);
+  Date=gdate_new();
+  str= Date.strftime["%d %B %Y"];
+
+  if isempty(capt) then capt=zeros(0,5);end
+  if isempty(actt) then actt=zeros(0,5);end
+  
   Code=['function [x,y,typ]='+rdnom+'_c(job,arg1,arg2)';
         '//Scicos interfacing function'
         '//Generated by Code_Generation toolbox of Scicos with '+ ..
         get_scicos_version()
-        '// date : '+date()
+        '// date : '+str
         ''
         '//Copyright (c) 1989-2011 Metalau project INRIA'
         ''
@@ -2155,23 +2164,19 @@ function [ok]=get_solver_code(s_name)
   //@@ SUNDIALS @@
   if s_name=='CVODE' | s_name=='IDA' then
     //@@ test for solver directory
-    if ~MSDOS then
-      rpat_solv=rpat+'/solver'
-    else
-      rpat_solv=rpat+'\solver'
-    end
-    dirinfo=fileinfo(rpat_solv)
-    if isempty(dirinfo) then
-      [pathrp,fnamerp,extensionrp]=fileparts(rpat_solv)
-      if ~MSDOS then
+    rpat_solv=file('join',[rpat;'solver']);
+    // check or create rpat_solv 
+    if ~file('exists',rpat_solv)  then
+      [pathrp,fnamerp,extensionrp]=splitfilepath(rpat_solv)
+      if ~%win32 then
         fnamerp=strsubst(fnamerp," ",""" """)
       end
-      ok=mkdir(pathrp,fnamerp+extensionrp)
+      ok=execstr('file(''mkdir'',file(''join'',[pathrp;fnamerp;extensionrp]));',errcatch=%t);
       if ~ok then
         x_message('Directory '+rpat_solv+' cannot be created');
         return
       end
-    elseif filetype(dirinfo(2))<>'Directory' then
+    elseif ~file("isdirectory",rpat_solv)  then
       ok=%f;
       x_message(rpat_solv+' is not a directory');
       return
@@ -2527,11 +2532,8 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 //          c_atomic_code :
 //          cpr           :
 //
-
-
-//******************* atomic blk **********
-  [lhs,rhs] = argn(0)
-  if rhs<3 then atomicflag=%f; end
+  //******************* atomic blk **********
+  if nargin < 3 then atomicflag=%f; end
   c_atomic_code=[];
   freof=[];
   flgcdgen=[];
@@ -2550,7 +2552,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
     XX=[]
     scs_m=all_scs_m;
   end
-
+  
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   //@@ check and set global variables
   if ~exists('ALL') then ALL=%f, end
@@ -2669,27 +2671,35 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   end
 
   //Check if input/output ports are numered properly
-  IN=-sort(-IN);
-  if or(IN<>[1:size(IN,'*')]) then
-    ok=%f;%cpr=list()
-    error('Input ports are not numbered properly.')
+  if ~isempty(IN) then 
+    IN=sort(IN,'g','i');
+    if or(IN<>[1:size(IN,'*')]) then
+      ok=%f;%cpr=list()
+      error('Input ports are not numbered properly.')
+    end
   end
-  OUT=-sort(-OUT);
-  if or(OUT<>[1:size(OUT,'*')]) then
-    ok=%f;%cpr=list()
-    error('Output ports are not numbered properly.')
+  if ~isempty(OUT)
+    OUT=sort(OUT,'g','i');
+    if or(OUT<>[1:size(OUT,'*')]) then
+      ok=%f;%cpr=list()
+      error('Output ports are not numbered properly.')
+    end
   end
-  clkIN=-sort(-clkIN);
-  if or(clkIN<>[1:size(clkIN,'*')]) then
-    ok=%f;%cpr=list()
-    error('Event input ports are not numbered properly.')
+  if ~isempty(clkIN)
+    clkIN=sort(clkIN,'g','i');
+    if or(clkIN<>[1:size(clkIN,'*')]) then
+      ok=%f;%cpr=list()
+      error('Event input ports are not numbered properly.')
+    end
   end
-  clkOUT=-sort(-clkOUT);
-  if or(clkOUT<>[1:size(clkOUT,'*')]) then
-    ok=%f;%cpr=list()
-    error('Event output ports are not numbered properly.')
+  if ~isempty(clkOUT) 
+    clkOUT=sort(clkOUT,'g','i');
+    if or(clkOUT<>[1:size(clkOUT,'*')]) then
+      ok=%f;%cpr=list()
+      error('Event output ports are not numbered properly.')
+    end
   end
-
+  
   //Check if there is more than one clock in the diagram
   szclkIN=size(clkIN,2);
   if szclkIN==0 then szclkIN=[], end
@@ -3019,7 +3029,6 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   //******************** To avoid asking for size or type more than one time in incidence_mat*******
   //************************** when creating atomicity *********************************************
   //************************** in other cases it can be done in adjust_all_scs_m *******************
-  c_pass2=c_pass2;
   if ok then
     [ok,bllst]=adjust_inout(bllst,connectmat);
   end
@@ -3027,15 +3036,13 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   if ok then
     [ok,bllst]=adjust_typ(bllst,connectmat);
   end
-  //*************************************************************************************************
+  
   //## second pass of compilation
   cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,"silent")
-
-  if cpr==list() then
+  if cpr.equal[list()] then
     ok=%f,
     error("Problem compiling; perhaps an algebraic loop.");
   end
-
   // computing the incidence matrix to derive actual block's depu
   [depu_mat,ok]=incidence_mat(bllst,connectmat,clkconnect,cor,corinv)
   if ~ok then
@@ -3092,11 +3099,11 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   //**** solve which blocks use work ****//
   BeforeCG_WinList = winsid();
 
-  ierr=execstr('[state,t]=scicosim(cpr.state,0,0,cpr.sim,'+..
+  eok=execstr('[state,t]=scicosim(cpr.state,0,0,cpr.sim,'+..
                '''start'',scs_m.props.tol)',errcatch=%t)
 
   //@@ save initial outtb
-  if ierr==0
+  if eok
     outtb_init = state.outtb;
   else
     outtb_init = cpr.state.outtb
@@ -3105,15 +3112,15 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   //** retrieve all open ScicosLab windows with winsid()
   AfterCG_WinList = winsid();
 
-  if ierr==0 then
+  if eok then
     for i=1:cpr.sim.nb
       if state.iz(i)<>0 then
 	with_work(i)=%t
       end
     end
-
-    ierr=execstr('[state,t]=scicosim(state,0,0,cpr.sim,'+..
+    eok=execstr('[state,t]=scicosim(state,0,0,cpr.sim,'+..
                  '''finish'',scs_m.props.tol)',errcatch=%t)
+    if ~eok then lasterror();end 
   end
 
   //@@ remove windows opened by simulation
@@ -3200,11 +3207,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
     rdnom=hname;
   end
   if isempty(rpat) then
-    if MSDOS then
-      rpat=getcwd()+'\'+hname;
-    else
-      rpat=getcwd()+'/'+hname;
-    end
+    rpat=file('join',[getcwd();hname]);
   end
   if ~isempty(cdgen_libs) then
     libs=sci2exp(cdgen_libs(:)',0);
@@ -3238,8 +3241,9 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       //@@ regular code generation
     else
       //@@ check name of block for space,'-','_',quote
-      if ~isempty(grep(rdnom," ")) | ~isempty(grep(rdnom,"-")) | ~isempty(grep(rdnom,".")) | ~isempty(grep(rdnom,"''")) then
-        rdnom = strsubst(rdnom,' ','_');
+      if sum(strstr(rdnom," "))<>0 ||sum(strstr(rdnom,"-"))<>0 || ...
+	    sum(strstr(rdnom,"."))<>0 ||sum(strstr(rdnom,"''"))<>0 then 
+	rdnom = strsubst(rdnom,' ','_');
         rdnom = strsubst(rdnom,'-','_');
         rdnom = strsubst(rdnom,'.','_');
         rdnom = strsubst(rdnom,'''','_');
@@ -3258,8 +3262,8 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       end
 
       //@@ check directory for space
-      if ~MSDOS then
-        if ~isempty(grep(rpat," ")) then
+      if ~%win32 then
+        if sum(strstr(rpat," "))<>0  then
           rpat = strsubst(rpat,' ','_');
           label1=[label1(1);rpat;label1(3);label1(4)];
 	end
@@ -3324,7 +3328,8 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       //** because the space, the char "-", or  the char "."
       //** (could generate GCC problems) in name isn't allowed.
       //** (the C functions contains the name of the superblock).
-      if ~isempty(grep(rdnom," ")) | ~isempty(grep(rdnom,"-")) | ~isempty(grep(rdnom,".")) | ~isempty(grep(rdnom,"''")) then
+      if sum(strstr(rdnom," "))<>0 ||sum(strstr(rdnom,"-"))<>0 || ...
+	    sum(strstr(rdnom,"."))<>0 ||sum(strstr(rdnom,"''"))<>0 then 
         mess=[' Superblock name cannot contains space, ""."", ';
               '""-"" and quote characters. The superblock will be renamed :';
               ''''+strsubst(strsubst(strsubst(strsubst(rdnom,' ','_'),'-','_'),'.','_'),'''','_')+''''];
@@ -3356,9 +3361,9 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 
       //@@ libtool doesn't work with directory with white space
       if ok then
-        if ~MSDOS then
-          if ~isempty(grep(rpat," ")) then
-            if silent_mode & ~atomicflag then
+        if ~%win32 then
+	  if sum(strstr(rpat," "))<>0  then
+	    if silent_mode & ~atomicflag then
               rpat = strsubst(rpat,' ','_');
             else
               mess=[' Superblock path cannot contains space characters';
@@ -3378,13 +3383,12 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
         end
 
         if ok then
-          dirinfo=fileinfo(rpat)
-          if isempty(dirinfo) then
-            [pathrp,fnamerp,extensionrp]=fileparts(rpat)
-            if ~MSDOS then
+          if ~file('exists',rpat) then
+            [pathrp,fnamerp,extensionrp]=splitfilepath(rpat)
+            if ~%win32 then
               fnamerp=strsubst(fnamerp," ",""" """)
             end
-            ok=mkdir(pathrp,fnamerp+extensionrp)
+	    ok=execstr('file(''mkdir'',file(''join'',[pathrp;fnamerp;extensionrp]));',errcatch=%t);
             if ~ok then
               mess='Directory '+rpat+' cannot be created.'
               if atomicflag | silent_mode <> 1 then
@@ -3394,7 +3398,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
                 error(mess);
               end
             end
-          elseif filetype(dirinfo(2))<>'Directory' then
+          elseif ~file("isdirectory",rpat) then
             ok=%f;
             mess=rpat+' is not a directory.';
             if atomicflag | silent_mode <> 1 then
@@ -3405,12 +3409,8 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
             end
           else
             //@@ add a test for %scicos_libs
-            if MSDOS then
-              target_lib = rpat+'\lib'+rdnom+'.dll'
-            else
-              target_lib =  rpat+'/lib'+rdnom+'.so'
-            end
-            ind = find(libs==target_lib)
+	    target_lib =file('join',[rpat;'lib';rdnom+%shext]);
+	    ind = find(libs==target_lib)
             if ~isempty(ind) then
               mess=[' Warning. You want to link an external library';
                     'which is the same than the target library.'
@@ -3455,7 +3455,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   actt=[];
   Protostalone=[];
   Protos=[];
-  dfuns=[]
+  dfuns=m2s([]);
 
   //## loop on number of blk
   for i=1:length(funs)
@@ -3534,10 +3534,14 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 
   //**************************************
   //sort actuator/sensors information matrix
-  [junk,index]=sort(-actt(:,$));
-  actt=actt(index,1:$) ;
-  [junk,index]=sort(-capt(:,$));
-  capt=capt(index,1:$) ;
+  if ~isempty(actt)
+    [junk,index]=sort(-actt(:,$));
+    actt=actt(index,1:$) ;
+  end
+  if ~isempty(capt)
+    [junk,index]=sort(-capt(:,$));
+    capt=capt(index,1:$) ;
+  end
 
   rdcpr=cpr.sim.funs;
   for r=1:length(cap),rdcpr(cap(r))='bidon';end
@@ -3640,11 +3644,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       XX=update_block_doc(XX)
 
       //## update %scicos_libs if needed
-      if MSDOS then
-        libnam=rpat+'\lib'+rdnom+'.dll'
-      else
-        libnam=rpat+'/lib'+rdnom+'.so'
-      end
+      libnam =file('join',[rpat;'lib';rdnom+%shext]);
       if exists('%scicos_libs') then
         if isempty(find(libnam==%scicos_libs)) then
           %scicos_libs=[%scicos_libs,libnam];
@@ -4110,10 +4110,13 @@ function [Code]=make_act_sens_events()
 //
 
 //@@ header
+  Date=gdate_new();
+  str= Date.strftime["%d %B %Y"];
+
   Code=['/* Custumizable code for events/actuators/sensors */'
         '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
         get_scicos_version()+' */'
-        '/*     date : '+date()+' */'
+        '/*     date : '+str+' */'
         ''
         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
         ''
@@ -4803,9 +4806,8 @@ function [txt]=make_BlockProto(nin,nout,funs_bk,funtyp_bk,ztyp_bk,bk)
   txt=[get_comment('proto_blk',list(funs_bk,funtyp_bk,bk,ztyp_bk))]
 
   select ftyp
-    //** zero funtyp
    case 0 then
-
+    //** zero funtyp
     //*********** prototype definition ***********//
     txtp=['(int *, int *, double *, double *, double *, int *, double *, \';
 	  ' int *, double *, int *, double *, int *,int *, int *, \';
@@ -5351,11 +5353,14 @@ function [Code]=make_computational42()
   nO=length(oz); //** index of outtb in oz
 
   stalone=%f
+  
+  Date=gdate_new();
+  str= Date.strftime["%d %B %Y"];
 
   Code=['/* Scicos Computational function  */'
         '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
         get_scicos_version()+' */';
-        '/*     date : '+date()+' */'
+        '/*     date : '+str+' */'
         ''
         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
         ''
@@ -5369,7 +5374,7 @@ function [Code]=make_computational42()
         '#include <scicos/scicos.h>'
         '']
 
-  if MSDOS then
+  if %win32 then
    Code=[Code;
          ' '
          '#define max(a,b) ((a) >= (b) ? (a) : (b))'
@@ -7378,11 +7383,13 @@ function [Code]=make_sci_interf43()
  l_rdnom=length(rdnom)
  l_rdnom=(l_rdnom>17)*17 + (l_rdnom<=17)*l_rdnom
 
+ Date=gdate_new();
+ str= Date.strftime["%d %B %Y"];
  //## header
  Code=['/* ScicosLab interfacing function of the Scicos standalone */'
        '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
        get_scicos_version()+' */'
-       '/*     date : '+date()+' */'
+       '/*     date : '+str+' */'
        ''
        '/* Copyright (c) 1989-2011 Metalau project INRIA */'
        ''
@@ -7576,7 +7583,7 @@ function [Code]=make_sci_interf43()
 
  //@@ adjust path of parameters file for
  //@@ scicoslab interfacing function
- if MSDOS then
+ if %win32 then
    Code=[Code
          '  char rpatfilen[] = ""'+rpat+'\'+rdnom+'_params.dat"";']
    if isempty(strindex(Code($),'\\')) then
@@ -8292,10 +8299,12 @@ function [Code]=make_sci_interf()
  l_rdnom=(l_rdnom>17)*17 + (l_rdnom<=17)*l_rdnom
 
  //## header
+ Date=gdate_new();
+ str= Date.strftime["%d %B %Y"];
  Code=['/* ScicosLab interfacing function of the Scicos standalone */'
        '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
        get_scicos_version()+' */'
-       '/*     date : '+date()+' */'
+       '/*     date : '+str+' */'
        ''
        '/* Copyright (c) 1989-2011 Metalau project INRIA */'
        ''
@@ -9519,10 +9528,13 @@ function [Code]=make_standalone42()
     end
   end
 
+  Date=gdate_new();
+  str= Date.strftime["%d %B %Y"];
+  
   Code=['/* Code prototype for standalone use  */'
         '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
         get_scicos_version()+' */'
-        '/*     date : '+date()+' */'
+        '/*     date : '+str+' */'
         ''
         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
         ''
@@ -10294,11 +10306,11 @@ function [Code]=make_standalone42()
      Code=[Code;
            '  /* Continuous states declaration */'
            cformatline('  double x[]={'+strcat(string(x(1:nX/2)),',')+'};',70)
-           cformatline('  double xd[]={'+strcat(string(zeros(nX/2+1:nX)),',')+'};',70)
+           cformatline('  double xd[]={'+strcat(string(zeros_deprecated(nX/2+1:nX)),',')+'};',70)
            cformatline('  double res[]={'+strcat(string(zeros(1,nX/2)),',')+'};',70)
            ''
            '  /* def xproperty */'
-           cformatline('  int xprop[]={'+strcat(string(ones(1:nX/2)),',')+'};',70)
+           cformatline('  int xprop[]={'+strcat(string(ones_deprecated(1:nX/2)),',')+'};',70)
            '']
 
    //## explicit block
@@ -11985,10 +11997,12 @@ function [Code,Code_xml_param]=make_standalone43()
   end
 
   //@@ main header
+  Date=gdate_new();
+  str= Date.strftime["%d %B %Y"];
   Code=['/* Code prototype for standalone use  */'
         '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
         get_scicos_version()+' */'
-        '/*     date : '+date()+' */'
+        '/*     date : '+str+' */'
         ''
         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
         ''
@@ -12184,7 +12198,7 @@ function [Code,Code_xml_param]=make_standalone43()
   end
 
   //@@ (re)Build Protostalone
-  Protostalone=[];pacbn=0;tcabn=0;tcabn_dummy=0;dfuns=[]
+  Protostalone=[];pacbn=0;tcabn=0;tcabn_dummy=0;dfuns=m2s([]);
   for i=1:length(funs)
     //## block is a sensor
     if or(i==cap) then
@@ -12444,7 +12458,7 @@ function [Code,Code_xml_param]=make_standalone43()
 
   //@@ adjust path of parameters file for
   //@@ scicoslab interfacing function
-  if MSDOS then
+  if %win32 then
     Code=[Code
           '  char rpatfilen[] = ""'+rpat+'\'+rdnom+'_params.dat"";']
     if isempty(strindex(Code($),'\\')) then
@@ -13427,7 +13441,7 @@ function [Code,Code_xml_param]=make_standalone43()
 // //             cformatline('  double res[]={'+strcat(string(zeros(1,nX/2)),',')+'};',70)
 // //             ''
 // //             '  /* def xproperty */'
-// //             cformatline('  int xprop[]={'+strcat(string(ones(1:nX/2)),',')+'};',70)
+// //             cformatline('  int xprop[]={'+strcat(string(ones_deprecated(1:nX/2)),',')+'};',70)
 // //             '']
 
       Code=[Code;
@@ -13444,13 +13458,13 @@ function [Code,Code_xml_param]=make_standalone43()
                       get_xml_param_code('x',x(1:nX/2))]
 
       Code=[Code;
-            cformatline('  double xd[]={'+strcat(string(zeros(nX/2+1:nX)),',')+'};',70)
+            cformatline('  double xd[]={'+strcat(string(zeros_deprecated(nX/2+1:nX)),',')+'};',70)
             cformatline('  double res[]={'+strcat(string(zeros(1,nX/2)),',')+'};',70)
             ''
             '  /* def xproperty */'
-            cformatline('  int xprop[]={'+strcat(string(ones(1:nX/2)),',')+'};',70)
-            cformatline('  double alpha[]={'+strcat(string(ones(1:nX/2))+'.',',')+'};',70)
-            cformatline('  double beta[]={'+strcat(string(ones(1:nX/2))+'.',',')+'};',70)
+            cformatline('  int xprop[]={'+strcat(string(ones_deprecated(1:nX/2)),',')+'};',70)
+            cformatline('  double alpha[]={'+strcat(string(ones_deprecated(1:nX/2))+'.',',')+'};',70)
+            cformatline('  double beta[]={'+strcat(string(ones_deprecated(1:nX/2))+'.',',')+'};',70)
             '']
     //## explicit block
     else
@@ -16573,12 +16587,15 @@ function [Code]=make_void_io()
 //
 // Output : Code : text of the generated routines
 //
+  
+//## headers
+  Date=gdate_new();
+  str= Date.strftime["%d %B %Y"];
 
-  //## headers
   Code=['/* Code for actuators/sensors to be used in generic interfacing functions */'
         '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
         get_scicos_version()+' */'
-        '/*     date : '+date()+' */'
+        '/*     date : '+str+' */'
         ''
         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
         ''
@@ -17197,33 +17214,31 @@ endfunction
 
 function [ccmat]=adj_clkconnect_dep(blklst,ccmat)
 //Copyright (c) 1989-2011 Metalau project INRIA
-
 //this part was taken from c_pass2 and put in c_pass1;!!
-nbl=size(blklst)
-fff=ones(nbl,1)==1
-clkptr=zeros(nbl+1,1);clkptr(1)=1; typ_l=fff;typ_t=fff;
-for i=1:nbl
-  ll=blklst(i);
-  clkptr(i+1)=clkptr(i)+size(ll.evtout,'*');
-  //tblock(i)=ll.dep_ut($);
-  typ_l(i)=ll.blocktype=='l';
-  typ_t(i)=ll.dep_ut($)
-end
-all_out=[]
-for k=1:size(clkptr,1)-1
-  if ~typ_l(k) then
-    kk=[1:(clkptr(k+1)-clkptr(k))]'
-    all_out=[all_out;[k*ones(kk),kk]]
+  nbl=size(blklst)
+  fff=ones(nbl,1)==1
+  clkptr=zeros(nbl+1,1);clkptr(1)=1; typ_l=fff;typ_t=fff;
+  for i=1:nbl
+    ll=blklst(i);
+    clkptr(i+1)=clkptr(i)+size(ll.evtout,'*');
+    //tblock(i)=ll.dep_ut($);
+    typ_l(i)=ll.blocktype=='l';
+    typ_t(i)=ll.dep_ut($)
   end
-end
-all_out=[all_out;[0,0]]
-ind=find(typ_t==%t)
-ind=ind(:);
-for k=ind'
-  ccmat=[ccmat;[all_out,ones(all_out)*[k,0;0,0]]]
-end
+  all_out=[]
+  for k=1:size(clkptr,1)-1
+    if ~typ_l(k) then
+      kk=[1:(clkptr(k+1)-clkptr(k))]'
+      all_out=[all_out;[k*ones(size(kk)),kk]]
+    end
+  end
+  all_out=[all_out;[0,0]]
+  ind=find(typ_t==%t)
+  ind=ind(:);
+  for k=ind'
+    ccmat=[ccmat;[all_out,ones_deprecated(all_out)*[k,0;0,0]]]
+  end
 endfunction
-
 
 function [new_agenda]=adjust_agenda(evts,clkptr,funtyp)
 //Copyright (c) 1989-2011 Metalau project INRIA
@@ -17798,81 +17813,78 @@ function [txt]=get_comment(typ,param)
 //
 // Output : txt : a C comment
 //
-
   txt = [];
-
   select typ
+   case 'flag' then
     //** main flag
-    case 'flag' then
-        select param(1)
-          case 0 then
-             txt = '/* Continuous state computation */'
-          case 1 then
-             txt = '/* Output computation */'
-          case 2 then
-             txt = '/* Discrete state computation */'
-          case 3 then
-             txt = '/* Output Event computation */'
-          case 4 then
-             txt = '/* Initialization */'
-          case 5 then
-             txt = '/* Ending */'
-          case 9 then
-             txt = '/* Update zero crossing surfaces */'
-        end
+    select param(1)
+     case 0 then
+      txt = '/* Continuous state computation */'
+     case 1 then
+      txt = '/* Output computation */'
+     case 2 then
+      txt = '/* Discrete state computation */'
+     case 3 then
+      txt = '/* Output Event computation */'
+     case 4 then
+      txt = '/* Initialization */'
+     case 5 then
+      txt = '/* Ending */'
+     case 9 then
+      txt = '/* Update zero crossing surfaces */'
+    end
     //** blocks activated on event number
-    case 'ev' then
-       txt = '/* Blocks activated on the event number '+string(param(1))+' */'
-
+   case 'ev' then
+    txt = '/* Blocks activated on the event number '+string(param(1))+' */'
     //** blk calling sequence
-    case 'call_blk' then
-        txt = ['/* Call of '''+param(1) + ...
-               ''' (type '+string(param(2))+' - blk nb '+...
-                    string(param(3))];
-        if param(4) then
-          txt=txt+' - with zcross) */';
-        else
-          txt=txt+') */';
-        end
-    //** proto calling sequence
-    case 'proto_blk' then
-        txt = ['/* prototype of '''+param(1) + ...
-               ''' (type '+string(param(2))];
-        if param(4) then
-          txt=txt+' - with zcross) */';
-        else
-          txt=txt+') */';
-        end
-    //** ifthenelse calling sequence
-    case 'ifthenelse_blk' then
-        txt = ['/* Call of ''if-then-else'' blk (blk nb '+...
-                    string(param(1))+') */']
-    //** eventselect calling sequence
-    case 'evtselect_blk' then
-        txt = ['/* Call of ''event-select'' blk (blk nb '+...
-                    string(param(1))+') */']
-    //** set block structure
-    case 'set_blk' then
-        txt = ['/* set blk struc. of '''+param(1) + ...
-               ''' (type '+string(param(2))+' - blk nb '+...
-                    string(param(3))+') */'];
-    //** Update xd vector ptr
-    case 'update_xd' then
-        txt = ['/* Update xd vector ptr */'];
-    //** Update g vector ptr
-    case 'update_g' then
-        txt = ['/* Update g vector ptr */'];
-    //@@ Prototype sensor
-    case 'proto_sensor' then
-        txt = ['/* prototype of ''sensor'' */'];
-    //@@ Prototype actuator
-    case 'proto_actuator' then
-        txt = ['/* prototype of ''actuator'' */'];
-    //@@ update scicos_time variable
-    case 'update scicos_time' then
-        txt = ['/* update scicos_time variable */'];
+   case 'call_blk' then
+    txt = ['/* Call of '''+param(1) + ...
+	   ''' (type '+string(param(2))+' - blk nb '+...
+	   string(param(3))];
+    if param(4) then
+      txt=txt+' - with zcross) */';
     else
-      break;
+      txt=txt+') */';
+    end
+    //** proto calling sequence
+   case 'proto_blk' then
+    txt = ['/* prototype of '''+param(1) + ...
+	   ''' (type '+string(param(2))];
+    if param(4) then
+      txt=txt+' - with zcross) */';
+    else
+      txt=txt+') */';
+    end
+    //** ifthenelse calling sequence
+   case 'ifthenelse_blk' then
+    txt = ['/* Call of ''if-then-else'' blk (blk nb '+...
+	   string(param(1))+') */']
+    //** eventselect calling sequence
+   case 'evtselect_blk' then
+    txt = ['/* Call of ''event-select'' blk (blk nb '+...
+	   string(param(1))+') */']
+    //** set block structure
+   case 'set_blk' then
+    txt = ['/* set blk struc. of '''+param(1) + ...
+	   ''' (type '+string(param(2))+' - blk nb '+...
+	   string(param(3))+') */'];
+    //** Update xd vector ptr
+   case 'update_xd' then
+    txt = ['/* Update xd vector ptr */'];
+    //** Update g vector ptr
+   case 'update_g' then
+    txt = ['/* Update g vector ptr */'];
+    //@@ Prototype sensor
+   case 'proto_sensor' then
+    txt = ['/* prototype of ''sensor'' */'];
+    //@@ Prototype actuator
+   case 'proto_actuator' then
+    txt = ['/* prototype of ''actuator'' */'];
+    //@@ update scicos_time variable
+   case 'update scicos_time' then
+    txt = ['/* update scicos_time variable */'];
+  else
+    break;
   end
 endfunction
 
@@ -17968,11 +17980,9 @@ function [depu_mat,ok]=incidence_mat(bllst,connectmat,clkconnect,cor,corinv)
 
   //@@ disable function protection
   //   to overload message function
-  %mprt=funcprot()
-  funcprot(0) 
-  deff('message(txt)',' ')
-  funcprot(%mprt)
-
+  function message(txt) 
+  endfunction
+  
   in = 0
 
   for i=In_blocks'
@@ -18018,8 +18028,7 @@ function [dep]=is_dep(i,j,bllst,connectmat,clkconnect,cor,corinv)
   connectmat=[connectmat;j 1 i 1];
   clkconnect=adj_clkconnect_dep(bllst,clkconnect)
   cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,"silent")
-
-  dep=(cpr==list())
+  dep=cpr.equal[list()]
 
 endfunction
 
@@ -18383,10 +18392,11 @@ function [XX]=update_block_doc(XX)
 //
 // XX : a scicos_block data structure
 //
-
-  //@@
+//@@
+  Date=gdate_new();
+  str= Date.strftime["%d %B %Y"];
   doc=['//generated doc by CodeGeneration of '+get_scicos_version()
-       '//date :'+date()
+       '//date :'+str
        '//Copyright (c) 1989-2011 Metalau project INRIA'
        ''
        '//path'
