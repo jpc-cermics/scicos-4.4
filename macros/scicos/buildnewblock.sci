@@ -970,8 +970,8 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
   //** decl and set local variables
   ok=%t
   x=''
-  xlibs=[]
-  for_link=[]
+  xlibs=m2s([]);
+  for_link=m2s([]);
 
   //** get out from this function if
   //   there is nothing to do
@@ -1289,20 +1289,21 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
   //** add double quote for include in
   //   Makefile
   libs=xlibs
-  if (%win32) then
+  if ~isempty(libs) then 
+    if (%win32) then
       libs='""'+libs+'""'
-   else
-     libs=''''+libs+''''
-   end
-
+    else
+      libs=''''+libs+''''
+    end
+    //** concatenate libs for Makefile
+    if size(libs,1)<>1 then
+      libs = strcat(libs,' ')
+    end
+  end
+    
   //** return link cmd for for_link
   if ~isempty(for_link) then
     for_link = 'link(""'+for_link+'"");';
-  end
-
-  //** concatenate libs for Makefile
-  if size(libs,1)<>1 then
-    libs = strcat(libs,' ')
   end
 
 endfunction

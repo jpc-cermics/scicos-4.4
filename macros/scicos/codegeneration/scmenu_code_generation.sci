@@ -2003,7 +2003,7 @@ function [ok]=gen_gui42()
         '   '+sci2exp(cpr.sim.ipar,'ipar',70); //integer parameters
         '   '+sci2exp(cpr.sim.opar,'opar',70)] //object parameters
 
-  if ALL & firing_evtout<>[] then
+  if ALL && ~isempty(firing_evtout) then
     if ~isempty(find(firing_evtout>=0)) then
       firing = min(firing_evtout(find(firing_evtout>=0)))
     else
@@ -2537,6 +2537,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 //          c_atomic_code :
 //          cpr           :
 //
+  
   //******************* atomic blk **********
   if nargin < 3 then atomicflag=%f; end
   c_atomic_code=[];
@@ -2544,6 +2545,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   flgcdgen=[];
   szclkINTemp=[];cpr=list();
   //*****************************************
+  
   //## set void value for gui_path
   gui_path=[];
 
@@ -2557,6 +2559,13 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
     XX=[]
     scs_m=all_scs_m;
   end
+  
+  // for old diagram 
+  
+  if ~scs_m.iskey['codegen'] then 
+    scs_m.codegen= scicos_codegen();
+  end
+  
   
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   //@@ check and set global variables
