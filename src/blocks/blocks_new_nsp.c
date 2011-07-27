@@ -2957,7 +2957,7 @@ void scicos_csslti4_block (scicos_block * block, int flag)
 static NspGrstring *scicos_affich2_getstring(NspCompound *C);
 static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int m,int n);
 
-int scicos_affich2_block (scicos_args_F0)
+void scicos_affich2_block (scicos_args_F0)
 {
   NspGrstring **S= (NspGrstring **) &z__[0] ;
   --ipar;
@@ -2979,7 +2979,6 @@ int scicos_affich2_block (scicos_args_F0)
 	  *S = scicos_affich2_getstring((NspCompound *)Gr);
 	}
     }
-  return 0;
 }
 
 static NspGrstring *scicos_affich2_getstring(NspCompound *C)
@@ -3044,7 +3043,7 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
  *  Copyright: J.Ph Chancelier Enpc 
  */
 
-int scicos_affich_block (scicos_args_F0)
+void scicos_affich_block (scicos_args_F0)
 {
   NspGrstring **S= (NspGrstring **) &z__[0] ;
   --ipar;
@@ -3066,7 +3065,6 @@ int scicos_affich_block (scicos_args_F0)
 	  *S = scicos_affich2_getstring((NspCompound *)Gr);
 	}
     }
-  return 0;
 }
 
 

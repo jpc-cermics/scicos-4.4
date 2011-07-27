@@ -50,7 +50,7 @@ static void scicos_intp (double x, const double *xd, const double *yd, int n,
 /*     rpar(nx*nx+nx*nu+1:nx*nx+nx*nu+nx*ny)=C */
 /*     rpar(nx*nx+nx*nu+nx*ny+1:nx*nx+nx*nu+nx*ny+ny*nu)=D */
 
-int scicos_csslti_block (scicos_args_F0)
+void scicos_csslti_block (scicos_args_F0)
 {
   int la, lb, lc, ld, c__1 = 1;
   --y;
@@ -78,12 +78,11 @@ int scicos_csslti_block (scicos_args_F0)
       nsp_calpack_dmmul1 (&rpar[lb], nx, &u[1], nu, &xd[1], nx, nx, nu,
 			  &c__1);
     }
-  return 0;
 }
 
 /*     Ouputs nx*dt delayed input */
 
-int scicos_delay_block (scicos_args_F0)
+void scicos_delay_block (scicos_args_F0)
 {
   if (*flag__ == 1 || *flag__ == 4 || *flag__ == 6)
     {
@@ -95,7 +94,6 @@ int scicos_delay_block (scicos_args_F0)
       memmove (&z__[0], &z__[1], sizeof (double) * (*nz - 1));
       z__[*nz - 1] = u[0];
     }
-  return 0;
 }
 
 
@@ -126,7 +124,7 @@ static void coeffs_from_roots (int n, const double *rootr,
 			       const double *rooti, double *coeffr,
 			       double *coeffi);
 
-int scicos_dlradp_block (scicos_args_F0)
+void scicos_dlradp_block (scicos_args_F0)
 {
   static int c__1 = 1;
   /* static int c_n1 = -1; */
@@ -182,12 +180,12 @@ int scicos_dlradp_block (scicos_args_F0)
       if (m > 50 || n > 50)
 	{
 	  iflag = -1;
-	  return 0;
+	  return;
 	}
     }
   /*     y */
   y[1] = z__[m + n];
-  return 0;
+  return;
 }
 
 /* utilities for previous function 
@@ -221,7 +219,7 @@ static void coeffs_from_roots (int n, const double *rootr,
 
 /* Ouputs delayed input */
 
-int scicos_dollar_block (scicos_args_F0)
+void scicos_dollar_block (scicos_args_F0)
 {
   if (*flag__ == 1 || *flag__ == 6 || *flag__ == 4)
     {
@@ -231,12 +229,11 @@ int scicos_dollar_block (scicos_args_F0)
     {
       memcpy (z__, u, (*nu) * sizeof (double));
     }
-  return 0;
 }
 
 
 
-int scicos_dsslti_block (scicos_args_F0)
+void scicos_dsslti_block (scicos_args_F0)
 {
   int c__1 = 1;
   double w[100];
@@ -263,7 +260,7 @@ int scicos_dsslti_block (scicos_args_F0)
       if (*nz > 100)
 	{
 	  *flag__ = -1;
-	  return 0;
+	  return;
 	}
     }
   else if (*flag__ == 2)
@@ -282,30 +279,28 @@ int scicos_dsslti_block (scicos_args_F0)
 			 &c__1);
       nsp_calpack_dmmul1 (&rpar[ld], ny, &u[1], nu, &y[1], ny, ny, nu, &c__1);
     }
-  return 0;
 }
 
 /*     Event scope */
 
-int scicos_evscpe_block (scicos_args_F0)
+void scicos_evscpe_block (scicos_args_F0)
 {
-  return 0;
+  return;
 }
 
 /* event delay,  delay=rpar(1) */
 
-int scicos_evtdly_block (scicos_args_F0)
+void scicos_evtdly_block (scicos_args_F0)
 {
   if (*flag__ == 3)
     {
       tvec[0] = *t + rpar[0];
     }
-  return 0;
 }
 
 /*     Outputs a^u(i), a =rpar(1) */
 
-int scicos_exp_block (scicos_args_F0)
+void scicos_exp_block (scicos_args_F0)
 {
   int i;
   if (*flag__ == 1 || *flag__ >= 4)
@@ -313,12 +308,11 @@ int scicos_exp_block (scicos_args_F0)
       for (i = 0; i < *nu; ++i)
 	y[i] = exp (log (rpar[0]) * u[i]);
     }
-  return 0;
 }
 
 /*  For block */
 
-int scicos_for_block (scicos_args_F0)
+void scicos_for_block (scicos_args_F0)
 {
   --y;
   --u;
@@ -366,11 +360,10 @@ int scicos_for_block (scicos_args_F0)
     {
       y[1] = z__[1];
     }
-  return 0;
 }
 
 
-int scicos_fsv_block (scicos_args_F0)
+void scicos_fsv_block (scicos_args_F0)
 {
   double d__1, d__2;
   double a, g, a0, b0;
@@ -386,7 +379,7 @@ int scicos_fsv_block (scicos_args_F0)
   y[1] = 0.;
   if (a > 1.)
     {
-      return 0;
+      return;
     }
   g = 1.4;
   a0 = 2. / g;
@@ -399,13 +392,13 @@ int scicos_fsv_block (scicos_args_F0)
     }
   y[1] = sqrt (g * 2. * (pow (a, a0) - pow (a, b0)) / (g - 1.));
 
-  return 0;
+
 }
 
 /* just a test */
 
 
-int scicos_gensin_test (scicos_args_F0)
+void scicos_gensin_test (scicos_args_F0)
 {
   static double val;
   if (*flag__ == 4)
@@ -413,20 +406,20 @@ int scicos_gensin_test (scicos_args_F0)
       /* create_range_controls(&val); */
     }
   y[0] = val * sin (rpar[1] * *t + rpar[2]);
-  return 0;
+
 }
 
-int scicos_gensin_block (scicos_args_F0)
+void scicos_gensin_block (scicos_args_F0)
 {
   y[0] = rpar[0] * sin (rpar[1] * *t + rpar[2]);
-  return 0;
+
 }
 
 /*     Square wave generator 
  *     period=2*rpar(1) 
  */
 
-int scicos_gensqr_block (scicos_args_F0)
+void scicos_gensqr_block (scicos_args_F0)
 {
   if (*flag__ == 2)
     {
@@ -436,7 +429,7 @@ int scicos_gensqr_block (scicos_args_F0)
     {
       y[0] = z__[0];
     }
-  return 0;
+
 }
 
 /*     Notify simulation to stop  when called 
@@ -444,20 +437,20 @@ int scicos_gensqr_block (scicos_args_F0)
  */
 
 
-int scicos_hlt_block (scicos_args_F0)
+void scicos_hlt_block (scicos_args_F0)
 {
   if (*flag__ == 2)
     {
       Scicos->params.halt = 1;
       z__[0] = (*nipar > 0) ? (double) ipar[0] : 0.0;
     }
-  return 0;
+
 }
 
 
 /*     Integrator */
 
-int scicos_integr_block (scicos_args_F0)
+void scicos_integr_block (scicos_args_F0)
 {
   if (*flag__ == 1 || *flag__ == 6)
     {
@@ -467,7 +460,7 @@ int scicos_integr_block (scicos_args_F0)
     {
       xd[0] = u[0];
     }
-  return 0;
+
 }
 
 
@@ -482,11 +475,11 @@ int scicos_integr_block (scicos_args_F0)
 
 
 
-int scicos_intplt_block (scicos_args_F0)
+void scicos_intplt_block (scicos_args_F0)
 {
   int np = ipar[0];
   scicos_intp (*t, rpar, rpar + np, *ny, np, y);
-  return 0;
+
 }
 
 /* linear interpolation to compute y=f(u) for 
@@ -497,11 +490,11 @@ int scicos_intplt_block (scicos_args_F0)
  *                       (one row for each output) 
  */
 
-int scicos_intpol_block (scicos_args_F0)
+void scicos_intpol_block (scicos_args_F0)
 {
   int np = ipar[0];
   scicos_intp (*u, rpar, rpar + np, *ny, np, y);
-  return 0;
+
 }
 
 /* compute y=F(x) by linear interpolation where F : R -> R^n and 
@@ -566,9 +559,9 @@ static void scicos_intp (double x, const double *xd, const double *yd, int n,
 }
 
 
-int scicos_intrp2_block (scicos_args_F);
+void scicos_intrp2_block (scicos_args_F);
 
-int scicos_intrp2_block (int *flag__, int *nevprt, const double *t,
+void scicos_intrp2_block (int *flag__, int *nevprt, const double *t,
 			 double *xd, double *x, int *nx, double *z__, int *nz,
 			 double *tvec, int *ntvec, double *rpar, int *nrpar,
 			 int *ipar, int *nipar, double *u1, int *nu1,
@@ -628,13 +621,13 @@ int scicos_intrp2_block (int *flag__, int *nevprt, const double *t,
 								     vx1)) +
     (*u2 - vy1) / (vy2 - vy1) * (vz4 +
 				 (vz3 - vz4) * (*u1 - vx1) / (vx2 - vx1));
-  return 0;
+
 }
 
 
 /*     ipar(1) : the number of input */
 
-int scicos_intrpl_block (scicos_args_F0)
+void scicos_intrpl_block (scicos_args_F0)
 {
   int i, i1 = (*nrpar / 2);
   --ipar;
@@ -655,12 +648,12 @@ int scicos_intrpl_block (scicos_args_F0)
   *y = rpar[i1 + i - 1] +
     (rpar[i1 + i] - rpar[i1 + i - 1]) / (rpar[i] - rpar[i - 1]) *
     (*u - rpar[i - 1]);
-  return 0;
+
 }
 
 /*     Outputs the inverse of the input */
 
-int scicos_inv_block (scicos_args_F0)
+void scicos_inv_block (scicos_args_F0)
 {
   int i;
   double ww;
@@ -695,23 +688,21 @@ int scicos_inv_block (scicos_args_F0)
 	  else
 	    {
 	      *flag__ = -2;
-	      return 0;
+	      return;
 	    }
 	}
     }
-  return 0;
 }
 
 
-int scicos_iocopy_block (scicos_args_F0)
+void scicos_iocopy_block (scicos_args_F0)
 {
   memcpy (y, u, *nu * sizeof (double));
-  return 0;
 }
 
 
 
-int scicos_log_block (scicos_args_F0)
+void scicos_log_block (scicos_args_F0)
 {
   int i__1;
   int i__;
@@ -736,7 +727,7 @@ int scicos_log_block (scicos_args_F0)
 	  else
 	    {
 	      *flag__ = -2;
-	      return 0;
+	      return;
 	    }
 	  /* L15: */
 	}
@@ -753,10 +744,9 @@ int scicos_log_block (scicos_args_F0)
 	  /* L20: */
 	}
     }
-  return 0;
 }
 
-int scicos_lookup_block (scicos_args_F0)
+void scicos_lookup_block (scicos_args_F0)
 {
   int i__1;
   double dout;
@@ -791,7 +781,7 @@ int scicos_lookup_block (scicos_args_F0)
       if (n == 1)
 	{
 	  y[1] = rpar[2];
-	  return 0;
+	  return;
 	}
       i__ = 2;
     }
@@ -799,12 +789,11 @@ int scicos_lookup_block (scicos_args_F0)
   du = rpar[i__] - rpar[i__ - 1];
   dout = rpar[n + i__] - rpar[n + i__ - 1];
   y[1] = rpar[n + i__] - (rpar[i__] - u[1]) * dout / du;
-  return 0;
 }
 
 
 
-int scicos_lsplit_block (scicos_args_F0)
+void scicos_lsplit_block (scicos_args_F0)
 {
 
   int i__1, i__2;
@@ -831,13 +820,12 @@ int scicos_lsplit_block (scicos_args_F0)
 	  y[j] = u[k];
 	}
     }
-  return 0;
 }
 
-int scicos_lusat_block (scicos_args_F);
+void scicos_lusat_block (scicos_args_F);
 
 
-int scicos_lusat_block (int *flag__, int *nevprt, const double *t, double *xd,
+void scicos_lusat_block (int *flag__, int *nevprt, const double *t, double *xd,
 			double *x, int *nx, double *z__, int *nz,
 			double *tvec, int *ntvec, double *rpar, int *nrpar,
 			int *ipar, int *nipar, double *u, int *nu, double *y,
@@ -893,11 +881,10 @@ int scicos_lusat_block (int *flag__, int *nevprt, const double *t, double *xd,
 	  /* L15: */
 	}
     }
-  return 0;
 }
 
 
-int scicos_max_block (scicos_args_F0)
+void scicos_max_block (scicos_args_F0)
 {
   int i__1;
   double d__1, d__2;
@@ -924,12 +911,11 @@ int scicos_max_block (scicos_args_F0)
       /* L15: */
     }
   y[1] = ww;
-  return 0;
 }
 
 /*     returns sample and hold  of the input */
 
-int scicos_memo_block (scicos_args_F0)
+void scicos_memo_block (scicos_args_F0)
 {
   if (*flag__ == 2)
     {
@@ -939,13 +925,12 @@ int scicos_memo_block (scicos_args_F0)
     {
       memcpy (y, rpar, (*nu) * sizeof (double));
     }
-  return 0;
 }
 
 
 /*     multifrequency clock */
 
-int scicos_mfclck_block (scicos_args_F0)
+void scicos_mfclck_block (scicos_args_F0)
 {
   if (*flag__ == 4)
     {
@@ -972,29 +957,27 @@ int scicos_mfclck_block (scicos_args_F0)
 	  tvec[1] = *t - 1.;
 	}
     }
-  return 0;
 }
 
 /*     outputs the minimum of all inputs */
 
-int scicos_min_block (scicos_args_F0)
+void scicos_min_block (scicos_args_F0)
 {
   int i;
   double ww = u[0];
   for (i = 1; i < *nu; i++)
     ww = Min (ww, u[i]);
   y[0] = ww;
-  return 0;
 }
 
 
-int scicos_mscope_block (scicos_args_F0)
+void scicos_mscope_block (scicos_args_F0)
 {
-  return 0;
+
 }
 
 
-int scicos_pload_block (scicos_args_F0)
+void scicos_pload_block (scicos_args_F0)
 {
   int i__1;
   int i__;
@@ -1028,11 +1011,10 @@ int scicos_pload_block (scicos_args_F0)
 	}
       /* L15: */
     }
-  return 0;
 }
 
 
-int scicos_pow_block (scicos_args_F0)
+void scicos_pow_block (scicos_args_F0)
 {
   int i__1;
   int i__;
@@ -1055,19 +1037,19 @@ int scicos_pow_block (scicos_args_F0)
 	    {
 	      if (*flag__ >= 4)
 		{
-		  return 0;
+		  return;
 		}
 	      *flag__ = -2;
-	      return 0;
+	      return;
 	    }
 	  else if (u[i__] == 0. && rpar[1] <= 0.)
 	    {
 	      if (*flag__ >= 4)
 		{
-		  return 0;
+		  return;
 		}
 	      *flag__ = -2;
-	      return 0;
+	      return;
 	    }
 	  y[i__] = pow (u[i__], rpar[1]);
 	  /* L15: */
@@ -1082,22 +1064,21 @@ int scicos_pow_block (scicos_args_F0)
 	    {
 	      if (*flag__ >= 4)
 		{
-		  return 0;
+		  return;
 		}
 	      *flag__ = -2;
-	      return 0;
+	      return;
 	    }
 	  y[i__] = pow (u[i__], ipar[1]);	/* pow_di */
 	}
     }
-  return 0;
 }
 
 
 /*     Gives quantized signal by ceiling method */
 /*     rpar(i) quantization step used for i input */
 
-int scicos_qzcel_block (scicos_args_F0)
+void scicos_qzcel_block (scicos_args_F0)
 {
   double d__1;
   int i__;
@@ -1114,13 +1095,12 @@ int scicos_qzcel_block (scicos_args_F0)
       d__1 = u[i__] / rpar[i__] - .5;
       y[i__] = rpar[i__] * d_nint (d__1);
     }
-  return 0;
 }
 
 /*     Gives quantized signal by floor method */
 /*     rpar(i) quantization step used for i input */
 
-int scicos_qzflr_block (scicos_args_F0)
+void scicos_qzflr_block (scicos_args_F0)
 {
   double d__1;
   int i__;
@@ -1137,7 +1117,6 @@ int scicos_qzflr_block (scicos_args_F0)
       d__1 = u[i__] / rpar[i__] + .5;
       y[i__] = rpar[i__] * d_nint (d__1);
     }
-  return 0;
 }
 
 /* quantize a signal using round method
@@ -1146,20 +1125,19 @@ int scicos_qzflr_block (scicos_args_F0)
 
 extern double round (double x);
 
-int scicos_qzrnd_block (scicos_args_F0)
+void scicos_qzrnd_block (scicos_args_F0)
 {
   int i;
   for (i = 0; i < *nu; i++)
     {
       y[i] = rpar[i] * round (u[i] / rpar[i]);
     }
-  return 0;
 }
 
 /*     Gives quantized signal by truncation method */
 /*     rpar(i) quantization step used for i input */
 
-int scicos_qztrn_block (scicos_args_F0)
+void scicos_qztrn_block (scicos_args_F0)
 {
   int i__;
   --y;
@@ -1182,7 +1160,6 @@ int scicos_qztrn_block (scicos_args_F0)
 
 	}
     }
-  return 0;
 }
 
 
@@ -1193,7 +1170,7 @@ int scicos_qztrn_block (scicos_args_F0)
 /*     rpar(ny+1:2*ny)=deviation */
 /*     rpar(2*ny+1)=dt */
 
-int scicos_rnd_block (scicos_args_F0)
+void scicos_rnd_block (scicos_args_F0)
 {
 
   int i__1;
@@ -1250,22 +1227,21 @@ int scicos_rnd_block (scicos_args_F0)
       z__[1] = (double) iy;
       /*         if(ntvec.eq.1) tvec(1)=t+rpar(2*(nz-1)+1) */
     }
-  return 0;
 }
 
 /*     returns sample and hold  of the input */
 
-int scicos_samphold_block (scicos_args_F0)
+void scicos_samphold_block (scicos_args_F0)
 {
   if (*flag__ == 1)
     {
       memcpy (y, u, *nu * sizeof (double));
     }
-  return 0;
+  
 }
 
 
-int scicos_sawtth_block (scicos_args_F0)
+void scicos_sawtth_block (scicos_args_F0)
 {
   if (*flag__ == 1 && *nevprt == 0)
     {
@@ -1283,12 +1259,12 @@ int scicos_sawtth_block (scicos_args_F0)
     {
       z__[0] = 0.;
     }
-  return 0;
+  
 }
 
-int scicos_scope_block (scicos_args_F);
+void scicos_scope_block (scicos_args_F);
 
-int
+void 
 scicos_scope_block (int *flag__, int *nevprt, const double *t, double *xd,
 		    double *x, int *nx, double *z__, int *nz, double *tvec,
 		    int *ntvec, double *rpar, int *nrpar, int *ipar,
@@ -1302,23 +1278,23 @@ scicos_scope_block (int *flag__, int *nevprt, const double *t, double *xd,
 		    double *uy15, int *nuy15, double *uy16, int *nuy16,
 		    double *uy17, int *nuy17, double *uy18, int *nuy18)
 {
-  return 0;
+  
 }
 
-int scicos_scopxy_block (scicos_args_F0)
+void scicos_scopxy_block (scicos_args_F0)
 {
-  return 0;
+  
 }
 
 
-int scicos_scoxy_block (scicos_args_F0)
+void scicos_scoxy_block (scicos_args_F0)
 {
-  return 0;
+  
 }
 
 /*     Selector block */
 
-int scicos_sel_block (scicos_args_F0)
+void scicos_sel_block (scicos_args_F0)
 {
   int ic, nev;
   --y;
@@ -1346,16 +1322,16 @@ int scicos_sel_block (scicos_args_F0)
     {
       y[1] = u[(int) z__[1]];
     }
-  return 0;
+  
 }
 
 
-int scicos_sinblk_block (scicos_args_F0)
+void scicos_sinblk_block (scicos_args_F0)
 {
   int i;
   for (i = 0; i < *nu; ++i)
     y[i] = sin (u[i]);
-  return 0;
+  
 }
 
 /*
@@ -1363,7 +1339,7 @@ int scicos_sinblk_block (scicos_args_F0)
  */
 
 
-int scicos_sqr_block (scicos_args_F0)
+void scicos_sqr_block (scicos_args_F0)
 {
   int i;
   for (i = 0; i < *nu; ++i)
@@ -1375,17 +1351,16 @@ int scicos_sqr_block (scicos_args_F0)
       else
 	{
 	  *flag__ = -2;
-	  return 0;
+	  return;
 	}
     }
-  return 0;
 }
 
 /*     adds the inputs weighed by rpar */
 
-int scicos_sum2_block (scicos_args_F);
+void scicos_sum2_block (scicos_args_F);
 
-int scicos_sum2_block (int *flag__, int *nevprt, const double *t, double *xd,
+void scicos_sum2_block (int *flag__, int *nevprt, const double *t, double *xd,
 		       double *x, int *nx, double *z__, int *nz, double *tvec,
 		       int *ntvec, double *rpar, int *nrpar, int *ipar,
 		       int *nipar, double *u1, int *nu1, double *u2, int *nu2,
@@ -1415,12 +1390,11 @@ int scicos_sum2_block (int *flag__, int *nevprt, const double *t, double *xd,
     {
       y[i__] = u1[i__] * rpar[1] + u2[i__] * rpar[2];
     }
-  return 0;
 }
 
-int scicos_sum3_block (scicos_args_F);
+void scicos_sum3_block (scicos_args_F);
 
-int scicos_sum3_block (int *flag__, int *nevprt, const double *t, double *xd,
+void scicos_sum3_block (int *flag__, int *nevprt, const double *t, double *xd,
 		       double *x, int *nx, double *z__, int *nz, double *tvec,
 		       int *ntvec, double *rpar, int *nrpar, int *ipar,
 		       int *nipar, double *u1, int *nu1, double *u2, int *nu2,
@@ -1453,12 +1427,11 @@ int scicos_sum3_block (int *flag__, int *nevprt, const double *t, double *xd,
       y[i__] = u1[i__] * rpar[1] + u2[i__] * rpar[2] + u3[i__] * rpar[3];
       /* L1: */
     }
-  return 0;
 }
 
 
 
-int scicos_tanblk_block (scicos_args_F0)
+void scicos_tanblk_block (scicos_args_F0)
 {
   int i;
   double ww;
@@ -1473,18 +1446,17 @@ int scicos_tanblk_block (scicos_args_F0)
       else
 	{
 	  *flag__ = -2;
-	  return 0;
+	  return;
 	}
     }
-  return 0;
 }
 
 
 /* Table of constant values */
 
-int scicos_tcslti_block (scicos_args_F);
+void scicos_tcslti_block (scicos_args_F);
 
-int
+void
 scicos_tcslti_block (int *flag__, int *nevprt, const double *t, double *xd,
 		     double *x, int *nx, double *z__, int *nz, double *tvec,
 		     int *ntvec, double *rpar, int *nrpar, int *ipar,
@@ -1542,11 +1514,11 @@ scicos_tcslti_block (int *flag__, int *nevprt, const double *t, double *xd,
       nsp_calpack_dmmul1 (&rpar[lb], nx, &u1[1], nu1, &xd[1], nx, nx, nu1,
 			  &c__1);
     }
-  return 0;
+  
 }
 
 
-int scicos_tcsltj_block (scicos_args_F0)
+void scicos_tcsltj_block (scicos_args_F0)
 {
   static int c__1 = 1;
   int la, lb, lc;
@@ -1584,24 +1556,24 @@ int scicos_tcsltj_block (scicos_args_F0)
       /*     xd=a*x */
       nsp_calpack_dmmul (&rpar[la], nx, &x[1], nx, &xd[1], nx, nx, nx, &c__1);
     }
-  return 0;
+  
 }
 
 
-int scicos_timblk_block (scicos_args_F0)
+void scicos_timblk_block (scicos_args_F0)
 {
   y[0] = *t;
-  return 0;
+  
 }
 
 
-int scicos_trash_block (scicos_args_F0)
+void scicos_trash_block (scicos_args_F0)
 {
-  return 0;
+  
 }
 
 
-int scicos_zcross_block (scicos_args_F0)
+void scicos_zcross_block (scicos_args_F0)
 {
   int i__1;
   double d__1;
@@ -1653,7 +1625,7 @@ int scicos_zcross_block (scicos_args_F0)
 	  /* L20: */
 	}
     }
-  return 0;
+  
 }
 
 void scicos_plus_block (scicos_args_F2);
@@ -1937,7 +1909,7 @@ scicos_zcross2_block (int *flag, int *nevprt, const double *t, double *xd,
     }
 }
 
-int scicos_bound (scicos_args_F0)
+void scicos_bound (scicos_args_F0)
 {
 
   int i__1;
@@ -1965,7 +1937,7 @@ int scicos_bound (scicos_args_F0)
 	}
       /* L15: */
     }
-  return 0;
+  
 }
 
 
@@ -2374,9 +2346,9 @@ void scicos_cosblk_block (scicos_args_F0)
  * jusqu'a ? 
  */
 
-int scicos_constraint_block (scicos_args_Fi);
+void scicos_constraint_block (scicos_args_Fi);
 
-int
+void
 scicos_constraint_block (int *flag__, int *nevprt, const double *t,
 			 double *res, double *xd, double *x, int *nx,
 			 double *z__, int *nz, double *tvec, int *ntvec,
@@ -2425,14 +2397,14 @@ scicos_constraint_block (int *flag__, int *nevprt, const double *t,
       /*         do 12 i=1,nu */
       /* 12      continue */
     }
-  return 0;
+  
 }
 
 /* XXX : blovk de type   ScicosFi  */
 
-int scicos_diff_block (scicos_args_Fi);
+void scicos_diff_block (scicos_args_Fi);
 
-int
+void
 scicos_diff_block (int *flag__, int *nevprt, const double *t, double *res,
 		   double *xd, double *x, int *nx, double *z__, int *nz,
 		   double *tvec, int *ntvec, double *rpar, int *nrpar,
@@ -2460,15 +2432,15 @@ scicos_diff_block (int *flag__, int *nevprt, const double *t, double *res,
     {
       memcpy (x, u, (*nu) * sizeof (double));
     }
-  return 0;
+  
 }
 
 
 /* demux revisited, Copyright Enpc Jean-Philippe Chancelier */
 
-int scicos_demux_block (scicos_args_F);
+void scicos_demux_block (scicos_args_F);
 
-int
+void
 scicos_demux_block (int *flag__, int *nevprt, const double *t, double *xd,
 		    double *x, int *nx, double *z__, int *nz, double *tvec,
 		    int *ntvec, double *rpar, int *nrpar, int *ipar,
@@ -2488,38 +2460,38 @@ scicos_demux_block (int *flag__, int *nevprt, const double *t, double *xd,
   memcpy (uy3, uy1 + offset, (*nuy3) * sizeof (double));
   offset += (*nuy3);
   if (dim <= 1)
-    return 0;
+    return;
   memcpy (uy4, uy1 + offset, (*nuy4) * sizeof (double));
   offset += (*nuy4);
   if (dim <= 2)
-    return 0;
+    return;
   memcpy (uy5, uy1 + offset, (*nuy5) * sizeof (double));
   offset += (*nuy5);
   if (dim <= 3)
-    return 0;
+    return;
   memcpy (uy6, uy1 + offset, (*nuy6) * sizeof (double));
   offset += (*nuy6);
   if (dim <= 4)
-    return 0;
+    return;
   memcpy (uy7, uy1 + offset, (*nuy7) * sizeof (double));
   offset += (*nuy7);
   if (dim <= 5)
-    return 0;
+    return;
   memcpy (uy8, uy1 + offset, (*nuy8) * sizeof (double));
   offset += (*nuy8);
   if (dim <= 6)
-    return 0;
+    return;
   memcpy (uy9, uy1 + offset, (*nuy9) * sizeof (double));
-  return 0;
+  
 }
 
 
 
-int scicos_mux_block (scicos_args_F);
+void scicos_mux_block (scicos_args_F);
 
 /* mux revisited, Copyright Enpc Jean-Philippe Chancelier */
 
-int
+void
 scicos_mux_block (int *flag__, int *nevprt, const double *t, double *xd,
 		  double *x, int *nx, double *z__, int *nz, double *tvec,
 		  int *ntvec, double *rpar, int *nrpar, int *ipar, int *nipar,
@@ -2563,29 +2535,29 @@ scicos_mux_block (int *flag__, int *nevprt, const double *t, double *xd,
   memcpy (res + offset, uy2, (*nuy3) * sizeof (double));
   offset += (*nuy3);
   if (dim <= 1)
-    return 0;
+    return;
   memcpy (res + offset, uy3, (*nuy4) * sizeof (double));
   offset += (*nuy4);
   if (dim <= 2)
-    return 0;
+    return;
   memcpy (res + offset, uy4, (*nuy5) * sizeof (double));
   offset += (*nuy5);
   if (dim <= 3)
-    return 0;
+    return;
   memcpy (res + offset, uy5, (*nuy6) * sizeof (double));
   offset += (*nuy6);
   if (dim <= 4)
-    return 0;
+    return;
   memcpy (res + offset, uy6, (*nuy7) * sizeof (double));
   offset += (*nuy7);
   if (dim <= 5)
-    return 0;
+    return;
   memcpy (res + offset, uy7, (*nuy8) * sizeof (double));
   offset += (*nuy8);
   if (dim <= 6)
-    return 0;
+    return;
   memcpy (res + offset, uy8, (*nuy9) * sizeof (double));
-  return 0;
+  
 }
 
 
@@ -2859,9 +2831,6 @@ scicos_writec_block (int *flag, int *nevprt, const double *t, double *xd,
     }
   return;
 }
-
-
-
 
 static int worldsize (char type[4])
 {
@@ -3261,9 +3230,9 @@ int bfrdr (NspFile * F, readf_ipar * rf, int *ipar, double *z, int *no,
 /* XXX    output a vector of constants out(i)=rpar(i) 
  */
 
-int scicos_cst_block (scicos_args_F);
+void scicos_cst_block (scicos_args_F);
 
-int
+void
 scicos_cst_block (int *flag__, int *nevprt, const double *t, double *xd,
 		  double *x, int *nx, double *z__, int *nz, double *tvec,
 		  int *ntvec, double *rpar, int *nrpar, int *ipar, int *nipar,
@@ -3278,13 +3247,13 @@ scicos_cst_block (int *flag__, int *nevprt, const double *t, double *xd,
 {
   int c__1 = 1;
   C2F (dcopy) (nrpar, rpar, &c__1, y, &c__1);
-  return 0;
+  
 }
 
 
-int scicos_delayv_block (scicos_args_F);
+void scicos_delayv_block (scicos_args_F);
 
-int
+void
 scicos_delayv_block (int *flag__, int *nevprt, const double *t, double *xd,
 		     double *x, int *nx, double *z__, int *nz, double *tvec,
 		     int *ntvec, double *rpar, int *nrpar, int *ipar,
@@ -3410,14 +3379,14 @@ scicos_delayv_block (int *flag__, int *nevprt, const double *t, double *xd,
 	  /* L8: */
 	}
     }
-  return 0;
+  
 }
 
 
 
-int scicos_fscope_block (scicos_args_F);
+void scicos_fscope_block (scicos_args_F);
 
-int
+void
 scicos_fscope_block (int *flag__, int *nevprt, const double *t, double *xd,
 		     double *x, int *nx, double *z__, int *nz, double *tvec,
 		     int *ntvec, double *rpar, int *nrpar, int *ipar,
@@ -3432,7 +3401,7 @@ scicos_fscope_block (int *flag__, int *nevprt, const double *t, double *xd,
 		     int *nuy16, double *uy17, int *nuy17, double *uy18,
 		     int *nuy18)
 {
-  return 0;
+  
 }
 
 /*     if-then-else block 
@@ -3441,9 +3410,9 @@ scicos_fscope_block (int *flag__, int *nevprt, const double *t, double *xd,
  */
 
 
-int scicos_eselect_block (scicos_args_Fm1);
+void scicos_eselect_block (scicos_args_Fm1);
 
-int
+void
 scicos_eselect_block (int *flag__, int *nevprt, int *ntvec, double *rpar,
 		      int *nrpar, int *ipar, int *nipar, double *u, int *nu)
 {
@@ -3462,7 +3431,7 @@ scicos_eselect_block (int *flag__, int *nevprt, int *ntvec, double *rpar,
     {
       *ntvec = iu;
     }
-  return 0;
+  
 }
 
 /* 
@@ -3471,9 +3440,9 @@ scicos_eselect_block (int *flag__, int *nevprt, int *ntvec, double *rpar,
  * on the sign of the unique input (if input>0 then  else )
  */
 
-int scicos_ifthel_block (scicos_args_Fm1);
+void scicos_ifthel_block (scicos_args_Fm1);
 
-int
+void
 scicos_ifthel_block (int *flag__, int *nevprt, int *ntvec, double *rpar,
 		     int *nrpar, int *ipar, int *nipar, double *u, int *nu)
 {
@@ -3481,7 +3450,7 @@ scicos_ifthel_block (int *flag__, int *nevprt, int *ntvec, double *rpar,
     {
       *ntvec = (u[0] <= 0.) ? 2 : 1;
     }
-  return 0;
+  
 }
 
 
