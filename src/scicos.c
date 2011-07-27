@@ -5292,8 +5292,7 @@ void scicos_set_block_error (int err)
 }
 
 /* Coserror : copy an error message
- * in coserr.buf an set block_error to
- * -16
+ * in coserr.buf an set block_error to -5 
  */
 
 void Coserror (char *fmt, ...)
@@ -5306,6 +5305,7 @@ void Coserror (char *fmt, ...)
   if (retval == -1)
     buf[0] = '\0';
   va_end (ap);
+  Scierror("%s",buf);
   /* coserror use error number 10 */
   *block_error = -5;
 }

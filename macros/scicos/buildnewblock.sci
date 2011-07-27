@@ -252,6 +252,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 
        //##add ScicosLab interfacing function
        txt='addinter(libn,blknamint+''_sci'',blknam);'
+       pause xxx exec addinter 
        ierr=execstr(txt,errcatch=%t)
        if ~ierr then
          ok=%f;

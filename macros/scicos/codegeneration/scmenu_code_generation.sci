@@ -3703,7 +3703,7 @@ function [txt,txt2]=allocblk(model,ind)
   txt3=[]; //final affectation
 
   rdnam='blk';
-  if (argn(2)==2) then
+  if nargin ==2 then
     rdnam=rdnam+string(ind)
   end
 
@@ -4346,7 +4346,7 @@ function [Code]=make_actuator()
               '         }'
               '         buf[j] = ''_'';'
               '         j++;'
-              '         buf[j] = ''\0'';'
+              '         buf[j] = ''\\0'';'
               '         sprintf(buf,'"%s%d'",buf,*nport);'
               '         strcat(buf,&file_str[l]);'
               '       }'
@@ -4550,7 +4550,7 @@ function [Code]=make_actuator()
                   '         }'
                   '         buf[j] = ''_'';'
                   '         j++;'
-                  '         buf[j] = ''\0'';'
+                  '         buf[j] = ''\\0'';'
                   '         sprintf(buf,'"%s%d'",buf,*nport);'
                   '         strcat(buf,&file_str[l]);'
                   '       }'
@@ -4777,7 +4777,7 @@ function [txt]=make_BlockProto(nin,nout,funs_bk,funtyp_bk,ztyp_bk,bk)
   
   //** add comment
   txt=[get_comment('proto_blk',list(funs_bk,funtyp_bk,bk,ztyp_bk))]
-  printf('Generation avec ftyp = %d\n",ftyp);
+  //printf('Generation avec ftyp = %d\n",ftyp);
   select ftyp
    case 0 then
     //** zero funtyp
@@ -5401,11 +5401,11 @@ function [Code]=make_computational42()
 
   if size(capt,'*')>0 then
     Code=[Code;
-          '  void** u       = block->inptr;']
+          '  void **u       = (void **) block->inptr;']
   end
 
   Code=[Code;
-        '  void** y       = block->outptr;']
+        '  void  **y       = (void **) block->outptr;']
 
   //## look at for use of ipar,rpar (to disable warning)
   with_rpar=%f;
@@ -7638,7 +7638,7 @@ function [Code]=make_sci_interf43()
            '       '+n_str+'   = '+l_str+'[2];'
            '       len'+string(i)+' = '+l_str+'[5]-1;'
            '       C2F(cvstr)(&len'+string(i)+',&'+l_str+'[6],data,(j=1,&j),len'+string(i)+');'
-           '       data[len'+string(i)+']=''\0'';'
+           '       data[len'+string(i)+']=''\\0'';'
            '']
 
   //## tf (final time simulation)
@@ -7756,13 +7756,11 @@ function [Code]=make_sci_interf43()
          '  if ((out_'+string(i)+'.dims = (int *) malloc(out_'+string(i)+'.ndims*sizeof(int)))==NULL){'];
    for j=1:nbcapt
      Code=[Code
-           '    free(in_'+string(j)+'.data);'
-           '    free(in_'+string(j)+'.dims);'];
+           '    free(in_'+string(j)+'.data);'];
    end
 
    for j=1:i-1
      Code=[Code
-           '    free(out_'+string(j)+'.dims);'
            '    free(out_'+string(j)+'.data);'
            '    free(out_'+string(j)+'.time);'];
    end
@@ -7791,21 +7789,16 @@ function [Code]=make_sci_interf43()
 
    for j=1:nbcapt
      Code=[Code
-           '    free(in_'+string(j)+'.data);'
-           '    free(in_'+string(j)+'.dims);'];
+           '    free(in_'+string(j)+'.data);'];
    end
 
    for j=1:i-1
      Code=[Code
-           '    free(out_'+string(j)+'.dims);'
            '    free(out_'+string(j)+'.data);'
            '    free(out_'+string(j)+'.time);'];
    end
-
    Code=[Code
          '    free(out_'+string(i)+'.dims);']
-
-
    Code=[Code
          '    return 0;'
          '  }']
@@ -8212,18 +8205,6 @@ function [Code]=make_sci_interf()
        '/* external defintion of standalone simulation function */'
        'extern int '+rdnom+'_sim(double tf, double dt, double h, int solver, \'
        get_blank(rdnom)+'                int *typin, void **inptr, int *typout, void **outptr);'
-       ''
-       '/* external definition of error table function */'
-       'extern void get_err_msg(int ierr,char *err_msg);'
-       ''
-       '#if WIN32'
-       '  #ifndef coserr'
-       '    #define coserr _imp__coserr'
-       '  #endif'
-       '#endif'
-       ''
-       '/* standalone still use scicos.c here ! */'
-       'extern struct {char buf[4096];} coserr;'
        '']
 
  //## comment
@@ -8352,9 +8333,8 @@ function [Code]=make_sci_interf()
  Code=[Code
        ''
        '  /* Ouput standalone error handling */'
-       '  int ierr;'
-       '  char err_msg[4096];']
-
+       '  int ierr;']
+ 
  //## counter variable
  Code=[Code
        ''
@@ -8458,14 +8438,8 @@ function [Code]=make_sci_interf()
        ''
        '  /* display error message */'
        '  if (ierr!=0) {'
-       '    /* standalone still use scicos.c here ! */'
-       '    if(ierr!=10) {'
-       '      get_err_msg(ierr,err_msg);'
-       '    }'
-       '    else {'
-       '      strcpy(err_msg,coserr.buf);'
-       '    }'
-       '    Sciprintf(""Simulation fails with error number %d:\\n%s\\n"",ierr,err_msg);'
+       '    /* Scierror  */'
+       '    Sciprintf(""Simulation fails with error number %d.\\n"",ierr);'
        '  }'  ]
 
  if nbact<>0 then
@@ -8498,9 +8472,7 @@ function [Code]=make_sci_interf()
 
  if nbcapt<>0 then
    for i=1:nbcapt
-     Code=[Code
-           '  free(in_'+string(i)+'.data);'
-           '  free(in_'+string(i)+'.dims);'];
+     Code=[Code; '  free(in_'+string(i)+'.data);'];
    end
  end
 
@@ -8508,37 +8480,28 @@ function [Code]=make_sci_interf()
  if nbact<>0 then
    Code=[Code; ''];
    for i=1:nbact
-     Code=[Code;' /* free(out_'+string(i)+'.dims);*/'];
-   end
-   for i=1:nbact
-     Code=[Code;' /* free(out_'+string(i)+'.data);*/'];
-   end
-   for i=1:nbact
-     Code=[Code; ' /* free(out_'+string(i)+'.time);*/'];
-   end
-   for i=1:nbact
-     Code=[Code; ' /*   free(out_ptr'+string(i)+');*/'];
+     Code=[Code;'  free(out_'+string(i)+'.data);'];
+     Code=[Code; ' free(out_'+string(i)+'.time);'];
    end
  end
  //## end
- Code=[Code;  sprintf('  return %d;',nbact);
-       '}'; '']
+ Code=[Code;  sprintf('  return %d;',nbact); '}'; '']
  //## Gateway
  if %f then 
- Code=[Code;
-       'static GenericTable Tab[]='
-       '{'
-       ' {(Myinterfun)sci_gateway,int'+part(rdnom,1:l_rdnom)+'_sci,'
-       ' """+rdnom+"""}'
-       '};'
-       ''
-       'int C2F(int'+part(rdnom,1:l_rdnom)+'_sci)()'
-       '{'
-       ' Rhs = Max(0, Rhs);'
-       ' (*(Tab[Fin-1].f))(Tab[Fin-1].name,Tab[Fin-1].F);'
-       ' return 0;'
-       '}'
-       ''];
+   Code=[Code;
+	 'static GenericTable Tab[]='
+	 '{'
+	 ' {(Myinterfun)sci_gateway,int'+part(rdnom,1:l_rdnom)+'_sci,'
+	 ' """+rdnom+"""}'
+	 '};'
+	 ''
+	 'int C2F(int'+part(rdnom,1:l_rdnom)+'_sci)()'
+	 '{'
+	 ' Rhs = Max(0, Rhs);'
+	 ' (*(Tab[Fin-1].f))(Tab[Fin-1].name,Tab[Fin-1].F);'
+	 ' return 0;'
+	 '}'
+	 ''];
  end
 endfunction
 
@@ -8726,7 +8689,7 @@ function [Code]=make_sensor()
             '         }'
             '         buf[j] = ''_'';'
             '         j++;'
-            '         buf[j] = ''\0'';'
+            '         buf[j] = ''\\0'';'
             '         sprintf(buf,'"%s%d'",buf,*nport);'
             '         strcat(buf,&file_str[l]);'
             '       }'
@@ -9110,7 +9073,7 @@ function [Code]=make_standalone42()
                 'int '+rdnom+'_cosend()'
                 '{'
                 '  /* local variables used to call block */'
-                '  int local_flag,i;']
+                '  int local_flag;']
   if ~isempty(act) | ~isempty(cap) then
     Code_end_fun=[Code_end_fun;
                   '  int nport;']
@@ -10283,13 +10246,13 @@ function [Code]=make_standalone42()
       if or(kf==capt(:,1)) then
         ind=find(kf==capt(:,1))
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = inptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = (double **) inptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].insz    = &typin['+string(ind-1)+'];']
-//              '  block_'+rdnom+'['+string(kf-1)+'].insz    = insz_'+string(kf)+';']
-      //## other blocks ##//
+	//              '  block_'+rdnom+'['+string(kf-1)+'].insz    = insz_'+string(kf)+';']
+	//## other blocks ##//
       elseif nin<>0 then
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = inptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = (double **) inptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].insz    = insz_'+string(kf)+';']
       end
       //**********************************************************************//
@@ -10299,13 +10262,13 @@ function [Code]=make_standalone42()
       if or(kf==actt(:,1)) then
         ind=find(kf==actt(:,1))
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = outptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = (double **) outptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].outsz   = &typout['+string(ind-1)+'];']
 //              '  block_'+rdnom+'['+string(kf-1)+'].outsz   = outsz_'+string(kf)+';']
       //## other blocks ##//
       elseif nout<>0 then
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = outptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = (double **) outptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].outsz   = outsz_'+string(kf)+';']
       end
       //**********************************************************************//
@@ -10715,10 +10678,11 @@ function [Code]=make_standalone42()
   Code=[Code
         ''
         '/*'+part('-',ones(1,40))+'  Lapack messag function */';
-	'void C2F(xerbla)(char *SRNAME, int *INFO, long int L)'
+	'int C2F(xerbla)(char *SRNAME, int *INFO, int L)'
         '{'
         '  printf(""** On entry to %s, parameter number %d""'
         '         ""  had an illegal value\\n"",SRNAME,*INFO);'
+	'  return 0;'
         '}'
         '']
 
@@ -10809,7 +10773,7 @@ function [Code]=make_standalone42()
         '#endif'
         ''
         ' if (retval == -1) {'
-        '   err_msg[0]=''\0'';'
+        '   err_msg[0]=''\\0'';'
         ' }'
         ''
         ' va_end(ap);'
@@ -10876,7 +10840,7 @@ function [Code]=make_standalone42()
         '         if ( *sopt == '':'' )'
         '           {'
         '             optarg = group + 1;'
-        '             if ( *optarg == ''\0'' )'
+        '             if ( *optarg == ''\\0'' )'
         '                optarg = argv[++optind];'
         '             if ( *optarg == ''-'' )'
         '                {'
@@ -11582,7 +11546,7 @@ function [Code,Code_xml_param]=make_standalone43()
                 'int '+rdnom+'_cosend()'
                 '{'
                 '  /* local variables used to call block */'
-                '  int local_flag,i;']
+                '  int local_flag;']
   if ~isempty(act) | ~isempty(cap) then
     Code_end_fun=[Code_end_fun;
                   '  int nport;']
@@ -12220,7 +12184,7 @@ function [Code,Code_xml_param]=make_standalone43()
         '         if ( *sopt == '':'' )'
         '           {'
         '             optarg = group + 1;'
-        '             if ( *optarg == ''\0'' )'
+        '             if ( *optarg == ''\\0'' )'
         '                optarg = argv[++optind];'
         '             if ( *optarg == ''-'' )'
         '                {'
@@ -13554,12 +13518,12 @@ function [Code,Code_xml_param]=make_standalone43()
       if or(kf==capt(:,1)) then
         ind=find(kf==capt(:,1))
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = inptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = (double **)inptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].insz    = &typin['+string(ind-1)+'];']
       //## other blocks ##//
       elseif nin<>0 then
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = inptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = (double **)inptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].insz    = insz_'+string(kf)+';']
       end
       //**********************************************************************//
@@ -13569,12 +13533,12 @@ function [Code,Code_xml_param]=make_standalone43()
       if or(kf==actt(:,1)) then
         ind=find(kf==actt(:,1))
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = outptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = (double **)outptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].outsz   = &typout['+string(ind(1)-1)+'];']
       //## other blocks ##//
       elseif nout<>0 then
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = outptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = (double **)outptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].outsz   = outsz_'+string(kf)+';']
       end
       //**********************************************************************//
@@ -15001,7 +14965,7 @@ function [Code,Code_xml_param]=make_standalone43()
       Code=[Code;
             '{'
             '  /* local variables used to call block */'
-            '  int local_flag;']
+            '  int local_flag;i']
 
       if ~isempty(act) | ~isempty(cap) then
         Code=[Code;
@@ -15774,10 +15738,11 @@ function [Code,Code_xml_param]=make_standalone43()
   Code=[Code
         ''
         '/*'+part('-',ones(1,40))+' Lapack messag function */';
-        'void C2F(xerbla)(char *SRNAME, int *INFO, long int L)'
+        'int C2F(xerbla)(char *SRNAME, int *INFO, int L)'
         '{'
         '  printf(""** On entry to %s, parameter number %d""'
         '         ""  had an illegal value\\n"",SRNAME,*INFO);'
+	'  return 0;'
         '}'
         '']
 
@@ -15985,7 +15950,7 @@ function [Code,Code_xml_param]=make_standalone43()
         '#endif'
         ''
         ' if (retval == -1) {'
-        '   err_msg[0]=''\0'';'
+        '   err_msg[0]=''\\0'';'
         ' }'
         ''
         ' va_end(ap);'
@@ -16997,8 +16962,8 @@ function [txt]=code_to_read_params(varname,var,fpp,typ_str)
 //
 
  //** check rhs paramaters
- [lhs,rhs]=argn(0);
- if rhs == 3 then typ_str=[], end
+ // [lhs,rhs]=argn(0);
+ if nargin == 3 then typ_str=[], end
  txt=m2s([])
  select type(var,'short')
   case 'm' then
@@ -17064,8 +17029,8 @@ function [txt]=code_to_write_params(varname,var,fpp,typ_str)
 //
 
  //** check rhs paramaters
- [lhs,rhs]=argn(0);
- if rhs == 3 then typ_str=[], end
+ //[lhs,rhs]=argn(0);
+ if nargin  == 3 then typ_str=[], end
 
  txt=m2s([])
 
@@ -17207,8 +17172,8 @@ function [txt]=get_code_to_read_params(varname,var,fpp,typ_str)
 //
 
  //** check rhs paramaters
- [lhs,rhs]=argn(0);
- if rhs == 3 then typ_str=[], end
+ // [lhs,rhs]=argn(0);
+ if nargin == 3 then typ_str=[], end
 
  //@@ call code_to_read_params
  txt=m2s([])
@@ -18114,7 +18079,7 @@ function [txt]=write_code_doit(ev,flag,vvvv)
 //
 
   txt=m2s([]);
-  zeroflag=(argn(2)==3);
+  zeroflag=(nargin ==3);
 
   for j=ordptr(ev):ordptr(ev+1)-1
     bk=ordclk(j,1);
