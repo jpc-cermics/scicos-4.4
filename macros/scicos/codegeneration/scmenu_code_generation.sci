@@ -1,11 +1,11 @@
 function CodeGeneration_()
 // To be done 
-//Copyright (c) 1989-2011 Metalau project INRIA
-//
+// Copyright (c) 1989-2011 Metalau project INRIA
 // Last update : 25/07/11
-//
 // Input editor function of Scicos code generator
-  
+//
+// modified for nsp 
+    
   k = [] ; //** index of the CodeGen source superbloc candidate
 
   xc = %pt(1); //** last valid click position
@@ -1744,16 +1744,15 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
 
     //@@include scicos_block/scicos_block4.h
     txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
+
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
     
-    txt=['/* Scicos computational function header */'
-         '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
-	 get_scicos_version()+' */'
-         '/*     date : '+str+' */'
-         ''
-         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-         ''
+    txt=['/* Scicos computational function header '
+         ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version()
+         ' * date: '+str+' '
+         ' * Copyright (c) 1989-2011 Metalau project INRIA '
+         ' */'
          txt]
     ffname = file('join',[rpat_blocks;'scicos_block4.h']);
     ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
@@ -1766,13 +1765,11 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     txt=scicos_mgetl('NSP/src/include/scicos/scicos_block.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
-    txt=['/* Scicos computational function header */'
-         '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
-	 get_scicos_version()+' */'
-         '/*     date : '+str+' */'
-         ''
-         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-         ''
+    txt=['/* Scicos computational function header '
+         ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version()
+         ' * date : '+str;
+         ' * Copyright (c) 1989-2011 Metalau project INRIA '
+         ' */'
          txt]
     ffname = file('join',[rpat_blocks;'scicos_block.h']);
     ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
@@ -1787,13 +1784,11 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     
     for i=1:2:length(CCode)
             
-      CCode(i+1)=['/* Code of '+CCode(i)+' routine */'
-                  '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
-		  get_scicos_version()+' */'
-                  '/*     date : '+str+' */'
-                  ''
-                  '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-                  ''
+      CCode(i+1)=['/* Code of '+CCode(i)+' routine ';
+                  ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version();
+                  ' * date : '+str;
+                  ' * Copyright (c) 1989-2011 Metalau project INRIA ';
+                  ' */'
                   CCode(i+1)]
 
       ierr=execstr('scicos_mputl(CCode(i+1),rpat_blocks+''/''+CCode(i)+''.c'')',errcatch=%t)
@@ -1866,13 +1861,11 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
 
-    txt=['/* Scicos computational function header */'
-         '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
-	 get_scicos_version()+' */'
-         '/*     date : '+str+' */'
-         ''
-         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-         ''
+    txt=['/* Scicos computational function header '
+         ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version();
+         ' * date : '+str;
+         ' * Copyright (c) 1989-2011 Metalau project INRIA '
+         ' */'
          txt];
     ffname = file('join',[rpat;'scicos_block4.h']);
     ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
@@ -1885,13 +1878,11 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     txt=scicos_mgetl('NSP/src/include/scicos/scicos_block.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
-    txt=['/* Scicos computational function header */'
-         '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
-	 get_scicos_version()+' */'
-         '/*     date : '+str+' */'
-         ''
-         '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-         ''
+    txt=['/* Scicos computational function header '
+         ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version();
+         ' * date: '+str
+         ' * Copyright (c) 1989-2011 Metalau project INRIA '
+         ' */'
          txt]
     ffname = file('join',[rpat;'scicos_block.h']);
     ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
@@ -2722,11 +2713,11 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   //## overload some functions used
   //## in modelica block compilation
   //## disable it for codegeneration
-  //   %mprt=funcprot()
-  //   funcprot(0)
-  //   deff('[ok] =  buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cflags)','ok=%t')
-  //   funcprot(%mprt)
 
+  function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cflags) 
+    ok=%t;
+  endfunction;
+  
   //## first pass of compilation
   if ~ALL then
     [bllst,connectmat,clkconnect,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdgen);
@@ -3436,7 +3427,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
                 okk=2
               end
               if okk==2 then
-                new_libs=[]
+                new_libs=m2s([]);
                 for i=1:size(libs,'*')
                   if isempty(find(i==ind)) then
                     new_libs=[new_libs,libs(i)]
@@ -4127,14 +4118,11 @@ function [Code]=make_act_sens_events()
   Date=gdate_new();
   str= Date.strftime["%d %B %Y"];
 
-  Code=['/* Custumizable code for events/actuators/sensors */'
-        '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
-        get_scicos_version()+' */'
-        '/*     date : '+str+' */'
-        ''
-        '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-        ''
-        '/* ---- Headers ---- */'
+  Code=['/* Custumizable code for events/actuators/sensors '
+        ' * Generated by Code_Generation toolbox of Scicos with '+get_scicos_version();
+        ' * date: '+str;
+        ' * Copyright (c) 1989-2011 Metalau project INRIA '
+        ' */'
         '#include <stdio.h>'
         '#include <stdlib.h>'
         '#include <math.h>'
@@ -4815,38 +4803,18 @@ function [txt]=make_BlockProto(nin,nout,funs_bk,funtyp_bk,ztyp_bk,bk)
     txt=m2s([])
     return;
   end
-
+  
   //** add comment
   txt=[get_comment('proto_blk',list(funs_bk,funtyp_bk,bk,ztyp_bk))]
-
+  printf('Generation avec ftyp = %d\n",ftyp);
   select ftyp
    case 0 then
     //** zero funtyp
     //*********** prototype definition ***********//
-    txtp=['(int *, int *, double *, double *, double *, int *, double *, \';
-	  ' int *, double *, int *, double *, int *,int *, int *, \';
-	  ' double *, int *, double *, int *);'];
-    if (funtyp_bk>2000 & funtyp_bk<3000)
-      blank = get_blank('void '+funs_bk+'(');
-      txtp(1) = 'void '+funs_bk+txtp(1);
-    elseif (funtyp_bk<2000)
-      //@@ special case for andlog func : should be fixed in scicos
-      if funs_bk <> 'andlog' then
-	txtp(1) = 'void C2F('+funs_bk+')'+txtp(1);
-	blank = get_blank('void C2F('+funs_bk+')');
-      else
-	blank = get_blank('void '+funs_bk+'(');
-	txtp(1) = 'void '+funs_bk+txtp(1);
-      end
-    end
-    txtp(2:$) = blank + txtp(2:$);
-    txt = [txt;txtp];
+    name=scicos_get_internal_name(funs_bk);
+    txt=[txt; 'extern void '+name+ '(scicos_args_F0);'];
     //*******************************************//
-
-
-    //**
    case 1 then
-
     //*********** prototype definition ***********//
     txtp=['(int *, int *, double *, double *, double *, int *, double *, \';
 	  ' int *, double *, int *, double *, int *,int *, int *']
@@ -5371,31 +5339,14 @@ function [Code]=make_computational42()
   Date=gdate_new();
   str= Date.strftime["%d %B %Y"];
 
-  Code=['/* Scicos Computational function  */'
-        '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
-        get_scicos_version()+' */';
-        '/*     date : '+str+' */'
-        ''
-        '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-        ''
-        '/* ---- Headers ---- */'
-        '#include <stdio.h>'
-        '#include <stdlib.h>'
-        '#include <memory.h>'
-        '#include <string.h>'
-        '#include <machine.h>'
-        '#include <os_specific/link.h>'
-        '#include <scicos/scicos.h>'
+  Code=['/* Scicos Computational function  '
+        ' * Generated by Code_Generation toolbox of Scicos with '+get_scicos_version();
+        ' * date : '+str;
+        ' * Copyright (c) 1989-2011 Metalau project INRIA';
+        ' */'
+        '#include <scicos/blockdef.h>'
         '']
-
-  if %win32 then
-   Code=[Code;
-         ' '
-         '#define max(a,b) ((a) >= (b) ? (a) : (b))'
-         '#define min(a,b) ((a) <= (b) ? (a) : (b))'
-         ' ' ]
-  end
-
+  
   Code=[Code;
         Protos]
 
@@ -7400,14 +7351,11 @@ function [Code]=make_sci_interf43()
  Date=gdate_new();
  str= Date.strftime["%d %B %Y"];
  //## header
- Code=['/* ScicosLab interfacing function of the Scicos standalone */'
-       '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
-       get_scicos_version()+' */'
-       '/*     date : '+str+' */'
-       ''
-       '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-       ''
-       '/* ---- Headers ---- */'
+ Code=['/* ScicosLab interfacing function of the Scicos standalone '
+       ' *     Generated by Code_Generation toolbox of Scicos with '+get_scicos_version();
+       ' *     date: '+str;
+       ' * Copyright (c) 1989-2011 Metalau project INRIA '
+       ' */'
        '#include <string.h>'
        '#include <stdlib.h>'
        '#include <stdio.h>'
@@ -8315,14 +8263,11 @@ function [Code]=make_sci_interf()
  //## header
  Date=gdate_new();
  str= Date.strftime["%d %B %Y"];
- Code=['/* ScicosLab interfacing function of the Scicos standalone */'
-       '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
-       get_scicos_version()+' */'
-       '/*     date : '+str+' */'
-       ''
-       '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-       ''
-       '/* ---- Headers ---- */'
+ Code=['/* ScicosLab interfacing function of the Scicos standalone '
+       ' * Generated by Code_Generation toolbox of Scicos with '+get_scicos_version();
+       ' * date: '+str;
+       ' * Copyright (c) 1989-2011 Metalau project INRIA' 
+       ' */'
        '#include <string.h>'
        '#include <stdlib.h>'
        '#include ""stack-c.h""'
@@ -9547,16 +9492,13 @@ function [Code]=make_standalone42()
   Date=gdate_new();
   str= Date.strftime["%d %B %Y"];
   
-  Code=['/* Code prototype for standalone use  */'
-        '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
-        get_scicos_version()+' */'
-        '/*     date : '+str+' */'
-        ''
-        '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-        ''
+  Code=['/* Code prototype for standalone use  '
+        ' * Generated by Code_Generation toolbox of Scicos with '+get_scicos_version();
+        ' * date: '+str
+        ' * Copyright (c) 1989-2011 Metalau project INRIA '
+        ' */'
         '/* To learn how to use the standalone code, type '"./standalone -h'" */'
         ''
-        '/* ---- Headers ---- */'
         '#include <stdio.h>'
         '#include <stdlib.h>'
         '#include <math.h>'
@@ -12015,13 +11957,11 @@ function [Code,Code_xml_param]=make_standalone43()
   //@@ main header
   Date=gdate_new();
   str= Date.strftime["%d %B %Y"];
-  Code=['/* Code prototype for standalone use  */'
-        '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
-        get_scicos_version()+' */'
-        '/*     date : '+str+' */'
-        ''
-        '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-        ''
+  Code=['/* Code prototype for standalone use  '
+        ' * Generated by Code_Generation toolbox of Scicos with '+ get_scicos_version();
+        ' * date: '+str;
+        ' * Copyright (c) 1989-2011 Metalau project INRIA ';
+        ' */'
         '/* To learn how to use the standalone code, type '"./standalone -h'" */'
         '']
 
@@ -16608,14 +16548,11 @@ function [Code]=make_void_io()
   Date=gdate_new();
   str= Date.strftime["%d %B %Y"];
 
-  Code=['/* Code for actuators/sensors to be used in generic interfacing functions */'
-        '/*     Generated by Code_Generation toolbox of Scicos with '+ ..
-        get_scicos_version()+' */'
-        '/*     date : '+str+' */'
-        ''
-        '/* Copyright (c) 1989-2011 Metalau project INRIA */'
-        ''
-        '/* ---- Headers ---- */'
+  Code=['/* Code for actuators/sensors to be used in generic interfacing functions'
+        ' * Generated by Code_Generation toolbox of Scicos with '+get_scicos_version();
+        ' * date : '+str;
+        ' * Copyright (c) 1989-2011 Metalau project INRIA ';
+        ' */'
         '#include <stdio.h>'
         '#include <stdlib.h>'
         '#include <string.h>'
@@ -17765,20 +17702,13 @@ endfunction
 function [txt]=get_blank(str)
 //Copyright (c) 1989-2011 Metalau project INRIA
 //
-//@@ get_blank : return blanks with a length
-//               of the given input string
+//@@ get_blank : return a string filled with whie spaces 
+//               with the same length as input string
 //
 // Input : str : a string
-//
 // Output : txt : blanks
 //
-
- txt=''
-
- for i=1:length(str)
-     txt=txt+' '
- end
-
+ txt= catenate(smat_create(1,length(str),' '));
 endfunction
 
 function [txt]=get_code_to_read_params(varname,var,fpp,typ_str)
@@ -17847,41 +17777,26 @@ function [txt]=get_comment(typ,param)
      case 9 then
       txt = '/* Update zero crossing surfaces */'
     end
-    //** blocks activated on event number
    case 'ev' then
+    //** blocks activated on event number
     txt = '/* Blocks activated on the event number '+string(param(1))+' */'
-    //** blk calling sequence
    case 'call_blk' then
-    txt = ['/* Call of '''+param(1) + ...
-	   ''' (type '+string(param(2))+' - blk nb '+...
-	   string(param(3))];
-    if param(4) then
-      txt=txt+' - with zcross) */';
-    else
-      txt=txt+') */';
-    end
+    //** blk calling sequence
+    if param(4) then str =" - with zcross" else str="";end 
+    txt = sprintf('/* Call of ''%s'' (type %d - blk nb %d%s) */',param(1),param(2),param(3),str);
     //** proto calling sequence
    case 'proto_blk' then
-    txt = ['/* prototype of '''+param(1) + ...
-	   ''' (type '+string(param(2))];
-    if param(4) then
-      txt=txt+' - with zcross) */';
-    else
-      txt=txt+') */';
-    end
+    if param(4) then str =" - with zcross" else str="";end 
+    txt = sprintf('/* prototype of ''%s'' (type %d%s) */',param(1), param(2),str);
     //** ifthenelse calling sequence
    case 'ifthenelse_blk' then
-    txt = ['/* Call of ''if-then-else'' blk (blk nb '+...
-	   string(param(1))+') */']
+    txt = sprintf('/* Call of ''if-then-else'' blk (blk nb %d) */',param(1));
     //** eventselect calling sequence
    case 'evtselect_blk' then
-    txt = ['/* Call of ''event-select'' blk (blk nb '+...
-	   string(param(1))+') */']
+    txt = sprintf('/* Call of ''event-select'' blk (blk nb %s) */',param(1))
     //** set block structure
    case 'set_blk' then
-    txt = ['/* set blk struc. of '''+param(1) + ...
-	   ''' (type '+string(param(2))+' - blk nb '+...
-	   string(param(3))+') */'];
+    txt = sprintf('/* set blk struc. of ''%s'' (type %d - blk nb %d) */',param(1),param(2),param(3));
     //** Update xd vector ptr
    case 'update_xd' then
     txt = ['/* Update xd vector ptr */'];

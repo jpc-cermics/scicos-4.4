@@ -31,6 +31,7 @@
 #include <nsp/system.h>
 #include <nsp/blas.h>
 #include <nsp/menus.h>
+#include <nsp/sharedlib.h>
 #include "../libinteg/integ.h"
 #include "sundials/sundials.h"
 #include "ezxml.h"
@@ -412,6 +413,18 @@ void *scicos_get_function (char *fname)
   /* search if symbol is in a dynamically linked shared archive*/
   if ( nsp_link_search(fname,-1,&loc) != -1 ) return loc ;
   return NULL;
+}
+
+/* get the real entry name for block from block function name
+ * we get the name by searching shared libraries for symbols 
+ * 
+ */
+
+void scicos_get_function_name (char *fname,char *rname)
+{
+  sprintf(rname,"scicos_%s_block",fname);
+  if ( nsp_sharedlib_table_find_symbol(rname)==OK) return;
+  strcpy(rname,fname);
 }
 
 /* check_flag */

@@ -27,12 +27,14 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   if nargin <= 1 then files    = blknam, end
   if nargin <= 2 then filestan = '', end
   if nargin <= 3 then filesint = '', end //##
-  if nargin <= 4 then libs     = '', end
+  if nargin <= 4 then libs     = m2s([]), end
   if nargin <= 5 then rpat     = TMPDIR, end
   if nargin <= 6 then ldflags  = '', end
   if nargin <= 7 then cflags   = '', end
   if nargin <= 8 then silent   = %f, end
 
+  if libs.equal[''] then libs=m2s([]);end 
+    
   //@@ check if a fortran files exist
   ok =execstr("fd=fopen(''"+rpat+'/'+blknam+'f.f'+"'',mode=""r"")", errcatch=%t);
   if ok then
@@ -58,10 +60,6 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 
   //** adjust path and name of object files
   //   to include in the building process
-  //FIXME
-//   if (libs ~= emptystr()) then
-//     libs=pathconvert(libs,%f,%t)
-//   end
 
   //** adjust cflags
   if (cflags ~= emptystr()) then
@@ -72,7 +70,8 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   [ok,libs,for_link]=link_olibs(libs,rpat)
   if ~ok then
     ok=%f;
-    x_message(['sorry compiling problem';lasterror()]);
+    x_message(['Error: unable to link libraries from libs';libs(:);
+	       catenate(lasterror())]);
     return;
   end
 
@@ -963,12 +962,8 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
 //          for_link : a vector of strings with link cmd
 //                     for exec or for loader.sce
 //
-//TODO : Alan
-//** get lhs,rhs nb paramaters
-//[lhs,rhs]=argn(0);
-
-  //** decl and set local variables
   ok=%t
+  // decl and set local variables
   x=''
   xlibs=m2s([]);
   for_link=m2s([]);
@@ -1035,6 +1030,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           ok=%f
           //pause
           x_message(['I don''t know what to do !';
+		     'Line 1038 of buildnewblock.sci';
                      'Please report to scicos@inria.fr'])
         end
       elseif ~file('exists',x) then
@@ -1079,6 +1075,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           else
             //link(x);
             x_message(['I don''t know what to do !';
+		       'Line 1083 of buildnewblock.sci';
                       'Please report to scicos@inria.fr'])
             ok=%f
             //pause
@@ -1087,6 +1084,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
         else
           //link(x);
           x_message(['I don''t know what to do !';
+		     'Line 1092 of buildnewblock.sci';
                      'Please report to scicos@inria.fr'])
           ok=%f
           //pause
@@ -1142,6 +1140,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           //   no .lib, no .ilib exists
           //   do something here please ?
           x_message(['I don''t know what to do !';
+		     'Line 1148 of buildnewblock.sci';
                      'Please report to scicos@inria.fr'])
           ok=%f
           //pause
@@ -1169,6 +1168,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           else
             //link(x);
             x_message(['I don''t know what to do !';
+		       'Line 1176 of buildnewblock.sci';
                        'Please report to scicos@inria.fr'])
             ok=%f
             //pause
@@ -1184,6 +1184,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           else
             //link(x);
             x_message(['I don''t know what to do !';
+		       'Line 1192 of buildnewblock.sci';
                        'Please report to scicos@inria.fr'])
             ok=%f
             //pause
@@ -1192,6 +1193,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
         else
           //link(x);
           x_message(['I don''t know what to do !';
+		     'Line 1201 of buildnewblock.sci';
                      'Please report to scicos@inria.fr'])
           ok=%f
           //pause
@@ -1217,6 +1219,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
        else
          //link(x);
          x_message(['I don''t know what to do !';
+		    'Line 1227 of buildnewblock.sci';
                     'Please report to scicos@inria.fr'])
          ok=%f
          //pause
@@ -1228,6 +1231,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
        else
          //link(x);
          x_message(['I don''t know what to do !';
+		    'Line 1239 of buildnewblock.sci';
                     'Please report to scicos@inria.fr'])
          ok=%f
          //pause
@@ -1255,6 +1259,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           else
             //link(x);
             x_message(['I don''t know what to do !';
+		       'Line 1267 of buildnewblock.sci';
                        'Please report to scicos@inria.fr'])
             ok=%f
             //pause
@@ -1270,6 +1275,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           else
             //link(x);
             x_message(['I don''t know what to do !';
+		       'Line 1283 of buildnewblock.sci';
                        'Please report to scicos@inria.fr'])
             ok=%f
             //pause
@@ -1278,6 +1284,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
         else
           //link(x);
           x_message(['I don''t know what to do !';
+		     'Line 1292 of buildnewblock.sci';
                      'Please report to scicos@inria.fr'])
           ok=%f
           //pause

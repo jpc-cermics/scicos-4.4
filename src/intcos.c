@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2005-2010 Jean-Philippe Chancelier Enpc/Cermics
+ * Copyright (C) 2005-2011 Jean-Philippe Chancelier Enpc/Cermics
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -19,11 +19,7 @@
  * Nsp interfaces for scicos updated for 4.4
  *--------------------------------------------------------------------------*/
 
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-
-#include "nsp/machine.h"
+#include <nsp/nsp.h>
 #include <nsp/graphics-new/Graphics.h>
 #include <nsp/object.h>
 #include <nsp/matrix.h>
@@ -34,8 +30,8 @@
 #include <nsp/cells.h>
 #include <nsp/graphic.h>
 #include <nsp/interf.h>
-#include "scicos/scicos4.h"
-
+#include <scicos/scicos4.h>
+#include <scicos/blocks.h>
 
 extern void create_scicos_about(void);
 static int scicos_fill_gr(scicos_run *r_scicos, NspCells *Gr);
@@ -222,7 +218,7 @@ static int scicos_fill_gr(scicos_run *sr, NspCells *Gr)
 {
   int kf;
   scicos_sim *scsim = &sr->sim;
-  int nb = scsim->nblk;
+  /* int nb = scsim->nblk; */
   scicos_block *Blocks = sr->Blocks;
   for (kf = 0; kf < scsim->nblk; ++kf)
     {
@@ -832,6 +828,24 @@ static int int_buildouttb (Stack stack, int rhs, int opt, int lhs)
   return RET_BUG;
 }
 
+/* get the entry point name associated to a 
+ * simulator name. i.e search names in tabsim 
+ * it can be name or scicos_name_block
+ */
+
+extern void scicos_get_function_name (char *fname,char *rname);
+
+static int int_scicos_get_internal_name(Stack stack, int rhs, int opt, int lhs)
+{
+  char name[256],*fname;
+  CheckRhs(1,1);
+  CheckLhs(0,1);
+  if ((fname = GetString(stack,1)) == (char*)0)   return RET_BUG;
+  scicos_get_function_name(fname,name);
+  if ( nsp_move_string(stack,1,name,-1) ==FAIL)  return RET_BUG;
+  return 1;
+}
+
 
 static OpTab Scicos_func[] = {
   {"sci_tree4", int_scicos_ftree4},
@@ -850,6 +864,7 @@ static OpTab Scicos_func[] = {
   {"scicos_debug_count", int_scicos_debug_count},
   {"buildouttb", int_buildouttb},
   {"scicos_about", int_scicos_about},
+  {"scicos_get_internal_name", int_scicos_get_internal_name },
   {(char *) 0, NULL}
 };
 
