@@ -222,8 +222,9 @@ function [txt]=call_block42(bk,pt,flag)
 //                 of the scicos block
 //
 
-  txt=[]
-
+  if isempty(capt) then capt=zeros(0,5);end
+  if isempty(actt) then actt=zeros(0,5);end
+  txt=m2s([])
   //**
   if flag==2 & ((zcptr(bk+1)-zcptr(bk))<>0) & pt<0 then
 
@@ -294,20 +295,20 @@ function [txt]=call_block42(bk,pt,flag)
 
   //@@ remove call to the end block for standalone
   if stalone & funs(bk)=='scicosexit' then
-    txt=[];
+    txt=m2s([]);
     return
   end
 
   //** see if its bidon, actuator or sensor
   if funs(bk)=='bidon' then
-    txt=[];
+    txt=m2s([]);
     return
   elseif funs(bk)=='bidon2' then
-    txt=[];
+    txt=m2s([]);
     return
     //@@ agenda_blk
   elseif funs(bk)=='agenda_blk' then
-    txt=[];
+    txt=m2s([]);
     return
     //## sensor
   elseif or(bk==capt(:,1)) then
@@ -1045,7 +1046,7 @@ function XX=gen_allblk_new()
   XX.graphics.sz = 20 *XX.graphics.sz
 
   //@@ load computational function
-  toto=mgetl(rpat+'/'+rdnom+'.c')
+  toto=scicos_mgetl(rpat+'/'+rdnom+'.c')
 
   //@@ set the graphics exprs
   XX.graphics.exprs(1)(1)  = rdnom             //simulation function
@@ -1141,7 +1142,7 @@ function [XX]=gen_allblk()
   XX.graphics.sz = 20 *XX.graphics.sz
 
   //@@ load computational function
-  toto=mgetl(rpat+'/'+rdnom+'.c')
+  toto=scicos_mgetl(rpat+'/'+rdnom+'.c')
 
   //@@ set the graphics exprs
   XX.graphics.exprs(1)(1)  = rdnom             //simulation function
@@ -1262,7 +1263,7 @@ function [ccode]=gen_blk4_code(tt)
 //
 // Use :
 // --> [tt]=blk4_lst();[ccode]=gen_blk4_code(tt);
-// --> mputl(ccode,'/home/alan/get_blk4_code.sci');
+// --> scicos_mputl(ccode,'/home/alan/get_blk4_code.sci');
 //
 
   ccode=['function [txt]=get_blk4_code(name)'
@@ -1276,7 +1277,7 @@ function [ccode]=gen_blk4_code(tt)
          '//'
          '// Output : txt : the output code'
          ''
-         '  txt=[];'
+         '  txt=m2s([]);'
          ''
          '  select name']
 
@@ -1306,7 +1307,7 @@ function txt=get_txt_code(code)
 // Output : txt : the output expression
 //
 
-  txt=[]
+  txt=m2s([])
 
   code=strsubst(code,'""','""""');
   code=strsubst(code,'''','''''');
@@ -1332,15 +1333,12 @@ function [ccode]=extract_ccode(nam)
 //
 // Output : ccode : the contents of the file
 //
-
-  ccode=[]
-
-  rout_path='SCI/routines/scicos'
-
-  if file('exists',rout_path+'/'+nam+'.c') then
-    ccode=mgetl(rout_path+'/'+nam+'.c')
+  ccode=m2s([]);
+  printf('search for %s\n",nam);
+  rout_path=file('join',[get_scicospath();'src';'scicos';nam+'.c']);
+  if file('exists',rout_path) then
+    ccode=scicos_mgetl(rout_path);
   end
-
   //@@ adjust evaluate_expr for lcc
   if nam=='evaluate_expr' then
     for i=size(ccode,1):-1:1
@@ -1350,7 +1348,6 @@ function [ccode]=extract_ccode(nam)
       end
     end
   end
-
 endfunction
 
 function [tt]=blk4_lst()
@@ -1496,7 +1493,7 @@ function [CCode,FCode]=gen_blocks()
 
   if ~isempty(ind) then
     CCode($+1)=funs(ind)
-    CCode($+1)=mgetl(TMPDIR+'/'+funs(ind)+'.c');
+    CCode($+1)=scicos_mgetl(TMPDIR+'/'+funs(ind)+'.c');
   end
 
   //## remove implicit number
@@ -1653,8 +1650,8 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
 //          blocks_file : vector of string of the name of the
 //                        generated scicos blocks
 //
-
-//@@ define blocks_files
+  ok=%t
+  //@@ define blocks_files
   Cblocks_files=[]
   //@@ define solver_files
   solver_files=[]
@@ -1679,7 +1676,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
   //** Generate code for scicos block
   Code=make_computational42()
 
-  ierr=execstr('mputl(Code,rpat+''/''+rdnom+''.c'')',errcatch=%t)
+  ierr=execstr('scicos_mputl(Code,rpat+''/''+rdnom+''.c'')',errcatch=%t)
   if ~ierr then
     message(catenate(lasterror()))
     ok=%f
@@ -1702,7 +1699,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
   //** Generate _void_io.c
   Code=make_void_io()
 
-  ierr=execstr('mputl(Code,rpat+''/''+rdnom+''_void_io.c'')',errcatch=%t)
+  ierr=execstr('scicos_mputl(Code,rpat+''/''+rdnom+''_void_io.c'')',errcatch=%t)
   if ~ierr then
     message(catenate(lasterror()))
     ok=%f
@@ -1716,7 +1713,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     for i=1:2:length(FCode)
       fcod=[fcod;FCode(i+1);'']
     end
-    ierr=execstr('mputl(fcod,rpat+''/''+rdnom+''f.f'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(fcod,rpat+''/''+rdnom+''f.f'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -1746,8 +1743,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     end
 
     //@@include scicos_block/scicos_block4.h
-    txt=mgetl(SCI+'/routines/scicos/scicos_block4.h');
-    
+    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
     
@@ -1759,14 +1755,15 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
          '/* Copyright (c) 1989-2011 Metalau project INRIA */'
          ''
          txt]
-    ierr=execstr('mputl(txt,rpat_blocks+''/scicos_block4.h'')',errcatch=%t)
+    ffname = file('join',[rpat_blocks;'scicos_block4.h']);
+    ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
 
-    txt=mgetl(SCI+'/routines/scicos/scicos_block.h');
+    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
     txt=['/* Scicos computational function header */'
@@ -1777,7 +1774,8 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
          '/* Copyright (c) 1989-2011 Metalau project INRIA */'
          ''
          txt]
-    ierr=execstr('mputl(txt,rpat_blocks+''/scicos_block.h'')',errcatch=%t)
+    ffname = file('join',[rpat_blocks;'scicos_block.h']);
+    ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -1798,7 +1796,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
                   ''
                   CCode(i+1)]
 
-      ierr=execstr('mputl(CCode(i+1),rpat_blocks+''/''+CCode(i)+''.c'')',errcatch=%t)
+      ierr=execstr('scicos_mputl(CCode(i+1),rpat_blocks+''/''+CCode(i)+''.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -1819,49 +1817,52 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     else
       [Code,Code_xml_param]=make_standalone43()
     end
-
-    ierr=execstr('mputl(Code,rpat+''/''+rdnom+''_standalone.c'')',errcatch=%t)
+    ffname=file('join',[rpat;rdnom+'_standalone.c']);
+    ierr=execstr('scicos_mputl(Code,ffname)',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
-
+    
     //@@ write a rdnom_params.xml file
     if ALL then
-      ierr=execstr('mputl(Code_xml_param,rpat+''/''+rdnom+''_params.xml'')',errcatch=%t)
+      ffname=file('join',[rpat;rdnom+'_params.xml']);
+      ierr=execstr('scicos_mputl(Code_xml_param,ffname);',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
         return
       end
     end
-
+    
     //## Generate intrdnom_sci.c
     if ALL then
       Code=make_sci_interf43()
     else
       Code=make_sci_interf()
     end
-
-    ierr=execstr('mputl(Code,rpat+''/int''+rdnom+''_sci.c'')',errcatch=%t)
+    ffname=file('join',[rpat; 'int'+rdnom+'_sci.c']);
+    ierr=execstr('scicos_mputl(Code,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
 
-    //** copy source code of machine.h/scicos_block4.h
+    //** copy source code of machine.h and scicos_block4.h
     //   in target path
-    txt=mgetl(SCI+'/routines/machine.h');
-    ierr=execstr('mputl(txt,rpat+''/machine.h'')',errcatch=%t)
+    // XXXXX use file('copy',...)
+    txt=scicos_mgetl('NSP/src/include/nsp/machine.h');
+    ffname=file('join',[rpat;'machine.h']);
+    ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
-
-    txt=mgetl(SCI+'/routines/scicos/scicos_block4.h');
+    
+    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
 
@@ -1872,18 +1873,18 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
          ''
          '/* Copyright (c) 1989-2011 Metalau project INRIA */'
          ''
-         txt]
-    ierr=execstr('mputl(txt,rpat+''/scicos_block4.h'')',errcatch=%t)
+         txt];
+    ffname = file('join',[rpat;'scicos_block4.h']);
+    ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
-
-    txt=mgetl(SCI+'/routines/scicos/scicos_block.h');
+    
+    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
-
     txt=['/* Scicos computational function header */'
          '/*     Extracted by Code_Generation toolbox of Scicos with '+ ..
 	 get_scicos_version()+' */'
@@ -1892,13 +1893,14 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
          '/* Copyright (c) 1989-2011 Metalau project INRIA */'
          ''
          txt]
-    ierr=execstr('mputl(txt,rpat+''/scicos_block.h'')',errcatch=%t)
+    ffname = file('join',[rpat;'scicos_block.h']);
+    ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
-
+    
     //## Generate solver codes
     if nxtotal<>0 then
       if impl_blk then
@@ -1912,7 +1914,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     //## Generate _act_sens_events.c
     [Code]=make_act_sens_events()
     reponse=[];
-    ffname=file('join',[rpat;rdnom;'_act_sens_events.c']);
+    ffname=file('join',[rpat;rdnom+'_act_sens_events.c']);
     created=file('exists',ffname);
     if silent_mode <> 1 then
       if created then
@@ -2063,11 +2065,14 @@ function [ok]=gen_gui42()
         ' end'
         'endfunction'];
   //Create file
-  ierr=execstr('mputl(Code,rpat+''/''+rdnom+''_c.sci'')',errcatch=%t)
+  ierr=execstr('scicos_mputl(Code,rpat+''/''+rdnom+''_c.sci'')',errcatch=%t)
   if ~ierr then
     message(catenate(lasterror()))
     ok=%f
+  else
+    ok=%t
   end
+  
 endfunction
 
 function [ccode]=gen_solver_code()
@@ -2080,7 +2085,7 @@ function [ccode]=gen_solver_code()
 //
 // Use :
 // --> [ccode]=gen_solver_code();
-// --> mputl(ccode,'/home/alan/get_solver_file_code.sci');
+// --> scicos_mputl(ccode,'/home/alan/get_solver_file_code.sci');
 //
   curdir = getcwd();
   
@@ -2097,12 +2102,12 @@ function [ccode]=gen_solver_code()
          '//'
          '// Output : txt : the output code'
          ''
-         '  txt=[];'
+         '  txt=m2s([]);'
          ''
          '  select name']
 
   for i=1:size(lisf,1)
-    code=mgetl(lisf(i))
+    code=scicos_mgetl(lisf(i))
     if ~isempty(code) then
       ccode=[ccode;
              '      case '''+lisf(i)+''' then'
@@ -2128,7 +2133,7 @@ function txt=get_solver_txt_code(code)
 // Output : txt : the output expression
 //
 
-  txt=[]
+  txt=m2s([])
 
   code=strsubst(code,'""','""""');
   code=strsubst(code,'''','''''');
@@ -2184,11 +2189,11 @@ function [ok]=get_solver_code(s_name)
 
     //@@ License
     if file('exists',SCI+'/routines/scicos/sundials/LICENSE') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/LICENSE');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/LICENSE');
     else
       txt=get_solver_file_code('LICENSE');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/LICENSE'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/LICENSE'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2197,11 +2202,11 @@ function [ok]=get_solver_code(s_name)
 
     //@@ headers
     if file('exists',SCI+'/routines/scicos/sundials/sundials_types.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_types.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_types.h');
     else
       txt=get_solver_file_code('sundials_types.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/sundials_types.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_types.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2209,11 +2214,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/sundials_math.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_math.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_math.h');
     else
       txt=get_solver_file_code('sundials_math.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/sundials_math.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_math.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2221,11 +2226,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/nvector_serial.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/nvector_serial.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/nvector_serial.h');
     else
       txt=get_solver_file_code('nvector_serial.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/nvector_serial.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/nvector_serial.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2233,11 +2238,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/sundials_nvector.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_nvector.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_nvector.h');
     else
       txt=get_solver_file_code('sundials_nvector.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/sundials_nvector.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_nvector.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2245,11 +2250,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/sundials_config.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_config.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_config.h');
     else
       txt=get_solver_file_code('sundials_config.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/sundials_config.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_config.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2257,11 +2262,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/sundials_dense.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_dense.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_dense.h');
     else
       txt=get_solver_file_code('sundials_dense.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/sundials_dense.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_dense.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2269,11 +2274,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/sundials_smalldense.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_smalldense.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_smalldense.h');
     else
       txt=get_solver_file_code('sundials_smalldense.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/sundials_smalldense.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_smalldense.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2282,8 +2287,8 @@ function [ok]=get_solver_code(s_name)
 
     //@@ C sources
     if file('exists',SCI+'/routines/scicos/sundials/sundials_math.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_math.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/sundials_math.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_math.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_math.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2293,8 +2298,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/nvector_serial.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/nvector_serial.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/nvector_serial.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/nvector_serial.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/nvector_serial.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2304,8 +2309,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/sundials_nvector.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_nvector.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/sundials_nvector.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_nvector.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_nvector.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2315,8 +2320,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/sundials_dense.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_dense.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/sundials_dense.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_dense.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_dense.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2326,8 +2331,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/sundials_smalldense.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/sundials_smalldense.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/sundials_smalldense.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_smalldense.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_smalldense.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2342,11 +2347,11 @@ function [ok]=get_solver_code(s_name)
   if s_name=='IDA' then
     //@@ headers
     if file('exists',SCI+'/routines/scicos/sundials/ida.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/ida.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida.h');
     else
       txt=get_solver_file_code('ida.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/ida.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2354,11 +2359,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/ida_dense.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/ida_dense.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_dense.h');
     else
       txt=get_solver_file_code('ida_dense.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/ida_dense.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida_dense.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2366,11 +2371,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/ida_impl.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/ida_impl.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_impl.h');
     else
       txt=get_solver_file_code('ida_impl.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/ida_impl.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida_impl.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2379,8 +2384,8 @@ function [ok]=get_solver_code(s_name)
 
     //@@ C sources
     if file('exists',SCI+'/routines/scicos/sundials/ida.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/ida.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/ida.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2390,8 +2395,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/ida_dense.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/ida_dense.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/ida_dense.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_dense.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida_dense.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2401,8 +2406,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/ida_ic.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/ida_ic.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/ida_ic.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_ic.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida_ic.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2412,8 +2417,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/ida_io.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/ida_io.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/ida_io.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_io.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida_io.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2428,11 +2433,11 @@ function [ok]=get_solver_code(s_name)
   if s_name=='CVODE' then
     //@@ headers
     if file('exists',SCI+'/routines/scicos/sundials/cvode.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/cvode.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode.h');
     else
       txt=get_solver_file_code('cvode.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/cvode.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2440,11 +2445,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/cvode_impl.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/cvode_impl.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_impl.h');
     else
       txt=get_solver_file_code('cvode_impl.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/cvode_impl.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode_impl.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2452,11 +2457,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/cvode_dense.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/cvode_dense.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_dense.h');
     else
       txt=get_solver_file_code('cvode_dense.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/cvode_dense.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode_dense.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2464,11 +2469,11 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/cvode_dense_impl.h') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/cvode_dense_impl.h');
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_dense_impl.h');
     else
       txt=get_solver_file_code('cvode_dense_impl.h');
     end
-    ierr=execstr('mputl(txt,rpat+''/solver/cvode_dense_impl.h'')',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode_dense_impl.h'')',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2477,8 +2482,8 @@ function [ok]=get_solver_code(s_name)
 
     //@@ C sources
     if file('exists',SCI+'/routines/scicos/sundials/cvode.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/cvode.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/cvode.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2488,8 +2493,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/cvode_dense.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/cvode_dense.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/cvode_dense.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_dense.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode_dense.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2499,8 +2504,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     if file('exists',SCI+'/routines/scicos/sundials/cvode_io.c') then
-      txt=mgetl(SCI+'/routines/scicos/sundials/cvode_io.c');
-      ierr=execstr('mputl(txt,rpat+''/solver/cvode_io.c'')',errcatch=%t)
+      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_io.c');
+      ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode_io.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -3697,7 +3702,7 @@ function [txt,txt2]=allocblk(model,ind)
 // Output :  txt  : declaration
 //           txt2 : affectation
 
-  txt=[]; //declaration
+  txt=m2s([]); //declaration
   txt2=[]; //affectation
   txt3=[]; //final affectation
 
@@ -4798,7 +4803,7 @@ function [txt]=make_BlockProto(nin,nout,funs_bk,funtyp_bk,ztyp_bk,bk)
 
   //@@ agenda_blk
   if funs_bk=='agenda_blk' then
-    txt=[]
+    txt=m2s([])
     return;
   end
 
@@ -5831,7 +5836,7 @@ function [Code]=make_computational42()
       end
 
     else
-      txt=[];
+      txt=m2s([]);
     end
 
     //!!
@@ -8348,8 +8353,8 @@ function [Code]=make_sci_interf()
        '']
 
  //## comment
- txt_in  = []
- txt_out = []
+ txt_in  = m2s([])
+ txt_out = m2s([])
  for i=1:nbcapt
    txt_in = txt_in+'in'+string(i)+',';
    if i==nbcapt then
@@ -8368,7 +8373,7 @@ function [Code]=make_sci_interf()
  else
    txt_rhs='[,te][,tf][,h][,solver]';
  end
-
+ 
  Code=[Code;
        '/* ['+txt_out+']='+rdnom+'('+txt_rhs+')'
        ' *'
@@ -8384,10 +8389,10 @@ function [Code]=make_sci_interf()
        ' * solver : type of solver (1:Euler, 2:Heun, 3:R.Kutta 4th order)'
        ' *          (default : 3)'
        ' *']
-  if txt_out<>0 then
-    Code=[Code;
-          ' * Lhs :'
-          ' * out    : output signal(s) coming from actuator']
+ if ~isempty(txt_out) then
+   Code=[Code;
+	 ' * Lhs :'
+	 ' * out    : output signal(s) coming from actuator']
   end
   Code=[Code;
         ' */']
@@ -9446,6 +9451,8 @@ function [Code]=make_standalone42()
 // rmk : zdoit is not used
 //
 
+  if isempty(capt) then capt=zeros(0,5);end
+  if isempty(actt) then actt=zeros(0,5);end
   x=cpr.state.x;
   modptr=cpr.sim.modptr;
   rpptr=cpr.sim.rpptr;
@@ -10081,7 +10088,7 @@ function [Code]=make_standalone42()
         end
         //******************//
 
-        txt=cformatline(strcat(msprintf('%.16g,\n',rpar(rpptr(i):rpptr(i+1)-1))),70);
+        txt=cformatline(strcat(sprintf('%.16g,\n',rpar(rpptr(i):rpptr(i+1)-1))),70);
 
         txt(1)='double rpar_'+string(i)+'[]={'+txt(1);
         for j=2:size(txt,1)
@@ -10221,15 +10228,15 @@ function [Code]=make_standalone42()
           Code_opar =[Code_opar;
                  '  '+cformatline(mat2c_typ(opar(opptr(i)+j-1)) +...
                          ' opar_'+string(opptr(i)+j-1) + '[]={'+...
-                             strcat(msprintf('%.16g,\n',opar(opptr(i)+j-1)))+'};',70)]
+                             strcat(sprintf('%.16g,\n',opar(opptr(i)+j-1)))+'};',70)]
 
-//        txt=cformatline(strcat( msprintf('%.16g,\n',rpar(rpptr(i):rpptr(i+1)-1)) ),70);
+//        txt=cformatline(strcat( sprintf('%.16g,\n',rpar(rpptr(i):rpptr(i+1)-1)) ),70);
 
         else //** cmplx test
           Code_opar =[Code_opar;
                  '  '+cformatline(mat2c_typ(opar(opptr(i)+j-1)) +...
                          ' opar_'+string(opptr(i)+j-1) + '[]={'+...
-                             strcat(msprintf('%.16g,\n',[real(opar(opptr(i)+j-1)(:));
+                             strcat(sprintf('%.16g,\n',[real(opar(opptr(i)+j-1)(:));
                                             imag(opar(opptr(i)+j-1)(:))]))+'};',70)]
         end
       end
@@ -10417,12 +10424,12 @@ function [Code]=make_standalone42()
           Code_oz=[Code_oz;
                    cformatline('  '+mat2c_typ(oz(ozptr(i)+j-1))+...
                                ' oz_'+string(ozptr(i)+j-1)+'[]={'+...
-                               strcat(msprintf('%.16g,\n',oz(ozptr(i)+j-1)(:)))+'};',70)]
+                               strcat(sprintf('%.16g,\n',oz(ozptr(i)+j-1)(:)))+'};',70)]
         else //** cmplx test
           Code_oz=[Code_oz;
                    cformatline('  '+mat2c_typ(oz(ozptr(i)+j-1))+...
                                ' oz_'+string(ozptr(i)+j-1)+'[]={'+...
-                               strcat(msprintf('%.16g,\n',[real(oz(ozptr(i)+j-1)(:));
+                               strcat(sprintf('%.16g,\n',[real(oz(ozptr(i)+j-1)(:));
                                               imag(oz(ozptr(i)+j-1)(:))]))+'};',70)]
         end
       end
@@ -10539,7 +10546,7 @@ function [Code]=make_standalone42()
       ind=find(kf==capt(:,1))
       //Code_insz = 'typin['+string(ind-1)+']'
     //## other blocks ##//
-    elseif ~isempty(nin)<>0 then
+    elseif ~isempty(nin) then
       //** 1st dim **//
       for kk=1:nin
          lprt=inplnk(inpptr(kf)-1+kk);
@@ -10579,7 +10586,7 @@ function [Code]=make_standalone42()
       Code_inptr=[Code_inptr;
                   'void *inptr_'+string(kf)+'[]={0};']
     //## other blocks ##//
-    elseif ~isempty(nin)<>0 then
+    elseif ~isempty(nin) then
       Code_toinptr=cformatline(strcat(string(zeros(1,nin)),','),70);
       Code_toinptr(1)='void *inptr_'+string(kf)+'[]={'+Code_toinptr(1);
       for j=2:size(Code_toinptr,1)
@@ -10602,7 +10609,7 @@ function [Code]=make_standalone42()
       ind=find(kf==actt(:,1))
       //Code_outsz = 'typout['+string(ind-1)+']'
     //## other blocks ##//
-    elseif ~isempty(nout)<>0 then
+    elseif ~isempty(nout) then
       //** 1st dim **//
       for kk=1:nout
          lprt=outlnk(outptr(kf)-1+kk);
@@ -10642,7 +10649,7 @@ function [Code]=make_standalone42()
       Code_outptr=[Code_outptr;
                    'void *outptr_'+string(kf)+'[]={0};']
     //## other blocks ##//
-    elseif ~isempty(nout)<>0 then
+    elseif ~isempty(nout) then
       Code_tooutptr=cformatline(strcat(string(zeros(1,nout)),','),70);
       Code_tooutptr(1)='void *outptr_'+string(kf)+'[]={'+Code_tooutptr(1);
       for j=2:size(Code_tooutptr,1)
@@ -13011,7 +13018,7 @@ function [Code,Code_xml_param]=make_standalone43()
           '']
   end
 
-  txt=[]
+  txt=m2s([])
   if with_synchro | impl_blk | ng<>0 then
     txt=[txt
          '  int i;']
@@ -13175,7 +13182,7 @@ function [Code,Code_xml_param]=make_standalone43()
         end
         //******************//
 
-//         txt=cformatline(strcat(msprintf('%.16g,\n',rpar(rpptr(i):rpptr(i+1)-1))),70);
+//         txt=cformatline(strcat(sprintf('%.16g,\n',rpar(rpptr(i):rpptr(i+1)-1))),70);
 // 
 //         txt(1)='double rpar_'+string(i)+'[]={'+txt(1);
 //         for j=2:size(txt,1)
@@ -14339,7 +14346,7 @@ function [Code,Code_xml_param]=make_standalone43()
         txt2]
 
   //@@ solvers initialization
-  txt=[];
+  txt=m2s([]);
   if ALL & nX>0 then
     //@@ DAE case
     if impl_blk then
@@ -15367,7 +15374,7 @@ function [Code,Code_xml_param]=make_standalone43()
           '        }'
           '      }']
   else
-    txt=[]
+    txt=m2s([])
     for kf=1:nblk
       if (xptr(kf+1)-xptr(kf)) <> 0 then
         txt=[txt;
@@ -17568,12 +17575,10 @@ function [txt]=code_to_read_params(varname,var,fpp,typ_str)
  //** check rhs paramaters
  [lhs,rhs]=argn(0);
  if rhs == 3 then typ_str=[], end
-
- txt=[]
-
+ txt=m2s([])
  select type(var,'short')
-   //real matrix
   case 'm' then
+   //real matrix
    if isreal(var) then
      mput(var,"dl",fpp)
      if isempty(typ_str) then typ_str='SCSREAL_COP', end
@@ -17638,12 +17643,12 @@ function [txt]=code_to_write_params(varname,var,fpp,typ_str)
  [lhs,rhs]=argn(0);
  if rhs == 3 then typ_str=[], end
 
- txt=[]
+ txt=m2s([])
 
  select type(var,'short')
-   //real matrix
    case 'm' then
-      if isreal(var) then
+    //real matrix
+    if isreal(var) then
         mput(var,"dl",fpp)
         if isempty(typ_str) then typ_str='SCSREAL_COP', end
         txt='fwrite('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
@@ -17789,7 +17794,7 @@ function [txt]=get_code_to_read_params(varname,var,fpp,typ_str)
  if rhs == 3 then typ_str=[], end
 
  //@@ call code_to_read_params
- txt=[]
+ txt=m2s([])
  txt=code_to_read_params(varname,var,fpp,typ_str)
 
  //@@ add a C check
@@ -18044,9 +18049,9 @@ function [txt]=mat2c_typ(outtb)
 //
 
  select type(outtb,'short')
-   //real matrix
    case 'm' then
-      if isreal(outtb) then
+    //real matrix
+   if isreal(outtb) then
         txt = "double"
       else
         txt = "double"
@@ -18085,9 +18090,9 @@ function [c_nb]=mat2scs_c_nb(outtb)
 //
 
  select type(outtb,'short')
-   //real matrix
    case 'm' then
-      if isreal(outtb) then
+    //real matrix
+    if isreal(outtb) then
         c_nb = 10
       else
         c_nb = 11
@@ -18127,9 +18132,9 @@ function [txt]=mat2scs_c_ptr(outtb)
 //
 
  select type(outtb,'short')
-   //real matrix
    case 'm' then
-      if isreal(outtb) then
+    //real matrix
+    if isreal(outtb) then
         txt = "SCSREAL_COP"
       else
         txt = "SCSCOMPLEX_COP"
@@ -18168,16 +18173,16 @@ function [txt]=mat2scs_c_typ(outtb)
 //
 
  select type(outtb,'short')
-   //real matrix
    case 'm' then
-      if isreal(outtb) then
+    //real matrix
+    if isreal(outtb) then
         txt = "SCSREAL_N"
       else
         txt = "SCSCOMPLEX_N"
       end
-   //integer matrix
    case 'i' then
-      select outtb.itype[]
+    //integer matrix
+    select outtb.itype[]
          case 'int32' then
            txt = "SCSINT32_N"
          case 'int16' then
@@ -18206,11 +18211,11 @@ function [txt]=scs_c_n2c_fmt(c_nb)
 //
 // Output : txt : the string of the C format string
 //
-
+  XXXX
   select c_nb
+   case 10 then
     //real matrix
-    case 10 then
-      txt = '%f';
+    txt = '%f';
     //complex matrix
     case 11 then
       txt = '%f,%f';
@@ -18250,12 +18255,12 @@ function [txt]=scs_c_n2c_typ(c_nb)
 //
 
   select c_nb
-    //real matrix
     case 10 then
-      txt = 'double';
-    //complex matrix
-    case 11 then
-      txt = 'double';
+     //real matrix
+     txt = 'double';
+     //complex matrix
+   case 11 then
+    txt = 'double';
     //int8 matrix
     case 81 then
       txt = 'char';
@@ -18584,7 +18589,7 @@ function [txt]=write_code_cdoit(flag)
 // Output : txt : text for cord blocks
 //
 
-  txt=[];
+  txt=m2s([]);
 
   for j=1:ncord
     bk=cord(j,1);
@@ -18706,7 +18711,7 @@ function [txt]=write_code_doit(ev,flag,vvvv)
 // Output : txt : text for flag 1 or 2, or flag 3
 //
 
-  txt=[];
+  txt=m2s([]);
   zeroflag=(argn(2)==3);
 
   for j=ordptr(ev):ordptr(ev+1)-1
@@ -18887,7 +18892,7 @@ function [txt]=write_code_idoit()
 // Output : txt : text for iord
 //
 
-  txt=[];
+  txt=m2s([]);
 
   for j=1:niord
     bk=iord(j,1);
@@ -19010,7 +19015,7 @@ function [txt]=write_code_initdoit(ev,flag)
 // Output : txt : text to call block
 //
 
-  txt=[];
+  txt=m2s([]);
 
   for j=ordptr(ev):ordptr(ev+1)-1
     bk=ordclk(j,1);
@@ -19121,7 +19126,6 @@ endfunction
 
 function [txt]=write_code_odoit(flag)
 //Copyright (c) 1989-2011 Metalau project INRIA
-
 //@@ write_code_odoit : generate body of the code for
 //                      ordering calls of blocks before
 //                      continuous time integration
@@ -19130,8 +19134,8 @@ function [txt]=write_code_odoit(flag)
 //
 // Output : txt : text for flag 0
 //
-
-  txt=[];
+//
+  txt=m2s([]);
 
   for j=1:noord
     bk=oord(j,1);
@@ -19286,7 +19290,7 @@ function [txt]=write_code_ozdoit(ev,flag)
 // Output : txt : text for flag 0 or flag 9
 //
 
-  txt=[];
+  txt=m2s([]);
 
   for j=ordptr(ev):ordptr(ev+1)-1
     bk=ordclk(j,1);
@@ -19432,7 +19436,7 @@ function [txt]=write_code_reinitdoit(flag)
 // Output : txt : text for xproperties
 //
 
-  txt=[];
+  txt=m2s([]);
 
   for j=1:noord
     bk=oord(j,1);
@@ -19571,7 +19575,7 @@ function [txt]=write_code_zdoit()
 // Output : txt : text for flag 9
 //
 
-  txt=[];
+  txt=m2s([]);
 
   //** first pass (flag 1)
   for j=1:nzord
@@ -19864,7 +19868,7 @@ function [txt]=write_code_zzdoit(ev,flag)
 // Output : txt : text for flag 9
 //
 
-  txt=[];
+  txt=m2s([]);
 
   for j=ordptr(ev):ordptr(ev+1)-1
     bk=ordclk(j,1);

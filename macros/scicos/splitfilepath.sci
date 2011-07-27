@@ -1,5 +1,21 @@
+// XXXX A simplifier 
+// en utilisant fileparts version nsp 
+
 function [path,name,ext]=splitfilepath(fname)
+// in splitfilepath extension do not contain the dot 
+// 
   [path,name,ext]=splitfilepath_cos(fname);
+endfunction
+
+function [path,name,ext]=fileparts(fname)
+  if fname.equal[''] then 
+    name='';path='';ext='';
+    return;
+  end
+  name=file('root',file('tail',fname));
+  // path=strsubst(stripblanks(Cfile),name+'.c','')
+  path=file('dirname',fname);
+  ext = file('extension',fname);
 endfunction
 
 function [path,name,ext]=splitfilepath_cos(fname)

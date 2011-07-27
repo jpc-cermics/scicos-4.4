@@ -409,12 +409,12 @@ function [ok]=exportlibforlcc(libs,rpat)
 //       in the same directory (<> rpat if it is not informed)
 //
 
-  //** get lhs,rhs nb paramaters
-  // [lhs,rhs]=argn(0);
+//** get lhs,rhs nb paramaters
+// [lhs,rhs]=argn(0);
 
-  //** extract path, name and extension of libs
+//** extract path, name and extension of libs
   [path,fname,extension]=fileparts(libs);
-
+  
   //** convert path of libs if needed
   Elibs=convpathforwin(libs)
 
@@ -450,7 +450,7 @@ function [ok]=exportlibforlcc(libs,rpat)
   end
   while ( meof(fr) == 0)
     line=mfscanf(1,fr,"%s");
-    if (line ~= []) then
+    if ~isempty(line) then
       mfprintf(fw,"_%s\n",line);
     end
   end
@@ -534,7 +534,7 @@ function [SCode]=gen_loader(blknam,for_link,with_int)
          'end'
          '']
 
-  if for_link<>[] then
+  if ~isempty(for_link) then
     SCode=[SCode
            '//** Link otherlibs'
            for_link
@@ -991,8 +991,8 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
       end
       if (extension == '') then
         //** search dll
-        if fileinfo(x+'.dll')<>[] then
-          if fileinfo(x+'lcc.lib')==[] then
+        if file('exists',x+'.dll') then
+          if ~file('exists',x+'lcc.lib') then
             //** export lcc.lib
             x_message(['I will try to export a '+x+'lcc.lib']);
             ok=exportlibforlcc(x,rpat)
@@ -1010,8 +1010,8 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           xlibs=[xlibs;x+'lcc.lib']
 
         //** search DLL
-        elseif fileinfo(x+'.DLL')<>[] then
-          if fileinfo(x+'lcc.lib')==[] then
+        elseif file('exists',x+'.DLL') then
+          if ~file('exists',x+'lcc.lib') then
             //** export lcc.lib
             x_message(['I will try to export a '+x+'lcc.lib']);
             ok=exportlibforlcc(x,rpat)
@@ -1037,7 +1037,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           x_message(['I don''t know what to do !';
                      'Please report to scicos@inria.fr'])
         end
-      elseif fileinfo(x)==[] then
+      elseif ~file('exists',x) then
         x_message(['Can''t include '+x;
                    'That file doesn''t exist';
                    lasterror()])
@@ -1053,7 +1053,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
         elseif extension=='.dll' | extension=='.DLL' then
           for_link=[for_link;x]
           link(for_link($));
-          if fileinfo(path+fname+'lcc.lib')==[] then
+          if ~file('exists',file('join',[path;fname+'lcc.lib'])) then
             //** export lcc.lib
             x_message(['I will try to export a '+path+fname+'lcc.lib']);
             ok=exportlibforlcc(path+fname,rpat)
@@ -1070,10 +1070,10 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
 
         //** library (.lib)
         elseif extension=='.lib' | extension=='.ilib' then
-          if fileinfo(path+fname+'.dll')<>[] then
+          if file('exists',file('join',[path;fname+'.dll'])) then
             for_link=[for_link;path+fname+'.dll']
             link(for_link($));
-          elseif fileinfo(path+fname+'.DLL')<>[] then
+          elseif file('exists',path+fname+'.DLL') then
             for_link=[for_link;path+fname+'.DLL']
             link(for_link($));
           else
@@ -1102,13 +1102,13 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
       [path,fname,extension]=fileparts(x);
       if (extension == '') then
         //** search ilib
-        if fileinfo(x+'.ilib')<>[] then
+        if file('exists',x+'.ilib') then
           //** search dll
-          if fileinfo(x+'.dll')<>[] then
+          if file('exists',x+'.dll') then
             for_link=[for_link;x+'.dll']
             link(for_link($));
           //** search DLL
-          elseif fileinfo(x+'.DLL')<>[] then
+          elseif file('exists',x+'.DLL') then
             for_link=[for_link;x+'.DLL']
             link(for_link($));
           //** no .dll, .DLL
@@ -1120,13 +1120,13 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           end
           xlibs=[xlibs;x+'.ilib']
         //** search lib
-        elseif fileinfo(x+'.lib')<>[] then
+        elseif file('exists',x+'.lib') then
           //** search dll
-          if fileinfo(x+'.dll')<>[] then
+          if file('exists',x+'.dll') then
             for_link=[for_link;x+'.dll']
             link(for_link($));
           //** search DLL
-          elseif fileinfo(x+'.DLL')<>[] then
+          elseif file('exists',x+'.DLL') then
             for_link=[for_link;x+'.DLL']
             link(for_link($));
           //** no .dll, .DLL
@@ -1146,7 +1146,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           ok=%f
           //pause
         end
-      elseif fileinfo(x)==[] then
+      elseif ~file('exists',x) then
         x_message(['Can''t include '+x;
                    'That file doesn''t exist';
                    lasterror()])
@@ -1162,9 +1162,9 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
         elseif extension=='.dll' | extension=='.DLL' then
           for_link=[for_link;x]
           link(for_link($));
-          if fileinfo(path+fname+'.ilib')<> [] then
+          if file('exists',file('join',[path;fname+'.ilib'])) then
             xlibs=[xlibs;path+fname+'.ilib']
-          elseif fileinfo(path+fname+'.lib')<> [] then
+          elseif file('exists',file('join',[path;fname+'.lib'])) then
             xlibs=[xlibs;path+fname+'.lib']
           else
             //link(x);
@@ -1175,10 +1175,10 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           end
         //** library (.lib)
         elseif extension=='.lib' | extension=='.ilib' then
-          if fileinfo(path+fname+'.dll')<>[] then
+          if file('exists',file('join',[path;fname+'.dll'])) then
             for_link=[for_link;path+fname+'.dll']
             link(for_link($));
-          elseif fileinfo(path+fname+'.DLL')<>[] then
+          elseif file('exists',file('join',[path;fname+'.DLL'])) then
             for_link=[for_link;path+fname+'.DLL']
             link(for_link($));
           else
@@ -1208,10 +1208,10 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
       [path,fname,extension]=fileparts(x);
       //** no extension. Assume that's a so library
       if (extension == '') then
-       if fileinfo(path+fname+'.so')<>[] then
+       if file('exists',file('join',[path;fname+'.so'])) then
         for_link=[for_link;x+'.so']
         link(for_link($));
-       elseif fileinfo(path+fname+'.SO')<>[] then
+       elseif file('exists',file('join',[path;fname+'.SO'])) then
         for_link=[for_link;x+'.SO']
         link(for_link($));
        else
@@ -1221,9 +1221,9 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
          ok=%f
          //pause
        end
-       if fileinfo(x+'.a')<>[] then
+       if file('exists',x+'.a') then
          xlibs=[xlibs;x+'.a']
-       elseif fileinfo(x+'.A')<>[] then
+       elseif file('exists',x+'.A') then
          xlibs=[xlibs;x+'.A']
        else
          //link(x);
@@ -1232,7 +1232,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
          ok=%f
          //pause
        end
-      elseif fileinfo(x)==[] then
+      elseif ~file('exists',x) then
         x_message(['Can''t include '+x;
                    'That file doesn''t exist';
                    lasterror()])
@@ -1248,9 +1248,9 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
         elseif extension=='.so' | extension=='.SO' then
           for_link=[for_link;x]
           link(for_link($));
-          if fileinfo(path+fname+'.a')<> [] then
+          if file('exists',file('join',[path;fname+'.a'])) then
             xlibs=[xlibs;path+fname+'.a']
-          elseif fileinfo(path+fname+'.A')<> [] then
+          elseif file('exists',file('join',[path;fname+'.A'])) then
             xlibs=[xlibs;path+fname+'.A']
           else
             //link(x);
@@ -1261,10 +1261,10 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           end
         //** library (.a)
         elseif extension=='.a' | extension=='.A' then
-          if fileinfo(path+fname+'.so')<>[] then
+          if file('exists',file('join',[path;fname+'.so'])) then
             for_link=[for_link;path+fname+'.so']
             link(for_link($));
-          elseif fileinfo(path+fname+'.SO')<>[] then
+          elseif file('exists',file('join',[path;fname+'.SO'])) then
             for_link=[for_link;path+fname+'.SO']
             link(for_link($));
           else
@@ -1296,7 +1296,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
    end
 
   //** return link cmd for for_link
-  if for_link <> [] then
+  if ~isempty(for_link) then
     for_link = 'link(""'+for_link+'"");';
   end
 
