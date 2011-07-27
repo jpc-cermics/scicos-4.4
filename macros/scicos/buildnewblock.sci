@@ -87,84 +87,43 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   end
 
   //** def make file name
-  Makename=rpat+'/'+'Makefile_'+blknam;
-
+  Makename=file('join',[rpat;'Makefile_'+blknam]);
   //@@ generation of Makefiles
-  if ~(%win32) then //@@ not windows
-    //SCI_sav = SCI
-    //[n]=predef(0)
+  if %win32 then //@@  windows
     SCI = 'E:\scicoslab_43_cross'
-
-    //@@ win32
-    txt=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags);
-    //Makename2 = strsubst(Makename,'/','\')+'.mak';
-    Makename2 = Makename+'.mak'
-    ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
-    if ~ierr then
-      x_message(['Can''t write '+Makename2;lasterror()]);
-      ok=%f;
-      return;
-    end
-
-    //@@ lccwin32
-    txt=gen_make_lccwin32(blknam,files,filestan,libs,ldflags,cflags);
-    //Makename2 = strsubst(Makename,'/','\')+'.lcc';
-    Makename2 = Makename+'.lcc'
-    ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
-    if ~ierr then
-      x_message(['Can''t write '+Makename2;lasterror()]);
-      ok=%f;
-      return;
-    end
-
-    //SCI = SCI_sav
-    //clear SCI_sav
-    //predef(n(1))
-    clear SCI
-  else //@@ windows
     if with_lcc()==%f then
       //@@ win32
       txt=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags);
-      //Makename2 = strsubst(Makename,'/','\')+'.mak';
       Makename2 = Makename+'.mak'
-      ierr=execstr('mputl(txt,Makename2)',errcatch=%t)
+      ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
       if ~ierr then
-        x_message(['Can''t write '+Makename2;lasterror()]);
-        ok=%f;
-        return;
+	x_message(['Can''t write '+Makename2;lasterror()]);
+	ok=%f;
+	return;
       end
     else
       //@@ lccwin32
       txt=gen_make_lccwin32(blknam,files,filestan,libs,ldflags,cflags);
-      //Makename2 = strsubst(Makename,'/','\')+'.lcc';
       Makename2 = Makename+'.lcc'
-      ierr=execstr('mputl(txt,Makename2)',errcatch=%t)
+      ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
       if ~ierr then
-        x_message(['Can''t write '+Makename2;lasterror()]);
-        ok=%f;
-        return;
+	x_message(['Can''t write '+Makename2;lasterror()]);
+	ok=%f;
+	return;
       end
     end
-
-    //SCI_sav = SCI
-    //[n]=predef(0)
-    SCI = '/usr/lib/scicoslab_gtk-4.3'
-
+    SCI = getenv('NSP');
+  else 
     //@@ unix
+    SCI = '/usr/lib/scicoslab_gtk-4.3'
     txt=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags);
-    //Makename2 = strsubst(Makename,'/','\');
-    ierr=execstr('mputl(txt,Makename2)',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,Makename)',errcatch=%t)
     if ~ierr then
-      x_message(['Can''t write '+Makename2;lasterror()]);
+      x_message(['Can''t write '+Makename;lasterror()]);
       ok=%f;
       return;
     end
-
-    //SCI = SCI_sav
-    //clear SCI_sav
-    //predef(n(1))
-    clear SCI
-
+    SCI = getenv('NSP');
   end
 
   //** generate txt of makefile and get wright name
@@ -223,44 +182,14 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
      l_blknam=length(blknam)
      l_blknam=(l_blknam>17)*17 + (l_blknam<=17)*l_blknam
      blknamint='int'+part(blknam,1:l_blknam)
-     Makename=rpat+'/'+'Makefile_'+blknamint;
-
+     Makename=file('join',[rpat;'Makefile_'+blknamint]);
      //@@ generation of Makefiles
-     if ~(%win32) then //@@ not windows
-       //SCI_sav = SCI
-       //[n]=predef(0)
-       SCI='E:\scicoslab_43_cross'
-
-       //@@ win32
-       txt=gen_make_win32(blknamint,filesint,'',libs,ldflags,cflags);
-       Makename2 = strsubst(Makename,'/','\')+'.mak';
-       ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
-       if ~ierr then
-         x_message(['Can''t write '+Makename2;lasterror()]);
-         ok=%f;
-         return;
-       end
-
-       //@@ lccwin32
-       txt=gen_make_lccwin32(blknamint,filesint,'',libs,ldflags,cflags);
-       Makename2 = strsubst(Makename,'/','\')+'.lcc';
-       ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
-       if ~ierr then
-         x_message(['Can''t write '+Makename2;lasterror()]);
-         ok=%f;
-         return;
-       end
-
-       //SCI=SCI_sav
-       //clear SCI_sav
-       //predef(n(1))
-       clear SCI
-     else //@@ windows
+     if %win32 then 
        if with_lcc()==%f then
          //@@ win32
          txt=gen_make_win32(blknamint,filesint,'',libs,ldflags,cflags);
-         Makename2 = strsubst(Makename,'/','\')+'.mak';
-         ierr=execstr('mputl(txt,Makename2)',errcatch=%t)
+         Makename2 = Makename+'.mak';
+         ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
          if ~ierr then
            x_message(['Can''t write '+Makename2;lasterror()]);
            ok=%f;
@@ -268,47 +197,38 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
          end
        else
          //@@ lccwin32
-         txt=gen_make_lccwin32(blknamint,filesint,'',libs,ldflags,cflags);
-         Makename2 = strsubst(Makename,'/','\')+'.lcc';
-         ierr=execstr('mputl(txt,Makename2)',errcatch=%t)
+         txt=gen_make_lccwin32(blknamint,filesint,'',libs,ldflags, cflags);
+	 Makename2 = Makename+'.lcc';
+         ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
          if ~ierr then
            x_message(['Can''t write '+Makename2;lasterror()]);
            ok=%f;
            return;
          end
        end
-
-       //SCI_sav = SCI
-       //[n]=predef(0)
+     else 
        SCI = '/usr/lib/scicoslab_gtk-4.3'
-
        //@@ unix
        txt=gen_make_unix(blknamint,filesint,'',libs,ldflags,cflags);
-       Makename2 = strsubst(Makename,'/','\');
-       ierr=execstr('mputl(txt,Makename2)',errcatch=%t)
+       ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
        if ~ierr then
-         x_message(['Can''t write '+Makename2;lasterror()]);
+         x_message(['Can''t write '+Makename;lasterror()]);
          ok=%f;
          return;
        end
-
-       //SCI = SCI_sav
-       //clear SCI_sav
-       //predef(n(1))
-       clear SCI
+       SCI = getenv('NSP');
      end
 
      //## generate txt of makefile of the Makefile
      [Makename2,txt]=gen_make(blknamint,filesint,'',libs,Makename,ldflags,cflags);
-
      //## write text of the Makefile in the file called Makename
-     ierr=execstr('mputl(txt,Makename2)',errcatch=%t)
+     ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
      if ~ierr then
        x_message(['Can''t write '+Makename2;lasterror()])
        ok=%f
        return
      end
-
+     
      //@@ compile and link if needed
      if ~silent then
 
@@ -711,7 +631,7 @@ endfunction
 
 function [Makename,txt]=gen_make(blknam,files,filestan,libs,Makename,ldflags,cflags)
 //Copyright (c) 1989-2011 Metalau project INRIA
-
+  
 //** gen_make : generate text of the Makefile
 //              for scicos code generator
 //              That's a wrapper for
@@ -745,30 +665,23 @@ function [Makename,txt]=gen_make(blknam,files,filestan,libs,Makename,ldflags,cfl
   if nargin <= 5 then ldflags  = '', end
   if nargin <= 6 then cflags   = '', end
 
-  //** generate Makefile for LCC compilator
   if with_lcc()==%t then
-
+    //** generate Makefile for LCC compilator
     txt=gen_make_lccwin32(blknam,files,filestan,libs,ldflags,cflags)
     //Makename = strsubst(Makename,'/','\')+'.lcc'
     Makename = Makename+'.lcc'
-
-  //** generate Makefile for Crosoft compilator
   elseif %win32 then
-
+    //** generate Makefile for Crosoft compilator
     txt=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
     select COMPILER;
       case 'VC++' then
         //Makename = strsubst(Makename,'/','\')+'.mak'
         Makename = Makename+'.mak'
     end
-
-  //** unix case
   else
-
+    //** unix case
     txt=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
-
   end
-
 endfunction
 
 function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)

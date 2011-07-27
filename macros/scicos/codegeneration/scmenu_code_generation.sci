@@ -546,14 +546,9 @@ function [txt]=call_block42(bk,pt,flag)
       blank = get_blank(funs(bk)+'( ');
       txtc(1) = funs(bk)+txtc(1);
     elseif (funtyp(bk)<2000)
-      //@@ special case for andlog func : should be fixed in scicos
-      if funs(bk) <> 'andlog' then
-	txtc(1) = 'C2F('+funs(bk)+')'+txtc(1);
-	blank = get_blank('C2F('+funs(bk)+') ');
-      else
-	blank = get_blank(funs(bk)+'( ');
-	txtc(1) = funs(bk)+txtc(1);
-      end 
+      name=scicos_get_internal_name(funs(bk));
+      blank = get_blank(name+'( ');
+      txtc(1) = name+txtc(1);
     end
     txtc(2:$) = blank + txtc(2:$);
     txt = [txt;txtc];
@@ -668,7 +663,7 @@ function [txt]=call_block42(bk,pt,flag)
       blank = get_blank(funs(bk)+'( ');
       txtc(1) = funs(bk)+txtc(1);
     elseif (funtyp(bk)<2000)
-      txtc(1) = 'C2F('+funs(bk)+')'+txtc(1);
+      txtc(1) = 'XXXC2F('+funs(bk)+')'+txtc(1);
       blank = get_blank('C2F('+funs(bk)+') ');
     end
     if nin>=1 | nout>=1 then
@@ -2620,8 +2615,8 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   //***********************************************************
   //Check blocks properties and adapt them if necessary
   //***********************************************************
-
-  IN=[];OUT=[];clkIN=[];clkOUT=[];numa=[];numc=[];
+  
+  IN=[];OUT=[];clkIN=[];clkOUT=[];numa=0;numc=0;
   for i=1:size(scs_m.objs)
     if scs_m.objs(i).type =='Block' then
       if scs_m.objs(i).gui=='CLKOUT_f' | scs_m.objs(i).gui=='CLKOUTV_f' then
@@ -2638,7 +2633,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
         error('Superblock should not have any output implicit port.')
       elseif scs_m.objs(i).gui=='IN_f' then
         //replace input ports by sensor blocks
-        numc=numc+1
+        numc=numc+1;
         scs_m.objs(i).gui='INPUTPORTEVTS';
         scs_m.objs(i).model.evtin=1
         scs_m.objs(i).model.sim(1)='capteur'+string(numc)
@@ -2810,13 +2805,13 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 
   a=[];
   b=[];
-  tt=[];
+  tt=-1;
   howclk=[];
   allhowclk=[];
   allhowclk2=[];
   cap=[];
   act=[];
-
+  
   for i=1:size(bllst)
     for j=1:size(bllst)
       if (bllst(i).sim(1)=='capteur'+string(j)) then
@@ -2842,6 +2837,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       end
     end
   end
+  
   ///**********************************************************
 
   if szclkIN>1 then
@@ -4130,42 +4126,17 @@ function [Code]=make_act_sens_events()
         ''
         '/* ---- File ptrs declaration to read/write signals data ----*/']
   
-  fprr_str=[]
-  fprw_str=[]
-  
+  fprr_str="";
+  fprw_str="";
   nact=size(act,'*')
   ncap=size(cap,'*')
-  
-  for i=1:ncap
-    fprr_str=fprr_str+'*fprr_'+string(i)+',';
+  if ncap<>0 then 
+    fprr_str = catenate('*fprr_'+string(1:ncap),sep=',');
+    Code=[Code; 'FILE '+fprr_str+';'];
   end
-  if ncap<>0 then
-    if part(fprr_str,length(fprr_str))==',' then
-      fprr_str=part(fprr_str,1:length(fprr_str)-1);
-    end
-  end
-  
-  for i=1:nact
-    fprw_str=fprw_str+'*fprw_'+string(i)+',';
-  end
-  if nact<>0 then
-    if part(fprw_str,length(fprw_str))==',' then
-      fprw_str=part(fprw_str,1:length(fprw_str)-1);
-    end
-  end
-  
-  if nact<>0 & ncap<>0 then
-    Code=[Code
-          'FILE '+fprr_str+','+fprw_str+';'
-          '']
-  elseif ncap<>0 then
-    Code=[Code
-          'FILE '+fprr_str+';'
-          '']
-  elseif nact<>0 then
-    Code=[Code
-          'FILE '+fprw_str+';'
-          '']
+  if nact<>0 then 
+    fprw_str=  catenate('*fprw_'+string(1:nact),sep=',');
+    Code=[Code; 'FILE '+fprw_str+';'];
   end
   
   //@@ events/actuators/sensors
