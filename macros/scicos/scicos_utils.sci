@@ -2,7 +2,6 @@ function scicos_utils()
 // a set of function which emulate scilab functions.
 endfunction
 
-
 function A=emptystr(a,b)
   if nargin==0 then 
     A=smat_create(1,1);
@@ -25,15 +24,6 @@ function B=string(A)
     B=m2s(A);// used defaut format 
   end
 endfunction
-
-function y=typeof(x)
-  y=type(x,'short');
-  if y == 'l'; y = x(1)(1);end
-endfunction
-
-// function y=isempty(x)
-//   y=size(x,0)==0 
-// endfunction
 
 function xbasc()
   xclear()
