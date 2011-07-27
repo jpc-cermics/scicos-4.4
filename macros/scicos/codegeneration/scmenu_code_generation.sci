@@ -4222,7 +4222,7 @@ function [Code]=make_actuator()
               '            for (k=0;k<*nu1;k++) {'
               '              printf(""Actuator: time=%f, '+...
 	      'u(%d,%d) of actuator %d is %f '+...
-	      '\n"", \'
+	      '\\n"", \'
               '                     *t, k, l, *nport,'+...
 	      '*((double *) u+(k+l*(*nu1))));'
               '            }'
@@ -4234,7 +4234,7 @@ function [Code]=make_actuator()
               '            for (k=0;k<*nu1;k++) {'
               '              printf(""Actuator: time=%f, '+...
 	      'u(%d,%d) of actuator %d is %f,%f '+...
-	      '\n"", \'
+	      '\\n"", \'
               '                     *t, k, l, *nport,'+...
 	      '*((double *) u+(k+l*(*nu1))),'+...
 	      '*((double *) u+((*nu1)*(*nu2)+k+l*(*nu1))));'
@@ -4247,7 +4247,7 @@ function [Code]=make_actuator()
               '            for (k=0;k<*nu1;k++) {'
               '              printf(""Actuator: time=%f, '+...
 	      'u(%d,%d) of actuator %d is %i '+...
-	      '\n"", \'
+	      '\\n"", \'
               '                     *t, k, l, *nport,'+...
 	      '*((char *) u+(k+l*(*nu1))));'
               '            }'
@@ -4259,7 +4259,7 @@ function [Code]=make_actuator()
               '            for (k=0;k<*nu1;k++) {'
               '              printf(""Actuator: time=%f, '+...
 	      'u(%d,%d) of actuator %d is %hd '+...
-	      '\n"", \'
+	      '\\n"", \'
               '                     *t, k, l, *nport,'+...
 	      '*((short *) u+(k+l*(*nu1))));'
               '            }'
@@ -4271,7 +4271,7 @@ function [Code]=make_actuator()
               '            for (k=0;k<*nu1;k++) {'
               '              printf(""Actuator: time=%f, '+...
 	      'u(%d,%d) of actuator %d is %ld '+...
-	      '\n"", \'
+	      '\\n"", \'
               '                     *t, k, l, *nport,'+...
 	      '*((long *) u+(k+l*(*nu1))));'
               '            }'
@@ -4283,7 +4283,7 @@ function [Code]=make_actuator()
               '            for (k=0;k<*nu1;k++) {'
               '              printf(""Actuator: time=%f, '+...
 	      'u(%d,%d) of actuator %d is %d '+...
-	      '\n"", \'
+	      '\\n"", \'
               '                     *t, k, l, *nport,'+...
 	      '*((unsigned char *) u+(k+l*(*nu1))));'
               '            }'
@@ -4295,7 +4295,7 @@ function [Code]=make_actuator()
               '            for (k=0;k<*nu1;k++) {'
               '              printf(""Actuator: time=%f, '+...
 	      'u(%d,%d) of actuator %d is %hu '+...
-	      '\n"", \'
+	      '\\n"", \'
               '                     *t, k, l, *nport,'+...
 	      '*((unsigned short *) u+(k+l*(*nu1))));'
               '            }'
@@ -4307,7 +4307,7 @@ function [Code]=make_actuator()
               '            for (k=0;k<*nu1;k++) {'
               '              printf(""Actuator: time=%f, '+...
 	      'u(%d,%d) of actuator %d is %lu '+...
-	      '\n"", \'
+	      '\\n"", \'
               '                     *t, k, l, *nport,'+...
 	      '*((unsigned long *) u+(k+l*(*nu1))));'
               '            }'
@@ -4357,7 +4357,7 @@ function [Code]=make_actuator()
               '      /* open file */'
               '      fprw_1 = fopen(buf,'"wt'");'
               '      if( fprw_1 == NULL ) {'
-              '        fprintf(stderr,'"Error opening file: %s\n'", buf);'
+              '        fprintf(stderr,'"Error opening file: %s\\n'", buf);'
               '        /* internal error */'
               '        *flag=-3;'
               '        return;'
@@ -4385,7 +4385,7 @@ function [Code]=make_actuator()
               '                           *((double *) u+(k+l*(*nu1))));'
               '            }'
               '          }'
-              '          fprintf(fprw_1,""\n"");'
+              '          fprintf(fprw_1,""\\n"");'
               '          break;'
               ''
               '        case 11 :'
@@ -4397,7 +4397,7 @@ function [Code]=make_actuator()
               '                           *((double *) u+((*nu1)*(*nu2)+k+l*(*nu1))));'
               '            }'
               '          }'
-              '          fprintf(fprw_1,""\n"");'
+              '          fprintf(fprw_1,""\\n"");'
               '          break;'
               ''
               '        case 81 :'
@@ -4407,7 +4407,7 @@ function [Code]=make_actuator()
               '                           *((char *) u+(k+l*(*nu1))));'
               '            }'
               '          }'
-              '          fprintf(fprw_1,""\n"");'
+              '          fprintf(fprw_1,""\\n"");'
               '          break;'
               ''
               '        case 82 :'
@@ -4417,7 +4417,7 @@ function [Code]=make_actuator()
               '                           *((short *) u+(k+l*(*nu1))));'
               '            }'
               '          }'
-              '          fprintf(fprw_1,""\n"");'
+              '          fprintf(fprw_1,""\\n"");'
               '          break;'
               ''
               '        case 84 :'
@@ -4427,17 +4427,17 @@ function [Code]=make_actuator()
               '                           *((long *) u+(k+l*(*nu1))));'
               '            }'
               '          }'
-              '          fprintf(fprw_1,""\n"");'
+              '          fprintf(fprw_1,""\\n"");'
               '          break;'
               ''
               '        case 811 :'
               '          for (l=0;l<*nu2;l++) {'
               '            for (k=0;k<*nu1;k++) {'
-              '              fprintf(fprw_1,""%d \n"", \'
+              '              fprintf(fprw_1,""%d \\n"", \'
               '                           *((unsigned char *) u+(k+l*(*nu1))));'
               '            }'
               '          }'
-              '          fprintf(fprw_1,""\n"");'
+              '          fprintf(fprw_1,""\\n"");'
               '          break;'
               ''
               '        case 812 :'
@@ -4447,7 +4447,7 @@ function [Code]=make_actuator()
               '                           *((unsigned short *) u+(k+l*(*nu1))));'
               '            }'
               '          }'
-              '          fprintf(fprw_1,""\n"");'
+              '          fprintf(fprw_1,""\\n"");'
               '          break;'
               ''
               '        case 814 :'
@@ -4457,7 +4457,7 @@ function [Code]=make_actuator()
               '                           *((unsigned long *) u+(k+l*(*nu1))));'
               '            }'
               '          }'
-              '          fprintf(fprw_1,""\n"");'
+              '          fprintf(fprw_1,""\\n"");'
               '          break;'
               '        }'
               '      /*} */'
@@ -4518,7 +4518,7 @@ function [Code]=make_actuator()
 
   a_actuator_dum=[a_actuator_dum;
                   '      /*if(*nevprt>0) { print the input value */'
-                  '      printf(""Actuator: time=%f of dummy actuator %d\n"", *t, *nport);'
+                  '      printf(""Actuator: time=%f of dummy actuator %d\\n"", *t, *nport);'
                   '      break;'
                   '    case 5 : /* actuator ending */'
                   '      /* do whatever you want to end the actuator */'
@@ -4561,7 +4561,7 @@ function [Code]=make_actuator()
                   '      /* open file */'
                   '      fprw_1 = fopen(buf,'"wt'");'
                   '      if( fprw_1 == NULL ) {'
-                  '        fprintf(stderr,'"Error opening file: %s\n'", buf);'
+                  '        fprintf(stderr,'"Error opening file: %s\\n'", buf);'
                   '        /* internal error */'
                   '        *flag=-3;'
                   '        return;'
@@ -4580,7 +4580,7 @@ function [Code]=make_actuator()
                   '      /*if(*nevprt>0) {*/'
                   '        /* write time */'
                   '        fprintf(fprw_1,""%f "",*t);'
-                  '        fprintf(fprw_1,""\n"");'
+                  '        fprintf(fprw_1,""\\n"");'
                   '      break;'
                   '    case 5 : /* actuator ending */'
                   '      fclose(fprw_1);'
@@ -5230,7 +5230,7 @@ function [Code]=make_callf()
       '    /***********/'
       '  default :'
       '    {'
-      '      fprintf(stderr,'"Undefined Function type\r\n'");'
+      '      fprintf(stderr,'"Undefined Function type\\n'");'
       '      *flag=-1000;'
       '      return; /* exit */'
       '    }'
@@ -6736,7 +6736,7 @@ function [Code]=make_computational42()
 
     if debug_cdgen then
       Code=[Code;
-            '  fprintf(stderr,""addevs (begin)\n \tpointi=%d\n \tevtnb=%d\n \tptr->evtspt[evtnb-1]=%d\n \tt=%f\n"", \'
+            '  fprintf(stderr,""addevs (begin)\\n \\tpointi=%d\\n \\tevtnb=%d\\n \\tptr->evtspt[evtnb-1]=%d\\n \\tt=%f\\n"", \'
             '                 ptr->pointi,evtnb,ptr->evtspt[evtnb-1],t);'
             '']
     end
@@ -6764,9 +6764,9 @@ function [Code]=make_computational42()
           '        ptr->evtspt[i-1] = ptr->evtspt[evtnb-1]; /* remove old evtnb from chain */'
           ''
           '        /* if (TCritWarning == 0) {'
-          '         *  sciprint(""\n\r Warning:an event is reprogrammed at t=%g by removing another"",t );'
-          '         *  sciprint(""\n\r         (already programmed) event. There may be an error in"");'
-          '         *  sciprint(""\n\r         your model. Please check your model\n\r"");'
+          '         *  Sciprintf(""\\n Warning:an event is reprogrammed at t=%g by removing another"",t );'
+          '         *  Sciprintf(""\\n         (already programmed) event. There may be an error in"");'
+          '         *  Sciprintf(""\\n         your model. Please check your model\\n"");'
           '         *  TCritWarning=1;'
           '         * }'
           '         */'
@@ -6823,7 +6823,7 @@ function [Code]=make_computational42()
 
     if debug_cdgen then
       Code=[Code;
-            '  fprintf(stderr,""addevs (end), pointi=%d\n"",ptr->pointi);'
+            '  fprintf(stderr,""addevs (end), pointi=%d\\n"",ptr->pointi);'
             '']
     end
 
@@ -7327,11 +7327,11 @@ function [Code]=make_sci_interf43()
        ' *     date: '+str;
        ' * Copyright (c) 1989-2011 Metalau project INRIA '
        ' */'
-       '#include <string.h>'
-       '#include <stdlib.h>'
-       '#include <stdio.h>'
-       '#include ""stack-c.h""'
-       '#include ""mex.h""'
+       '#include <nsp/nsp.h>'
+       '#include <nsp/matrix.h> '
+       '#include <nsp/interf.h>'
+       '#define SCICOS_CODEGEN'
+       '#include <scicos/scicos_codegen.h>'
        '']
 
  //## external definition of standalone simulation function
@@ -7359,18 +7359,6 @@ function [Code]=make_sci_interf43()
        'extern struct {char buf[4096];} coserr;'
        '']
 
- //## type of in/out structure definition
- Code=[Code;
-       '/* structure definition of in/out sensors/actuators */'
-       'typedef struct {'
-       '  int typ;      /* data type */'
-       '  int ndims;    /* number of dims */'
-       '  int ndata;    /* number of data */'
-       '  int *dims;    /* size of data (length ndims) */'
-       '  double *time; /* date of data (length ndata) */'
-       '  void *data;   /* data (length ndata*prod(dims)) */'
-       '} scicos_inout;'
-       '']
 
  //## comment
  txt_in  = []
@@ -7435,8 +7423,8 @@ function [Code]=make_sci_interf43()
   //@@ usage
   Code=[Code;
         '/* set a variable to display the usage of that function */'
-        'static char doc[]=""'+Code_help(1)+'\n""'
-        '                  ""'+strsubst(Code_help(2:$),'""','\""')+'\n""']
+        'static char doc[]=""'+Code_help(1)+'\\n""'
+        '                  ""'+strsubst(Code_help(2:$),'""','\""')+'\\n""']
   Code($)=Code($)+';'
   Code=[Code;
         '']
@@ -7462,7 +7450,7 @@ function [Code]=make_sci_interf43()
 	   'n'+string(i)+',m'+string(i)+';'+...
 	   '  /* sensor '+string(i)+' */']
  end
-
+ 
  //@@ define number of optional args
  nargs=2
 
@@ -7483,14 +7471,6 @@ function [Code]=make_sci_interf43()
               ',n'+string(nbcapt+nargs+i)+'_t'+...
               ',m'+string(nbcapt+nargs+i)+';'+...
                '  /* actuator '+string(i)+' */']
- end
- //## for scicos signal (mlist)
- if nbact>0 then
-    Code = [Code;
-            '  static int mL=4,nL=1,lL; /* def scicos signal */'
-            '  static char *Str[]={""st"",""dims"",""values"",""time""};'
-            '  static int V[]={1,1};'
-            '  static SciIntMat M={1,2,4,-1,V};  /* dims field */']
  end
 
  //## declaration of variables for standalone simulation function
@@ -7574,7 +7554,7 @@ function [Code]=make_sci_interf43()
            '  scicos_inout out_'+string(i)+';'
 	   '  int out_'+string(i)+'_dims[2];']
    end
-   Code = [Code;sprintf('  NspMatrix *Oact[%d];',nbact)];
+   Code = [Code;sprintf('  NspObject *Oact[%d];',nbact)];
  else
    Code=[Code;
          ''
@@ -7582,17 +7562,6 @@ function [Code]=make_sci_interf43()
          '  /* int nout=0; */'
          '  int *typout=NULL;'
          '  void **outptr=NULL;']
- end
-
- //## template for actuator transposition
- if nbact<>0 then
-   Code=[Code
-         ''
-         '  /* ptr for output transposition */']
-   for i=1:nbact
-     Code=[Code
-           '  void *out_ptr'+string(i)+';']
-   end
  end
 
  //## error handling
@@ -7605,8 +7574,7 @@ function [Code]=make_sci_interf43()
  //## counter variable
  Code=[Code
        ''
-       '  /* counter local variable */'
-       '  int i,j;']
+       '  /* counter local variable */'];
 
  //## Initialize LhsVar
  if nbact>0 then
@@ -7627,7 +7595,7 @@ function [Code]=make_sci_interf43()
 
  Code=[Code;
        '  if ((Rhs<'+string(nbcapt)+') || (Rhs>'+string(nbcapt+nargs)+')){'
-       '    sciprint_nd(""\n"");'
+       '    sciprint_nd(""\\n"");'
        '    sciprint_nd(doc);'
        '    CheckRhs('+string(nbcapt)+','+string(nbcapt+nargs)+');'
        '  }'
@@ -7636,7 +7604,7 @@ function [Code]=make_sci_interf43()
  //## CheckLhs min/max=nb actuators
  Code=[Code;
        '  if ((Lhs<'+string(nbact)+') || (Lhs>'+string(nbact)+')){'
-       '    sciprint_nd(""\n"");'
+       '    sciprint_nd(""\\n"");'
        '    sciprint_nd(doc);'
        '    CheckLhs('+string(nbact)+','+string(nbact)+');'
        '  }'
@@ -7650,7 +7618,7 @@ function [Code]=make_sci_interf43()
 
 
  Code=[Code;
-       '  switch(Rhs) {']
+       '  switch(rhs) {']
 
  //## Check/get rhs var
  for i=nbcapt+nargs:-1:1
@@ -7683,7 +7651,7 @@ function [Code]=make_sci_interf43()
            '       tf = *((double *) & '+l_str+'[4]);'
            '       /* check value of tf */'
            '       if ( (tf<=0.) && (tf!=-1.) ) {'
-           '         Scierror(999,""%s : tf must be positive.\n"",fname);'
+           '         Scierror(999,""%s : tf must be positive.\\n"",fname);'
            '         return 0;'
            '       }'
            '']
@@ -8232,10 +8200,11 @@ function [Code]=make_sci_interf()
        ' * date: '+str;
        ' * Copyright (c) 1989-2011 Metalau project INRIA' 
        ' */'
-       '#include <string.h>'
-       '#include <stdlib.h>'
-       '#include ""stack-c.h""'
-       '#include ""mex.h""'
+       '#include <nsp/nsp.h>'
+       '#include <nsp/matrix.h> '
+       '#include <nsp/interf.h>'
+       '#define SCICOS_CODEGEN'
+       '#include <scicos/scicos_codegen.h>'
        '']
 
  //## external definition of standalone simulation function
@@ -8255,19 +8224,6 @@ function [Code]=make_sci_interf()
        ''
        '/* standalone still use scicos.c here ! */'
        'extern struct {char buf[4096];} coserr;'
-       '']
-
- //## type of in/out structure definition
- Code=[Code;
-       '/* structure definition of in/out sensors/actuators */'
-       'typedef struct {'
-       '  int typ;      /* data type */'
-       '  int ndims;    /* number of dims */'
-       '  int ndata;    /* number of data */'
-       '  int *dims;    /* size of data (length ndims) */'
-       '  double *time; /* date of data (length ndata) */'
-       '  void *data;   /* data (length ndata*prod(dims)) */'
-       '} scicos_inout;'
        '']
 
  //## comment
@@ -8324,32 +8280,11 @@ function [Code]=make_sci_interf()
  Code = [Code;
          '  /* variables to handle ptr and dims coming from scilab stack */']
  //## for sensors
- for i=1:nbcapt
-    Code = [Code;
-            '  static int l'+string(i)+','+...
-              'n'+string(i)+',m'+string(i)+';'+...
-              '  /* sensor '+string(i)+' */']
- end
  //## for actuators
- for i=1:nbact
-    Code = [Code;
-            '  static int l'+string(nbcapt+4+i)+','+...
-              'n'+string(nbcapt+4+i)+',m'+string(nbcapt+4+i)+';'+...
-              '  /* actuator '+string(i)+' */']
- end
- //## for scicos signal (mlist)
- if nbact>0 then
-   Code = [Code;
-	   '  static int mL=4,nL=1,lL; /* def scicos signal */'
-	   '  static char *Str[]={""st"",""dims"",""values"",""time""};'
-	   '  static int V[]={1,1};'
-	   '  static SciIntMat M={1,2,4,-1,V};  /* dims field */']
- end
  
  //## declaration of variables for standalone simulation function
  Code = [Code;
-         ''
-         '  /* variables for standalone simulation function */']
+	 '  /* variables for standalone simulation function */']
 
  //## default values for te, tf, h and solver
  Code=[Code
@@ -8403,7 +8338,7 @@ function [Code]=make_sci_interf()
 	   '  int out_'+string(i)+'_dims[2];']
    end
    
-   Code = [Code;sprintf('  NspMatrix *Oact[%d];',nbact)];
+   Code = [Code;sprintf('  NspObject *Oact[%d];',nbact)];
  else
    Code=[Code;
          ''
@@ -8411,17 +8346,6 @@ function [Code]=make_sci_interf()
          '  /* int nout=0; */'
          '  int *typout=NULL;'
          '  void **outptr=NULL;']
- end
-
- //## template for actuator transposition
- if nbact<>0 then
-   Code=[Code
-         ''
-         '  /* ptr for output transposition */']
-   for i=1:nbact
-     Code=[Code
-           '  void *out_ptr'+string(i)+';']
-   end
  end
 
  //## error handling
@@ -8434,9 +8358,8 @@ function [Code]=make_sci_interf()
  //## counter variable
  Code=[Code
        ''
-       '  /* counter local variable */'
-       '  int i,j;']
-
+       '  /* counter local variable */'];
+ 
  //## CheckRhs min=nb sensors, max= nb sensors+4
  Code=[Code;
        ''
@@ -8450,7 +8373,7 @@ function [Code]=make_sci_interf()
 
  // Check/get rhs var through a select 
  Code=[Code;
-       '  switch(Rhs) {']
+       '  switch(rhs) {']
  for i=nbcapt+4:-1:1
    i_str = string(i);
    if i==nbcapt+4 then
@@ -8486,7 +8409,7 @@ function [Code]=make_sci_interf()
    if capt(i,5) == 11 then cplx='TRUE';else cplx='FALSE';end 
    Code=[Code
          '  /* inform in struct of sensor '+string(i)+' */'
-	 '  if ( scicos_in_fill(&in_'+string(i)+','+string(capt(i,5))+',&in_'+string(i)+'_dims,M['+string(i)+'],'+cplx+')==FAIL)';
+	 '  if ( scicos_in_fill(&in_'+string(i)+','+string(capt(i,5))+',in_'+string(i)+'_dims,M['+string(i)+'],'+cplx+')==FAIL)';
 	 '    return RET_BUG;'];
  end
  
@@ -8496,7 +8419,7 @@ function [Code]=make_sci_interf()
    if actt(i,5) == 11 then cplx='TRUE';else cplx='FALSE';end 
    Code=[Code
          '  /* inform out struct of actuator '+string(i)+' */'
-	 '  if ( scicos_out_fill(&out_'+string(i)+','+string(actt(i,5))+',&out_'+string(i)+'_dims,'+string(actt(i,3))+','+string(actt(i,4))+','+cplx+')==FAIL)';
+	 '  if ( scicos_out_fill(&out_'+string(i)+','+string(actt(i,5))+',out_'+string(i)+'_dims,'+string(actt(i,3))+','+string(actt(i,4))+','+cplx+')==FAIL)';
 	 '    return RET_BUG;'];
  end
  
@@ -8542,8 +8465,7 @@ function [Code]=make_sci_interf()
        '    else {'
        '      strcpy(err_msg,coserr.buf);'
        '    }'
-       '    sciprint(""Simulation fails with error number %d :'+...
-             '\n%s\n"",ierr,err_msg);'
+       '    Sciprintf(""Simulation fails with error number %d:\\n%s\\n"",ierr,err_msg);'
        '  }'  ]
 
  if nbact<>0 then
@@ -8555,7 +8477,7 @@ function [Code]=make_sci_interf()
      if actt(i,5) == 11 then cplx='TRUE';else cplx='FALSE';end 
      Code=[Code
            '  /* actuator '+string(i)+' */'
-	   '  Oact['+string(i)+']=scicos_inout_to_obj(out_'+string(i)+','+cplx+')';
+	   '  Oact['+string(i)+']=scicos_inout_to_obj(&out_'+string(i)+','+cplx+');';
 	   '  if (Oact['+string(i)+']== NULL) return RET_BUG;' ]
    end
    //## put LhsVar
@@ -8568,7 +8490,7 @@ function [Code]=make_sci_interf()
 
  //## free allocated array
  //## array of sensors
- if nbcapt<>0 | nbact<>0 then
+ if nbcapt<>0 || nbact<>0 then
    Code=[Code
          ''
          '  /* free allocated array */'];
@@ -8584,41 +8506,25 @@ function [Code]=make_sci_interf()
 
  //## array of actuators
  if nbact<>0 then
-   Code=[Code
-         ''];
+   Code=[Code; ''];
    for i=1:nbact
-     Code=[Code
-           '  free(out_'+string(i)+'.dims);'];
+     Code=[Code;' /* free(out_'+string(i)+'.dims);*/'];
    end
-
    for i=1:nbact
-     Code=[Code
-           '  free(out_'+string(i)+'.data);'];
+     Code=[Code;' /* free(out_'+string(i)+'.data);*/'];
    end
-
    for i=1:nbact
-     Code=[Code
-           '  free(out_'+string(i)+'.time);'];
+     Code=[Code; ' /* free(out_'+string(i)+'.time);*/'];
    end
-
    for i=1:nbact
-     n_str = 'n'+string(i+nbcapt+4);
-     Code=[Code
-           '  if ('+n_str+' != 1) {'
-           '    free(out_ptr'+string(i)+');'
-           '  }']
-
+     Code=[Code; ' /*   free(out_ptr'+string(i)+');*/'];
    end
-
  end
-
  //## end
- Code=[Code;
-       '  return 0;'
-       '}'
-       '']
-
+ Code=[Code;  sprintf('  return %d;',nbact);
+       '}'; '']
  //## Gateway
+ if %f then 
  Code=[Code;
        'static GenericTable Tab[]='
        '{'
@@ -8632,8 +8538,8 @@ function [Code]=make_sci_interf()
        ' (*(Tab[Fin-1].f))(Tab[Fin-1].name,Tab[Fin-1].F);'
        ' return 0;'
        '}'
-       '']
-
+       ''];
+ end
 endfunction
 
 function [Code]=make_sensor()
@@ -8692,12 +8598,12 @@ function [Code]=make_sensor()
             '      /* do whatever you want to initialize the sensor */'
             '      break;'
             '    case 1 : /* set the output value */'
-            '      printf(""Require outputs of sensor number %d\n"", *nport);'
-            '      printf(""time is: %f\n"", *t);'
-            '      printf(""sizes of the sensor output is: %d,%d\n"", *ny1,*ny2);'
+            '      printf(""Require outputs of sensor number %d\\n"", *nport);'
+            '      printf(""time is: %f\\n"", *t);'
+            '      printf(""sizes of the sensor output is: %d,%d\\n"", *ny1,*ny2);'
             '      switch (*yt) {'
             '      case 10 :'
-            '        printf(""type of the sensor output is: %d (double) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (double) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8708,7 +8614,7 @@ function [Code]=make_sensor()
             '        break;'
             ''
             '      case 11 :'
-            '        printf(""type of the sensor output is: %d (complex) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (complex) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8721,7 +8627,7 @@ function [Code]=make_sensor()
             '        break;'
             ''
             '      case 81 :'
-            '        printf(""type of the sensor output is: %d (char) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (char) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8733,7 +8639,7 @@ function [Code]=make_sensor()
             '        break;'
             ''
             '      case 82 :'
-            '        printf(""type of the sensor output is: %d (char) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (char) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8744,7 +8650,7 @@ function [Code]=make_sensor()
             '        break;'
             ''
             '      case 84 :'
-            '        printf(""type of the sensor output is: %d (long) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (long) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8755,7 +8661,7 @@ function [Code]=make_sensor()
             '        break;'
             ''
             '      case 811 :'
-            '        printf(""type of the sensor output is: %d (unsigned char) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (unsigned char) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8767,7 +8673,7 @@ function [Code]=make_sensor()
             '        break;'
             ''
             '      case 812 :'
-            '        printf(""type of the sensor output is: %d (unsigned short) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (unsigned short) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8778,7 +8684,7 @@ function [Code]=make_sensor()
             '        break;'
             ''
             '      case 814 :'
-            '        printf(""type of the sensor output is: %d (unsigned long) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (unsigned long) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8831,7 +8737,7 @@ function [Code]=make_sensor()
             '      /* open file */'
             '      fprr_1 = fopen(buf,'"r'");'
             '      if( fprr_1 == NULL ) {'
-            '        fprintf(stderr,'"Error opening file: %s\n'", buf);'
+            '        fprintf(stderr,'"Error opening file: %s\\n'", buf);'
             '        /* internal error */'
             '        *flag=-3;'
             '        return;'
@@ -8850,7 +8756,7 @@ function [Code]=make_sensor()
             '                        (double *) y+(k+l*(*ny1)));'
             '          }'
             '        }'
-            '        fscanf(fprr_1,""\n"");'
+            '        fscanf(fprr_1,""\\n"");'
             '        break;'
             ''
             '      case 11 :'
@@ -8862,7 +8768,7 @@ function [Code]=make_sensor()
             '                        (double *) y+((*ny1)*(*ny2)+k+l*(*ny1)));'
             '          }'
             '        }'
-            '        fscanf(fprr_1,""\n"");'
+            '        fscanf(fprr_1,""\\n"");'
             '        break;'
             ''
             '      case 81 :'
@@ -8873,7 +8779,7 @@ function [Code]=make_sensor()
             '            *((char *) y+(k+l*(*ny1))) = (char) j;'
             '          }'
             '        }'
-            '        fscanf(fprr_1,""\n"");'
+            '        fscanf(fprr_1,""\\n"");'
             '        break;'
             ''
             '      case 82 :'
@@ -8883,7 +8789,7 @@ function [Code]=make_sensor()
             '                        (short *) y+(k+l*(*ny1)));'
             '          }'
             '        }'
-            '        fscanf(fprr_1,""\n"");'
+            '        fscanf(fprr_1,""\\n"");'
             '        break;'
             ''
             '      case 84 :'
@@ -8893,7 +8799,7 @@ function [Code]=make_sensor()
             '                        (long *) y+(k+l*(*ny1)));'
             '          }'
             '        }'
-            '        fscanf(fprr_1,""\n"");'
+            '        fscanf(fprr_1,""\\n"");'
             '        break;'
             ''
             '      case 811 :'
@@ -8903,7 +8809,7 @@ function [Code]=make_sensor()
             '            *((unsigned char *) y+(k+l*(*ny1))) = (unsigned char) j;'
             '          }'
             '        }'
-            '        fscanf(fprr_1,""\n"");'
+            '        fscanf(fprr_1,""\\n"");'
             '        break;'
             ''
             '      case 812 :'
@@ -8913,11 +8819,11 @@ function [Code]=make_sensor()
             '                        (unsigned short *) y+(k+l*(*ny1)));'
             '          }'
             '        }'
-            '        fscanf(fprr_1,""\n"");'
+            '        fscanf(fprr_1,""\\n"");'
             '        break;'
             ''
             '      case 814 :'
-            '        printf(""type of the sensor output is: %d (unsigned long) \n"", *yt);'
+            '        printf(""type of the sensor output is: %d (unsigned long) \\n"", *yt);'
             '        puts(""Please set the sensor output values"");'
             '        for (l=0;l<*ny2;l++) {'
             '          for (k=0;k<*ny1;k++) {'
@@ -8925,7 +8831,7 @@ function [Code]=make_sensor()
             '                        (unsigned long *) y+(k+l*(*ny1)));'
             '          }'
             '        }'
-            '        fscanf(fprr_1,""\n"");'
+            '        fscanf(fprr_1,""\\n"");'
             '        break;'
             '      }'
             '    /*} */'
@@ -9089,19 +8995,9 @@ function [Code]=make_standalone42()
         ' */'
         '/* To learn how to use the standalone code, type '"./standalone -h'" */'
         ''
-        '#include <stdio.h>'
-        '#include <stdlib.h>'
-        '#include <math.h>'
-        '#include <string.h>'
-        '#ifdef __STDC__'
-        '#include <stdarg.h>'
-        '#else'
-        '#include <varargs.h>'
-        '#endif'
-        '#include <memory.h>'
-        '#include '"scicos_block4.h'"'
-        '#include '"machine.h'"'
-        ''
+	'#include <scicos/blockdef.h>'
+	'#include <string.h>'
+	''
         '/* ---- Internals functions and global variables declaration ---- */'
         Protostalone
         '']
@@ -9404,7 +9300,7 @@ function [Code]=make_standalone42()
         '      break;'
         '    case ''v'':'
         '      printf(""Generated by Code_Generation toolbox of Scicos ""'
-        '             ""with '+get_scicos_version()+'\n"");'
+        '             ""with '+get_scicos_version()+'\\n"");'
         '      return 0;'
         '      break;'
         '    case ''?'':'
@@ -9437,8 +9333,7 @@ function [Code]=make_standalone42()
         '  /* display error message */'
         '  if (ierr!=0) {'
         '    get_err_msg(ierr,err_msg);'
-        '    fprintf(stderr,""Simulation fails with error number %d :'+...
-             '\n%s\n"",ierr,err_msg);'
+        '    fprintf(stderr,""Simulation fails with error number %d:\\n%s\\n"",ierr,err_msg);'
         '  }'
         ''
         '  return ierr;'
@@ -9486,30 +9381,29 @@ function [Code]=make_standalone42()
         '']
 
   Code=[Code;
-        'static void usage(prog)'
-        '       char *prog;'
+        'static void usage(char *prog)'
         '{'
         '  fprintf(stderr, ""Usage: %s [-h] [-v] [-i arg] [-o arg] ""'
-        '                  ""[-d arg] [-t arg] [-e arg] [-s arg]\n"", prog);'
-        '  fprintf(stderr, ""Options : \n"");'
-        '  fprintf(stderr, ""     -h for the help  \n"");'
-        '  fprintf(stderr, ""     -v for printing the Scicos version \n"");'
-        '  fprintf(stderr, ""     -i for input file name, by default is Terminal \n"");'
-        '  fprintf(stderr, ""     -o for output file name, by default is Terminal \n"");'
-        '  fprintf(stderr, ""     -d for the clock period, by default is 0.1 \n"");'
-        '  fprintf(stderr, ""     -t for the final time, by default is 30 \n"");'
-        '  fprintf(stderr, ""     -e for the solvers step size, by default is 0.001 \n"");'
-        '  fprintf(stderr, ""     -s integer parameter for select the numerical solver : \n"");']
+        '                  ""[-d arg] [-t arg] [-e arg] [-s arg]\\n"", prog);'
+        '  fprintf(stderr, ""Options : \\n"");'
+        '  fprintf(stderr, ""     -h for the help  \\n"");'
+        '  fprintf(stderr, ""     -v for printing the Scicos version \\n"");'
+        '  fprintf(stderr, ""     -i for input file name, by default is Terminal \\n"");'
+        '  fprintf(stderr, ""     -o for output file name, by default is Terminal \\n"");'
+        '  fprintf(stderr, ""     -d for the clock period, by default is 0.1 \\n"");'
+        '  fprintf(stderr, ""     -t for the final time, by default is 30 \\n"");'
+        '  fprintf(stderr, ""     -e for the solvers step size, by default is 0.001 \\n"");'
+        '  fprintf(stderr, ""     -s integer parameter for select the numerical solver : \\n"");']
 
   if impl_blk then
     Code=[Code;
-          '  fprintf(stderr, ""        1 for a dae solver... \n"");']
+          '  fprintf(stderr, ""        1 for a dae solver... \\n"");']
   else
     Code=[Code;
-          '  fprintf(stderr, ""        1 for Euler''s method \n"");'
-          '  fprintf(stderr, ""        2 for Heun''s method \n"");'
+          '  fprintf(stderr, ""        1 for Euler''s method \\n"");'
+          '  fprintf(stderr, ""        2 for Heun''s method \\n"");'
           '  fprintf(stderr, ""        3 (default value) for the Fourth-Order Runge-Kutta'+...
-           ' (RK4) Formula \n"");']
+           ' (RK4) Formula \\n"");']
   end
   Code=[Code;
         '}'
@@ -10821,13 +10715,10 @@ function [Code]=make_standalone42()
   Code=[Code
         ''
         '/*'+part('-',ones(1,40))+'  Lapack messag function */';
-        'void C2F(xerbla)(SRNAME,INFO,L)'
-        '     char *SRNAME;'
-        '     int *INFO;'
-        '     long int L;'
+	'void C2F(xerbla)(char *SRNAME, int *INFO, long int L)'
         '{'
         '  printf(""** On entry to %s, parameter number %d""'
-        '         ""  had an illegal value\n"",SRNAME,*INFO);'
+        '         ""  had an illegal value\\n"",SRNAME,*INFO);'
         '}'
         '']
 
@@ -10879,7 +10770,7 @@ function [Code]=make_standalone42()
         '  return;'
         '}'
         ''
-        'void sciprint (char *fmt)'
+        'void Sciprintf (char *fmt)'
         '{'
         '  return;'
         '}']
@@ -10989,7 +10880,7 @@ function [Code]=make_standalone42()
         '                optarg = argv[++optind];'
         '             if ( *optarg == ''-'' )'
         '                {'
-        '                 fprintf ( stderr, '"%s: illegal option -- %c \n'",'
+        '                 fprintf ( stderr, '"%s: illegal option -- %c \\n'",'
         '                           argv[0], option );'
         '                 option = ''?'';'
         '                 break;'
@@ -11010,7 +10901,7 @@ function [Code]=make_standalone42()
         '        }'
         '      else'
         '        {'
-        '         fprintf ( stderr, '"%s: illegal option -- %c \n'", argv[0], option );'
+        '         fprintf ( stderr, '"%s: illegal option -- %c \\n'", argv[0], option );'
         '         option = ''?'';'
         '         break;'
         '        }'
@@ -11354,7 +11245,7 @@ function [Code]=make_standalone42()
 
     if debug_cdgen then
       Code=[Code;
-            '  fprintf(stderr,""addevs (begin)\n \tpointi=%d\n \tevtnb=%d\n \tptr->evtspt[evtnb-1]=%d\n \tt=%f\n"", \'
+            '  fprintf(stderr,""addevs (begin)\\n \\tpointi=%d\\n \\tevtnb=%d\\n \\tptr->evtspt[evtnb-1]=%d\\n \\tt=%f\\n"", \'
             '                 ptr->pointi,evtnb,ptr->evtspt[evtnb-1],t);'
             '']
     end
@@ -11382,9 +11273,9 @@ function [Code]=make_standalone42()
           '        ptr->evtspt[i-1] = ptr->evtspt[evtnb-1]; /* remove old evtnb from chain */'
           ''
           '        /* if (TCritWarning == 0) {'
-          '         *  sciprint(""\n\r Warning:an event is reprogrammed at t=%g by removing another"",t );'
-          '         *  sciprint(""\n\r         (already programmed) event. There may be an error in"");'
-          '         *  sciprint(""\n\r         your model. Please check your model\n\r"");'
+          '         *  Sciprintf(""\\n Warning:an event is reprogrammed at t=%g by removing another"",t );'
+          '         *  Sciprintf(""\\n         (already programmed) event. There may be an error in"");'
+          '         *  Sciprintf(""\\n         your model. Please check your model\\n"");'
           '         *  TCritWarning=1;'
           '         * }'
           '         */'
@@ -11441,7 +11332,7 @@ function [Code]=make_standalone42()
 
     if debug_cdgen then
       Code=[Code;
-            '  fprintf(stderr,""addevs (end), pointi=%d\n"",ptr->pointi);'
+            '  fprintf(stderr,""addevs (end), pointi=%d\\n"",ptr->pointi);'
             '']
     end
 
@@ -12163,7 +12054,7 @@ function [Code,Code_xml_param]=make_standalone43()
         '      break;'
         '    case ''v'':'
         '      printf(""Generated by Code_Generation toolbox of Scicos ""'
-        '             ""with '+get_scicos_version()+'\n"");'
+        '             ""with '+get_scicos_version()+'\\n"");'
         '      return 0;'
         '      break;'
         '    case ''?'':'
@@ -12236,8 +12127,7 @@ function [Code,Code_xml_param]=make_standalone43()
         '  /* display error message */'
         '  if (ierr != 0) {'
         '    geterr(ierr,err_msg);'
-        '    fprintf(stderr,""Simulation fails with error number %d :'+...
-             '\n%s\n"",ierr,err_msg);'
+        '    fprintf(stderr,""Simulation fails with error number %d:\\n%s\\n"",ierr,err_msg);'
         '  }'
         ''
         '  /* return error number */'
@@ -12254,37 +12144,37 @@ function [Code,Code_xml_param]=make_standalone43()
   if ALL then
     Code=[Code;
           '  fprintf(stderr, ""Usage: %s [-h] [-v] [-i arg] [-o arg] ""'
-          '                  ""[-d arg] [-t arg]\n"", prog);'
-          '  fprintf(stderr, ""Options : \n"");'
-          '  fprintf(stderr, ""     -h for the help  \n"");'
-          '  fprintf(stderr, ""     -v for printing the Scicos Version \n"");'
-          '  fprintf(stderr, ""     -i for input file name, by default is Terminal \n"");'
-          '  fprintf(stderr, ""     -o for output file name, by default is Terminal \n"");'
-          '  fprintf(stderr, ""     -t for the final time, by default is '+sprintf("%e",scs_m.props.tf)+' \n"");'
-          '  fprintf(stderr, ""     -p for input parameters file name, by default is '+rdnom+'_params.dat\n"");']
+          '                  ""[-d arg] [-t arg]\\n"", prog);'
+          '  fprintf(stderr, ""Options : \\n"");'
+          '  fprintf(stderr, ""     -h for the help  \\n"");'
+          '  fprintf(stderr, ""     -v for printing the Scicos Version \\n"");'
+          '  fprintf(stderr, ""     -i for input file name, by default is Terminal \\n"");'
+          '  fprintf(stderr, ""     -o for output file name, by default is Terminal \\n"");'
+          '  fprintf(stderr, ""     -t for the final time, by default is '+sprintf("%e",scs_m.props.tf)+' \\n"");'
+          '  fprintf(stderr, ""     -p for input parameters file name, by default is '+rdnom+'_params.dat\\n"");']
   else
     Code=[Code;
           '  fprintf(stderr, ""Usage: %s [-h] [-v] [-i arg] [-o arg] ""'
-          '                  ""[-d arg] [-t arg] [-e arg] [-s arg]\n"", prog);'
-          '  fprintf(stderr, ""Options : \n"");'
-          '  fprintf(stderr, ""     -h for the help  \n"");'
-          '  fprintf(stderr, ""     -v for printing the Scicos Version \n"");'
-          '  fprintf(stderr, ""     -i for input file name, by default is Terminal \n"");'
-          '  fprintf(stderr, ""     -o for output file name, by default is Terminal \n"");'
-          '  fprintf(stderr, ""     -d for the clock period, by default is 0.1 \n"");'
-          '  fprintf(stderr, ""     -t for the final time, by default is 30 \n"");'
-          '  fprintf(stderr, ""     -e for the solvers step size, by default is 0.001 \n"");'
-          '  fprintf(stderr, ""     -s integer parameter for select the numerical solver : \n"");']
+          '                  ""[-d arg] [-t arg] [-e arg] [-s arg]\\n"", prog);'
+          '  fprintf(stderr, ""Options : \\n"");'
+          '  fprintf(stderr, ""     -h for the help  \\n"");'
+          '  fprintf(stderr, ""     -v for printing the Scicos Version \\n"");'
+          '  fprintf(stderr, ""     -i for input file name, by default is Terminal \\n"");'
+          '  fprintf(stderr, ""     -o for output file name, by default is Terminal \\n"");'
+          '  fprintf(stderr, ""     -d for the clock period, by default is 0.1 \\n"");'
+          '  fprintf(stderr, ""     -t for the final time, by default is 30 \\n"");'
+          '  fprintf(stderr, ""     -e for the solvers step size, by default is 0.001 \\n"");'
+          '  fprintf(stderr, ""     -s integer parameter for select the numerical solver : \\n"");']
 
     if impl_blk then
       Code=[Code;
-            '  fprintf(stderr, ""        1 for a dae solver... \n"");']
+            '  fprintf(stderr, ""        1 for a dae solver... \\n"");']
     else
       Code=[Code;
-            '  fprintf(stderr, ""        1 for Euler''s method \n"");'
-            '  fprintf(stderr, ""        2 for Heun''s method \n"");'
+            '  fprintf(stderr, ""        1 for Euler''s method \\n"");'
+            '  fprintf(stderr, ""        2 for Heun''s method \\n"");'
             '  fprintf(stderr, ""        3 (default value) for the Fourth-Order Runge-Kutta'+...
-             ' (RK4) Formula \n"");']
+             ' (RK4) Formula \\n"");']
     end
   end
 
@@ -12334,7 +12224,7 @@ function [Code,Code_xml_param]=make_standalone43()
         '                optarg = argv[++optind];'
         '             if ( *optarg == ''-'' )'
         '                {'
-        '                 fprintf ( stderr, '"%s: illegal option -- %c \n'",'
+        '                 fprintf ( stderr, '"%s: illegal option -- %c \\n'",'
         '                           argv[0], option );'
         '                 option = ''?'';'
         '                 break;'
@@ -12355,7 +12245,7 @@ function [Code,Code_xml_param]=make_standalone43()
         '        }'
         '      else'
         '        {'
-        '         fprintf ( stderr, '"%s: illegal option -- %c \n'", argv[0], option );'
+        '         fprintf ( stderr, '"%s: illegal option -- %c \\n'", argv[0], option );'
         '         option = ''?'';'
         '         break;'
         '        }'
@@ -14421,7 +14311,7 @@ function [Code,Code_xml_param]=make_standalone43()
             '            scicos_xproperty[i] = CI;'
             '          }'
             '          else {'
-            '            fprintf(stderr,""\n\rWarning! Xproperties are not match for i=%d!"",i);'
+            '            fprintf(stderr,""\\nWarning! Xproperties are not match for i=%d!"",i);'
             '          }'
             '        }'
             ''
@@ -15698,7 +15588,7 @@ function [Code,Code_xml_param]=make_standalone43()
 
     if debug_cdgen then
       Code=[Code;
-            '  fprintf(stderr,""addevs (begin)\n \tpointi=%d\n \tevtnb=%d\n \tptr->evtspt[evtnb-1]=%d\n \tt=%f\n"", \'
+            '  fprintf(stderr,""addevs (begin)\\n \\tpointi=%d\\n \\tevtnb=%d\\n \\tptr->evtspt[evtnb-1]=%d\\n \\tt=%f\\n"", \'
             '                 ptr->pointi,evtnb,ptr->evtspt[evtnb-1],t);'
             '']
     end
@@ -15728,9 +15618,9 @@ function [Code,Code_xml_param]=make_standalone43()
           '        ptr->evtspt[i-1] = ptr->evtspt[evtnb-1];'
           ''
           '        /* if (TCritWarning == 0) {'
-          '         *  sciprint(""\n\r Warning:an event is reprogrammed at t=%g by removing another"",t );'
-          '         *  sciprint(""\n\r         (already programmed) event. There may be an error in"");'
-          '         *  sciprint(""\n\r         your model. Please check your model\n\r"");'
+          '         *  Sciprintf(""\\n Warning:an event is reprogrammed at t=%g by removing another"",t );'
+          '         *  Sciprintf(""\\n         (already programmed) event. There may be an error in"");'
+          '         *  Sciprintf(""\\n         your model. Please check your model\\n"");'
           '         *  TCritWarning=1;'
           '         * }'
           '         */'
@@ -15792,7 +15682,7 @@ function [Code,Code_xml_param]=make_standalone43()
 
     if debug_cdgen then
       Code=[Code;
-            '  fprintf(stderr,""addevs (end), pointi=%d\n"",ptr->pointi);'
+            '  fprintf(stderr,""addevs (end), pointi=%d\\n"",ptr->pointi);'
             '']
     end
 
@@ -15887,7 +15777,7 @@ function [Code,Code_xml_param]=make_standalone43()
         'void C2F(xerbla)(char *SRNAME, int *INFO, long int L)'
         '{'
         '  printf(""** On entry to %s, parameter number %d""'
-        '         ""  had an illegal value\n"",SRNAME,*INFO);'
+        '         ""  had an illegal value\\n"",SRNAME,*INFO);'
         '}'
         '']
 
@@ -15985,8 +15875,8 @@ function [Code,Code_xml_param]=make_standalone43()
         '']
 
  Code=[Code;
-       '/*'+part('-',ones(1,40))+' sciprint function */'
-       'void sciprint (char *fmt)'
+       '/*'+part('-',ones(1,40))+' Sciprintf function */'
+       'void Sciprintf (char *fmt)'
        '{'
        '  return;'
        '}'
@@ -16143,12 +16033,10 @@ function [Code]=make_void_io()
         ' * date : '+str;
         ' * Copyright (c) 1989-2011 Metalau project INRIA ';
         ' */'
-        '#include <stdio.h>'
-        '#include <stdlib.h>'
-        '#include <string.h>'
-        '#include ""stack-c.h""'
-        '#include ""mex.h""'
-        '#include <scicos/scicos.h>']
+	'#include <nsp/nsp.h>'
+	'#include <nsp/matrix.h> '
+	'#include <nsp/interf.h>'
+	'#include <scicos/scicos.h>']
 
   //## type of in/out structure definition
   Code=[Code;
@@ -16253,7 +16141,7 @@ function [Code]=make_void_io()
   if size(actt,1)<>0 then
     Code=[Code
           '      out->time[cnt]=*t;'
-          '      /*fprintf(stderr,""actuator %d : cnt = %d\n"",*nport,cnt);*/']
+          '      /*fprintf(stderr,""actuator %d : cnt = %d\\n"",*nport,cnt);*/']
   end
 
   
@@ -16261,7 +16149,7 @@ function [Code]=make_void_io()
   if size(actt,1)<>0 then
     Code=[Code
           '      /* increase counter variable */'
-          '      /*fprintf(stderr,""out->ndata=%d\n"",out->ndata);*/'
+          '      /*fprintf(stderr,""out->ndata=%d\\n"",out->ndata);*/'
           '      cnt++;'
           ''
           '      /* check and realloc out->data/out->time if needed */'
@@ -16415,7 +16303,7 @@ function [Code]=make_void_io()
           '               ((double *) u), (*nu1)*(*nu2)*sizeof(double));'
           '        /* *((double *) out->data + cnt)=*((double *) u); */'
           '        out->time[cnt]=*t;'
-          '        /*fprintf(stderr,""actuator %d : cnt = %d\n"",*nport,cnt);*/']
+          '        /*fprintf(stderr,""actuator %d : cnt = %d\\n"",*nport,cnt);*/']
   end
 
   Code=[Code
@@ -16458,7 +16346,7 @@ function [Code]=make_void_io()
   if size(actt,1)<>0 then
     Code=[Code
           '      /* increase counter variable */'
-          '      /*fprintf(stderr,""out->ndata=%d\n"",out->ndata);*/'
+          '      /*fprintf(stderr,""out->ndata=%d\\n"",out->ndata);*/'
           '      cnt++;'
           ''
           '      /* check and realloc out->data/out->time if needed */'
@@ -16635,7 +16523,7 @@ function [Code]=make_void_io()
           '              ((double *) in->data + cnt*(*ny1)*(*ny2)), \'
           '              (*ny1)*(*ny2)*sizeof(double));'
           '        /* *((double *)y)=*((double *)in->data + cnt); */'
-          '        /*fprintf(stderr,""sensor %d : cnt = %d\n"",*nport,cnt);*/']
+          '        /*fprintf(stderr,""sensor %d : cnt = %d\\n"",*nport,cnt);*/']
   end
 
   Code=[Code
