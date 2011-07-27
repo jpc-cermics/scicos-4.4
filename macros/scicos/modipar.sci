@@ -326,7 +326,7 @@ endfunction
 function ot=do_get_type(C)
 
  if (type(C,'string')=='Mat') then
-   if isreal(C) then
+   if isreal(C,%t) then
      ot=1
    else
      ot=2

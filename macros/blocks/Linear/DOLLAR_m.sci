@@ -14,51 +14,26 @@ case 'set' then
   x=arg1;
   graphics=arg1.graphics;exprs=graphics.exprs
   model=arg1.model;
-  //backward compatibility
-  if size(exprs,'*')<2 then exprs(2)='0';end
   while %t do
     [ok,a,inh,exprs]=getvalue('Set 1/z block parameters',..
 	['Initial condition';'Inherit (no:0, yes:1)'],...
-			      list('mat',[-1 -2],'vec',-1),exprs)
+			      list('mat',[-1 -2],'vec',1),exprs)
     if ~ok then break,end
-    out=[size(a,1) size(a,2)];if out==0 then out=[],end
-    in=out
-    model.sim=list('dollar4_m',4)
-    model.odstate=list(a);
-    model.dstate=[];
-    if type(a,'short')=='m' then
-	if isreal(a) then
-	    it=1;
-	    ot=1;
-    	    if (size(a,1)==1 | size(a,2)==1) then
-                model.sim=list('dollar4',4);
-		model.dstate=a(:);
-		model.odstate=list();
-	    end
-	else
-	     it=2;
-	     ot=2;
-	end
-    elseif (typeof(a)=="int32") then 
-	     it=3;
-	     ot=3;
-    elseif (typeof(a)=="int16") then
-	     it=4;
-	     ot=4;
-    elseif (typeof(a)=="int8") then
-	     it=5;
-	     ot=5;
-    elseif (typeof(a)=="uint32") then
-	     it=6;
-	     ot=6;
-    elseif (typeof(a)=="uint16") then
-	     it=7;
-	     ot=7;
-    elseif (typeof(a)=="uint8") then
-	     it=8;
-	     ot=8;
-    else message ("type is not recognized"); ok=%f;
+    if isempty(a) then a=0,end
+    model.dstate=a
+    out=[size(a,1) size(a,2)];
+    if size(a,"*")==1 then 
+      out=[-1,-2],
+    else
+      out=[size(a,1) size(a,2)];
     end
+    in=out
+    if do_get_type(a)==1 then
+      ot=-1
+    else
+      ot=do_get_type(a)
+    end
+    it=ot
     if ok then
       [model,graphics,ok]=set_io(model,graphics,list(in,it),list(out,ot),ones(1-inh,1),[])
     end
@@ -68,23 +43,62 @@ case 'set' then
       break
     end
   end
+case 'compile'
+  model=arg1
+  sz=[model.in model.in2]
+  typ=model.intyp
+  z=model.dstate
+  if size(z,'*')==1 then 
+      z(1:sz(1),1:sz(2))=z
+  end
+  if do_get_type(z)==1 then
+     select typ
+     case 2
+       z=z+0*%i
+     case 3
+       z=m2i(z,"int32")
+     case 4
+       z=m2i(z,"int16")
+     case 5
+       z=m2i(z,"int8")
+     case 6
+       z=m2i(z,"uint32")
+     case 7
+       z=m2i(z,"uint16")
+     case 8
+       z=m2i(z,"uint8")
+     case 9
+       z=z>0
+     end
+  end
+  if size(z,2)==1 & typ==1 then
+    model.sim=list('dollar4',4);
+    model.dstate=z(:);
+    model.odstate=list();
+  else
+    model.sim=list('dollar4_m',4)
+    model.odstate=list(z);
+    model.dstate=[];
+  end
+  x=model
 
 case 'define' then
   z=0
   inh=0
-  in=1
   exprs=string([z;inh])
   model=scicos_model()
   model.sim=list('dollar4',4)
-  model.in=in
-  model.out=in
+  model.in=-1
+  model.in2=-2
+  model.out=-1
+  model.out=-2
   model.evtin=1-inh
   model.dstate=z
   model.blocktype='d'
   model.dep_ut=[%f %f]
 
   gr_i='xstringb(orig(1),orig(2),''1/z'',sz(1),sz(2),''fill'')'
-  x=standard_define([2 2],model,exprs,gr_i,'DOLLAR_m');
+  x=standard_define([2 2],model,exprs,gr_i,'DOLLAR_m')
 end
 endfunction
 
