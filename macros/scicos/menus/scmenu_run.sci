@@ -38,12 +38,16 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
     choix=[]
   end
 
-  if ~%state0_n.equal[%state0] then //initial state has been changed
+  //** if state have changed
+  //** finish the simulation via do_terminate()
+  if ~%state0_n.equal[%state0] then 
+    //initial state has been changed
     %state0=%state0_n
     [alreadyran,%cpr]=do_terminate()
     choix=[]
   end
-
+  
+  //** switch to appropriate solver
   if %cpr.sim.xptr($)-1<size(%cpr.state.x,'*') & solver<100 then
     message(['Diagram has been compiled for implicit solver'
 	     'switching to implicit Solver'])
@@ -79,20 +83,24 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       %cpr.state=state
       alreadyran=%f
       if ~execok  then
+	// execution of scicosim failed:
 	kfun=curblock()
 	corinv=%cpr.corinv
 	if kfun<>0 then
 	  path=corinv(kfun)
-	  xset('window',curwin)
-	  bad_connection(path,
-	  ['End problem with hilited block';lasterror()],0,0,-1,0)
+	  //** get error cmd for the block
+	  XXXXX 
+	  str_err=lasterror();
+	  cmd=get_errorcmd(path,'End problem.',str_err);
+	  //** send error cmd to scicos via the Scicos_commands global variable
+	  global Scicos_commands
+	  Scicos_commands=cmd;
 	else
 	  message(['End problem:';lasterror()])
+	  xset('window',curwin)
 	end
 	ok=%f
-	return
       end
-      xset('window',curwin)
       return
     end
   else
@@ -138,59 +146,91 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
     execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''start'',tolerances,grs)',errcatch=%t)
     %cpr.state=state
     if ~execok then
-      kfun=curblock()
+      // execution failed 
+      XXXX
+      str_err=lasterror();
+      kfun=curblock();
       corinv=%cpr.corinv
       if kfun<>0 then
-	xset('window',curwin)
-	path=corinv(kfun)
-	bad_connection(path,
-	['Initialisation problem with hilited block:';lasterror()],0,0,-1,0)
+	path=corinv(kfun);
+	//** get error cmd for the block
+        cmd=get_errorcmd(path,'Initialisation problem.',str_err);
+        //** send error cmd to scicos via the Scicos_commands global variable
+        global Scicos_commands
+        Scicos_commands=cmd;
       else
 	message(['Initialisation problem:';lasterror()])
+	xset('window',curwin);
+	unsetmenu(curwin,'stop');
       end
       ok=%f
-      xset('window',curwin)
-      unsetmenu(curwin,'stop')
       return
     end
     xset('window',win);
   end  
-  needreplay=%t
   
-  // simulation
-
+  //** scicos simulation
   tf=scs_m.props.tf;
   setmenu(curwin,'stop')
-  timer()
+  //timer()
   needreplay=%t
   grs=scicos_graphic_array(%cpr,scs_m);
-  execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''run'',tolerances,grs)',errcatch=%t)
-  
+  Te=cputime();
+  execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''run'',tolerances,grs)',errcatch=%t);
+  timex=cputime()-Te;
+
   %cpr.state=state
   if execok then
+    // execution was ok
+    printf("  scicosim cpu time=%g seconds\n",timex);
     alreadyran=%t
     if tf-t<tolerances(3) then
-      needstart=%t
-      [alreadyran,%cpr]=do_terminate()
+      needstart=%t;
       alreadyran=%f
+      eok=execstr('[state,t]=scicosim(%cpr.state,tf,tf,%cpr.sim,'+..
+                   '''finish'',tolerances)','errcatch')
+      %cpr.state=state;
+      if ~eok then
+	// finish failed
+	str_err=lasterror();
+        kfun=curblock()
+        corinv=%cpr.corinv
+
+        if kfun<>0 then //** block error
+          path=corinv(kfun)
+          //** get error cmd for the block
+          cmd=get_errorcmd(path,'End problem.',str_err);
+          //** send error cmd to scicos via the Scicos_commands global variable
+          global Scicos_commands
+          Scicos_commands=cmd;
+        else //** simulator error
+          message(['End problem:';str_err])
+	  xset('window',curwin);
+	end
+      end
     else
       %tcur=t
     end
   else
-    kfun=curblock()
+    str_err=lasterror();
+    needstart=%t;
+    alreadyran=%f;
+    kfun=curblock();
     corinv=%cpr.corinv
-    if kfun<>0 then
+    if kfun<>0 then //** block error
       path=corinv(kfun)
-      xset('window',curwin)
-      bad_connection(path,
-      ['Simulation problem with hilited block:';lasterror()],0,0,-1,0)
-    else
-      message(['Simulation problem:';lasterror()])
+      //** get error cmd for the block
+      cmd=get_errorcmd(path,'Simulation problem.',str_err);
+      //** send error cmd to scicos via the Scicos_commands global variable
+      global Scicos_commands
+      Scicos_commands=cmd;
+    else //** simulateur error
+      message(['Simulation problem:';str_err])
+      xset('window',curwin);
     end
     ok=%f
   end
-  
-  xset('window',curwin)
+  //xset('window',curwin)
   //printf("XXX %f\n",timer())
   unsetmenu(curwin,'stop')
   resume(needreplay);
