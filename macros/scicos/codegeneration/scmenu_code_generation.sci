@@ -7449,9 +7449,7 @@ function [Code]=make_sci_interf43()
 
  //## interfacing function
  Code=[Code;
-       'int int'+part(rdnom,1:l_rdnom)+'_sci(fname,fname_len)'
-       '   char *fname;'
-       '   unsigned long fname_len;'
+       'int int'+part(rdnom,1:l_rdnom)+'_sci(Stack stack, int rhs, int opt, int lhs)'
        '{']
 
  //## declaration of variables for scilab stack
@@ -7459,10 +7457,10 @@ function [Code]=make_sci_interf43()
          '  /* variables to handle ptr and dims coming from scilab stack */']
  //## for sensors
  for i=1:nbcapt
-    Code = [Code;
-            '  static int *il'+string(i)+','+...
-              'n'+string(i)+',m'+string(i)+';'+...
-              '  /* sensor '+string(i)+' */']
+   Code = [Code;
+	   '  static int *il'+string(i)+','+...
+	   'n'+string(i)+',m'+string(i)+';'+...
+	   '  /* sensor '+string(i)+' */']
  end
 
  //@@ define number of optional args
@@ -7546,8 +7544,11 @@ function [Code]=make_sci_interf43()
 
    for i=1:nbcapt
      Code=[Code
-           '  scicos_inout in_'+string(i)+';']
+           '  scicos_inout in_'+string(i)+';';
+	   '  int in_'+string(i)+'_dims[2];']
    end
+   Code = [Code;sprintf('  NspMatrix *M[%d];',nbcapt)];
+   
  else
    Code=[Code;
          ''
@@ -7570,8 +7571,10 @@ function [Code]=make_sci_interf43()
 
    for i=1:nbact
      Code=[Code
-           '  scicos_inout out_'+string(i)+';']
+           '  scicos_inout out_'+string(i)+';'
+	   '  int out_'+string(i)+'_dims[2];']
    end
+   Code = [Code;sprintf('  NspMatrix *Oact[%d];',nbact)];
  else
    Code=[Code;
          ''
@@ -7711,17 +7714,8 @@ function [Code]=make_sci_interf43()
          '  in_'+string(i)+'.typ       = '+string(capt(i,5))+';'
          '  in_'+string(i)+'.ndims     = 2;'
          '  in_'+string(i)+'.ndata     = m'+string(i)+';'
-         '  if ((in_'+string(i)+'.dims = (int*) malloc(in_'+string(i)+'.ndims*sizeof(int)))==NULL){'];
-   if i<>1 then
-     for j=1:i-1
-       Code=[Code
-             '    free(in_'+string(j)+'.dims);'];
-     end
-   end
-   Code=[Code
-         '    return 0;'
-         '  }']
-
+	 '  in_'+string(i)+'.dims      = &in_'+string(i)+'_dims;'];
+   
    //## in_x.data
    Code=[Code
          '  in_'+string(i)+'.dims[0] = 1;'
@@ -7940,9 +7934,8 @@ function [Code]=make_sci_interf43()
        '    else {'
        '      strcpy(err_msg,coserr.buf);'
        '    }'
-       '    Scierror(999,""%s : Simulation fails with error number %d :'+...
-             '\n%s\n"",fname,ierr,err_msg);'
-       '  }'      ]
+       '    Scierror(""%s : Simulation fails with error number %d:\\n%s\\n"",fname,ierr,err_msg);'
+       '  }' ]
 
  //## create Lhsvar (actuators)
  if nbact<>0 then
@@ -8324,9 +8317,7 @@ function [Code]=make_sci_interf()
 
  //## interfacing function
  Code=[Code;
-       'int int'+part(rdnom,1:l_rdnom)+'_sci(fname,fname_len)'
-       '   char *fname;'
-       '   unsigned long fname_len;'
+       'int int'+part(rdnom,1:l_rdnom)+'_sci(Stack stack, int rhs, int opt, int lhs)'
        '{']
 
  //## declaration of variables for scilab stack
@@ -8339,20 +8330,6 @@ function [Code]=make_sci_interf()
               'n'+string(i)+',m'+string(i)+';'+...
               '  /* sensor '+string(i)+' */']
  end
- //## for [,te][,tf][,h][,solver])
- Code = [Code;
-         '  static int l'+string(nbcapt+1)+','+...
-           'n'+string(nbcapt+1)+',m'+string(nbcapt+1)+';'+...
-           '  /* te */'
-         '  static int l'+string(nbcapt+2)+','+...
-           'n'+string(nbcapt+2)+',m'+string(nbcapt+2)+';'+...
-           '  /* tf */'
-         '  static int l'+string(nbcapt+3)+','+...
-           'n'+string(nbcapt+3)+',m'+string(nbcapt+3)+';'+...
-           '  /* h */'
-         '  static int l'+string(nbcapt+4)+','+...
-           'n'+string(nbcapt+4)+',m'+string(nbcapt+4)+';'+...
-           '  /* solver */']
  //## for actuators
  for i=1:nbact
     Code = [Code;
@@ -8362,13 +8339,13 @@ function [Code]=make_sci_interf()
  end
  //## for scicos signal (mlist)
  if nbact>0 then
-    Code = [Code;
-            '  static int mL=4,nL=1,lL; /* def scicos signal */'
-            '  static char *Str[]={""st"",""dims"",""values"",""time""};'
-            '  static int V[]={1,1};'
-            '  static SciIntMat M={1,2,4,-1,V};  /* dims field */']
+   Code = [Code;
+	   '  static int mL=4,nL=1,lL; /* def scicos signal */'
+	   '  static char *Str[]={""st"",""dims"",""values"",""time""};'
+	   '  static int V[]={1,1};'
+	   '  static SciIntMat M={1,2,4,-1,V};  /* dims field */']
  end
-
+ 
  //## declaration of variables for standalone simulation function
  Code = [Code;
          ''
@@ -8389,14 +8366,17 @@ function [Code]=make_sci_interf()
          '  /* Inputs of sensors */'
          '  /* int nin='+string(nbcapt)+'; */'
          cformatline('  int typin[]={'+...
-              strcat(string(2*ones(nbcapt,1)),"," )+'};',70)
+		     strcat(string(2*ones(nbcapt,1)),"," )+'};',70)
          cformatline('  void *inptr[]={'+...
-              strcat(string(zeros(nbcapt,1)),"," )+'};',70)]
+		     strcat(string(zeros(nbcapt,1)),"," )+'};',70)]
 
    for i=1:nbcapt
      Code=[Code
-           '  scicos_inout in_'+string(i)+';']
+           '  scicos_inout in_'+string(i)+';'
+     	   '  int in_'+string(i)+'_dims[2];']
    end
+   Code = [Code;sprintf('  NspMatrix *M[%d];',nbcapt)];
+  
  else
    Code=[Code;
          ''
@@ -8419,8 +8399,11 @@ function [Code]=make_sci_interf()
 
    for i=1:nbact
      Code=[Code
-           '  scicos_inout out_'+string(i)+';']
+           '  scicos_inout out_'+string(i)+';';
+	   '  int out_'+string(i)+'_dims[2];']
    end
+   
+   Code = [Code;sprintf('  NspMatrix *Oact[%d];',nbact)];
  else
    Code=[Code;
          ''
@@ -8465,243 +8448,59 @@ function [Code]=make_sci_interf()
        '  CheckLhs('+string(nbact)+','+string(nbact)+');'
        '']
 
+ // Check/get rhs var through a select 
  Code=[Code;
        '  switch(Rhs) {']
-
- //## Check/get rhs var
  for i=nbcapt+4:-1:1
-
-   //## str for stack handling
    i_str = string(i);
-   m_str = 'm'+string(i);
-   n_str = 'n'+string(i);
-   l_str = 'l'+string(i);
-
-  //## solver (solver type)
    if i==nbcapt+4 then
      Code=[Code;
            '    case '+i_str+' :    /* check/get solver */'
-           '       GetRhsVar('+i_str+',""d"",&'+m_str+',&'+n_str+',&'+l_str+');'
-           '       CheckDims('+i_str+','+m_str+','+n_str+',1,1);'
-           '       solver = (int) *stk(l'+i_str+');'
-           '']
-
-  //## h (solver time step)
-  elseif i==nbcapt+3 then
+	   '       if (GetScalarInt(stack,'+i_str+',&solver) == FAIL) return RET_BUG;'];
+   elseif i==nbcapt+3 then
      Code=[Code;
            '    case '+i_str+' :    /* check/get h */'
-           '       GetRhsVar('+i_str+',""d"",&'+m_str+',&'+n_str+',&'+l_str+');'
-           '       CheckDims('+i_str+','+m_str+','+n_str+',1,1);'
-           '       h = *stk(l'+i_str+');'
-           '']
-
-  //## tf (final time simulation)
-  elseif i==nbcapt+2 then
+	   '       if ( GetScalarDouble(stack,'+i_str+', &h) == FAIL ) return RET_BUG;'];
+   elseif i==nbcapt+2 then
      Code=[Code;
            '    case '+i_str+' :    /* check/get tf */'
-           '       GetRhsVar('+i_str+',""d"",&'+m_str+',&'+n_str+',&'+l_str+');'
-           '       CheckDims('+i_str+','+m_str+','+n_str+',1,1);'
-           '       tf = *stk(l'+i_str+');'
-           '']
-
-  //## te (clock sampling time)
-  elseif i==nbcapt+1 then
+	   '       if ( GetScalarDouble(stack,'+i_str+', &tf) == FAIL ) return RET_BUG;'];
+   elseif i==nbcapt+1 then
      Code=[Code;
            '    case '+i_str+' :    /* check/get te */'
-           '       GetRhsVar('+i_str+',""d"",&'+m_str+',&'+n_str+',&'+l_str+');'
-           '       CheckDims('+i_str+','+m_str+','+n_str+',1,1);'
-           '       te = *stk(l'+i_str+');'
-           '']
-
-  //## sensors
-  else
+	   '       if ( GetScalarDouble(stack,'+i_str+', &te) == FAIL ) return RET_BUG;'];
+   else
      Code=[Code;
            '    case '+i_str+' :    /* check/get sensor '+i_str+' */'
-           '       GetRhsVar('+i_str+',""d"",&'+m_str+',&'+n_str+',&'+l_str+');'
            '       /* Many thing to do */'
-           '']
-
+	   '      if ((M['+i_str+'] = GetMat(stack,'+i_str+')) == NULLMAT) return RET_BUG;';
+           ''];
   end
  end
-
- Code=[Code;
-       '  }'
-       '']
-
+ Code=[Code;'  }';''];
+ 
  //## inform in/out structure
  //## sensors
  for i=1:nbcapt
    //## in_x.dims
+   if capt(i,5) == 11 then cplx='TRUE';else cplx='FALSE';end 
    Code=[Code
          '  /* inform in struct of sensor '+string(i)+' */'
-         '  in_'+string(i)+'.typ       = '+string(capt(i,5))+';'
-         '  in_'+string(i)+'.ndims     = 2;'
-         '  in_'+string(i)+'.ndata     = m'+string(i)+';'
-         '  if ((in_'+string(i)+'.dims = (int*) malloc(in_'+string(i)+'.ndims*sizeof(int)))==NULL){'];
-   if i<>1 then
-     for j=1:i-1
-       Code=[Code
-             '    free(in_'+string(j)+'.dims);'];
-     end
-   end
-   Code=[Code
-         '    return 0;'
-         '  }']
-
-   //## in_x.data
-   Code=[Code
-         '  in_'+string(i)+'.dims[0] = 1;'
-         '  in_'+string(i)+'.dims[1] = n'+string(i)+';']
-   //## add complex number
-   //## arbitrary data type should be done.
-   if capt(i,5) == 11 then // cmplx case
-     Code=[Code
-           '  if ((in_'+string(i)+'.data = (double *) malloc(in_'+string(i)+'.ndata*'+...
-                 'in_'+string(i)+'.dims[0]*in_'+string(i)+'.dims[1]*2*sizeof(double)))==NULL){']
-   else
-     Code=[Code
-           '  if ((in_'+string(i)+'.data = (double *) malloc(in_'+string(i)+'.ndata*'+...
-                 'in_'+string(i)+'.dims[0]*in_'+string(i)+'.dims[1]*sizeof(double)))==NULL){']
-   end
-
-   for j=1:i
-     Code=[Code
-           '    free(in_'+string(j)+'.dims);']
-   end
-
-   Code=[Code
-         '    return 0;'
-         '  }'
-         '  if ((in_'+string(i)+'.dims[0] == 1) &&  (in_'+string(i)+'.dims[1] != 1)) {'
-         '    for(i=0;i<in_'+string(i)+'.ndata;i++) {'
-         '      for(j=0;j<in_'+string(i)+'.dims[1];j++) {'
-         '         *((double *)in_'+string(i)+'.data + i*in_'+string(i)+'.dims[1] + j) = \'
-         '             *((double *) stk(l'+string(i)+') + j*in_'+string(i)+'.ndata + i);']
-
-   if capt(i,5) == 11 then // cmplx case
-     Code=[Code
-           '         *((double *)in_'+string(i)+'.data + i*in_'+string(i)+'.dims[1] + j + '+...
-                       'in_'+string(i)+'.dims[0]*in_'+string(i)+'.dims[1]) = \'
-           '             *((double *) stk(l'+string(i)+') + j*in_'+string(i)+'.ndata + i + '+...
-                       'in_'+string(i)+'.dims[0]*in_'+string(i)+'.dims[1]);']
-   end
-
-   Code=[Code
-         '      }'
-         '    }'
-         '  }'
-         '  else {']
-
-   if capt(i,5) == 11 then // cmplx case
-     Code=[Code
-           '    for(i=0;i<in_'+string(i)+'.ndata*in_'+string(i)+'.dims[0]*in_'+string(i)+'.dims[1]*2;i++) {'
-           '      *((double *)in_'+string(i)+'.data + i) = *((double *) stk(l'+string(i)+') + i);'
-           '    }']
-   else
-     Code=[Code
-           '    for(i=0;i<in_'+string(i)+'.ndata*in_'+string(i)+'.dims[0]*in_'+string(i)+'.dims[1];i++) {'
-           '      *((double *)in_'+string(i)+'.data + i) = *((double *) stk(l'+string(i)+') + i);'
-           '    }']
-   end
-
-   Code=[Code
-         '  }'
-         ''];
+	 '  if ( scicos_in_fill(&in_'+string(i)+','+string(capt(i,5))+',&in_'+string(i)+'_dims,M['+string(i)+'],'+cplx+')==FAIL)';
+	 '    return RET_BUG;'];
  end
-
+ 
  //## actuators
  for i=1:nbact
    //## out_x.dims
+   if actt(i,5) == 11 then cplx='TRUE';else cplx='FALSE';end 
    Code=[Code
          '  /* inform out struct of actuator '+string(i)+' */'
-         '  out_'+string(i)+'.typ       = '+string(actt(i,5))+';'
-         '  out_'+string(i)+'.ndims     = 2;'
-         '  out_'+string(i)+'.ndata     = 1000; /* default buffer size */'
-         '  if ((out_'+string(i)+'.dims = (int *) malloc(out_'+string(i)+'.ndims*sizeof(int)))==NULL){'];
-   for j=1:nbcapt
-     Code=[Code
-           '    free(in_'+string(j)+'.data);'
-           '    free(in_'+string(j)+'.dims);'];
-   end
-
-   for j=1:i-1
-     Code=[Code
-           '    free(out_'+string(j)+'.dims);'
-           '    free(out_'+string(j)+'.data);'
-           '    free(out_'+string(j)+'.time);'];
-   end
-
-   Code=[Code
-         '    return 0;'
-         '  }']
-
-   //## out_x.data
-   Code=[Code
-         '  out_'+string(i)+'.dims[0]   = '+string(actt(i,3))+';'
-         '  out_'+string(i)+'.dims[1]   = '+string(actt(i,4))+';'
-         '  out_'+string(i)+'.data      = NULL;']
-
-   if actt(i,5) == 11 then // cmplx case
-     Code=[Code
-           '  if ((out_'+string(i)+'.data = (double *) realloc(out_'+string(i)+'.data, \'
-           '       out_'+string(i)+'.ndata*'+...
-            'out_'+string(i)+'.dims[0]*out_'+string(i)+'.dims[1]'+'*sizeof(double)*2))==NULL){'];
-   else
-     Code=[Code
-           '  if ((out_'+string(i)+'.data = (double *) realloc(out_'+string(i)+'.data, \'
-           '       out_'+string(i)+'.ndata*'+...
-            'out_'+string(i)+'.dims[0]*out_'+string(i)+'.dims[1]'+'*sizeof(double)))==NULL){'];
-   end
-
-   for j=1:nbcapt
-     Code=[Code
-           '    free(in_'+string(j)+'.data);'
-           '    free(in_'+string(j)+'.dims);'];
-   end
-
-   for j=1:i-1
-     Code=[Code
-           '    free(out_'+string(j)+'.dims);'
-           '    free(out_'+string(j)+'.data);'
-           '    free(out_'+string(j)+'.time);'];
-   end
-
-   Code=[Code
-         '    free(out_'+string(i)+'.dims);']
-
-
-   Code=[Code
-         '    return 0;'
-         '  }']
-
-   //## out_x.time
-   Code=[Code
-         '  out_'+string(i)+'.time      = NULL;'
-         '  if ((out_'+string(i)+'.time = (double *) realloc(out_'+string(i)+'.time,'+...
-                 'out_'+string(i)+'.ndata*sizeof(double)))==NULL){'];
-   for j=1:nbcapt
-     Code=[Code
-           '    free(in_'+string(j)+'.data);'
-           '    free(in_'+string(j)+'.dims);'];
-   end
-
-   for j=1:i-1
-     Code=[Code
-           '    free(out_'+string(j)+'.dims);'
-           '    free(out_'+string(j)+'.data);'
-           '    free(out_'+string(j)+'.time);'];
-   end
-
-   Code=[Code
-         '    free(out_'+string(i)+'.dims);'
-         '    free(out_'+string(i)+'.data);'];
-
-   Code=[Code
-         '    return 0;'
-         '  }'
-         ''    ];
+	 '  if ( scicos_out_fill(&out_'+string(i)+','+string(actt(i,5))+',&out_'+string(i)+'_dims,'+string(actt(i,3))+','+string(actt(i,4))+','+cplx+')==FAIL)';
+	 '    return RET_BUG;'];
  end
-
+ 
+   
  //## store ptr of sensors/actuators
  if nbact<>0 & nbcapt<>0 then
    Code=[Code
@@ -8747,203 +8546,23 @@ function [Code]=make_sci_interf()
              '\n%s\n"",ierr,err_msg);'
        '  }'  ]
 
- //## create Lhsvar (actuators)
  if nbact<>0 then
-   Code=[Code
-         ''
-         '  /* Create LhsVar */']
+   //## create Lhsvar (actuators)
+   Code=[Code; '  /* Create LhsVar */']
 
    for i=1:nbact
-     //## str for stack handling
-     i_str = string(i+nbcapt+4);
-     m_str = 'm'+string(i+nbcapt+4);
-     n_str = 'n'+string(i+nbcapt+4);
-     l_str = 'l'+string(i+nbcapt+4);
-
+     // cmplx case
+     if actt(i,5) == 11 then cplx='TRUE';else cplx='FALSE';end 
      Code=[Code
            '  /* actuator '+string(i)+' */'
-           '  CreateVar('+i_str+', ""m"", &mL, &nL, &lL);              /* mlist */'
-           '  CreateListVarFromPtr('+i_str+',1,""S"", &nL, &mL, Str);  /* str of scicos signal */'
-           '  CreateListVarFromPtr('+i_str+',2,""I"", &M.m, &M.n, &M); /* def dims of mlist */'
-           '  '+m_str+'=out_'+string(i)+'.ndata;']
-
-     Code=[Code
-           '  /* vector case */'
-           '  if ((out_'+string(i)+'.dims[0]==1 && out_'+string(i)+'.dims[1]!=1) || \'
-           '      (out_'+string(i)+'.dims[0]!=1 && out_'+string(i)+'.dims[1]==1)) {'
-           '    if (out_'+string(i)+'.dims[0]!=1) {'
-           '      '+n_str+'=out_'+string(i)+'.dims[0];'
-           '    }'
-           '    else {'
-           '      '+n_str+'=out_'+string(i)+'.dims[1];'
-           '    }'
-           '    /*transpose output */']
-
-     if actt(i,5) == 11 then // cmplx case
-       Code=[Code
-             '    if ((out_ptr'+string(i)+' = (double *) malloc('+m_str+'*'+n_str+'*2*sizeof(double)))==NULL){']
-     else
-       Code=[Code
-             '    if ((out_ptr'+string(i)+' = (double *) malloc('+m_str+'*'+n_str+'*sizeof(double)))==NULL){']
-     end
-
-     if nbcapt<>0 then
-       for j=1:nbcapt
-         Code=[Code
-               '      free(in_'+string(j)+'.data);'
-               '      free(in_'+string(j)+'.dims);'];
-       end
-     end
-     for j=1:nbact
-       Code=[Code
-             '      free(out_'+string(j)+'.dims);'
-             '      free(out_'+string(j)+'.data);'
-             '      free(out_'+string(j)+'.time);'];
-     end
-     for ii=1:i-1
-       Code=[Code
-             '      if((out_'+string(ii)+'.dims[0]!=1) || (out_'+string(ii)+'.dims[1]!=1)) {'
-             '        free(out_ptr'+string(ii)+');'
-             '      }']
-     end
-
-     Code=[Code
-           '      return 0;'
-           '    }'
-           '    for(i=0;i<'+m_str+';i++) {'
-           '      for(j=0;j<'+n_str+';j++) {'
-           '        *((double *)out_ptr'+string(i)+' + j*'+m_str+' + i) = *((double *) out_'+string(i)+'.data + i*'+n_str+' + j);']
-
-     if actt(i,5) == 11 then // cmplx case
-       Code=[Code
-             '        *((double *)out_ptr'+string(i)+' + j*'+m_str+' + i + m7*n7) = *((double *) out_'+string(i)+'.data + i*'+n_str+' + j + m7*n7);']
-     end
-
-     Code=[Code
-           '      }'
-           '    }']
-
-     if actt(i,5) == 11 then // cmplx case
-       Code=[Code
-             '   {'
-             '     int it=1;'
-             '     double *ptr_d = ((double*) out_ptr'+string(i)+' + m7*n7);'
-             '     CreateListCVarFromPtr('+i_str+',3,""d"", &it, &'+m_str+', &'+n_str+', &out_ptr'+string(i)+', &ptr_d);   /* data */'
-             '   }']
-     else
-       Code=[Code
-             '    CreateListVarFromPtr('+i_str+',3,""d"", &'+m_str+', &'+n_str+', &out_ptr'+string(i)+');   /* data */']
-     end
-
-     Code=[Code
-           '  }'
-           '  else {'
-           '    /* scalar case */'
-           '    if (out_'+string(i)+'.dims[0]==1 && out_'+string(i)+'.dims[1]==1) {']
-
-     if actt(i,5) == 11 then // cmplx case
-       Code=[Code
-             '      '+n_str+'=1;'
-             '      int it=1;'
-             '      double *ptr_d = ((double*) out_'+string(i)+'.data + m7*n7);'
-             '      CreateListCVarFromPtr('+i_str+',3,""d"", &it, &'+m_str+', &'+n_str+', &out_'+string(i)+'.data, &ptr_d);   /* data */']
-     else
-       Code=[Code
-             '      '+n_str+'=1;'
-             '      CreateListVarFromPtr('+i_str+',3,""d"", &'+m_str+', &'+n_str+', &out_'+string(i)+'.data);   /* data */']
-     end
-
-     Code=[Code
-           '    }'
-           '    /* matrix case : TODO'
-           '     * note that for that time,'
-           '     * matrix are concatened in vectors.'
-           '     */'
-           '    else {']
-           '      '
-
-     Code=[Code
-           '      '+n_str+'=out_'+string(i)+'.dims[0]*out_'+string(i)+'.dims[1];'
-           '      /*transpose output */']
-
-     if actt(i,5) == 11 then // cmplx case
-       Code=[Code
-             '      if ((out_ptr'+string(i)+' = (double *) malloc('+m_str+'*'+n_str+'*2*sizeof(double)))==NULL){'];
-     else
-       Code=[Code
-             '      if ((out_ptr'+string(i)+' = (double *) malloc('+m_str+'*'+n_str+'*sizeof(double)))==NULL){'];
-     end
-
-     if nbcapt<>0 then
-       for j=1:nbcapt
-         Code=[Code
-               '        free(in_'+string(j)+'.data);'
-               '        free(in_'+string(j)+'.dims);'];
-       end
-     end
-     for j=1:nbact
-       Code=[Code
-             '        free(out_'+string(j)+'.dims);'
-             '        free(out_'+string(j)+'.data);'
-             '        free(out_'+string(j)+'.time);'];
-     end
-     for ii=1:i-1
-       Code=[Code
-             '        if((out_'+string(ii)+'.dims[0]!=1) || (out_'+string(ii)+'.dims[1]!=1)) {'
-             '          free(out_ptr'+string(ii)+');'
-             '        }']
-     end
-
-     Code=[Code
-           '        return 0;'
-           '      }'
-           '      for(i=0;i<'+m_str+';i++) {'
-           '        for(j=0;j<'+n_str+';j++) {'
-           '          *((double *)out_ptr'+string(i)+' + j*'+m_str+' + i) = *((double *) out_'+string(i)+'.data + i*'+n_str+' + j);'];
-     if actt(i,5) == 11 then // cmplx case
-       Code=[Code
-             '        *((double *)out_ptr'+string(i)+' + j*'+m_str+' + i + m7*n7) = *((double *) out_'+string(i)+'.data + i*'+n_str+' + j + m7*n7);']
-     end
-
-     Code=[Code
-           '        }'
-           '      }']
-
-     if actt(i,5) == 11 then // cmplx case
-       Code=[Code
-             '     {'
-             '       int it=1;'
-             '       double *ptr_d = ((double*) out_ptr'+string(i)+' + m7*n7);'
-             '       CreateListCVarFromPtr('+i_str+',3,""d"", &it, &'+m_str+', &'+n_str+', &out_ptr'+string(i)+', &ptr_d);   /* data */'
-             '     }']
-     else
-       Code=[Code
-             '      CreateListVarFromPtr('+i_str+',3,""d"", &'+m_str+', &'+n_str+', &out_ptr'+string(i)+');   /* data */']
-     end
-
-
-     Code=[Code
-           '    }'
-           '  }']
-
-     //## event date
-     Code=[Code
-           '  '+n_str+'=1;'
-           '  CreateListVarFromPtr('+i_str+',4,""d"", &'+m_str+', &'+n_str+...
-              ', &out_'+string(i)+'.time);   /* event date */'
-           '  /* Many thing to do */'
-           ''];
+	   '  Oact['+string(i)+']=scicos_inout_to_obj(out_'+string(i)+','+cplx+')';
+	   '  if (Oact['+string(i)+']== NULL) return RET_BUG;' ]
    end
- end
-
- //## put LhsVar
- if nbact<>0 then
-   Code=[Code
-         '  /* Put LhsVar */']
-
+   //## put LhsVar
+   Code=[Code;  '  /* Put LhsVar */'];
    for i=1:nbact
-     Code=[Code
-           '  LhsVar('+string(i)+')='+string(i+nbcapt+4)+';']
+     Code=[Code;
+           sprintf('  MoveObj(stack,%d,NSP_OBJECT(Oact[%d]));',i,i)];
    end
  end
 
