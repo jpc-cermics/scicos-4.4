@@ -37,26 +37,7 @@ case 'set' then
     end
     if ok then
       if (tp~=0) then tp=1; end
-      if Datatype==1 then
-	model.sim=list('logicalop',4)
-	model.ipar=[rule],
-      else
-        if Datatype==3|Datatype==9 then 
-	  model.sim=list('logicalop_i32',4)
-        elseif Datatype==4 then
-	  model.sim=list('logicalop_i16',4)
-        elseif Datatype==5 then
-	  model.sim=list('logicalop_i8',4)
-        elseif Datatype==6 then
-	  model.sim=list('logicalop_ui32',4)
-        elseif Datatype==7 then
-	  model.sim=list('logicalop_ui16',4)
-        elseif Datatype==8 then
-	  model.sim=list('logicalop_ui8',4)
-        else message ("Datatype is not supported");ok=%f;
-        end
-        model.ipar=[rule;tp];
-      end
+      model.ipar=[rule;tp];
       if ok then
 	it=Datatype*ones(nin,1);
 	ot=Datatype;
@@ -76,6 +57,38 @@ case 'set' then
       end
     end
   end
+
+case 'compile' then
+   model=arg1
+   Datatype= model.outtyp
+   if Datatype==1 then
+     model.sim=list('logicalop',4)
+     if size(model.ipar,'*')>1 then
+       if model.ipar(2)==1 then
+          error("Bitwise Rule applies only when Data type is integer")
+       end
+     end
+     model.ipar=model.ipar(1)
+   else
+     if Datatype==3|Datatype==9 then 
+	  model.sim=list('logicalop_i32',4)
+     elseif Datatype==4 then
+	  model.sim=list('logicalop_i16',4)
+     elseif Datatype==5 then
+	  model.sim=list('logicalop_i8',4)
+     elseif Datatype==6 then
+	  model.sim=list('logicalop_ui32',4)
+     elseif Datatype==7 then
+	  model.sim=list('logicalop_ui16',4)
+     elseif Datatype==8 then
+	  model.sim=list('logicalop_ui8',4)
+     else 
+          error("Datatype is not supported")
+     end
+   end
+
+   x=model
+
 case 'define' then
   in=[-1;-1]
   ipar=[0]
