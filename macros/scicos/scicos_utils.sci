@@ -82,3 +82,41 @@ function y=newest(varargin)
   [dat,y]=sort(dat)
   y=y(1)
 endfunction
+
+function y=double(x)
+  if type(x,'short')=='b' then
+    y=b2m(x)
+  elseif type(x,'short')=='i' then
+    y=i2m(x)
+  else
+    if isreal(x,%t) then
+      y=x
+    else
+      y=real(x)
+    end
+  end
+endfunction
+
+function y=int32(x)
+  y=m2i(double(x),"int32")
+endfunction
+
+function y=int16(x)
+  y=m2i(double(x),"int16")
+endfunction
+
+function y=int8(x)
+  y=m2i(double(x),"int8")
+endfunction
+
+function y=uint32(x)
+  y=m2i(double(x),"uint32")
+endfunction
+
+function y=uint16(x)
+  y=m2i(double(x),"uint16")
+endfunction
+
+function y=uint8(x)
+  y=m2i(double(x),"uint8")
+endfunction

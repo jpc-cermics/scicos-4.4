@@ -110,87 +110,21 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     if size(exprs,'*')==1 then exprs=[exprs;sci2exp(0)];end // compatibility
     while %t do
       [ok,gain,over,exprs]=getvalue('Set gain block parameters',..
-				    ['Gain';..
-		    'Do On Overflow(0=Nothing 1=Saturate 2=Error)'],..
-				    list('mat',[-1,-1],'vec',1),exprs)
+			       ['Gain';..
+				'Do On Overflow(0=Nothing 1=Saturate 2=Error)'],..
+				list('mat',[-1,-1],'vec',1),exprs)
       if ~ok then break,end
       if isempty(gain) then
 	message('Gain must have at least one element')
       else
-        if type(gain,'short')=="m" then
-	  if isreal(gain) then 
-	    it =1;ot=1;model.sim=list('gainblk',4);model.rpar=gain(:);model.opar=list();
-	  else 
-	    message("type is not supported");ok=%f;
-	  end
-        else
-          if (over==0) then
-	    if (typeof(gain)=="int32") then
-	      ot=3
-	      model.sim=list('gainblk_i32n',4)
-	    elseif (typeof(gain)=="int16") then
-	      ot=4
-	      model.sim=list('gainblk_i16n',4)
-	    elseif (typeof(gain)=="int8") then
-	      ot=5
-	      model.sim=list('gainblk_i8n',4)
-	    elseif (typeof(gain)=="uint32") then
-	      ot=6
-	      model.sim=list('gainblk_ui32n',4)
-	    elseif (typeof(gain)=="uint16") then
-	      ot=7
-	      model.sim=list('gainblk_ui16n',4)
-	    elseif (typeof(gain)=="uint8") then
-	      ot=8
-	      model.sim=list('gainblk_ui8n',4)
-	    else 
-	      message("type is not supported.");ok=%f;
-	    end
-	  elseif (over==1) then
-	    if (typeof(gain)=="int32") then
-	      ot=3
-	      model.sim=list('gainblk_i32s',4)
-	    elseif (typeof(gain)=="int16") then
-	      ot=4
-	      model.sim=list('gainblk_i16s',4)
-	    elseif (typeof(gain)=="int8") then
-	      ot=5
-	      model.sim=list('gainblk_i8s',4)
-	    elseif (typeof(gain)=="uint32") then
-	      ot=6
-	      model.sim=list('gainblk_ui32s',4)
-	    elseif (typeof(gain)=="uint16") then
-	      ot=7
-	      model.sim=list('gainblk_ui16s',4)
-	    elseif (typeof(gain)=="uint8") then
-	      ot=8
-	      model.sim=list('gainblk_ui8s',4)
-	    else message("type is not supported.");ok=%f;
-	    end
-	  elseif (over==2) then
-	    if (typeof(gain)=="int32") then
-	      ot=3
-	      model.sim=list('gainblk_i32e',4)
-	    elseif (typeof(gain)=="int16") then
-	      ot=4
-	      model.sim=list('gainblk_i16e',4)
-	    elseif (typeof(gain)=="int8") then
-	      ot=5
-	      model.sim=list('gainblk_i8e',4)
-	    elseif (typeof(gain)=="uint32") then
-	      ot=6
-	      model.sim=list('gainblk_ui32e',4)
-	    elseif (typeof(gain)=="uint16") then
-	      ot=7
-	      model.sim=list('gainblk_ui16e',4)
-	    elseif (typeof(gain)=="uint8") then
-	      ot=8
-	      model.sim=list('gainblk_ui8e',4)
-	    else message("type is not an integer.");ok=%f;
-	    end
-	  else message("Do on Overflow must be 0,1,2");ok=%f;
-	  end
-          model.rpar=[];model.opar=list(gain(:));
+        model.ipar=over // temporary storage removed in job compile
+        model.opar(1)=gain
+        ot=do_get_type(gain)
+        if ot==1 then
+          ot=-1
+        elseif ot==2 then
+           message("Complex type is not supported");
+           ok=%f;
         end
         if ok then
 	  [out,in]=size(gain)
@@ -211,6 +145,60 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
 	end
       end
     end
+ 
+    case 'compile' then
+    model=arg1
+    ot=model.intyp
+    if isequal(model.opar,list()) then
+       gain=model.rpar(1)  
+    else
+       gain=model.opar(1)
+    end
+    over=model.ipar
+    model.ipar=[];
+    if ot==1 then 
+       model.rpar=double(gain(:));
+       model.opar=list();
+       model.sim=list('gainblk',4);
+    else
+      if ot==2 then
+        error("Complex type is not supported");
+      else
+        select ot
+        case 3
+          model.opar(1)=int32(model.opar(1))
+          supp1='i32'
+        case 4
+          model.opar(1)=int16(model.opar(1))
+          supp1='i16'
+        case 5
+          model.opar(1)=int8(model.opar(1))
+          supp1='i8'
+        case 6
+          model.opar(1)=uint32(model.opar(1))
+          supp1='ui32'
+        case 7
+          model.opar(1)=uint16(model.opar(1))
+          supp1='ui16'
+        case 8
+          model.opar(1)=uint8(model.opar(1))
+          supp1='ui8'
+        else
+          error("Type "+string(ot)+" not supported.")
+        end
+        select over
+        case 0
+          supp2='n'
+        case 1
+          supp2='s'
+        case 2
+          supp2='e'
+        end
+      end
+      model.sim=list('gainblk_'+supp1+supp2,4)
+    end
+    x=model    
+
    case 'define' then
     gain=1
     in=-1;out=-1
@@ -224,6 +212,7 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     model.rpar=gain
     model.blocktype='c'
     model.dep_ut=[%t %f]
+
     exprs=[strcat(sci2exp(gain))]
     gr_i=''
     x=standard_define([2 2],model,exprs,gr_i,'GAINBLK');
