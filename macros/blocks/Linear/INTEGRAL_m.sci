@@ -90,6 +90,26 @@ case 'set' then
        break
      end
   end
+case 'compile' then
+  model=arg1
+  if size(model.state,"*")==1 then
+    model.state(1:model.in(1),1:model.in2(1))=model.state
+    if model.nzcross>0 then
+      x0=model.state
+      nx=size(x0,'*')
+      rpar=model.rpar
+      if isreal(x0) then
+        model.nzcross=nx
+        model.nmode=nx
+        if size(rpar,1)==2 then model.rpar=duplicate(rpar,[nx;nx]),end
+      else
+        model.nzcross=2*nx
+        model.nmode=2*nx
+        if size(rpar,1)==4 then model.rpar=duplicate(rpar,[nx;nx;nx;nx]),end
+      end
+    end
+  end
+  x=model
 case 'define' then
   maxp=1;minp=-1;rpar=[]
   model=scicos_model()
