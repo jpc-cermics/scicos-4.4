@@ -87,13 +87,13 @@ function CodeGeneration_()
 	  end
 	  ok=%f;
 	end
-
+	
 	clearglobal scs_m_top;
 	
 	//**quick fix for sblock that contains scope
 	//gh_curwin=scf(curwin)
-
-	if ok==%t then
+		
+	if ok.equal[%t] then
 	  if cblock==1 then
 	    XX=gencblk4(XX,gui_path)
 	  end
@@ -639,7 +639,7 @@ function [txt]=call_block42(bk,pt,flag)
 	   '  block_'+rdnom+'['+string(bk-1)+'].g[i]=(double)block_'+rdnom+'['+string(bk-1)+'].jroot[i];'
 	   '}']
     end
-
+    
     //## adjust continuous state array before call
     if impl_blk & flag==0 then
       txt=[txt;
@@ -647,51 +647,54 @@ function [txt]=call_block42(bk,pt,flag)
 	   'block_'+rdnom+'['+string(bk-1)+'].res = &(res['+string(xptr(bk)-1)+']);'];
 
       //*********** call seq definition ***********//
-      txtc=['(&local_flag,&block_'+rdnom+'['+string(bk-1)+'].nevprt,&t,block_'+rdnom+'['+string(bk-1)+'].res, \';
-	    'block_'+rdnom+'['+string(bk-1)+'].x,&block_'+rdnom+'['+string(bk-1)+'].nx, \';
-	    'block_'+rdnom+'['+string(bk-1)+'].z,&block_'+rdnom+'['+string(bk-1)+'].nz,block_'+rdnom+'['+string(bk-1)+'].evout, \';
-	    '&block_'+rdnom+'['+string(bk-1)+'].nevout,block_'+rdnom+'['+string(bk-1)+'].rpar,&block_'+rdnom+'['+string(bk-1)+'].nrpar, \';
-	    'block_'+rdnom+'['+string(bk-1)+'].ipar,&block_'+rdnom+'['+string(bk-1)+'].nipar , \'];
+      txtc=['(&local_flag,&block_'+rdnom+'['+string(bk-1)+'].nevprt,&t,block_'+rdnom+'['+string(bk-1)+'].res, ';
+	    'block_'+rdnom+'['+string(bk-1)+'].x,&block_'+rdnom+'['+string(bk-1)+'].nx, ';
+	    'block_'+rdnom+'['+string(bk-1)+'].z,&block_'+rdnom+'['+string(bk-1)+'].nz,block_'+rdnom+'['+string(bk-1)+'].evout, ';
+	    '&block_'+rdnom+'['+string(bk-1)+'].nevout,block_'+rdnom+'['+string(bk-1)+'].rpar,&block_'+rdnom+'['+string(bk-1)+'].nrpar, ';
+	    'block_'+rdnom+'['+string(bk-1)+'].ipar,&block_'+rdnom+'['+string(bk-1)+'].nipar'];
     else
       //*********** call seq definition ***********//
-      txtc=['(&local_flag,&block_'+rdnom+'['+string(bk-1)+'].nevprt,&t,block_'+rdnom+'['+string(bk-1)+'].xd, \';
-	    'block_'+rdnom+'['+string(bk-1)+'].x,&block_'+rdnom+'['+string(bk-1)+'].nx, \';
-	    'block_'+rdnom+'['+string(bk-1)+'].z,&block_'+rdnom+'['+string(bk-1)+'].nz,block_'+rdnom+'['+string(bk-1)+'].evout, \';
-	    '&block_'+rdnom+'['+string(bk-1)+'].nevout,block_'+rdnom+'['+string(bk-1)+'].rpar,&block_'+rdnom+'['+string(bk-1)+'].nrpar, \';
-	    'block_'+rdnom+'['+string(bk-1)+'].ipar,&block_'+rdnom+'['+string(bk-1)+'].nipar , \'];
+      txtc=['(&local_flag,&block_'+rdnom+'['+string(bk-1)+'].nevprt,&t,block_'+rdnom+'['+string(bk-1)+'].xd,';
+	    'block_'+rdnom+'['+string(bk-1)+'].x,&block_'+rdnom+'['+string(bk-1)+'].nx,';
+	    'block_'+rdnom+'['+string(bk-1)+'].z,&block_'+rdnom+'['+string(bk-1)+'].nz,block_'+rdnom+'['+string(bk-1)+'].evout,';
+	    '&block_'+rdnom+'['+string(bk-1)+'].nevout,block_'+rdnom+'['+string(bk-1)+'].rpar,&block_'+rdnom+'['+string(bk-1)+'].nrpar,';
+	    'block_'+rdnom+'['+string(bk-1)+'].ipar,&block_'+rdnom+'['+string(bk-1)+'].nipar'];
     end
-
+    
     if (funtyp(bk)>2000 & funtyp(bk)<3000)
       blank = get_blank(funs(bk)+'( ');
       txtc(1) = funs(bk)+txtc(1);
     elseif (funtyp(bk)<2000)
-      txtc(1) = 'XXXC2F('+funs(bk)+')'+txtc(1);
-      blank = get_blank('C2F('+funs(bk)+') ');
+      name=scicos_get_internal_name(funs(bk));
+      txtc(1) = name+txtc(1);
+      blank = get_blank(name);
     end
-    if nin>=1 | nout>=1 then
-      if nin>=1 then
-	for k=1:nin
-	  uk=inplnk(inpptr(bk)-1+k);
-	  txtc=[txtc;
-		'(double *)block_'+rdnom+'['+string(bk-1)+'].inptr['+string(k-1)+'],&block_'+rdnom+'['+string(bk-1)+'].insz['+string(k-1)+'], \']
-	end
-      end
-      if nout>=1 then
-	for k=1:nout
-	  yk=outlnk(outptr(bk)-1+k);
-	  txtc=[txtc;
-		'(double *)block_'+rdnom+'['+string(bk-1)+'].outptr['+string(k-1)+'],&block_'+rdnom+'['+string(bk-1)+'].outsz['+string(k-1)+'], \']
-	end
+    if nin>=1 then
+      cmd='(double *)block_%s[%d].inptr[%d],&block_%s[%d].insz[%d]';
+      for k=1:nin
+	uk=inplnk(inpptr(bk)-1+k);
+	txtc($)=txtc($)+',';
+	txtc.concatd[sprintf(cmd,rdnom,bk-1,k-1,rdnom,bk-1,k-1)];
       end
     end
-
-    if ztyp(bk) then
-      txtc=[txtc;
-	    'block_'+rdnom+'['+string(bk-1)+'].g,&block_'+rdnom+'['+string(bk-1)+'].ng);']
-    else
-      txtc($)=part(txtc($),1:length(txtc($))-3)+');';
+    if nout>=1 then
+      cmd='(double *)block_%s[%d].outptr[%d],&block_%s[%d].outsz[%d]';
+      for k=1:nout
+	yk=outlnk(outptr(bk)-1+k);
+	txtc($)=txtc($)+',';
+	txtc.concatd[sprintf(cmd,rdnom,bk-1,k-1,rdnom,bk-1,k-1)];
+      end
     end
-
+    if ztyp(bk)<>0 then
+      txtc($)=txtc($)+',';
+      txtc.concatd['block_'+rdnom+'['+string(bk-1)+'].g,&block_'+rdnom+'['+string(bk-1)+'].ng'];
+    end
+    nn = nin + nout + b2m(ztyp(bk)<>0);
+    for i=1:(18 - nn)
+      txtc($)=txtc($)+',';
+      txtc.concatd['NULL,NULL'];
+    end
+    txtc($)=     txtc($) + ');';
     txtc(2:$) = blank + txtc(2:$);
     txt = [txt;txtc];
     //*******************************************//
@@ -796,7 +799,8 @@ function [txt]=call_block42(bk,pt,flag)
 	    '(double **)block_'+rdnom+'['+string(bk-1)+'].outptr,block_'+rdnom+'['+string(bk-1)+'].outsz, &block_'+rdnom+'['+string(bk-1)+'].nout'];
     else
       //*********** call seq definition ***********//
-      txtc=[funs(bk)+'(&local_flag,&block_'+rdnom+'['+string(bk-1)+'].nevprt,&t,block_'+rdnom+'['+string(bk-1)+'].xd, \';
+      name=scicos_get_internal_name(funs(bk));
+      txtc=[name+'(&local_flag,&block_'+rdnom+'['+string(bk-1)+'].nevprt,&t,block_'+rdnom+'['+string(bk-1)+'].xd, \';
 	    'block_'+rdnom+'['+string(bk-1)+'].x,&block_'+rdnom+'['+string(bk-1)+'].nx, \';
 	    'block_'+rdnom+'['+string(bk-1)+'].z,&block_'+rdnom+'['+string(bk-1)+'].nz,block_'+rdnom+'['+string(bk-1)+'].evout, \';
 	    '&block_'+rdnom+'['+string(bk-1)+'].nevout,block_'+rdnom+'['+string(bk-1)+'].rpar,&block_'+rdnom+'['+string(bk-1)+'].nrpar, \';
@@ -805,14 +809,14 @@ function [txt]=call_block42(bk,pt,flag)
 	    '(double **)block_'+rdnom+'['+string(bk-1)+'].outptr,block_'+rdnom+'['+string(bk-1)+'].outsz, &block_'+rdnom+'['+string(bk-1)+'].nout'];
     end
 
-    if ~ztyp(bk) then
+    if ~(ztyp(bk)<>0) then
       txtc($)=txtc($)+');';
     else
       txtc($)=txtc($)+', \';
       txtc=[txtc;
 	    'block_'+rdnom+'['+string(bk-1)+'].g,&block_'+rdnom+'['+string(bk-1)+'].ng);']
     end
-    blank = get_blank(funs(bk)+'( ');
+    blank = get_blank(name+'( ');
     txtc(2:$) = blank + txtc(2:$);
     txt = [txt;txtc];
     //*******************************************//
@@ -3293,7 +3297,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       end
 
       if okk==%f then
-        ok=-1
+        ok=-1;
         return
       end
       rpat=stripblanks(rpat);
@@ -4088,11 +4092,9 @@ function [txt]=BlockProto(bk)
   nout=outptr(bk+1)-outptr(bk); //* number of output ports */
   funs_bk=funs(bk); //* name of the computational function */
   funtyp_bk=funtyp(bk); //* type of the computational function */
-  ztyp_bk=ztyp(bk); //* zero crossing type */
-
+  ztyp_bk=(ztyp(bk)<>0); //* zero crossing type */
   //&& call make_BlockProto
   txt=make_BlockProto(nin,nout,funs_bk,funtyp_bk,ztyp_bk,bk)
-
 endfunction
 
 function [Code]=make_act_sens_events()
@@ -4774,87 +4776,51 @@ function [txt]=make_BlockProto(nin,nout,funs_bk,funtyp_bk,ztyp_bk,bk)
   //printf('Generation avec ftyp = %d\n",ftyp);
   select ftyp
    case 0 then
-    //** zero funtyp
     //*********** prototype definition ***********//
     name=scicos_get_internal_name(funs_bk);
     txt=[txt; 'extern void '+name+ '(scicos_args_F0);'];
     //*******************************************//
    case 1 then
     //*********** prototype definition ***********//
-    txtp=['(int *, int *, double *, double *, double *, int *, double *, \';
-	  ' int *, double *, int *, double *, int *,int *, int *']
-    if (funtyp_bk>2000 & funtyp_bk<3000)
-      blank = get_blank('void '+funs_bk+'(');
-      txtp(1) = 'void '+funs_bk+txtp(1);
-    elseif (funtyp_bk<2000)
-      txtp(1) = 'void C2F('+funs_bk+')'+txtp(1);
-      blank = get_blank('void C2F('+funs_bk+')');
+    name=scicos_get_internal_name(funs_bk);
+    txt=[txt; 'extern void '+name+ '(scicos_args_F);'];
+    blank= get_blank('extern void '+name+'(');
+    // XXX old code 
+    txtp=['extern void '+name+...
+	  '(int *, int *, double *, double *, double *, int *, double *,';
+	  blank+'int *, double *, int *, double *, int *,int *, int *']
+    if nin >= 1 then
+      txtp($)=txtp($)+','
+      txtp.concatd[blank+catenate(smat_create(1,nin, "double *, int * "),sep=',')];
     end
-    if nin>=1 | nout>=1 then
-      txtp($)=txtp($)+', \'
-      txtp=[txtp;'']
-      if nin>=1 then
-	for k=1:nin
-	  txtp($)=txtp($)+' double *, int * ,'
-	end
-	txtp($)=part(txtp($),1:length(txtp($))-1); //remove last ,
-      end
-      if nout>=1 then
-	if nin>=1 then
-	  txtp($)=txtp($)+', \'
-	  txtp=[txtp;'']
-	end
-	for k=1:nout
-	  txtp($)=txtp($)+' double *, int * ,'
-	end
-	txtp($)=part(txtp($),1:length(txtp($))-1); //remove last ,
-      end
+    if nout>=1 then
+      txtp($)=txtp($)+','
+      txtp.concatd[blank+catenate(smat_create(1,nout, "double *, int * "),sep=',')];
     end
-
     if ztyp_bk then
-      txtp($)=txtp($)+', \'
-      txtp=[txtp;' double *,int *);'];
+      txtp($)=txtp($)+','
+      txtp.concatd[blank+' double *,int *);'];
     else
       txtp($)=txtp($)+');';
     end
-
-    txtp(2:$) = blank + txtp(2:$);
-    txt = [txt;txtp];
-    //*******************************************//
-
-    //**
+    // txt = [txt;txtp];
    case 2 then
-
     //*********** prototype definition ***********//
-
-    txtp=['void '+funs_bk+...
-	  '(int *, int *, double *, double *, double *, int *, double *, \';
-	  ' int *, double *, int *, double *, int *, int *, int *, \'
-	  ' double **, int *, int *, double **,int *, int *'];
+    name=scicos_get_internal_name(funs_bk);
     if ~ztyp_bk then
-      txtp($)=txtp($)+');';
+      txt=[txt; 'extern void '+name+ '(scicos_args_F2);'];
     else
-      txtp($)=txtp($)+', \';
-      txtp=[txtp;
-	    ' double *,int *);']
+      txt=[txt; 'extern void '+name+ '(scicos_args_F2z);'];
     end
-    blank = get_blank('void '+funs_bk);
-    txtp(2:$) = blank + txtp(2:$);
-    txt = [txt;txtp];
-    //********************************************//
-
-    //**
    case 4 then
-    txt=[txt;
-	 'void '+funs_bk+'(scicos_block *, int );'];
-
-    //**
+    //*********** prototype definition ***********//
+    name=scicos_get_internal_name(funs_bk);
+    txt=[txt; 'void '+name+'(scicos_block *, int );'];
    case 10004 then
-    txt=[txt;
-	 'void '+funs_bk+'(scicos_block *, int );'];
-
+    //*********** prototype definition ***********//
+    name=scicos_get_internal_name(funs_bk);
+    txt=[txt; 'void '+name+'(scicos_block *, int );'];
   end
-
 endfunction
 
 function [Code]=make_callf()
@@ -16872,6 +16838,35 @@ function [depu_mat,ok]=incidence_mat(bllst,connectmat,clkconnect,cor,corinv)
 //          ok         : output flag
 //
 
+  function [dep]=is_dep(i,j,bllst,connectmat,clkconnect,cor,corinv)
+  //@@ is_dep : return the dep_u dependance concerning block i and j
+  //
+  // Input :  i,j        : block indices
+  //          bllst      : list of scicos blocks models
+  //          connectmat : regular link connection matrix
+  //          clkconnect : event link connection matrix
+  //          cor        : scs_m to cpr list
+  //          corinv     : cpr to scs_m list
+  //
+  // Output : dep        : the dep_u dependance
+
+    bllst(i).dep_ut=[%t,%t];
+    bllst(i).in=1;
+    bllst(i).in2=1;
+    bllst(i).intyp=1
+
+    bllst(j).dep_ut=[%t,%t];
+    bllst(j).out=1;
+    bllst(j).out2=1;
+    bllst(j).outtyp=1
+
+    connectmat=[connectmat;j 1 i 1];
+    clkconnect=adj_clkconnect_dep(bllst,clkconnect)
+    cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,"silent")
+    dep=cpr.equal[list()]
+  endfunction
+
+  
   //@@ initial variables
   ok         = %t
   In_blocks  = []
@@ -16883,9 +16878,9 @@ function [depu_mat,ok]=incidence_mat(bllst,connectmat,clkconnect,cor,corinv)
     sim=bllst(i).sim;sim=sim(1);
     if type(sim,'short')=='s' then
       if part(sim,1:10)=='actionneur' then
-        OUt_blocks(bllst(i).ipar)=i
+        OUt_blocks(1,bllst(i).ipar)=i
       elseif part(sim,1:7)=='capteur' then
-        In_blocks(bllst(i).ipar)=i
+        In_blocks(1,bllst(i).ipar)=i
       end
     end
   end
@@ -16896,11 +16891,10 @@ function [depu_mat,ok]=incidence_mat(bllst,connectmat,clkconnect,cor,corinv)
   endfunction
   
   in = 0
-
-  for i=In_blocks'
+  for i=In_blocks do
     in  = in+1
     out = 0
-    for j=OUt_blocks'
+    for j=OUt_blocks do
       out = out+1
       if is_dep(i,j,bllst,connectmat,clkconnect,cor,corinv) then
         depu_mat(in,out)=1
@@ -16912,37 +16906,6 @@ function [depu_mat,ok]=incidence_mat(bllst,connectmat,clkconnect,cor,corinv)
 
 endfunction
 
-function [dep]=is_dep(i,j,bllst,connectmat,clkconnect,cor,corinv)
-//Copyright (c) 1989-2011 Metalau project INRIA
-//
-//@@ is_dep : return the dep_u dependance concerning block i and j
-//
-// Input :  i,j        : block indices
-//          bllst      : list of scicos blocks models
-//          connectmat : regular link connection matrix
-//          clkconnect : event link connection matrix
-//          cor        : scs_m to cpr list
-//          corinv     : cpr to scs_m list
-//
-// Output : dep        : the dep_u dependance
-//
-
-  bllst(i).dep_ut=[%t,%t]
-  bllst(i).in=1;
-  bllst(i).in2=1;
-  bllst(i).intyp=1
-
-  bllst(j).dep_ut=[%t,%t]
-  bllst(j).out=1;
-  bllst(j).out2=1;
-  bllst(j).outtyp=1
-
-  connectmat=[connectmat;j 1 i 1];
-  clkconnect=adj_clkconnect_dep(bllst,clkconnect)
-  cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,"silent")
-  dep=cpr.equal[list()]
-
-endfunction
 
 function [txt]=mat2c_typ(outtb)
 //Copyright (c) 1989-2011 Metalau project INRIA

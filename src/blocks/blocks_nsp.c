@@ -653,7 +653,7 @@ void scicos_intrpl_block (scicos_args_F0)
 
 /*     Outputs the inverse of the input */
 
-void scicos_inv_block (scicos_args_F0)
+void scicos_invblk_block (scicos_args_F0)
 {
   int i;
   double ww;
@@ -666,13 +666,13 @@ void scicos_inv_block (scicos_args_F0)
   --z__;
   --x;
   --xd;
+
   if (*flag__ == 6)
     {
       for (i = 1; i <= *nu; ++i)
 	{
 	  ww = u[i];
-	  if (ww != 0.)
-	    y[i] = 1. / ww;
+	  if (ww != 0.)  y[i] = 1. / ww;
 	}
     }
 
@@ -1628,50 +1628,17 @@ void scicos_zcross_block (scicos_args_F0)
   
 }
 
-void scicos_plus_block (scicos_args_F2);
+void scicos_plusblk_block (scicos_args_F2);
 
-#if 0
-void plusblk (int *flag, int *nevprt, const double *t, double *xd, double *x,
-	      int *nx, double *z, int *nz, double *tvec, int *ntvec,
-	      double *rpar, int *nrpar, int *ipar, int *nipar, double **inptr,
-	      int *insz, int *nin, double **outptr, int *outsz, int *nout)
+void scicos_plusblk_block (int *flag, int *nevprt, const double *t, double *xd,
+			   double *x, int *nx, double *z, int *nz, double *tvec,
+			   int *ntvec, double *rpar, int *nrpar, int *ipar,
+			   int *nipar, double **inptr, int *insz, int *nin,
+			   double **outptr, int *outsz, int *nout)
 {
-  int k, i, n;
-  double *y;
-  double *u;
-
-  n = outsz[0];			/* insz[0]==insz[1] .. ==insz[*nin]== outsz[0] */
-
-  y = (double *) outptr[0];
-
-  for (i = 0; i < n; i++)
-    {
-      y[i] = 0.0;
-      for (k = 0; k < *nin; k++)
-	{
-	  u = (double *) inptr[k];
-	  y[i] = y[i] + u[i];
-	}
-    }
-}
-#endif
-
-void scicos_plus_block (scicos_args_F2);
-
-void scicos_plus_block (int *flag, int *nevprt, const double *t, double *xd,
-			double *x, int *nx, double *z, int *nz, double *tvec,
-			int *ntvec, double *rpar, int *nrpar, int *ipar,
-			int *nipar, double **inptr, int *insz, int *nin,
-			double **outptr, int *outsz, int *nout)
-{
-  int k, i, n;
-  double *y;
-  double *u;
-
-  n = outsz[0];			/* insz[0]==insz[1] .. ==insz[*nin]== outsz[0] */
-
-  y = (double *) outptr[0];
-
+  int n=outsz[0]; 
+  int k, i;
+  double *y = (double *) outptr[0], *u;
   for (i = 0; i < n; i++)
     {
       y[i] = 0.0;
@@ -3230,20 +3197,20 @@ int bfrdr (NspFile * F, readf_ipar * rf, int *ipar, double *z, int *no,
 /* XXX    output a vector of constants out(i)=rpar(i) 
  */
 
-void scicos_cst_block (scicos_args_F);
+void scicos_cstblk_block (scicos_args_F);
 
 void
-scicos_cst_block (int *flag__, int *nevprt, const double *t, double *xd,
-		  double *x, int *nx, double *z__, int *nz, double *tvec,
-		  int *ntvec, double *rpar, int *nrpar, int *ipar, int *nipar,
-		  double *y, int *ny, double *uy2, int *nuy2, double *uy3,
-		  int *nuy3, double *uy4, int *nuy4, double *uy5, int *nuy5,
-		  double *uy6, int *nuy6, double *uy7, int *nuy7, double *uy8,
-		  int *nuy8, double *uy9, int *nuy9, double *uy10, int *nuy10,
-		  double *uy11, int *nuy11, double *uy12, int *nuy12,
-		  double *uy13, int *nuy13, double *uy14, int *nuy14,
-		  double *uy15, int *nuy15, double *uy16, int *nuy16,
-		  double *uy17, int *nuy17, double *uy18, int *nuy18)
+scicos_cstblk_block (int *flag__, int *nevprt, const double *t, double *xd,
+		     double *x, int *nx, double *z__, int *nz, double *tvec,
+		     int *ntvec, double *rpar, int *nrpar, int *ipar, int *nipar,
+		     double *y, int *ny, double *uy2, int *nuy2, double *uy3,
+		     int *nuy3, double *uy4, int *nuy4, double *uy5, int *nuy5,
+		     double *uy6, int *nuy6, double *uy7, int *nuy7, double *uy8,
+		     int *nuy8, double *uy9, int *nuy9, double *uy10, int *nuy10,
+		     double *uy11, int *nuy11, double *uy12, int *nuy12,
+		     double *uy13, int *nuy13, double *uy14, int *nuy14,
+		     double *uy15, int *nuy15, double *uy16, int *nuy16,
+		     double *uy17, int *nuy17, double *uy18, int *nuy18)
 {
   int c__1 = 1;
   C2F (dcopy) (nrpar, rpar, &c__1, y, &c__1);
