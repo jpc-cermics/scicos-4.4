@@ -9,7 +9,7 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ..
   %scicos_display_mode=0  // =1 if pixmap to be used for display
   %scicos_gif=scicospath+"/macros/scicos/scicos-images/";
   %scicos_contrib=[];
-  %scicos_libs=[];
+  %scicos_libs=m2s([]);// string matrix 
   %scicos_cflags=[];
 
   // Define scicos palettes of blocks
