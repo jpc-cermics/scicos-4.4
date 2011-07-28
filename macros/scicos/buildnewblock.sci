@@ -251,19 +251,15 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
        end
 
        //##add ScicosLab interfacing function
-       txt='addinter(libn,blknamint+''_sci'',blknam);'
-       pause xxx exec addinter 
+       txt='addinter(libn,blknamint+''_sci'');'
        ierr=execstr(txt,errcatch=%t)
        if ~ierr then
          ok=%f;
          x_message(['sorry link problem';lasterror()]);
          return;
        end
-
      end
-
   end
-
 endfunction
 
 function [txt]=convpathforwin(path)
@@ -504,7 +500,7 @@ function [SCode]=gen_loader(blknam,for_link,with_int)
            'end';
            ''
            '//## Link and add ScicosLab function of the standalone.'
-           'addinter(fileso,blknamint+''_sci'',blknam);'
+           'addinter(fileso,blknamint+''_sci'');'
            '']
 
   end

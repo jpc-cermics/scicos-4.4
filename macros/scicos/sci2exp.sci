@@ -17,6 +17,9 @@ function y=sci2exp(exp,nam)
     y=strsubst(y,'[','');
     y=strsubst(y,']','');
     y=stripblanks(y);
+  elseif or(type(exp,'short')==['m','s']) && size(exp,'*')==0 then 
+    // empty
+    y= "[]";
   elseif or(type(exp,'short')==['m','s']) & size(exp,2)==1 then 
     // column vector 
     y= sprint(exp,as_read=%t);
