@@ -77,7 +77,7 @@ function do_help()
     end
   end
   if nm==0 then
-    help(name)
+    help("http://www.scicos.org/HELP/eng/scicos/'+name+'.htm');
   else
     if ~execstr('mess=%scicos_help.menu(name)',errcatch=%t) then
       if ~execstr('mess=%scicos_help(name)',errcatch=%t) then
