@@ -91,7 +91,7 @@ BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP absolute_valuei_SCSINT32_COP \
 	absolute_valuei_SCSINT16_COP absolute_valuei_SCSINT8_COP absolute_valuei_SCSUINT32_COP \
 	absolute_valuei_SCSUINT16_COP absolute_valuei_SCSUINT8_COP
 
-OBJSC=  $(BLOCKSC) blocks_new_nsp.o blocks_nsp.o gtkrange.o absolute_valuei.o
+OBJSC=  $(BLOCKSC) blocks_new_nsp.o blocks_nsp.o gtkrange.o absolute_valuei.o switch2n.o
 
 include $(SCIDIR)/Makefile.incl
 

@@ -89,9 +89,12 @@ BLOCKSC=selector.obj sum.obj prod.obj switchn.obj relay.obj readc.obj writec.obj
 	matbyscal.obj matbyscal_s.obj matbyscal_e.obj matmul2_s.obj matmul2_e.obj constraint_c.obj lookup2d.obj \
 	diffblk_c.obj andlog.obj foriterator.obj assignment.obj whileiterator.obj loopbreaker.obj
 
-BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP.obj absolute_valuei_SCSINT32_COP.obj  \
-	absolute_valuei_SCSINT16_COP.obj  absolute_valuei_SCSINT8_COP.obj  absolute_valuei_SCSUINT32_COP.obj  \
-	absolute_valuei_SCSUINT16_COP.obj  absolute_valuei_SCSUINT8_COP.obj 
+BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP.obj absolute_valuei_SCSINT32_COP.obj \
+	absolute_valuei_SCSINT16_COP.obj absolute_valuei_SCSINT8_COP.obj absolute_valuei_SCSUINT32_COP.obj \
+	absolute_valuei_SCSUINT16_COP.obj absolute_valuei_SCSUINT8_COP.obj \
+	switch2_SCSREAL_COP.obj switch2_SCSINT32_COP.obj \
+	switch2_SCSINT16_COP.obj switch2_SCSINT8_COP.obj switch2_SCSUINT32_COP.obj \
+	switch2_SCSUINT16_COP.obj switch2_SCSUINT8_COP.obj
 
 OBJSF=  intcos.obj coselm.obj sciblk.obj  \
 	sctree.obj ftree2.obj ftree3.obj ftree4.obj skipvars.obj scierr.obj scifunc.obj \
@@ -130,7 +133,8 @@ SUNDIALS=cvode.obj cvode_io.obj cvode_dense.obj nvector_serial.obj ida.obj ida_d
 
 OBJSC=  import.obj scicos.obj intcos.obj simul.obj sciblk2.obj trees.obj ezxml.obj scicos_utils.obj \
 	evaluate_expr.obj about.obj \
-	blocks/blocks_new_nsp.obj blocks/blocks_nsp.obj blocks/gtkrange.obj blocks/absolute_valuei.obj\
+	blocks/blocks_new_nsp.obj blocks/blocks_nsp.obj blocks/gtkrange.obj \
+	blocks/absolute_valuei.obj blocks/switch2n.obj \
 	$(addprefix sundials/,$(SUNDIALS)) \
 	$(addprefix blocks/,$(BLOCKSC)) \
 	$(addprefix control/,$(CONTROL)) \

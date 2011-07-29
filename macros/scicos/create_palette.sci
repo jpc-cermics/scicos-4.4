@@ -115,8 +115,8 @@ function lisf=scicos_get_palette_content(txt)
     lisf=['DEMUX.sci';
 	  'MUX.sci'; 'NRMSOM_f.sci';  'EXTRACTOR.sci';
 	  'SELECT_m.sci';'ISELECT_m.sci';
-	  'RELAY_f.sci';'SWITCH2_m.sci';'IFTHEL_f.sci';
-	  'ESELECT_f.sci';'M_SWITCH.sci';
+	  'RELAY_f.sci';'IFTHEL_f.sci';
+	  'ESELECT_f.sci';'M_SWITCH.sci';'SWITCH2_s.sci';
 	  'SCALAR2VECTOR.sci';'SWITCH_f.sci';'EDGE_TRIGGER.sci';
 	  'Extract_Activation.sci';'GOTO.sci';'FROM.sci';
 	  'GotoTagVisibility.sci';'CLKGOTO.sci';'CLKFROM.sci';
