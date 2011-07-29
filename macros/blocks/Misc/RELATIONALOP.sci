@@ -27,22 +27,7 @@ case 'set' then
     if (rule<0)|(rule>5) then
       message('Incorrect operator '+string(rule)+' ; must be 0 to 5.')
     end
-    if (Datatype==1) then
-        model.sim=list('relational_op',4)
-    elseif (Datatype==3|Datatype==9) then
-        model.sim=list('relational_op_i32',4)
-    elseif(Datatype==4) then
-        model.sim=list('relational_op_i16',4)
-    elseif(Datatype==5) then
-        model.sim=list('relational_op_i8',4)
-    elseif(Datatype==6) then
-        model.sim=list('relational_op_ui32',4)
-    elseif(Datatype==7) then
-        model.sim=list('relational_op_ui16',4)
-    elseif(Datatype==8) then
-        model.sim=list('relational_op_ui8',4)
-    else message("Datatype is not supported");ok=%f;
-    end
+
     if ok then
         it=Datatype*ones(1,2)
 	ot=Datatype
@@ -59,6 +44,30 @@ case 'set' then
       break
     end
   end
+
+case 'compile' then
+  model=arg1
+  Datatype= model.outtyp
+    if (Datatype==1) then
+        model.sim=list('relational_op',4)
+    elseif (Datatype==3|Datatype==9) then
+        model.sim=list('relational_op_i32',4)
+    elseif(Datatype==4) then
+        model.sim=list('relational_op_i16',4)
+    elseif(Datatype==5) then
+        model.sim=list('relational_op_i8',4)
+    elseif(Datatype==6) then
+        model.sim=list('relational_op_ui32',4)
+    elseif(Datatype==7) then
+        model.sim=list('relational_op_ui16',4)
+    elseif(Datatype==8) then
+        model.sim=list('relational_op_ui8',4)
+    else 
+        error("Datatype is not supported")
+    end
+  x=model
+
+
 case 'define' then
   ipar=[2]
   model=scicos_model()
