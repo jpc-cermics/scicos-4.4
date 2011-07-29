@@ -378,7 +378,7 @@ endfunction
 function do_quitter()
   fin=%f;
   ok=%t;
-  [ok,fin]=resume(ok,fin);
+  resume(ok,fin);
 endfunction
 
 function do_valider()
@@ -387,7 +387,7 @@ function do_valider()
   if (get(edita,'String') == '' | get(editb,'String') == '') then
       x_message(['veuillez renseigner les valeurs';'du domaine de la discretisation']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
   end
     
   // Test de renseignements sur les differents champs de l'IHM
@@ -395,49 +395,49 @@ function do_valider()
     if (get(edita1,'String') == '' | get(editb1,'String') == '') then
       x_message(['veuillez renseigner les coefficients';'    de l''operateur d2u/dt2']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
   if (get(check_op2,'Value')== 1) then
     if (get(edita2,'String') == '' | get(editb2,'String') == '') then
       x_message(['veuillez renseigner les coefficients';'    de l''operateur d2u/dx2']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
   if (get(check_op3,'Value')== 1) then
     if (get(edita3,'String') == '' | get(editb3,'String') == '') then
       x_message(['veuillez renseigner les coefficients';'    de l''operateur du/dt']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
   if (get(check_op4,'Value')== 1) then
     if (get(edita4,'String') == '' | get(editb4,'String') == '') then
       x_message(['veuillez renseigner les coefficients';'    de l''operateur d2u/dtdx']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
   if (get(check_op5,'Value')== 1) then
     if (get(edita5,'String') == '' | get(editb5,'String') == '') then
       x_message(['veuillez renseigner les coefficients';'    de l''operateur du/dx']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
   if (get(check_op6,'Value')== 1) then
     if (get(edita6,'String') == '' | get(editb6,'String') == '') then
       x_message(['veuillez renseigner les coefficients';'      de l''operateur u']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
   if (get(check_op7,'Value')== 1) then
     if (get(edita7,'String') == '' | get(editb7,'String') == '') then
       x_message(['veuillez renseigner les coefficients';'      de l''operateur f']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
  
@@ -446,7 +446,7 @@ function do_valider()
     if (get(liste_signe,'Value') == 0 ) then
       x_message(['veuillez renseigner le signe';'du discriminant non constant']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end  
     
@@ -455,19 +455,19 @@ function do_valider()
     if (get(liste_meth,'Value') == 0 ) then
       x_message(['veuillez renseigner le type';'de la methode de discretisation']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
     
     if (get(editdegre,'String') == '' ) then
       x_message(['veuillez renseigner le degre';'de la methode de discretisation']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
     
     if (get(editpas,'String') == '' ) then
       x_message(['veuillez renseigner le nombre';'de points de discretisation']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end    
   end
   // verification du renseignement des conditions intiales
@@ -475,25 +475,25 @@ function do_valider()
     if (get(editCI,'String') == '' ) then
       x_message(['veuillez renseigner la condition';'         initiale u(x,t0)']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
   if (get(check_op1,'Value')== 1) then
     if (get(editCI1,'String') == '' ) then
       x_message(['veuillez renseigner la condition';'         initiale du/dx|t0']); 
       fin=%t;
-      fin=resume(fin);
+      resume(fin);
     end
   end
   // verification du renseignement des conditions aux limites
   if (get(editCLa,'String') == '' | get(editCLb,'String') == '' ) then
     x_message(['veuillez renseigner les conditions';'         aux limites']);
     fin=%t;
-    fin=resume(fin);
+    resume(fin);
   end
   
   fin=%f; // Pour sortir sans problemes de l'IHM
-  fin=resume(fin);
+  resume(fin);
 endfunction
 
 function add_list_points()
@@ -514,7 +514,7 @@ function add_list_points()
     end
     list_points = [list_points  new];
     set(liste_pts,'String',strcat(list_points,'|'));
-    list_points=resume(list_points)
+    resume(list_points);
   end
 endfunction
 
@@ -531,7 +531,7 @@ function del_list_points()
     end
     list_points =[list_points(1:del-1) list_points(del+1:$)];
     set(liste_pts,'String',strcat(list_points,'|'));
-    list_points=resume(list_points);
+    resume(list_points);
   end
 endfunction
   

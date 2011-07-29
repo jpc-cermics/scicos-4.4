@@ -27,7 +27,7 @@ function [x,y,typ]=GotoTagVisibility(job,arg1,arg2)
 	break
       end
     end
-   needcompile=resume(needcompile)
+    resume(needcompile)
    case 'define' then
    model=scicos_model()
    model.sim='gototagvisibility'

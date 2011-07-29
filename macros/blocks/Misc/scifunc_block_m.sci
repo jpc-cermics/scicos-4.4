@@ -113,7 +113,7 @@ case 'set' then
       break
     end
   end
-  needcompile=resume(needcompile)
+  resume(needcompile)
 case 'define' then
   in=1
   out=1

@@ -88,7 +88,8 @@ case 'set' then
       end
     end
   end
-  needcompile=resume(needcompile);
+  resume(needcompile);
+  
 case 'define' then
   in=2
   model=scicos_model()

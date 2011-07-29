@@ -54,9 +54,9 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
         graphics.exprs=exprs;
         x.graphics=graphics;
         if needc then
-           needcompile=resume(4)
+	  resume(needcompile=4);
         else
-           return
+	  return
         end
       end
 

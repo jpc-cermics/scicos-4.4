@@ -25,7 +25,7 @@ select job
     x=arg1
     y=[]
     typ=[]
-    %exit=resume(%f)
+    resume(%exit=%f);
 
   case 'define' then
     scs=scicos_diagram();

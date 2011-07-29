@@ -18,7 +18,7 @@ function [x,y,typ]=DOLLAR(job,arg1,arg2)
     if size(exprs,'*')<2 then exprs(2)='0';end
     
     non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
-    
+
     while %t do
       [ok,a,inh,exprs]=getvalue('Set 1/z block parameters',..
 				['initial condition';'Inherit (no:0, yes:1)'],...
@@ -29,42 +29,18 @@ function [x,y,typ]=DOLLAR(job,arg1,arg2)
       model.sim=list('dollar4_m',4)
       model.odstate=list(a);
       model.dstate=[];
-      if type ((a)==1) then
-	if isreal(a) then
-	  it=1;
-	  ot=1;
-	  if (size(a,1)==1 | size(a,2)==1) then
-	    model.sim=list('dollar4',4);
-	    model.dstate=a(:);
-	    model.odstate=list();
-	  end
-	else
-	  it=2;
-	  ot=2;
-	end
-      elseif (typeof(a)=="int32") then 
-	it=3;
-	ot=3;
-      elseif (typeof(a)=="int16") then
-	it=4;
-	ot=4;
-      elseif (typeof(a)=="int8") then
-	it=5;
-	ot=5;
-      elseif (typeof(a)=="uint32") then
-	it=6;
-	ot=6;
-      elseif (typeof(a)=="uint16") then
-	it=7;
-	ot=7;
-      elseif (typeof(a)=="uint8") then
-	it=8;
-	ot=8;
-      else message ("type is not recognized"); ok=%f;
+      [ot,str]=do_get_type(C);
+      if ot==9 then 
+	message("type "+str+"not recognized");ok=%f;
+	break;
       end
-      if ok then
-	[model,graphics,ok]=set_io(model,graphics,list(in,it),list(out,ot),ones(1-inh,1),[])
+      it=ot;
+      if ot==1 && (size(a,1)==1 || size(a,2)==1) then
+	model.sim=list('dollar4',4);
+	model.dstate=a(:);
+	model.odstate=list();
       end
+      [model,graphics,ok]=set_io(model,graphics,list(in,it),list(out,ot),ones(1-inh,1),[])
       if ok then
 	graphics.exprs=exprs;
 	x.graphics=graphics;x.model=model

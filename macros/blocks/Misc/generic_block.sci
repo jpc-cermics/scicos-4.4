@@ -71,7 +71,7 @@ case 'set' then
       break
     end
   end
-  needcompile=resume(needcompile)
+  resume(needcompile)
 case 'define' then
   model=scicos_model()
   junction_name='sinblk';
