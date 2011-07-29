@@ -49,14 +49,33 @@ case 'set' then
 	nout=-1;nout2=-2
       end
     end
-    it=Datatype*ones(1,size(in,1));
-    ot=Datatype;
+    if ok then
+      it=Datatype*ones(1,size(in,1));
+      ot=Datatype;
+      [model,graphics,ok]=set_io(model,graphics,...
+                                 list([in,in2],it),...
+                                 list([nout,nout2],ot),[],[])
+    end
+    if ok then
+      model.rpar=satur;
+      model.ipar=sgn
+      graphics.exprs=exprs
+      x.graphics=graphics;x.model=model
+      break
+    end
+  end
+
+case 'compile' then
+    model=arg1
+    satur=model.rpar
+    model.rpar=[]
+    Datatype=model.outtyp(1)
     if Datatype==1 then 
        model.sim=list('summation',4)
     elseif Datatype==2 then
        model.sim=list('summation_z',4)
-    elseif ((Datatype<1) |(Datatype>8)) then
-	 message("Datatype is not supported");ok=%f;
+    elseif Datatype>8 then
+	 error("Datatype is not supported");
     else
     	if satur==0 then
 	    if Datatype==3 then
@@ -102,19 +121,9 @@ case 'set' then
 	    end
     	end
     end
-    if ok then
-      [model,graphics,ok]=set_io(model,graphics,...
-                                 list([in,in2],it),...
-                                 list([nout,nout2],ot),[],[])
-    end
-    if ok then
-      model.rpar=satur;
-      model.ipar=sgn
-      graphics.exprs=exprs
-      x.graphics=graphics;x.model=model
-      break
-    end
-  end
+    x=model
+
+
 case 'define' then
   sgn=[1;-1]
   model=scicos_model()
