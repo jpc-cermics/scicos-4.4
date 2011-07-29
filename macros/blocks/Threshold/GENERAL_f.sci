@@ -31,7 +31,7 @@ case 'set' then
       else
 	rp=-1*ones(nout1,2^(2*nin1))
       end
-      n=size(rp,2)/2
+      n=size(rp,2)/2;
       result=x_mdialog('routing matrix',string(1:nout1),..
 	  string(1:2^(2*nin1)),string(rp(:,:)))
       if ~isempty(result) then

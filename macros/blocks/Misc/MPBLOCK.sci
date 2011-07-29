@@ -17,7 +17,8 @@ case 'set' then
  graphics=arg1.graphics
  //label=graphics.exprs;
  exprs=graphics.exprs
-
+ printf('XXXXXX A revoir\n');
+ return;
  //Compatibility
  if type(exprs,'short')=='l' then
   paramv=list();

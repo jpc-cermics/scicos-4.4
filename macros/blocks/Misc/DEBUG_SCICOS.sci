@@ -17,38 +17,41 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
 
       //## set param of scstxtedit
       ptxtedit=scicos_txtedit(clos = 0,...
-            typ  = "debugblock",...
-            head = ['Enter scilab instructions for debugging.';
+			      typ  = "debugblock",...
+			      head = ['Enter scilab instructions for debugging.';
                     'Inputs are block and flag, output is block.'])
-
-      while 1==1
-//         [txt]=dialog(['Enter scilab instructions for debugging.';
-//                       'Inputs are block and flag, output is block'],..
-//                       textmp);
+      
+      non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+      
+      while %t
         [txt,Quit] = scstxtedit(textmp,ptxtedit);
-
-        if ptxtedit.clos==1 then
-          break;
-        end
-
-        if ~isempty(txt)|Quit~=1 then
-          tt=['block=debug_scicos(block,flag)']
-	  ok=execstr('deff(tt,txt)',errcatch=%t);
-          if ok then
-            save(TMPDIR+'/debug_scicos',debug_scicos)
-            exprs(2)=txt
-            if (scicos_debug()<>2 & scicos_debug()<>3) then
-              scicos_debug(2)
-            end
-            ptxtedit.clos=1
-            //break
-          else
-            message(['Error in the instructions';lasterror()])
-          end
-        else
-          ok=%f;break;
-        end
+	if isempty(txt) || Quit then 
+	  ok =%f;break;
+	end
+	tt=['function block=debug_scicos(block,flag)';
+	    txt;
+	    'endfunction'];
+	ok=execstr(tt,errcatch=%t);
+	if ~ok then
+	  message(['Error in the instructions';lasterror()])
+	  if non_interactive then 
+	    message(['Error: set failed for DEBUG_SCICOS but we are in a non "+...
+		     '  interactive function and thus we abort the set !']);
+	    break;
+	  else 
+	    continue;
+	  end
+	end
+	
+	save(file('join',[getenv('NSP_TMPDIR');'debug_scicos']), debug_scicos)
+	exprs(2)=txt
+	if (scicos_debug()<>2 & scicos_debug()<>3) then
+	  scicos_debug(2)
+	end
+	break;
       end
+      
+      
       if ok then
         needc=~isequal(graphics.exprs,exprs)
         graphics.exprs=exprs;
@@ -59,12 +62,10 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
 	  return
         end
       end
-
     case 'define' then
       model=scicos_model()
       model.sim=list('%debug_scicos',99)
       model.blocktype='d'
-
       exprs=list('','pause')
       gr_i=['xstringb(orig(1),orig(2),''Debug'',sz(1),sz(2),''fill'')']
       x=standard_define([2 2],model,exprs,gr_i,'DEBUG_SCICOS');
