@@ -1,5 +1,5 @@
 
-function H=scicos_help_build() 
+function H=scicos_help() 
 // Build the main hash table 
 
   h=tlist(['scilst']);

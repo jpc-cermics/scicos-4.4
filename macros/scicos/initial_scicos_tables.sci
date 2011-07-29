@@ -335,6 +335,5 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
       'Block Documentation',   "Click on a block to set or get it''s documentation"]
 
   // Hash table for help strings ==============================
-    
-  %scicos_help=scicos_help_build();
+  %scicos_help=scicos_help();
 endfunction
