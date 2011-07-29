@@ -1,11 +1,11 @@
 function CodeGeneration_()
-// To be done 
+//
 // Copyright (c) 1989-2011 Metalau project INRIA
 // Last update : 25/07/11
 // Input editor function of Scicos code generator
 //
 // modified for nsp 
-    
+  
   k = [] ; //** index of the CodeGen source superbloc candidate
 
   xc = %pt(1); //** last valid click position
@@ -1676,8 +1676,8 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
 
   //** Generate code for scicos block
   Code=make_computational42()
-
-  ierr=execstr('scicos_mputl(Code,rpat+''/''+rdnom+''.c'')',errcatch=%t)
+  fname = file('join',[rpat;rdnom+'.c']);
+  ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
   if ~ierr then
     message(catenate(lasterror()))
     ok=%f
@@ -1699,8 +1699,8 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
 
   //** Generate _void_io.c
   Code=make_void_io()
-
-  ierr=execstr('scicos_mputl(Code,rpat+''/''+rdnom+''_void_io.c'')',errcatch=%t)
+  fname = file('join',[rpat;rdnom+'_void_io.c']);
+  ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
   if ~ierr then
     message(catenate(lasterror()))
     ok=%f
@@ -1714,7 +1714,8 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     for i=1:2:length(FCode)
       fcod=[fcod;FCode(i+1);'']
     end
-    ierr=execstr('scicos_mputl(fcod,rpat+''/''+rdnom+''f.f'')',errcatch=%t)
+    fname = file('join',[rpat;rdnom+'f.f']);
+    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -1791,8 +1792,8 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
                   ' * Copyright (c) 1989-2011 Metalau project INRIA ';
                   ' */'
                   CCode(i+1)]
-
-      ierr=execstr('scicos_mputl(CCode(i+1),rpat_blocks+''/''+CCode(i)+''.c'')',errcatch=%t)
+      fname = file('join',[rpat_blocks;CCode(i)+'.c']);
+      ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -2056,7 +2057,8 @@ function [ok]=gen_gui42()
         ' end'
         'endfunction'];
   //Create file
-  ierr=execstr('scicos_mputl(Code,rpat+''/''+rdnom+''_c.sci'')',errcatch=%t)
+  fname = file('join',[rpat;rdnom+'_c.sci']);
+  ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
   if ~ierr then
     message(catenate(lasterror()))
     ok=%f
@@ -2183,7 +2185,8 @@ function [ok]=get_solver_code(s_name)
     else
       txt=get_solver_file_code('LICENSE');
     end
-    ierr=execstr('scicos_mputl(txt,rpat+''/solver/LICENSE'')',errcatch=%t)
+    fname = file('join',[rpat;'solver';'LICENSE']);
+    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2196,7 +2199,8 @@ function [ok]=get_solver_code(s_name)
     else
       txt=get_solver_file_code('sundials_types.h');
     end
-    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_types.h'')',errcatch=%t)
+    fname = file('join',[rpat;'solver';'sundials_types.h']);
+    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2208,7 +2212,8 @@ function [ok]=get_solver_code(s_name)
     else
       txt=get_solver_file_code('sundials_math.h');
     end
-    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_math.h'')',errcatch=%t)
+    fname = file('join',[rpat;'solver';'sundials_math.h']);
+    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2220,7 +2225,8 @@ function [ok]=get_solver_code(s_name)
     else
       txt=get_solver_file_code('nvector_serial.h');
     end
-    ierr=execstr('scicos_mputl(txt,rpat+''/solver/nvector_serial.h'')',errcatch=%t)
+    fname = file('join',[rpat;'solver';'nvector_serial.h']);
+    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2232,7 +2238,9 @@ function [ok]=get_solver_code(s_name)
     else
       txt=get_solver_file_code('sundials_nvector.h');
     end
-    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_nvector.h'')',errcatch=%t)
+
+    fname = file('join',[rpat;'solver';'sundials_nvector.h']);
+    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2244,7 +2252,8 @@ function [ok]=get_solver_code(s_name)
     else
       txt=get_solver_file_code('sundials_config.h');
     end
-    ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_config.h'')',errcatch=%t)
+    fname = file('join',[rpat;'solver';'sundials_config.h']);
+    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
