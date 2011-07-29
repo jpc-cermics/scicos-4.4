@@ -3,10 +3,12 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
 
   if nargin <= 1 then params=[];end 
     
-  function varargout=getvalue(a,b,c,d)
+  function varargout=getvalue_loc(a,b,c,d)
     global par_types
     par_types=c
   endfunction
+  
+  getvalue=getvalue_loc
   
   param_types=list()
   global par_types

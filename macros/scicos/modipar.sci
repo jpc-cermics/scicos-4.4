@@ -323,30 +323,22 @@ if nargin<7 then job="default",end
 
 endfunction
 
-function ot=do_get_type(C)
-
- if (type(C,'string')=='Mat') then
-   if isreal(C,%t) then
-     ot=1
-   else
-     ot=2
-   end
- elseif (type(C,'string')=='IMat') then
-   if (C.itype[]=='int32') then
-     ot=3
-   elseif (C.itype[]=='int16') then
-     ot=4
-   elseif (C.itype[]=='int8') then
-     ot=5
-   elseif (C.itype[]=='uint32') then
-     ot=6
-   elseif (C.itype[]=='uint16') then
-     ot=7
-   elseif (C.itype[]=='uint8') then
-     ot=8
-   end
- else
-   ot=9
+function [ot,typ]=do_get_type(x)
+// returns types used internally in scicos 
+// for matrix and imatrix 
+// this function is used in some blocks definition 
+// 
+  if (type(x,'string')=='Mat') then
+    ot = 1 + b2m(~isreal(x,%t));
+    typ='scalar';
+  elseif (type(x,'string')=='IMat') then
+    // take care that we have more int types in nsp
+    typ= x.itype[];
+    str=["","","int32","int16","int8","uint32","uint16","uint8"];
+    ot= find(typ==str);
+    if isempty(ot) then ot=9;end 
+  else 
+    typ=type(x,'string');
+    ot=9
  end
-
 endfunction
