@@ -16,11 +16,14 @@ function [x,y,typ]=DOLLAR(job,arg1,arg2)
     model=arg1.model;
     //backward compatibility
     if size(exprs,'*')<2 then exprs(2)='0';end
+    
+    non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+    
     while %t do
       [ok,a,inh,exprs]=getvalue('Set 1/z block parameters',..
 				['initial condition';'Inherit (no:0, yes:1)'],...
 				list('mat',[-1 -2],'vec',-1),exprs)
-      if ~ok then break,end
+      if ~ok then break; end;
       out=[size(a,1) size(a,2)];if out==0 then out=[],end
       in=out
       model.sim=list('dollar4_m',4)
@@ -67,8 +70,12 @@ function [x,y,typ]=DOLLAR(job,arg1,arg2)
 	x.graphics=graphics;x.model=model
 	break
       end
+      if non_interactive then 
+	message(['Error: set failed for DOLLAR but we are in a non "+...
+		'  interactive function and thus we abort the set !']);
+	break;
+      end
     end
-
    case 'define' then
     z=0
     inh=0
