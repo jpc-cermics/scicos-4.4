@@ -1,4 +1,9 @@
-function Color_()
+function scmenu_color()
+// basic menu used to change the colors 
+// of a set of objects links and blocks
+// it can be used to reset a diagram to 
+// default colors.
+//  
   Cmenu=''
   scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
   [scs_m]=do_color(scs_m)
