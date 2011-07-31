@@ -117,6 +117,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
 
     // add fixed menu items not visible
+    // 
     %cor_item_exec = [%cor_item_exec;
                       'Link'            , 'Link_'
                       'Open/Set'        , 'OpenSet_'
@@ -131,7 +132,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
                       'BrowseTo'        , 'BrowseTo_'
                       'Place in Browser', 'PlaceinBrowser_'
                       'Select All'      , 'SelectAll_'   
-                      'Smart Link'      , 'SmartLink_'];
+                      'Smart Link'      , 'SmartLink_'
+		      'scmenu_color'    , 'scmenu_color'];
 
     //keyboard definiton
     %tableau=smat_create(1,100,"");
@@ -309,6 +311,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   end
   
   exec(restore_menu)
+  scicos_set_uimanager();
+  
   global Clipboard 
   
   while (Cmenu<>"Quit" & Cmenu<>"Leave")

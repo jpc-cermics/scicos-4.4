@@ -37,12 +37,15 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       str1=part(str,9:length(str)-1);
       win=sscanf(str1,"%*[^_]_%d");
       mcmd='Cmenu='+str1+';execstr(''Cmenu=''+Cmenu)';
+      printf('cosclick: using menu cmd [%s]\n",mcmd);
     elseif part(str,1:9)=='scicos_tb' then 
       // A toolbar item was activated 
       // str='scicos_tb(name,win)';
       [str1,win]=sscanf(str,'scicos_tb(%[^,],%d)');
       mcmd='Cmenu=""'+str1+'""';
+      printf('cosclick: using toolbar cmd [%s]\n",mcmd);
     else
+      // XXX we should not ignore other menus ? 
       mcmd="";
     end
   end

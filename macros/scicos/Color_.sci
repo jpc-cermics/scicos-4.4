@@ -1,4 +1,6 @@
 function Color_()
+// XXXX: obsolete see menus/scsmenu_color.sci 
+// 
   Cmenu=''
   scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
   [scs_m]=do_color(scs_m)
