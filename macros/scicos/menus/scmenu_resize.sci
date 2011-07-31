@@ -1,4 +1,4 @@
-function Resize_()
+function scmenu_resize_()
   Cmenu=''
   scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
   [scs_m]=do_resize(scs_m)
