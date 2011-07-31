@@ -1,8 +1,11 @@
-function scmenu_resize_()
-  Cmenu=''
-  scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
-  [scs_m]=do_resize(scs_m)
-  edited=%t;
+function scmenu_resize()
+  Cmenu='';
+  sc=scs_m;
+  [scs_m]= do_resize(scs_m);
+  if ~scs_m.equal[sc] then 
+    edited=%t;
+    scs_m_save=sc;enable_undo=%t;
+  end
 endfunction
 
 function [scs_m]=do_resize(scs_m)
@@ -19,7 +22,7 @@ function [scs_m]=do_resize(scs_m)
   K=Select(find(Select(:,2)==curwin),1);
   
   if length(K)<> 1 then 
-    message('Select only one block for resizing !');
+    message('Select only one block or one link for resizing !');
     return;
   end
   

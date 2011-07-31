@@ -40,6 +40,7 @@ void create_scicos_about(void)
     "A. Layec",
     "M. Najafi",
     "F. Nassif",
+    "nsp port: J.Ph Chancelier and A. Layec",
     NULL
   };
 

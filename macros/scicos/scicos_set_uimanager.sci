@@ -134,8 +134,8 @@ function scicos_set_uimanager(is_top)
 	    'Color','scmenu_color',"","";
 	    'Background color','Background color',"","";
 	    'Show Block Shadow','Show Block Shadow',"","";
-	    'Resize','Resize',"","";
-	    'Identification','Identification',"","";
+	    'Resize','scmenu_resize',"","";
+	    'Identification','scmenu_identification',"","";
 	    'ID fonts','ID fonts',"","";
 	    'Icon','Icon',"","";
 	    'Icon Editor','Icon Editor',"",""];

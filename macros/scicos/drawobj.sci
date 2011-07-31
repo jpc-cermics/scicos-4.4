@@ -69,6 +69,7 @@ function o=drawobj(o,F)
   C=F.end_compound[];
   if o.iskey['gr'] then 
     // remove previous graphic object 
+    // o.gr.invalidate[];
     F.remove[o.gr];
   end 
   o.gr=C;
