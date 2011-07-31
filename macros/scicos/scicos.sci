@@ -311,7 +311,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   end
   
   exec(restore_menu)
-  scicos_set_uimanager();
+  scicos_set_uimanager(slevel <=1 );
   
   global Clipboard 
   

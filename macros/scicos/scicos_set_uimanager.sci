@@ -16,33 +16,41 @@
 //
 // (Copyright (C) 20011-2011 Jaen-Philippe Chancelier)
 
-function scicos_set_uimanager()
+function scicos_set_uimanager(is_top)
 // Get the vbox which contains the default menubar 
 // and replace the menubar by a scicos menubar/toolbar 
 // using the gtkuimanager mechanism.
 //
   
-    function txt=scicos_toolbar(action_group,merge)
-    // text for the toolbar 
-      txt =[ "  <toolbar name=""toolbar"">"
-	     "    <toolitem name=""Zoom in"" action=""Zoom in"" />"
-	     "    <toolitem name=""Zoom out"" action=""Zoom out"" />"
-	     "    <toolitem name=""Zoom fit"" action=""Fit diagram to figure"" />"
-	     "    <toolitem name=""Zoom 100"" action=""Zoom 100"" />"
-	     "    <separator name=""tsep1"" />"
-	     "    <toolitem name=""Cut"" action=""Cut"" />"
-	     "    <toolitem name=""Copy"" action=""Copy"" />"
-	     "    <toolitem name=""Paste"" action=""Paste"" />"
-	     "    <separator name=""tsep2"" />"
-	     "    <toolitem name=""bold"" action=""bold"" />"
-	     "    <separator name=""tsep3"" />"
-	     "    <toolitem name=""prefs"" action=""Setup"" />"
-	     "    <toolitem name=""compile"" action=""Compile"" />"
-	     "    <toolitem name=""run"" action=""Run"" />"
-	     "    <toolitem name=""stop"" action=""$scicos_stop"" />"
-	     "    <separator name=""tsep4""/>"
-	     "    <toolitem name=""Quit"" action=""Quit"" />"
-	     "  </toolbar>"];
+  function txt=scicos_toolbar(is_top,action_group,merge)
+  // text for the toolbar 
+    txt =[ "  <toolbar name=""toolbar"">"
+	   "    <toolitem name=""Zoom in"" action=""Zoom in"" />"
+	   "    <toolitem name=""Zoom out"" action=""Zoom out"" />"
+	   "    <toolitem name=""Zoom fit"" action=""Fit diagram to figure"" />"
+	   "    <toolitem name=""Zoom 100"" action=""Zoom 100"" />"
+	   "    <separator name=""tsep1"" />"
+	   "    <toolitem name=""Cut"" action=""Cut"" />"
+	   "    <toolitem name=""Copy"" action=""Copy"" />"
+	   "    <toolitem name=""Paste"" action=""Paste"" />"
+	   "    <separator name=""tsep3"" />"];
+    
+    if is_top then 
+      txt=[txt;
+	   "    <toolitem name=""prefs"" action=""Setup"" />"
+	   "    <toolitem name=""compile"" action=""Compile"" />"
+	   "    <toolitem name=""run"" action=""Run"" />"
+	   "    <toolitem name=""stop"" action=""$scicos_stop"" />"
+	   "    <separator name=""tsep4""/>"
+	   "    <toolitem name=""Quit"" action=""Quit"" />"
+	   "  </toolbar>"];
+    else
+      txt=[txt;
+	   "    <toolitem name=""up"" action=""Up To Main Diagram"" />"
+	   "    <separator name=""tsep4""/>"
+	   "    <toolitem name=""Quit"" action=""Quit"" />"
+	   "  </toolbar>"];
+    end
     // just return a string 
     txt  = catenate(txt,sep='\n');
   endfunction
@@ -72,7 +80,7 @@ function scicos_set_uimanager()
 	    'Set Diagram Info','Set Diagram Info',"","";
 	    'Set Code Gen Properties','Set Code Gen Properties',"","";
 	    'Region to Super Block','Region to Super Block',"","";
-	    'Up To Main Diagram','Up To Main Diagram',"",""];
+	    'Up To Main Diagram','Up To Main Diagram',"","gtk-goto-top"];
     
     L(3) = ['Palette','Palette',"","";
 	    'Pal Tree','Pal Tree',"","";
@@ -215,9 +223,10 @@ function scicos_set_uimanager()
   action = gtkaction_new( "$scicos_stop","Stop","Stops scicos simulation ", "gtk-media-stop");
   action.connect["activate",scicos_activate_action,list(merge)];
   action_group.add_action[action];
-  action = gtktoggleaction_new("bold","_Bold","Smart moves as default", "gtk-bold");
-  action.connect["activate",scicos_toggle_action,list(merge)];
-  action_group.add_action_with_accel[action,accelerator="<control>B"];
+  //toogle action 
+  //action = gtktoggleaction_new("bold","_Bold","Smart moves as default", "gtk-bold");
+  //action.connect["activate",scicos_toggle_action,list(merge)];
+  //action_group.add_action_with_accel[action,accelerator="<control>B"];
   // 
   merge.insert_action_group[action_group, 0];
   merge.set_data[ui_id=-1];
@@ -228,7 +237,7 @@ function scicos_set_uimanager()
   window.add_accel_group[merge.get_accel_group[]];
   // XXXX changer l'interface pour enlever length !!
   mb_text=scicos_menubar(action_group,merge);
-  tb_text=scicos_toolbar(action_group,merge);
+  tb_text=scicos_toolbar(is_top,action_group,merge);
   ui_text=catenate([mb_text,tb_text],sep='\n');
   rep = merge.add_ui_from_string[ui_text,length(ui_text)];
   // XXX revoir le rep 
