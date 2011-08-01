@@ -1,42 +1,45 @@
-function IconEditor_()
-  scs_m_save=scs_m
-  nc_save=needcompile
-  [scs_m]=do_icon_edit(%pt,scs_m);
-  Cmenu=''
-  %pt=[]
-  Cmenu=''
-  edited=%t  
+function scmenu_icon_edit()
+  Cmenu='';
+  sc=scs_m;
+  [scs_mn,changed]= do_icon_edit(scs_m);
+  if changed then 
+    edited=%t;
+    scs_m_save=sc;enable_undo=%t;
+  end
 endfunction
 
-function [scs_m]=do_icon_edit(%pt,scs_m) 
-// do_block - edit a block icon
+function IconEditor_()
+  Cmenu='';
+  sc=scs_m;
+  [scs_mn,changed]= do_icon_edit(scs_m);
+  if changed then 
+    edited=%t;
+    scs_m_save=sc;enable_undo=%t;
+  end
+endfunction
+
+function [scs_m,changed]=do_icon_edit(scs_m) 
+// edit a block icon
 // Copyright INRIA
 
-  //** get the current win ID
-  win=%win;
-  //**--------- check Select ------------------
-  k= [] ; 
-  SelectSize=size(Select,1);
-  if SelectSize==1 && Select(1,2)==%win then
-    k=Select(1,1);
+  changed=%f;
+  if isempty(Select) || isempty(find(Select(:,2)==curwin)) then
+    message('Make a selection first');
+    return;
   end
-  if ~isempty(%pt) then 
-    k= getobj(scs_m,%pt);
-  end
-  //**--------- check k and scs_m.objs(k) ------------------
-  if isempty(k) then
-    //** if you click in the void ... return back
-    return
-  end 
+  // K contains selected indices restricted to curwin 
+  K=Select(find(Select(:,2)==curwin),1);
   
-  scs_m_save=scs_m
+  if length(K)<> 1 then 
+    message('Select only one block or one link for resizing !');
+    return;
+  end
+
   path=list('objs',k)
   o=scs_m.objs(k)
   
-  if o.type=='Link' then
-    //** disable rotation for link
-    return
-  end 
+  if o.type <> 'Block' then return;end 
+  
   // update gr_i 
   gr_i=o.graphics.gr_i
   if type(gr_i,'short')<>'l' then
@@ -73,6 +76,7 @@ function [scs_m]=do_icon_edit(%pt,scs_m)
     // remove the old graphics from the figure 
     F.remove[gr_old];
     // update scs_m;
+    changed=%t;
     scs_m.objs(k)=o;
   end
 endfunction
