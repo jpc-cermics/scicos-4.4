@@ -1,15 +1,16 @@
 function scmenu_identification()
   Cmenu='';
   sc=scs_m;
-  [scs_m]= do_identification(scs_m);
-  if ~scs_m.equal[sc] then 
+  [scs_m,changed]= do_identification(scs_m);
+  if changed then 
     edited=%t;
     scs_m_save=sc;enable_undo=%t;
   end
 endfunction
 
-function [scs_m]=do_identification(scs_m)
+function [scs_m,changed]=do_identification(scs_m)
 // Copyright INRIA
+  changed=%f;
   if isempty(Select) || isempty(find(Select(:,2)==curwin)) then
     message('Make a selection first');
     return;
@@ -39,6 +40,7 @@ function [scs_m]=do_identification(scs_m)
       objet.graphics.id = newid;
       objet=drawobj(objet,F);
       objet.gr.invalidate[];
+      changed=%t;
       scs_m.objs(numero_objet) = objet;
     end
   elseif type_objet == 'Link' then
@@ -59,6 +61,7 @@ function [scs_m]=do_identification(scs_m)
 	objet.id = identification
 	objet=drawobj(objet);
 	objet.gr.invalidate[];
+	changed=%t;
 	scs_m.objs(numero_objet) = objet;
       end
     end				
