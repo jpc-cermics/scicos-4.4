@@ -10,6 +10,14 @@ function scmenu_color()
   edited=%t
 endfunction
 
+function Color_()
+// XXXX: to be removed 
+  Cmenu=''
+  scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
+  [scs_m]=do_color(scs_m)
+  edited=%t
+endfunction
+
 function [scs_m]=do_color(scs_m)
 // do_color: changes the color of a link or a block.
 // Copyright INRIA
