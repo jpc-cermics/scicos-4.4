@@ -1,11 +1,12 @@
 function Shortcuts_()
-  Cmenu='';
-  return
-  %rr=lines()
-  lines(0)
-  disp(%scicos_short)
-  lines(%rr(2));
-  xpause(1000)
+//   Cmenu='';
+//   return
+//   %rr=lines()
+//   lines(0)
+//   disp(%scicos_short)
+//   lines(%rr(2));
+//   xpause(1000)
+  printf("%s\t%s\n",%scicos_short(:,1),%scicos_short(:,2))
   xinfo('Select an item in a menu to set shortcut')
   [btn,%pt,cwin,Cmenu]=cosclick()
   if Cmenu<>'Quit' then
