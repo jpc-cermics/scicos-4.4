@@ -114,6 +114,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %ww='menus('''+sname+''')(2)('+ m2s(1:(size(submenu(1),'*')),'%.0f') + ')';
       execstr(sname+ '=%ww;');
       %cor_item_exec=[%cor_item_exec;submenu(2),submenu(3)];
+      // XXX: new version for future use 
+      %cor_item_exec=[%cor_item_exec;scicos_action_name_to_fname(submenu(2)),submenu(3)];
+      
     end
 
     // add fixed menu items not visible
@@ -132,13 +135,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
                       'BrowseTo'        , 'BrowseTo_'
                       'Place in Browser', 'PlaceinBrowser_'
                       'Select All'      , 'SelectAll_'   
-                      'Smart Link'      , 'SmartLink_'
-		      'scmenu_icon'    , 'scmenu_icon'
-		      'scmenu_icon_edit', 'scmenu_icon_edit'
-		      'scmenu_color'    , 'scmenu_color'
-    		      'scmenu_resize'   , 'scmenu_resize'
-		      'scmenu_identification'   , 'scmenu_identification' ];
-
+                      'Smart Link'      , 'SmartLink_'];
+    
     //keyboard definiton
     %tableau=smat_create(1,100,"");
     for %Y=1:size(%scicos_short,1)

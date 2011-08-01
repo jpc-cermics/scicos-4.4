@@ -59,8 +59,121 @@ function scicos_set_uimanager(is_top)
   // Scicos Menu definitions
   // 
   // 
+    txt= [ "  <menubar>";
+	   "    <menu name=""File"" action=""FileMenu"">";
+	   "      <menuitem name=""New"" action=""New"" />";
+	   "      <menuitem name=""Open"" action=""Open"" />";
+	   "      <menuitem name=""Scicoslab Import"" action=""Scicoslab Import"" />";
+	   "      <menuitem name=""Save"" action=""Save"" />";
+	   "      <menuitem name=""Save As"" action=""Save As"" />";
+	   "      <menuitem name=""Save as Interf Func"" action=""Save as Interf Func"" />";
+	   "      <menuitem name=""Export"" action=""Export"" />";
+	   "      <menuitem name=""Export All"" action=""Export All"" />";
+	   "      <menuitem name=""Exit Scicos"" action=""Exit Scicos"" />";
+	   "      <menuitem name=""Quit"" action=""Quit"" />";
+	   "    </menu>";
+	   "    <menu name=""Diagram"" action=""DiagramMenu"">";
+	   "      <menuitem name=""Context"" action=""Context"" />";
+	   "      <menuitem name=""Replot"" action=""Replot"" />";
+	   "      <menuitem name=""Rename"" action=""Rename"" />";
+	   "      <menuitem name=""Purge"" action=""Purge"" />";
+	   "      <menuitem name=""Set Diagram Info"" action=""Set Diagram Info"" />";
+	   "      <menuitem name=""Set Code Gen Properties"" action=""Set Code Gen Properties"" />";
+	   "      <menuitem name=""Region to Super Block"" action=""Region to Super Block"" />";
+	   "      <menuitem name=""Up To Main Diagram"" action=""Up To Main Diagram"" />";
+	   "    </menu>";
+	   "    <menu name=""Palette"" action=""PaletteMenu"">";
+	   "      <menuitem name=""Pal Tree"" action=""Pal Tree"" />";
+	   "      <menuitem name=""Palettes"" action=""Palettes"" />";
+	   "      <menuitem name=""Pal editor"" action=""Pal editor"" />";
+	   "      <menuitem name=""Region to Palette"" action=""Region to Palette"" />";
+	   "      <menuitem name=""Load as Palette"" action=""Load as Palette"" />";
+	   "      <menuitem name=""Save as Palette"" action=""Save as Palette"" />";
+	   "    </menu>";
+	   "    <menu name=""Edit"" action=""EditMenu"">";
+	   "      <menuitem name=""Undo"" action=""Undo"" />";
+	   "      <menuitem name=""Cut"" action=""Cut"" />";
+	   "      <menuitem name=""Copy"" action=""Copy"" />";
+	   "      <menuitem name=""Paste"" action=""Paste"" />";
+	   "      <menuitem name=""Duplicate"" action=""Duplicate"" />";
+	   "      <menuitem name=""Delete"" action=""Delete"" />";
+	   "      <menuitem name=""Move"" action=""Move"" />";
+	   "      <menuitem name=""Smart Move"" action=""Smart Move"" />";
+	   "      <menuitem name=""Align"" action=""Align"" />";
+	   "      <menuitem name=""Flip"" action=""Flip"" />";
+	   "      <menuitem name=""Add new block"" action=""Add new block"" />";
+	   "      <menu name=""Block Menu"" action=""Block Menu"">";
+	   "        <menuitem name=""Resize"" action=""Resize"" />";
+	   "        <menuitem name=""Rotate Left"" action=""Rotate Left"" />";
+	   "        <menuitem name=""Rotate Right"" action=""Rotate Right"" />";
+	   "        <menuitem name=""Icon"" action=""Icon"" />";
+	   "        <menuitem name=""Icon Editor"" action=""Icon Editor"" />";
+	   "        <menuitem name=""Color"" action=""Color"" />";				    
+	   "        <menuitem name=""Label"" action=""Label"" />";
+	   "        <menuitem name=""Get Info"" action=""Get Info"" />";
+	   "        <menuitem name=""Details"" action=""Details"" />";
+	   "        <menuitem name=""Identification"" action=""Identification"" />";
+	   "        <menuitem name=""Block Documentation"" action=""Block Documentation"" />";
+	   "      </menu>"
+	   "    </menu>";
+	   "    <menu name=""View"" action=""ViewMenu"">";
+	   "      <menuitem name=""Zoom in"" action=""Zoom in"" />";
+	   "      <menuitem name=""Zoom out"" action=""Zoom out"" />";
+	   "      <menuitem name=""Zoom 100"" action=""Zoom 100"" />";
+	   "      <menuitem name=""Fit diagram to figure"" action=""Fit diagram to figure"" />";
+	   "      <menuitem name=""Default window parameters"" action=""Default window parameters"" />";
+	   "      <menuitem name=""Available Parameters"" action=""Available Parameters"" />";
+	   "      <menuitem name=""Icon Font Option"" action=""Icon Font Option"" />";
+	   "      <menuitem name=""Grid"" action=""Grid"" />";
+	   "    </menu>";
+	   "    <menu name=""Simulate"" action=""SimulateMenu"">";
+	   "      <menuitem name=""Setup"" action=""Setup"" />";
+	   "      <menuitem name=""Compile"" action=""Compile"" />";
+	   "      <menuitem name=""Modelica initialize"" action=""Modelica initialize"" />";
+	   "      <menuitem name=""Eval"" action=""Eval"" />";
+	   "      <menuitem name=""Analyze Diagram"" action=""Analyze Diagram"" />";
+	   "      <menuitem name=""Debug Level"" action=""Debug Level"" />";
+	   "      <menuitem name=""Run"" action=""Run"" />";
+	   "    </menu>";
+	   "    <menu name=""Format"" action=""FormatMenu"">";
+	   "      <menuitem name=""Set default action"" action=""Set default action"" />";
+	   "      <menuitem name=""Set grid"" action=""Set grid"" />";
+	   "      <menuitem name=""Add color"" action=""Add color"" />";
+	   "      <menuitem name=""Default link colors"" action=""Default link colors"" />";
+	   "      <menuitem name=""Color"" action=""Color"" />";
+	   "      <menuitem name=""Background color"" action=""Background color"" />";
+	   "      <menuitem name=""Show Block Shadow"" action=""Show Block Shadow"" />";
+	   "      <menuitem name=""ID fonts"" action=""ID fonts"" />";
+	   "    </menu>";
+	   "    <menu name=""Tools"" action=""ToolsMenu"">";
+	   "      <menuitem name=""Activate ScicosLab Window"" action=""Activate ScicosLab Window"" />";
+	   "    <separator name=""sep0"" />";
+	   "      <menuitem name=""Create Mask"" action=""Create Mask"" />";
+	   "      <menuitem name=""Remove Mask"" action=""Remove Mask"" />";
+	   "      <menuitem name=""Customize Mask"" action=""Customize Mask"" />";
+	   "      <menuitem name=""Save Block GUI"" action=""Save Block GUI"" />";
+	   "      <separator name=""sep1"" />";
+	   "      <menuitem name=""Create Atomic"" action=""Create Atomic"" />";
+	   "      <menuitem name=""Remove Atomic"" action=""Remove Atomic"" />";
+	   "      <menuitem name=""Browser"" action=""Browser"" />";
+	   "      <menuitem name=""Code Generation"" action=""Code Generation"" />";
+	   "      <menuitem name=""Shortcuts"" action=""Shortcuts"" />";
+	   "      <menuitem name=""Calc"" action=""Calc"" />";
+	   "    </menu>";
+	   "    <menu name=""Help"" action=""HelpMenu"">";
+	   "      <menuitem name=""Help"" action=""Help"" />";
+	   "      <menuitem name=""Scicos Documentation"" action=""Scicos Documentation"" />";
+	   "      <menuitem name=""Demos"" action=""Demos"" />";
+	   "      <menuitem name=""About Scicos"" action=""About Scicos"" />";
+	   "    </menu>";
+	   "  </menubar>" ];
+    // 
+    txt  = catenate(txt,sep='\n');    
+        
+    // list of actions 
+       
     L=list();
-    L(1) = ['File','File',"","";
+    L(1) = ['FileMenu','File',"","";
 	    'New','New',"","";
 	    'Open','Open',"","";
 	    'Scicoslab Import','Scicoslab Import',"","";
@@ -72,7 +185,7 @@ function scicos_set_uimanager(is_top)
 	    'Exit Scicos','Exit Scicos',"","";
 	    'Quit','Quit',"","gtk-quit"];
 
-    L(2) = ['Diagram','Diagram',"","";
+    L(2) = ['DiagramMenu','Diagram',"","";
 	    'Context','Context',"","";
 	    'Replot','Replot',"","";
 	    'Rename','Rename',"","";
@@ -82,7 +195,7 @@ function scicos_set_uimanager(is_top)
 	    'Region to Super Block','Region to Super Block',"","";
 	    'Up To Main Diagram','Up To Main Diagram',"","gtk-goto-top"];
     
-    L(3) = ['Palette','Palette',"","";
+    L(3) = ['PaletteMenu','Palette',"","";
 	    'Pal Tree','Pal Tree',"","";
 	    'Palettes','Palettes',"","";
 	    'Pal editor','Pal editor',"","";
@@ -90,8 +203,8 @@ function scicos_set_uimanager(is_top)
 	    'Load as Palette','Load as Palette',"","";
 	    'Save as Palette','Save as Palette',"",""];
 
-    L(4) = ['Edit','Edit',"","";
-	    'Undo','Undo',"","";
+    L(4) = ['EditMenu','Edit',"","";
+	    'Undo','Undo',"","gtk-undo";
 	    'Cut','Cut',"<control>X","gtk-cut";
 	    'Copy','Copy',"<Ctrl>c","gtk-copy";
 	    'Paste','Paste',"<Ctrl>v","gtk-paste";
@@ -107,7 +220,7 @@ function scicos_set_uimanager(is_top)
 	    'Block Documentation','Block Documentation',"","";..
 	    'Label','Label',"",""];
 
-    L(5) = ['View','View',"","";
+    L(5) = ['ViewMenu','View',"","";
 	    'Zoom in','Zoom in',"","gtk-zoom-in";
 	    'Zoom out','Zoom out',"","gtk-zoom-out";
 	    'Zoom 100','Zoom 100',"","gtk-zoom-100";
@@ -117,7 +230,7 @@ function scicos_set_uimanager(is_top)
 	    'Icon Font Option','Icon Font Option',"","";
 	    'Grid','Grid',"",""];
 
-    L(6) = ['Simulate','Simulate',"","";
+    L(6) = ['SimulateMenu','Simulate',"","";
 	    'Setup','Setup',"","gtk-preferences";
 	    'Compile','Compile',"","gtk-execute";
 	    'Modelica initialize','Modelica initialize',"","";
@@ -126,27 +239,25 @@ function scicos_set_uimanager(is_top)
 	    'Debug Level','Debug Level',"","";
 	    'Run','Run',"","gtk-media-play"];
 
-    L(7) = ['Format','Format',"","";
+    L(7) = ['FormatMenu','Format',"","";
 	    'Set default action','Set default action',"","";
 	    'Set grid','Set grid',"","";
 	    'Add color','Add color',"","";
 	    'Default link colors','Default link colors',"","";
-	    'Color','scmenu_color',"","";
+	    'Color','Color',"","";
 	    'Background color','Background color',"","";
 	    'Show Block Shadow','Show Block Shadow',"","";
-	    'Resize','scmenu_resize',"","";
-	    'Identification','scmenu_identification',"","";
+	    'Resize','Resize',"","";
+	    'Identification','Identification',"","";
 	    'ID fonts','ID fonts',"","";
 	    'Icon','Icon',"","";
 	    'Icon Editor','Icon Editor',"",""];
 
-    L(8) = ['Tools','Tools',"","";
+    L(8) = ['ToolsMenu','Tools',"","";
 	    'Activate ScicosLab Window','Activate ScicosLab Window',"","";
-	    'sep','','','';
 	    'Create Mask','Create Mask',"","";
 	    'Remove Mask','Remove Mask',"","";
 	    'Customize Mask','Customize Mask',"","";
-	    'sep','','','';
 	    'Save Block GUI','Save Block GUI',"","";
 	    'Create Atomic','Create Atomic',"","";
 	    'Remove Atomic','Remove Atomic',"","";
@@ -157,46 +268,38 @@ function scicos_set_uimanager(is_top)
 	    'Shortcuts','Shortcuts',"","";
 	    'Calc','Calc',"",""];
 
-    L(9) = ['Help','HelpMenu',"","";
+    L(9) = ['HelpMenu','Help',"","";
 	    'Help','Help',"","";
 	    'Scicos Documentation','Scicos Documentation',"","";
 	    'Demos','Demos',"","";
 	    'About Scicos','About Scicos',"",""];
+
+    // menu Edit->Block 
     
+    L(10)=["Block Menu","Block","",""];
+        
     // get the menu helps to obtain the tooltips 
     H=scicos_help_menu();
-    
-    txt=["  <menubar>"];
     count=0;
     for i=1:length(L)
       M=L(i);
-      txt.concatd[sprintf("    <menu name=""%s"" action=""%s"">",M(1,1), M(1,2))];
-      action = gtkaction_new( M(1,2), M(1,1) , M(1,3), M(1,4) );
+      action = gtkaction_new( M(1,1), M(1,2) , M(1,3), M(1,4) );
       action_group.add_action[action];
       for j=2:size(M,'r')
-	if M(j,1) == 'sep' then 
-	  txt.concatd[sprintf("    <separator name=""sep%s"" />",string(count))];
-	  count =count+1;
+	if H.iskey[M(j,1)] then 
+	  ttip=catenate(H(M(j,1)),sep='\n');
 	else
-	  txt.concatd[sprintf("      <menuitem name=""%s"" action=""%s"" />",M(j,1), M(j,2))];
-	  if H.iskey[M(j,1)] then 
-	    ttip=catenate(H(M(j,1)),sep='\n');
-	  else
-	    ttip=M(j,3);
-	  end
-	  action = gtkaction_new( M(j,2), M(j,1) , ttip , M(j,4) );
-	  action.connect["activate",scicos_activate_action,list(merge)];
-	  if M(j,3)=="" then 
-	    action_group.add_action[action];
-	  else
-	    action_group.add_action_with_accel[action,accelerator=M(j,3)];
-	  end
+	  ttip=M(j,3);
+	end
+	action = gtkaction_new( M(j,1), M(j,2) , ttip , M(j,4) );
+	action.connect["activate",scicos_activate_action,list(merge)];
+	if M(j,3)=="" then 
+	  action_group.add_action[action];
+	else
+	  action_group.add_action_with_accel[action,accelerator=M(j,3)];
 	end
       end
-      txt.concatd["    </menu>"];
     end
-    txt.concatd["  </menubar>"];
-    txt  = catenate(txt,sep='\n');    
   endfunction
 
 
@@ -255,9 +358,10 @@ function scicos_activate_action(action,args)
   if merge.check_data['win']==%f then return;end 
   win = merge.get_data['win'];
   name = action.get_name[];
+  fname=scicos_action_name_to_fname(name)
   typename=type(action,'string');
-  printf("Action %s (type=%s) win=%d activated\n", name, typename,win);
-  nsp_enqueue_command(win,name);
+  printf("Action %s (type=%s) win=%d activated\n", fname, typename,win);
+  nsp_enqueue_command(win,fname);
 endfunction
 
 function scicos_add_widget(merge,widget,args)
@@ -288,3 +392,9 @@ function scicos_uimanager_connect_proxy(uimgr, action, widget)
 endfunction 
 
 
+function fname=scicos_action_name_to_fname(name)
+  name = strsubst(tolower(name),' ','_');
+  fname='scmenu_'+name
+endfunction
+
+  

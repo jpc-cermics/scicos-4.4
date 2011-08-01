@@ -28,13 +28,13 @@ function [scs_m,changed]=do_icon_edit(scs_m)
     return;
   end
   // K contains selected indices restricted to curwin 
-  K=Select(find(Select(:,2)==curwin),1);
+  k=Select(find(Select(:,2)==curwin),1);
   
-  if length(K)<> 1 then 
+  if length(k)<> 1 then 
     message('Select only one block or one link for resizing !');
     return;
   end
-
+  
   path=list('objs',k)
   o=scs_m.objs(k)
   

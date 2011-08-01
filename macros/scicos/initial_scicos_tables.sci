@@ -328,9 +328,9 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
       'Label',                 "Click block to label";
       'Get Info',              "Click on object  to get information on it";
       'Code Generation',       "Click on a Super Block (without activation output) to obtain a coded block!" ;
-      'Icon',                  "Click on block to edit its icon";
+      //'Icon',                  "Click on block to edit its icon";
       //'Color',                 "Click on object to choose its color";
-      'Identification',        "Click on an object to set or get identification";
+      //'Identification',        "Click on an object to set or get identification";
       //'Resize',                "Click block to resize";
       'Block Documentation',   "Click on a block to set or get it''s documentation"]
 

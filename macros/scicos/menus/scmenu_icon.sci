@@ -35,7 +35,9 @@ function [scs_m,changed]=do_icon(scs_m)
     return;
   end
 
+  if scs_m.objs(K).type <> 'Block' then return;end 
   gr_i=scs_m.objs(K).graphics.gr_i
+  
   if type(gr_i,'short')=='l' then
     [gr_i,coli]=gr_i(1:2)
   else
