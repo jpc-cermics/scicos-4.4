@@ -1,4 +1,4 @@
-function IDfonts_()
+function scmenu_id_fonts()
   Cmenu=''
   [edited,options]=do_options(scs_m.props.options,'ID')
   scs_m.props.options=options

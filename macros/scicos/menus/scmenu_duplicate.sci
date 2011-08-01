@@ -1,4 +1,4 @@
-function Duplicate_()
+function scmenu_duplicate()
   Cmenu=''
   xinfo('Click on the object to copy, drag, click (left to copy, right t"+...
 	" o cancel)')

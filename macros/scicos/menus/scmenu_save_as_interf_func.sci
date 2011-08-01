@@ -1,4 +1,4 @@
-function SaveasInterfFunc_()
+function scmenu_save_as_interf_func()
   Cmenu=""
   ok=%f
   while ~ok then

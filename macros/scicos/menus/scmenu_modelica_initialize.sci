@@ -1,4 +1,4 @@
-function Modelicainitialize_()
+function scmenu_modelica_initialize()
 // Copyright INRIA
 
   if super_block then 

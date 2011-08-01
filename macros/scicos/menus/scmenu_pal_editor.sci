@@ -1,4 +1,4 @@
-function Paleditor_()
+function scmenu_pal_editor()
   Cmenu=''
   scicos_palnew=do_edit_pal(scicos_pal)
   if ~isempty(scicos_palnew) & ~isequal(scicos_palnew,scicos_pal) then

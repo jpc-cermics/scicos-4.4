@@ -1,4 +1,4 @@
-function CreateMask_()
+function scmenu_create_mask()
 // Copyright INRIA
 // Used to transform a super block into a masked superblock. 
 // Masked super blocks are super blocks for which the 

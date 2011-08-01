@@ -1,4 +1,4 @@
-function CreateAtomic_()
+function scmenu_create_atomic()
 // Copyright INRIA
   if alreadyran then
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';

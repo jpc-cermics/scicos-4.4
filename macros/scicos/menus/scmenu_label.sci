@@ -1,4 +1,4 @@
-function Label_()
+function scmenu_label()
   Cmenu=''
   xinfo('Click block to label')
   scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t

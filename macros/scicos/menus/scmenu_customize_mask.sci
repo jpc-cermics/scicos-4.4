@@ -1,4 +1,4 @@
-function CustomizeMask_()
+function scmenu_customize_mask()
 // Copyright INRIA
 //   
   Cmenu="";%pt=[];

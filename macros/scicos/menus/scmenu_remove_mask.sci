@@ -1,4 +1,4 @@
-function RemoveMask_()
+function scmenu_remove_mask()
 // Copyright INRIA
   Cmenu="";%pt=[];
   if size(Select,1)<>1 || curwin<>Select(1,2) then

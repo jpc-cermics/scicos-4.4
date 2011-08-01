@@ -1,4 +1,4 @@
-function Setgrid_()
+function scmenu_set_grid()
   xinfo('Set grid')
   if exists('%scicos_with_grid') then
     [%scs_wgrid] = do_grid(%scs_wgrid)

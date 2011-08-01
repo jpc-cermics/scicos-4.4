@@ -8,7 +8,7 @@ function scmenu_resize()
   end
 endfunction
 
-function Resize_()
+function scmenu_resize()
 // XXXX to be removed 
   Cmenu='';
   sc=scs_m;
@@ -45,7 +45,7 @@ function [scs_m]=do_resize(scs_m)
     graphics=o.graphics
     sz=graphics.sz
     orig=graphics.orig
-    %scs_help='Resize_block'
+    %scs_help='scmenu_resizeblock'
     if %t then 
       rect=[orig(1);orig(2)+sz(2);0;0]
       if size(%pt,'*')==2 then 
@@ -73,7 +73,7 @@ function [scs_m]=do_resize(scs_m)
     [pos,ct]=(scs_m.objs(K).thick, scs_m.objs(K).ct)
     Thick=pos(1)
     Type=pos(2)
-    %scs_help='Resize_link'
+    %scs_help='scmenu_resizelink'
     [ok,Thick,Type]=getvalue('Link parameters',['Thickness';'Type'],..
 			     list('vec','1','vec',1),[string(Thick);string(Type)])
     if ok then

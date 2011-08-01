@@ -1,4 +1,4 @@
-function ActivateScicosLabWindow_()
+function scmenu_activate_scicoslab_window()
   Cmenu=''
   %pt=''
   if super_block then

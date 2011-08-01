@@ -1,4 +1,4 @@
-function Move_()
+function scmenu_move()
   Cmenu=''
   SelectSize=size(Select);
   SelectSize=SelectSize(1);

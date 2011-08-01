@@ -1,4 +1,4 @@
-function SaveAs_()
+function scmenu_save_as()
   Cmenu=''
   if super_block then
     r = x_choose(['Diagram';'Super Block'],..

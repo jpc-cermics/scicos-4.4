@@ -1,4 +1,4 @@
-function Setup_()
+function scmenu_setup()
   Cmenu=''
   %wpar=do_setup(scs_m.props)
   %scicos_solver=%wpar.tol(6)

@@ -1,4 +1,4 @@
-function New_()
+function scmenu_new()
   Cmenu=''
   %r=2
   if edited then

@@ -1,4 +1,4 @@
-function AnalyzeDiagram_()
+function scmenu_analyze_diagram()
 // 
   if ~super_block then
     Cmenu = "" ; 

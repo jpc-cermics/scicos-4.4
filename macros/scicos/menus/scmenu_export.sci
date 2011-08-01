@@ -1,4 +1,4 @@
-function Export_()
+function scmenu_export()
 // Export scs_m by redrawing the diagram in a graphic window
 // or by exporting scs_m in a graphic file 
 // 
@@ -6,7 +6,7 @@ function Export_()
   Cmenu=''
 endfunction
 
-function ExportAll_()
+function scmenu_export_all()
 // Export recursively scs_m in graphic files stored in 
 // a directory. Since scs_m 
   do_export_all()

@@ -1,4 +1,4 @@
-function Cut_()
+function scmenu_cut()
 // Cut selection and store 
 // selection in Clipboard.
   

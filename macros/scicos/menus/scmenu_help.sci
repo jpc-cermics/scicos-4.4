@@ -1,4 +1,4 @@
-function Help_()
+function scmenu_help()
   xinfo('Click on object or menu to get help')
   do_help()
   xinfo(' ')

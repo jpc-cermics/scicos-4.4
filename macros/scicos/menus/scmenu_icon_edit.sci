@@ -8,7 +8,7 @@ function scmenu_icon_edit()
   end
 endfunction
 
-function IconEditor_()
+function scmenu_icon_editor()
   Cmenu='';
   sc=scs_m;
   [scs_m,changed]= do_icon_edit(scs_m);

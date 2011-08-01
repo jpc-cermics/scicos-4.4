@@ -8,7 +8,7 @@ function scmenu_icon()
   end
 endfunction
 
-function Icon_()
+function scmenu_icon()
 // XXX to be removed 
   Cmenu='';
   sc=scs_m;

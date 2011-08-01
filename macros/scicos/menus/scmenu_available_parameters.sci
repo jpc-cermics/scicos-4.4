@@ -1,4 +1,4 @@
-function AvailableParameters_()
+function scmenu_available_parameters()
   Cmenu=''
   if ~exists('%scicos_context') then
     message('No available parameters.')

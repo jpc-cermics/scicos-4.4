@@ -1,4 +1,4 @@
-function Defaultlinkcolors_()
+function scmenu_default_link_colors()
   Cmenu=''
   [edited,options]=do_options(scs_m.props.options,'LinkColor')
   scs_m.props.options=options

@@ -1,4 +1,4 @@
-function Calc_()
+function scmenu_calc()
   Cmenu=''
   xinfo('You may enter any Scilab instruction. enter abort or quit to terminate')
   scs_gc=save_scs_gc();

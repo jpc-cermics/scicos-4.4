@@ -1,4 +1,4 @@
-function Details_()
+function scmenu_details()
   Cmenu=''
   do_details(Select)
 endfunction

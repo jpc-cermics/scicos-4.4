@@ -1,4 +1,4 @@
-function Save_()
+function scmenu_save()
   Cmenu=''
   %pt=[]
   if super_block then

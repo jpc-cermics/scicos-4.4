@@ -1,4 +1,4 @@
-function Paste_()
+function scmenu_paste()
   if ~isequal(%win,curwin) then
     message(["Paste operation is not possible in this window"]);
     Cmenu = ''; %pt = []; %ppt = [];

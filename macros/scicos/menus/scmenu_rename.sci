@@ -1,4 +1,4 @@
-function Rename_()
+function scmenu_rename()
   Cmenu=''
   inside_sblock=%f
   if size(Select,1)==1 then

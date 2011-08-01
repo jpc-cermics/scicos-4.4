@@ -1,4 +1,4 @@
-function SetDiagramInfo_()
+function scmenu_set_diagram_info()
 // Copyright INRIA
   Cmenu=''
   [ok,info]=do_set_info(scs_m.props.doc)

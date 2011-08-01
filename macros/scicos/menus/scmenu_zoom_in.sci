@@ -1,4 +1,4 @@
-function Zoomin_()
+function scmenu_zoom_in()
   Cmenu=''
   xinfo('Zoom in')
   zoomfactor=1.2

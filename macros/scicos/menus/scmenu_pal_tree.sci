@@ -1,4 +1,4 @@
-function PalTree_()
+function scmenu_pal_tree()
   Cmenu=''
   scicos_palette_treeview();
 endfunction

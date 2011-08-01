@@ -1,4 +1,4 @@
-function Open_()
+function scmenu_open()
 
   Cmenu='';Select=[]
   if edited & ~super_block then

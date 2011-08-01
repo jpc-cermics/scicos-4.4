@@ -1,4 +1,4 @@
-function Addcolor_()
+function scmenu_add_color()
   [edited,options]=do_options(scs_m.props.options,'Cmap')
   if edited then 
     scs_m.props.options=options

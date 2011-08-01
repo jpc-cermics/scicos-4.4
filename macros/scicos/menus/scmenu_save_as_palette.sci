@@ -1,4 +1,4 @@
-function SaveasPalette_()
+function scmenu_save_as_palette()
   Cmenu=''
 
   spmode=pal_mode

@@ -1,4 +1,4 @@
-function DebugLevel_()
+function scmenu_debug_level()
   if ~super_block then
     Cmenu=''
     %scs_help='scicos_debug';

@@ -8,7 +8,7 @@ function scmenu_identification()
   end
 endfunction
 
-function Identification_()
+function scmenu_identification()
 // XXX to be removed when un necessary 
   Cmenu='';
   sc=scs_m;

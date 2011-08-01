@@ -1,4 +1,4 @@
-function UpToMainDiagram_()
+function scmenu_up_to_main_diagram()
   Cmenu=''
   if super_block then
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';

@@ -1,4 +1,4 @@
-function Run_()
+function scmenu_run()
   nc_save=4
   Cmenu=''
   ok=%t

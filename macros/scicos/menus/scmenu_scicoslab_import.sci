@@ -1,4 +1,4 @@
-function ScicoslabImport_()
+function scmenu_scicoslab_import()
 // Import a Scilab Diagram in Nsp scicos.
 // XXX we should change the name in order not to 
 // overwrite the Scilab Diagram when saving.

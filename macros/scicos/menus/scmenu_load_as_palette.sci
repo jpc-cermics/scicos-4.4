@@ -1,4 +1,4 @@
-function LoadasPalette_()
+function scmenu_load_as_palette()
   Cmenu=''
   [palettes,windows]=do_load_as_palette(palettes,windows)
 endfunction

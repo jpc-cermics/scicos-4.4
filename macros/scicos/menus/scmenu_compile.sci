@@ -1,4 +1,4 @@
-function Compile_()
+function scmenu_compile()
   nc_save=4
   Cmenu=''
   if ~execstr('[%cpr,ok]=do_compile(scs_m)',errcatch=%t) then

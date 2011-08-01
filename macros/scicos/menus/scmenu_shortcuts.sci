@@ -1,4 +1,4 @@
-function Shortcuts_()
+function scmenu_shortcuts()
 //   Cmenu='';
 //   return
 //   %rr=lines()

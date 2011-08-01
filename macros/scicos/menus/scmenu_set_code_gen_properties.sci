@@ -1,4 +1,4 @@
-function SetCodeGenProperties_()
+function scmenu_set_code_gen_properties()
   Cmenu=''
   inside_sblock=%f
   if size(Select,1)==1 then
@@ -39,7 +39,7 @@ function [ok,codegeneration,edited]=do_set_codegen(codegeneration)
   opt_in          = sci2exp(codegeneration.opt)
   enable_debug_in = sci2exp(codegeneration.enable_debug)
 
-  %scs_help='Setup_CodeGen'
+  %scs_help='scmenu_setupCodeGen'
 
   while %t do
     [ok,...

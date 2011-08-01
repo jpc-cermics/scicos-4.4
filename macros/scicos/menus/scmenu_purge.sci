@@ -1,4 +1,4 @@
-function Purge_()
+function scmenu_purge()
   Cmenu=''
   scs_m=do_purge(scs_m);
   needcompile=4;

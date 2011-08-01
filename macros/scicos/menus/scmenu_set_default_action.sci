@@ -1,4 +1,4 @@
-function Setdefaultaction_()
+function scmenu_set_default_action()
   xinfo('Set Default Actions')
   if %scicos_action==%f then repp1=2, else repp1=1, end
   if %scicos_snap==%f then repp2=2, else repp2=1, end

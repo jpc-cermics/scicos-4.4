@@ -10,7 +10,7 @@ function scmenu_color()
   edited=%t
 endfunction
 
-function Color_()
+function scmenu_color()
 // XXXX: to be removed 
   Cmenu=''
   scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t

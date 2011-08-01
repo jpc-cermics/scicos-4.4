@@ -1,4 +1,4 @@
-function Context_()
+function scmenu_context()
   Cmenu='Replot'
   // note that context is not executed in his own frame
   // but in the caller frame.

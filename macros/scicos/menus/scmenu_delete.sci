@@ -1,4 +1,4 @@
-function Delete_()
+function scmenu_delete()
   [%pt,scs_m,needcompile,Select]=do_delete(%pt,scs_m,needcompile,Select)
   Cmenu=''
   pt=[]

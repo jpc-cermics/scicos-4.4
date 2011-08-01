@@ -1,4 +1,4 @@
-function Copy_()
+function scmenu_copy()
 // Copyright INRIA
   
   if size(Select,1)>1 then

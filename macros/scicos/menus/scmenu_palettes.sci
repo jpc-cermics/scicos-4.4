@@ -1,4 +1,4 @@
-function Palettes_()
+function scmenu_palettes()
   Cmenu=''
   //[palettes,windows]=do_palettes(palettes,windows)
   //[palettes,windows]=do_all_palettes(windows)

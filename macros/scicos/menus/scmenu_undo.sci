@@ -1,4 +1,4 @@
-function Undo_()
+function scmenu_undo()
 // jpc April 13 2009 
   Cmenu=''
   %pt=[]

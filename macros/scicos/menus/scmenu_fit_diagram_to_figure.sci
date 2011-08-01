@@ -1,4 +1,4 @@
-function Fitdiagramtofigure_()
+function scmenu_fit_diagram_to_figure()
    Cmenu='';
    xinfo('Fit diagram to figure');
    F=get_current_figure()

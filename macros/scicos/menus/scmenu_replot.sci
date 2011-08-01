@@ -1,4 +1,4 @@
-function Replot_()
+function scmenu_replot()
   Cmenu=''
   %pt=[]
   Select=[]

@@ -1,4 +1,4 @@
-function Eval_()
+function scmenu_eval()
 // Copyright INRIA
   if ~super_block then
     // not super block 

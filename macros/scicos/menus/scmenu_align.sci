@@ -1,4 +1,4 @@
-function Align_()
+function scmenu_align()
   if ~isempty(Select) then
     Select=[];%pt=[]
   else

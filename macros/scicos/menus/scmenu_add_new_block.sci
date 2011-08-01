@@ -1,4 +1,4 @@
-function Addnewblock_()
+function scmenu_add_new_block()
   Cmenu=''
   [scs_m,%fct,Select]=do_addnew(scs_m,Select)
   if %fct<>"" then 
