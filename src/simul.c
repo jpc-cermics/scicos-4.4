@@ -196,6 +196,7 @@ static int scicos_fill_from_list (NspList * L, scicos_list_flat * F)
 	  NspIMatrix *A = (NspIMatrix *) Obj;
 	  F->sz[i] = A->m;
 	  F->sz[i + F->n] = A->n;
+          F->ptr[i] = A->Iv;
 	  switch (A->itype)
 	    {
 	    case nsp_gint:
