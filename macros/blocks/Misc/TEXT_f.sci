@@ -51,9 +51,11 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
       end
       if ok then
 	graphics.exprs = exprs
-	T=o.gr.children(1);
-	T.text=exprs(1);
-	o.gr.invalidate[];
+	if o.iskey['gr'] then 
+	  T=o.gr.children(1);
+	  T.text=exprs(1);
+	  o.gr.invalidate[];
+	end
 	// here xstringl will be correct 
 	// or sz could be obtained by getting the 
 	// bounds of the compound. 

@@ -301,9 +301,6 @@ function scicos_set_uimanager(is_top)
       end
     end
   endfunction
-
-
-  
   
   
   win=xget('window');
@@ -319,6 +316,7 @@ function scicos_set_uimanager(is_top)
   if length(mb) > 1 then;return;end 
   mb=mb(1);
   // mb.destroy[];
+  mb.hide[];
   // 
   merge = gtkuimanager_new ();
   merge.connect['connect-proxy',scicos_uimanager_connect_proxy];
@@ -358,10 +356,12 @@ function scicos_activate_action(action,args)
   if merge.check_data['win']==%f then return;end 
   win = merge.get_data['win'];
   name = action.get_name[];
-  fname=scicos_action_name_to_fname(name)
+  if part(name,1)<>'$' then 
+    name=scicos_action_name_to_fname(name)
+  end
   typename=type(action,'string');
-  printf("Action %s (type=%s) win=%d activated\n", fname, typename,win);
-  nsp_enqueue_command(win,fname);
+  printf("Action %s (type=%s) win=%d activated\n", name, typename,win);
+  nsp_enqueue_command(win,name);
 endfunction
 
 function scicos_add_widget(merge,widget,args)

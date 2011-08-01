@@ -1,4 +1,4 @@
-function Smartscmenu_move()
+function scmenu_smart_move()
   if %win<>curwin then
     kc=find(%win==windows(:,2));
     if isempty(kc) then

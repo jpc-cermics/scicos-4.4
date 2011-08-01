@@ -1,4 +1,4 @@
-function scmenu_code_generation_()
+function scmenu_code_generation()
 //
 // Copyright (c) 1989-2011 Metalau project INRIA
 // Last update : 25/07/11
