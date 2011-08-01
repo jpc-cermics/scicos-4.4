@@ -8,6 +8,17 @@ function scmenu_identification()
   end
 endfunction
 
+function Identification_()
+// XXX to be removed when un necessary 
+  Cmenu='';
+  sc=scs_m;
+  [scs_m,changed]= do_identification(scs_m);
+  if changed then 
+    edited=%t;
+    scs_m_save=sc;enable_undo=%t;
+  end
+endfunction
+
 function [scs_m,changed]=do_identification(scs_m)
 // Copyright INRIA
   changed=%f;
