@@ -218,6 +218,7 @@ function scicos_set_uimanager(is_top)
   // mb.destroy[];
   // 
   merge = gtkuimanager_new ();
+  merge.connect['connect-proxy',scicos_uimanager_connect_proxy];
   action_group = gtkactiongroup_new("TestActions")
   // creates a set of actions 
   action = gtkaction_new( "$scicos_stop","Stop","Stops scicos simulation ", "gtk-media-stop");
@@ -276,5 +277,14 @@ function scicos_add_widget(merge,widget,args)
   end 
 endfunction
 
+function scicos_uimanager_connect_proxy(uimgr, action, widget)
+// used to add tooltips to menu items 
+  //pause in uimanager_connect_proxy
+  tooltip = action.get_property['tooltip']
+  if tooltip=="" then return;end
+  if is(widget,%types.GtkMenuItem) then 
+    widget.set_tooltip_text[tooltip];
+  end
+endfunction 
 
 
