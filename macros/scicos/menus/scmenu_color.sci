@@ -4,24 +4,19 @@ function scmenu_color()
 // it can be used to reset a diagram to 
 // default colors.
 //  
-  Cmenu=''
-  scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
-  [scs_m]=do_color(scs_m)
-  edited=%t
+  Cmenu='';
+  sc=scs_m;
+  [scs_m,changed]= do_color(scs_m);
+  if changed then 
+    edited=%t;
+    scs_m_save=sc;enable_undo=%t;
+  end
 endfunction
 
-function scmenu_color()
-// XXXX: to be removed 
-  Cmenu=''
-  scs_m_save=scs_m;nc_save=needcompile;enable_undo=%t
-  [scs_m]=do_color(scs_m)
-  edited=%t
-endfunction
-
-function [scs_m]=do_color(scs_m)
+function [scs_m,changed ]=do_color(scs_m)
 // do_color: changes the color of a link or a block.
 // Copyright INRIA
-  
+  changed = %f;
 // if no selection return;
   if isempty(Select) || isempty(find(Select(:,2)==curwin)) then
     message('Make a selection first');
@@ -82,6 +77,7 @@ function [scs_m]=do_color(scs_m)
 	  o=scs_m.objs(kc);
 	  o.ct(1) = link_colors(o.ct(2)+2); // to get a number in [1,3,4,5]
 	  o.gr.children(1).color=o.ct(1) ;
+	  changed=%t;
 	  scs_m.objs(kc)=o
 	end
       end
@@ -101,6 +97,7 @@ function [scs_m]=do_color(scs_m)
       o.graphics.gr_i(2)= block_color;
       F.remove[o.gr];
       o=drawobj(o,F);
+      changed=%t;
       scs_m.objs(k)=o
     end
     F.draw_now[];

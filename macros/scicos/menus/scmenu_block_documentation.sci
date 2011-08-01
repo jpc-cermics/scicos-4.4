@@ -1,36 +1,35 @@
 function  scmenu_block_documentation()
-  Cmenu=''
-  xinfo('Click on a block to set or get it''s documentation')
-  [%pt,scs_m] = do_doc(%pt,scs_m)
-  xinfo(' ')
+  Cmenu='';
+  sc=scs_m;
+  [scs_m,changed]= do_doc(scs_m);
+  if changed then 
+    edited=%t;
+    scs_m_save=sc;enable_undo=%t;
+  end
 endfunction
 
-function [%pt,scs_m]=do_doc(%pt,scs_m)
+function [scs_m,changed]=do_doc(scs_m)
 // Copyright INRIA
-  while %t
-    if isempty(%pt) then
-      [btn,%pt,win,Cmenu]=cosclick()
-      if Cmenu<>"" then
-	resume(%win=win,Cmenu=Cmenu,btn=btn)
-        return;
-      end
-    else
-      win=%win;
-    end
-    xc=%pt(1);yc=%pt(2);%pt=[];
-    k=getblock(scs_m,[xc;yc])
-    if ~isempty(k) then break,end
+  changed=%f;
+  if isempty(Select) || isempty(find(Select(:,2)==curwin)) then
+    message('Make a selection first');
+    return;
   end
-  numero_objet=k
-  scs_m_save=scs_m
-
+  // K contains selected indices restricted to curwin 
+  K=Select(find(Select(:,2)==curwin),1);
+  if length(K)<> 1 then 
+    message('Select only one block or one link for identification !');
+    return;
+  end
+  numero_objet=K;
+  
   objet = scs_m.objs(numero_objet)
   type_objet = objet.type
-
+  
   //
   if type_objet == 'Block' then
     documentation = objet.doc
-    if size(documentation,'*') == 0 |documentation == list() then
+    if size(documentation,'*') == 0 || isempty(documentation) then
       rep=x_message(['No documentation function specified'
 		     'would you like to use standard_doc ?'],['gtk-yes','gtk-no'])
       funname='standard_doc'
@@ -42,7 +41,8 @@ function [%pt,scs_m]=do_doc(%pt,scs_m)
       doc=[]
       ierr=execstr('docfun='+funname,errcatch=%t)
       if ierr==%f then
-	x_message('function '+funname+' not found')
+	x_message('function '+funname+' not found');
+	lasterror();
 	return
       end
       documentation=list(docfun,doc)
@@ -52,6 +52,7 @@ function [%pt,scs_m]=do_doc(%pt,scs_m)
       ierr=execstr('docfun='+funname,errcatch=%t)
       if ierr==%f then
 	x_message('function '+funname+' not found')
+	lasterror();
 	return
       end
     else
@@ -63,15 +64,13 @@ function [%pt,scs_m]=do_doc(%pt,scs_m)
       documentation(2)=doc
       objet.doc = documentation
       scs_m.objs(numero_objet) = objet
+      changed = %t;
     else
-      x_message(documentation(1)+'(''set'',) failed')
+      x_message(documentation(1)+'(''set'',) failed');
+      lasterror();
     end
   else
     x_message('It is impossible to set Documentation for this type of object')
-  end
-  //
-  if ok then 
-    resume(scs_m_save,enable_undo=%t,edited=%t);
   end
 endfunction
 
@@ -84,10 +83,9 @@ function doc=standard_doc(job,doc)
   elseif job=='get' then
     return
   end
-
 endfunction
-function doc=complex_doc(job,doc)
 
+function doc=complex_doc(job,doc)
   if job=='set' then
     if type(doc,'string')<>'List' then 
       doc=list(' ',' ',' '),
@@ -98,11 +96,8 @@ function doc=complex_doc(job,doc)
       d3=[d3 ascii(t3(k)) 48]
     end
     d3=ascii(d3)
-    
     text=x_mdialog('You may enter here the document for this block ',
     ['Author','Date','Comments'],[doc(1);doc(2);d3])
-    
-
     if ~isempty(text) then 
       doc(1)=text(1)
       doc(2)=text(2)
