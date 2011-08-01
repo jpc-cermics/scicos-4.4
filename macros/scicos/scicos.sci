@@ -133,6 +133,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
                       'Place in Browser', 'PlaceinBrowser_'
                       'Select All'      , 'SelectAll_'   
                       'Smart Link'      , 'SmartLink_'
+		      'scmenu_icon'    , 'scmenu_icon'
+		      'scmenu_icon_edit', 'scmenu_icon_edit'
 		      'scmenu_color'    , 'scmenu_color'
     		      'scmenu_resize'   , 'scmenu_resize'
 		      'scmenu_identification'   , 'scmenu_identification' ];

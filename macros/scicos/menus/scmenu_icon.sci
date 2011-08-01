@@ -1,7 +1,7 @@
 function scmenu_icon()
   Cmenu='';
   sc=scs_m;
-  [scs_mn,changed]= do_icon(scs_m);
+  [scs_m,changed]= do_icon(scs_m);
   if changed then 
     edited=%t;
     scs_m_save=sc;enable_undo=%t;
@@ -12,7 +12,7 @@ function Icon_()
 // XXX to be removed 
   Cmenu='';
   sc=scs_m;
-  [scs_m]= do_icon(scs_m);
+  [scs_m,changed]= do_icon(scs_m);
   if changed then 
     edited=%t;
     scs_m_save=sc;enable_undo=%t;
@@ -22,7 +22,6 @@ endfunction
 function [scs_m,changed]=do_icon(scs_m)
 // edit a block icon
 // Copyright INRIA
-// modif jpc 2004 
   changed=%f;
   if isempty(Select) || isempty(find(Select(:,2)==curwin)) then
     message('Make a selection first');

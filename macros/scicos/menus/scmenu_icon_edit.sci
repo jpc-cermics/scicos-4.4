@@ -1,7 +1,7 @@
 function scmenu_icon_edit()
   Cmenu='';
   sc=scs_m;
-  [scs_mn,changed]= do_icon_edit(scs_m);
+  [scs_m,changed]= do_icon_edit(scs_m);
   if changed then 
     edited=%t;
     scs_m_save=sc;enable_undo=%t;
@@ -11,7 +11,7 @@ endfunction
 function IconEditor_()
   Cmenu='';
   sc=scs_m;
-  [scs_mn,changed]= do_icon_edit(scs_m);
+  [scs_m,changed]= do_icon_edit(scs_m);
   if changed then 
     edited=%t;
     scs_m_save=sc;enable_undo=%t;
@@ -70,7 +70,7 @@ function [scs_m,changed]=do_icon_edit(scs_m)
   F=get_figure(oldwin);
   gr_old = o.gr;
   if ~execstr('o=drawobj(o,F)',errcatch=%t) then 
-    message(['errof during drawblock evaluation: ']);
+    message(['Error during drawblock evaluation.']);
     lasterror();
   else
     // remove the old graphics from the figure 
