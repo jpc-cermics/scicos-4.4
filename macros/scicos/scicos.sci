@@ -113,10 +113,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       submenu=menus(sname);
       %ww='menus('''+sname+''')(2)('+ m2s(1:(size(submenu(1),'*')),'%.0f') + ')';
       execstr(sname+ '=%ww;');
-      %cor_item_exec=[%cor_item_exec;submenu(2),submenu(3)];
       // XXX: new version for future use 
-      %cor_item_exec=[%cor_item_exec;scicos_action_name_to_fname(submenu(2)),submenu(3)];
-      
+      mnames=scicos_action_name_to_fname(submenu(2));
+      // old %cor_item_exec=[%cor_item_exec;submenu(2),submenu(3)];
+      %cor_item_exec=[%cor_item_exec;submenu(2),mnames];
+      %cor_item_exec=[%cor_item_exec;mnames,mnames];
     end
 
     // add fixed menu items not visible
