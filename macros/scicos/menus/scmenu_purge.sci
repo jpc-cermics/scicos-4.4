@@ -1,15 +1,19 @@
 function scmenu_purge()
-  Cmenu=''
-  scs_m=do_purge(scs_m);
-  needcompile=4;
-  edited=%t
+  Cmenu='';
+  sc=scs_m;
+  [scs_m,changed]= do_purge(scs_m);
+  if changed then 
+    edited=%t;
+    scs_m_save=sc;enable_undo=%t;needcompile=4;
+  end
 endfunction
 
-function scs_m_new=do_purge(scs_m)
+function [scs_m_new,changed]=do_purge(scs_m)
 // Copyright INRIA
-//suppress deleted elements in a scicos data structure
+// suppress deleted elements in a scicos data structure
+//
+  changed = %f;
   nx=length(scs_m.objs);
-
   //get index of deleted blocks
   deleted=[];
   for k=1:nx
@@ -22,9 +26,9 @@ function scs_m_new=do_purge(scs_m)
       end
     end
   end
-
+  
   if isempty(deleted) then //nothing has to be done
-    scs_m_new=scs_m
+    scs_m_new=scs_m;
     return
   end
 
@@ -62,4 +66,5 @@ function scs_m_new=do_purge(scs_m)
     end
     scs_m_new.objs(k)=o;
   end
+  changed = %t;
 endfunction

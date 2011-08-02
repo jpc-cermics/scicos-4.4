@@ -1,4 +1,4 @@
-// 
+
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
 // License as published by the Free Software Foundation; either
@@ -25,30 +25,30 @@ function scicos_set_uimanager(is_top)
   function txt=scicos_toolbar(is_top,action_group,merge)
   // text for the toolbar 
     txt =[ "  <toolbar name=""toolbar"">"
-	   "    <toolitem name=""Zoom in"" action=""Zoom in"" />"
-	   "    <toolitem name=""Zoom out"" action=""Zoom out"" />"
-	   "    <toolitem name=""Zoom fit"" action=""Fit diagram to figure"" />"
-	   "    <toolitem name=""Zoom 100"" action=""Zoom 100"" />"
+	   "    <toolitem name=""Zoom in"" action=""scmenu_zoom_in"" />"
+	   "    <toolitem name=""Zoom out"" action=""scmenu_zoom_out"" />"
+	   "    <toolitem name=""Zoom fit"" action=""scmenu_fit_diagram_to_figure"" />"
+	   "    <toolitem name=""Zoom 100"" action=""scmenu_zoom_100"" />"
 	   "    <separator name=""tsep1"" />"
-	   "    <toolitem name=""Cut"" action=""Cut"" />"
-	   "    <toolitem name=""Copy"" action=""Copy"" />"
-	   "    <toolitem name=""Paste"" action=""Paste"" />"
+	   "    <toolitem name=""Cut"" action=""scmenu_cut"" />"
+	   "    <toolitem name=""Copy"" action=""scmenu_copy"" />"
+	   "    <toolitem name=""Paste"" action=""scmenu_paste"" />"
 	   "    <separator name=""tsep3"" />"];
     
     if is_top then 
       txt=[txt;
-	   "    <toolitem name=""prefs"" action=""Setup"" />"
-	   "    <toolitem name=""compile"" action=""Compile"" />"
-	   "    <toolitem name=""run"" action=""Run"" />"
+	   "    <toolitem name=""prefs"" action=""scmenu_setup"" />"
+	   "    <toolitem name=""compile"" action=""scmenu_compile"" />"
+	   "    <toolitem name=""run"" action=""scmenu_run"" />"
 	   "    <toolitem name=""stop"" action=""$scicos_stop"" />"
 	   "    <separator name=""tsep4""/>"
-	   "    <toolitem name=""Quit"" action=""Quit"" />"
+	   "    <toolitem name=""Quit"" action=""scmenu_quit"" />"
 	   "  </toolbar>"];
     else
       txt=[txt;
-	   "    <toolitem name=""up"" action=""Up To Main Diagram"" />"
+	   "    <toolitem name=""up"" action=""scmenu_up_to main_diagram"" />"
 	   "    <separator name=""tsep4""/>"
-	   "    <toolitem name=""Quit"" action=""Quit"" />"
+	   "    <toolitem name=""Quit"" action=""scmenu_quit"" />"
 	   "  </toolbar>"];
     end
     // just return a string 
@@ -60,223 +60,223 @@ function scicos_set_uimanager(is_top)
   // 
   // 
     txt= [ "  <menubar>";
-	   "    <menu name=""File"" action=""FileMenu"">";
-	   "      <menuitem name=""New"" action=""New"" />";
-	   "      <menuitem name=""Open"" action=""Open"" />";
-	   "      <menuitem name=""Scicoslab Import"" action=""Scicoslab Import"" />";
-	   "      <menuitem name=""Save"" action=""Save"" />";
-	   "      <menuitem name=""Save As"" action=""Save As"" />";
-	   "      <menuitem name=""Save as Interf Func"" action=""Save as Interf Func"" />";
-	   "      <menuitem name=""Export"" action=""Export"" />";
-	   "      <menuitem name=""Export All"" action=""Export All"" />";
-	   "      <menuitem name=""Exit Scicos"" action=""Exit Scicos"" />";
-	   "      <menuitem name=""Quit"" action=""Quit"" />";
+	   "    <menu name=""File"" action=""scmenu_file_menu"">";
+	   "      <menuitem name=""New"" action=""scmenu_new"" />";
+	   "      <menuitem name=""Open"" action=""scmenu_open"" />";
+	   "      <menuitem name=""Scicoslab Import"" action=""scmenu_scicoslab_import"" />";
+	   "      <menuitem name=""Save"" action=""scmenu_save"" />";
+	   "      <menuitem name=""Save As"" action=""scmenu_save_as"" />";
+	   "      <menuitem name=""Save as Interf Func"" action=""scmenu_save_as_interf_func"" />";
+	   "      <menuitem name=""Export"" action=""scmenu_export"" />";
+	   "      <menuitem name=""Export All"" action=""scmenu_export_all"" />";
+	   "      <menuitem name=""Exit Scicos"" action=""scmenu_exit_scicos"" />";
+	   "      <menuitem name=""Quit"" action=""scmenu_quit"" />";
 	   "    </menu>";
-	   "    <menu name=""Diagram"" action=""DiagramMenu"">";
-	   "      <menuitem name=""Context"" action=""Context"" />";
-	   "      <menuitem name=""Replot"" action=""Replot"" />";
-	   "      <menuitem name=""Rename"" action=""Rename"" />";
-	   "      <menuitem name=""Purge"" action=""Purge"" />";
-	   "      <menuitem name=""Set Diagram Info"" action=""Set Diagram Info"" />";
-	   "      <menuitem name=""Set Code Gen Properties"" action=""Set Code Gen Properties"" />";
-	   "      <menuitem name=""Region to Super Block"" action=""Region to Super Block"" />";
-	   "      <menuitem name=""Up To Main Diagram"" action=""Up To Main Diagram"" />";
+	   "    <menu name=""Diagram"" action=""scmenu_diagram_menu"">";
+	   "      <menuitem name=""Context"" action=""scmenu_context"" />";
+	   "      <menuitem name=""Replot"" action=""scmenu_replot"" />";
+	   "      <menuitem name=""Rename"" action=""scmenu_rename"" />";
+	   "      <menuitem name=""Purge"" action=""scmenu_purge"" />";
+	   "      <menuitem name=""Set Diagram Info"" action=""scmenu_set_diagram_info"" />";
+	   "      <menuitem name=""Set Code Gen Properties"" action=""scmenu_set_code_gen_properties"" />";
+	   "      <menuitem name=""Region to Super Block"" action=""scmenu_region_to_super_block"" />";
+	   "      <menuitem name=""Up To Main Diagram"" action=""scmenu_up_to_main_diagram"" />";
 	   "    </menu>";
-	   "    <menu name=""Palette"" action=""PaletteMenu"">";
-	   "      <menuitem name=""Pal Tree"" action=""Pal Tree"" />";
-	   "      <menuitem name=""Palettes"" action=""Palettes"" />";
-	   "      <menuitem name=""Pal editor"" action=""Pal editor"" />";
-	   "      <menuitem name=""Region to Palette"" action=""Region to Palette"" />";
-	   "      <menuitem name=""Load as Palette"" action=""Load as Palette"" />";
-	   "      <menuitem name=""Save as Palette"" action=""Save as Palette"" />";
+	   "    <menu name=""Palette"" action=""scmenu_palette_menu"">";
+	   "      <menuitem name=""Pal Tree"" action=""scmenu_pal_tree"" />";
+	   "      <menuitem name=""Palettes"" action=""scmenu_palettes"" />";
+	   "      <menuitem name=""Pal editor"" action=""scmenu_pal_editor"" />";
+	   "      <menuitem name=""Region to Palette"" action=""scmenu_region_to_palette"" />";
+	   "      <menuitem name=""Load as Palette"" action=""scmenu_load_as_palette"" />";
+	   "      <menuitem name=""Save as Palette"" action=""scmenu_save_as_palette"" />";
 	   "    </menu>";
-	   "    <menu name=""Edit"" action=""EditMenu"">";
-	   "      <menuitem name=""Undo"" action=""Undo"" />";
-	   "      <menuitem name=""Cut"" action=""Cut"" />";
-	   "      <menuitem name=""Copy"" action=""Copy"" />";
-	   "      <menuitem name=""Paste"" action=""Paste"" />";
-	   "      <menuitem name=""Duplicate"" action=""Duplicate"" />";
-	   "      <menuitem name=""Delete"" action=""Delete"" />";
-	   "      <menuitem name=""Move"" action=""Move"" />";
-	   "      <menuitem name=""Smart Move"" action=""Smart Move"" />";
-	   "      <menuitem name=""Align"" action=""Align"" />";
-	   "      <menuitem name=""Flip"" action=""Flip"" />";
-	   "      <menuitem name=""Add new block"" action=""Add new block"" />";
-	   "      <menu name=""Block Menu"" action=""Block Menu"">";
-	   "        <menuitem name=""Resize"" action=""Resize"" />";
-	   "        <menuitem name=""Rotate Left"" action=""Rotate Left"" />";
-	   "        <menuitem name=""Rotate Right"" action=""Rotate Right"" />";
-	   "        <menuitem name=""Icon"" action=""Icon"" />";
-	   "        <menuitem name=""Icon Editor"" action=""Icon Editor"" />";
-	   "        <menuitem name=""Color"" action=""Color"" />";				    
-	   "        <menuitem name=""Label"" action=""Label"" />";
-	   "        <menuitem name=""Get Info"" action=""Get Info"" />";
-	   "        <menuitem name=""Details"" action=""Details"" />";
-	   "        <menuitem name=""Identification"" action=""Identification"" />";
-	   "        <menuitem name=""Block Documentation"" action=""Block Documentation"" />";
+	   "    <menu name=""Edit"" action=""scmenu_edit_menu"">";
+	   "      <menuitem name=""Undo"" action=""scmenu_undo"" />";
+	   "      <menuitem name=""Cut"" action=""scmenu_cut"" />";
+	   "      <menuitem name=""Copy"" action=""scmenu_copy"" />";
+	   "      <menuitem name=""Paste"" action=""scmenu_paste"" />";
+	   "      <menuitem name=""Duplicate"" action=""scmenu_duplicate"" />";
+	   "      <menuitem name=""Delete"" action=""scmenu_delete"" />";
+	   "      <menuitem name=""Move"" action=""scmenu_move"" />";
+	   "      <menuitem name=""Smart Move"" action=""scmenu_smart_move"" />";
+	   "      <menuitem name=""Align"" action=""scmenu_align"" />";
+	   "      <menuitem name=""Flip"" action=""scmenu_flip"" />";
+	   "      <menuitem name=""Add new block"" action=""scmenu_add_new_block"" />";
+	   "      <menu name=""Block Menu"" action=""scmenu_block_menu"">";
+	   "        <menuitem name=""Resize"" action=""scmenu_resize"" />";
+	   "        <menuitem name=""Rotate Left"" action=""scmenu_rotate_left"" />";
+	   "        <menuitem name=""Rotate Right"" action=""scmenu_rotate_right"" />";
+	   "        <menuitem name=""Icon"" action=""scmenu_icon"" />";
+	   "        <menuitem name=""Icon Editor"" action=""scmenu_icon_editor"" />";
+	   "        <menuitem name=""Color"" action=""scmenu_color"" />";				    
+	   "        <menuitem name=""Label"" action=""scmenu_label"" />";
+	   "        <menuitem name=""Get Info"" action=""scmenu_get_info"" />";
+	   "        <menuitem name=""Details"" action=""scmenu_details"" />";
+	   "        <menuitem name=""Identification"" action=""scmenu_identification"" />";
+	   "        <menuitem name=""Block Documentation"" action=""scmenu_block_documentation"" />";
 	   "      </menu>"
 	   "    </menu>";
-	   "    <menu name=""View"" action=""ViewMenu"">";
-	   "      <menuitem name=""Zoom in"" action=""Zoom in"" />";
-	   "      <menuitem name=""Zoom out"" action=""Zoom out"" />";
-	   "      <menuitem name=""Zoom 100"" action=""Zoom 100"" />";
-	   "      <menuitem name=""Fit diagram to figure"" action=""Fit diagram to figure"" />";
-	   "      <menuitem name=""Default window parameters"" action=""Default window parameters"" />";
-	   "      <menuitem name=""Available Parameters"" action=""Available Parameters"" />";
-	   "      <menuitem name=""Icon Font Option"" action=""Icon Font Option"" />";
-	   "      <menuitem name=""Grid"" action=""Grid"" />";
+	   "    <menu name=""View"" action=""scmenu_view_menu"">";
+	   "      <menuitem name=""Zoom in"" action=""scmenu_zoom_in"" />";
+	   "      <menuitem name=""Zoom out"" action=""scmenu_zoom_out"" />";
+	   "      <menuitem name=""Zoom 100"" action=""scmenu_zoom_100"" />";
+	   "      <menuitem name=""Fit diagram to figure"" action=""scmenu_fit_diagram_to_figure"" />";
+	   "      <menuitem name=""Default window parameters"" action=""scmenu_default_window_parameters"" />";
+	   "      <menuitem name=""Available Parameters"" action=""scmenu_available_parameters"" />";
+	   "      <menuitem name=""Icon Font Option"" action=""scmenu_icon_font_option"" />";
+	   "      <menuitem name=""Grid"" action=""scmenu_grid"" />";
 	   "    </menu>";
-	   "    <menu name=""Simulate"" action=""SimulateMenu"">";
-	   "      <menuitem name=""Setup"" action=""Setup"" />";
-	   "      <menuitem name=""Compile"" action=""Compile"" />";
-	   "      <menuitem name=""Modelica initialize"" action=""Modelica initialize"" />";
-	   "      <menuitem name=""Eval"" action=""Eval"" />";
-	   "      <menuitem name=""Analyze Diagram"" action=""Analyze Diagram"" />";
-	   "      <menuitem name=""Debug Level"" action=""Debug Level"" />";
-	   "      <menuitem name=""Run"" action=""Run"" />";
+	   "    <menu name=""Simulate"" action=""scmenu_simulate_menu"">";
+	   "      <menuitem name=""Setup"" action=""scmenu_setup"" />";
+	   "      <menuitem name=""Compile"" action=""scmenu_compile"" />";
+	   "      <menuitem name=""Modelica initialize"" action=""scmenu_modelica_initialize"" />";
+	   "      <menuitem name=""Eval"" action=""scmenu_eval"" />";
+	   "      <menuitem name=""Analyze Diagram"" action=""scmenu_analyze_diagram"" />";
+	   "      <menuitem name=""Debug Level"" action=""scmenu_debug_level"" />";
+	   "      <menuitem name=""Run"" action=""scmenu_run"" />";
 	   "    </menu>";
-	   "    <menu name=""Format"" action=""FormatMenu"">";
-	   "      <menuitem name=""Set default action"" action=""Set default action"" />";
-	   "      <menuitem name=""Set grid"" action=""Set grid"" />";
-	   "      <menuitem name=""Add color"" action=""Add color"" />";
-	   "      <menuitem name=""Default link colors"" action=""Default link colors"" />";
-	   "      <menuitem name=""Color"" action=""Color"" />";
-	   "      <menuitem name=""Background color"" action=""Background color"" />";
-	   "      <menuitem name=""Show Block Shadow"" action=""Show Block Shadow"" />";
-	   "      <menuitem name=""ID fonts"" action=""ID fonts"" />";
+	   "    <menu name=""Format"" action=""scmenu_format_menu"">";
+	   "      <menuitem name=""Set default action"" action=""scmenu_set_default_action"" />";
+	   "      <menuitem name=""Set grid"" action=""scmenu_set_grid"" />";
+	   "      <menuitem name=""Add Color"" action=""scmenu_add_color"" />";
+	   "      <menuitem name=""Default link colors"" action=""scmenu_default_link_colors"" />";
+	   "      <menuitem name=""Color"" action=""scmenu_color"" />";
+	   "      <menuitem name=""Background color"" action=""scmenu_background_color"" />";
+	   "      <menuitem name=""Show Block Shadow"" action=""scmenu_show_block_shadow"" />";
+	   "      <menuitem name=""ID fonts"" action=""scmenu_id_fonts"" />";
 	   "    </menu>";
-	   "    <menu name=""Tools"" action=""ToolsMenu"">";
-	   "      <menuitem name=""Activate ScicosLab Window"" action=""Activate ScicosLab Window"" />";
+	   "    <menu name=""Tools"" action=""scmenu_tools_menu"">";
+	   "      <menuitem name=""Activate ScicosLab Window"" action=""scmenu_activate_scicoslab_window"" />";
 	   "    <separator name=""sep0"" />";
-	   "      <menuitem name=""Create Mask"" action=""Create Mask"" />";
-	   "      <menuitem name=""Remove Mask"" action=""Remove Mask"" />";
-	   "      <menuitem name=""Customize Mask"" action=""Customize Mask"" />";
-	   "      <menuitem name=""Save Block GUI"" action=""Save Block GUI"" />";
+	   "      <menuitem name=""Create Mask"" action=""scmenu_create_mask"" />";
+	   "      <menuitem name=""Remove Mask"" action=""scmenu_remove_mask"" />";
+	   "      <menuitem name=""Customize Mask"" action=""scmenu_customize_mask"" />";
+	   "      <menuitem name=""Save Block GUI"" action=""scmenu_save_block gui"" />";
 	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Create Atomic"" action=""Create Atomic"" />";
-	   "      <menuitem name=""Remove Atomic"" action=""Remove Atomic"" />";
-	   "      <menuitem name=""Browser"" action=""Browser"" />";
-	   "      <menuitem name=""Code Generation"" action=""Code Generation"" />";
-	   "      <menuitem name=""Shortcuts"" action=""Shortcuts"" />";
-	   "      <menuitem name=""Calc"" action=""Calc"" />";
+	   "      <menuitem name=""Create Atomic"" action=""scmenu_create_atomic"" />";
+	   "      <menuitem name=""Remove Atomic"" action=""scmenu_remove_atomic"" />";
+	   "      <menuitem name=""Browser"" action=""scmenu_browser"" />";
+	   "      <menuitem name=""Code Generation"" action=""scmenu_code_generation"" />";
+	   "      <menuitem name=""Shortcuts"" action=""scmenu_shortcuts"" />";
+	   "      <menuitem name=""Calc"" action=""scmenu_calc"" />";
 	   "    </menu>";
-	   "    <menu name=""Help"" action=""HelpMenu"">";
-	   "      <menuitem name=""Help"" action=""Help"" />";
-	   "      <menuitem name=""Scicos Documentation"" action=""Scicos Documentation"" />";
-	   "      <menuitem name=""Demos"" action=""Demos"" />";
-	   "      <menuitem name=""About Scicos"" action=""About Scicos"" />";
+	   "    <menu name=""Help"" action=""scmenu_help_menu"">";
+	   "      <menuitem name=""Help"" action=""scmenu_help"" />";
+	   "      <menuitem name=""Scicos Documentation"" action=""scmenu_scicos_documentation"" />";
+	   "      <menuitem name=""Demos"" action=""scmenu_demos"" />";
+	   "      <menuitem name=""About Scicos"" action=""scmenu_about_scicos"" />";
 	   "    </menu>";
 	   "  </menubar>" ];
     // 
     txt  = catenate(txt,sep='\n');    
         
-    // list of actions 
-       
-    L=list();
-    L(1) = ['FileMenu','File',"","";
-	    'New','New',"","";
-	    'Open','Open',"","";
-	    'Scicoslab Import','Scicoslab Import',"","";
-	    'Save','Save',"","";
-	    'Save As','Save As',"","";
-	    'Save as Interf Func','Save as Interf Func',"","";
-	    'Export','Export',"","";
-	    'Export All','Export All',"","";
-	    'Exit Scicos','Exit Scicos',"","";
-	    'Quit','Quit',"","gtk-quit"];
-
-    L(2) = ['DiagramMenu','Diagram',"","";
-	    'Context','Context',"","";
-	    'Replot','Replot',"","";
-	    'Rename','Rename',"","";
-	    'Purge','Purge',"","";
-	    'Set Diagram Info','Set Diagram Info',"","";
-	    'Set Code Gen Properties','Set Code Gen Properties',"","";
-	    'Region to Super Block','Region to Super Block',"","";
-	    'Up To Main Diagram','Up To Main Diagram',"","gtk-goto-top"];
+    // a set of Actions 
     
-    L(3) = ['PaletteMenu','Palette',"","";
-	    'Pal Tree','Pal Tree',"","";
-	    'Palettes','Palettes',"","";
-	    'Pal editor','Pal editor',"","";
-	    'Region to Palette','Region to Palette',"","";
-	    'Load as Palette','Load as Palette',"","";
-	    'Save as Palette','Save as Palette',"",""];
+    L=list();
+    L(1) = ['scmenu_file_menu','File',"","";
+	    'scmenu_new','New',"","";
+	    'scmenu_open','Open',"","";
+	    'scmenu_scicoslab_import','Scicoslab Import',"","";
+	    'scmenu_save','Save',"","";
+	    'scmenu_save_as','Save As',"","";
+	    'scmenu_save_as_interf_func','Save as Interf Func',"","";
+	    'scmenu_export','Export',"","";
+	    'scmenu_export_all','Export All',"","";
+	    'scmenu_exit_scicos','Exit Scicos',"","";
+	    'scmenu_quit','Quit',"","gtk-quit"];
 
-    L(4) = ['EditMenu','Edit',"","";
-	    'Undo','Undo',"","gtk-undo";
-	    'Cut','Cut',"<control>X","gtk-cut";
-	    'Copy','Copy',"<Ctrl>c","gtk-copy";
-	    'Paste','Paste',"<Ctrl>v","gtk-paste";
-	    'Duplicate','Duplicate',"","";
-	    'Delete','Delete',"Delete","";
-	    'Move','Move',"","";
-	    'Smart Move','Smart Move',"","";
-	    'Align','Align',"","";
-	    'Flip','Flip',"","";
-	    'Rotate Left','Rotate Left',"","";
-	    'Rotate Right','Rotate Right',"","";
-	    'Add new block','Add new block',"","";
-	    'Block Documentation','Block Documentation',"","";..
-	    'Label','Label',"",""];
+    L(2) = ['scmenu_diagram_menu','Diagram',"","";
+	    'scmenu_context','Context',"","";
+	    'scmenu_replot','Replot',"","";
+	    'scmenu_rename','Rename',"","";
+	    'scmenu_purge','Purge',"","";
+	    'scmenu_set_diagram_info','Set Diagram Info',"","";
+	    'scmenu_set_code_gen_properties','Set Code Gen Properties',"","";
+	    'scmenu_region_to_super_block','Region to Super Block',"","";
+	    'scmenu_up_to_main_diagram','Up To Main Diagram',"","gtk-goto-top"];
+    
+    L(3) = ['scmenu_palette_menu','Palette',"","";
+	    'scmenu_pal_tree','Pal Tree',"","";
+	    'scmenu_palettes','Palettes',"","";
+	    'scmenu_pal_editor','Pal editor',"","";
+	    'scmenu_region_to_palette','Region to Palette',"","";
+	    'scmenu_load_as_palette','Load as Palette',"","";
+	    'scmenu_save_as_palette','Save as Palette',"",""];
 
-    L(5) = ['ViewMenu','View',"","";
-	    'Zoom in','Zoom in',"","gtk-zoom-in";
-	    'Zoom out','Zoom out',"","gtk-zoom-out";
-	    'Zoom 100','Zoom 100',"","gtk-zoom-100";
-	    'Fit diagram to figure','Fit diagram to figure',"","gtk-zoom-fit";
-	    'Default window parameters','Default window parameters',"","";
-	    'Available Parameters','Available Parameters',"","";
-	    'Icon Font Option','Icon Font Option',"","";
-	    'Grid','Grid',"",""];
+    L(4) = ['scmenu_edit_menu','Edit',"","";
+	    'scmenu_undo','Undo',"","gtk-undo";
+	    'scmenu_cut','Cut',"<control>X","gtk-cut";
+	    'scmenu_copy','Copy',"<Ctrl>c","gtk-copy";
+	    'scmenu_paste','Paste',"<Ctrl>v","gtk-paste";
+	    'scmenu_duplicate','Duplicate',"","";
+	    'scmenu_delete','Delete',"Delete","";
+	    'scmenu_move','Move',"","";
+	    'scmenu_smart_move','Smart Move',"","";
+	    'scmenu_align','Align',"","";
+	    'scmenu_flip','Flip',"","";
+	    'scmenu_rotate_left','Rotate Left',"","";
+	    'scmenu_rotate_right','Rotate Right',"","";
+	    'scmenu_add_new_block','Add new block',"","";
+	    'scmenu_block_documentation','Block Documentation',"","";..
+	    'scmenu_label','Label',"",""];
 
-    L(6) = ['SimulateMenu','Simulate',"","";
-	    'Setup','Setup',"","gtk-preferences";
-	    'Compile','Compile',"","gtk-execute";
-	    'Modelica initialize','Modelica initialize',"","";
-	    'Eval','Eval',"","";
-	    'Analyze Diagram','Analyze Diagram',"","";
-	    'Debug Level','Debug Level',"","";
-	    'Run','Run',"","gtk-media-play"];
+    L(5) = ['scmenu_view_menu','View',"","";
+	    'scmenu_zoom_in','Zoom in',"","gtk-zoom-in";
+	    'scmenu_zoom_out','Zoom out',"","gtk-zoom-out";
+	    'scmenu_zoom_100','Zoom 100',"","gtk-zoom-100";
+	    'scmenu_fit_diagram_to_figure','Fit diagram to figure',"","gtk-zoom-fit";
+	    'scmenu_default_window_parameters','Default window parameters',"","";
+	    'scmenu_available_parameters','Available Parameters',"","";
+	    'scmenu_icon_font_option','Icon Font Option',"","";
+	    'scmenu_grid','Grid',"",""];
 
-    L(7) = ['FormatMenu','Format',"","";
-	    'Set default action','Set default action',"","";
-	    'Set grid','Set grid',"","";
-	    'Add color','Add color',"","";
-	    'Default link colors','Default link colors',"","";
-	    'Color','Color',"","";
-	    'Background color','Background color',"","";
-	    'Show Block Shadow','Show Block Shadow',"","";
-	    'Resize','Resize',"","";
-	    'Identification','Identification',"","";
-	    'ID fonts','ID fonts',"","";
-	    'Icon','Icon',"","";
-	    'Icon Editor','Icon Editor',"",""];
+    L(6) = ['scmenu_simulate_menu','Simulate',"","";
+	    'scmenu_setup','Setup',"","gtk-preferences";
+	    'scmenu_compile','Compile',"","gtk-execute";
+	    'scmenu_modelica_initialize','Modelica initialize',"","";
+	    'scmenu_eval','Eval',"","";
+	    'scmenu_analyze_diagram','Analyze Diagram',"","";
+	    'scmenu_debug_level','Debug Level',"","";
+	    'scmenu_run','Run',"","gtk-media-play"];
 
-    L(8) = ['ToolsMenu','Tools',"","";
-	    'Activate ScicosLab Window','Activate ScicosLab Window',"","";
-	    'Create Mask','Create Mask',"","";
-	    'Remove Mask','Remove Mask',"","";
-	    'Customize Mask','Customize Mask',"","";
-	    'Save Block GUI','Save Block GUI',"","";
-	    'Create Atomic','Create Atomic',"","";
-	    'Remove Atomic','Remove Atomic',"","";
-	    'Get Info','Get Info',"","";
-	    'Details','Details',"","";
-	    'Browser','Browser',"","";
-	    'Code Generation','Code Generation',"","";
-	    'Shortcuts','Shortcuts',"","";
-	    'Calc','Calc',"",""];
+    L(7) = ['scmenu_format_menu','Format',"","";
+	    'scmenu_set_default_action','Set Default Action',"","";
+	    'scmenu_set_grid','Set grid',"","";
+	    'scmenu_add_color','Add Color',"","";
+	    'scmenu_default_link_colors','Default Link Colors',"","";
+	    'scmenu_color','Color',"","";
+	    'scmenu_background_color','Background Color',"","";
+	    'scmenu_show_block_shadow','Show Block Shadow',"","";
+	    'scmenu_resize','Resize',"","";
+	    'scmenu_identification','Identification',"","";
+	    'scmenu_id_fonts','ID fonts',"","";
+	    'scmenu_icon','Icon',"","";
+	    'scmenu_icon_editor','Icon Editor',"",""];
 
-    L(9) = ['HelpMenu','Help',"","";
-	    'Help','Help',"","";
-	    'Scicos Documentation','Scicos Documentation',"","";
-	    'Demos','Demos',"","";
-	    'About Scicos','About Scicos',"",""];
+    L(8) = ['scmenu_tools_menu','Tools',"","";
+	    'scmenu_activate_scicoslab_window','Activate ScicosLab Window',"","";
+	    'scmenu_create_mask','Create Mask',"","";
+	    'scmenu_remove_mask','Remove Mask',"","";
+	    'scmenu_customize_mask','Customize Mask',"","";
+	    'scmenu_save_block gui','Save Block GUI',"","";
+	    'scmenu_create_atomic','Create Atomic',"","";
+	    'scmenu_remove_atomic','Remove Atomic',"","";
+	    'scmenu_get_info','Get Info',"","";
+	    'scmenu_details','Details',"","";
+	    'scmenu_browser','Browser',"","";
+	    'scmenu_code_generation','Code Generation',"","";
+	    'scmenu_shortcuts','Shortcuts',"","";
+	    'scmenu_calc','Calc',"",""];
+
+    L(9) = ['scmenu_help_menu','Help',"","";
+	    'scmenu_help','Help',"","";
+	    'scmenu_scicos_documentation','Scicos Documentation',"","";
+	    'scmenu_demos','Demos',"","";
+	    'scmenu_about_scicos','About Scicos',"",""];
 
     // menu Edit->Block 
     
-    L(10)=["Block Menu","Block","",""];
+    L(10)=["scmenu_block_menu","Block","",""];
         
     // get the menu helps to obtain the tooltips 
     H=scicos_help_menu();
@@ -302,6 +302,8 @@ function scicos_set_uimanager(is_top)
     end
   endfunction
   
+  // main code 
+  // ---------
   
   win=xget('window');
   window=nsp_graphic_widget(win);
@@ -356,7 +358,7 @@ function scicos_activate_action(action,args)
   if merge.check_data['win']==%f then return;end 
   win = merge.get_data['win'];
   name = action.get_name[];
-  if part(name,1)<>'$' then 
+  if %f && part(name,1)<>'$' then 
     name=scicos_action_name_to_fname(name)
   end
   typename=type(action,'string');
@@ -391,8 +393,9 @@ function scicos_uimanager_connect_proxy(uimgr, action, widget)
   end
 endfunction 
 
-
 function fname=scicos_action_name_to_fname(name)
+// from action name to the name of the nsp associated 
+// handler 
   name = strsubst(tolower(name),' ','_');
   fname='scmenu_'+name
 endfunction
