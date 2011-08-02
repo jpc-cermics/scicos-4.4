@@ -20,8 +20,8 @@ case 'set' then
 			      list('mat',[-1 -2],'vec',1),exprs)
     if ~ok then break,end
     if isempty(a) then a=0,end
-    model.dstate=a
-    out=[size(a,1) size(a,2)];
+    //model.dstate=a
+    //out=[size(a,1) size(a,2)];
     if size(a,"*")==1 then 
       out=[-1,-2],
     else
@@ -30,8 +30,12 @@ case 'set' then
     in=out
     if do_get_type(a)==1 then
       ot=-1
+      model.dstate=a
+      model.odstate=list()
     else
       ot=do_get_type(a)
+      model.dstate=[]
+      model.odstate=list(a)
     end
     it=ot
     if ok then
@@ -47,7 +51,12 @@ case 'compile'
   model=arg1
   sz=[model.in model.in2]
   typ=model.intyp
-  z=model.dstate
+  //z=model.dstate
+  if isempty(model.dstate) then
+    z=model.odstate(1)
+  else
+    z=model.dstate
+  end
   if size(z,'*')==1 then 
       z(1:sz(1),1:sz(2))=z
   end
