@@ -18,20 +18,20 @@ function H=scicos_help_menu()
   H=hash(100);
 
   //****** File Menu ******/
-  H('New')=...
+  H('scmenu_new')=...
       [" Clicking on the New menu item loads an empty diagram in the";
        " active editor Scicos window. If the previous content of the";
        " window is not saved, it will be lost."];
 
-  H('Open')=...
+  H('scmenu_open')=...
       [" Select the Open menu item to load an ASCII or binary file";
        " containing a saved block diagram or palette.";
        " A dialog box allows user choosing the file."];
 
-  H('Import')=...
+  H('scmenu_import')=...
       [" Select the Import menu item to load a Scicoslab diagram"];;
 
-  H('Save')=...
+  H('scmenu_save')=...
       [" Select the save menu item to save the block diagram";
        " in a binary file already selected by a previous";
        " select the Save As menu item. If you select this";
@@ -43,7 +43,7 @@ function H=scicos_help_menu()
        " ";
        " The .cos binary files are machine independent."];
 
-  H('Save As')=...
+  H('scmenu_save_as')=...
       [" Select the Save As menu item to save the block diagram or";
        " palette in a file. A dialog box allows choosing the file";
        " which must have a .cos or .cosf extension. The diagram";
@@ -53,28 +53,28 @@ function H=scicos_help_menu()
        " instead of binary save. Formatted save is slower than regular ";
        " save."];
 
-  H('Save as Interf Func')=...
+  H('scmenu_save_as_interf_func')=...
       [" Select ""the Save as Interf. Func."" menu item to save the ";
        " diagram as a new Scicos block. A Scilab function is generated";
        " and saved in a file with "".sci"" extension. File name and path";
        " are to be set in a ""File menu"" dialog."];
 
-  H('Export')=...
+  H('scmenu_export')=...
       [" This menu is used to export a figure of the "
        " current Scicos diagram. The export can be done"
        " directly in postscript format or done first in a"
        " graphic window to export in a second step in all"
        " the format that ScicosLab can provide."];
 
-  H('Export All')=...
+  H('scmenu_export_all')=...
       [" This menu is used to export Scicos diagrams in postscript format."];
 
-  H('Exit Scicos')=...
+  H('scmenu_exit_scicos')=...
       [" Click on the Exit Scicos menu item to close Scicos.";
        " That menu allows to return to ScicosLab session ";
        " even if the current diagram is a Super block."];
 
-  H('Quit')=...
+  H('scmenu_quit')=...
       [" Click on the Quit menu item to close current diagram. ";
        " If current diagram is not a Super block, Exit menu closes ";
        " Scicos and returns to ScicosLab session. Save your diagram ";
@@ -84,40 +84,40 @@ function H=scicos_help_menu()
 
   //**** Diagram Menu *****/
 
-  H('Replot')=...
+  H('scmenu_replot')=...
       [" Select the Replot menu item to replot the content of";
        " the graphics window. Graphics window stores complete";
        " history of the editing session in memory.";
        " ";
        " Replot is useful for ''cleaning'' this memory."];
 
-  H('Rename')=...
+  H('scmenu_rename')=...
       [" This menu allows to change the diagram name. An editable";
        "  dialog box opens."];
 
-  H('Purge')=...
+  H('scmenu_purge')=...
       [" Select the Purge menu item to get a clean data structure.";
        " If diagram has been hugely modified many deleted blocks";
        " may remain in the data structure. It may be  useful to";
        " suppress then before saving."];
 
-  H('Icon Font Option')=...
+  H('scmenu_icon_font_option')=...
       [" By default, the font used in the block icon texts have variable size,";
        " and the text is adjusted to block size. But fixed size fonts can be used instead."];
 
-  H('Set Diagram Info')=...
+  H('scmenu_set_diagram_info')=...
       [" This menu allows to set user''s diagram information.";
        " This info is stored in the diagram data structure";
        " and may be used for diagram documentation.";
        " ";
        " Information format may be redefined by user."];
 
-  H('Set Code Gen Properties')=...
+  H('scmenu_set_code_gen_properties')=...
       [" This menu allows to set user''s code generation properties.";
        " One can set some default behaviors of the Scicos Code";
        " Generation process."];
 
-  H('Region to Super Block')=...
+  H('scmenu_region_to_super_block')=...
       [" This menu allows to transform a rectangular region of the";
        " current diagram by a super block.";
        " Click  on a corner of the region, drag an click left to";
@@ -125,10 +125,10 @@ function H=scicos_help_menu()
        " ";
        " Region is replaced by a super block and links are redrawn."];
 
-  H('Up To Main Diagram')=...
+  H('scmenu_up_to_main_diagram')=...
       ["Opens, if closed, and puts the focus on the main diagram."];
 
-  H('Context')=...
+  H('scmenu_context')=...
       [" When you select this menu item you obtain a dialog to enter ";
        " Scilab instructions for defining symbolic Scicos parameters ";
        " used in block definitions or to do whatever you want.";
@@ -141,18 +141,18 @@ function H=scicos_help_menu()
 
   //**** Palette Menu *****/
 
-  H('Palettes')=...
+  H('scmenu_palettes')=...
       [" Select the Palettes menu item to open a predefined palette."];
 
-  H('Pal editor')=...
+  H('scmenu_pal_editor')=...
       [" Pal editor allows you to define and reorder the list of palettes."];
 
-  H('Load as Palette')=...
+  H('scmenu_load_as_palette')=...
       [" Select this Load menu item to load an ASCII or binary file";
        " containing a saved block diagram as a palette.";
        " A dialog box allows user choosing the file."];
 
-  H('Save as Palette')=...
+  H('scmenu_save_as_palette')=...
       [" Select the Save as Palette menu item to save the block diagram"
        " as a palette in a file. A dialog box allows choosing ";
        " the file which must have a .cos or .cosf extension. The palette";
@@ -163,10 +163,10 @@ function H=scicos_help_menu()
        " ";
        " .scilab user file is updated if necessary."];
 
-  H('Pal Tree')=...
+  H('scmenu_pal_tree')=...
       ["An alternative to Palettes menu for accessing palettes."];
 
-  H('Region to Palette')=...
+  H('scmenu_region_to_palette')=...
       [" This menu allows to transform a rectangular region of the";
        " current diagram by a palette block.";
        " Click  on a corner of the region, drag an click left to";
@@ -176,22 +176,22 @@ function H=scicos_help_menu()
 
   //****** Edit Menu ******/
 
-  H('Undo')=...
+  H('scmenu_undo')=...
       [" Select the Undo menu item to undo the last edit operation.";
        " It is not possible to undo more!."];
 
-  H('Cut')=...
+  H('scmenu_cut')=...
       [" Cut is used to remove the selected object from the diagram";
        " and keep a copy in the clipboard if the object is a block."];
 
-  H('Copy')=...
+  H('scmenu_copy')=...
       [" Copy is used to place a copy of the selected object";
        " in the clipboard if the object is a block."];
 
-  H('Paste')=...
+  H('scmenu_paste')=...
       [" Paste places the object in the Clipboard in the diagram."];
 
-  H('Duplicate')=...
+  H('scmenu_duplicate')=...
       [" To duplicate a block in the active editor Scicos window";
        " select first the Duplicate menu item, then";
        " click (with left button) on the to-be-copied block";
@@ -204,7 +204,7 @@ function H=scicos_help_menu()
        " ";
        " Right click cancel the copy action."];
 
-  H('Delete')=...
+  H('scmenu_delete')=...
       [" To delete  blocks or a links, select first the Delete";
        " menu item, then click successively on the selected objects";
        " (with left button).";
@@ -212,7 +212,7 @@ function H=scicos_help_menu()
        " When you delete a block all links connected to it";
        " are deleted as well."];
 
-  H('Move')=...
+  H('scmenu_move')=...
       [" To move a block in the active editor Scicos window";
        " or in edited palette,";
        " select first the Move menu item, ";
@@ -222,7 +222,7 @@ function H=scicos_help_menu()
        " ";
        " Right click cancel the move action."];
 
-  H('Smart Move')=...
+  H('scmenu_smart move')=...
       [" To move a block in  the active editor Scicos window";
        " or in edited palette keeping horizontal and vertical";
        " links, select first the ""Smart Move"" menu item, ";
@@ -232,7 +232,7 @@ function H=scicos_help_menu()
        " ";
        " Right click cancel the move action."];
 
-  H('Align')=...
+  H('scmenu_align')=...
       [" To obtain nice diagrams, you can align ports of";
        " different blocks, vertically and horizontally.";
        " Select first the Align menu item, then click on the first";
@@ -241,7 +241,7 @@ function H=scicos_help_menu()
        " ";
        " A connected block cannot be aligned."];
 
-  H('Flip')=...
+  H('scmenu_flip')=...
       [" To reverse the positions of the (regular) inputs";
        " and outputs of a block placed on its sides,";
        " select the Flip menu item first and then click on the";
@@ -249,7 +249,7 @@ function H=scicos_help_menu()
        " nor the position of the input and output event";
        " ports which are numbered from left to right."];
 
-  H('Rotate Left')=...
+  H('scmenu_rotate_left')=...
       [" Rotate Left allows to turn a block on the Left.";
        " Each time the block is turned left, his angle is";
        " decresead of 45 degrees.";
@@ -257,7 +257,7 @@ function H=scicos_help_menu()
        " If no blocks or many blocks are selected, this is";
        " the block under the mouse pointer which turns."];
 
-  H('Rotate Right')=...
+  H('scmenu_rotate_right')=...
       [" Rotate Right allows to turn a block on the right.";
        " Each time the block is turned right, his angle is";
        " incresead of 45 degrees.";
@@ -265,7 +265,7 @@ function H=scicos_help_menu()
        " If no blocks or many blocks are selected, this is";
        " the block under the mouse pointer which turns."];
 
-  H('Add new block')=...
+  H('scmenu_add_new_block')=...
       [" To add a newly defined block to the current palette or diagram";
        " select first this menu item. A dialog box will pop up ";
        " asking for the name of the GUI function associated ";
@@ -273,13 +273,13 @@ function H=scicos_help_menu()
        " it was search in the current directory. The user may then";
        " click at the desired position of the block icon."];
 
-  H('Block Documentation')=...
+  H('scmenu_block_documentation')=...
       [" This menu allows to set or get documentation for a block.";
        " ";
        " Selecting this menu and clicking on a block opens an";
        " editable dialog box."];
 
-  H('Label')=...
+  H('scmenu_label')=...
       [" To add a label to block, select first this menu item, click next";
        " on the desired block. A dialog appear that allows you to enter ";
        " the desired label.";
@@ -287,32 +287,32 @@ function H=scicos_help_menu()
 
   //****** View Menu ******/
 
-  H('Zoom in')=...
+  H('scmenu_zoom_in')=...
       [" When you select this menu item the diagram is zoomed in ";
        " by a factor of 10%."];
 
-  H('Zoom out')=...
+  H('scmenu_zoom_out')=...
       [" When you select this menu item the diagram is zoomed out ";
        " by a factor of 10%."];
 
-  H('Fit diagram to figure')=...
+  H('scmenu_fit_diagram_to_figure')=...
       [" When you select this menu item";
        " the diagram is fit to the size";
        " of the current window."];
 
 
-  H( 'Available Parameters')=...
+  H('scmenu_scmenu_available_parameters')=...
       ["This menu shows the list of symbolic parameters defined";
        "in various contexts and available for use in the definition";
        "of block parameters in this diagram. The values of the parameters"
        "are also displayed (unless the size is too big."];
 
-  H('Grid')=...
+  H('scmenu_grid')=...
       [" Show/hide a grid in the current diagram."];
 
   //**** Simulate Menu ****/
 
-  H('Setup')=...
+  H('scmenu_setup')=...
       [" In the main Scicos window, clicking on the Setup menu item";
        " invokes a dialog box that allows you to change ";
        " integration parameters: ";
@@ -336,7 +336,7 @@ function H=scicos_help_menu()
        " ";
        "   - Max step size (max time step taken by solver)."];
 
-  H('Compile')=...
+  H('scmenu_compile')=...
       [" Select the Compile menu item to compile the block diagram.";
        " This menu item need never be used since compilation is";
        " performed automatically, if necessary, before";
@@ -349,11 +349,11 @@ function H=scicos_help_menu()
        " needed before a Restart or a Continue.";
        " Please report if you encounter such a case."];
 
-  H(' Modelica initialize')=...
+  H('scmenu_modelica_initialize')=...
       [" Compiles the Modelica diagram (if necessary), and";
        "launhces the Modelica initialization GUI"];
 
-  H('Eval')=...
+  H('scmenu_eval')=...
       [" Block parameters may be Scilab instructions.";
        " They are evaluated immediately and stored as character strings.";
        " Select this menu item to have them re-evaluated according to";
@@ -363,18 +363,18 @@ function H=scicos_help_menu()
        " defined before Scicos was launch, They may also be defined in";
        " the Scicos contexts (see Context menu item)."];
 
-  H('Analyze Diagram')=...
+  H('scmenu_analyze_diagram')=...
       [" Simple analysis of the diagram.";
        " Not connected output ports are hilighted.";
        " Possible activation errors are detected."];
 
-  H('Debug Level')=...
+  H('scmenu_debug_level')=...
       [" Set the debug level: 0 (no debugging), 1 (light";
        " debugging information printout), 2 (more information";
        " printout and execution of Debug Block if any in diagram),"
        " 3 (silent debugging mode)."];
 
-  H('Run')=...
+  H('scmenu_run')=...
       [" Select the Run menu item to start the simulation.";
        " If the system has already been simulated, a";
        " dialog box appears where you can choose to Continue,";
@@ -386,45 +386,45 @@ function H=scicos_help_menu()
 
   //***** Format Menu *****/
 
-  H('Set default action')=...
+  H('scmenu_set_default_action')=...
       [" Set the default action :";
        " Free or Smart."];
 
-  H('Set grid')=...
+  H('scmenu_set_grid')=...
       [" Set the size and the color of ";
        " the grid for the current diagram."];
 
-  H('Add color')=...
+  H('scmenu_add_color')=...
       [" This menu allows to add new color to the diagram private";
        " color map. Added colors are stored in the diagram data structure."];
 
-  H('Default link colors')=...
+  H('scmenu_default_link_colors')=...
       [" This menu allows to change the default color for regular ";
        " and activation links."];
 
-  H('Color')=...
+  H('scmenu_color')=...
       [" To change the background color of an object, select first ";
        " this menu item, click next on the desired object. A dialog appear";
        " that allows you to choose the desired color."];
 
-  H('Background color')=...
+  H('scmenu_background_color')=...
       [" This menu allows to change the background and default";
        " foreground colors."];
 
-  H('Show Block Shadow')=...
+  H('scmenu_show_block_shadow')=...
       [" This menu allows to select 3D shape for blocks and ";
        " associated parameters."];
 
-  H('Resize')=...
+  H('scmenu_resize')=...
       [" To change the size of a block, select first this menu item,";
        " click next on the desired block. A dialog appear that allows ";
        " you to change the width and/or height of the block shape."];
 
-  H('ID fonts')=...
+  H('scmenu_id_fonts')=...
       [" This menu allows to change the font used to write in the block";
        " identifications (see ""Set block ID"" menu)."];
 
-  H('Identification')=...
+  H('scmenu_identification')=...
       [" This menu allows to set an identificator to a link or a block ";
        " block identificators are drawn under the block icon. Super blocks";
        " input/output ports identificators are replicated over the block";
@@ -433,7 +433,7 @@ function H=scicos_help_menu()
        " Selecting this menu and clicking on a block or links opens an";
        " editable dialog box."];
 
-  H('Icon')=...
+  H('scmenu_icon')=...
       [" To change the icon of a block, select first this menu item,";
        " click next on the desired block. A dialog appear that allows ";
        " you to enter Scilab instructions used to draw the icon.";
@@ -441,12 +441,12 @@ function H=scicos_help_menu()
        " You may use the icon_editor menu to generate the Scilab";
        " instructions."];
 
-  H('Icon Editor')=...
+  H('scmenu_icon_editor')=...
       [" Icon Editor allows you to define graphically the icon of the block."];
 
   //***** Tools Menu ******/
 
-  H('Create Mask')=...
+  H('scmenu_create_mask')=...
       [" This menu applies only to a Super Block, transforming it into a";
        " block that resembles a basic block with a standard dialog box. The block";
        " parameters are identifed automatically by searching all the symbolic";
@@ -454,17 +454,17 @@ function H=scicos_help_menu()
        " Super block that are not defined in the appropriate contexts within";
        " the Super Block;"]; 
 
-  H('Remove Mask')=...
+  H('scmenu_remove_mask')=...
       [" This menu applies only to an already masked block. It removes the mask";
        " and the Super Block within it can be recovered. Note that the icon of the";
        " Super Block remains the same as that of the masked block."];
 
-  H('Customize Mask')=...
+  H('scmenu_customize_mask')=...
       [" Creating a mask leads to a block with parameters that can be set by the";
        " block''s dialog box. The title and the description of the parameters in the";
        " dialog box can be set by this menu."];
 
-  H('Save Block GUI')=...
+  H('scmenu_save_block_gui')=...
       [" This operation can only be applied to a masked block (see Create Mask operation).";
        " The result, the interfacing function of this block, is saved in an .sci file, which ";
        " can be placed in any diagram/palette using the Add New Block operation. ";
@@ -472,16 +472,16 @@ function H=scicos_help_menu()
        " ";
        " Note that the resulting block is not a masked block; it is a compiled super block."];
 
-  H('Create Atomic')=...
+  H('scmenu_create_atomic')=...
       [" This menu applies only to a Super Block, transforming it into an";
        " atomic superblock."];
 
-  H('Remove Atomic')=...
+  H('scmenu_remove_atomic')=...
       [" This menu applies only to an already atomic superblock. It removes the atomicity";
        " and the Super Block within it can be recovered. Note that the icon of the";
        " Super Block remains the same as that of the atomic super block."];
 
-  H('Get Info')=...
+  H('scmenu_get_info')=...
       [" This menu allows user to obtain information on an object and on ";
        " its connection with other diagram objects.";
        " ";
@@ -492,7 +492,7 @@ function H=scicos_help_menu()
        "applied to the diagram. In either case, it displays the content of";
        "the Scilab structure defining the object."];
 
-  H('Browser')=...
+  H('scmenu_browser')=...
       [" This menu opens a graphic window with a tree ";
        " representation of the super blocks hierarchy.";
        " Each node represents a Super Block.";
@@ -501,7 +501,7 @@ function H=scicos_help_menu()
        " everywhere in the hierarchy. To open the main diagram if it has";
        " been closed, use the ''Up to Main Diagram'' menu."];;
 
-  H('Code Generation')=...
+  H('scmenu_code_generation')=...
       [" This menu allows to generate the simulation code associated with";
        " a discrete time Super Block.";
        "";
@@ -517,18 +517,18 @@ function H=scicos_help_menu()
        " implements the generated code. It is then possible to run the modified ";
        " diagram. The code for standalone use is also generated."];
 
-  H('Shortcuts')=...
+  H('scmenu_shortcuts')=...
       [" Used to define personalized shortcuts."];
 
 
-  H( 'Activate ScicosLab Window')=...
+  H('scmenu_activate_scicoslab_window')=...
       ["This item activates the ScicosLab window without closing the Scicos diagram.";
        "You can use ScicosLab as usual and later return to editing your Scicos diagram."
        "Note that if you activate the ScicosLab window with this menu without saving";
        "your diagram, if you leave ScicosLab without returning to Scicos, your diagram";
        "will be lost."];
 
-  H('Calc')=...
+  H('scmenu_calc')=...
       [" When you select this menu item you switch ScicosLab to ";
        " the pause mode (see the help on pause).";
        " In the ScicosLab main window and you may enter Scilab instructions";
@@ -537,20 +537,20 @@ function H=scicos_help_menu()
 
   //****** Help Menu ******/
 
-  H('Help')=...
+  H('scmenu_help')=...
       [" To get help on an object or menu buttons,";
        " select first Help menu item and then on ";
        " the selected object or menu item."];
 
-  H('Scicos Documentation')=...
+  H('scmenu_scicos_documentation')=...
       [" That item opens the html ";
        " browser."];
 
-  H('Demos')=...
+  H('scmenu_demos')=...
       [" The Demos menu allows to open some";
        " examples of scicos diagram."];
 
-  H('About Scicos')=...
+  H('scmenu_about_scicos')=...
       ["About Scicos item display the";
        "current version of Scicos and";
        "gives some useful informations."];
