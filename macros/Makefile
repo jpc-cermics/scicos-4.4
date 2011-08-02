@@ -1,11 +1,10 @@
 SHELL = /bin/sh
+TOP=..
+include $(TOP)/Path.incl
 
-include ../../../../Path.incl
-include $(SCIDIR)/macros/Makefile.lib
+CFLAGS = $(CC_OPTIONS) 
 
-# added targets 
-
-SUBDIRS =  menus codegeneration 
+SUBDIRS =  blocks scicos 
 
 all:: 
 	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
