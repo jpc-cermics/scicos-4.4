@@ -151,7 +151,7 @@ function scicos_set_uimanager(is_top)
 	   "      <menuitem name=""Create Mask"" action=""scmenu_create_mask"" />";
 	   "      <menuitem name=""Remove Mask"" action=""scmenu_remove_mask"" />";
 	   "      <menuitem name=""Customize Mask"" action=""scmenu_customize_mask"" />";
-	   "      <menuitem name=""Save Block GUI"" action=""scmenu_save_block gui"" />";
+	   "      <menuitem name=""Save Block GUI"" action=""scmenu_save_block_gui"" />";
 	   "      <separator name=""sep1"" />";
 	   "      <menuitem name=""Create Atomic"" action=""scmenu_create_atomic"" />";
 	   "      <menuitem name=""Remove Atomic"" action=""scmenu_remove_atomic"" />";
@@ -258,7 +258,7 @@ function scicos_set_uimanager(is_top)
 	    'scmenu_create_mask','Create Mask',"","";
 	    'scmenu_remove_mask','Remove Mask',"","";
 	    'scmenu_customize_mask','Customize Mask',"","";
-	    'scmenu_save_block gui','Save Block GUI',"","";
+	    'scmenu_save_block_gui','Save Block GUI',"","";
 	    'scmenu_create_atomic','Create Atomic',"","";
 	    'scmenu_remove_atomic','Remove Atomic',"","";
 	    'scmenu_get_info','Get Info',"","";
