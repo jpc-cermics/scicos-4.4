@@ -119,7 +119,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %cor_item_exec=[%cor_item_exec;submenu(2),mnames];
       %cor_item_exec=[%cor_item_exec;mnames,mnames];
     end
-
     // add fixed menu items not visible
     // 
     %cor_item_exec = [%cor_item_exec;

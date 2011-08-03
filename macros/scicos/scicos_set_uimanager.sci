@@ -35,7 +35,8 @@ function scicos_set_uimanager(is_top)
 	   "    <toolitem name=""Paste"" action=""scmenu_paste"" />"
 	   "    <separator name=""tsep3"" />"];
     if ~is_top then 
-      txt.concatd[[ "    <toolitem name=""up"" action=""scmenu_up_to_main_diagram"" />"
+      txt.concatd[[ "    <toolitem name=""up"" action=""scmenu_up"" />"
+		    "    <toolitem name=""uptop"" action=""scmenu_up_to_main_diagram"" />"
 		    "    <separator name=""tsep4""/>"]];
     end
     txt.concatd[[ "    <toolitem name=""prefs"" action=""scmenu_setup"" />"
@@ -187,7 +188,8 @@ function scicos_set_uimanager(is_top)
 	    'scmenu_set_diagram_info','Set Diagram Info',"","";
 	    'scmenu_set_code_gen_properties','Set Code Gen Properties',"","";
 	    'scmenu_region_to_super_block','Region to Super Block',"","";
-	    'scmenu_up_to_main_diagram','Up To Main Diagram',"","gtk-goto-top"];
+	    'scmenu_up_to_main_diagram','Up To Main Diagram',"","gtk-goto-top";
+    	    'scmenu_up','Up to Parent',"","gtk-go-up"];
     
     L(3) = ['scmenu_palette_menu','Palette',"","";
 	    'scmenu_pal_tree','Pal Tree',"","";

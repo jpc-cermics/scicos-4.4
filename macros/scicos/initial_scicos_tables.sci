@@ -47,7 +47,8 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
               'Set Diagram Info',..
               'Set Code Gen Properties',..
               'Region to Super Block',..
-              'Up To Main Diagram'];
+              'Up To Main Diagram',..
+	      'Up'];
   
   Palette  = ['Palette',..
               'Pal Tree',..
