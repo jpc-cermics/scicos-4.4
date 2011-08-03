@@ -198,15 +198,17 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       end
     end
   elseif o.type  =='Link' then
+    // 
     resume(Cmenu='Link');
-    //return;
   elseif o.type  =='Text' then
-    ierr=execstr('o_n='+o.gui+'(''set'',o)',errcatch=%t)
-    if ~ierr then
-      printf('Error in GUI of block %s\n',o.gui);
-      return
+    // 
+    eok=execstr('o_n='+o.gui+'(''set'',o)',errcatch=%t)
+    if ~eok then
+      message('Error in GUI of block %s\n',o.gui);
+      lasterror();
+      return;
     end
-    edited=or(o<>o_n)
+    edited=~o.equal[o_n];
     o=o_n
   end
 endfunction
