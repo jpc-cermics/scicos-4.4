@@ -184,7 +184,7 @@ function scmenu_code_generation()
 	Cmenu=[]
 	[%cpr,ok]=do_compile(nscs_m)
 	if ok then
-	  %cpr.cor=update_cor(cpr.cor)
+	  %cpr.cor=update_cor_cdgen(cpr.cor)
 	  corinv=list()
 	  for i =1:length(cpr.corinv)
 	    if cpr.corinv(i)<>0 then
@@ -17437,7 +17437,7 @@ function [XX]=update_block(XX)
 
 endfunction
 
-function cor=update_cor(cor)
+function cor=update_cor_cdgen(cor)
 //Copyright (c) 1989-2011 Metalau project INRIA
 //
 //@@ update_cor : update the cor list of an entire generated diagram
@@ -17448,7 +17448,7 @@ function cor=update_cor(cor)
 //
  for k=1:length(cor)
    if type(cor(k),'short')=='l' then
-     cor(k)=update_cor(cor(k))
+     cor(k)=update_cor_cdgen(cor(k))
    else
      if cor(k)<>0 then
        cor(k)=1
