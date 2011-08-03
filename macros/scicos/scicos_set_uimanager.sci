@@ -34,23 +34,17 @@ function scicos_set_uimanager(is_top)
 	   "    <toolitem name=""Copy"" action=""scmenu_copy"" />"
 	   "    <toolitem name=""Paste"" action=""scmenu_paste"" />"
 	   "    <separator name=""tsep3"" />"];
-    
-    if is_top then 
-      txt=[txt;
-	   "    <toolitem name=""prefs"" action=""scmenu_setup"" />"
-	   "    <toolitem name=""compile"" action=""scmenu_compile"" />"
-	   "    <toolitem name=""run"" action=""scmenu_run"" />"
-	   "    <toolitem name=""stop"" action=""$scicos_stop"" />"
-	   "    <separator name=""tsep4""/>"
-	   "    <toolitem name=""Quit"" action=""scmenu_quit"" />"
-	   "  </toolbar>"];
-    else
-      txt=[txt;
-	   "    <toolitem name=""up"" action=""scmenu_up_to main_diagram"" />"
-	   "    <separator name=""tsep4""/>"
-	   "    <toolitem name=""Quit"" action=""scmenu_quit"" />"
-	   "  </toolbar>"];
+    if ~is_top then 
+      txt.concatd[[ "    <toolitem name=""up"" action=""scmenu_up_to_main_diagram"" />"
+		    "    <separator name=""tsep4""/>"]];
     end
+    txt.concatd[[ "    <toolitem name=""prefs"" action=""scmenu_setup"" />"
+		  "    <toolitem name=""compile"" action=""scmenu_compile"" />"
+		  "    <toolitem name=""run"" action=""scmenu_run"" />"
+		  "    <toolitem name=""stop"" action=""$scicos_stop"" />"
+		  "    <separator name=""tsep4""/>"
+		  "    <toolitem name=""Quit"" action=""scmenu_quit"" />"
+		  "  </toolbar>"]];
     // just return a string 
     txt  = catenate(txt,sep='\n');
   endfunction

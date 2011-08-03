@@ -15,8 +15,6 @@ function hilite_path(path,mess,with_intermediates)
 // superblocks on the path.
 // 
 // 
-  pause hilite_path
-  
   if nargin<3 then with_intermediates=%f,end
   if nargin<2 then mess=' ',end
   scs_m=scs_m;
