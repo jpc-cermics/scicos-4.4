@@ -17,14 +17,9 @@ function scs_m=drawobjs(scs_m,win)
     F.invalidate[];
     return;
   end 
-  // check if we already have internal graphic objects 
-  // drawobjs always recreate the graphic objects
-  if %f && scs_m.objs(1).iskey['gr'] then 
-    // we already have stuffs recorded
-    F.invalidate[];
-    return;
-  end
   // draw the objets and keep their associated graphic objects
+  // note that drawobj will remove old graphic objects if they 
+  // exists in each object
   F.draw_latter[];
   for i=1:length(scs_m.objs);
     scs_m.objs(i)=drawobj(scs_m.objs(i),F)
