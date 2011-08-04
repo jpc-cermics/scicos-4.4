@@ -31,6 +31,7 @@ function scmenu_up()
     end
     if ~ok then 
       message('Inactive parent');
+      Scicos_commands=['%diagram_path_objective='+sci2exp(up_path)+';%scicos_navig=1'];
     else
       Scicos_commands=['%diagram_path_objective='+sci2exp(up_path)+';%scicos_navig=1';
 		       'Cmenu='"'''''";%scicos_navig=[]';

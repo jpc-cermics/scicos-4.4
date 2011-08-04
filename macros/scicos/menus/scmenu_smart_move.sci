@@ -1,53 +1,55 @@
 function SMove_()
- Cmenu=''
- SelectSize=size(Select)
- SelectSize=SelectSize(1)
- if ~isempty(Select) then
-   if ~isempty(find(Select(:,2)<>curwin)) then
-     Select=[]
-     Cmenu='SMove'
-     return
-   end
- end
- [scs_m]=do_move(%pt,scs_m)
- %pt=[]
+// performs a smart move of an object 
+// or redirect action to "Smart Link" 
+// if %pt is in fact in an outputport of a block.
+// 
+  Cmenu=''
+  if ~isempty(Select) && ~isempty(find(Select(:,2)<>curwin)) then
+    // XXX why this part ? 
+    Select=[]; Cmenu='SMove';
+    return
+  end
+  // performs the move 
+  [scs_m]=do_smart_move(%pt,scs_m)
+  %pt=[];
 endfunction
 
-function [scs_m]=do_move(%pt,scs_m)
+function [scs_m]=do_smart_move(%pt,scs_m)
 // Copyright INRIA
 // get a scicos object to move, and move it with connected objects
- win=%win;
- xc=%pt(1);yc=%pt(2)
- [k,wh]=getobj(scs_m,[xc;yc])
- if isempty(k) then return, end
- Cmenu=check_edge(scs_m.objs(k),"Smart Move",%pt);
- if isequal(Cmenu,"Link") then
-   resume(Cmenu="Smart Link")
-   return
- end
- scs_m_save=scs_m
- xcursor(52);
- if scs_m.objs(k).type=='Block' | scs_m.objs(k).type =='Text' then
-   needreplay=replayifnecessary()
-   scs_m=moveblock_new(scs_m,k,xc,yc)
- elseif scs_m.objs(k).type =='Link' then
-   if wh>0 then
-     scs_m=movelink_new(scs_m,k,xc,yc,wh)
-   else
-     scs_m=movecorner_new(scs_m,k,xc,yc,wh)
-   end
-   xcursor()
- end
+// using smart moves 
+//   
+  win=%win;
+  xc=%pt(1);yc=%pt(2)
+  [k,wh]=getobj(scs_m,[xc;yc])
+  if isempty(k) then return, end
+  Cmenu=check_edge(scs_m.objs(k),"Smart Move",%pt);
+  if Cmenu.equal["Link"] then
+    resume(Cmenu="Smart Link")
+    return
+  end
+  scs_m_save=scs_m
+  xcursor(52);
+  if scs_m.objs(k).type=='Block' | scs_m.objs(k).type =='Text' then
+    needreplay=replayifnecessary()
+    scs_m=do_smart_move_block(scs_m,k,xc,yc)
+  elseif scs_m.objs(k).type =='Link' then
+    if wh>0 then
+      scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
+    else
+      scs_m=do_smart_move_corner(scs_m,k,xc,yc,wh)
+    end
+    xcursor()
+  end
   resume(scs_m_save,needreplay,enable_undo=%t,edited=%t,nc_save=needcompile);
 endfunction
 
-
-function scs_m=moveblock_new(scs_m,k,xc,yc)
+function scs_m=do_smart_move_block(scs_m,k,xc,yc)
 // Copyright INRIA  
 // Move  block k and modify connected links if any
-//!
+//
 //look at connected links
-  //printf("In a moveblock_new \n");
+  
   connected=unique(get_connected(scs_m,k))
   o=scs_m.objs(k)
   xx=[];yy=[];ii=[];clr=[];
@@ -176,7 +178,7 @@ function scs_m=moveblock_new(scs_m,k,xc,yc)
   end
 endfunction
 
-function scs_m=movelink_new(scs_m,k,xc,yc,wh)
+function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 // move the  segment wh of the link k and modify the other segments if necessary
 //!
   o=scs_m.objs(k)
@@ -186,7 +188,7 @@ function scs_m=movelink_new(scs_m,k,xc,yc,wh)
   if wh==1 then
     from=o.from;to=o.to;
     if is_split(scs_m.objs(from(1))) && is_split(scs_m.objs(to(1))) &&nl<3 then
-      scs_m=movelink1_new(scs_m)
+      scs_m=do_smart_move_link1(scs_m)
     elseif ~is_split(scs_m.objs(from(1)))|| nl < 3 then
       // we have selected the first segment 
       if %f then 
@@ -196,8 +198,8 @@ function scs_m=movelink_new(scs_m,k,xc,yc,wh)
 	o.gr.children(1).x = [xx(1);p(1); xx(2:$)];
 	o.gr.children(1).y = [yy(1);p(2); yy(2:$)];
 	pto=[xc,yc];
-// 	rep(3)=-1
-// 	while rep(3)==-1 ,
+	// 	rep(3)=-1
+	// 	while rep(3)==-1 ,
         while 1
 	  rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
           if rep(3)==10 then
@@ -235,11 +237,11 @@ function scs_m=movelink_new(scs_m,k,xc,yc,wh)
 	o.yy = o.gr.children(1).y;
 	// and force a move of 
 	scs_m.objs(k)=o;
-	scs_m=movelink_new(scs_m,k,xc,yc,wh+2)
+	scs_m=do_smart_move_link(scs_m,k,xc,yc,wh+2)
       end
     else  
       // link comes from a split 
-      scs_m=movelink2_new(scs_m,o)
+      scs_m=do_smart_move_link2(scs_m,o)
     end
   elseif wh >= nl-1 then
     to=o.to
@@ -283,11 +285,11 @@ function scs_m=movelink_new(scs_m,k,xc,yc,wh)
 	o.yy = o.gr.children(1).y;
 	// and force a move of 
 	scs_m.objs(k)=o;
-	scs_m=movelink_new(scs_m,k,xc,yc,nl-1)
+	scs_m=do_smart_move_link(scs_m,k,xc,yc,nl-1)
       end
     else 
       // link goes to a split 
-      scs_m=movelink3_new(scs_m,o)
+      scs_m=do_smart_move_link3(scs_m,o)
     end
   elseif nl < 4 then
     //-------------
@@ -319,12 +321,12 @@ function scs_m=movelink_new(scs_m,k,xc,yc,wh)
       F.draw_now[];
     end
   else
-    o=movelink4_new(o);
+    o=do_smart_move_link4(o);
     scs_m.objs(k)=o;
   end
 endfunction
 
-function o=movelink4_new(o)
+function o=do_smart_move_link4(o)
   xx=o.gr.children(1).x;
   yy=o.gr.children(1).y;
   e=[min(yy(wh:wh+1))-max(yy(wh:wh+1)),min(xx(wh:wh+1))-max(xx(wh:wh+1))];
@@ -360,7 +362,7 @@ function o=movelink4_new(o)
   end
 endfunction
 
-function scs_m=movelink1_new(scs_m)
+function scs_m=do_smart_move_link1(scs_m)
   o;
   xx=o.gr.children(1).x;
   yy=o.gr.children(1).y;
@@ -463,7 +465,7 @@ function scs_m=movelink1_new(scs_m)
   F.draw_now[];
 endfunction
 
-function scs_m=movelink2_new(scs_m,o)
+function scs_m=do_smart_move_link2(scs_m,o)
   xx=o.gr.children(1).x(1:2);
   yy=o.gr.children(1).y(1:2);
   e=[max(yy)-min(yy),max(xx)-min(xx)];
@@ -562,7 +564,7 @@ function scs_m=movelink2_new(scs_m,o)
   F.draw_now[];
 endfunction
 
-function scs_m=movelink3_new(scs_m,o)
+function scs_m=do_smart_move_link3(scs_m,o)
   // moving the last part of a link 
   o;
   xx=o.gr.children(1).x($-1:$);
@@ -638,13 +640,13 @@ function scs_m=movelink3_new(scs_m,o)
   F.draw_now[];
 endfunction
 
-function scs_m=movecorner_new(scs_m,k,xc,yc,wh)
+function scs_m=do_smart_move_corner(scs_m,k,xc,yc,wh)
   o=scs_m.objs(k)
-  scs_m=movelink_new(scs_m,k,xc,yc,-wh)
+  scs_m=do_smart_move_link(scs_m,k,xc,yc,-wh)
   return
   if wh == -1 | wh == -size(o.xx,'*') then 
     //link endpoint choosen
-    scs_m=movelink_new(scs_m,k,xc,yc,-wh)
+    scs_m=do_smart_move_link(scs_m,k,xc,yc,-wh)
     return
   end
   wh=-wh;

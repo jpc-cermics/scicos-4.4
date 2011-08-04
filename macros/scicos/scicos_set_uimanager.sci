@@ -1,4 +1,3 @@
-
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Library General Public
 // License as published by the Free Software Foundation; either
@@ -14,7 +13,7 @@
 // Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 // Boston, MA 02111-1307, USA.
 //
-// (Copyright (C) 20011-2011 Jaen-Philippe Chancelier)
+// (Copyright (C) 20011-2011 Jean-Philippe Chancelier)
 
 function scicos_set_uimanager(is_top)
 // Get the vbox which contains the default menubar 
@@ -165,7 +164,7 @@ function scicos_set_uimanager(is_top)
     // 
     txt  = catenate(txt,sep='\n');    
         
-    // a set of Actions 
+    // a set of Actions given as a list 
     
     L=list();
     L(1) = ['scmenu_file_menu','File',"","";
@@ -335,10 +334,12 @@ function scicos_set_uimanager(is_top)
   // 
   merge.set_data[win=win];
   window.add_accel_group[merge.get_accel_group[]];
-  // XXXX changer l'interface pour enlever length !!
+  // to access to actions through window id
+  window.set_data[uimanager=merge];
   mb_text=scicos_menubar(action_group,merge);
   tb_text=scicos_toolbar(is_top,action_group,merge);
   ui_text=catenate([mb_text,tb_text],sep='\n');
+  // XXXX changer l'interface pour enlever length !!
   rep = merge.add_ui_from_string[ui_text,length(ui_text)];
   // XXX revoir le rep 
   if rep==0 then 
@@ -396,4 +397,19 @@ function fname=scicos_action_name_to_fname(name)
   fname='scmenu_'+name
 endfunction
 
+function scicos_action_set_sensitivity(win,name,sensitive)
+//
+  window=nsp_graphic_widget(win);
+  if window.check_data['uimanager']==%f then return;end 
+  uimanager = window.get_data['uimanager'];
+  L=uimanager.get_action_groups[]
+  if isempty(L) then return;end 
+  action_group = L(1)
+  // Attention bug si name n'existe pas 
+  action = action_group.get_action[name];
+  action.set_property["sensitive", sensitive];
+endfunction
+
+
   
+

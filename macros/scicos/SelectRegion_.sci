@@ -1,41 +1,67 @@
 function SelectRegion_()
 // handler activated when selecting
 // a region in a window 
-// 
-  Cmenu=''
-  Select=[]
-  F=get_current_figure()
-  //F.draw_now[]
-  xset('window',%win);
+// %win is the window 
+  Cmenu='';
+  Select=do_select_region(%win);
+endfunction
+
+function Select=do_select_region(win);
+// select a region in window win 
+// and when win==curwin update the menus 
+// accordingly
+  Select=[];
+  if win<>curwin then xset('window',win);end     
   G=get_current_figure()
   G.draw_now[]
   [rect,button]=rubberbox([%pt(1);%pt(2);0;0],%t)
-  if button==2 then // right button exit OR active window has been closed
+  if button==2 then 
+    // right button exit OR active window has been closed
     return
   end
   ox=rect(1),oy=rect(2),w=rect(3),h=rect(4);
-  clear rect
-  xset('window',F.id);
-  kc = find(%win==windows(:,2))
+  if win<>curwin then xset('window',curwin);end 
+  // now region is selected 
+  kc = find(win==windows(:,2))
   if isempty(kc) then
     message('This window is not an active palette');
     return
-  elseif windows(kc,1)<0 then //click inside a palette window
+  elseif windows(kc,1)<0 then 
+    //click inside a palette window
     kpal=-windows(kc,1)
     [in,out]=get_objs_in_rect(palettes(kpal),ox,oy,w,h)
-  elseif %win==curwin then //click inside the current window
+  elseif win==curwin then 
+    //click inside the current window
     [in,out]=get_objs_in_rect(scs_m,ox,oy,w,h)
+    scicos_menus_set_sensitivity(in,win) 
   elseif slevel>1 then
     //CESTFAUXICI
     execstr('[in,out]=get_objs_in_rect(scs_m_'+string(windows(kc,1))',ox,oy,w,h)
   else
-    return
+    return;
   end
-  clear ox;clear oy;clear w;clear h;
   if ~isempty(in) then
-    Select=[in',%win*ones(size(in,2),1)]
+    Select=[in',win*ones(size(in,2),1)]
   end
-  clear in; clear out;
+endfunction
+
+function scicos_menus_set_sensitivity(selection,win) 
+// change menu sensitivity according to selection 
+// the diagram is scs_m 
+// sel contains selection in curwin 
+  if isempty(selection) then 
+    sel= 'None';
+  elseif length(selection) > 1 then 
+    sel='Multi'
+  else  
+    sel= scs_m.objs(selection).type 
+  end
+  printf('selection is ==>%s \n",sel);
+  if sel== 'None' then 
+    scicos_action_set_sensitivity(win,"scmenu_cut",%f);
+  else
+    scicos_action_set_sensitivity(win,"scmenu_cut",%t);
+  end
 endfunction
 
 function [in,out] = get_objs_in_rect(scs_m,ox,oy,w,h)

@@ -1,13 +1,10 @@
 function OpenSet_()
 //global inactive_windows
-  
   printf('In OpenSet ......%d\n",curwin);
-  
   if or(curwin==winsid()) then xset('window',curwin); end
   
   if ~%diagram_open then
-   // we can arrive here if we click on an opened super 
-   // block 
+   // we can arrive here if we click on an opened super block 
    %kk=Select(1);
    // test if %kk is valid i.e the selection is 
    // in scs_m and is a super block or a palette
@@ -62,9 +59,11 @@ function OpenSet_()
  if ~isempty(%kk) then
    Select_back=Select; 
    selecthilite(Select_back,%f); //  unHilite previous objects
-   Select=[%kk %win];            //** select the double clicked block 
+   Select=[%kk %win];            //  select the double clicked block 
    selecthilite(Select,%t) ;     
 
+   printf('In OpenSet an object to open opened\n');
+   
    inactive_windows(1)($+1)=super_path;inactive_windows(2)($+1)=curwin
 		       
    super_path=[super_path,%kk] ; 

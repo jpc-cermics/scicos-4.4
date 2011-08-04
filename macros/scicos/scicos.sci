@@ -128,7 +128,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
                       'SelectRegion'    , 'SelectRegion_'
                       'Popup'           , 'Popup_'
                       'PlaceinDiagram'  , 'PlaceinDiagram_'
-                      'PlaceDropped'    ,'PlaceDropped_'
+                      'PlaceDropped'    , 'PlaceDropped_'
                       'BrowseTo'        , 'BrowseTo_'
                       'Place in Browser', 'PlaceinBrowser_'
                       'Select All'      , 'SelectAll_'   
@@ -196,43 +196,23 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
     needsavetest=%f
   end
-
+  
   if scs_m.type<>'diagram' then
     error('First argument must be a scicos diagram')
   end
 
   options=scs_m.props.options
-  %scicos_solver=scs_m.props.tol(6)
+  %scicos_solver=scs_m.props.tol(6);
   %browsehelp_sav=[]
   
   if ~super_block then
     xset('window',Main_Scicos_window)
-    curwin=xget('window')
-    palettes=list()
+    curwin=xget('window');
+    palettes=list();
     noldwin=0
     windows=[1 curwin]
     pixmap=%scicos_display_mode
-    //
     %scicos_gui_mode=1;
-    //if ~exists('%scicos_gui_mode') then 
-    //  if with_tk() then %scicos_gui_mode=1,else %scicos_gui_mode=0,end
-    //end
-    //%scicos_gui_mode=0
-    //if %scicos_gui_mode==1 then
-    //  getfile=tk_getfile;
-    //  savefile=tk_savefile;
-    //  if (%win32) then getvalue=tk_getvalue,end
-    //  if (%win32) then mpopup=tk_mpopup, else mpopup=tk_mpopupX,end
-    //  if (%win32) then choose=tk_choose; else
-    //    deff('x=choose(varargin)','x=x_choose(varargin(1:$))');
-    //  end
-    //  funcprot(0);getcolor=tk_getcolor;funcprot(1);
-    //else
-    //  deff('x=getfile(varargin)','x=xgetfile(varargin(1:$))');
-    //  savefile=getfile;
-    //  deff('Cmenu=mpopup(x)','Cmenu=[]')
-    //  deff('x=choose(varargin)','x=x_choose(varargin(1:$))');
-    //end
   else
     noldwin=size(windows,1)
     windows=[windows;slevel,curwin]
@@ -412,14 +392,16 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         if size(%koko,'*')==1 then
           Select_back=Select
           %cor_item_fun=%cor_item_exec(%koko,2)
-          printf('Entering function ' + %cor_item_fun+'\n');
-          ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
+	  printf('Entering function ' + %cor_item_fun+'\n');
+          // execstr('exec('+%cor_item_fun+');');ierr=%t
+	  ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
           if ierr==%f then 
             message(['Error in '+%cor_item_fun;catenate(lasterror())]);
             Cmenu='Replot';%pt=[]
             Select_back=[];Select=[]
           elseif or(curwin==winsid()) then
             if ~isequal(Select,Select_back) then
+	      // update the hilite status of objects. 
               selecthilite(Select_back,%f)
               selecthilite(Select,%t)
             end
@@ -459,42 +441,47 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
     end
   elseif Cmenu=='Leave' then
-    scs_m=scs_m_remove_gr(scs_m)
-    ok=do_save(scs_m,getenv('NSP_TMPDIR')+'/BackupSave.cos')  
-    if ok then  //need to save %cpr because the one in .cos cannot be
-                //used to continue simulation
-      if ~exists('%tcur') then %tcur=[];end
-      if ~exists('%scicos_solver') then %scicos_solver=0;end
-      save(getenv('NSP_TMPDIR')+'/BackupInfo', edited,needcompile,alreadyran, %cpr,%state0,%tcur,..
-                                            %scicos_solver,inactive_windows)
-
-      OpenPals=windows(find(windows(:,1)<0),2 )  //close palettes 
-      for winu=OpenPals'
-        if or(winu==winsid()) then
-          xbasc(winu),xdel(winu);
-        end
-      end
-    end
-    if ~ok then
-      message(['Problem saving a backup; I cannot activate ScicosLab.';
-	       'Save your diagram scs_m manually.'])
-      pause
-    end
-    AllWindows=unique([windows(:,2);inactive_windows(2)(:)])
-    AllWindows=intersect(AllWindows',winsid())
-    for win_i= AllWindows
-      xset('window',win_i)
-      seteventhandler('scilab2scicos')
-    end
-    disablemenus();
-    save(getenv('NSP_TMPDIR')+'/AllWindows',AllWindows)
-    printf('%s\n','To reactivate Scicos, click on a diagram or type '"scicos();'"')
-    if edited then
-      printf('%s\n','Your diagram is not saved. Do not quit ScicosLab or "+...
-             "open another Scicos diagram before returning to Scicos.')
-    end
+    // quit scicos but in a state where it can be re-activated 
+    // -------------------------------------------------------
+    scs_m=scicos_leave(scs_m)
   end
 endfunction
+
+function scs_m=scicos_leave(scs_m)
+// quit scicos but in a state where it can be re-activated 
+// -------------------------------------------------------
+  scs_m=scs_m_remove_gr(scs_m);
+  ok=do_save(scs_m,file('join',[getenv('NSP_TMPDIR');'BackupSave.cos']));
+  if ok then 
+    //need to save %cpr because the one in .cos cannot be
+    //used to continue simulation
+    if ~exists('%tcur') then %tcur=[];end
+    if ~exists('%scicos_solver') then %scicos_solver=0;end
+    save(file('join',[getenv('NSP_TMPDIR');'BackupInfo']),...
+	 edited,needcompile,alreadyran, %cpr,%state0,%tcur,...
+	 %scicos_solver,inactive_windows);
+    //close palettes 
+    OpenPals=windows(find(windows(:,1)<0),2 ) 
+    xdel(OpenPals);
+  end
+  if ~ok then
+    message(['Problem saving a backup; I cannot activate ScicosLab.';
+	     'Save your diagram scs_m manually.'])
+    pause saving scs_m;
+  end
+  // set event handlers 
+  AllWindows=unique([windows(:,2);inactive_windows(2)(:)])
+  AllWindows=intersect(AllWindows',winsid())
+  seteventhandler('scilab2scicos',win=AllWindows);
+  // disable menus 
+  disablemenus();
+  save(file('join',[getenv('NSP_TMPDIR');'AllWindows']),AllWindows);
+  printf('%s\n','To reactivate Scicos, click on a diagram or type '"scicos();'"')
+  if edited then
+    printf('%s\n','Your diagram is not saved. Do not quit ScicosLab or "+...
+	   "open another Scicos diagram before returning to Scicos.')
+  end
+endfunction 
 
 function [itype, mess] = CmType(Cmenu)
   k=find(Cmenu==%CmenuTypeOneVector(:,1)); 

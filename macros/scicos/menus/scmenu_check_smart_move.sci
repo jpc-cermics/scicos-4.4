@@ -1,4 +1,5 @@
 function scmenu_smart_move()
+// after a mouse event in %win at position %pt 
   if %win<>curwin then
     kc=find(%win==windows(:,2));
     if isempty(kc) then
@@ -7,7 +8,7 @@ function scmenu_smart_move()
       kpal=-windows(kc,1)
       palette=palettes(kpal)
       %kk=getobj(palette,%pt)
-    elseif slevel>1 then
+    elseif slevel > 1 then
       execstr('%kk=getobj(scs_m_'+string(windows(kc,1))+',%pt)')
     end
     if ~isempty(%kk) then
@@ -18,6 +19,7 @@ function scmenu_smart_move()
       Select=[]
     end
   else
+    // click dans la fenetre courante 
     %kk=getobj(scs_m,%pt)
     if ~isempty(%kk) then
       ObjSel=size(Select)
