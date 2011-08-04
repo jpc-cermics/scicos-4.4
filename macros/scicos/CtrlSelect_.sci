@@ -1,4 +1,5 @@
 function CtrlSelect_()
+// 
   Cmenu=''
   if windows(find(%win==windows(:,2)),1)==100000 then
     %pt=[];return

@@ -1,4 +1,7 @@
 function SelectRegion_()
+// handler activated when selecting
+// a region in a window 
+// 
   Cmenu=''
   Select=[]
   F=get_current_figure()
