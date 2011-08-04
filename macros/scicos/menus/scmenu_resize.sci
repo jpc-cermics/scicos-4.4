@@ -8,17 +8,6 @@ function scmenu_resize()
   end
 endfunction
 
-function scmenu_resize()
-// XXXX to be removed 
-  Cmenu='';
-  sc=scs_m;
-  [scs_m]= do_resize(scs_m);
-  if ~scs_m.equal[sc] then 
-    edited=%t;
-    scs_m_save=sc;enable_undo=%t;
-  end
-endfunction
-
 function [scs_m]=do_resize(scs_m)
 // resize a block or a link 
 // for a block resize its box 

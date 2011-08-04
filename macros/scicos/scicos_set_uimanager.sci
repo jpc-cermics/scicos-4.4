@@ -91,8 +91,6 @@ function scicos_set_uimanager(is_top)
 	   "      <menuitem name=""Paste"" action=""scmenu_paste"" />";
 	   "      <menuitem name=""Duplicate"" action=""scmenu_duplicate"" />";
 	   "      <menuitem name=""Delete"" action=""scmenu_delete"" />";
-	   "      <menuitem name=""Move"" action=""scmenu_move"" />";
-	   "      <menuitem name=""Smart Move"" action=""scmenu_smart_move"" />";
 	   "      <menuitem name=""Align"" action=""scmenu_align"" />";
 	   "      <menuitem name=""Flip"" action=""scmenu_flip"" />";
 	   "      <menuitem name=""Add new block"" action=""scmenu_add_new_block"" />";

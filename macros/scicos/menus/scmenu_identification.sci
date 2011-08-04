@@ -40,6 +40,7 @@ function [scs_m,changed]=do_identification(scs_m)
       objet.graphics.id = newid;
       objet=drawobj(objet,F);
       objet.gr.invalidate[];
+      pause xxx
       changed=%t;
       scs_m.objs(numero_objet) = objet;
     end
