@@ -399,6 +399,7 @@ endfunction
 
 function scicos_action_set_sensitivity(win,name,sensitive)
 //
+  return; // temporarily not activated XXXX
   window=nsp_graphic_widget(win);
   if window.check_data['uimanager']==%f then return;end 
   uimanager = window.get_data['uimanager'];
