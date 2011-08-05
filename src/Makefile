@@ -158,7 +158,7 @@ Makefile.amk	: Makefile
 distclean:: clean 
 
 clean:: 
-	@cd blocks; make -j 1 clean
+	@cd blocks; make clean $(MFLAGS)
 	@$(RM) */*.o */*.lo
 
 # special rules for compilation 

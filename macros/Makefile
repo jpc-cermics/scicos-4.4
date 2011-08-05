@@ -2,8 +2,6 @@ SHELL = /bin/sh
 TOP=..
 include $(TOP)/Path.incl
 
-CFLAGS = $(CC_OPTIONS) 
-
 SUBDIRS =  blocks scicos 
 
 all:: 
@@ -19,7 +17,7 @@ distclean::
 	for i in $(SUBDIRS) ;\
 	do \
 		(cd $$i ; echo "making distclean in macros/$$i..."; \
-		$(MAKE) $(MFLAGS)  distclean); \
+		$(MAKE) $(MFLAGS) -s  distclean ); \
 	done
 
 clean::
@@ -27,6 +25,6 @@ clean::
 	for i in $(SUBDIRS) ;\
 	do \
 		(cd $$i ; echo "making clean in macros/$$i..."; \
-		$(MAKE) $(MFLAGS) clean); \
+		$(MAKE) $(MFLAGS) -s clean ) ; \
 	done
 

@@ -1,4 +1,5 @@
 SHELL=/bin/csh
+MFLAGS=-s --no-print-directory
 
 include ../../Path.incl
 include $(SCIDIR)/Makefile.incl
@@ -13,16 +14,21 @@ all	:: builder.sce
 all	::
 	cd src ; make all
 
-tests	:: all
-	cd examples;make distclean; make tests 
-
 clean	::
-	cd src; make clean 
-	cd macros ; make clean 
+	@echo "Clean src " 
+	@cd src; make $(MFLAGS) clean 
+	@echo "Clean macros"
+	@cd macros ; make $(MFLAGS) clean
 
-distclean:: clean 
-	cd src; make distclean 
-	cd macros ; make distclean 
+cleanm	::
+	@echo "Clean macros"
+	@cd macros ; make $(MFLAGS) clean
+
+distclean:: 
+	@echo "Clean src"
+	@cd src; make distclean  >& /dev/null;
+	@echo "Clean macros"
+	@cd macros ; make distclean >& /dev/null;
 
 PATH_INCL= $(wildcard Path.incl)
 

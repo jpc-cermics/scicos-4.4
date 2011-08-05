@@ -161,18 +161,10 @@ Makefile.libmk	: Makefile
 distclean:: clean 
 
 clean:: 
-	@echo Cleaning in subdirs
+	@cd blocks; make clean $(MFLAGS)
 	@$(RM) */*.obj */*.lo
 
-#---------------Blocks
-
-# include Make.Blocks.mak
-
-distclean::
-	$(RM) Fblocknames Cblocknames blocks.h
-
 # special rules for compilation 
-#-------------------------------
 
 sundials/%.obj: sundials/%.c 
 	@echo "compiling $<  Wall "

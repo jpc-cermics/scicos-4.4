@@ -20,7 +20,7 @@ distclean::
 	for i in $(SUBDIRS) ;\
 	do \
 		(cd $$i ; echo "making distclean in macros/$$i..."; \
-		$(MAKE) $(MFLAGS)  distclean); \
+		$(MAKE) $(MFLAGS) -s silent-distclean); \
 	done
 
 clean::
@@ -28,6 +28,6 @@ clean::
 	for i in $(SUBDIRS) ;\
 	do \
 		(cd $$i ; echo "making clean in macros/$$i..."; \
-		$(MAKE) $(MFLAGS) clean); \
+		$(MAKE) $(MFLAGS) -s silent-clean); \
 	done
 
