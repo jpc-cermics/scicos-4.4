@@ -20,10 +20,6 @@ clean	::
 	@echo "Clean macros"
 	@cd macros ; make $(MFLAGS) clean
 
-cleanm	::
-	@echo "Clean macros"
-	@cd macros ; make $(MFLAGS) clean
-
 distclean:: 
 	@echo "Clean src"
 	@cd src; make distclean  >& /dev/null;

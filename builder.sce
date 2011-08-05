@@ -1,4 +1,3 @@
-
 // build scicos toolbox
 
 libname='scicos'
