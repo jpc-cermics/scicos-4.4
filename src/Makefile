@@ -158,18 +158,10 @@ Makefile.amk	: Makefile
 distclean:: clean 
 
 clean:: 
-	@echo Cleaning in subdirs
+	@cd blocks; make -j 1 clean
 	@$(RM) */*.o */*.lo
 
-#---------------Blocks
-
-# include Make.Blocks
-
-distclean::
-	$(RM) Fblocknames Cblocknames blocks.h
-
 # special rules for compilation 
-#-------------------------------
 
 sundials/%.o: sundials/%.c 
 	@echo "compiling $<  Wall "
