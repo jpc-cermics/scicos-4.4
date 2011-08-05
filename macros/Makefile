@@ -4,12 +4,13 @@ include $(TOP)/Path.incl
 
 SUBDIRS =  blocks scicos 
 
+
 all:: 
 	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
 	for i in $(SUBDIRS) ;\
 	do \
 		(cd $$i ; echo "making all in macros/$$i..."; \
-		$(MAKE) $(MFLAGS) all); \
+		$(MAKE) $(MFLAGS) -s all); \
 	done
 
 distclean::

@@ -36,8 +36,7 @@ function block=tkscaleblk(block,flag)
            'frame $w.frame.right -borderwidth 15';
            'pack $w.frame.scale -side left -anchor ne';
            '$w.frame.scale set '+string(initial);
-           'proc f'+blknb+' {w height} {global y'+blknb+';set y'+blknb+' $height}'
-          ];
+           'proc f'+blknb+' {w height} {global y'+blknb+';set y'+blknb+' $height}'];
       TCL_EvalStr(txt) // call TCL interpretor to create widget
       block.outptr(1)=mean(block.rpar(1:2))/block.rpar(3);
     end

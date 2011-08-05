@@ -56,8 +56,7 @@ function tt = scs_TreeView(scs_m)
       'grid $wzz.t $wzz.ysb -sticky nsew'
       ' grid $wzz.xsb -sticky ew'
       ' grid rowconfig    $wzz 0 -weight 1'
-      ' grid columnconfig $wzz 0 -weight 1'
-     ];
+      ' grid columnconfig $wzz 0 -weight 1'];
 
   tt = [tt;'wm title $wzz {Browser (double click to open diagram)}'];
   Path = 'root'

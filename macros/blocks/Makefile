@@ -13,7 +13,7 @@ all::
 	for i in $(SUBDIRS) ;\
 	do \
 		(cd $$i ; echo "making all in macros/blocks/$$i..."; \
-		$(MAKE) $(MFLAGS) all); \
+		$(MAKE) $(MFLAGS) -s all); \
 	done
 
 distclean::

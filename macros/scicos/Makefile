@@ -5,9 +5,9 @@ include $(SCIDIR)/macros/Makefile.lib
 
 # added targets 
 
-SUBDIRS =  menus codegeneration 
+SUBDIRS=menus codegeneration
 
-all:: 
+all::
 	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
 	for i in $(SUBDIRS) ;\
 	do \
