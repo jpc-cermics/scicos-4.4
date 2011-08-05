@@ -10,7 +10,7 @@ endfunction
 function [scs_m,changed]=do_align(%pt,scs_m)
 // Copyright INRIA
   
-  return XXX
+  return;// XXXXX
   
   function pt= select_port(obj,x,y)
     [xout,yout,typout]=getoutputs(obj)
