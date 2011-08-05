@@ -300,7 +300,7 @@ void scicos_evtdly_block (scicos_args_F0)
 
 /*     Outputs a^u(i), a =rpar(1) */
 
-void scicos_exp_block (scicos_args_F0)
+void scicos_expblk_block (scicos_args_F0)
 {
   int i;
   if (*flag__ == 1 || *flag__ >= 4)
@@ -312,7 +312,7 @@ void scicos_exp_block (scicos_args_F0)
 
 /*  For block */
 
-void scicos_for_block (scicos_args_F0)
+void scicos_forblk_block (scicos_args_F0)
 {
   --y;
   --u;
@@ -437,7 +437,7 @@ void scicos_gensqr_block (scicos_args_F0)
  */
 
 
-void scicos_hlt_block (scicos_args_F0)
+void scicos_hltblk_block (scicos_args_F0)
 {
   if (*flag__ == 2)
     {
@@ -702,7 +702,7 @@ void scicos_iocopy_block (scicos_args_F0)
 
 
 
-void scicos_log_block (scicos_args_F0)
+void scicos_logblk_block (scicos_args_F0)
 {
   int i__1;
   int i__;
@@ -884,7 +884,7 @@ void scicos_lusat_block (int *flag__, int *nevprt, const double *t, double *xd,
 }
 
 
-void scicos_max_block (scicos_args_F0)
+void scicos_maxblk_block (scicos_args_F0)
 {
   int i__1;
   double d__1, d__2;
@@ -961,7 +961,7 @@ void scicos_mfclck_block (scicos_args_F0)
 
 /*     outputs the minimum of all inputs */
 
-void scicos_min_block (scicos_args_F0)
+void scicos_minblk_block (scicos_args_F0)
 {
   int i;
   double ww = u[0];
@@ -1014,7 +1014,7 @@ void scicos_pload_block (scicos_args_F0)
 }
 
 
-void scicos_pow_block (scicos_args_F0)
+void scicos_powblk_block (scicos_args_F0)
 {
   int i__1;
   int i__;
@@ -1170,7 +1170,7 @@ void scicos_qztrn_block (scicos_args_F0)
 /*     rpar(ny+1:2*ny)=deviation */
 /*     rpar(2*ny+1)=dt */
 
-void scicos_rnd_block (scicos_args_F0)
+void scicos_rndblk_block (scicos_args_F0)
 {
 
   int i__1;
@@ -1294,7 +1294,7 @@ void scicos_scoxy_block (scicos_args_F0)
 
 /*     Selector block */
 
-void scicos_sel_block (scicos_args_F0)
+void scicos_selblk_block (scicos_args_F0)
 {
   int ic, nev;
   --y;
@@ -1339,7 +1339,7 @@ void scicos_sinblk_block (scicos_args_F0)
  */
 
 
-void scicos_sqr_block (scicos_args_F0)
+void scicos_sqrblk_block (scicos_args_F0)
 {
   int i;
   for (i = 0; i < *nu; ++i)
@@ -2226,7 +2226,7 @@ void scicos_writeau_block (int *flag, int *nevprt, const double *t,
  *     returns Absolute value of the input 
  *------------------------------------------------*/
 
-void scicos_abs_block (scicos_args_F0)
+void scicos_absblk_block (scicos_args_F0)
 {
   int i;
   for (i = 0; i < *nu; ++i)
@@ -2369,10 +2369,10 @@ scicos_constraint_block (int *flag__, int *nevprt, const double *t,
 
 /* XXX : blovk de type   ScicosFi  */
 
-void scicos_diff_block (scicos_args_Fi);
+void scicos_diffblk_block (scicos_args_Fi);
 
 void
-scicos_diff_block (int *flag__, int *nevprt, const double *t, double *res,
+scicos_diffblk_block (int *flag__, int *nevprt, const double *t, double *res,
 		   double *xd, double *x, int *nx, double *z__, int *nz,
 		   double *tvec, int *ntvec, double *rpar, int *nrpar,
 		   int *ipar, int *nipar, double *u, int *nu, double *y,

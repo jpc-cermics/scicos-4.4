@@ -420,10 +420,26 @@ void *scicos_get_function (char *fname)
  * 
  */
 
-void scicos_get_function_name (char *fname,char *rname)
+void scicos_get_function_name (const char *fname,char *rname)
 {
+  char fname1[256], *str;
+  /* first check if scicos_<name>_block exists */
   sprintf(rname,"scicos_%s_block",fname);
   if ( nsp_sharedlib_table_find_symbol(rname)==OK) return;
+  /* then check if name is name1_blk and in that case search if 
+   * scicos_<name>_block symbols exists 
+   */
+  strcpy(fname1,fname);
+  str=strstr(fname1,"_blk");
+  if ( str != NULL)
+    {
+      *str='\0';
+      sprintf(rname,"scicos_%s_block",fname1);
+      if ( nsp_sharedlib_table_find_symbol(rname)==OK) return;
+    }
+  /* return name */
+  /* clear scierror raised */
+  nsp_error_message_clear();
   strcpy(rname,fname);
 }
 
