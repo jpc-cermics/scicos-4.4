@@ -86,6 +86,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
 
     Scicos_commands=['%diagram_path_objective='+sci2exp(pathh)+';%scicos_navig=1';
                      cmd+';%win=curwin;%pt='+sci2exp(%pt)+';xselect();%scicos_navig=[]']
+    printf('cosclick: navigation and Cmenu=%s\n",cmd);
     return
 
   elseif btn==0 then
@@ -149,15 +150,14 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   end
 
   if ~isempty(%pt) then 
-    str_pt= " pt(1)="+string(%pt(1))+" pt(2)="+string(%pt(2));
+    str_pt=sprintf("[%05.0f,%05.0f]",%pt(1),%pt(2));
   else
-    str_pt= " pt=[]";
+    str_pt= "[]";
   end
-
   if type(btn,'short')=='h' then 
-    printf("btn="+string('hash_table')+str_pt+"\n");
+    strb=string('hash_table');
   else
-    printf("btn="+string(btn)+str_pt+"\n");
+    strb=string(btn);
   end
-  printf("Cmenu="+Cmenu+"\n");
+  printf("cosclick: btn=%s, pt=%s, Cmenu=''%s'', win=%d, curwin=%d\n",strb,str_pt,Cmenu,win,curwin);
 endfunction

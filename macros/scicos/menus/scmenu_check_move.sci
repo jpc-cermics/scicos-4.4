@@ -1,52 +1,69 @@
-function MoveLink_()
-  if windows(find(%win==windows(:,2)),1)==100000 then //** Navigator window:
-    Cmenu='';%pt=[];return;
-  elseif %win<>curwin then //** the press is not in the current window 
-    %kk=[]
+function scmenu_check_move_link()
+// check to decide between possible 
+// move actions 
+  [Cmenu,Sel]=do_check_move_link(Select);
+  if ~Sel.equal[Select] then 
+    // XXX selection have to be changed 
+    Select=Sel;
+  end
+  if Cmenu=='' then pt=[];end 
+endfunction
+
+function [Cmenu,Select]=do_check_move_link(Select)
+// this function can change %ppt throught resume
+// 
+  Cmenu='';Select=Select;
+  if %win == curwin then 
+    // the press is in the current window
+    Cmenu="Move";
+    k=getobj(scs_m,%pt)
+    if isempty(k) then
+      // if the press is in the void of the current window 
+      Cmenu="SelectRegion";resume(%ppt=%pt);Select=[];
+      return;
+    end
+    if size(Select,1) <= 1 then
+      // with zero or one object already selected 
+      // check if me move object or create a link
+      Cmenu=check_edge(scs_m.objs(k),Cmenu,%pt);
+      if Cmenu=="Link" then
+	Select=[];
+      else
+	Select=[k,%win];
+      end 
+    else 
+      // more than one object are selected 
+      if isempty(find(k==Select(:,1))) then 
+	// restrict selection to moving object 
+	Select=[k,%win];
+      else
+	Select=Select;
+      end
+    end
+  else
+    // %win <> curwin 
+    // we should never be there since navigation should 
+    // ensure %win == curwin 
+    printf('do_check_move_link with %win<>curwin\n');
+    // the press is not in the current window 
     kc=find(%win==windows(:,2));
-    if isempty(kc) then //** the press is not inside an scicos actiview window
-      Cmenu='';%pt=[];return;
-    elseif windows(kc,1)<0 then //** the press is inside a palette 
-      kpal=-windows(kc,1); 
-      palette=palettes(kpal);
-      %kk=getobj(palette,%pt); //** get the obj inside the palette
-    elseif slevel>1 then //** the press is over a block inside a superblock window
-      execstr('%kk=getobj(scs_m_'+string(windows(kc,1))+',%pt)')
+    // check if the press is not inside an scicos active window
+    if isempty(kc) then return;end 
+    if slevel>1 then 
+      printf('XXXX a press with slevel > 1 ');
+      // the press is over a block inside a superblock window
+      execstr('k=getobj(scs_m_'+string(windows(kc,1))+',%pt)')
+    else
+      k=[];
     end
-    if ~isempty(%kk) then //** press over a valid block 
+    if ~isempty(k) then 
+      // press over a valid block 
       Cmenu="Duplicate"
-      Select=[%kk,%win] //ALANDISABLEITFORTHATTIME
-    else //** press in the void   
-      Cmenu="SelectRegion" //ALANDISABLEITFORTHATTIME
-      Select=[]
-      //Cmenu='';%pt=[];return;
-    end
-  else //** the press is in the current window
-    move_action ="Smart Move";
-    move_action ="Move";
-    %kk=getobj(scs_m,%pt)
-    if ~isempty(%kk) then
-      ObjSel=size(Select);
-      ObjSel=ObjSel(1);
-      if ObjSel<=1 then //** with zero or one object already selected 
-        Cmenu=check_edge(scs_m.objs(%kk),move_action,%pt);
-        if Cmenu=="Link" then
-          Select=[]
-        else
-	  Select=[%kk,%win];
-        end 
-      else //** more than one object is selected 
-        SelectedObjs = Select(:,1)';
-        if or(%kk==SelectedObjs) then //** check if the user want to move the aggregate
-          Cmenu=move_action;
-        else
-          Cmenu=move_action;
-	  Select=[%kk,%win];
-        end 
-      end    
-    else //** if the press is in the void of the current window 
-      Cmenu="SelectRegion";
-      %ppt=%pt;Select=[];
+      Select=[k,%win]
+    else 
+      // press in the void   
+      Cmenu="SelectRegion"
+      Select=[];
     end
   end
 endfunction

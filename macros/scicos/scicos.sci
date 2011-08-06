@@ -22,6 +22,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   slevel = slevel +1;
   super_block = slevel > 1;
 
+  printf('scicos: enter slevel=%d\n",slevel);
   // print the banner on first call 
   scicos_print_banner() 
   
@@ -121,7 +122,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     %cor_item_exec = [%cor_item_exec;
                       'Link'            , 'Link_'
                       'Open/Set'        , 'OpenSet_'
-                      'MoveLink'        , 'MoveLink_'
+                      'MoveLink'        , 'scmenu_check_move_link'
                       'SMove'           , 'SMove_'
                       'SelectLink'      , 'SelectLink_'
                       'CtrlSelect'      , 'CtrlSelect_'
@@ -349,7 +350,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
             end
           elseif Cmenu=="Quit" then
             do_exit()
-            return
+	    printf('scicos: quit slevel=%d\n",slevel);
+	    return
           end
         else
           %scicos_navig=[]
@@ -445,6 +447,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     // -------------------------------------------------------
     scs_m=scicos_leave(scs_m)
   end
+  printf('scicos: quit slevel=%d\n",slevel);
 endfunction
 
 function scs_m=scicos_leave(scs_m)
