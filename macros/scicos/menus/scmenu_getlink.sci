@@ -1,17 +1,21 @@
 function Link_()
+// interactively acquire a link 
+// standard method 
   Cmenu=''
   xinfo('Click link origin, drag, click left for final or intermediate points or right to cancel')
-  [scs_m,needcompile]=getlink(%pt,scs_m,needcompile);
+  [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile);
   %pt=[];Select=[];
   xinfo(' ')
 endfunction
 
 function SmartLink_()
-  [scs_m, needcompile]=getlink(%pt,scs_m,needcompile,%t);
+// interactively acquire a link 
+// smart method 
+  [scs_m, needcompile]=do_getlink(%pt,scs_m,needcompile,%t);
   Cmenu='';%pt=[];Select=[];
 endfunction
 
-function [scs_m,needcompile]=getlink(%pt,scs_m,needcompile,smart)
+function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 // edition of a link from an output block to an input  block
 // Copyright INRIA
   dash=xget('color')

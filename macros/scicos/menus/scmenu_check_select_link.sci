@@ -25,7 +25,7 @@ function [Cmenu,Select]=do_check_select_link()
 // if new selection can be a link.
 // note that this function resume %ppt 
 // 
-  Cmenu='';%pt=[]
+  Cmenu='';%pt=[];Select=[];
   // ? 
   if windows( find(%win==windows(:,2)), 1 )==100000 then
     return
