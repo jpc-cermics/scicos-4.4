@@ -120,9 +120,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     // add fixed menu items not visible
     // 
     %cor_item_exec = [%cor_item_exec;
-                      'Link'            , 'Link_'
+                      'Link'            , 'scmenu_getlink'
                       'Open/Set'        , 'OpenSet_'
-                      'MoveLink'        , 'scmenu_check_move_link'
+                      'CheckMoveLink'   , 'scmenu_check_move_link'
+		      'CheckSmartMove'  , 'scmenu_check_smart_move'
                       'SMove'           , 'SMove_'
                       'SelectLink'      , 'SelectLink_'
                       'CtrlSelect'      , 'CtrlSelect_'
@@ -133,7 +134,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
                       'BrowseTo'        , 'BrowseTo_'
                       'Place in Browser', 'PlaceinBrowser_'
                       'Select All'      , 'SelectAll_'   
-                      'Smart Link'      , 'SmartLink_'];
+                      'Smart Link'      , 'scmenu_smart_getlink'];
     
     //keyboard definiton
     %tableau=smat_create(1,100,"");
@@ -381,7 +382,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
       if (Cmenu==""|(CmenuType==1 & isempty(%pt) & isempty(Select))) then
         [btn, %pt_n, win_n, Cmenu_n]=cosclick();
-        if (Cmenu_n=='SelectLink' | Cmenu_n=='MoveLink') & Cmenu<>"" & CmenuType==1 & isempty(%pt) then
+        if (Cmenu_n=='SelectLink' | Cmenu_n=='CheckMoveLink') & Cmenu<>"" & CmenuType==1 & isempty(%pt) then
           if ~isempty(%pt_n) then %pt = %pt_n; end
         else
           if Cmenu_n<>"" then Cmenu = Cmenu_n; end

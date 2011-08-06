@@ -58,9 +58,9 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       cmd= mcmd;
     elseif (btn==0) then
       if %scicos_action then
-        cmd='Cmenu='"MoveLink'"'
+        cmd='Cmenu='"CheckMoveLink'"'
       else
-        cmd='Cmenu='"Smart Move'"'
+        cmd='Cmenu='"CheckSmartMove'"'
       end
     elseif (btn==10) then 
       cmd='Cmenu='"Open/Set'"'
@@ -79,7 +79,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
         cmd='Cmenu=''SelectLink'''
       end
     elseif (btn==1000) then
-      cmd='Cmenu='"Smart Move'"'
+      cmd='Cmenu='"CheckSmartMove'"'
     else
       cmd='Cmenu=''SelectLink'''
     end
@@ -91,12 +91,12 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
 
   elseif btn==0 then
     if %scicos_action then
-      Cmenu='MoveLink'
+      Cmenu='CheckMoveLink'
     else
-      Cmenu='Smart Move'
+      Cmenu='CheckSmartMove'		// 
     end
   elseif btn==1000 then
-     Cmenu='Smart Move'
+     Cmenu='CheckSmartMove'
   elseif (btn==10) & (win==curwin) then  
     Cmenu='Open/Set'
   elseif (btn==10) & (win<>curwin) then

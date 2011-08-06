@@ -1,4 +1,4 @@
-function Link_()
+function scmenu_getlink()
 // interactively acquire a link 
 // standard method 
   Cmenu=''
@@ -8,7 +8,7 @@ function Link_()
   xinfo(' ')
 endfunction
 
-function SmartLink_()
+function scmenu_smart_getlink()
 // interactively acquire a link 
 // smart method 
   [scs_m, needcompile]=do_getlink(%pt,scs_m,needcompile,%t);

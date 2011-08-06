@@ -13,7 +13,7 @@ function do_help()
   if obj_selected==0 then
     while %t
       [btn,%pt,cwin,Cmenu]=cosclick()
-      if (Cmenu<>"SelectLink") & (Cmenu<>"MoveLink") then
+      if (Cmenu<>"SelectLink") & (Cmenu<>"CheckMoveLink") then
         name=Cmenu
         nm=1
         break

@@ -1,51 +1,66 @@
-function scmenu_smart_move()
+function scmenu_check_smart_move()
 // after a mouse event in %win at position %pt 
-  if %win<>curwin then
-    kc=find(%win==windows(:,2));
-    if isempty(kc) then
-      Cmenu='';%pt=[];return
-    elseif windows(kc,1)<0 then
-      kpal=-windows(kc,1)
-      palette=palettes(kpal)
-      %kk=getobj(palette,%pt)
-    elseif slevel > 1 then
-      execstr('%kk=getobj(scs_m_'+string(windows(kc,1))+',%pt)')
+// 
+  [Cmenu,Sel]=do_check_smart_move(Select);
+  if ~Sel.equal[Select] then 
+    // XXX selection have to be changed 
+    Select=Sel;
+  end
+  if Cmenu=='' then pt=[];end 
+endfunction
+
+function [Cmenu,Select]=do_check_smart_move(Select)
+// this function can change %ppt throught resume
+// 
+  Cmenu='';Select=Select;
+  if %win== curwin then
+    // the press is in the current window
+    Cmenu="Smart Move";
+    k=getobj(scs_m,%pt)
+    if isempty(k) then
+      // if the press is in the void of the current window 
+      Cmenu="SelectRegion";resume(%ppt=%pt);Select=[];
+      return;
     end
-    if ~isempty(%kk) then
-      Cmenu="Duplicate"
-      Select=[%kk,%win]
-    else
-      Cmenu="SelectRegion"
-      Select=[]
-    end
-  else
-    // click dans la fenetre courante 
-    %kk=getobj(scs_m,%pt)
-    if ~isempty(%kk) then
-      ObjSel=size(Select)
-      ObjSel=ObjSel(1)
-      if ObjSel<=1 then
-        Cmenu=check_edge(scs_m.objs(%kk),"Move",%pt)
-        if Cmenu=="Link" then
-          Cmenu="Smart Link"
-          Select=[]
-        else
-          Select=[%kk, %win]
-          if Cmenu=="Move" then Cmenu="SMove", end
-        end
+    if size(Select,1) <=1 then
+      // with zero or one object already selected 
+      // check if me move object or create a link
+      Cmenu=check_edge(scs_m.objs(k),"Smart Move",%pt)
+      if Cmenu=="Link" then
+	Cmenu="Smart Link"
+	Select=[]
       else
-        SelectedObjs = Select(:,1)'
-        if or(%kk==SelectedObjs) then
-          Cmenu="SMove"
-        else
-          Select = [%kk, %win]
-          Cmenu="SMove"
-        end
+	Select=[k, %win]
       end
     else
+      // more than one object are selected 
+      if isempty(find(k==Select(:,1))) then
+	// restrict selection to moving object 
+	Select=[k,%win];
+      else
+	Select=Select
+      end
+    end
+  else
+    // %win <> curwin 
+    // we should never be there since navigation should 
+    printf('do_check_smart_move with %win<>curwin\n');
+    kc=find(%win==windows(:,2));
+    // check if the press is not inside an scicos active window
+    if isempty(kc) then return;end 
+    if slevel > 1 then
+      printf('XXXX a press with slevel > 1 ');
+      execstr('k=getobj(scs_m_'+string(windows(kc,1))+',%pt)')
+    else
+      k=[];
+    end
+    if ~isempty(k) then
+      Cmenu="Duplicate"
+      Select=[k,%win]
+    else
+      // press in the void
       Cmenu="SelectRegion"
-      Select=[];
-      %ppt=%pt;
+      Select=[]
     end
   end
 endfunction

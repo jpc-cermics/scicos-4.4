@@ -43,7 +43,6 @@ function [Cmenu,Select]=do_check_move_link(Select)
   else
     // %win <> curwin 
     // we should never be there since navigation should 
-    // ensure %win == curwin 
     printf('do_check_move_link with %win<>curwin\n');
     // the press is not in the current window 
     kc=find(%win==windows(:,2));

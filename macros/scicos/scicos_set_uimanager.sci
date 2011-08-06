@@ -204,7 +204,7 @@ function scicos_set_uimanager(is_top)
 	    'scmenu_duplicate','Duplicate',"","";
 	    'scmenu_delete','Delete',"Delete","";
 	    'scmenu_move','Move',"","";
-	    'scmenu_smart_move','Smart Move',"","";
+	    'scmenu_check_smart_move','Smart Move',"","";
 	    'scmenu_align','Align',"","";
 	    'scmenu_flip','Flip',"","";
 	    'scmenu_rotate_left','Rotate Left',"","";

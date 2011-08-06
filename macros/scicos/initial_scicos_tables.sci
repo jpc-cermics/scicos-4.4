@@ -318,7 +318,8 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
       'Rotate Left',           "Click on block to be turned left"  ;
       'Rotate Right',          "Click on block to be turned right" ;
       'Open/Set',              "Click to open block or make a link";
-      'MoveLink',              ''                                  ; //** hidden commands
+      'CheckMoveLink',         ''                                  ;
+      'CheckSmartMove'         ''                                  ;
       'SMove',                 ''                                  ;
       'SelectLink',            ''                                  ;
       'CtrlSelect',            ''                                  ;
