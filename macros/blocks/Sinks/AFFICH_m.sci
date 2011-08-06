@@ -26,7 +26,7 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
     gv2=list('mat',[1 2],'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1);
     // get values through menus 
     while %t do
-      [ok,in,font,fontsize,colr,nt,nd,herit,exprs]=getvalue('Set  parameters',..
+      [ok,in,font,fontsize,colr,nt,nd,herit,exprs]=getvalue('Set block parameters',..
 						  gv1, gv2,exprs);
       if ~ok then break,end //user cancel modification
       mess = [] ; //** no message
@@ -68,7 +68,7 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
       end
       if ok then
 	model.ipar=[font;fontsize;colr;xget('window');nt;nd;in(1,1)];
-	model.dstate = [-1;0;0;1;1;zeros(in(1,1)*in(1,2),1)]
+	//model.dstate = [-1;0;0;1;1;zeros(in(1,1)*in(1,2),1)]
 	model.evtin=ones(1-herit,1)
 	graphics.exprs=exprs;
 	//if omodel.in2 <= 1 then graphics.sz(1)=10;end 
@@ -84,6 +84,14 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
       end
     end
    
+   case 'compile'
+    // we should replot the icon here !
+    pause xxx
+    model=arg1
+    in=[model.in,model.in2]
+    model.ipar(7)=in(1,1)
+    model.dstate = [-1;0;0;1;1;zeros(in(1,1)*in(1,2),1)]
+    x=model
    case 'define' then
     font = 1;
     fontsize = 1;
@@ -102,7 +110,8 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
     model.firing = []     ;
     model.dep_ut = [%t %f]
     model.label = '' ;
-
+    model.grp=[1,1];// this is set up at 'compile' time 
+    
     exprs = [ sci2exp([model.in model.in2]);
 	      string(font);
 	      string(fontsize);
@@ -111,11 +120,12 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
 	      string(nd);
 	      string(0) ]
 
-    gr_i=['fnt=xget(''font'')'
+    gr_i=['gin1=max(1,model.in);gin2=max(1,model.in2);'
+	  'fnt=xget(''font'')'
 	  'xset(''font'',ipar(1),ipar(2))';
 	  'str = sprintf('"%*.*f'" , ipar(5),ipar(6),0.0);';
-          'str = strcat(smat_create(1,model.in2,str),'' '');';
-	  'str  = smat_create(model.in,1,str);';
+          'str = strcat(smat_create(1,gin2,str),'' '');';
+	  'str  = smat_create(gin1,1,str);';
 	  'xstringb(orig(1),orig(2),str,sz(1),sz(2));'
 	  'xset(''font'',fnt(1),fnt(2))']
     x = standard_define([3 2],model,exprs,gr_i,'AFFICH_m');
@@ -126,4 +136,5 @@ function str = affich2_str(m,n,f)
   str = sprintf("%*.*f" , f(1),f(2),0.0);
   str = strcat(smat_create(1,n,str),' ');
   str  = smat_create(m,1,strl);
-  
+endfunction
+

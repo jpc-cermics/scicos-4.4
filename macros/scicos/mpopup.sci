@@ -1,5 +1,7 @@
 function [Cmenu,args]=mpopup(ll)
-    
+// creates popup menus this could be changed 
+// using the uimanager 
+  
   function menuitem_response(w,args) 
   // right button menu activation 
   // printf("menuitem selected %s\n",args(2));
