@@ -1,51 +1,62 @@
 function SelectLink_()
-  Select=[]; SelectRegion=list()
+// 
+  SelectRegion=list(); // unselect region XXX 
+  [Cmenu,Sel]=do_check_select_link();
+  if Cmenu == '' then %pt=[];end 
+  if ~Sel.equal[Select] then 
+    // XXX  update selection in menus 
+    Select = Sel;
+  end
+endfunction
+
+function scmenu_check_select_link()
+// 
+  SelectRegion=list(); // unselect region XXX 
+  [Cmenu,Sel]=do_check_select_link();
+  if Cmenu == '' then %pt=[];end 
+  if ~Sel.equal[Select] then 
+    // XXX  update selection in menus 
+    Select = Sel;
+  end
+endfunction
+
+function [Cmenu,Select]=do_check_select_link()
+// unselect current selection and check 
+// if new selection can be a link.
+// note that this function resume %ppt 
+// 
+  Cmenu='';%pt=[]
+  // ? 
   if windows( find(%win==windows(:,2)), 1 )==100000 then
-    Cmenu='';%pt=[]
     return
   end
   kc=find(%win==windows(:,2))
-  if isempty(kc) then
-    Cmenu='';%pt=[];
-    return
-  elseif windows(kc,1) < 0 then //click dans une palette
-    kpal=-windows(kc,1)
-    palette=palettes(kpal)
-    k=getobj(palette,%pt)
-    if ~isempty(k) then 
-      Select=[k,%win];
-      Cmenu='';%pt=[];
-      return
-    else
-      Cmenu='';%pt=[];
-      return
-    end
-  elseif %win==curwin then // click dans la fenetre courante
-    k=getobj(scs_m,%pt)
+  // %win is not a scicos window 
+  if isempty(kc) then return;end 
+  if %win==curwin then 
+    // button press in current window 
+    k=getobj(scs_m,%pt);
     if ~isempty(k) then
+      // check if we want to initiate a Link ?
       Cmenu=check_edge(scs_m.objs(k),'',%pt);
-      if Cmenu=='' then //** if is NOT over a port 
+      if Cmenu=='' then 
         Select=[k,%win];
-        Cmenu='';%pt=[];
-        return
       end       
-    else //** click in the void 
-      Cmenu=''; %ppt=%pt; %pt=[];
-      return
+    else 
+      // click in the void 
+      resume(%ppt=%pt);
     end
-  elseif slevel>1 then
+  elseif slevel > 1 then
+    printf("XXX: do_check_select_link with slevel > 1");
     execstr('k=getobj(scs_m_'+string(windows(kc,1))+',%pt)');
     if ~isempty(k) then
       Select=[k,%win];
-      Cmenu='';
-      return
-    else  //** if the click in in the void 
-      Cmenu='';%pt=[];
-      return
+    else  
+      // click in the void 
+      resume(%ppt=%pt);
     end
   else 
     message('2 - This window is not an active scicos window')
-    Cmenu='';%pt=[];
-    return
   end
 endfunction
+
