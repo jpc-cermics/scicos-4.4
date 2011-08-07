@@ -161,7 +161,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       else
 	message(['Initialisation problem:';lasterror()])
 	xset('window',curwin);
-	unsetmenu(curwin,'stop');
+	scicos_set_stop_sensitivity(%f);
       end
       ok=%f
       return
@@ -171,7 +171,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
   
   //** scicos simulation
   tf=scs_m.props.tf;
-  setmenu(curwin,'stop')
+  scicos_set_stop_sensitivity(%t);
   //timer()
   needreplay=%t
   grs=scicos_graphic_array(%cpr,scs_m);
@@ -230,9 +230,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
     end
     ok=%f
   end
-  //xset('window',curwin)
-  //printf("XXX %f\n",timer())
-  unsetmenu(curwin,'stop')
+  scicos_set_stop_sensitivity(%f);
   resume(needreplay);
 endfunction
 

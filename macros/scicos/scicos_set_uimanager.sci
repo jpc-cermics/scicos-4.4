@@ -409,8 +409,12 @@ function scicos_action_set_sensitivity(win,name,sensitive)
   action.set_property["sensitive", sensitive];
 endfunction
   
-function disablemenus()
-// disable all actions 
+function scicos_set_stop_sensitivity(sensitive) 
+  if sensitive then 
+    //printf("debug: sensitivity of stop set to true\n");
+  else
+    //printf("debug: sensitivity of stop set to false\n");
+  end
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for i=1:length(wins)
     window=nsp_graphic_widget(wins(i));
@@ -419,13 +423,32 @@ function disablemenus()
       L=uimanager.get_action_groups[]
       if isempty(L) then return;end 
       action_group = L(1)
-      action_group.set_property["sensitive",%f];
+      action = action_group.get_action["$scicos_stop"];
+      //printf("debug: sensitivity of stop being set\n");
+      action.set_property["sensitive",sensitive];
+    end
+  end
+endfunction
+
+function disablemenus()
+// disable all actions 
+  //printf("debug: disable all menus \n");
+  wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
+  for i=1:length(wins)
+    window=nsp_graphic_widget(wins(i));
+    if window.check_data['uimanager'] then 
+      uimanager = window.get_data['uimanager'];
+      L=uimanager.get_action_groups[]
+      if isempty(L) then return;end 
+      action_group = L(1)
+      // action_group.set_property["sensitive",%f];
     end
   end
 endfunction
 
 function enablemenus()
 // disable all actions 
+  //printf("debug: enable all menus \n");
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for i=1:length(wins)
     window=nsp_graphic_widget(wins(i));

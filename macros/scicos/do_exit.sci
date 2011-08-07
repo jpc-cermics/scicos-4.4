@@ -55,22 +55,4 @@ function do_exit()
       end
     end
   end
-
-//   ok=%t
-//   if or(winsid()==curwin) then
-//     xset('window',curwin)
-//     xclear();// XX xbasc()
-//     xset('alufunction',3)
-//     if ~super_block then
-//       delmenu(curwin,'stop'),
-//       xset('window',curwin),xsetech([0 0 1 1])
-//       clearglobal('%tableau');clear('%tableau');
-//     end
-//   end
-//   
-//   for win=windows(size(windows,1):-1:noldwin+1,2)'
-//     if or(win==winsid()) then
-//       xbasc(win),xdel(win);
-//     end
-//   end
 endfunction
