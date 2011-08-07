@@ -1,6 +1,6 @@
 function scs_m=delete_unconnected(scs_m)
-//delete unconnected blocks and all relevant parts of a diagram
-//may be used before compilation
+// delete unconnected blocks and all relevant parts of a diagram
+// may be used before compilation
 // Copyright INRIA
 // printf("In delete unconnected\n");
 
@@ -24,21 +24,24 @@ function scs_m=delete_unconnected(scs_m)
 	      finish=%f
 	    end
 	  else
-	    kk=[find(scs_m.objs(k).graphics.pin==0)]
-	    if ~isempty(kk) then // at least one  input port is not connected delete the block
+	    kk=find(scs_m.objs(k).graphics.pin==0);
+	    if ~isempty(kk) then 
+	      // at least one  input port is not connected delete the
+              // block
 	      if scs_m.objs(k).graphics.iskey["in_implicit"] then
-		if ~isempty(scs_m.objs(k).graphics.in_implicit(kk))
+		if ~isempty(scs_m.objs(k).graphics.in_implicit) && ...
+		      ~isempty(scs_m.objs(k).graphics.in_implicit(kk)) then
 		  if or(scs_m.objs(k).graphics.in_implicit(kk)<>"I") then 
 		    [scs_m,DEL1,DELL1]=do_delete1(scs_m,k,%f)
-		    DEL=[DEL DEL1]
-		    DELL=[DELL DELL1]
+		    DEL=[DEL, DEL1]
+		    DELL=[DELL, DELL1]
 		    finish=%f
 		  end
 		end
 	      else
 	        [scs_m,DEL1,DELL1]=do_delete1(scs_m,k,%f)
-	        DEL=[DEL DEL1]
-	        DELL=[DELL DELL1]
+	        DEL=[DEL, DEL1]
+	        DELL=[DELL, DELL1]
 	        finish=%f
 	      end
 	    end
