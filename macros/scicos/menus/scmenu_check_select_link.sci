@@ -1,5 +1,6 @@
 function SelectLink_()
-// 
+// unselect current selection and check 
+// if new selection can be a link.
   SelectRegion=list(); // unselect region XXX 
   [Cmenu,Sel]=do_check_select_link();
   if Cmenu == '' then %pt=[];end 
@@ -10,7 +11,8 @@ function SelectLink_()
 endfunction
 
 function scmenu_check_select_link()
-// 
+// unselect current selection and check 
+// if new selection can be a link.
   SelectRegion=list(); // unselect region XXX 
   [Cmenu,Sel]=do_check_select_link();
   if Cmenu == '' then %pt=[];end 

@@ -320,7 +320,6 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
       'Open/Set',              "Click to open block or make a link";
       'CheckMoveLink',         ''                                  ;
       'CheckSmartMove'         ''                                  ;
-      'SMove',                 ''                                  ;
       'SelectLink',            ''                                  ;
       'CtrlSelect',            ''                                  ;
       'SelectRegion',          ''                                  ;

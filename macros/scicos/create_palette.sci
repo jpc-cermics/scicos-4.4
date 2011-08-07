@@ -1,32 +1,37 @@
 function routines=create_palette(bidon)
-//load SCI/macros/scicos/lib;
+// This function is used in 
+// macros/blocks/palettes 
+// to build the set of predefined palettes 
+// 
   if nargin < 1 then bidon='all';end
   scicos_ver=get_scicos_version();
   lisf=glob('*.sci');
   if nargin == 0 then
+    // create a palette whose name will be the 
+    // name of the current directory
     // search the current directory for all the *.sci 
     // and load the blocks functions 
     Path=getcwd();
     to_del=[]
     for i=1:size(lisf,'*')
       fil=lisf(i)
-      ierror=execstr('getf(fil)','errcatch')
-      if ierror <>0 then
+      // we just check here if execution is ok 
+      // the fact that this file is a block definition 
+      // will be check latter in build_palette.
+      eok=exec(fil,errcatch=%t);
+      if ~eok then
 	to_del=[to_del i];
+	lasterror();
       end
     end
     lisf(to_del)=[];
-    [path,fname,ext]=splitfilepath(Path);
-    path=path+fname
-    build_palette(lisf,path,fname)
+    routines=build_palette(lisf,Path, file('tail',Path)+'.cos');
   else
+    // use predefined names 
     savepwd=getcwd()
-    //chdir(SCI+'/macros/scicos/')
-    chdir( scicos_path+'/macros/blocks/palettes')
-    //exec(loadpallibs,-1) 
-    //path='SCI/macros/scicos_blocks'
-    path=scicos_path+'/macros/blocks'
-    
+    Path=file('join',[get_scicospath();'macros';'blocks';'palettes']);
+    chdir(Path)
+    path=file('join',[get_scicospath();'macros';'blocks']);
     if bidon=='all' then
       bidon=scicos_get_palette_content('all');
     else
@@ -49,6 +54,9 @@ function routines=create_palette(bidon)
   routines=unique(routines);
 endfunction
 
+
+
+
 function [routines]=build_palette(lisf,path,fname)
   scs_m=get_new_scs_m()
   X=0
@@ -58,19 +66,22 @@ function [routines]=build_palette(lisf,path,fname)
   routines=m2s([]);
   for k=1:size(lisf,'*')
     fil = lisf(k);
-    name= part(fil,1:length(fil)-4)
-    ierror=execstr('blk='+name+'(''define'')',errcatch=%t)
-    if ierror == %f  then
-      message(['Error in '+name+'(''define'')';lasterror()] );
-    else 
-      routines=[routines;blk.model.sim(1)]
-      blk.graphics.sz=20*blk.graphics.sz;
-      blk.graphics.orig=[X Y]
-      X=X+blk.graphics.sz(1)+sep
-      yy=max(yy,blk.graphics.sz(2))
-      if X>400 then X=0,Y=Y+yy+sep,yy=0,end
-      scs_m.objs($+1)=blk
+    // check if fil contains a block definition
+    cmd=sprintf("blk=%s(''define'');",file('root',fil));
+    if ~exists('needcompile') then needcompile=0;end
+    eok=execstr(cmd,errcatch=%t);
+    if ~eok then
+      //message(['Error: define failed';catenate(lasterror())]);
+      to_del=[to_del i];
+      lasterror();
     end
+    routines=[routines;blk.model.sim(1)]
+    blk.graphics.sz=20*blk.graphics.sz;
+    blk.graphics.orig=[X Y]
+    X=X+blk.graphics.sz(1)+sep
+    yy=max(yy,blk.graphics.sz(2))
+    if X>400 then X=0,Y=Y+yy+sep,yy=0,end
+    scs_m.objs($+1)=blk;
   end
   // save in file 
   scs_m=scicos_save_in_file(scs_m,list(),fname,scicos_ver);

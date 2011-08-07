@@ -1,24 +1,24 @@
 function scmenu_move()
+// performs a move of an object 
+//
   Cmenu=''
-  SelectSize=size(Select);
-  SelectSize=SelectSize(1);
-  if ~isempty(Select) then
-    if ~isempty(find(Select(:,2)<>curwin)) then
-      Select=[]
-      Cmenu='Move'
-      return
-    end
+  if ~isempty(Select) && ~isempty(find(Select(:,2)<>curwin)) then
+    // XXX why this part ? 
+    Select=[]; Cmenu='Move';
+    return
   end
-  if ~isempty(Select) then
-    if SelectSize==1 & scs_m.objs(Select(1)).type=="Link" then
-      [%pt,scs_m]=do_stupidmove(%pt,Select,scs_m)
-    else
-      [scs_m]=do_stupidMultimove(%pt,Select,scs_m)
-    end
+  // performs the move 
+  [scs_m]=do_move(%pt,scs_m,Select)
+  %pt=[];
+endfunction
+  
+function [scs_m]=do_move(%pt,scs_m,Select)
+  if ~isempty(Select) && size(Select,1) == 1 && 
+    scs_m.objs(Select(1)).type=="Link" then
+    [%pt,scs_m]=do_stupidmove(%pt,Select,scs_m)
   else
     [scs_m]=do_stupidMultimove(%pt,Select,scs_m)
   end
-  %pt=[]
 endfunction
 
 

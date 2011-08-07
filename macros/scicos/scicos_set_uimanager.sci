@@ -408,7 +408,35 @@ function scicos_action_set_sensitivity(win,name,sensitive)
   action = action_group.get_action[name];
   action.set_property["sensitive", sensitive];
 endfunction
-
-
   
+function disablemenus()
+// disable all actions 
+  wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
+  for i=1:length(wins)
+    window=nsp_graphic_widget(wins(i));
+    if window.check_data['uimanager'] then 
+      uimanager = window.get_data['uimanager'];
+      L=uimanager.get_action_groups[]
+      if isempty(L) then return;end 
+      action_group = L(1)
+      action_group.set_property["sensitive",%f];
+    end
+  end
+endfunction
+
+function enablemenus()
+// disable all actions 
+  wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
+  for i=1:length(wins)
+    window=nsp_graphic_widget(wins(i));
+    if window.check_data['uimanager'] then 
+      uimanager = window.get_data['uimanager'];
+      L=uimanager.get_action_groups[]
+      if isempty(L) then return;end 
+      action_group = L(1)
+      action_group.set_property["sensitive",%t];
+    end
+  end
+endfunction
+
 

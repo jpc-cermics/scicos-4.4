@@ -1,8 +1,5 @@
 function scmenu_smart_move()
 // performs a smart move of an object 
-// or redirect action to "Smart Link" 
-// if %pt is in fact in an outputport of a block.
-// 
   Cmenu=''
   if ~isempty(Select) && ~isempty(find(Select(:,2)<>curwin)) then
     // XXX why this part ? 
@@ -23,10 +20,13 @@ function [scs_m]=do_smart_move(%pt,scs_m)
   xc=%pt(1);yc=%pt(2)
   [k,wh]=getobj(scs_m,[xc;yc])
   if isempty(k) then return, end
-  Cmenu=check_edge(scs_m.objs(k),"Do Smart Move",%pt);
-  if Cmenu.equal["Link"] then
-    resume(Cmenu="Smart Link")
-    return
+  if %f then 
+    // this should not be here 
+    Cmenu=check_edge(scs_m.objs(k),"Do Smart Move",%pt);
+    if Cmenu.equal["Link"] then
+      resume(Cmenu="Smart Link")
+      return
+    end
   end
   scs_m_save=scs_m
   xcursor(52);
