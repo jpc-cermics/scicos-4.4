@@ -1,5 +1,12 @@
 function [x,y,typ]=AFFICH_m(job,arg1,arg2)
 // Copyright INRIA
+
+  function str = affich_str(m,n,f)
+    str = sprintf("%*.*f" , f(1),f(2),0.0);
+    str = strcat(smat_create(1,n,str),' ');
+    str  = smat_create(m,1,str);
+  endfunction
+  
   x=[];y=[];typ=[]
   select job
    case 'plot' then
@@ -85,13 +92,23 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
     end
    
    case 'compile'
-    // we should replot the icon here !
-    pause xxx
     model=arg1
     in=[model.in,model.in2]
     model.ipar(7)=in(1,1)
     model.dstate = [-1;0;0;1;1;zeros(in(1,1)*in(1,2),1)]
     x=model
+    // we should replot the icon here !
+    o1=scs_m(scs_full_path(corinv(arg2)));
+    if o1.iskey['gr'] then 
+      // XXX Update the graphics if necessary 
+      str = affich_str(model.in,model.in2,model.ipar(5:6))
+      // o1 is a compound 
+      l=o1.gr.children;
+      // last is the string 
+      grst=l($)
+      grst.text = str;
+      grst.invalidate[];
+    end
    case 'define' then
     font = 1;
     fontsize = 1;
@@ -123,18 +140,11 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
     gr_i=['gin1=max(1,model.in);gin2=max(1,model.in2);'
 	  'fnt=xget(''font'')'
 	  'xset(''font'',ipar(1),ipar(2))';
-	  'str = sprintf('"%*.*f'" , ipar(5),ipar(6),0.0);';
-          'str = strcat(smat_create(1,gin2,str),'' '');';
-	  'str  = smat_create(gin1,1,str);';
+	  'str = affich_str(gin1,gin2,ipar(5:6));';
 	  'xstringb(orig(1),orig(2),str,sz(1),sz(2));'
 	  'xset(''font'',fnt(1),fnt(2))']
     x = standard_define([3 2],model,exprs,gr_i,'AFFICH_m');
   end
 endfunction
 
-function str = affich2_str(m,n,f)
-  str = sprintf("%*.*f" , f(1),f(2),0.0);
-  str = strcat(smat_create(1,n,str),' ');
-  str  = smat_create(m,1,strl);
-endfunction
 
