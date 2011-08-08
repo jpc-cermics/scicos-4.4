@@ -60,7 +60,7 @@ function cmd=get_errorcmd(path,scs_m_in,title_err,mess_err)
   // convert mess_err to something that can be inserted 
   // in a command
   // remove the last \n
-  pause xxx
+  // pause xxx
   mess1_err=mess_err;
   if ~isempty(mess1_err) then 
     mess1_err($)=strsubst(mess1_err($),'\n','');

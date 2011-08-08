@@ -19,16 +19,23 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
      CX='C1';
      MSG0='''Jump from Mode '; MSG2=':[..;M_final(Guard=In(';MSG3=').i);..]'''
      MSG=MSG0+'1'+MSG2+'1'+MSG3;
-     VEC='''mat'',[-1,1]';
+     VEC=list('mat',[-1,1]);
      for i=2:NMode
        CX=CX+','+'C'+string(i);
        MSG=MSG+';'+MSG0+string(i)+MSG2+string(i)+MSG3;
-       VEC=VEC+','+'''mat'',[-1,1]';
+       VEC=list_concat(VEC,'mat',[-1,1]);
      end
-     //===========================================
-     GTV='[ok,NMode,Minitial,NX,X0,XP,'+CX+',exprs]=getvalue(''Set Finite state machine model'',..
-	 [''Number (finite-state) Modes'';''Initial Mode'';''Number of continuous-time states'';''Continuous-time states intial values'';''Xproperties of continuous-time states in each Mode'';'+MSG+'],..
-	 list(''vec'',1,''vec'',1,''vec'',1,''mat'',[-1,-1],''mat'',[-1,-1],'+VEC+'),exprs)'
+     gv_title='Set Finite state machine model';
+     execstr('gv_names=['+MSG+']');
+     gv_names=['Number (finite-state) Modes';
+	       'Initial Mode';
+	       'Number of continuous-time states';
+	       'Continuous-time states intial values';
+	       'Xproperties of continuous-time states in each Mode';
+	       gv_names];
+     gv_types=list('vec',1,'vec',1,'vec',1,'mat',[-1,-1],'mat',[-1,-1]);
+     gv_types=list_concat(gv_types,VEC);
+     GTV='[ok,NMode,Minitial,NX,X0,XP,'+CX+',exprs]=getvalue(gv_title,gv_names,gv_types,exprs)';
      execstr(GTV); if ~ok then break,end
      NMode_old=size(exprs,'*')-5;//-number of fileds before CX
      ModifEncore=%f;
