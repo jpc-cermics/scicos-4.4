@@ -8,17 +8,6 @@ function scmenu_icon()
   end
 endfunction
 
-function scmenu_icon()
-// XXX to be removed 
-  Cmenu='';
-  sc=scs_m;
-  [scs_m,changed]= do_icon(scs_m);
-  if changed then 
-    edited=%t;
-    scs_m_save=sc;enable_undo=%t;
-  end
-endfunction
-
 function [scs_m,changed]=do_icon(scs_m)
 // edit a block icon
 // Copyright INRIA
