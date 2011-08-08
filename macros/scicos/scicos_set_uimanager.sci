@@ -21,7 +21,7 @@ function scicos_set_uimanager(is_top)
 // using the gtkuimanager mechanism.
 //
   
-  function txt=scicos_toolbar(is_top,action_group,merge)
+  function txt=scicos_toolbar(is_top)
   // text for the toolbar 
     txt =[ "  <toolbar name=""toolbar"">"
 	   "    <toolitem name=""Zoom in"" action=""scmenu_zoom_in"" />"
@@ -49,7 +49,7 @@ function scicos_set_uimanager(is_top)
     txt  = catenate(txt,sep='\n');
   endfunction
 
-  function txt=scicos_menubar(action_group,merge)
+  function txt=scicos_menubar()
   // Scicos Menu definitions
   // 
   // 
@@ -161,138 +161,32 @@ function scicos_set_uimanager(is_top)
 	   "  </menubar>" ];
     // 
     txt  = catenate(txt,sep='\n');    
-        
-    // a set of Actions given as a list 
-    
-    L=list();
-    L(1) = ['scmenu_file_menu','File',"","";
-	    'scmenu_new','New',"","";
-	    'scmenu_open','Open',"","";
-	    'scmenu_scicoslab_import','Scicoslab Import',"","";
-	    'scmenu_save','Save',"","";
-	    'scmenu_save_as','Save As',"","";
-	    'scmenu_save_as_interf_func','Save as Interf Func',"","";
-	    'scmenu_export','Export',"","";
-	    'scmenu_export_all','Export All',"","";
-	    'scmenu_exit_scicos','Exit Scicos',"","";
-	    'scmenu_quit','Quit',"","gtk-quit"];
-
-    L(2) = ['scmenu_diagram_menu','Diagram',"","";
-	    'scmenu_context','Context',"","";
-	    'scmenu_replot','Replot',"","";
-	    'scmenu_rename','Rename',"","";
-	    'scmenu_purge','Purge',"","";
-	    'scmenu_set_diagram_info','Set Diagram Info',"","";
-	    'scmenu_set_code_gen_properties','Set Code Gen Properties',"","";
-	    'scmenu_region_to_super_block','Region to Super Block',"","";
-	    'scmenu_up_to_main_diagram','Up To Main Diagram',"","gtk-goto-top";
-    	    'scmenu_up','Up to Parent',"","gtk-go-up"];
-    
-    L(3) = ['scmenu_palette_menu','Palette',"","";
-	    'scmenu_pal_tree','Pal Tree',"","";
-	    'scmenu_palettes','Palettes',"","";
-	    'scmenu_pal_editor','Pal editor',"","";
-	    'scmenu_region_to_palette','Region to Palette',"","";
-	    'scmenu_load_as_palette','Load as Palette',"","";
-	    'scmenu_save_as_palette','Save as Palette',"",""];
-
-    L(4) = ['scmenu_edit_menu','Edit',"","";
-	    'scmenu_undo','Undo',"","gtk-undo";
-	    'scmenu_cut','Cut',"<control>X","gtk-cut";
-	    'scmenu_copy','Copy',"<Ctrl>c","gtk-copy";
-	    'scmenu_paste','Paste',"<Ctrl>v","gtk-paste";
-	    'scmenu_duplicate','Duplicate',"","";
-	    'scmenu_delete','Delete',"Delete","";
-	    'scmenu_move','Move',"","";
-	    'scmenu_check_smart_move','Smart Move',"","";
-	    'scmenu_align','Align',"","";
-	    'scmenu_flip','Flip',"","";
-	    'scmenu_rotate_left','Rotate Left',"","";
-	    'scmenu_rotate_right','Rotate Right',"","";
-	    'scmenu_add_new_block','Add new block',"","";
-	    'scmenu_block_documentation','Block Documentation',"","";..
-	    'scmenu_label','Label',"",""];
-
-    L(5) = ['scmenu_view_menu','View',"","";
-	    'scmenu_zoom_in','Zoom in',"","gtk-zoom-in";
-	    'scmenu_zoom_out','Zoom out',"","gtk-zoom-out";
-	    'scmenu_zoom_100','Zoom 100',"","gtk-zoom-100";
-	    'scmenu_fit_diagram_to_figure','Fit diagram to figure',"","gtk-zoom-fit";
-	    'scmenu_default_window_parameters','Default window parameters',"","";
-	    'scmenu_available_parameters','Available Parameters',"","";
-	    'scmenu_icon_font_option','Icon Font Option',"","";
-	    'scmenu_grid','Grid',"",""];
-
-    L(6) = ['scmenu_simulate_menu','Simulate',"","";
-	    'scmenu_setup','Setup',"","gtk-preferences";
-	    'scmenu_compile','Compile',"","gtk-execute";
-	    'scmenu_modelica_initialize','Modelica initialize',"","";
-	    'scmenu_eval','Eval',"","";
-	    'scmenu_analyze_diagram','Analyze Diagram',"","";
-	    'scmenu_debug_level','Debug Level',"","";
-	    'scmenu_run','Run',"","gtk-media-play"];
-
-    L(7) = ['scmenu_format_menu','Format',"","";
-	    'scmenu_set_default_action','Set Default Action',"","";
-	    'scmenu_set_grid','Set grid',"","";
-	    'scmenu_add_color','Add Color',"","";
-	    'scmenu_default_link_colors','Default Link Colors',"","";
-	    'scmenu_color','Color',"","";
-	    'scmenu_background_color','Background Color',"","";
-	    'scmenu_show_block_shadow','Show Block Shadow',"","";
-	    'scmenu_resize','Resize',"","";
-	    'scmenu_identification','Identification',"","";
-	    'scmenu_id_fonts','ID fonts',"","";
-	    'scmenu_icon','Icon',"","";
-	    'scmenu_icon_editor','Icon Editor',"",""];
-
-    L(8) = ['scmenu_tools_menu','Tools',"","";
-	    'scmenu_activate_scicoslab_window','Activate ScicosLab Window',"","";
-	    'scmenu_create_mask','Create Mask',"","";
-	    'scmenu_remove_mask','Remove Mask',"","";
-	    'scmenu_customize_mask','Customize Mask',"","";
-	    'scmenu_save_block_gui','Save Block GUI',"","";
-	    'scmenu_create_atomic','Create Atomic',"","";
-	    'scmenu_remove_atomic','Remove Atomic',"","";
-	    'scmenu_get_info','Get Info',"","";
-	    'scmenu_details','Details',"","";
-	    'scmenu_browser','Browser',"","";
-	    'scmenu_code_generation','Code Generation',"","";
-	    'scmenu_shortcuts','Shortcuts',"","";
-	    'scmenu_calc','Calc',"",""];
-
-    L(9) = ['scmenu_help_menu','Help',"","";
-	    'scmenu_help','Help',"","";
-	    'scmenu_scicos_documentation','Scicos Documentation',"","";
-	    'scmenu_demos','Demos',"","";
-	    'scmenu_about_scicos','About Scicos',"",""];
-
-    // menu Edit->Block 
-    
-    L(10)=["scmenu_block_menu","Block","",""];
-        
-    // get the menu helps to obtain the tooltips 
+  endfunction
+  
+  function action_group=scicos_create_actions(gname,S,merge) 
+  // creates an action group named gname and 
+  // populated by S.
+  //
+  // get the menu helps to obtain the tooltips 
     H=scicos_help_menu();
-    count=0;
-    for i=1:length(L)
-      M=L(i);
-      action = gtkaction_new( M(1,1), M(1,2) , M(1,3), M(1,4) );
-      action_group.add_action[action];
-      for j=2:size(M,'r')
-	if H.iskey[M(j,1)] then 
-	  ttip=catenate(H(M(j,1)),sep='\n');
-	else
-	  ttip=M(j,3);
-	end
-	action = gtkaction_new( M(j,1), M(j,2) , ttip , M(j,4) );
+    action_group = gtkactiongroup_new(gname);
+    for i=1:size(S,'r');
+      if H.iskey[S(i,1)] then 
+	ttip=catenate(H(S(i,1)),sep='\n');
+      else
+	ttip="";
+      end
+      action = gtkaction_new( S(i,1), S(i,2) , ttip , S(i,4) );
+      if gname<>"menu" then 
 	action.connect["activate",scicos_activate_action,list(merge)];
-	if M(j,3)=="" then 
-	  action_group.add_action[action];
-	else
-	  action_group.add_action_with_accel[action,accelerator=M(j,3)];
-	end
+      end
+      if S(i,3)=="" then 
+	action_group.add_action[action];
+      else
+	action_group.add_action_with_accel[action,accelerator=S(i,3)];
       end
     end
+    merge.insert_action_group[action_group, 0];
   endfunction
   
   // main code 
@@ -315,17 +209,16 @@ function scicos_set_uimanager(is_top)
   // 
   merge = gtkuimanager_new ();
   merge.connect['connect-proxy',scicos_uimanager_connect_proxy];
-  action_group = gtkactiongroup_new("TestActions")
+
   // creates a set of actions 
-  action = gtkaction_new( "$scicos_stop","Stop","Stops scicos simulation ", "gtk-media-stop");
-  action.connect["activate",scicos_activate_action,list(merge)];
-  action_group.add_action[action];
-  //toogle action 
-  //action = gtktoggleaction_new("bold","_Bold","Smart moves as default", "gtk-bold");
-  //action.connect["activate",scicos_toggle_action,list(merge)];
-  //action_group.add_action_with_accel[action,accelerator="<control>B"];
-  // 
-  merge.insert_action_group[action_group, 0];
+  // ------------------------
+  S=scicos_actions();
+  gnames=S.__keys;
+  for i=1:size(gnames,'*')
+    gn=gnames(i);
+    scicos_create_actions(gn,S(gn),merge);
+  end
+  
   merge.set_data[ui_id=-1];
   // the ui manager will add widgets in vb 
   merge.connect["add_widget", scicos_add_widget, list(vb)];
@@ -334,8 +227,8 @@ function scicos_set_uimanager(is_top)
   window.add_accel_group[merge.get_accel_group[]];
   // to access to actions through window id
   window.set_data[uimanager=merge];
-  mb_text=scicos_menubar(action_group,merge);
-  tb_text=scicos_toolbar(is_top,action_group,merge);
+  mb_text=scicos_menubar();
+  tb_text=scicos_toolbar(is_top);
   ui_text=catenate([mb_text,tb_text],sep='\n');
   // XXXX changer l'interface pour enlever length !!
   rep = merge.add_ui_from_string[ui_text,length(ui_text)];
@@ -403,63 +296,161 @@ function scicos_action_set_sensitivity(win,name,sensitive)
   uimanager = window.get_data['uimanager'];
   L=uimanager.get_action_groups[]
   if isempty(L) then return;end 
-  action_group = L(1)
-  // Attention bug si name n'existe pas 
-  action = action_group.get_action[name];
-  action.set_property["sensitive", sensitive];
+  for i=1:length(L)
+    action_group = L(i);
+    // Attention bug si name n'existe pas 
+    action = action_group.get_action[name];
+    action.set_property["sensitive", sensitive];
+  end
 endfunction
   
 function scicos_set_stop_sensitivity(sensitive) 
-  if sensitive then 
-    //printf("debug: sensitivity of stop set to true\n");
-  else
-    //printf("debug: sensitivity of stop set to false\n");
-  end
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for i=1:length(wins)
     window=nsp_graphic_widget(wins(i));
     if window.check_data['uimanager'] then 
       uimanager = window.get_data['uimanager'];
       L=uimanager.get_action_groups[]
-      if isempty(L) then return;end 
-      action_group = L(1)
-      action = action_group.get_action["$scicos_stop"];
-      //printf("debug: sensitivity of stop being set\n");
-      action.set_property["sensitive",sensitive];
+      for j=1:length(L)
+	action_group = L(j);
+	if action_group.get_name[]=="scicos_stop" then 
+	  action_group.set_property["sensitive",sensitive];
+	end
+      end
     end
   end
 endfunction
 
 function disablemenus()
 // disable all actions 
-  //printf("debug: disable all menus \n");
-  wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
-  for i=1:length(wins)
-    window=nsp_graphic_widget(wins(i));
-    if window.check_data['uimanager'] then 
-      uimanager = window.get_data['uimanager'];
-      L=uimanager.get_action_groups[]
-      if isempty(L) then return;end 
-      action_group = L(1)
-      // action_group.set_property["sensitive",%f];
-    end
-  end
+// printf("debug: disable all menus \n");
+  scicos_menu_sensitivity(%f);
 endfunction
 
 function enablemenus()
 // disable all actions 
-  //printf("debug: enable all menus \n");
+//printf("debug: enable all menus \n");
+  scicos_menu_sensitivity(%t);
+endfunction
+
+function scicos_menu_sensitivity(flag)
+// disable all actions 
+// printf("debug: disable all menus \n");
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for i=1:length(wins)
     window=nsp_graphic_widget(wins(i));
     if window.check_data['uimanager'] then 
       uimanager = window.get_data['uimanager'];
       L=uimanager.get_action_groups[]
-      if isempty(L) then return;end 
-      action_group = L(1)
-      action_group.set_property["sensitive",%t];
+      for j=1:length(L)
+	action_group = L(j);
+	action_group.set_property["sensitive",flag];
+      end
     end
   end
+endfunction
+
+function S=scicos_actions()
+// A set of actions 
+// ['action','name-in-menu', accelerator|"" , icon-name| "" ] 
+  S=hash_create(10);
+  S.global =[ 'scmenu_about_scicos','About Scicos',"","";
+	      'scmenu_activate_scicoslab_window','Activate ScicosLab Window',"","";
+	      'scmenu_add_color','Add Color',"","";
+	      'scmenu_add_new_block','Add new block',"","";
+	      'scmenu_align','Align',"","";
+	      'scmenu_analyze_diagram','Analyze Diagram',"","";
+	      'scmenu_available_parameters','Available Parameters',"","";
+	      'scmenu_background_color','Background Color',"","";
+	      'scmenu_block_documentation','Block Documentation',"","";..
+	      'scmenu_browser','Browser',"","";
+	      'scmenu_calc','Calc',"","";
+	      'scmenu_check_smart_move','Smart Move',"","";
+	      'scmenu_code_generation','Code Generation',"","";
+	      'scmenu_color','Color',"","";
+	      'scmenu_compile','Compile',"","gtk-execute";
+	      'scmenu_context','Context',"","";
+	      'scmenu_copy','Copy',"<Ctrl>c","gtk-copy";
+	      'scmenu_create_atomic','Create Atomic',"","";
+	      'scmenu_create_mask','Create Mask',"","";
+	      'scmenu_customize_mask','Customize Mask',"","";
+	      'scmenu_cut','Cut',"<control>X","gtk-cut";
+	      'scmenu_debug_level','Debug Level',"","";
+	      'scmenu_default_link_colors','Default Link Colors',"","";
+	      'scmenu_default_window_parameters','Default window parameters',"","";
+	      'scmenu_delete','Delete',"Delete","";
+	      'scmenu_demos','Demos',"","";
+	      'scmenu_details','Details',"","";
+	      'scmenu_duplicate','Duplicate',"","";
+	      'scmenu_eval','Eval',"","";
+	      'scmenu_exit_scicos','Exit Scicos',"","";
+	      'scmenu_export','Export',"","";
+	      'scmenu_export_all','Export All',"","";
+	      'scmenu_fit_diagram_to_figure','Fit diagram to figure',"","gtk-zoom-fit";
+	      'scmenu_flip','Flip',"","";
+	      'scmenu_get_info','Get Info',"","";
+	      'scmenu_grid','Grid',"","";
+	      'scmenu_help','Help',"","";
+	      'scmenu_icon','Icon',"","";
+	      'scmenu_icon_editor','Icon Editor',"","";
+	      'scmenu_icon_font_option','Icon Font Option',"","";
+	      'scmenu_id_fonts','ID fonts',"","";
+	      'scmenu_identification','Identification',"","";
+	      'scmenu_label','Label',"","";
+	      'scmenu_load_as_palette','Load as Palette',"","";
+	      'scmenu_modelica_initialize','Modelica initialize',"","";
+	      'scmenu_move','Move',"","";
+	      'scmenu_new','New',"","";
+	      'scmenu_open','Open',"","";
+	      'scmenu_pal_editor','Pal editor',"","";
+	      'scmenu_pal_tree','Pal Tree',"","";
+	      'scmenu_palettes','Palettes',"","";
+	      'scmenu_paste','Paste',"<Ctrl>v","gtk-paste";
+	      'scmenu_purge','Purge',"","";
+	      'scmenu_quit','Quit',"","gtk-quit";
+	      'scmenu_region_to_palette','Region to Palette',"","";
+	      'scmenu_region_to_super_block','Region to Super Block',"","";
+	      'scmenu_remove_atomic','Remove Atomic',"","";
+	      'scmenu_remove_mask','Remove Mask',"","";
+	      'scmenu_rename','Rename',"","";
+	      'scmenu_replot','Replot',"","";
+	      'scmenu_resize','Resize',"","";
+	      'scmenu_rotate_left','Rotate Left',"","";
+	      'scmenu_rotate_right','Rotate Right',"","";
+	      'scmenu_run','Run',"","gtk-media-play";
+	      'scmenu_save','Save',"","";
+	      'scmenu_save_as','Save As',"","";
+	      'scmenu_save_as_interf_func','Save as Interf Func',"","";
+	      'scmenu_save_as_palette','Save as Palette',"","";
+	      'scmenu_save_block_gui','Save Block GUI',"","";
+	      'scmenu_scicos_documentation','Scicos Documentation',"","";
+	      'scmenu_scicoslab_import','Scicoslab Import',"","";
+	      'scmenu_set_code_gen_properties','Set Code Gen Properties',"","";
+	      'scmenu_set_default_action','Set Default Action',"","";
+	      'scmenu_set_diagram_info','Set Diagram Info',"","";
+	      'scmenu_set_grid','Set grid',"","";
+	      'scmenu_setup','Setup',"","gtk-preferences";
+	      'scmenu_shortcuts','Shortcuts',"","";
+	      'scmenu_show_block_shadow','Show Block Shadow',"","";
+	      'scmenu_undo','Undo',"","gtk-undo";
+	      'scmenu_up','Up to Parent',"","gtk-go-up";
+	      'scmenu_up_to_main_diagram','Up To Main Diagram',"","gtk-goto-top";
+	      'scmenu_zoom_100','Zoom 100',"","gtk-zoom-100";
+	      'scmenu_zoom_in','Zoom in',"","gtk-zoom-in";
+	      'scmenu_zoom_out','Zoom out',"","gtk-zoom-out"];
+  S.menu= [ "scmenu_block_menu","Block","","";
+	    'scmenu_diagram_menu','Diagram',"","";
+	    'scmenu_edit_menu','Edit',"","";
+	    'scmenu_format_menu','Format',"","";
+	    'scmenu_help_menu','Help',"","";
+	    'scmenu_palette_menu','Palette',"","";
+	    'scmenu_simulate_menu','Simulate',"","";
+	    'scmenu_tools_menu','Tools',"","";
+	    'scmenu_view_menu','View',"","";
+	    'scmenu_file_menu','File',"",""];
+  
+  S.scicos_stop= ["$scicos_stop","Stop","", "gtk-media-stop"];
+  
 endfunction
 
 
