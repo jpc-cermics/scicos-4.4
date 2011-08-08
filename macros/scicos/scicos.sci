@@ -122,8 +122,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     %cor_item_exec = [%cor_item_exec;
                       'Link'            , 'scmenu_getlink'
                       'Open/Set'        , 'OpenSet_'
-                      'CheckMoveLink'   , 'scmenu_check_move_link'
+                      'CheckMove'       , 'scmenu_check_move'
+		      'CheckKeyMove'    , 'scmenu_check_keymove'
 		      'CheckSmartMove'  , 'scmenu_check_smart_move'
+		      'CheckKeySmartMove', 'scmenu_check_keysmartmove'
                       'SelectLink'      , 'scmenu_check_select_link'
                       'CtrlSelect'      , 'CtrlSelect_'
                       'SelectRegion'    , 'SelectRegion_'
@@ -381,7 +383,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
       if (Cmenu==""|(CmenuType==1 & isempty(%pt) & isempty(Select))) then
         [btn, %pt_n, win_n, Cmenu_n]=cosclick();
-        if (Cmenu_n=='SelectLink' | Cmenu_n=='CheckMoveLink') & Cmenu<>"" & CmenuType==1 & isempty(%pt) then
+        if (Cmenu_n=='SelectLink' || Cmenu_n=='CheckMove' ...
+	    || Cmenu_n=='CheckKeyMove'|| Cmenu_n=='CheckKeySmartMove' ) ...
+		    & Cmenu<>"" & CmenuType==1 & isempty(%pt) then
           if ~isempty(%pt_n) then %pt = %pt_n; end
         else
           if Cmenu_n<>"" then Cmenu = Cmenu_n; end

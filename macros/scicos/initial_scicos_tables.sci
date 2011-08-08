@@ -274,8 +274,8 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
   %scicos_short=['a','Align'
                  'd','Delete';
                  'c','Duplicate';
-                 'm','Move';
-                 'z','Smart Move';
+                 'm','CheckKeyMove';
+                 'z','CheckKeySmartMove';
                  'u','Undo';
                  'f','Flip';
                  't','Rotate Left';
@@ -318,8 +318,10 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
       'Rotate Left',           "Click on block to be turned left"  ;
       'Rotate Right',          "Click on block to be turned right" ;
       'Open/Set',              "Click to open block or make a link";
-      'CheckMoveLink',         ''                                  ;
+      'CheckMove',             ''                                  ;
+      'CheckKeyMove',          ''                                  ;
       'CheckSmartMove'         ''                                  ;
+      'CheckKeySmartMove',     ''                                  ;
       'SelectLink',            ''                                  ;
       'CtrlSelect',            ''                                  ;
       'SelectRegion',          ''                                  ;

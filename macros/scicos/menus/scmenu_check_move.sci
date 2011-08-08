@@ -1,7 +1,7 @@
-function scmenu_check_move_link()
+function scmenu_check_move()
 // check to decide between possible 
 // move actions 
-  [Cmenu,Sel]=do_check_move_link(Select);
+  [Cmenu,Sel]=do_check_move(Select);
   if ~Sel.equal[Select] then 
     // XXX selection have to be changed 
     Select=Sel;
@@ -9,8 +9,8 @@ function scmenu_check_move_link()
   if Cmenu=='' then pt=[];end 
 endfunction
 
-function [Cmenu,Select]=do_check_move_link(Select)
-// this function can change %ppt throught resume
+function [Cmenu,Select]=do_check_move(Select)
+// this function can change %ppt through resume
 // 
   Cmenu='';Select=Select;
   if %win == curwin then 
@@ -66,3 +66,6 @@ function [Cmenu,Select]=do_check_move_link(Select)
     end
   end
 endfunction
+
+
+
