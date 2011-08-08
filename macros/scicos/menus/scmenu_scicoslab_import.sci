@@ -54,7 +54,7 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
   if alreadyran & typ=='diagram' then 
     do_terminate(),//end current simulation
   end  
-
+  
   edited=%f
   %cpr=list()
   scs_m=[]
@@ -71,6 +71,12 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
   [path,name,ext]=splitfilepath(fname)
   select ext
    case 'cos' then
+    if ~file('exists',fname)  then 
+      message([name+' cannot be loaded:';
+	       'file '+fname+' does not exists !']);
+      ok=%f ;
+      return;
+    end;
     ierr=execstr('sci_load(fname);',errcatch=%t)
     ok=%t
   else
@@ -80,7 +86,7 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
     return
   end
   if ~ierr then
-    message([name+' cannot be loaded.';lasterror()]) 
+    message([name+' cannot be loaded.';catenate(lasterror())]) 
     ok=%f;
     return
   end
@@ -94,6 +100,7 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
   // we could here make an eval 
   // if ~exists('%cpr') then %cpr=list();end ;
   // [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr);
+
   if scicos_ver<>current_version then 
     scs_m=do_version(scs_m,scicos_ver),
     %cpr=list()

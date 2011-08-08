@@ -13,6 +13,13 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
     x=arg1
     model=arg1.model;graphics=arg1.graphics;
     exprs=graphics.exprs
+    // expressions are stored in exprs with % and 
+    // edited without the %
+    for ii=1:8,
+      cmd='exprs(2)=varnumsubst(exprs(2),'"%u'"+string(ii),'"u'"+string(ii))';
+      execstr(cmd);
+    end
+    
     while %t do
       [ok,%nin,%exx,%usenz,exprs]=getvalue(...
 	  ['Give a scalar expression using inputs u1, u2,...';
@@ -74,6 +81,10 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
 	model.nzcross=0
 	model.nmode=0
       end
+      // back with %
+      for ii=1:8
+	execstr('exprs(2)=varnumsubst(exprs(2),'"u'"+string(ii),'"%u'"+string(ii))'),
+      end
       graphics.exprs=exprs
       x.graphics=graphics
       x.model=model
@@ -82,7 +93,6 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
    case 'define' then
     in=[1;1]
     out=1
-    // FIXME ? compile works ? 
     txt = '(u1>0)*sin(u2).^2'
     %bexp=scalexp_create(txt);
     nz=%bexp.logicals[];
@@ -97,6 +107,10 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
     model.nzcross=nz
     model.nmode=nz
     model.dep_ut=[%t %f]
+    // keep variables with % in exprs 
+    for ii=1:8
+      execstr('txt=varnumsubst(txt,'"u'"+string(ii),'"%u'"+string(ii))'),
+    end
     exprs=[string(size(in,'*'));txt;'1']
     gr_i=['xstringb(orig(1),orig(2),[''Mathematical'';''Expression''],sz(1),sz(2),''fill'');']
     x=standard_define([3 2],model,exprs,gr_i,'EXPRESSION');
