@@ -26,7 +26,7 @@ function scicos_palette_icon_view(L)
   if nargin <= 0 then 
     L=acquire('%scicos_pal_list');
   end
-
+  
   function combo_changed(combo,args)
   // this can be used as handler for 
   // combobox.connect["changed", current_option ]
@@ -67,9 +67,79 @@ function scicos_palette_icon_view(L)
   combobox = gtkcombobox_new(text=text);
   combobox.set_add_tearoffs[%f];
   combobox.set_active[0];
-    
-
   vbox.pack_start[combobox, expand=%f,fill= %t,padding=0];
+  
+  // an other combo with recursion 
+  // for test 
+  // -------------------------------
+    
+  function model= phylogenic_tree_model()
+  // gives an example of a tree build from a 
+  // list tree 
+    data = list( "Eubacteria",...
+		 list(  "Aquifecales",...
+			"Chlorobium-Flavobacteria group",...
+			"Chlamydia-Verrucomicrobia group",...
+			list( ...
+			    "Verrucomicrobia",...
+			    "Chlamydia"),...
+			"Flexistipes",...
+			"Proteobacteria",...
+			list( "alpha",...
+			      "gamma ")),...
+		 "Eukaryotes",...
+		 list(  "Metazoa",...
+			"crytomonads et al"),...
+		 "Archaea ",...
+		 list(     "Korarchaeota",...
+			   "Buryarchaeota"));
+    
+    function phylogenic_tree_model_append(model,h,iter) 
+      for i=1:length(h)
+	t = type(h(i),'string');
+	// On first call to this recursive function iter is not 
+	// a GtkTreeIter
+	if t == 'SMat' then 
+	  if is(iter,%types.GtkTreeIter) then 
+	    iter1=model.append[iter,list(h(i))];
+	  else 
+	    iter1=model.append[list(h(i))];
+	  end
+	else
+	  phylogenic_tree_model_append(model,h(i),iter1);
+	end
+      end
+    endfunction
+    
+    model = gtktreestore_new(list("name"),%f);
+    phylogenic_tree_model_append(model,data,0);
+    
+  endfunction
+  
+  model =  phylogenic_tree_model()
+  combobox2 = gtkcombobox_new(model=model);
+  combobox2.set_add_tearoffs[%t];
+  //g_object_unref (model);
+  // XXX vbox.pack_start[combobox2, expand=%f,fill= %t,padding=0];
+  
+  cell_renderer = gtkcellrenderertext_new ();
+  combobox2.pack_start[ cell_renderer,expand= %t];
+  combobox2.add_attribute[cell_renderer,"text",0];
+  // set active element in the combobox 
+  combobox2.set_active[0];
+
+  function combo2_changed(combo,args)
+  // this can be used as handler for 
+  // combobox.connect["changed", current_option ]
+    M= combo.get_model[]
+    iter=combo.get_active_iter[]
+    name = M.get_value[iter,args(1)];
+    printf('Value selected %s\n",name);
+  endfunction
+  
+  combobox2.connect["changed", combo2_changed,list(0) ];
+  
+  // Icon list 
   
   icon_list=scicos_build_iconlist(L,1)
   // icon list 
@@ -87,14 +157,31 @@ function icon_list=scicos_build_iconlist(L, j)
 // build a new iconlist for palette j 
   
   function item_activated (icon_view,path)
-    model = icon_list.get_model[];
-    iter = model.get_iter[path];
-    text= model.get_value[iter,1];
-    printf ("Item activated, text is %s\n", text);
+  // double click on an item 
+    model = icon_view.get_model[];
+    L=icon_view.get_selected_items[];
+    if ~isempty(L);
+      iter = model.get_iter[L(1)];
+      text= model.get_value[iter,1];
+      printf ("Item activated, text is %s\n", text);
+      help("http://www.scicos.org/HELP/eng/scicos/'+text+'.htm');
+    end
+  endfunction
+  
+  function item_activated_cursor (icon_view,path)
+  // when return is typed in the palettes 
+    model = icon_view.get_model[];
+    L=icon_view.get_selected_items[];
+    if ~isempty(L);
+      iter = model.get_iter[L(1)];
+      text= model.get_value[iter,1];
+      printf ("Item cursor activated, text is %s\n", text);
+    end
   endfunction
 
   function selection_changed (icon_list)
-    printf ("Selection changed!\n");
+  // each time selection changes 
+  // printf ("Selection changed!\n");
   endfunction
   
   icon_list = gtkiconview_new ();
@@ -103,9 +190,10 @@ function icon_list=scicos_build_iconlist(L, j)
   // icon_list.connect_after["button_press_event", button_press_event_handler];
   icon_list.connect["selection_changed",   selection_changed];
   //icon_list.connect["popup_menu",  popup_menu_handler];
-  //icon_list.connect["item_activated", item_activated];
+  icon_list.connect["item_activated", item_activated];// double click
+  icon_list.connect["activate-cursor-item",item_activated_cursor];
   // model columns -> [pixbuf,name,paletteid,blockid];
-
+  
   model = gtkliststore_new(list(list(%types.GdkPixbuf),"",1,2), %f);
   
   scicos_icon_path = scicos_path + '/macros/scicos/scicos-images/';

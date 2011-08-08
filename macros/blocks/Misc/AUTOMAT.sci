@@ -49,7 +49,7 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
        ModifEncore=%t;
      end
      if (NX<>size(X0,'*')) then
-       x_message('the size of intial continuous-time states should be NX='+string(NX));
+       x_message('the size of initial continuous-time states should be NX='+string(NX));
        ModifEncore=%t;
      end
      
@@ -88,12 +88,12 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
        end 
        
        if MaxModes>NMode then 
-	 x_message(['Attention!: Numbeor of Modes should be '+string(MaxModes);..
-		 'A destination Mode in Mode#'+string(imax)+'''s targets is invalid!']);
+	 x_message(['Warning: Number of Modes should be '+string(MaxModes);..
+		    'A destination Mode in Mode#'+string(imax)+'''s targets is invalid!']);
 	 ModifEncore=%t;
        end
        if MaxModes<NMode then 
-	 x_message(['Attention!: There is an unused Mode or the Number of Modes should be '+string(MaxModes)]);
+	 x_message(['Warning: There is an unused Mode or the Number of Modes should be '+string(MaxModes)]);
 	 ModifEncore=%t;
        end
      end
@@ -132,7 +132,8 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
      model.nzcross=1;// max(taille_zc(Mode_i))
      model.blocktype='c';
      model.evtout=1
-     model.firing=-1;
+     model.evtin=1
+     model.firing=0; // -1;
      model.dep_ut=[%f %t];
      model.ipar=ipar;
      model.rpar=rpar;

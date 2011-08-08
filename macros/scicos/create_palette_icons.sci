@@ -23,6 +23,19 @@ function create_palette_icons(palette='all')
   end
 endfunction
 
+function scicos_create_icon(blockname)
+// create an icon for block named name 
+// used in Makefile 
+  path=file('join',[get_scicospath();'macros';'blocks';'*';blockname+'.sci']);
+  files=glob(path);
+  if isempty(files) then 
+    message(['Error: block '+blockname+' not found!']);
+    return;
+  end
+  // here we could decide to create a .cos or a .cosf 
+  scicos_create_icons(list(path));
+endfunction
+
 function scicos_create_icons(lisf)
 // build icons for a set of blocks 
 // listed in the lisf list by their names or path.
