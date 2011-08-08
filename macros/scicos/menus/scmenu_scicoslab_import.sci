@@ -1,17 +1,20 @@
-function scmenu_scicoslab_import()
+function scmenu_scicoslab_import_old()
 // Import a Scilab Diagram in Nsp scicos.
 // XXX we should change the name in order not to 
 // overwrite the Scilab Diagram when saving.
   Cmenu=''
   if edited & ~super_block then
+    // clean 
     num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
     if num==2 then return;end
-    if alreadyran then do_terminate(),end  //terminate current simulation
+    if alreadyran then do_terminate();end 
     alreadyran=%f
   end
-  [ok,scs_m,%cpr,edited]=do_scilab_import()
+  [ok,sc,cpr,edited]=do_scicoslab_import();
   if super_block then edited=%t;end
   if ok then
+    scs_m=sc;
+    %cpr=cpr;
     if ~set_cmap(scs_m.props.options('Cmap')) then 
       scs_m.props.options('3D')(1)=%f //disable 3D block shape 
     end
@@ -43,7 +46,7 @@ function scmenu_scicoslab_import()
   end
 endfunction
 
-function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
+function [ok,scs_m,%cpr,edited]=do_scicoslab_import(fname,typ)
 // Copyright INRIA
   if nargin < 2 then typ='diagram',end
   if ~exists('alreadyran') then alreadyran = %f;end 
@@ -54,10 +57,12 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
   if alreadyran & typ=='diagram' then 
     do_terminate(),//end current simulation
   end  
-  
+
+  // default values 
+  ok=%t;
   edited=%f
   %cpr=list()
-  scs_m=[]
+  scs_m=get_new_scs_m();
 
   current_version = get_scicos_version();
   if nargin <= 0 then 
@@ -65,27 +70,22 @@ function [ok,scs_m,%cpr,edited]=do_scilab_import(fname,typ)
   end
   if fname.equal[emptystr()] then
     ok=%f;
-    scs_m = get_new_scs_m();
     return
   end
-  [path,name,ext]=splitfilepath(fname)
-  select ext
-   case 'cos' then
-    if ~file('exists',fname)  then 
-      message([name+' cannot be loaded:';
-	       'file '+fname+' does not exists !']);
-      ok=%f ;
-      return;
-    end;
-    ierr=execstr('sci_load(fname);',errcatch=%t)
-    ok=%t
-  else
+  [path,name,ext]=splitfilepath(fname);
+  if ext<> 'cos' then 
     message(['Only scilab *.cos (binary) files allowed for import']);
     ok=%f
-    scs_m = get_new_scs_m();
     return
   end
-  if ~ierr then
+  if ~file('exists',fname)  then 
+    message([name+' cannot be loaded:';
+	     'file '+fname+' does not exists !']);
+    ok=%f ;
+    return;
+  end;
+  eok=execstr('sci_load(fname);',errcatch=%t)
+  if ~eok then
     message([name+' cannot be loaded.';catenate(lasterror())]) 
     ok=%f;
     return

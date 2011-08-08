@@ -1,5 +1,5 @@
 function scmenu_open()
-
+//
   Cmenu='';Select=[]
   if edited & ~super_block then
     num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
@@ -9,21 +9,61 @@ function scmenu_open()
     alreadyran=%f
   end
   //xselect();
-  edited_sav=edited
-  [ok,scs_m,%cpr,edited]=do_load()
+  [ok,sc,cpr,ed,context]=do_open(%f)
+  if ok then 
+    %scicos_context=context;
+    scs_m=sc; %cpr=cpr; edited=ed;
+    alreadyran=%f;
+    if size(%cpr)==0 then
+      needcompile=4;
+    else
+      %state0=%cpr.state;
+      needcompile=0;
+    end
+  end
+endfunction
+
+function scmenu_scicoslab_import()
+// similar to open 
+  Cmenu='';Select=[]
+  if edited & ~super_block then
+    num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
+    if num==2 then return;end
+    if alreadyran then do_terminate(),end  //terminate current simulation
+    clear('%scicos_solver')
+    alreadyran=%f
+  end
+  //xselect();
+  [ok,sc,cpr,ed,context]=do_open(%t)
+  if ok then 
+    %scicos_context=context;
+    scs_m=sc; %cpr=cpr; edited=ed;
+    alreadyran=%f;
+    if size(%cpr)==0 then
+      needcompile=4;
+    else
+      %state0=%cpr.state;
+      needcompile=0;
+    end
+  end
+endfunction
+
+function [ok,scs_m,%cpr,edited,context]=do_open(flag)
+  context=[];
+  if flag then 
+    [ok,scs_m,%cpr,edited]=do_scicoslab_import();
+  else
+    [ok,scs_m,%cpr,edited]=do_load();
+  end
+  if ~ok then return;end 
   if ok then
-     inactive_windows=close_inactive_windows(inactive_windows,super_path)
     //TODO Alan
     //closing the initialization GUI before opening another diagram
+    inactive_windows=close_inactive_windows(inactive_windows,super_path)
   end
   if super_block then edited=%t;end
-  if ~ok then
-    //Cmenu='Replot';
-    return;
-  end
-  
   if ~set_cmap(scs_m.props.options('Cmap')) then 
-    scs_m.props.options('3D')(1)=%f //disable 3D block shape 
+    scs_m.props.options('3D')(1)=%f; 
   end
   options=scs_m.props.options
   
@@ -47,13 +87,12 @@ function scmenu_open()
   else
     scs_m.props.context=' '
   end
-  
+  // value to return;
+  context = H1;
   // draw the new diagram
   xclear(curwin,gc_reset=%f);xselect()
   set_background()
-
   if size(scs_m.props.wpar,'*')>12 then
-
     //Alan : seems to be not needed
     F=get_current_figure()
     gh=nsp_graphic_widget(curwin)
@@ -77,19 +116,9 @@ function scmenu_open()
     //pwindow_set_size()
     window_set_size()
   end
-
   // be sure that graphic objects are recreated 
   // in case they were in saved file.
   scs_m=do_replot(scs_m);
-
   // return values 
-  if size(%cpr)==0 then
-    needcompile=4
-    alreadyran=%f
-  else
-    %state0=%cpr.state
-    needcompile=0
-    alreadyran=%f
-  end
 endfunction
 
