@@ -26,7 +26,6 @@ function scicos_palette_icon_view(L)
   if nargin <= 0 then 
     L=acquire('%scicos_pal_list');
   end
-  
   function combo_changed(combo,args)
   // this can be used as handler for 
   // combobox.connect["changed", current_option ]
