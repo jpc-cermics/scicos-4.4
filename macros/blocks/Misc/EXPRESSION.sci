@@ -52,7 +52,9 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
       end
       if exists('%scicos_context') then
 	printf('change expression with context\n");
-	%bexp.apply_context[%scicos_context];
+	lc=%scicos_context;
+	lc.remove[ 'u'+string(1:8)];
+	%bexp.apply_context[lc];
       end 
       // check that the expression is correct 
       vars = %bexp.get_vars[];
