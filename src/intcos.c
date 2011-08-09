@@ -846,6 +846,60 @@ static int int_scicos_get_internal_name(Stack stack, int rhs, int opt, int lhs)
   return 1;
 }
 
+#include "calelm/calpack.h"
+
+static int int_rat(Stack stack, int rhs, int opt, int lhs)
+{
+  double eps=1.e-6,ma=0.0;
+  int i;
+  NspMatrix *M, *N=NULL,*D=NULL;
+  CheckStdRhs(1,2);
+  CheckLhs(0,2);
+  if ((M = GetRealMat(stack,1)) == NULLMAT) return RET_BUG;
+  if ( rhs >= 2 ) 
+    {
+      if (GetScalarDouble (stack, 2, &eps) == FAIL)
+	return RET_BUG;
+    }
+  if ((N = nsp_matrix_create(NVOID, M->rc_type, M->m, M->n))==NULL)
+    return RET_BUG;
+  if ( lhs >=2 )
+    {
+      if ((D = nsp_matrix_create(NVOID, M->rc_type, M->m, M->n))==NULL)
+	return RET_BUG;
+    }
+  for ( i=0; i < M->mn ; i++)
+    {
+      double d=Abs(M->R[i]);
+      if ( d > ma) ma=d;
+    }
+  if ( ma != 0.0) eps *= ma;
+  
+  for ( i=0; i < M->mn ; i++)
+    {
+      int n,d;
+      if ( nsp_calpack_rat(M->R[i],eps,&n,&d) == FAIL) 
+	goto bug;
+      if ( lhs >= 2)
+	{
+	  N->R[i]=n;
+	  D->R[i]=d;
+	}
+      else
+	{
+	  N->R[i]=n/d;
+	}
+    }
+  MoveObj(stack,1,NSP_OBJECT(N));
+  if ( lhs >= 2 )
+    MoveObj(stack,2,NSP_OBJECT(D));
+  return Max(lhs,1);
+ bug: 
+  if (N != NULL)   nsp_matrix_destroy(N);
+  if (D != NULL)   nsp_matrix_destroy(D);
+  return RET_BUG;
+}
+
 
 static OpTab Scicos_func[] = {
   {"sci_tree4", int_scicos_ftree4},
@@ -865,6 +919,8 @@ static OpTab Scicos_func[] = {
   {"buildouttb", int_buildouttb},
   {"scicos_about", int_scicos_about},
   {"scicos_get_internal_name", int_scicos_get_internal_name },
+  /* utilities */
+  {"rat",int_rat},
   {(char *) 0, NULL}
 };
 

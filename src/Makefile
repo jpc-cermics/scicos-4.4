@@ -118,7 +118,7 @@ CONTROL=riccpack.o dexpm1.o wexpm1.o wpade.o pade.o bdiag.o wbdiag.o \
 CALELM=dad.o dmcopy.o wdiv.o wasum.o wdotcr.o wdotci.o \
 	waxpy.o wsign.o wrscal.o wmul.o pythag.o \
 	gdcp2i.o wscal.o iwamax.o wsqrt.o dprxc.o wprxc.o \
-	dmmul.o fn.o
+	dmmul.o fn.o rat.o
 
 # sundials and ode solvers 
 

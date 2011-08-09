@@ -173,7 +173,7 @@ extern int nsp_calpack_dpchim(int *n, double *x, double *f, double *d__, int *in
 extern double nsp_calpack_dpchst(double *arg1, double *arg2);
 extern double nsp_calpack_psi(double *xx);
 extern double nsp_calpack_pythag(double *a, double *b);
-extern int nsp_calpack_rat(double *x, double *eps, int *n, int *d__, int *fail);
+extern int nsp_calpack_rat (double x, double eps, int *n, int *d);
 extern int nsp_calpack_rcopy(int *n, double *dx, int *incx, double *dy, int *incy);
 extern int nsp_calpack_rcsort(intg_f test, int *isz, int *iptr, int *iv, int *n, int *index);
 extern int nsp_calpack_rea2db(int *n, double *dx, int *incx, double *dy, int *incy);

@@ -121,7 +121,7 @@ CONTROL=riccpack.obj dexpm1.obj wexpm1.obj wpade.obj pade.obj bdiag.obj wbdiag.o
 CALELM=dad.obj dmcopy.obj wdiv.obj wasum.obj wdotcr.obj wdotci.obj \
 	waxpy.obj wsign.obj wrscal.obj wmul.obj pythag.obj \
 	gdcp2i.obj wscal.obj iwamax.obj wsqrt.obj dprxc.obj wprxc.obj \
-	dmmul.obj fn.obj
+	dmmul.obj fn.obj rat.obj
 
 # sundials and ode solvers 
 
