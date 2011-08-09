@@ -1,7 +1,7 @@
 // testiconview.sce 
 // 
 // obtained by translation to Nsp of testiconview.c 
-// Jean-Philippe Chancelier (2008) jpc@cermics.enpc.fr
+// Jean-Philippe Chancelier (2008-2011) jpc@cermics.enpc.fr
 //
 //
 // Copyright (C) 2002  Anders Carlsson <andersca@gnu.org>
@@ -178,15 +178,46 @@ function icon_list=scicos_build_iconlist(L, j)
     end
   endfunction
 
-  function selection_changed (icon_list)
+  function selection_changed (icon_view)
   // each time selection changes 
   // printf ("Selection changed!\n");
+  endfunction
+  
+  function press_event_handler(icon_view,event)
+    if event.button== 3 && event.type == GDK.BUTTON_PRESS then 
+      // a right press 
+      path=icon_view.get_path_at_pos[event.x, event.y];
+      if type(path,'short')=='none' then 
+	// here we could decide to do something if 
+	// selection is non void 
+	printf ("right-press activated in the background\n");
+	L=icon_view.get_selected_items[];
+	if isempty(L);return;end 
+	path=L(1);
+      end
+      icon_view.select_path[path];
+      model = icon_view.get_model[];
+      iter=model.get_iter[path];
+      text= model.get_value[iter,1];
+      printf ("right-press activated over item text is %s\n", text);
+      ll = list('Help', 'Details');
+      [Cmenu,args]=mpopup(ll);
+      if Cmenu == 'Help' then 
+	help("http://www.scicos.org/HELP/eng/scicos/'+text+'.htm');
+      elseif Cmenu == 'Details' then 
+	ok=execstr('obj='+text+'(""define"");',errcatch=%t);
+	if ok then editvar('obj');
+	else
+	  lasterror();
+	end
+      end
+    end
   endfunction
   
   icon_list = gtkiconview_new ();
   icon_list.set_selection_mode[GTK.SELECTION_SINGLE];
   icon_list.set_size_request[200,-1]
-  // icon_list.connect_after["button_press_event", button_press_event_handler];
+  icon_list.connect_after["button_press_event",press_event_handler];
   icon_list.connect["selection_changed",   selection_changed];
   //icon_list.connect["popup_menu",  popup_menu_handler];
   icon_list.connect["item_activated", item_activated];// double click

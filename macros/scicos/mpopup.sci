@@ -32,6 +32,8 @@ function [Cmenu,args]=mpopup(ll)
   
   function w=createmenu(ll,topmenu)
     menu = gtkmenu_new ();
+    menu.set_title['Foo'];
+    
     if nargin==1 then topmenu=menu;end 
     for l=ll
       if type(l,'short')=='s' then
