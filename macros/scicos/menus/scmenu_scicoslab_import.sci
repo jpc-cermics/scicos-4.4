@@ -1,50 +1,30 @@
-function scmenu_scicoslab_import_old()
-// Import a Scilab Diagram in Nsp scicos.
-// XXX we should change the name in order not to 
-// overwrite the Scilab Diagram when saving.
-  Cmenu=''
+function scmenu_scicoslab_import()
+// similar to open 
+// but the flag %t in do_open will change do_load to do_scicoslab_import(
+// 
+  Cmenu='';Select=[]
   if edited & ~super_block then
-    // clean 
     num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
     if num==2 then return;end
-    if alreadyran then do_terminate();end 
+    if alreadyran then do_terminate(),end  //terminate current simulation
+    clear('%scicos_solver')
     alreadyran=%f
   end
-  [ok,sc,cpr,edited]=do_scicoslab_import();
-  if super_block then edited=%t;end
-  if ok then
-    scs_m=sc;
-    %cpr=cpr;
-    if ~set_cmap(scs_m.props.options('Cmap')) then 
-      scs_m.props.options('3D')(1)=%f //disable 3D block shape 
-    end
-    options=scs_m.props.options
-    xclear();
-    xselect();
-    set_background()
-    window_set_size()
-    if is(scs_m.props.context,%types.SMat) then
-      %now_win=xget('window')
-      if ~execstr(scs_m.props.context,errcatch=%t) then
-	message(['Error occur when evaluating context:']);
-	lasterror();
-      end
-      xset('window',%now_win)
-    else
-      scs_m.props.context=' '
-    end
-    scs_m= drawobjs(scs_m),
-    //if pixmap then xset('wshow'),end
+  //xselect();
+  [ok,sc,cpr,ed,context]=do_open(%t)
+  if ok then 
+    %scicos_context=context;
+    scs_m=sc; %cpr=cpr; edited=ed;
+    alreadyran=%f;
     if size(%cpr)==0 then
-      needcompile=4
-      alreadyran=%f
+      needcompile=4;
     else
-      %state0=%cpr.state
-      needcompile=0
-      alreadyran=%f
+      %state0=%cpr.state;
+      needcompile=0;
     end
   end
 endfunction
+
 
 function [ok,scs_m,%cpr,edited]=do_scicoslab_import(fname,typ)
 // Copyright INRIA

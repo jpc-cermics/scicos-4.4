@@ -23,31 +23,6 @@ function scmenu_open()
   end
 endfunction
 
-function scmenu_scicoslab_import()
-// similar to open 
-  Cmenu='';Select=[]
-  if edited & ~super_block then
-    num=x_message(['Diagram has not been saved'],['gtk-ok','gtk-go-back'])
-    if num==2 then return;end
-    if alreadyran then do_terminate(),end  //terminate current simulation
-    clear('%scicos_solver')
-    alreadyran=%f
-  end
-  //xselect();
-  [ok,sc,cpr,ed,context]=do_open(%t)
-  if ok then 
-    %scicos_context=context;
-    scs_m=sc; %cpr=cpr; edited=ed;
-    alreadyran=%f;
-    if size(%cpr)==0 then
-      needcompile=4;
-    else
-      %state0=%cpr.state;
-      needcompile=0;
-    end
-  end
-endfunction
-
 function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   context=[];
   if flag then 
