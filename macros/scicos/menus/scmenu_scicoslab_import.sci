@@ -1,6 +1,6 @@
 function scmenu_scicoslab_import()
 // similar to open 
-// but the flag %t in do_open will change do_load to do_scicoslab_import(
+// but the flag %t in do_open will change do_load to do_scicoslab_import.
 // 
   Cmenu='';Select=[]
   if edited & ~super_block then
