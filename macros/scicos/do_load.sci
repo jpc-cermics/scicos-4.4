@@ -22,7 +22,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   if %scicos_demo_mode==1 then
     //** open a demo file
     if isempty(fname) then
-      if %scicos_gui_mode==1 then
+      if exists('%scicos_gui_mode') && %scicos_gui_mode==1 then
 	file_mask = ["*.cos*","*.xml"]
       else
 	file_mask = "*.cos*"
@@ -34,7 +34,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   else
     //** conventional Open
     if isempty(fname) then
-      if %scicos_gui_mode==1 then
+      if exists('%scicos_gui_mode') && %scicos_gui_mode==1 then
 	// fname = getfile(['*.cos*','*.xml'])
 	fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t);
       else
