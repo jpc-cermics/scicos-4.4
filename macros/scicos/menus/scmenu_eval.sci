@@ -101,6 +101,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
 	  eok=execstr('o='+o.gui+'(""define"",o);',errcatch=%t);
 	  if ~eok then
 	    ok=%f;
+	    %err_mess_eval=[%err_mess_eval;'Error: while defining a block:';catenate(lasterror())];
 	    if ~%SubSystemEval then
 	      if ~isempty(%err_mess_eval) then x_message(%err_mess_eval);end
 	      clearglobal %err_mess_eval;
@@ -216,6 +217,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
 			end
 			if ~execstr('system(cmnd)',errcatch=%t) then
 			  %err_mess_eval=[%err_mess_eval;'Unable to delete the XML file'];
+			  lasterror();
 			end
 			break;
 		      end

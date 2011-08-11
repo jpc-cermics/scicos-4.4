@@ -31,12 +31,12 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
     [ok,scs_m,%cpr,edited]=do_load();
   end
   if ~ok then return;end 
-  if ok then
-    //TODO Alan
+  if ok && exists('inactive_windows','global') then
     //closing the initialization GUI before opening another diagram
+    global inactive_windows;
     inactive_windows=close_inactive_windows(inactive_windows,super_path)
   end
-  if super_block then edited=%t;end
+  if exists('super_block') && super_block then edited=%t;end
   if ~set_cmap(scs_m.props.options('Cmap')) then 
     scs_m.props.options('3D')(1)=%f; 
   end
@@ -49,22 +49,27 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
     if ~exists('%scicos_context') then 
       %scicos_context=hash_create(0);
     end
-    [ok,H1]=execstr(scs_m.props.context,env=%scicos_context,errcatch=%t);
+    [eok,H1]=execstr(scs_m.props.context,env=%scicos_context,errcatch=%t);
     xset('window',%now_win)
-    if ~ok then 
-      message(['Error occur when evaluating context:']); //   lasterror() ])
+    if ~eok then 
+      message(['Error occured during context evaluation:';...
+	       catenate(lasterror())]); 
     else
       context_same = H1.equal[%scicos_context];
       %scicos_context = H1;
       // make a do_eval 
-      [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
+      [scs_m,%cpr,needcompile,evok]=do_eval(scs_m,%cpr);
     end
   else
     scs_m.props.context=' '
   end
   // value to return;
   context = H1;
-  // draw the new diagram
+  // draw the new diagram 
+  if ~exists('curwin') then 
+    // we want this function to work outside main scicos
+    curwin=1000; %zoom=1.4;
+  end
   xclear(curwin,gc_reset=%f);xselect()
   set_background()
   if size(scs_m.props.wpar,'*')>12 then
