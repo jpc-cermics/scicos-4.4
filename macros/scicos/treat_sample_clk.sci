@@ -1,11 +1,12 @@
-function [scs_m,corinv,cor,sco_mat,links_table,ok,flgcdgen,freof]=treat_sample_clk(scs_m,corinv,cor,sco_mat,links_table,flgcdgen,path)
-// copyright: INRIA
-// Anthor: Fady NASSIF
-// Date: 23-1-2009
-// we can put here a test for the method to use in the future 
+function [scs_m,corinv,cor,sco_mat,links_table,ok,flgcdgen,freof]=...
+    treat_sample_clk(scs_m,corinv,cor,sco_mat,links_table,flgcdgen,path)
 
-// The Code generator will use the method with the fixed step
-// Scicos Simulator will use the method of variable step
+  // copyright: INRIA
+  // Anthor: Fady NASSIF
+  // Date: 23-1-2009
+  // we can put here a test for the method to use in the future 
+  // The Code generator will use the method with the fixed step
+  // Scicos Simulator will use the method of variable step
   ok=%t;freof=[];
   index=find(sco_mat(:,5)==string(4)) //index of SampleCLK blocks
   if ~isempty(index) then
@@ -31,7 +32,7 @@ function [frequ,offset,freqdiv,flg,ok]=ComputeClockFreqOff(MAT)
   flg=1;
   freq1=evstr(MAT(:,3));
   offset1=evstr(MAT(:,4));
-  [m,k]=uni(freq1,offset1);
+  [m,k]=ts_uni(freq1,offset1);
   if size(m,'*')==1 then flg=0;end  // case of one offset and one frequency.
   freqdiv=freq1(k)
   if size(unique(offset1),'*')==1 then  // case of one offset
@@ -83,7 +84,7 @@ function [scs_m,corinv,cor,Ts,flgcdgen,freof]=update_changes(scs_m,corinv,cor,MA
     freof=[frequ;offset];
   end
   scs_m.objs($+1)=new_blk;
-  n_scs_m=lstsize(scs_m.objs);
+  n_scs_m=length(scs_m.objs);
   // Adjusting cor and corinv
   [corinv,cor]=AdjustingCorCorinv(corinv,cor,path,MAT,n_scs_m)
   nb=size(corinv)
@@ -101,7 +102,7 @@ function [scs_m,corinv,cor,Ts,flgcdgen,freof]=update_changes(scs_m,corinv,cor,MA
 			       rpar=[],ipar=[1;double(nn);1],opar=list(),blocktype="c",firing=[],..
 			       dep_ut=[%f,%f],label="",nzcross=0,nmode=0,equations=list());
     scs_m.objs($+1)=new_blk;
-    n_scs_m=lstsize(scs_m.objs);
+    n_scs_m=length(scs_m.objs);
     // Adjusting cor and corinv
     [corinv,cor]=AdjustingCorCorinv(corinv,cor,path,MAT,n_scs_m)
     
@@ -112,7 +113,7 @@ function [scs_m,corinv,cor,Ts,flgcdgen,freof]=update_changes(scs_m,corinv,cor,MA
 			       rpar=[],ipar=[],opar=list(),blocktype="l",firing=-ones(nn,1),..
 			       dep_ut=[%t,%f],label="",nzcross=0,nmode=0,equations=list());
     scs_m.objs($+1)=new_blk;
-    n_scs_m=lstsize(scs_m.objs);
+    n_scs_m=length(scs_m.objs);
     // Adjusting cor and corinv
     [corinv,cor]=AdjustingCorCorinv(corinv,cor,path,MAT,n_scs_m)
     nb=size(corinv)
@@ -161,7 +162,7 @@ function [scs_m,corinv,cor,Ts,ok]=VariableStepMethod(scs_m,corinv,cor,MAT,Ts,pat
 			     opar=list(m,double(den),off,count),blocktype="d",firing=fir,dep_ut=[%f,%f],..
 			     label="",nzcross=0,nmode=0,equations=list());
   scs_m.objs($+1)=new_blk;
-  n_scs_m=lstsize(scs_m.objs);
+  n_scs_m=length(scs_m.objs);
   [corinv,cor]=AdjustingCorCorinv(corinv,cor,path,MAT,n_scs_m)
   nb=size(corinv);
   k=1:mn;
@@ -187,7 +188,7 @@ function [scs_m,corinv,cor,Ts,ok]=VariableStepMethod(scs_m,corinv,cor,MAT,Ts,pat
   end
 endfunction
 
-function [m,k]=uni(fr,of)
+function [m,k]=ts_uni(fr,of)
 // jpc: version plus courte nsp 
 //  [m,k]= unique([fr(:),of(:)],which ="rows");
 //  m=m(:,1);
@@ -240,16 +241,19 @@ function [m,den,off,count,m1,fir,frequ,offset,ok]=mfrequ_clk(frequ,offset)
 // Anthor: Fady NASSIF
 // Date: 2007-2008
 // Last Update 15 Dec 2008
+  ok=%t;
   m=[];den=[];off=[];count=[];m1=[];fir=[];x=treat_sample_clk;
-  [m1,k]=uni(frequ,offset); // m1 is a vector of different frequencies or same frequencies with different offsets
+  // m1 is a vector of different frequencies or same frequencies with different offsets
+  [m1,k]=ts_uni(frequ,offset);
   // k is the index.
   frequ=frequ(k);  // delete the dupplicated frequencies.
   offset=offset(k); // delete the dupplicated offset.
   v=[frequ;offset];
   vv=v(find(v<>0));
   min_v=min(vv);max_v=max(vv);
-  if (max_v/min_v)>1e5 then message(['The difference between the frequencies is very large';..
-		    'the clocks could not be synchronized']);
+  if (max_v/min_v)>1e5 then 
+    message(['The difference between the frequencies is very large';..
+	     'the clocks could not be synchronized']);
     ok=%f;
     return; 
   end
@@ -267,8 +271,6 @@ function [m,den,off,count,m1,fir,frequ,offset,ok]=mfrequ_clk(frequ,offset)
     // if two outputs are called at the same time they are replaced by an other output; the intersection of the two.
     if size(mat,1)>10000 then
       num=message(['Warning: Your system is too hard to synchronize it will take some time';
-		   'And the stacksize has to be increase';
-		   ' A scilab crash may occur';
 		   'Do You want me to continue?'],['No','Yes'])
       if num==1 then 
 	ok=%f;

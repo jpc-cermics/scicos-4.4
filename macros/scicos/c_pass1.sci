@@ -45,6 +45,8 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
     blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
     return;
   end
+  if isempty(sco_mat) then sco_mat=m2s(zeros(0,5));end
+  pause zzz;
   index1=find((sco_mat(:,2)=='-1')& (sco_mat(:,5)<>'10')& (sco_mat(:,5)<>'4'))
   if ~isempty(index1) then		// 
     for i=index1
