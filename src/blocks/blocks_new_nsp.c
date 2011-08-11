@@ -2424,7 +2424,7 @@ static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
 typedef struct _cmscope_ipar cmscope_ipar;
 struct _cmscope_ipar
 {
-  /* n is the number of data to accumulate before redrawing */
+  /* buffer_size is the number of data to accumulate before redrawing */
   int wid, number_of_subwin, buffer_size , wpos[2], wdim[2];
 };
 
@@ -2558,29 +2558,44 @@ void scicos_cmscope_block (scicos_block * block, int flag)
   
   if (flag == 2)
     {
+      int i;
+      Cell *cloc;
       cmscope_data *D = (cmscope_data *) (*block->work);
+      NspList *L = D->F->obj->children;
       t = GetScicosTime (block);
       k = D->count;
       D->count++;
       D->tlast = t;
+      /* insert the points */
+      i=0;
+      cloc = L->first ;
+      while ( cloc != NULLCELL ) 
+	{
+	  if ( cloc->O != NULLOBJ ) 
+	    {
+	      double *u1 = GetRealInPortPtrs (block, i + 1);
+	      NspAxes *axe = (NspAxes *) cloc->O;
+	      /* add nu points for time t, nu is the number of curves */
+	      nsp_oscillo_add_point (axe->obj->children, t, u1,nswin[i]);
+	      i++;
+	    }
+	  cloc = cloc->next;
+	}
       if (  D->count %  csi->buffer_size == 0 ) 
 	{
-	  int i=0;
 	  /* redraw each csi->buffer_size accumulated points 
 	   * first check if we need to change the xscale 
 	   */
-	  NspList *L = D->F->obj->children;
-	  Cell *cloc = L->first ;
+	  i=0;
+	  cloc = L->first ;
 	  while ( cloc != NULLCELL ) 
 	    {
 	      if ( cloc->O != NULLOBJ ) 
 		{
-		  double *u1 = GetRealInPortPtrs (block, i + 1);
 		  double ymin = yminmax[2*i];
 		  double ymax = yminmax[2*i+1];
 		  NspAxes *axe = (NspAxes *) cloc->O;
 		  /* add nu points for time t, nu is the number of curves */
-		  nsp_oscillo_add_point (axe->obj->children, t, u1,nswin[i]);
 		  scicos_cscope_axes_update(axe,t,period[i],ymin,ymax);
 		  nsp_axes_invalidate((NspGraphic *)axe);
 		  i++;
