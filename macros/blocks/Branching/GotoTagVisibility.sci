@@ -16,8 +16,8 @@ function [x,y,typ]=GotoTagVisibility(job,arg1,arg2)
     model=arg1.model;
     while %t do
       [ok,tag,exprs]=getvalue('Set parameters',..
-	  ['GotoTag'],..
-	  list('gen',-1),exprs)
+			      ['GotoTag'],..
+			      list('gen',-1),exprs); // gen ?
       if ~ok then break,end
       if ok then
 	if model.opar<>list(tag) then needcompile=4;y=needcompile,end

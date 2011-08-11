@@ -54,7 +54,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       if flgcdgen<>-1 then full_path=[numk full_path];scs_m=all_scs_m;end
       hilite_path(full_path,"Error in compilation, There is a FROM ''"+(sco_mat(i,3))+ "'' without a GOTO",%t)
       ok=%f;
-      blklst=[];cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
+      blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
       return;
     end
   end

@@ -99,10 +99,10 @@ function [x,y,typ]=GOTO(job,arg1,arg2)
       exprs(1)=sci2exp(exprs(1),0)
       exprs(3)='1';
     end 
+    gv_title=['Tag';'Tag Visibility(1=Local 2=scoped 3= global)';'Input Type (1=Signal 2=Bus)'];
+    gv_types=list('gen',-1,'vec',1,'vec',1);
     while %t do
-      [ok,tag,tagvis,BS,exprs]=getvalue('Set parameters',..
-		['Tag';'Tag Visibility(1=Local 2=scoped 3= global)';'Input Type (1=Signal 2=Bus)'],..
-		    list('gen',-1,'vec',1,'vec',1),exprs)
+      [ok,tag,tagvis,BS,exprs]=getvalue('Set parameters',gv_title,gv_types,exprs);
       if ~ok then break,end
       tagvis=int(tagvis)
       if ((tagvis<1)|(tagvis>3)) then
