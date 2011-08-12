@@ -214,19 +214,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     palettes=palettes;
   end
   
-  // set context (variable definition...)
-  if is(scs_m.props.context,%types.SMat) then
-    %now_win=xget('window')
-    if ~execstr(scs_m.props.context,errcatch=%t) then
-      message(['Error occur when evaluating context:'])
-      lasterror();
-    end
-    xset('window',%now_win)
-    xset('recording',0)
-  else
-    scs_m.props.context=' ' 
-  end
-
   Cmenu='';%pt=[];%win=curwin;%curwpar=[];
   Select=[];Select_back=[];%ppt=[];
 

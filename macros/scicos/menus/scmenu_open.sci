@@ -27,7 +27,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
 // this function can be used ouside of scicos 
 // 
   if nargin <= 0 then flag=%f;end
-  context=[];
+  context=hash(0);
   if flag then 
     [ok,scs_m,%cpr,edited]=do_scicoslab_import();
   else
@@ -40,31 +40,23 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
     inactive_windows=close_inactive_windows(inactive_windows,super_path)
   end
   if exists('super_block') && super_block then edited=%t;end
-  
-  if is(scs_m.props.context,%types.SMat) then
-    // we have a context to evaluate. take care 
-    // that evaluation of the context can change the current 
-    // window.
-    if ~isempty(winsid()) then 
-      %now_win=xget('window')
-    end
-    // execute the context 
-    if ~exists('%scicos_context') then 
-      %scicos_context=hash_create(0);
-    end
-    [eok,H1]=execstr(scs_m.props.context,env=%scicos_context,errcatch=%t);
-    if ~isempty(winsid()) then xset('window',%now_win);end 
-    if ~eok then 
-      message(['Error occured during context evaluation:';...
-	       catenate(lasterror())]); 
-    else
-      context_same = H1.equal[%scicos_context];
-      %scicos_context = H1;
-      // make a do_eval 
-      [scs_m,%cpr,needcompile,evok]=do_eval(scs_m,%cpr);
-    end
+  if type(scs_m.props.context,'short')<>'s' then 
+    scs_m.props.context='';
+  end
+  // we have a context to evaluate. take care 
+  // that evaluation of the context can change the current 
+  // window.
+  if ~isempty(winsid()) then 
+    %now_win=xget('window')
+  end
+  // execute the context 
+  [H1,ierr] = script2var(scs_m.props.context);
+  if ierr<>0 then 
+    message(['Error occured during context evaluation:';...
+	     catenate(lasterror())]); 
   else
-    scs_m.props.context=' '
+    // make a do_eval 
+    [scs_m,%cpr,needcompile,evok]=do_eval(scs_m,%cpr,H1);
   end
   // value to return;
   context = H1;
