@@ -274,6 +274,17 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   exec(restore_menu)
   scicos_set_uimanager(slevel <=1 );
   
+  // be sure that context is ok 
+  if type(scs_m.props.context,'short')<>'s' then 
+    scs_m.props.context='';
+  end
+  [%scicos_context,ierr] = script2var(scs_m.props.context);
+  if ierr<>0 then 
+    message(['Error occured when evaluating context:';
+	     catenate(lasterror())]);
+  end
+  
+  // 
   global Clipboard 
   
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
