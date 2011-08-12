@@ -256,5 +256,11 @@ function icon_list=scicos_build_iconlist(L, j)
   icon_list.enable_model_drag_source[masks,targets, GDK.ACTION_COPY];
   // only want to drag/drop in graphic window.
   icon_list.set_reorderable[%f];
+  //
+  if ~isempty(icon_list.get_method_names[]=="set_tooltip_column") then 
+    // added Aug 2011 
+    pause xxx
+    icon_list.set_tooltip_column[1];
+  end
 endfunction
 
