@@ -100,8 +100,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   end
   if ext=='xml'|ext=='XML' then
     needcompile=4;%cpr=list();
-    context=scs_m.props.context
-    [%scicos_context,ierr]=script2var(context,hash(10))
+    [%scicos_context,ierr]=script2var(scs_m.props.context,hash(1));
     //      [ok,scs_m]=do_define_and_set(scs_m)
     [scs_m,cpr,vv,ok]=do_eval(scs_m,%cpr,%scicos_context,%f,'XML');
     if ~ok then
@@ -260,13 +259,12 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
     result=valueini,Quit=0
   endfunction
   // use a non interactive version
-    
-  context=scs_m.props.context
   if nargin < 2 then
-    global %scicos_context;
-    [%scicos_context,ierr]=script2var(context,struct());
+    // do not use herited context 
+    [%scicos_context,ierr]=script2var(scs_m.props.context,hash(10));
   else
-    [%scicos_context,ierr]=script2var(context,%scicos_context);
+    // enrich %scicos_context 
+    [%scicos_context,ierr]=script2var(scs_m.props.context)
   end
   n=size(scs_m.objs);
   for i=1:n

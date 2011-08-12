@@ -259,7 +259,6 @@ function icon_list=scicos_build_iconlist(L, j)
   //
   if ~isempty(icon_list.get_method_names[]=="set_tooltip_column") then 
     // added Aug 2011 
-    pause xxx
     icon_list.set_tooltip_column[1];
   end
 endfunction

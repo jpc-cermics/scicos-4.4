@@ -150,25 +150,17 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       alreadyran=%f
       [ok,scs_m,%cpr,edited]=do_load(%fil,'diagram')
       if ~ok then return, end
-      // make a first eval ? 
+      // make a first eval XXX ? 
       // -----------------
-      if is(scs_m.props.context,%types.SMat) then
-	// we have a context to evaluate. 
-	// execute the context 
-	if ~exists('%scicos_context') then 
-	  %scicos_context=hash_create(0);
-	end
-	[ok,H1]=execstr(scs_m.props.context,env=%scicos_context,errcatch=%t);
-	if ~ok then 
-	  message(['Error occur when evaluating context:']); //   lasterror() ])
-	else
-	  context_same = H1.equal[%scicos_context];
-	  %scicos_context = H1;
-	  // make a do_eval 
-	  [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
-	end
+      if type(scs_m.props.context,'short')<>'s' then
+	scs_m.props.context='';
+      end
+      [%scicos_context,ierr] = script2var(scs_m.props.context);
+      if ierr<>0 then 
+	message(['Error occured when evaluating context:';
+		 catenate(lasterror())]);
       else
-	scs_m.props.context=' '
+	[scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
       end
       // -------------------
       if size(%cpr)==0 then

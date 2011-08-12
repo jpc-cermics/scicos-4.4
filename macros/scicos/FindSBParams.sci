@@ -16,11 +16,7 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
   
   // enrich %scicos_context with diagram context 
   Fun=scs_m.props.context;
-  if exists('%scicos_context','callers') then 
-    [%scicos_context,ierr] = script2var(Fun,%scicos_context);
-  else
-    [%scicos_context,ierr] = script2var(Fun);
-  end
+  [%scicos_context,ierr] = script2var(Fun);
   if ierr<>0 then
     message(['Error: context evaluation failed:\n";
 	     catenate(lasterror())])

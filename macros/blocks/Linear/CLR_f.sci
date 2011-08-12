@@ -30,7 +30,7 @@ function [x,y,typ]=CLR_f(job,arg1,arg2)
       if ~ok then break,end
       if type(num,'short')=='m' then num=m2p(num);end
       if type(den,'short')=='m' then den=m2p(den);end
-      if degree(num)>degree(den) then
+      if num.degree[] > den.degree[] then
 	message('Transfer must be proper or strictly proper !')
 	ok=%f;
       end

@@ -70,7 +70,7 @@ function [scs_m,changed]=do_align(%pt,scs_m)
       if ~isempty(k2) && k2<>K then o2=scs_m.objs(k2);break,end
     end
   end
-  pause xx
+  // pause xx
   // 
   if ~isempty(get_connected(scs_m,k2)) then
     hilite_obj(k2)

@@ -1,6 +1,6 @@
 function block=tkscaleblk(block,flag)
 // Copyright INRIA
-  pause xxx
+  // pause xxx
   
   blknb=string(curblock())
   if flag==4 then

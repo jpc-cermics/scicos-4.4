@@ -17,10 +17,7 @@ function scmenu_remove_mask()
     return;
   end
   //test if there is not a parameter that is not defined
-  if ~exists('%scicos_context','callers') then 
-    %scicos_context = hash(1);
-  end
-  [%scicos_context1,ierr]=script2var(o.model.rpar.props.context,%scicos_context);
+  [%scicos_context1,ierr]=script2var(o.model.rpar.props.context)
   if ierr==0 then
     [sblock,%w,needcompile2,ok]=do_eval(o.model.rpar,list(),%scicos_context1)
   else
