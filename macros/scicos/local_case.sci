@@ -2,6 +2,7 @@ function [sco_mat,links_table]=local_case(loc_mat,from_mat,sco_mat,links_table)
 // Fady NASSIF
 // last update 30/05/2008
 // This function treat the local case of the goto from application
+  if isempty(from_mat) then return;end 
   for i=1:size(loc_mat,1)
     index1=find((from_mat(:,2)=='-1') && (from_mat(:,3)==loc_mat(i,3)) &&(from_mat(:,4)==loc_mat(i,4)))
     for j=index1

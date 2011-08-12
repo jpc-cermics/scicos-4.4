@@ -80,7 +80,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
     xselect()
   end;
   if size(scs_m.props.wpar,'*')>12 then
-    printf('open: wpar contains the window size and position');
+    printf('open: wpar contains the window size and position\n');
     //Alan : seems to be not needed
     // get screen size (do not suppose that we have a graphic window)
     screensz=[gdk_screen_width(), gdk_screen_height()];
@@ -113,6 +113,25 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   // be sure that graphic objects are recreated 
   // in case they were in saved file.
   scs_m=do_replot(scs_m);
-  // return values 
+  // protect the window against delete 
+  // XXX : we first have to unconnect the default delete_event.
+  gh=nsp_graphic_widget(curwin);
+  gh.connect_after["delete_event", scicos_delete];
+  gh.connect_after["destroy",scicos_destroy];
 endfunction
 
+function [y]=scicos_delete(win, event) 
+// used when trying to delete a scicos window.
+  y=%t; // if false then destroy is performed 
+  // if true then destroy is not done 
+  if y==%t then 
+    printf("in delete returning true (no destroy)\n");
+  else
+     printf("in delete returning false (destroy)\n");
+  end
+endfunction
+
+function scicos_destroy(win, event) 
+// called when window is destroyed 
+  printf("in destroy \n");
+endfunction

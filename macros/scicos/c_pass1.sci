@@ -47,15 +47,24 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   end
   if isempty(sco_mat) then sco_mat=m2s(zeros(0,5));end
   index1=find((sco_mat(:,2)=='-1')& (sco_mat(:,5)<>'10')& (sco_mat(:,5)<>'4'))
-  if ~isempty(index1) then		// 
+  if ~isempty(index1) then
     for i=index1
-      [path]=findinlist(cor,-evstr(sco_mat(i,1)))
-      full_path=path(1)
-      if flgcdgen<>-1 then full_path=[numk full_path];scs_m=all_scs_m;end
-      hilite_path(full_path,"Error in compilation, There is a FROM ''"+(sco_mat(i,3))+ "'' without a GOTO",%t)
-      ok=%f;
-      blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
-      return;
+      [path]=findinlist(cor,-evstr(sco_mat(i,1)));
+      // XXX path should not be empty here ? 
+      if isempty(path) then 
+	message(["Theres a FROM without a GOTO!";"and a bug in path detection";
+		 "for hiliting the wrong block"]);
+	ok=%f;
+	blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
+	return;
+      else
+	full_path=path(1)
+	if flgcdgen<>-1 then full_path=[numk full_path];scs_m=all_scs_m;end
+	hilite_path(full_path,"Error in compilation, There is a FROM ''"+(sco_mat(i,3))+ "'' without a GOTO",%t)
+	ok=%f;
+	blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
+	return;
+      end
     end
   end
   nb=size(corinvt);
