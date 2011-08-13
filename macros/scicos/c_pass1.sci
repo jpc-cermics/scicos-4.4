@@ -1,14 +1,10 @@
 function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdgen)
 // Copyright INRIA
-//Last Update Fady: 15 Dec 2008
-//derived from c_pass1 for implicit diagrams
-//%Purpose
+// 
+// updates for implicit diagrams
 // Determine one level blocks and connections matrix
-//%Parameters
 // scs_m  :   scicos data structure
-// ksup   :
 // blklst : a list containing the "model" information structure for each block
-//
 // cmat   : nx6 matrix. Each row contains, in order, the block
 //             number and the port number and the port type of an outgoing scicopath,
 //             and the block number and the port number and the port type of the target
@@ -18,19 +14,18 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
 //             number and the port number  of an outgoing scicopath,
 //             and the block number and the port number  of the target
 //             ingoing scicopath for clock connections
-  
 // cor    : is a list with same recursive structure as scs_m each leaf 
 //          contains the index of associated block in blklst 
 // corinv : corinv(nb) is the path of nb ith block defined in blklst 
 //          in the scs_m structure
-//!
-// Serge Steer 2003, Copyright INRIA
 // flgcdgen: is a flag containing the number of event input of the diagram
 //           it is used only in the Codegeneration case.
 // freof   : it is a vector containing the frequency and the offset of the major clock.
 //           it is used only in the Codegeneration case.
+// Serge Steer 2003, Copyright INRIA
 // Fady Nassif 2007. INRIA.
-//c_pass1;
+// Fady Nassif 2008. INRIA.
+// 
   if nargin <=1 then flgcdgen=-1, end
   freof=[];
   MaxBlock=countblocks(scs_m);
@@ -38,7 +33,8 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   if ok then
     [links_table,sco_mat,ok]=global_case(links_table,sco_mat)
     if ~isempty(find(sco_mat(:,5)==string(4))) then
-      [scs_m1,corinvt,cor,sco_mat,links_table,ok,flgcdgen,freof]=treat_sample_clk(scs_m1,corinvt,cor,sco_mat,links_table,flgcdgen,[])
+      [scs_m1,corinvt,cor,sco_mat,links_table,ok,flgcdgen,freof]=...
+	  treat_sample_clk(scs_m1,corinvt,cor,sco_mat,links_table,flgcdgen,[])
     end
   end
   if ~ok then 
@@ -50,22 +46,12 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   if ~isempty(index1) then
     for i=index1
       [path]=findinlist(cor,-evstr(sco_mat(i,1)));
-      // XXX path should not be empty here ? 
-      if isempty(path) then 
-	message(["Theres a FROM without a GOTO!";"and a bug in path detection";
-		 "for hiliting the wrong block"]);
-	pause bug;
-	ok=%f;
-	blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
-	return;
-      else
-	full_path=path(1)
-	if flgcdgen<>-1 then full_path=[numk full_path];scs_m=all_scs_m;end
-	hilite_path(full_path,"Error in compilation, There is a FROM ''"+(sco_mat(i,3))+ "'' without a GOTO",%t)
-	ok=%f;
-	blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
-	return;
-      end
+      full_path=path(1)
+      if flgcdgen<>-1 then full_path=[numk full_path];scs_m=all_scs_m;end
+      hilite_path(full_path,"Error in compilation, There is a FROM ''"+(sco_mat(i,3))+ "'' without a GOTO",%t)
+      ok=%f;
+      blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
+      return;
     end
   end
   nb=size(corinvt);
@@ -289,7 +275,6 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   //*** 
 endfunction
 
-
 function [model,links_table]=adjust_sum(model,links_table,k)
 //sum blocks have variable number of input ports, adapt the associated
 //model data structure and input connection to take into account the
@@ -308,7 +293,6 @@ function mat=mmatfromT(Ts,nb)
   K=unique(Ts(find(Ts(:,1)>nb),1)); // identificator of blocks to be removed
   //remove superblocks port and split connections 
   Ts=remove_fictitious(Ts,K)
-  
   // from connection matrix
   Imat=zeros(0,2);
   for u=matrix(unique(Ts(:,4)),1,-1)
@@ -317,7 +301,6 @@ function mat=mmatfromT(Ts,nb)
   end
   mat=[Ts(Imat(:,1),1:3)  Ts(Imat(:,2),1:3)]
 endfunction
-
 
 function mat=matfromT(Ts,nb)
 //S. Steer, R. Nikoukhah 2003. Copyright INRIA
@@ -348,8 +331,6 @@ function mat=cmatfromT(Ts,nb)
   [s,k]=gsort(Ts(:,[4,3]),'lr','i');Ts=Ts(k,:)
   // modified to support the CLKGOTO/CLKFROM
   //mat=[Ts(1:2:$,1:2) Ts(2:2:$,1:2)]
-  //----------------------------------
-
   J=find(Ts(:,3)==1); //find the destination block of the link
   v=find([Ts(:,3);-1]==-1) // find the source block of the link
   // many destination blocks can be connected to one source block
@@ -358,7 +339,6 @@ function mat=cmatfromT(Ts,nb)
   // then create the vector I that must be compatible with the vector J.
   I=duplicate(v(1:$-1),v(2:$)-v(1:$-1)-1); 
   mat=[Ts(I,1:2),Ts(J,1:2)]
-
   //----------------------------------
   K=unique(Ts(Ts(:,1)>nb))
   Imat=zeros(0,2);
@@ -370,12 +350,11 @@ function mat=cmatfromT(Ts,nb)
     mat([jue;kue],:)=[];
     mat=[mat;mat1];
   end
-  
 endfunction
 
 function Ts=remove_fictitious(Ts,K)
-//removes fictitious blocks connected links are replaced by a single one
-//S. Steer, R. Nikoukhah 2003. Copyright INRIA
+// removes fictitious blocks connected links are replaced by a single one
+// S. Steer, R. Nikoukhah 2003. Copyright INRIA
 //
   count=min(Ts(:,4))
   for i=1:size(K,'*')
@@ -402,6 +381,7 @@ function Ts=remove_fictitious(Ts,K)
 endfunction
 
 function cor=update_cor(cor,reg)
+// 
   n=size(cor)
   for k=1:n
     if type(cor(k),'short')=='l' then
@@ -420,6 +400,7 @@ function cor=update_cor(cor,reg)
 endfunction
 
 function clkconnect=link_sample0_to_allout(allout,clkconnect)
+// 
   if ~isempty(clkconnect) then 
     blk0=find(clkconnect(:,1)==0)
   else
@@ -431,3 +412,4 @@ function clkconnect=link_sample0_to_allout(allout,clkconnect)
     end
   end 
 endfunction
+

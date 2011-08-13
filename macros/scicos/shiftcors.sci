@@ -4,7 +4,7 @@ function cors=shiftcors(cors,ns)
   if type(cors,'short')=='l' then
     cors=map(cors,shiftcors,list(ns));
   else
-    I = find(cors<>0);
+    I = find(cors > 0 );
     cors(I)= cors(I)+ ns;
   end
 endfunction
