@@ -6,10 +6,10 @@ function [model,graphics,ok]=check_io(model,graphics,in,out,clkin,clkout,in_impl
 // graphics: initial and resulting block graphics structure
 // in      : new input ports sizes
 // nout    : new output ports sizes
-// nclkin  : new event input ports sizes
-// nclkout : new event output ports sizes
-// in_impl : index of implicit input ports, the other ports are supposed to be explicit
-// out_impl: index of implicit output ports , the other ports are supposed to be explicit
+// clkin  : new event input ports sizes
+// clkout : new event output ports sizes
+// in_implicit : index of implicit input ports, the other ports are supposed to be explicit
+// out_implicit: index of implicit output ports , the other ports are supposed to be explicit
 // ok      : error flag
 //           ok==%f : some of input parameters are incorrects or
 //                    attempt to add/delete ports when some are connected

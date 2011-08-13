@@ -79,7 +79,7 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
        nzcross=0;
        for i=1:NMode
 	 Ci=evstr(exprs(5+i));// number of fileds
-	 ipar=[ipar;Ci];
+	 ipar=[ipar;Ci(:)];
 	 INP(i,1)=2*NX+length(Ci);
 	 if (nzcross<length(Ci)) then 
 	   nzcross=length(Ci);
@@ -106,7 +106,7 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
        ModifEncore=%f;
      end
      if ~ModifEncore then 
-       [model,graphics,ok]=check_io(model,graphics,INP,OUT,[],[1])
+       [model,graphics,ok]=check_io(model,graphics,INP,OUT,[1],[1])
        if ~ok then break,end
        model.nzcross=nzcross;
        model.state=ones(2*NX,1);
