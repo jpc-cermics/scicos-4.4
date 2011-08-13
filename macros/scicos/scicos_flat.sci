@@ -422,9 +422,9 @@ end
 //------------------------------------------------------------------------
 endfunction
 
-
 function [MAT,Ts]=treat_always_active(MAT,Ts)
-if ~isempty(MAT) then
+// 
+  if isempty(MAT) then return;end
   ind=vectorfind([MAT(:,3) MAT(:,5)],['0' '4'],'r')  //Sample time is equal to zero (cont)
   if ~isempty(ind) then
     MAT1=MAT(ind,:);
@@ -433,9 +433,9 @@ if ~isempty(MAT) then
       ii=evstr(MAT1(i,1));
       ind1=find(Ts(:,1)==-ii)
       Ts(ind1,1)=ii
-      Ts($+1,:)=[0 0 -1 -1];//adding the connection to block zero when we rewrite c_pass1 it will be [0 1 -1 -1]
-      Ts($+1,:)=[ii 1 1 -1]
+      //adding the connection to block zero when we rewrite c_pass1 it will be [0 1 -1 -1]
+      Ts($+1,:)=[0, 0, -1, -1];
+      Ts($+1,:)=[ii, 1, 1, -1];
     end
   end
-end
 endfunction

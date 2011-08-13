@@ -15,6 +15,9 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
     model=arg1.model;ipar=model.ipar;
     NMode=evstr(exprs(1));
     NX=evstr(exprs(3))
+
+    non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+    
     while %t do
      CX='C1';
      MSG0='''Jump from Mode '; MSG2=':[..;M_final(Guard=In(';MSG3=').i);..]'''
@@ -96,6 +99,11 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
 	 x_message(['Warning: There is an unused Mode or the Number of Modes should be '+string(MaxModes)]);
 	 ModifEncore=%t;
        end
+     end
+     if ModifEncore && non_interactive then 
+       message(['Error: set failed for AUTOMAT but we are in a non "+...
+		'  interactive function and thus we abort the set !']);
+       ModifEncore=%f;
      end
      if ~ModifEncore then 
        [model,graphics,ok]=check_io(model,graphics,INP,OUT,[],[1])

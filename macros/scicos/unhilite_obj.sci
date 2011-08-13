@@ -6,6 +6,7 @@ function unhilite_obj(o,draw=%t)
     end
     return;
   end
+  if ~o.iskey['gr'] then return;end 
   if o.type =='Block' then
     o.gr.hilited = %f;
     o.gr.invalidate[];

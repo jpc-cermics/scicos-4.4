@@ -1,5 +1,7 @@
 function ind=vectorfind(m,v,job)
-//Copyright INRIA  
+// searches vector v among the row or columns of m 
+// according to job
+// Copyright INRIA  
   if nargin <= 2 then job = 'r' ;end 
   if min(size(v))<>1 then error('second argument should be a vector'),end
   if part(job,1)=='r' then

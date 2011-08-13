@@ -54,6 +54,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       if isempty(path) then 
 	message(["Theres a FROM without a GOTO!";"and a bug in path detection";
 		 "for hiliting the wrong block"]);
+	pause bug;
 	ok=%f;
 	blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
 	return;
