@@ -12,7 +12,7 @@ function [o,needcompile,ok]=do_CreateAtomic(o,k,scs_m)
     return;
   end
   ALL=%f;
-  xx=CodeGeneration_;
+  xx=scmenu_code_generation;
   ok=execstr('[ok, XX, gui_path,flgcdgen, szclkINTemp, freof,c_atomic_code,cpr] ='+ ...
 	       'do_compile_superblock42(scs_m, k, %t);',errcatch=%t);
   if ~ok then
