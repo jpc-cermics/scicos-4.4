@@ -1224,12 +1224,11 @@ function [XX]=gen_allblk()
 
 endfunction
 
-function [ok,c_atomic_code]=gen_atomic_ccode42();
+function [c_atomic_code]=gen_atomic_ccode42();
 //Copyright (c) 1989-2011 Metalau project INRIA
 
 //** Generate code for atomic scicos block
 //** Fady Nassif, inital rev 10/12/07
-
   Code=make_computational42()
   [CCode,FCode]=gen_blocks()
   //   flag_no_ccode = %f;
@@ -3583,7 +3582,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 
   //** generate code for atomic blocks
   if ok & atomicflag then
-    [ok,c_atomic_code]=gen_atomic_ccode42()
+    [c_atomic_code]=gen_atomic_ccode42()
   else
     //** generate C files
     //   of the generated scicos block
