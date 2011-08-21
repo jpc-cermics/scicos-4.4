@@ -22,7 +22,9 @@
 ///
 
 function scicos_palette_icon_view(H)
-  
+// Open a window with selectable palettes 
+// in icon views.
+//
   if nargin <= 0 then 
     H=scicos_default_palettes();
   end
