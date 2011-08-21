@@ -3,38 +3,6 @@ function scmenu_pal_tree()
   scicos_palette_treeview();
 endfunction
 
-function scicos_palette_tv_model(iter,model,L,H)
-  for i=1:length(L);
-    subtest = (i < length(L)) && type(L(i+1),'short')=='l';
-    if subtest then 
-      // insert L(i+1)
-      if type(iter,'short')<>'none' then 
-	iter1=model.append[iter,list(list(pixbuf_dir),L(i))];
-      else
-	iter1=model.append[list(list(pixbuf_dir),L(i))];
-      end
-      scicos_palette_tv_model(iter1,model,L(i+1),H)
-    elseif type(L(i),'short')=='s' then 
-      sub=H.contents(L(i));
-      if type(iter,'short')<>'none' then 
-	iter1=model.append[iter,list(list(pixbuf_dir),L(i))];
-      else
-	iter1=model.append[list(list(pixbuf_dir),L(i))];
-      end
-      for j=1:size(sub,'*')
-	icon = scicos_icon_path + sub(j) + '.png' ;
-	ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
-	if ~ok then 
-	  lasterror();
-	  pixbuf = pixbuf_def
-	end
-	// pb = pixbuf.scale_simple[ 64,64, GDK.INTERP_NEAREST];
-	// we assume that path is of length 2 (paletteid,blockid).
-	model.append[iter1,list(list(pixbuf),sub(j),1,2)];
-      end
-    end
-  end
-endfunction
 
 // simple demo of treestore with pixmap
 // the treestore model have two levels 
@@ -43,9 +11,42 @@ endfunction
 function scicos_palette_treeview(L)
   if nargin <= 0 then 
     H=scicos_default_palettes();
-    L=acquire('%scicos_pal_list');
   end
+  
+  function scicos_palette_tv_model(iter,model,L,H)
+    for i=1:length(L);
+      subtest = (i < length(L)) && type(L(i+1),'short')=='l';
+      if subtest then 
+	// insert L(i+1)
+	if type(iter,'short')<>'none' then 
+	  iter1=model.append[iter,list(list(pixbuf_dir),L(i))];
+	else
+	  iter1=model.append[list(list(pixbuf_dir),L(i))];
+	end
+	scicos_palette_tv_model(iter1,model,L(i+1),H)
+      elseif type(L(i),'short')=='s' then 
+	sub=H.contents(L(i));
+	if type(iter,'short')<>'none' then 
+	  iter1=model.append[iter,list(list(pixbuf_dir),L(i))];
+	else
+	  iter1=model.append[list(list(pixbuf_dir),L(i))];
+	end
+	for j=1:size(sub,'*')
+	  icon = scicos_icon_path + sub(j) + '.png' ;
+	  ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
+	  if ~ok then 
+	    lasterror();
+	    pixbuf = pixbuf_def
+	  end
+	  // pb = pixbuf.scale_simple[ 64,64, GDK.INTERP_NEAREST];
+	  // we assume that path is of length 2 (paletteid,blockid).
+	  model.append[iter1,list(list(pixbuf),sub(j),1,2)];
+	end
+      end
+    end
+  endfunction
 
+  
   // a tree store with pixbufs from L 
   // which describes the palettes.
       
@@ -60,7 +61,7 @@ function scicos_palette_treeview(L)
   sw = gtkscrolledwindow_new ();
   sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
   sw.set_placement[GTK.CORNER_TOP_RIGHT]
-  hbox.pack_start[sw,expand=%t,fill=%tpadding=0]
+  hbox.pack_start[sw,expand=%t,fill=%t,padding=0];
   
   // build an unfiled model 
   
