@@ -306,7 +306,10 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
   //** menus of type 1 (require %pt)
   %CmenuTypeOneVector =..
      ['Region to Super Block', "Press lef mouse button, drag region and release (right button to cancel)";
-      'Region to Palette',     "Press lef mouse button, drag region and release (right button to cancel)";
+      'Region to Palette',     "Press lef mouse button, drag region and"+...
+      " release (right button to cancel)";
+      'Load as Palette',       '';
+      'scmenu_load_as_palette',       '';
       'Smart Move',            "Click object to move, drag and click (left to fix, right to cancel)";
       'Move',                  "Click object to move, drag and click (left to fix, right to cancel)";
       'Duplicate'              "Click on the object to duplicate, drag, click (left to copy, right to cancel)";

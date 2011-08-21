@@ -3,8 +3,7 @@ function scmenu_up_to_main_diagram()
   Cmenu=''
   if super_block then
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
-                     'Cmenu='"'''''";%scicos_navig=[]';
-                     'xselect()']
+                     'Cmenu='''';%scicos_navig=[];xselect()'];
   else
     message('This is already the main diagram;')
   end
@@ -34,8 +33,7 @@ function scmenu_up()
       Scicos_commands=['%diagram_path_objective='+sci2exp(up_path)+';%scicos_navig=1'];
     else
       Scicos_commands=['%diagram_path_objective='+sci2exp(up_path)+';%scicos_navig=1';
-		       'Cmenu='"'''''";%scicos_navig=[]';
-		       'xselect()'];
+		       'Cmenu='''';%scicos_navig=[];xselect()'];
     end
   end
 endfunction

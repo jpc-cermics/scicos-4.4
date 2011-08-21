@@ -1,21 +1,21 @@
 function [x,y,typ]=PAL_f(job,arg1,arg2)
 // Copyright INRIA
-x=[];y=[],typ=[]
+  x=[];y=[],typ=[]
 
-select job
-  case 'plot' then
+  select job
+   case 'plot' then
     standard_draw(arg1)
 
-  case 'getinputs' then
+   case 'getinputs' then
     x=[];y=[];typ=[];
 
-  case 'getoutputs' then
+   case 'getoutputs' then
     x=[];y=[];typ=[];
 
-  case 'getorigin' then
+   case 'getorigin' then
     [x,y]=standard_origin(arg1)
 
-  case 'set' then
+   case 'set' then
     [x,newparameters,needcompile,edited]=scicos(arg1.model.rpar)
     id=arg1.graphics.id
     if id=='' then
@@ -27,7 +27,7 @@ select job
     typ=[]
     resume(%exit=%f);
 
-  case 'define' then
+   case 'define' then
     scs=scicos_diagram();
     scs.props.title='Palette';
     model=scicos_model();
@@ -46,6 +46,6 @@ select job
 
     x=standard_define([2 2],model,[],gr_i,'PAL_f');
     x.graphics.id=scs.props.title(1);
-end
+  end
 
 endfunction

@@ -196,6 +196,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     error('First argument must be a scicos diagram')
   end
 
+  
   options=scs_m.props.options
   %scicos_solver=scs_m.props.tol(6);
   %browsehelp_sav=[]
@@ -213,6 +214,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     windows=[windows;slevel,curwin]
     palettes=palettes;
   end
+
   
   Cmenu='';%pt=[];%win=curwin;%curwpar=[];
   Select=[];Select_back=[];%ppt=[];

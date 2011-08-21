@@ -1,33 +1,31 @@
 function scmenu_load_as_palette()
   Cmenu=''
-  [palettes,windows]=do_load_as_palette(palettes,windows)
+  [ok,sc]=do_load_as_palette(scs_m);
+  if ok then scs_m = sc;end 
 endfunction
 
-function [palettes,windows]=do_load_as_palette(palettes,windows)
-// Copyright INRIA
-
-  [ok,scs_m,cpr,edited]=do_load();
+function [ok,scs_m]=do_load_as_palette(scs_m)
+//
+// load a new diagram and place it in the current 
+// diagram inside a PAL_f block.
+//
+  [ok,sc,cpr,edited]=do_load();
   if ~ok then return,end
-  // get a palette id 
-  maxpal=-min([-200;windows(:,1)]) 
-  kpal=maxpal+1
-  lastwin=curwin
-  curwin=get_new_window(windows)
-  if or(curwin==winsid()) then
-    xdel(curwin);
+  // create a palette block
+  ok=execstr('blk=PAL_f(''define'')',errcatch=%t);
+  if ~ok then 
+    message('Failed to drop a ""PAL_f"" block !");
+    lasterror();
+    Cmenu='';
+    return;
+  else
+    blk.graphics.sz=20*blk.graphics.sz;
   end
-  windows=[windows;[-kpal curwin]]
-  scs_m=scs_m_remove_gr(scs_m);
-  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-    scs_m.props.options('3D')(1)=%f //disable 3D block shape
-  end
-  // open the palette window 
-  restore(curwin,[],%zoom);
-  delmenu(curwin,'3D Rot.')
-  delmenu(curwin,'UnZoom')
-  delmenu(curwin,'Zoom')
-  scs_m=drawobjs(scs_m,curwin);
-  palettes(kpal)=scs_m;
-  xinfo('Palette: may be used to copy  blocks or regions')
-  xset('window',lastwin)
+  blk.model.rpar = sc;
+  // 
+  blk.model.rpar.props.title='Palette: '+sc.props.title(1);
+  blk.graphics.id = 'Palette: '+sc.props.title(1);
+  [%pt,scs_m,needcompile]=do_placeindiagram_new(scs_m,blk);
+  // herited from do_place_in_diagram 
+  resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
 endfunction

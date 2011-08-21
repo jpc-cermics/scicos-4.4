@@ -3,17 +3,31 @@ function PlaceDropped_()
 // place a new block selected by drag and drop from menus.
   Cmenu='';
   if type(btn,'short')<>'h' then pause bug;return;end ;
-  blk = scs_m_palettes(scs_full_path(btn.path));
+  if %f then 
+    // use the path in palettes 
+    blk = scs_m_palettes(scs_full_path(btn.path));
+  else
+    // just use the name !
+    ok=execstr('blk='+btn.name+'(''define'')',errcatch=%t)
+    if ~ok then 
+      message(sprintf('Failed to drop a ""%s"" block !",btn.name));
+      lasterror();
+      Cmenu='';
+      return;
+    else
+      blk.graphics.sz=20*blk.graphics.sz;
+    end
+  end
   [%pt,scs_m,needcompile]=do_place_dropped_new(scs_m,blk);
 endfunction
 
-function [pt,path,win]=PlaceDropped_info(pt1,palette,blk,winid)
+function [pt,path,win,bname]=PlaceDropped_info(pt1,palette,blk,winid,bname)
 // jpc April 2009 
 // function activated when a block is dropped 
 // 
-  pt = pt1;
-  path=[palette,blk];
-  win=winid;
+  pt = pt1; // point clicked at destination 
+  path=[palette,blk]; // path in pallettes 
+  win=winid; // destination window
 endfunction
 
 function [%pt,scs_m,needcompile]=do_place_dropped_new(scs_m,blk)

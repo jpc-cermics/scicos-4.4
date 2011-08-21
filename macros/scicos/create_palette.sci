@@ -162,9 +162,8 @@ function lisf=scicos_get_palette_content(txt)
 	  'BACKLASH.sci';'DEADBAND.sci';'EXPRESSION.sci';
 	  'HYSTHERESIS.sci';'DEBUG_SCICOS.sci';
 	  'LOGICAL_OP.sci';'RELATIONALOP.sci';'generic_block3.sci';
-	  'PDE.sci';'ENDBLK.sci';'AUTOMAT.sci';'Loop_Breaker.sci'];
-    
-    //XXXX  'PAL_f.sci']
+	  'PDE.sci';'ENDBLK.sci';'AUTOMAT.sci';'Loop_Breaker.sci';
+	  'PAL_f.sci']
 	
   elseif txt=='Linear' then
     lisf=['DLR.sci';'TCLSS.sci';'DOLLAR_m.sci';

@@ -127,10 +127,12 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       Cmenu = mcmd;
     elseif ~isempty(strindex(str,'PlaceDropped_info')) then
       // we have dropped a block in the window 
-      ok = execstr('[ptd,path,win]='+str,errcatch=%t);
+      ok = execstr('[ptd,path,win,bname]='+str,errcatch=%t);
       if ok && win == curwin  then 
+	// we need here to transmit info on dropped block
         Cmenu='PlaceDropped';
-        btn=hash_create(path=path); // well... this is [paletteid,blockid].
+	// well... path is [paletteid,blockid] and name is block name
+        btn=hash_create(path=path,name=bname);
         %pt = ptd;
         return;
       elseif win <> curwin then 
