@@ -16,7 +16,7 @@ function scmenu_region_to_palette()
   Cmenu='Replot';%pt=[];
 endfunction
 
-function [%pt,scs_m] = do_region_to_palette(%pt,scs_m)
+function [%pt,scs_m] = obsolete_do_region_to_palette(%pt,scs_m)
 // Copyright INRIA
   scs_m_save = scs_m
   nc_save    = needcompile;

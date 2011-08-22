@@ -1,4 +1,4 @@
-function [%scicos_menu, %scicos_short, %scicos_help, ...
+function [%scicos_short, %scicos_help, ...
           %scicos_display_mode, modelica_libs, ...
           %scicos_lhb_list, %CmenuTypeOneVector,%scicos_gif, ...
           %scicos_contrib,%scicos_libs,%scicos_cflags] = initial_scicos_tables()
@@ -13,113 +13,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
   %scicos_contrib=[];
   %scicos_libs=m2s([]);// string matrix 
   %scicos_cflags=[];
-  
-  
-  //Scicos Menu definitions
-  //------------------------
-  File     = ['File',..
-              'New',..
-              'Open',..
-	      'Scicoslab Import',..
-              'Save',..
-              'Save As',..
-              'Save as Interf Func',..
-              'Export',..
-              'Export All',..
-              'Exit Scicos',..
-              'Quit' ];
-
-  Diagram  = ['Diagram',..
-              'Context',..
-              'Replot',..
-              'Rename',..
-              'Purge',..
-              'Set Diagram Info',..
-              'Set Code Gen Properties',..
-              'Region to Super Block',..
-              'Up To Main Diagram',..
-	      'Up'];
-  
-  Palette  = ['Palette',..
-              'Pal Tree',..
-              'Palettes',..
-              'Pal editor',..
-              'Region to Palette',..
-              'Load as Palette',..
-              'Save as Palette'];
-
-  Edit     = ['Edit',..
-              'Undo',..
-              'Cut|||gtk-cut',..
-              'Copy|<Ctrl>c||gtk-copy',..
-              'Paste|<Ctrl>v||gtk-paste',..
-              'Duplicate',..
-              'Delete|Delete',..
-              'Move',..
-              'Smart Move',..
-              'Align',..
-              'Flip',..
-              'Rotate Left',..
-              'Rotate Right',..
-              'Add new block',..
-              'Block Documentation'..
-              'Label'];
-
-  View     = ['View',..
-              'Zoom in',..
-              'Zoom out',..
-              'Fit diagram to figure',..
-              'Default window parameters',..
-              'Available Parameters',..
-              'Icon Font Option',..
-              'Grid'];
-
-  Simulate = ['Simulate',..
-              'Setup',..
-              'Compile',..
-              'Modelica initialize',..
-              'Eval',..
-              'Analyze Diagram',..
-              'Debug Level',..
-              'Run'];
-
-  Format   = ['Format',..
-              'Set default action',..
-              'Set grid',..
-              'Add color',..
-              'Default link colors',..
-              'Color',..
-              'Background color',..
-              'Show Block Shadow',..
-              'Resize',..
-              'Identification',..
-              'ID fonts',..
-              'Icon',..
-              'Icon Editor'];
-
-  Tools    = ['Tools',..
-              'Activate ScicosLab Window',..
-              'Create Mask',..
-              'Remove Mask',..
-              'Customize Mask',..
-              'Save Block GUI',..
-              'Create Atomic',..
-              'Remove Atomic',..
-              'Get Info',..
-              'Details',..
-              'Browser',..
-              'Code Generation',..
-              'Shortcuts',..
-              'Calc'];
-
-  Help     = ['Help',..
-              'Help',..
-              'Scicos Documentation',..
-              'Demos',..
-              'About Scicos'];
-
-  %scicos_menu = list(File,Diagram,Palette,Edit,View,Simulate,Format,Tools,Help);
-
+    
   //Scicos Right Mouse Button Menu 
   
   %scicos_lhb_list = list();
@@ -134,7 +28,30 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                              'Region to Super Block',..
                              'Region to Palette');
 
-  //** state_var = 2 : right click in the void of the CURRENT Scicos Window
+  //** state_var = 2 : right click in the void of the CURRENT Scicos
+  //Window
+
+  function L1=scicos_rmenu_pal_tree()
+  // make a mpopup data list 
+  // for block insertion from right click menu
+  // the action activated is placeindiagram.
+  //
+    H=scicos_default_palettes();
+    L=H.structure;
+    L1=list('Pal Tree');
+    for i=1:length(L)
+      if type(L(i),'short')=='s' then 
+	l=list(L(i));
+	blocks=H.contents(L(i));
+	for j=1:size(blocks,'*');
+	  name = strsubst(blocks(j),'_','__');
+	  l.add_last[hash(name=name,rname=blocks(j),cmenu='PlaceinDiagram')];
+	end
+	L1.add_last[l];
+      end
+    end
+  endfunction
+  
   L=scicos_rmenu_pal_tree();
   
   %scicos_lhb_list(2) = list('Undo|||gtk-undo',..
@@ -222,7 +139,8 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                                   'Get Info',..
                                   'Details'));
 
-  //** state_var = 7 : right click over a valid sblock inside the CURRENT Scicos Window
+  //** state_var = 7 : right click over a valid sblock inside the 
+  //  CURRENT Scicos Window
   %scicos_lhb_list(7) = list('Open/Set',..
                              list('Super Block Properties',..
                                   'Rename',..
@@ -282,7 +200,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                  'h','Help']
 
   //Scicos Modelica librabry path definitions==============================
-
+  
   modelica_libs=scicospath+'/macros/blocks/'+['ModElectrical','ModHydraulics','ModLinear'];
 
   //add TMPDIR/Modelica for generic modelica blocks
@@ -323,37 +241,9 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
       'Label',                 "Click block to label";
       'Get Info',              "Click on object  to get information on it";
       'Code Generation',       "Click on a Super Block (without activation output) to obtain a coded block!" ;
-      //'Icon',                  "Click on block to edit its icon";
-      //'Color',                 "Click on object to choose its color";
-      //'Identification',        "Click on an object to set or get identification";
-      //'Resize',                "Click block to resize";
       'Block Documentation',   "Click on a block to set or get it''s documentation"]
-
+  
   // Hash table for help strings ==============================
   %scicos_help=scicos_help();
-endfunction
-
-
-
-
-function L1=scicos_rmenu_pal_tree()
-// make a mpopup data list 
-// for block insertion from right click menu
-// the action activated is placeindiagram.
-//
-  H=scicos_default_palettes();
-  L=H.structure;
-  L1=list('Pal Tree');
-  for i=1:length(L)
-    if type(L(i),'short')=='s' then 
-      l=list(L(i));
-      blocks=H.contents(L(i));
-      for j=1:size(blocks,'*');
-	name = strsubst(blocks(j),'_','__');
-	l.add_last[hash(name=name,rname=blocks(j),cmenu='PlaceinDiagram')];
-      end
-      L1.add_last[l];
-    end
-  end
 endfunction
 

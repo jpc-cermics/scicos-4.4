@@ -3,11 +3,12 @@ function scmenu_analyze_diagram()
   if ~super_block then
     Cmenu = "" ; 
     if needcompile>0 then 
-      message("You must first compile the diagram.")
+      message("You must first compile the diagram !")
     else
       do_analyze_diagram(%cpr)
     end
   else
+    // go to top level to Analyze 
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
 		     'Cmenu='"Analyze Diagram'";%scicos_navig=[]';
 		     '%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1']

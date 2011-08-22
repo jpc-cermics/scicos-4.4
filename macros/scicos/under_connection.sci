@@ -6,7 +6,8 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
   if path_in==-1 | path_in==-2 then
     path=path_out(1:$-1)
     path_out=path_out($)
-    mxwin=max(winsid())
+    mxwin=max(winsid());
+    sc=scs_m;
     for k=1:size(path,'*')
       hilite_obj(scs_m.objs(path(k)))
       scs_m=scs_m.objs(path(k)).model.rpar;
@@ -27,13 +28,11 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
       xdel(mxwin+k)
     end
     if ~isempty(path) then
-      unhilite_obj(scs_m.objs(path(1)))
+      unhilite_obj(sc.objs(path(1)))
     end
-
     ninnout=0
     return
   end
-
 
   lp=min(size(path_out,'*'),size(path_in,'*'))
   k=find(path_out(1:lp)<>path_in(1:lp))
@@ -48,7 +47,7 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
 
   path_out=path_out(k(1)) // "from" block number
   path_in=path_in(k(1))   // "to" block number
-
+  sc=scs_m;
   if exists('Code_gene_run') then
     mxwin=max(winsid())
     if isempty(path) then path=0, end
@@ -115,7 +114,7 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
       xdel(mxwin+k)
     end
     if ~isempty(path) then
-      unhilite_obj(scs_m.objs(path(1)))
+      unhilite_obj(sc.objs(path(1)))
     end
   end
 endfunction

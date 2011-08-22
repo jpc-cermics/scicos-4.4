@@ -14,42 +14,24 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   global %diagram_path_objective
   global inactive_windows
   global Scicos_commands
-
-  //check if superblock editing mode
-  //% FIXME [%ljunk,%mac]=where()
   
   if ~exists('slevel') then slevel=0;end 
   slevel = slevel +1;
   super_block = slevel > 1;
 
   printf('scicos: enter slevel=%d\n",slevel);
-  // print the banner on first call 
-  scicos_print_banner() 
   
   if ~super_block then
+    // print the banner on first call 
+    scicos_banner() 
+    Main_Scicos_window=1000
     // initialize variables used for navigation
     super_path=[]; // path to the currently opened superblock
-    %scicos_navig=[]; // 
-    inactive_windows=list(list(),[]); // 
+    %scicos_navig=[]; // do we have to navigate 
+    inactive_windows=list(list(),[]);
     Scicos_commands=[];
-  end
-  
-  %diagram_open=%t   //default choice
-  if ~isempty(super_path) then
-    if isequal(%diagram_path_objective,super_path) then
-      if ~isempty(%scicos_navig) then
-        %diagram_open=%t
-        %scicos_navig=[]
-        xset('window',curwin)
-      end
-    elseif ~isempty(%scicos_navig) then
-      %diagram_open=%f
-    end
-  end
-  
-  scicos_ver=get_scicos_version(); //set current version of scicos
-  
-  if ~super_block then
+    //set current version of scicos
+    scicos_ver=get_scicos_version(); 
     // define scicos libraries
     scicos_library_initialize()
     //     
@@ -66,11 +48,36 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     if exists('%scicos_snap')==%f then
       %scicos_snap=%f;
     end
+    %zoom=1.4; // default zoom value 
+    pal_mode=%f; //Palette edition mode
+    newblocks=[]; //table of added functions in pal_mode
+    ok = execstr('load(''.scicos_short'')',errcatch=%t)  //keyboard shortcuts
+    if ~ok then 
+      lasterror(); //clear the error message stack 
+    end
+    // menus actions 
+    %cor_item_exec=scicos_menu_prepare();
+    // keyboard definiton
+    %tableau=smat_create(1,100,"");
+    for %Y=1:size(%scicos_short,1)
+      %tableau(-31+ascii(%scicos_short(%Y,1)))=%scicos_short(%Y,2);
+    end
   end
   
-  Main_Scicos_window=1000
-  
-  //Initialisation
+  %diagram_open=%t   //default choice
+  if ~isempty(super_path) then
+    if isequal(%diagram_path_objective,super_path) then
+      if ~isempty(%scicos_navig) then
+        %diagram_open=%t
+        %scicos_navig=[]
+        xset('window',curwin)
+      end
+    elseif ~isempty(%scicos_navig) then
+      %diagram_open=%f
+    end
+  end
+   
+  // initialisation of shared variables 
   newparameters=list();
   enable_undo=%f;
   edited=%f;
@@ -78,61 +85,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   %path='./';
   %exp_dir=getcwd();
   
-  if ~super_block then
-    // 
-    %zoom=1.4;
-    pal_mode=%f; //Palette edition mode
-    newblocks=[]; //table of added functions in pal_mode
-    ok = execstr('load(''.scicos_short'')',errcatch=%t)  //keyboard shortcuts
-    if ~ok then 
-      lasterror(); //clear the error message stack 
-    end
-  end
-
-  //
+  // inherits needcompile. 
   if ~exists('needcompile') then needcompile=0; 
-  else needcompile=needcompile;end
-
-  if ~super_block then
-    %cor_item_exec=[];
-    [menus]=scicos_menu_prepare(%scicos_menu);
-    for i=1:size(menus.items,'*')
-      sname = menus.items(i);
-      submenu=menus(sname);
-      %ww='menus('''+sname+''')(2)('+ m2s(1:(size(submenu(1),'*')),'%.0f') + ')';
-      execstr(sname+ '=%ww;');
-      // XXX: new version for future use 
-      mnames=scicos_action_name_to_fname(submenu(2));
-      // old %cor_item_exec=[%cor_item_exec;submenu(2),submenu(3)];
-      %cor_item_exec=[%cor_item_exec;submenu(2),mnames];
-      %cor_item_exec=[%cor_item_exec;mnames,mnames];
-    end
-    // add fixed menu items not visible
-    // 
-    %cor_item_exec = [%cor_item_exec;
-                      'Link'            , 'scmenu_getlink'
-                      'Open/Set'        , 'OpenSet_'
-                      'CheckMove'       , 'scmenu_check_move'
-		      'CheckKeyMove'    , 'scmenu_check_keymove'
-		      'CheckSmartMove'  , 'scmenu_check_smart_move'
-		      'CheckKeySmartMove', 'scmenu_check_keysmartmove'
-                      'SelectLink'      , 'scmenu_check_select_link'
-                      'CtrlSelect'      , 'CtrlSelect_'
-                      'SelectRegion'    , 'SelectRegion_'
-                      'Popup'           , 'Popup_'
-                      'PlaceinDiagram'  , 'PlaceinDiagram_'
-                      'PlaceDropped'    , 'PlaceDropped_'
-                      'BrowseTo'        , 'BrowseTo_'
-                      'Place in Browser', 'PlaceinBrowser_'
-                      'Select All'      , 'SelectAll_'   
-                      'Smart Link'      , 'scmenu_smart_getlink'];
-    
-    //keyboard definiton
-    %tableau=smat_create(1,100,"");
-    for %Y=1:size(%scicos_short,1)
-      %tableau(-31+ascii(%scicos_short(%Y,1)))=%scicos_short(%Y,2);
-    end
+  else needcompile=needcompile;
   end
+  
   
   if nargin >=1 then
     if type(scs_m,'string')== 'SMat' then //diagram is given by its filename
@@ -236,7 +193,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
       needsavetest=%f
       xset('window',curwin);
-      %zoom=restore(curwin,menus,%zoom)
+      %zoom=restore(curwin,%zoom)
       scs_m=scs_m_remove_gr(scs_m)
       window_set_size();
       scs_m=drawobjs(scs_m,curwin);
@@ -263,7 +220,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
   end
   
-  exec(restore_menu)
   scicos_set_uimanager(slevel <=1 );
   
   // be sure that context is ok 
@@ -291,15 +247,19 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       drawtitle(scs_m.props)
     end
     
-    if isempty(%scicos_navig) then 
-      if ~isempty(Scicos_commands) then
-        //printf("    Scicos_commands(1) : %s \n",Scicos_commands(1))
-        execstr(Scicos_commands(1))
-        Scicos_commands(1)=[]
+    if isempty(%scicos_navig) && ~isempty(Scicos_commands) then
+      // we have a command to execute 
+      ok=execstr(Scicos_commands(1),errcatch=%t);
+      if ~ok then 
+	message(['Error: failed to execute command:';Scicos_commands(1)]);
       end
+      Scicos_commands(1)=[];
     end
+    
     if Cmenu=='Quit' then break,end
-    if ~isempty(%scicos_navig) then //** navigation mode active
+    
+    if ~isempty(%scicos_navig) then 
+      // navigation mode is active 
       while ~isempty(%scicos_navig) do
         if ~isequal(%diagram_path_objective,super_path) then
           %diagram_open=%f
@@ -494,13 +454,6 @@ function [x,k]=gunique(x)
   k(keq)=[]
 endfunction
 
-function restore_menu()
-// -------------------
-  for %Y=1:size(%scicos_menu,1)
-    execstr(%scicos_menu(%Y)(1)+'_'+m2s(curwin,'%.0f')+'='+%scicos_menu(%Y)(1)+';')
-  end
-endfunction
-
 function inactive_windows=close_inactive_windows(inactive_windows,path)
 // -------------------------------------------------------------------
   DELL=[]  // inactive windows to kill
@@ -599,22 +552,16 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
   end
 endfunction
 
-function scicos_print_banner() 
+function scicos_banner() 
 // print the banner when first called 
 // ---------------------------------
-  global next_scicos_call
-  if isempty(next_scicos_call) then
-    next_scicos_call=1
-    [verscicos,minver]=get_scicos_version()
-    verscicos=part(verscicos,7:length(verscicos))
-    if minver<>'' then
-      verscicos=verscicos+'.'+minver
-    end
-    ttxxtt=['Scicos version '+verscicos
-	    'Copyright (c) 1992-2010 Metalau project INRIA'
-	    '']
-    printf("%s\n",ttxxtt)
+  [verscicos,minver]=get_scicos_version()
+  verscicos=part(verscicos,7:length(verscicos))
+  if minver<>'' then
+    verscicos=verscicos+'.'+minver
   end
+  printf('Scicos version %s\nCopyright (c) 1992-2011 Metalau project INRIA\n',...
+	 verscicos);
 endfunction
 
 
@@ -626,8 +573,7 @@ function scicos_library_initialize()
 // from names if they are not already set.
 // ----------------------------------------
 
-  
-  names = ['%scicos_menu';'%scicos_short';'%scicos_help';
+  names = ['%scicos_short';'%scicos_help';
 	   '%scicos_display_mode';'modelica_libs';
 	   '%scicos_lhb_list';' %CmenuTypeOneVector';' %scicos_gif';
 	   '%scicos_contrib';'%scicos_libs';'%scicos_cflags'];
