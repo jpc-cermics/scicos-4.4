@@ -79,20 +79,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   %exp_dir=getcwd();
   
   if ~super_block then
-  
+    // 
     %zoom=1.4;
     pal_mode=%f; //Palette edition mode
     newblocks=[]; //table of added functions in pal_mode
-    
-    scicos_paltmp=scicos_pal;
-    if execstr('load(''.scicos_pal'')',errcatch=%t)==%t then
-      scicos_pal=[scicos_paltmp;scicos_pal];
-      [%junk,%palce]=gunique(scicos_pal(:,2));
-      %palce=-sort(-%palce);
-      scicos_pal=scicos_pal(%palce,:);
-    else
-      lasterror(); //clear the error message stack 
-    end
     ok = execstr('load(''.scicos_short'')',errcatch=%t)  //keyboard shortcuts
     if ~ok then 
       lasterror(); //clear the error message stack 
@@ -635,11 +625,12 @@ function scicos_library_initialize()
 // is called and the returned values are used to set variables with name 
 // from names if they are not already set.
 // ----------------------------------------
-  names = ['scicos_pal';'%scicos_menu';'%scicos_short';'%scicos_help';
-	   '%scicos_display_mode';'modelica_libs';'scicos_pal_libs';
+
+  
+  names = ['%scicos_menu';'%scicos_short';'%scicos_help';
+	   '%scicos_display_mode';'modelica_libs';
 	   '%scicos_lhb_list';' %CmenuTypeOneVector';' %scicos_gif';
-	   '%scicos_contrib';'%scicos_libs';'%scicos_cflags';
-	   '%scicos_pal_list';'scs_m_palettes'];
+	   '%scicos_contrib';'%scicos_libs';'%scicos_cflags'];
   Enames = exists(names);
   if ~and(Enames) then 
     // at least one of names is not defined 

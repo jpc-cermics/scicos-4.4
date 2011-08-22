@@ -1,8 +1,7 @@
-function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
-          %scicos_display_mode, modelica_libs,scicos_pal_libs, ...
+function [%scicos_menu, %scicos_short, %scicos_help, ...
+          %scicos_display_mode, modelica_libs, ...
           %scicos_lhb_list, %CmenuTypeOneVector,%scicos_gif, ...
-          %scicos_contrib,%scicos_libs,%scicos_cflags, ...
-          %scicos_pal_list,scs_m_palettes] = initial_scicos_tables()
+          %scicos_contrib,%scicos_libs,%scicos_cflags] = initial_scicos_tables()
 
   // build a set of scicos global data 
   // 
@@ -15,15 +14,6 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
   %scicos_libs=m2s([]);// string matrix 
   %scicos_cflags=[];
   
-  // Define scicos palettes of blocks
-  // --------------------------------
-  pal_names=scicos_get_palette_content('all');
-
-  scicos_pal=[pal_names, scicos_path + '/macros/blocks/palettes/'+pal_names+'.cos']
-  //Scicos palettes loading 
-  scicos_pal_libs = ['Branching','Events','Misc','Sinks','Threshold','Linear', ...
-	             'MatrixOp','NonLinear','Sources','ModElectrical','ModHydraulics',...
-                     'ModLinear','PDE','IntegerOp','Iterators'];
   
   //Scicos Menu definitions
   //------------------------
@@ -145,13 +135,11 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
                              'Region to Palette');
 
   //** state_var = 2 : right click in the void of the CURRENT Scicos Window
-  [L, scs_m_palettes] = do_pal_tree(scicos_pal);
-  L.add_first['Pal Tree'];
-  %scicos_pal_list=L;
+  //L=scicos_rmenu_pal_tree();
+  
   %scicos_lhb_list(2) = list('Undo|||gtk-undo',..
                              'Paste',..
                              'Palettes',..
-                             L,..
                              'Context',..
                              'Add new block',..
                              'Replot',..
@@ -343,3 +331,25 @@ function [scicos_pal, %scicos_menu, %scicos_short, %scicos_help, ...
   // Hash table for help strings ==============================
   %scicos_help=scicos_help();
 endfunction
+
+
+
+
+function L1=scicos_rmenu_pal_tree()
+//
+  H=scicos_default_palettes();
+  L=H.structure;
+  
+  L1=list('Pal Tree');
+  for i=1:length(L)
+    if type(L(i),'short')=='s' then 
+      l=list(L(i));
+      blocks=H.contents(L(i));
+      for j=1:size(blocks,'*');
+	l.add_last[blocks(j)];
+      end
+      L1.add_last[l];
+    end
+  end
+endfunction
+
