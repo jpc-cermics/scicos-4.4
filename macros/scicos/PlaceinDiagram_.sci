@@ -2,7 +2,16 @@ function PlaceinDiagram_()
 // Copyright INRIA  
   Cmenu='';
   if type(btn,'short')<>'h' then pause bug;return;end ;
-  blk = scs_m_palettes(scs_full_path(btn.path));
+  // just use the name !
+  ok=execstr('blk='+btn.rname+'(''define'')',errcatch=%t)
+  if ~ok then 
+    message(sprintf('Failed to drop a ""%s"" block !",btn.rname));
+    lasterror();
+    Cmenu='';
+    return;
+  else
+    blk.graphics.sz=20*blk.graphics.sz;
+  end
   [%pt,scs_m,needcompile]=do_placeindiagram_new(scs_m,blk);
 endfunction
 

@@ -135,11 +135,12 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                              'Region to Palette');
 
   //** state_var = 2 : right click in the void of the CURRENT Scicos Window
-  //L=scicos_rmenu_pal_tree();
+  L=scicos_rmenu_pal_tree();
   
   %scicos_lhb_list(2) = list('Undo|||gtk-undo',..
                              'Paste',..
                              'Palettes',..
+			     L,..
                              'Context',..
                              'Add new block',..
                              'Replot',..
@@ -336,17 +337,20 @@ endfunction
 
 
 function L1=scicos_rmenu_pal_tree()
+// make a mpopup data list 
+// for block insertion from right click menu
+// the action activated is placeindiagram.
 //
   H=scicos_default_palettes();
   L=H.structure;
-  
   L1=list('Pal Tree');
   for i=1:length(L)
     if type(L(i),'short')=='s' then 
       l=list(L(i));
       blocks=H.contents(L(i));
       for j=1:size(blocks,'*');
-	l.add_last[blocks(j)];
+	name = strsubst(blocks(j),'_','__');
+	l.add_last[hash(name=name,rname=blocks(j),cmenu='PlaceinDiagram')];
       end
       L1.add_last[l];
     end
