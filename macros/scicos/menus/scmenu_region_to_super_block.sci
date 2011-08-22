@@ -485,7 +485,7 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m,fun)
   ncout=0
   is_flip=[]
 
-  if fun.equal[SUPER_f] then 
+  if fun.get_fname[]=='SUPER_f' then 
     //add input and output ports
     for k=1:size(prt,1)
       nreg=size(reg.objs)
@@ -664,8 +664,7 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m,fun)
   scs_m.objs($+1)=sup
   // connect the super block 
   
-  if fun.equal[SUPER_f]
-    
+  if fun.get_fname[]=='SUPER_f' then 
     nn=length(scs_m.objs)  //superblock number
     nnk=nn
     for k=1:size(prt,1)
