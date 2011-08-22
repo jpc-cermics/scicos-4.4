@@ -2,31 +2,27 @@ function scmenu_eval()
 // Copyright INRIA
   if ~super_block then
     // not super block 
-    Cmenu='Replot';
-    // enrich %scicos_context
-    [%scicos_context,ierr]=script2var(scs_m.props.context)
-    if ierr==0 then 
-      do_terminate()
-      [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr,%scicos_context)
-      if needcompile<>4&size(%cpr)>0 then %state0=%cpr.state,end
-      alreadyran=%f
-    else
-      message(['Incorrect context definition, ';lasterror()] )
+    Cmenu='';
+    do_terminate();
+    [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr);
+    if ok then 
+      Cmenu='Replot';
+      if needcompile<>4 && size(%cpr)>0 then %state0=%cpr.state,end
+      alreadyran=%f;
     end
   else
-    // super_block 
+    // go to toplevel to perform evaluation.
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
 		     'Cmenu='"Eval'";%scicos_navig=[]';
 		     '%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1']
   end
 endfunction
 
-function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystemEval,flag)
+function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,%SubSystemEval,flag)
 // This function (re)-evaluates blocks in the scicos data structure scs_m 
 // Copyright INRIA
 // Last Updated 14 Jan 2009 Fady NASSIF
-  if ~exists('needcompile') then 
-    needcompile=0;
+  if ~exists('needcompile') then needcompile=0;
   else
     needcompile=needcompile;
   end 
@@ -35,24 +31,23 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
   global %err_mess_eval;%err_mess_eval=m2s([]);
   
   if nargin < 2 then cpr=list(); end
+  if nargin < 3 then context=hash(10);end
+  if nargin < 4 then %SubSystemEval=%f;end 
+  if nargin < 5 then flag='NONXML';end
+  
   // enrich %scicos_context with scs_m.props.context 
-  [%scicos_context,ierr]=script2var(scs_m.props.context);
+  [context,ierr]=script2var(scs_m.props.context,context);
   if ierr<>0 then 
-    message(["Failed to evaluate context:";catenate(lasterror())]);
+    message(["Failed to evaluate a context:";catenate(lasterror())]);
     ok=%f;
     return;
-  end
-  
-  if nargin < 4  && ~exists('%SubSystemEval') then
-    %SubSystemEval=%f;
   end
   
   if ~%SubSystemEval then
     // window 0 existed 
     %win0_exists=or(winsid()==0)
   end
-  
-  if nargin < 5 then flag='NONXML';end
+
   ok=%t
   
   needcompile1=max(2,needcompile)
@@ -82,9 +77,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
   function result= dialog(labels,valueini); result=valueini;endfunction
   function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=0;endfunction
   
-  %nx=length(scs_m.objs)
-  // funcprot(%mprt)
-  for %kk=1:%nx
+  for %kk=1:length(scs_m.objs)
     o=scs_m.objs(%kk)
     if o.type =='Block' || o.type =='Text' then
       if o.gui<>'PAL_f' then
@@ -101,6 +94,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
 	  end
 	  if %scicos_prob then 
 	    ok=do_eval_report('Error: while defining a block:',%SubSystemEval);
+	    return;
 	  end
 	  //update model compatibility with old csuper blocks
 	  if length(o.model)<length(scicos_model()) then
@@ -113,9 +107,8 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,%scicos_context,%SubSystem
 	    | (model.sim(1)=='csuper'& ~model.ipar.equal[1]) ..
 	    | (model.sim(1)=='asuper'& flag=='XML') ..
 	    | (o.gui == 'DSUPER' & flag == 'XML')) then  //exclude mask
-	  sblock=rpar
-	  context=sblock.props.context
-	  [scicos_context1,ierr]=script2var(context)
+	  sblock=rpar;
+	  [scicos_context1,ierr]=script2var(sblock.props.context,context)
 	  if ierr<>0 then
 	    ok=do_eval_report('Error: cannot evaluate a context:',%SubSystemEval);
 	    return

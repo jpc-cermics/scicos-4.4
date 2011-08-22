@@ -56,7 +56,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
 	     catenate(lasterror())]); 
   else
     // make a do_eval 
-    [scs_m,%cpr,needcompile,evok]=do_eval(scs_m,%cpr,H1);
+    [scs_m,%cpr,needcompile,evok]=do_eval(scs_m,%cpr);
   end
   // value to return;
   context = H1;

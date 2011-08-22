@@ -97,18 +97,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       alreadyran=%f
       [ok,scs_m,%cpr,edited]=do_load(%fil,'diagram')
       if ~ok then return, end
-      // make a first eval XXX ? 
-      // -----------------
-      if type(scs_m.props.context,'short')<>'s' then
-	scs_m.props.context='';
-      end
-      [%scicos_context,ierr] = script2var(scs_m.props.context);
-      if ierr<>0 then 
-	message(['Error occured when evaluating context:';
-		 catenate(lasterror())]);
-      else
-	[scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
-      end
+      // make a first eval 
+      [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
       // -------------------
       if size(%cpr)==0 then
 	needcompile=4
@@ -221,8 +211,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   end
   
   scicos_set_uimanager(slevel <=1 );
-  
-  // be sure that context is ok 
+  // be sure that context is ok at this level.
   if type(scs_m.props.context,'short')<>'s' then 
     scs_m.props.context='';
   end

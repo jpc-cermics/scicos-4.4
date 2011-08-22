@@ -77,9 +77,6 @@ function [ok,scs_m,%cpr,edited]=do_scicoslab_import(fname,typ)
   if scicos_ver=='scicos2.2' then
     if isempty(scs_m) then scs_m=x,end //for compatibility
   end
-  // we could here make an eval 
-  // if ~exists('%cpr') then %cpr=list();end ;
-  // [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr);
 
   if scicos_ver<>current_version then 
     scs_m=do_version(scs_m,scicos_ver),

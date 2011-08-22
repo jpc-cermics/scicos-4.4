@@ -98,20 +98,16 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     scs_m=get_new_scs_m();    
     return
   end
-  if ext=='xml'|ext=='XML' then
-    needcompile=4;%cpr=list();
-    [%scicos_context,ierr]=script2var(scs_m.props.context,hash(1));
-    //      [ok,scs_m]=do_define_and_set(scs_m)
-    [scs_m,cpr,vv,ok]=do_eval(scs_m,%cpr,%scicos_context,%f,'XML');
+  if tolower(ext) == 'xml' then
+    needcompile=4;
+    [scs_m,cpr,vv,ok]=do_eval(scs_m,list(),hash(1),%f,'XML');
     if ~ok then
       x_message(['An error occured while opening the diagram\n';
 		 catenate(lasterror());
 		 'The diagram will not be opened'])
       scs_m= get_new_scs_m();;
-      printf('Error\n');
       return;
     end
-    printf('Done\n');
   end
   //for compatibility
   scicos_ver=find_scicos_version(scs_m)
@@ -320,9 +316,6 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
     end
     scs_m.objs(i)=o;
   end
-  //if argn(2)<2 then
-  //scs_m=do_eval(scs_m);
-  //end
 endfunction
 
 function model=update_model(model)
