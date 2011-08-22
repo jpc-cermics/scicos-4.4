@@ -16,24 +16,25 @@ function scmenu_up()
   Cmenu='';
   if ~super_block then
     message('This is already the main diagram;');
+    return;
+  end
+  up_path=super_path(1:$-1);
+  // is the window active ? 
+  ok=%f;
+  n=size(inactive_windows(1))
+  for i=1:n
+    path=inactive_windows(1)(i)
+    if isequal(path,up_path) && or(winsid()==inactive_windows(2)(i)) then
+      ok= %t;
+      break;
+    end
+  end
+  if ~ok then 
+    // parent is inactive a Replot will activate it 
+    Scicos_commands=['%diagram_path_objective='+sci2exp(up_path)+';%scicos_navig=1';
+		     'Cmenu=''Replot'';%scicos_navig=[];xselect()'];
   else
-    up_path=super_path(1:$-1);
-    // is the window active ? 
-    ok=%f;
-    n=size(inactive_windows(1))
-    for i=1:n
-      path=inactive_windows(1)(i)
-      if isequal(path,up_path) && or(winsid()==inactive_windows(2)(i)) then
-	ok= %t;
-	break;
-      end
-    end
-    if ~ok then 
-      message('Inactive parent');
-      Scicos_commands=['%diagram_path_objective='+sci2exp(up_path)+';%scicos_navig=1'];
-    else
-      Scicos_commands=['%diagram_path_objective='+sci2exp(up_path)+';%scicos_navig=1';
-		       'Cmenu='''';%scicos_navig=[];xselect()'];
-    end
+    Scicos_commands=['%diagram_path_objective='+sci2exp(up_path)+';%scicos_navig=1';
+		     'Cmenu='''';%scicos_navig=[];xselect()'];
   end
 endfunction
