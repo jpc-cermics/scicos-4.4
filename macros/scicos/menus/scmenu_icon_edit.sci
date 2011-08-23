@@ -8,16 +8,6 @@ function scmenu_icon_edit()
   end
 endfunction
 
-function scmenu_icon_editor()
-  Cmenu='';
-  sc=scs_m;
-  [scs_m,changed]= do_icon_edit(scs_m);
-  if changed then 
-    edited=%t;
-    scs_m_save=sc;enable_undo=%t;
-  end
-endfunction
-
 function [scs_m,changed]=do_icon_edit(scs_m) 
 // edit a block icon
 // Copyright INRIA
@@ -31,7 +21,7 @@ function [scs_m,changed]=do_icon_edit(scs_m)
   k=Select(find(Select(:,2)==curwin),1);
   
   if length(k)<> 1 then 
-    message('Select only one block or one link for resizing !');
+    message('Select only one block for icon edition !');
     return;
   end
   

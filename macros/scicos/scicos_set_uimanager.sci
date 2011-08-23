@@ -99,7 +99,7 @@ function scicos_set_uimanager(is_top)
 	   "        <menuitem name=""Rotate Left"" action=""scmenu_rotate_left"" />";
 	   "        <menuitem name=""Rotate Right"" action=""scmenu_rotate_right"" />";
 	   "        <menuitem name=""Icon"" action=""scmenu_icon"" />";
-	   "        <menuitem name=""Icon Editor"" action=""scmenu_icon_editor"" />";
+	   "        <menuitem name=""Icon Editor"" action=""scmenu_icon_edit"" />";
 	   "        <menuitem name=""Color"" action=""scmenu_color"" />";				    
 	   "        <menuitem name=""Label"" action=""scmenu_label"" />";
 	   "        <menuitem name=""Get Info"" action=""scmenu_get_info"" />";
@@ -392,7 +392,7 @@ function S=scicos_actions()
 	      'scmenu_grid','Grid',"","";
 	      'scmenu_help','Help',"","";
 	      'scmenu_icon','Icon',"","";
-	      'scmenu_icon_editor','Icon Editor',"","";
+	      'scmenu_icon_edit','Icon Editor',"","";
 	      'scmenu_icon_font_option','Icon Font Option',"","";
 	      'scmenu_id_fonts','ID fonts',"","";
 	      'scmenu_identification','Identification',"","";

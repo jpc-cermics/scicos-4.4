@@ -438,10 +438,10 @@ function H=scicos_help_menu()
        " click next on the desired block. A dialog appear that allows ";
        " you to enter Scilab instructions used to draw the icon.";
        " ";
-       " You may use the icon_editor menu to generate the Scilab";
+       " You may use the icon_edit menu to generate the Scilab";
        " instructions."];
 
-  H('scmenu_icon_editor')=...
+  H('scmenu_icon_edit')=...
       [" Icon Editor allows you to define graphically the icon of the block."];
 
   //***** Tools Menu ******/

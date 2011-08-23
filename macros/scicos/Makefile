@@ -5,7 +5,7 @@ include $(SCIDIR)/macros/Makefile.lib
 
 # added targets 
 
-SUBDIRS=menus codegeneration
+SUBDIRS=menus codegeneration icon_edit
 
 all::
 	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
