@@ -25,9 +25,9 @@ function scmenu_save_as_interf_func()
     if ok then
       scs_m.props.title(1)=name
       if  %wh==0 then
-	%path=save_csuper(scs_m,dir)
+	%path=save_super(scs_m,fpath=dir,sim='csuper')
       else
-	%path=save_super(scs_m,dir)
+	%path=save_super(scs_m,fpath=dir,sim='super')
       end
       if ~isempty(%path) then 
 	if ~execstr('getf(%path)',errcatch=%t)<>0 then

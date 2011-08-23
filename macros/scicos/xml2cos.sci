@@ -237,15 +237,6 @@ function scs_m=treat_blocks(symbol,typ)
   end
 endfunction
 
-function blk=scicos_text(v1,v2,v3,v4,v5)
-// Copyright INRIA
-//Block data structure initialization
-  if exists('graphics','local')==0 then graphics=scicos_graphics(),end
-  if exists('model','local')==0 then model=scicos_model(),end
-  if exists('void','local')==0 then void='',end
-  if exists('gui','local')==0 then gui='',end
-  blk=mlist(['Text','graphics','model','void','gui'],graphics,model,void,gui)
-endfunction
 
 function t=read_new_line(txt)
   global txtline

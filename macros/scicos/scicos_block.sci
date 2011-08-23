@@ -8,3 +8,11 @@ function blk=scicos_block(varargopt)
   // merge with arguments 
   blk.merge[varargopt];
 endfunction
+
+function blk=scicos_text(varargopt)
+//Block data structure initialization
+  blk=hash(graphics=scicos_graphics(),model=scicos_model(),void='',gui='',...
+	   type='Text',mlist=%t);
+  // merge with arguments 
+  blk.merge[varargopt];
+endfunction
