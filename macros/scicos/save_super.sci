@@ -72,7 +72,7 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
 	 '          (size(model.evtin,''*'')<>size(model_n.evtin,''*'')) then'
 	 '          needcompile=4'
 	 '        end'
-	 '        if model.sim==''input''|model.sim==''output'' then'
+	 '        if model.sim.equal[''input''] || model.sim.equal[''output''] then'
 	 '          if model.ipar<>model_n.ipar then'
 	 '            needcompile=4'
 	 '          end'
