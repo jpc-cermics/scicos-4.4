@@ -275,6 +275,7 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,funa
   //check name of modelica file
   if funam=='' then
     x_message("The filename is not defined!")
+    return;
   end
   // name or path with .mo extension 
   [dirF,nameF,extF]=splitfilepath(funam);
