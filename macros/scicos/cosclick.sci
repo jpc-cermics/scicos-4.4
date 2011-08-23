@@ -1,12 +1,15 @@
 function [btn,%pt,win,Cmenu]=cosclick(flag)
 // select action from an activated event 
 // 
+  global Scicos_commands
+  global scicos_dblclk
+  
   Cmenu_orig=Cmenu
   Cmenu="";%pt=[];btn=0;
   if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end
   if ~exists('%scicos_action') then %scicos_action=%t, end
   enablemenus();
-  global scicos_dblclk
+  
   if isempty(scicos_dblclk) then
     if nargin==1 then
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=flag)
@@ -44,6 +47,12 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       [str1,win]=sscanf(str,'scicos_tb(%[^,],%d)');
       mcmd='Cmenu=""'+str1+'""';
       printf('cosclick: using toolbar cmd [%s]\n",mcmd);
+    elseif part(str,1:9)=='scicos_br' then 
+      // A browser row was activated 
+      [str1,pathh]=sscanf(str,'scicos_br(%[^,],%[^)])');
+      Scicos_commands=['%diagram_path_objective='+pathh+';%scicos_navig=1';
+		       'Cmenu='''';%win=curwin;xselect();%scicos_navig=[]'];
+      mcmd='';
     else
       // XXX we should not ignore other menus ? 
       mcmd="";
@@ -51,7 +60,6 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   end
   
   if ~isempty(win) & ~isempty(find(win==inactive_windows(2))) then
-    global Scicos_commands
     pathh=inactive_windows(1)(find(win==inactive_windows(2)))
 
     if (btn==-2) then
@@ -125,6 +133,12 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       // click in a scicos toolbar menu 
       [mcmd,vwin]=sscanf(str,'scicos_tb(%[^,],%d)');
       Cmenu = mcmd;
+    elseif part(str,1:9)=='scicos_br' then 
+      // A browser row was activated 
+      [str1,pathh]=sscanf(str,'scicos_br(%[^,],%[^)])');
+      Scicos_commands=['%diagram_path_objective='+pathh+';%scicos_navig=1';
+		       'Cmenu='''';%win=curwin;xselect();%scicos_navig=[]'];
+      Cmenu='';
     elseif ~isempty(strindex(str,'PlaceDropped_info')) then
       // we have dropped a block in the window 
       ok = execstr('[ptd,path,win,bname]='+str,errcatch=%t);
