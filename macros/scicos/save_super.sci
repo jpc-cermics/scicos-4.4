@@ -189,7 +189,7 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
   end
   F.put_smatrix[txt];
   if isempty(sz) then sz=[2,2];end
-  txt=sprintf('   x=standard_define([%d,%d],model,[],gr_i,''+nam+'')',sz(1),sz(2));
+  txt=sprintf('   x=standard_define([%d,%d],model,[],gr_i,''%s'')',sz(1),sz(2),nam);
   txt=[txt;
       '  end';
       'endfunction']
