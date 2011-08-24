@@ -10,7 +10,6 @@ function [%pt,scs_m,needcompile,Select]=do_delete(%pt,scs_m,needcompile,Select)
 //!
 // Copyright INRIA
 
-  xcursor();
   if %win<>curwin then
     //disp('window mismatch in do_delete')
     return
@@ -21,16 +20,23 @@ function [%pt,scs_m,needcompile,Select]=do_delete(%pt,scs_m,needcompile,Select)
   else
     NSelect=[]
   end
-
+  
   if isempty(NSelect) then
-    xcursor(88); //TODO in scicos.sci
-    xc=%pt(1);yc=%pt(2);%pt=[]
-    K=getobj(scs_m,[xc;yc])
-    if isempty(K) then return,end
+    if ~isempty(%pt) then 
+      xc=%pt(1);yc=%pt(2);%pt=[]
+      K=getobj(scs_m,[xc;yc])
+    else
+      K=[];
+    end
   else
-    K=NSelect(:,1)'
+    K=NSelect(:,1)';
   end
 
+  if isempty(K) then 
+    message('Make a selection first !');
+    return;
+  end
+  
   scs_m_save=scs_m,nc_save=needcompile
   // do not draw here 
   [scs_m,DEL]=do_delete1(scs_m,K,%t)
