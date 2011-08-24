@@ -387,7 +387,7 @@ function [scs_m,ok]=generating_atomic_code(scs_m)
 	scs_m.objs(i)=o;
 	if o.model.sim(1)=='asuper' then
 	  printf('Generating the code for the atomic subsystem ......')
-	  eok=execstr('[o,needcompile,ok]=do_CreateAtomic(o,i,scs_m)',errcatch=%t);
+	  eok=execstr('[o,needcompile,ok]=do_create_atomic(o,i,scs_m)',errcatch=%t);
 	  if ~eok  then
 	    printf('Error\n')
 	    printf('An Error Occured While trying to generate\n");
@@ -397,7 +397,7 @@ function [scs_m,ok]=generating_atomic_code(scs_m)
 	    ok=%f;
 	    return;
 	  end
-	  // test the ok returned by do_CreateAtomic
+	  // test the ok returned by do_create_atomic
 	  if ~ok then scs_m=scs_m_sav;printf('Error\n');return;end
 	  printf('Done\n');
 	  scs_m.objs(i)=o;

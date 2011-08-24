@@ -1,10 +1,6 @@
 function scmenu_create_atomic()
 // Copyright INRIA
   
-  function o=RedrawIteratorSB(o,iter_op)
-    o.graphics.sz(1)=60;
-    o.graphics.gr_i=list(['xstringb(orig(1),orig(2),[''    '+iter_op+''';''SubSystem''],sz(1),sz(2),''fill'')'],8);
-  endfunction
   
   if alreadyran then
     // make a do_terminate and restart Create Atomic 
@@ -35,6 +31,12 @@ endfunction
 function [o,needcompile,ok]=do_create_atomic(o,k,scs_m)
 // Replace o by an atomic block.
 // Last Update Fady: 15 Dec 2008
+
+  function o=RedrawIteratorSB(o,iter_op)
+    o.graphics.sz(1)=60;
+    o.graphics.gr_i=list(['xstringb(orig(1),orig(2),[''    '+iter_op+''';''SubSystem''],sz(1),sz(2),''fill'')'],8);
+  endfunction
+
   
   ok=%t
   model=o.model

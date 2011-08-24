@@ -102,7 +102,7 @@ function [xx,yy,lp,larg]=build_scs_tree(scs_m,flag,larg)
     if scs_m.objs(k).model.sim(1)=='super' then
       y0s=y0;x0s=x0;x0=xlk;y0=y0-1
       largs=larg;
-      [xxl,yyl,lpl,larg]=build_scs_tree(scs_m.objs(k).model.rpar,'super',,larg)
+      [xxl,yyl,lpl,larg]=build_scs_tree(scs_m.objs(k).model.rpar,'super',larg)
       xx=[xx,xxl];yy=[yy,yyl]
       lp=list_concat(lp,lpl)
 
