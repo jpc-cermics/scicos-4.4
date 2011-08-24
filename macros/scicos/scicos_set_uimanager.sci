@@ -251,7 +251,12 @@ function scicos_activate_action(action,args)
   end
   typename=type(action,'string');
   printf("Action %s (type=%s) win=%d activated\n", name, typename,win);
-  nsp_enqueue_command(win,sprintf('scicos_tb(%s,%d)',name,win));
+  if part(name,1)=='$' then 
+    // predefined command 
+    nsp_enqueue_command(win,name);
+  else
+    nsp_enqueue_command(win,sprintf('scicos_tb(%s,%d)',name,win));
+  end
 endfunction
 
 function scicos_add_widget(merge,widget,args)
