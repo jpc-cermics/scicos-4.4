@@ -74,7 +74,7 @@ if or(o.model.sim(1)==['super','csuper','asuper']) then
       ok=buildnewblock(funam,funam,'','',%scicos_libs,TMPDIR,'',%scicos_cflags)
       if ~ok then return; end
     end
-  end 
+  end
 elseif or(int(o.model.sim(2)/1000)==[1,2]) then
   model=o.model
   funam=o.model.sim(1)
