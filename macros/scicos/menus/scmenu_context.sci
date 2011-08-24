@@ -8,7 +8,7 @@ function scmenu_context()
     %sc_keep=%scicos_context;
     clear('%scicos_context');
   end
-  [ok,context]=do_context(scs_m,%scicos_context);
+  [ok,context]=do_context(scs_m);
   if ~ok then 
     %scicos_context=%sc_keep;
     clear %sc_keep;
@@ -23,12 +23,18 @@ function scmenu_context()
   if needcompile<>4 && size(%cpr)>0 then %state0=%cpr.state,end;
 endfunction
 
-function [ok,new_context]=do_context(scs_m,env_context)
+function [ok,new_context]=do_context(scs_m)
 // check that context can be evaluated.
 // using herited %scicos_context as environment.
 // and then checks that scs_m evaluation works with the 
 // new context.
-// 
+//
+// inherits %scicos_context from above 
+  if exists('%scicos_context') then
+    env_context=%scicos_context;
+  else
+    env_context=hash(1);
+  end
   if nargin < 2 then env_context=hash(1);end 
   new_context='';
   context=scs_m.props.context;
@@ -47,9 +53,9 @@ function [ok,new_context]=do_context(scs_m,env_context)
       ok=%f;
       return;
     end
-    // evaluates context in env given by %scicos_context
-    // herited from callers
-    [H1,ierr]=script2var(new_context);
+    // evaluates new_context in an environment given herited 
+    // %scicos_context from callers
+    [H1,ierr]=script2var(new_context,env_context);
     if ierr<>0 then
       message(['Error occured when evaluating context:';
 	       catenate(lasterror())]);

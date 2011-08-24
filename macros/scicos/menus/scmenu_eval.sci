@@ -35,13 +35,15 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,%SubSystemEval,fla
   if nargin < 4 then %SubSystemEval=%f;end 
   if nargin < 5 then flag='NONXML';end
   
-  // enrich %scicos_context with scs_m.props.context 
+  // enrich context with scs_m.props.context 
   [context,ierr]=script2var(scs_m.props.context,context);
   if ierr<>0 then 
     message(["Failed to evaluate a context:";catenate(lasterror())]);
     ok=%f;
     return;
   end
+  // getvalue will use %scicos_context
+  %scicos_context=context;
   
   if ~%SubSystemEval then
     // window 0 existed 
