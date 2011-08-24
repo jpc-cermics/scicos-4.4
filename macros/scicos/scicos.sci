@@ -184,7 +184,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       needsavetest=%f
       xset('window',curwin);
       %zoom=restore(curwin,%zoom)
-      scs_m=scs_m_remove_gr(scs_m)
+      scs_m=scs_m_remove_gr(scs_m,recursive=%f);
       window_set_size();
       scs_m=drawobjs(scs_m,curwin);
     else
@@ -265,7 +265,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	      // must add after testing &%scicos_navig<>[] 
               if ~or(curwin==winsid()) then 
                 %zoom=restore(curwin,menus,%zoom)
-		scs_m=scs_m_remove_gr(scs_m);
+		scs_m=scs_m_remove_gr(scs_m,recursive=%f);
 		window_set_size();
 		ok=execstr('drawobjs(scs_m,curwin)',errcatch=%t);
 		if ~ok then 
@@ -496,19 +496,20 @@ function scilab2scicos(win,x,y,ibut)
   printf("\nReturn to scicos by eventhandler is disabled.\nUse -->scicos(); instead.\n");
 endfunction
 
-function scs_m_out=scs_m_remove_gr(scs_m_in)
+function scs_m_out=scs_m_remove_gr(scs_m_in,recursive=%t)
 // remove the gr graphics from scs_m 
+// recursively 
 // ----------------------------------
   scs_m_out=scs_m_in
   for k=1:length(scs_m_out.objs)
     // no use to check first if gr exists before deleting it 
     scs_m_out.objs(k).delete['gr'];
     o = scs_m_out.objs(k);
-    if o.type=='Block' && o.model.sim.equal['super'] then
-      scs_m_n=o.model.rpar
-      scs_m_n=scs_m_remove_gr(scs_m_n)
-      o.model.rpar=scs_m_n
-      scs_m_out.objs(k)=o
+    if recursive && o.type=='Block' then 
+      if or(o.model.sim(1)==['super','csuper','asuper']) then 
+	o.model.rpar=scs_m_remove_gr(o.model.rpar,recursive=%t);
+	scs_m_out.objs(k)=o;
+      end
     end
   end
 endfunction

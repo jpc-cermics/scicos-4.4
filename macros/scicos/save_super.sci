@@ -111,7 +111,9 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
 
   
   path=[]
-  scs_m=do_purge(scs_m)
+  scs_m=do_purge(scs_m);
+  scs_m=scs_m_remove_gr(scs_m);
+    
   nam=scs_m.props.title(1);
   nam=strsubst(nam,' ','_')
   in=[];out=[];clkin=[];clkout=[];
