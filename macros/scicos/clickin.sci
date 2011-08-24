@@ -69,7 +69,8 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       xset('window',curwin)
       //xselect()
     
-    elseif o.model.sim(1)=='csuper' & o.model.ipar.equal[1] then
+    elseif o.model.sim(1)=='csuper' && o.model.ipar.equal[1] then
+      // this is a masked superblock 
       %scs_help=o.gui
       ierr=execstr('[o_n,needcompile,newparameters]='+o.gui+'(''set'',o)',errcatch=%t)
       if ~ierr then
@@ -83,6 +84,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       end
 
     elseif o.model.sim(1)=='csuper' then
+      // ?
       %scs_help=o.gui
       ierr=execstr('[o_n,needcompile,newparameters]='+o.gui+'(''set'',o)',errcatch=%t)
       if ~ierr then

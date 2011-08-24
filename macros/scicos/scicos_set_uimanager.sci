@@ -147,8 +147,10 @@ function scicos_set_uimanager(is_top)
 	   "      <separator name=""sep1"" />";
 	   "      <menuitem name=""Create Atomic"" action=""scmenu_create_atomic"" />";
 	   "      <menuitem name=""Remove Atomic"" action=""scmenu_remove_atomic"" />";
-	   "      <menuitem name=""Browser"" action=""scmenu_browser"" />";
+	   "      <separator name=""sep2"" />";
+	   //"      <menuitem name=""Force Open"" action=""scmenu_force_open"" />";
 	   "      <menuitem name=""Code Generation"" action=""scmenu_code_generation"" />";
+	   "      <menuitem name=""Browser"" action=""scmenu_browser"" />";
 	   "      <menuitem name=""Shortcuts"" action=""scmenu_shortcuts"" />";
 	   "      <menuitem name=""Calc"" action=""scmenu_calc"" />";
 	   "    </menu>";
@@ -416,6 +418,7 @@ function S=scicos_actions()
 	      'scmenu_region_to_palette','Region to Palette',"","";
 	      'scmenu_region_to_super_block','Region to Super Block',"","";
 	      'scmenu_remove_atomic','Remove Atomic',"","";
+	      'scmenu_force_open','Force Open',"","";
 	      'scmenu_remove_mask','Remove Mask',"","";
 	      'scmenu_rename','Rename',"","";
 	      'scmenu_replot','Replot',"","";

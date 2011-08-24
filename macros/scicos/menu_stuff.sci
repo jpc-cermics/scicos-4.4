@@ -108,6 +108,7 @@ function [menus]=scicos_menu_prepare()
 	  'Help';
 	  'Scicos Documentation';
 	  'Demos';
+	  'Force Open';
 	  'About Scicos'];
   
   actions=scicos_action_name_to_fname(names);

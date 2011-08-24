@@ -6,7 +6,10 @@ function scmenu_create_mask()
 // block. The variables which can be edited by the Open menu 
 // are collected by the FindSBParams function 
 // 
-  
+// a masked block is characterized by:
+// model.sim='csuper'
+// model.ipar=1 ;  // specifies the type of csuper (mask)  
+// 
   Cmenu="";%pt=[];
   if size(Select,1)<>1 || curwin<>Select(1,2) then
     return

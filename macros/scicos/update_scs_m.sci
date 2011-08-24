@@ -2,6 +2,7 @@ function nobj = update_scs_m(obj)
 // updates scicos obj by recalling all the scicos_xx functions
 // where they can be called. This function can be called on any 
 // scicos objects i.e a diagram or a model or a block ...
+// 
 // jpc 2011 
 //
   H=hash(3, codegeneration='codegen',Block='block',Link='link',Text='text');
