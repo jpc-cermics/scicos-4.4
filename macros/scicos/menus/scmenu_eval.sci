@@ -62,7 +62,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,%SubSystemEval,fla
   getvalue=setvalue;
   
   function message(txt)
-    x_message('In block '+o.gui+': '+txt);
+    x_message(['Error: in evaluation of block '+o.gui+': ';txt]);
     resume(%scicos_prob=%t); 
   endfunction
   

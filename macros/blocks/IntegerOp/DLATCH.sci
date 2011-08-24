@@ -13,7 +13,43 @@ function [x,y,typ]=DLATCH(job,arg1,arg2)
    case 'set' then
     x=arg1
    case 'define' then
-scs_m=scicos_diagram(..
+    
+    model=scicos_model()
+    model.sim='csuper'
+    model.in=[1;1]
+    model.in2=[1;1]
+    model.out=[1;1]
+    model.out2=[1;1]
+    model.intyp=[5 -1]
+    model.outtyp=[5 5]
+    model.blocktype='h'
+    model.firing=%f
+    model.dep_ut=[%t %f]
+    model.rpar= dlatch_rpar();
+    gr_i=['dlatch_draw(orig,sz,o);'];
+    x=standard_define([2 3],model,[],gr_i,'DLATCH');
+  end
+endfunction
+
+function dlatch_draw(orig,sz,o)
+  [x,y,typ]=standard_inputs(o)
+  dd=sz(1)/8,de=sz(1)*(1/2+1/8);
+  if ~exists('%zoom') then %zoom=1, end;
+  w=sz(1)*(1/2-1/8);
+  h=sz(2)/4;
+  xstringb(orig(1)+dd,y(1)-4,'D',w,h,'fill');
+  xstringb(orig(1)+dd,y(2)-4,'C',w,h,'fill');
+  [x,y,typ]=standard_outputs(o) ;
+  txt='Q'
+  xstringb(orig(1)+de,y(1)-4,'Q',w,h,'fill');
+  xstringb(orig(1)+de,y(2)-4,'!Q',w,h,'fill');
+  w = sz(1);
+  h = sz(2)*(1/4)
+  xstringb(orig(1),orig(2)-1.5*h,'DLATCH',w,h,'fill');
+endfunction
+
+function scs_m=dlatch_rpar()
+  scs_m=scicos_diagram(..
       version="scicos4.2",..
       props=scicos_params(..
             wpar=[600,450,0,0,600,450],..
@@ -507,37 +543,4 @@ scs_m.objs(19)=scicos_link(..
                  ct=[1,1],..
                  from=[10,2,0],..
                  to=[18,1,1])
-
-    model=scicos_model()
-    model.sim='csuper'
-    model.in=[1;1]
-    model.in2=[1;1]
-    model.out=[1;1]
-    model.out2=[1;1]
-    model.intyp=[5 -1]
-    model.outtyp=[5 5]
-    model.blocktype='h'
-    model.firing=%f
-    model.dep_ut=[%t %f]
-    model.rpar=scs_m
-    gr_i=['draw_dlatch(orig,sz,o);'];
-    x=standard_define([2 3],model,[],gr_i,'DLATCH');
-  end
-endfunction
-
-function draw_dlatch(orig,sz,o)
-  [x,y,typ]=standard_inputs(o)
-  dd=sz(1)/8,de=sz(1)*(1/2+1/8);
-  if ~exists('%zoom') then %zoom=1, end;
-  w=sz(1)*(1/2-1/8);
-  h=sz(2)/4;
-  xstringb(orig(1)+dd,y(1)-4,'D',w,h,'fill');
-  xstringb(orig(1)+dd,y(2)-4,'C',w,h,'fill');
-  [x,y,typ]=standard_outputs(o) ;
-  txt='Q'
-  xstringb(orig(1)+de,y(1)-4,'Q',w,h,'fill');
-  xstringb(orig(1)+de,y(2)-4,'!Q',w,h,'fill');
-  w = sz(1);
-  h = sz(2)*(1/4)
-  xstringb(orig(1),orig(2)-1.5*h,'DLATCH',w,h,'fill');
 endfunction

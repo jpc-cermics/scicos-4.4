@@ -30,8 +30,10 @@ function scmenu_save_as_interf_func()
 	%path=save_super(scs_m,fpath=dir,sim='super')
       end
       if ~isempty(%path) then 
-	if ~execstr('getf(%path)',errcatch=%t)<>0 then
-	  message([name+': error:']);//   lasterror()])
+	ok= exec(%path,errcatch=%t)
+	if ~ok then 
+	  message(['Error: generated interf file cannot be executed:';
+		   catenate(lasterror())]);
 	end
       end
     end
