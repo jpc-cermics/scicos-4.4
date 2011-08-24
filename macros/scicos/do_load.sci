@@ -2,6 +2,57 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
 // Copyright INRIA
 // Load a Scicos diagram
 
+  function [scicos_ver]=find_scicos_version(scs_m)
+  // Copyright INRIA
+  // find_scicos_version tries to retrieve a scicos
+  // version number in a scs_m structure.
+  // 21/08/07: Alan, inital revision
+  // 
+    if ~exists('scicos_ver') then
+      scicos_ver = "scicos2.2";
+    else
+      scicos_ver = scicos_ver;
+    end
+    if scs_m.iskey['version'] then
+      if scs_m.version<>'' then
+	// version is stored in the structure.
+	scicos_ver=scs_m.version
+	return;
+      end
+      n=size(scs_m.objs);
+      for j=1:n //loop on objects
+	o=scs_m.objs(j);
+	if o.type =='Block' then
+	  if o.model.iskey['equations'] then
+	    scicos_ver = "scicos2.7.3"
+	    break;
+	  else
+	    // the last version supported here is scicos2.7
+	    // other tests can be done
+	    scicos_ver = "scicos2.7"
+	    break;
+	  end
+	end
+      end //** end for
+    end
+  endfunction
+
+  function [ok,scicos_ver,scs_m]=update_version(scs_m)
+  // updates a diagram to the current scicos version 
+    ok=%t;
+    current_version = get_scicos_version()
+    // guess the proper version of the diagram 
+    scicos_ver = find_scicos_version(scs_m)
+    if scicos_ver==current_version then return;end 
+    cmd= 'scs_m_out=do_version(scs_m,scicos_ver)'
+    ok=execstr(cmd,errcatch=%t)
+    if ~ok then
+      lasterror();
+      return;
+    end
+    scs_m=scs_m_out;
+  endfunction
+  
   global %scicos_demo_mode ; 
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
@@ -115,12 +166,10 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     if isempty(scs_m) then scs_m=x,end //for compatibility
   end
   //##update version
-  [ierr,scicos_ver,scs_m]=update_version(scs_m)
-  if ierr<>0 then
-    message('An error has occured during the update of '+name+'.')
-    ok=%f
+  [ok,scicos_ver,scs_m]=update_version(scs_m)
+  if ~ok then
+    message('An error occured during the update of '+name+'.')
     scs_m = get_new_scs_m();
-    //scs_m=scicos_diagram(version=current_version)
     return
   end
   //## reset %cpr and edited=%t if we have
@@ -358,3 +407,4 @@ function [scs_m,ok]=generating_atomic_code(scs_m)
     end
   end
 endfunction
+
