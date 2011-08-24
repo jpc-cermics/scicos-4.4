@@ -10,13 +10,13 @@ function scmenu_remove_atomic()
   if size(Select,1)<>1 | curwin<>Select(1,2) then
     return
   end
-  [o,needcompile,ok]=do_remove_atomic(scs_m.objs(Select(1)));
+  [o,needcompile,ok]=do_remove_atomic(scs_m.objs(Select(1)),needcompile);
   if ok then 
     scs_m = update_redraw_obj(scs_m,list('objs',i),o);
   end
 endfunction
 
-function [o,needcompile,ok]=do_remove_atomic(o)
+function [o,needcompile,ok]=do_remove_atomic(o,needcompile)
   ok=%t
   if o.type =='Block' && o.model.sim(1)=='asuper' then 
     model=o.model
