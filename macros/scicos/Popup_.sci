@@ -103,7 +103,6 @@ function Popup_()
     // XXX this is ugly but we need a way to transmit args
     btn=args;
   end
-  pause xxx
   if Cmenu=='' then
     %pt=[];%ppt=[];
     selecthilite(Select,%f);

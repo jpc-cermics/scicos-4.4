@@ -360,6 +360,5 @@ function H1=scicos_default_palettes()
   H.Iterators= ...
       ['ForIterator';'WhileIterator'];
 
-
   H1.contents = H;
 endfunction
