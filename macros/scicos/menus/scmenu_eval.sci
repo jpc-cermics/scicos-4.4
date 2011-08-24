@@ -73,6 +73,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,%SubSystemEval,fla
   endfunction
   function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
     ok=%t,cancel=%f;
+    libss=libss;cflags=cflags;
   endfunction
   function result= dialog(labels,valueini); result=valueini;endfunction
   function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=0;endfunction
