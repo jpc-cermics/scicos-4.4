@@ -1,112 +1,37 @@
-function scs_m_new = update_scs_m(scs_m,version)
-// Copyright INRIA
-// update_scs_m : function to do certification of
-//                main data structure of
-//                a scicos diagram (scs_m)
-//                for current version of scicos
+function nobj = update_scs_m(obj)
+// updates scicos obj by recalling all the scicos_xx functions
+// where they can be called. This function can be called on any 
+// scicos objects i.e a diagram or a model or a block ...
+// jpc 2011 
 //
-//   certification is done through initial value of fields in :
-//      scicos_diagram()
-//         scicos_params()
-//         scicos_block()
-//            scicos_graphics()
-//            scicos_model()
-//         scicos_link()
-  if nargin < 2 then
-    version=get_scicos_version();
-  end
-  scs_m_new = scicos_diagram();
-  F = scs_m.__keys // getfield(1,scs_m);
-  for i=1:size(F,'*')
-    select F(i)
-     case 'props' then
-      //******************* props *******************//
-      // sprops = scs_m.props;
-      // be sure that the field title is 'title' 
-      props =  scs_m.props;
-      if props.iskey['Title'] && ~props.iskey['title'] then 
-	props.title = props.Title;
-	props.remove['Title'];
+  H=hash(3, codegeneration='codegen',Block='block',Link='link',Text='text');
+  typ = type(obj,'short');
+  select typ 
+   case 'h' then 
+    // Object is an hash table 
+    if obj.iskey['type'] then 
+      typ=obj.type;
+      if H.iskey[obj.type] then typ=H(obj.type);end
+      execstr(sprintf('nobj= scicos_%s();',typ));
+    else
+      nobj= hash(length(obj));
+    end
+    if typ == 'params' then 
+      // special case replace Title by title
+      if obj.iskey['Title'] && ~obj.iskey['title'] then 
+	obj.title = obj.Title;
+	obj.remove['Title'];
       end
-      // call scicos_params to eventually update the hash table.
-      // we use the props(:) operator to explode the hash into 
-      // a sequence of names arguments
-      scs_m_new.props=scicos_params(props(:));
-     case 'objs' then  
-      //******************** objs *******************//
-      for j=1:length(scs_m.objs) //loop on objects
-	o=scs_m.objs(j);
-	select o.type 
-	 case 'Block' then
-	  //************** Block ***************//
-	  o_new=scicos_block();
-	  T = o.__keys ;
-	  for k=1:size(T,'*')
-	    select T(k)
-	     case 'graphics' then
-	      //*********** graphics **********//
-	      ogra  = o.graphics;
-	      o_new.graphics = scicos_graphics(ogra(:));
-	     case 'model' then
-	      //************* model ***********//
-	      omod  = o.model;
-	      //******** super block case ********//
-	      if omod.sim.equal['super'] || omod.sim.equal['csuper'] then
-		//printf('update a super model ');
-		omod.rpar= update_scs_m(omod.rpar,version)
-	      end
-	      o_new.model =scicos_model(omod(:));
-	    else
-	      //************* other ***********//
-	      // just copy the field 
-	      o_new(T(k)) = o(T(k));
-	    end  //end of select T(k)
-	  end  //end of for k=
-	  scs_m_new.objs(j) = o_new;
-	 case 'Link' then
-	  //************** Link ****************//
-	  scs_m_new.objs(j) =scicos_link(o(:));
-	 case 'Text' then
-	  //************** Text ****************//
-	  o_new = mlist(['Text','graphics','model','void','gui'],...
-			scicos_graphics(),scicos_model(),' ','TEXT_f')
-	  T= o.__keys;
-	  for k=1:size(T,'*')
-	    select T(k)
-	     case 'graphics' then
-	      //*********** graphics **********//
-	      ogra  = o.graphics;
-	      o_new.graphics = scicos_graphics(ogra(:));
-	     case 'model' then
-	      //************* model ***********//
-	      omod  = o.model;
-	      //******** super block case ********//
-	      if omod.sim.equal['super'] || omod.sim.equal['csuper'] then
-		// printf('update a super model in text ');
-	        rpar=update_scs_m(omod.rpar,version)
-	        omod.rpar=rpar
-	      end
-	      o_new.model =scicos_model(omod(:));
-	    else
-	      //************* other ***********//
-	      // just copy the field 
-	      o_new(T(k)) = o(T(k));
-	    end  //end of select T(k)
-	  end  //end of for k=
-	  scs_m_new.objs(j) = o_new;
-	  //************* other ***********//
-	else  
-	  // just copy ...
-	  scs_m_new.objs(j) = o;
-	  //************************************//
-	end //end of select typeof(o)
-      end //end of for j=
-      //*********************************************//
-      //** version **//
-     case 'version' then
-      //do nothing here, this should be done later
-    end  //end of select  F(i)
-  end //end of for i=
-  //**update version **//
-  //scs_m_new.version = version;
-endfunction
+    end
+    keys= obj.__keys;
+    keys=setdiff(keys,['type','tlist','mlist']);
+    for i=1:size(keys,'*')
+      nobj(keys(i))=update_scs_m(obj(keys(i)));
+    end
+   case 'l' then
+    // Object is a list just map the function
+    nobj = map(obj,update_scs_m);
+  else
+    nobj=obj;
+  end
+endfunction;

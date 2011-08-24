@@ -182,7 +182,11 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
   end
   
   F.put_smatrix[txt];
-  txt=scicos_scs2str(model,name='model',indent=4);
+  if %f then 
+    txt=scicos_schema2smat(model,name='model',indent=4);
+  else
+    txt=scicos_schema2serial(model,name='model',indent=4);
+  end
   F.put_smatrix[txt];
   if gr_i == '' then
     txt=['   gr_i=''xstringb(orig(1),orig(2),'''''+nam+''''',sz(1),sz(2),''''fill'''')'';']
@@ -199,8 +203,7 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
   F.close[];
 endfunction
 
-
-function txt=scicos_scs2str(obj,name='z',tag=0,indent=0)
+function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
   
   H=hash(3, codegeneration='codegen',Block='block',Link='link',Text='text');
   txt = m2s([]);
@@ -234,3 +237,16 @@ function txt=scicos_scs2str(obj,name='z',tag=0,indent=0)
   end
 endfunction;
 
+function txt=scicos_schema2serial(obj,name='z',tag=0,indent=0)
+// print a serialized version of obj in txt 
+  S=serialize(obj)
+  txt=sprint(S,as_read=%t,indent=indent,name=name+'_serial');
+  w=catenate(smat_create(indent,1,' '));
+  txt.concatd[sprintf('%s%s=%s_serial.unserialize[];',w,name,name)];
+  txt.concatd[sprintf('%sclear(''%s_serial'');',w,name,name)];
+  txt.concatd[sprintf('%s%s=update_scs_m(%s);',w,name,name)];
+endfunction
+
+  
+
+  

@@ -29,21 +29,21 @@ function scs_m=do_version(scs_m,version)
   if ~isempty(version==['scicos2.7.3','scicos4','scicos4.0.1','scicos4.0.2']) then
     version='scicos4.2';
     printf('updates version to %s\n',version);
-    scs_m=update_scs_m(scs_m,version);
+    scs_m=update_scs_m(scs_m);
     scs_m=do_version42(scs_m);
   end
   // now we are at least scicos4.2 
   if version=='scicos4.2' then
     version='scicos4.3';
     printf('updates version to %s\n',version);
-    scs_m=update_scs_m(scs_m,version);
+    scs_m=update_scs_m(scs_m);
     scs_m=do_version43(scs_m);
   end
   // now we are at least scicos4.3
   if version=='scicos4.3' then
     version='scicos4.4';
     printf('updates version to %s\n',version);
-    scs_m=update_scs_m(scs_m,version);
+    scs_m=update_scs_m(scs_m);
     scs_m=do_version44(scs_m);
   end
 endfunction
