@@ -223,13 +223,13 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
     keys=setdiff(keys,['type','tlist','mlist']);
     for i=1:size(keys,'*')
       nname= sprintf('%s(''%s'')',temp,keys(i));
-      txt.concatd[scicos_scs2str(obj(keys(i)),name=nname,tag=tag+1,indent=indent+1)];
+      txt.concatd[scicos_schema2smat(obj(keys(i)),name=nname,tag=tag+1,indent=indent+1)];
     end
     txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
    case 'l' then
     txt.concatd[sprintf('%s%s=list();',w,temp)];
     for i=1:size(obj)
-      txt.concatd[scicos_scs2str(obj(i),name=temp+'('+string(i)+')',tag=tag+1,indent=indent+1)];
+      txt.concatd[scicos_schema2smat(obj(i),name=temp+'('+string(i)+')',tag=tag+1,indent=indent+1)];
     end
     txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
   else
