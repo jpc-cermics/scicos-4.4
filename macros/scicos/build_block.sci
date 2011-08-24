@@ -20,11 +20,6 @@ function [model,ok]=build_block(o)
       end
     elseif int(modsim/1000)==2 then   //C block
       [model,ok]=recur_scicos_block_link(o,'c')
-//       funam=model.sim(1)
-//       if ~c_link(funam) then
-//         tt=graphics.exprs(2);
-//         ok=scicos_block_link(funam,tt,'c')
-//       end
     elseif model.sim(2)==30004 then //modelica generic file type 30004
       //funam=model.sim(1);tt=graphics.exprs(2);
       if type(graphics.exprs,'short')=='l' then //compatibility
@@ -34,14 +29,10 @@ function [model,ok]=build_block(o)
         funam=model.equations.model
         tt=graphics.exprs.funtxt;
       end
-      //[dirF,nameF,extF]=fileparts(funam);
       nameF=file("tail",file("rootname",funam))
       extF=file("extension",funam)
-      //tarpath=pathconvert(TMPDIR+'/Modelica/',%f,%t);
       tarpath=TMPDIR+'/Modelica/'
       if (extF=='') then
-	//funam=tarpath+nameF+'.mo';
-	//mputl(tt,funam);
         scicos_mputl(tt,file('join',[file('split',tarpath);nameF+'.mo']));
       end
     end
@@ -79,7 +70,6 @@ if or(o.model.sim(1)==['super','csuper','asuper']) then
     funam=model.sim(1)
     if ~c_link(funam) then
       tt=o.graphics.exprs(2)
-      //mputl(tt,TMPDIR+'/'+funam+'.c')
       scicos_mputl(tt,file('join',[file('split',TMPDIR);funam+'.c']));
       ok=buildnewblock(funam,funam,'','',%scicos_libs,TMPDIR,'',%scicos_cflags)
       if ~ok then return; end
@@ -90,7 +80,6 @@ elseif or(int(o.model.sim(2)/1000)==[1,2]) then
   funam=o.model.sim(1)
   if ~c_link(funam) then
     tt=o.graphics.exprs(2)
-    //mputl(tt,TMPDIR+'/'+funam+'.c')
     scicos_mputl(tt,file('join',[file('split',TMPDIR);funam+'.c']));
     ok=buildnewblock(funam,funam,'','',%scicos_libs,TMPDIR,'',%scicos_cflags)
     if ~ok then return; end
