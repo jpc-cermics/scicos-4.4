@@ -62,8 +62,10 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   //   to include in the building process
 
   //** adjust cflags
-  if (cflags ~= emptystr()) then
-    cflags=strcat(cflags,' ')
+  if ~isempty(cflags) then
+    if (cflags ~= emptystr()) then
+      cflags=strcat(cflags,' ')
+    end
   end
 
   //** otherlibs treatment
@@ -734,9 +736,17 @@ function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
        "OBJSSTAN     = "+strcat(filestan+'.o',' ')]
   end
 
+  if ~isempty(cflags) then
+    T=[T;
+       "include $(SCIDIR)/Makefile.incl";
+       "CFLAGS    = $(CC_OPTIONS) -DFORDLL -I$(SCIDIR)/routines/ "+cflags]
+  else
+    T=[T;
+       "include $(SCIDIR)/Makefile.incl";
+       "CFLAGS    = $(CC_OPTIONS) -DFORDLL -I$(SCIDIR)/routines/"]
+  end
+
   T=[T;
-     "include $(SCIDIR)/Makefile.incl";
-     "CFLAGS    = $(CC_OPTIONS) -DFORDLL -I$(SCIDIR)/routines/ "+cflags
      "FFLAGS    = $(FC_OPTIONS) -DFORDLL -I$(SCIDIR)/routines/"
      "include $(SCIDIR)/config/Makeso.incl"]
 
