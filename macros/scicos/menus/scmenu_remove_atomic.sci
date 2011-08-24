@@ -1,9 +1,9 @@
-function RemoveAtomic_()
+function scmenu_remove_atomic()
   if alreadyran then
     // first terminate 
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
 		     '[alreadyran,%cpr]=do_terminate();%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1';
-		     'Select='+sci2exp(Select)+';Cmenu='"Remove Atomic"'';]
+		     'Select='+sci2exp(Select)+';Cmenu='"Remove Atomic"''];
     return 
   end
   Cmenu='';%pt=[];

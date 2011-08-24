@@ -4,7 +4,7 @@ function scmenu_create_atomic()
   function o=RedrawIteratorSB(o,iter_op)
     o.graphics.sz(1)=60;
     o.graphics.gr_i=list(['xstringb(orig(1),orig(2),[''    '+iter_op+''';''SubSystem''],sz(1),sz(2),''fill'')'],8);
-endfunction
+  endfunction
   
   if alreadyran then
     // make a do_terminate and restart Create Atomic 
