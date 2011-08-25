@@ -2264,7 +2264,6 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
  * new nsp graphics jpc 
  **/
 
-
 typedef struct _cscope_ipar cscope_ipar;
 struct _cscope_ipar
 {
@@ -2309,6 +2308,11 @@ void scicos_cscope_block (scicos_block * block, int flag)
   if (flag == 2)
     {
       cscope_data *D = (cscope_data *) (*block->work);
+      if ( D->Axes->obj->ref_count <= 1 ) 
+	{
+	  /* Axes was destroyed during simulation */
+	  return;
+	}
       k = D->count;
       if (k > 0)
 	{
@@ -2342,10 +2346,22 @@ void scicos_cscope_block (scicos_block * block, int flag)
        * this number is not known a-priori.
        */
       int scopebs = 10000;
-      /* create an axe with predefined limits */
-      NspAxes *Axes =
+      /* create a graphic window filled with an axe 
+       * (with predefined limits) and curves.
+       * The axe is returned and the curves are accessible through the L list.
+       */
+      NspAxes *Axes1,*Axes =
 	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE, -1, 1,qcurve_std, &L);
       if (Axes == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      /* keep a copy in case Axes is destroyed during simulation 
+       * axe is a by reference object 
+       */
+      Axes1 = nsp_axes_copy(Axes);
+      if ( Axes1 == NULL ) 
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -2357,7 +2373,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (cscope_data *) (*block->work);
-      D->Axes = Axes;
+      D->Axes = Axes1;
       D->L = L;
       D->count = 0;
       D->tlast = t;
@@ -2379,8 +2395,14 @@ void scicos_cscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cscope_data *D = (cscope_data *) (*block->work);
+      if ( D->Axes->obj->ref_count <= 1 ) 
+	{
+	  /* Axes was destroyed during simulation 
+	   * we finish detruction 
+	   */
+	  nsp_axes_destroy(D->Axes);
+	}
       scicos_free (D);
-      /* Xgc = scicos_set_win(wid,&cur); */
     }
 }
 
@@ -3404,7 +3426,7 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
  * 
  * 
  * 
- * Returns: a #NspFigure or %NULL
+ * Returns: a #NspAxes or %NULL
  **/
 
 static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
@@ -3430,7 +3452,7 @@ static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
    */
   if ((Xgc = window_list_get_first())== NULL) return NULL;
   if ((axe=  nsp_check_for_axes(Xgc,NULL)) == NULL) return NULL;
-
+  
   /* clean previous plots 
    */ 
 
