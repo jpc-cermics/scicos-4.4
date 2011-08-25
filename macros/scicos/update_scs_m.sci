@@ -10,7 +10,7 @@ function nobj = update_scs_m(obj)
   select typ 
    case 'h' then 
     // Object is an hash table 
-    if obj.iskey['type'] then 
+    if obj.iskey['type'] && type(obj.type,'short')== 's' then 
       typ=obj.type;
       if H.iskey[obj.type] then typ=H(obj.type);end
       execstr(sprintf('nobj= scicos_%s();',typ));

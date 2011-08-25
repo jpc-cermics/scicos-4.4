@@ -120,7 +120,7 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
 
   for k=1:length(scs_m.objs)
     o=scs_m.objs(k)
-    if typeof(o)=='Block' then
+    if o.type  == 'Block' then
       model=o.model
       select o.gui
       case 'IN_f' then
@@ -180,14 +180,23 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
     message([catenate(lasterror())]);
     return
   end
-  
   F.put_smatrix[txt];
+  
+  // we separately save the model and the superblock 
+  // first the model.rpar 
   if %f then 
-    txt=scicos_schema2smat(model,name='model',indent=4);
+    txt=scicos_schema2smat(model.rpar,name='sblock',indent=4);
   else
-    txt=scicos_schema2serial(model,name='model',indent=4);
+    txt=scicos_schema2serial(model.rpar,name='sblock',indent=4);
   end
   F.put_smatrix[txt];
+  // now the model 
+  model.rpar=[];
+  txt=scicos_schema2smat(model,name='model',indent=4);
+  F.put_smatrix[txt];
+  F.put_smatrix[['    model.rpar=sblock;']];
+  
+  // now the gr_i
   if gr_i == '' then
     txt=['   gr_i=''xstringb(orig(1),orig(2),'''''+nam+''''',sz(1),sz(2),''''fill'''')'';']
   else
@@ -204,6 +213,13 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
 endfunction
 
 function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
+// returns in txt a string representation of obj which 
+// should recreate obj if executed. Note that the generated 
+// code contains some call ro scicos_xxx functions instead of 
+// a pure as_read==%t print of obj. This enables updates of 
+// obj if this functions are updates. 
+// Note however that a print(,as_read=%t) followed by update_scs_m
+// should do the same. 
   
   H=hash(3, codegeneration='codegen',Block='block',Link='link',Text='text');
   txt = m2s([]);
@@ -239,6 +255,7 @@ endfunction;
 
 function txt=scicos_schema2serial(obj,name='z',tag=0,indent=0)
 // print a serialized version of obj in txt 
+// we could also compress the serialized object 
   S=serialize(obj)
   txt=sprint(S,as_read=%t,indent=indent,name=name+'_serial');
   w=catenate(smat_create(indent,1,' '));
