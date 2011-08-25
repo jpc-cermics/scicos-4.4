@@ -46,6 +46,8 @@ function y=sci2exp(exp,nam)
     y=sprint(exp,as_read=%t);
     // remove header
     y=y(2:$);
+    // answer should be on one line 
+    y=catenate(y);
     if size(y,'*')==0 then y="[]";end 
   end
   if nargin>=2 && type(nam,'short')== 's' then 

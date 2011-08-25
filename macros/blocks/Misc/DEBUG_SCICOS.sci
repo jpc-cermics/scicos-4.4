@@ -14,26 +14,24 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
       graphics=arg1.graphics;exprs=graphics.exprs
       textmp=exprs(2)
       ok=%t
-
+      head = ['Enter scilab instructions for debugging.';
+	      'Inputs are block and flag, output is block.'];
       //## set param of scstxtedit
-      ptxtedit=scicos_txtedit(clos = 0,...
-			      typ  = "debugblock",...
-			      head = ['Enter scilab instructions for debugging.';
-                    'Inputs are block and flag, output is block.'])
-      
+      ptxtedit=scicos_txtedit(clos = 0, typ  = "debugblock", head=head);
+            
       non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
       
       while %t
         [txt,Quit] = scstxtedit(textmp,ptxtedit);
 	if isempty(txt) || Quit then 
-	  ok =%f;break;
+	  ok =%f;break; // a cancel 
 	end
 	tt=['function block=debug_scicos(block,flag)';
 	    txt;
 	    'endfunction'];
 	ok=execstr(tt,errcatch=%t);
 	if ~ok then
-	  message(['Error in the instructions';lasterror()])
+	  message(['Error in the instructions defining debug_scicos:';lasterror()])
 	  if non_interactive then 
 	    message(['Error: set failed for DEBUG_SCICOS but we are in a non "+...
 		     '  interactive function and thus we abort the set !']);
@@ -42,7 +40,6 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
 	    continue;
 	  end
 	end
-	
 	save(file('join',[getenv('NSP_TMPDIR');'debug_scicos']), debug_scicos)
 	exprs(2)=txt
 	if (scicos_debug()<>2 & scicos_debug()<>3) then
@@ -50,8 +47,6 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
 	end
 	break;
       end
-      
-      
       if ok then
         needc=~isequal(graphics.exprs,exprs)
         graphics.exprs=exprs;

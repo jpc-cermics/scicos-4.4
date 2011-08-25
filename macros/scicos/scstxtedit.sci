@@ -1,19 +1,11 @@
-// scstxtedit : Input function of the text editor
-//    We exit from that function if Quit or use
-//    the commit button.
-//
-// Inputs : str_in : the input text to edit
-//          clos : a flag to close the window
-//                 0 : No
-//                 1 : close
-//
-//          str_out : the edited output text
-//                   can be [] if abort
-//          Quit : a flag to say if the buffer has been
-//                 closed
-//                 0 : No
-//                 1 : Quit
-//
+// scstxtedit : opens a dialog window to edit text 
+// str_in : the input text to edit
+// ptxtedit.clos: if equal to 0 edition is aborted and we quit 
+//                with Quit==%t and str_out=[];
+// Note that if the button Cancel is pressed during edition 
+// then returned values are also  Quit==%t and str_out=[];
+// ptxtedit.head: message on top of dialog window 
+// ptxtedit.typ: is unused.
 
 function [str_out,Quit] = scstxtedit(str_in,ptxtedit)
   clos = ptxtedit.clos

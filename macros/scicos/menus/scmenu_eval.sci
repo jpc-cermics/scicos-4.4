@@ -78,7 +78,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,%SubSystemEval,fla
     libss=libss;cflags=cflags;
   endfunction
   function result= dialog(labels,valueini); result=valueini;endfunction
-  function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=0;endfunction
+  function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=%f;endfunction
   
   for %kk=1:length(scs_m.objs)
     o=scs_m.objs(%kk)

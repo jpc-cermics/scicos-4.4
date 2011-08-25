@@ -301,7 +301,7 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
     result=valueini
   endfunction
   function [result,Quit]  = scstxtedit(valueini,v2)
-    result=valueini,Quit=0
+    result=valueini,Quit=%f
   endfunction
   // use a non interactive version
   if nargin < 2 then
