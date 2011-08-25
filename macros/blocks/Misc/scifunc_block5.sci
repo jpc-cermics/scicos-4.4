@@ -52,10 +52,18 @@ function [x,y,typ]=scifunc_block5(job,arg1,arg2)
       label(1)=lab
       junction_name=stripblanks(junction_name)
       xx=xx(:);z=z(:);rpar=rpar(:);ipar=int(ipar(:));
+      nx=prod(size(xx,'*'))
       ci=int(ci(:));
       co=int(co(:));
       if part(impli,1)=='y' then
 	funtyp=10005
+        if ~isempty(xx) then
+          if int(nx/2)*2<>nx then
+            message(['Warning for implicit block initial derivative state should also be defined.';
+                     'Please check number of Initial continuous state.']);
+            ok=%f;
+          end
+        end
       else
 	funtyp=5
       end
@@ -64,13 +72,13 @@ function [x,y,typ]=scifunc_block5(job,arg1,arg2)
       end
       if type(opar,'short')<>'l' then message('object parameter must be a list');ok=%f;end
       if type(oz,'short')<>'l' then message('discrete object state must be a list');ok=%f;end
+      if ~ok then continue;end
       depu=stripblanks(depu);if part(depu,1)=='y' then depu=%t; else depu=%f;end
       dept=stripblanks(dept);if part(dept,1)=='y' then dept=%t; else dept=%f;end
       dep_ut=[depu dept];
       [model,graphics,ok]=set_io(model,graphics,list(in,it),list(out,ot),ci,co)
       if ~ok then continue;end 
       nz=prod(size(z,'*'))+length(oz)
-      nx=prod(size(xx,'*'))
       ni=prod(size(in,'*'))
       no=prod(size(out,'*'))
       nie=prod(size(ci,'*'))
