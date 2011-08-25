@@ -64,6 +64,13 @@ function [x,y,typ]=CBLOCK4(job,arg1,arg2)
       co=int(co(:));
       nevout=size(co,1);
       if part(impli,1)=='y' then
+        if ~isempty(xx) then
+          if int(nx/2)*2<>nx then
+            message(['Warning for implicit block initial derivative state should also be defined.';
+                     'Please check number of Initial continuous state.']);
+            ok=%f;
+          end
+        end
 	funtyp=12004
       else
 	funtyp=2004
