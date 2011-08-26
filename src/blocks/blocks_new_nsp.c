@@ -675,19 +675,24 @@ void scicos_deriv_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_extractor_block (scicos_block * block, int flag)
 {
+  int *ipar = GetIparPtrs (block);
+  int nipar = GetNipar (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
   int i, j;
   if (flag == 1)
     {
-      for (i = 0; i < block->nipar; ++i)
+      for (i = 0; i < nipar; ++i)
 	{
-	  j = block->ipar[i] - 1;
+	  j = ipar[i] - 1;
 	  if (j < 0)
 	    j = 0;
-	  if (j >= block->insz[0])
-	    j = block->insz[0] - 1;
-	  block->outptr[0][i] = block->inptr[0][j];
+	  if (j >= GetInPortRows (block, 1))
+	    j = GetInPortRows (block, 1) - 1;
+	  y1[i] = u1[j];
 	}
     }
 }
@@ -700,21 +705,27 @@ void scicos_extractor_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_gainblk_block (scicos_block * block, int flag)
 {
-  int i, un = 1;
-  if (block->nrpar == 1)
+  int i;
+  int nu = GetInPortRows (block, 1);
+  int ny = GetOutPortRows (block, 1);
+  int my = GetOutPortCols (block, 1);
+  double *u = GetRealInPortPtrs (block, 1);
+  double *y = GetRealOutPortPtrs (block, 1);
+  int nrpar = GetNrpar (block);
+  double *rpar = GetRparPtrs (block);
+  if (nrpar == 1)
     {
-      for (i = 0; i < block->insz[0]; ++i)
+      for (i = 0; i < nu * my; ++i)
 	{
-	  block->outptr[0][i] = block->rpar[0] * block->inptr[0][i];
+	  y[i] = rpar[0] * u[i];
 	}
     }
   else
     {
-      nsp_calpack_dmmul (block->rpar, &block->outsz[0], block->inptr[0],
-			 &block->insz[0], block->outptr[0], &block->outsz[0],
-			 &block->outsz[0], &block->insz[0], &un);
+      nsp_calpack_dmmul (rpar, &ny, u, &nu, y, &ny, &ny, &nu, &my);
     }
 }
 
@@ -728,97 +739,116 @@ void scicos_gainblk_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_time_delay_block (scicos_block * block, int flag)
 {				
   /*  rpar[0]=delay, rpar[1]=init value, ipar[0]=buffer length */
-  double *pw, del, t, td;
+  void **work = GetPtrWorkPtrs (block);
+  double *rpar = GetRparPtrs (block);
+  int *ipar = GetIparPtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  double *pw, del, t, td, eps;
   int *iw;
   int i, j, k;
+
   if (flag == 4)
-    {			
+    {				
       /* the workspace is used to store previous values */
-      if ((*block->work =
+      if ((*work =
 	   scicos_malloc (sizeof (int) + sizeof (double) *
-			  block->ipar[0] * (1 + block->insz[0]))) == NULL)
+			  ipar[0] * (1 + GetInPortRows (block, 1)))) == NULL)
 	{
 	  scicos_set_block_error (-16);
 	  return;
 	}
-      pw = *block->work;
-      pw[0] = -block->rpar[0] * block->ipar[0];
-      for (i = 1; i < block->ipar[0]; i++)
+      eps = 1.0e-9;		/* shift times to left to avoid replacing 0 */
+      pw = *work;
+      pw[0] = -rpar[0] * (ipar[0] - 1) - eps;
+      for (j = 1; j < GetInPortRows (block, 1) + 1; j++)
 	{
-	  pw[i] = pw[i - 1] + block->rpar[0];
-	  for (j = 1; j < block->insz[0] + 1; j++)
+	  pw[ipar[0] * j] = rpar[1];
+	}
+
+      for (i = 1; i < ipar[0]; i++)
+	{
+	  pw[i] = pw[i - 1] + rpar[0] - eps;
+	  for (j = 1; j < GetInPortRows (block, 1) + 1; j++)
 	    {
-	      pw[i + block->ipar[0] * j] = block->rpar[1];
+	      pw[i + ipar[0] * j] = rpar[1];
 	    }
 	}
-      iw = (int *) (pw + block->ipar[0] * (1 + block->insz[0]));
+
+      iw = (int *) (pw + ipar[0] * (1 + GetInPortRows (block, 1)));
       *iw = 0;
+      for (k = 0; k < GetInPortRows (block, 1); k++)
+	{
+	  y1[k] = rpar[1];
+	}
     }
   else if (flag == 5)
     {
-      scicos_free (*block->work);
+      scicos_free (*work);
+
     }
   else if (flag == 0 || flag == 2)
     {
       if (flag == 2)
-	scicos_do_cold_restart ();
-      pw = *block->work;
-      iw = (int *) (pw + block->ipar[0] * (1 + block->insz[0]));
-      t = scicos_get_scicos_time ();
-      td = t - block->rpar[0];
+	DoColdRestart (block);
+      pw = *work;
+      iw = (int *) (pw + ipar[0] * (1 + GetInPortRows (block, 1)));
+      t = GetScicosTime (block);
+      td = t - rpar[0];
       if (td < pw[*iw])
 	{
-	  Sciprintf ("delayed time=%f but last stored time=%f \r\n", td,
-		     pw[*iw]);
+	  Sciprintf ("delayed time=%f but last stored time=%f\n", td,
+		    pw[*iw]);
 	  Sciprintf
-	    ("Consider increasing the length of buffer in delay block \r\n");
+	    ("Consider increasing the length of buffer in delay block\n");
 	}
 
-      if (t > pw[(block->ipar[0] + *iw - 1) % block->ipar[0]])
+      if (t > pw[(ipar[0] + *iw - 1) % ipar[0]])
 	{
-	  for (j = 1; j < block->insz[0] + 1; j++)
+	  for (j = 1; j < GetInPortRows (block, 1) + 1; j++)
 	    {
-	      pw[*iw + block->ipar[0] * j] = block->inptr[0][j - 1];
+	      pw[*iw + ipar[0] * j] = u1[j - 1];
 	    }
 	  pw[*iw] = t;
-	  /*sciprint("**time is %f. I put %f, in %d \r\n", t,block->inptr[0][0],*iw); */
-	  *iw = (*iw + 1) % block->ipar[0];
+	  /*sciprint("**time is %f. I put %f, in %d \r\n", t,u1[0],*iw); */
+	  *iw = (*iw + 1) % ipar[0];
 
 	}
       else
 	{
-	  for (j = 1; j < block->insz[0] + 1; j++)
+	  for (j = 1; j < GetInPortRows (block, 1) + 1; j++)
 	    {
-	      pw[(block->ipar[0] + *iw - 1) % block->ipar[0] +
-		 block->ipar[0] * j] = block->inptr[0][j - 1];
+	      pw[(ipar[0] + *iw - 1) % ipar[0] + ipar[0] * j] = u1[j - 1];
 	    }
-	  pw[(block->ipar[0] + *iw - 1) % block->ipar[0]] = t;
-	  /*sciprint("**time is %f. I put %f, in %d \r\n", t,block->inptr[0][0],*iw); */
+	  pw[(ipar[0] + *iw - 1) % ipar[0]] = t;
+	  /*sciprint("**time is %f. I put %f, in %d \r\n", t,u1[0],*iw); */
 
 	}
 
     }
   else if (flag == 1)
     {
-      pw = *block->work;
-      iw = (int *) (pw + block->ipar[0] * (1 + block->insz[0]));
-      t = scicos_get_scicos_time ();
-      td = t - block->rpar[0];
+      pw = *work;
+      iw = (int *) (pw + ipar[0] * (1 + GetInPortRows (block, 1)));
+      t = GetScicosTime (block);
+
+      td = t - rpar[0];
 
       i = 0;
-      j = block->ipar[0] - 1;
+      j = ipar[0] - 1;
 
       while (j - i > 1)
 	{
 	  k = (i + j) / 2;
-	  if (td < pw[(k + *iw) % block->ipar[0]])
+	  if (td < pw[(k + *iw) % ipar[0]])
 	    {
 	      j = k;
 	    }
-	  else if (td > pw[(k + *iw) % block->ipar[0]])
+	  else if (td > pw[(k + *iw) % ipar[0]])
 	    {
 	      i = k;
 	    }
@@ -829,29 +859,28 @@ void scicos_time_delay_block (scicos_block * block, int flag)
 	      break;
 	    }
 	}
-      i = (i + *iw) % block->ipar[0];
-      j = (j + *iw) % block->ipar[0];
+      i = (i + *iw) % ipar[0];
+      j = (j + *iw) % ipar[0];
       del = pw[j] - pw[i];
-      /*sciprint("time is %f. interpolating %d and %d, i.e. %f, %f\r\n", t,i,j,pw[i],pw[j]); */
+      /*    sciprint("time is %f. interpolating %d and %d, i.e. %f, %f\r\n", t,i,j,pw[i],pw[j]);
+         sciprint("values are  %f   %f.\r\n",pw[i+ipar[0]],pw[j+ipar[0]]); */
       if (del != 0.0)
 	{
-	  for (k = 1; k < block->insz[0] + 1; k++)
+	  for (k = 1; k < GetInPortRows (block, 1) + 1; k++)
 	    {
-	      block->outptr[0][k - 1] =
-		((pw[j] - td) * pw[i + block->ipar[0] * k] +
-		 (td - pw[i]) * pw[j + block->ipar[0] * k]) / del;
+	      y1[k - 1] = ((pw[j] - td) * pw[i + ipar[0] * k] +
+			    (td - pw[i]) * pw[j + ipar[0] * k]) / del;
 	    }
 	}
       else
 	{
-	  for (k = 1; k < block->insz[0] + 1; k++)
+	  for (k = 1; k < GetInPortRows (block, 1) + 1; k++)
 	    {
-	      block->outptr[0][k - 1] = pw[i + block->ipar[0] * k];
+	      y1[k - 1] = pw[i + ipar[0] * k];
 	    }
 	}
     }
 }
-
 
 
 /**
@@ -859,87 +888,99 @@ void scicos_time_delay_block (scicos_block * block, int flag)
  * @block: 
  * @flag: 
  * 
- * 
  **/
+
 void scicos_variable_delay_block (scicos_block * block, int flag)
 {
   /*  rpar[0]=max delay, rpar[1]=init value, ipar[0]=buffer length */
-  double *pw, del, t, td;
+  void **work = GetPtrWorkPtrs (block);
+  double *rpar = GetRparPtrs (block);
+  int *ipar = GetIparPtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  double *u2 = GetRealInPortPtrs (block, 2);
+  double *pw, del, td;
   int *iw;
-  int i, j, k;
+  int id, i, j, k;
+  int phase = GetSimulationPhase (block);
+  double t = GetScicosTime (block);
   if (flag == 4)
     {
       /* the workspace is used to store previous values */
-      if ((*block->work =
+      if ((*work =
 	   scicos_malloc (sizeof (int) + sizeof (double) *
-			  block->ipar[0] * (1 + block->insz[0]))) == NULL)
+			  ipar[0] * (1 + GetInPortRows (block, 1)))) == NULL)
 	{
-	  scicos_set_block_error (-16);
+	  set_block_error (-16);
 	  return;
 	}
-      pw = *block->work;
-      pw[0] = -block->rpar[0] * block->ipar[0];
-      for (i = 1; i < block->ipar[0]; i++)
+      pw = *work;
+      pw[0] = -rpar[0] * ipar[0];
+      for (i = 1; i < ipar[0]; i++)
 	{
-	  pw[i] = pw[i - 1] + block->rpar[0];
-	  for (j = 1; j < block->insz[0] + 1; j++)
+	  pw[i] = pw[i - 1] + rpar[0];
+	  for (j = 1; j < GetInPortRows (block, 1) + 1; j++)
 	    {
-	      pw[i + block->ipar[0] * j] = block->rpar[1];
+	      pw[i + ipar[0] * j] = rpar[1];
 	    }
 	}
-      iw = (int *) (pw + block->ipar[0] * (1 + block->insz[0]));
+      iw = (int *) (pw + ipar[0] * (1 + GetInPortRows (block, 1)));
       *iw = 0;
     }
   else if (flag == 5)
     {
-      scicos_free (*block->work);
+      scicos_free (*work);
     }
   else if (flag == 1)
     {
-      if (scicos_get_phase_simulation () == 1)
-	scicos_do_cold_restart ();
-      pw = *block->work;
-      iw = (int *) (pw + block->ipar[0] * (1 + block->insz[0]));
-      t = scicos_get_scicos_time ();
-      del = Min (Max (0, block->inptr[1][0]), block->rpar[0]);
+      if (phase == 1)
+	do_cold_restart ();
+      pw = *work;
+      iw = (int *) (pw + ipar[0] * (1 + GetInPortRows (block, 1)));
+
+      id = scicos_get_fcaller_id ();
+
+      del = min (max (0, u2[0]), rpar[0]);
       td = t - del;
       if (td < pw[*iw])
 	{
-	  sciprint ("delayed time=%f but last stored time=%f \r\n", td,
+	  Sciprintf ("delayed time=%f but last stored time=%f\n", td,
 		    pw[*iw]);
-	  sciprint
-	    ("Consider increasing the length of buffer in variable delay block\r\n");
+	  Sciprintf
+	    ("Consider increasing the length of buffer in variable delay block\n");
 	}
-      if (t > pw[(block->ipar[0] + *iw - 1) % block->ipar[0]])
+      if (id > 0)
 	{
-	  for (j = 1; j < block->insz[0] + 1; j++)
+	  if (t > pw[(ipar[0] + *iw - 1) % ipar[0]])
 	    {
-	      pw[*iw + block->ipar[0] * j] = block->inptr[0][j - 1];
+	      for (j = 1; j < GetInPortRows (block, 1) + 1; j++)
+		{
+		  pw[*iw + ipar[0] * j] = u1[j - 1];
+		}
+	      pw[*iw] = t;
+	      *iw = (*iw + 1) % ipar[0];
 	    }
-	  pw[*iw] = t;
-	  *iw = (*iw + 1) % block->ipar[0];
-	}
-      else
-	{
-	  for (j = 1; j < block->insz[0] + 1; j++)
+	  else
 	    {
-	      pw[(block->ipar[0] + *iw - 1) % block->ipar[0] +
-		 block->ipar[0] * j] = block->inptr[0][j - 1];
+	      for (j = 1; j < GetInPortRows (block, 1) + 1; j++)
+		{
+		  pw[(ipar[0] + *iw - 1) % ipar[0] + ipar[0] * j] =
+		    u1[j - 1];
+		}
+	      pw[(ipar[0] + *iw - 1) % ipar[0]] = t;
 	    }
-	  pw[(block->ipar[0] + *iw - 1) % block->ipar[0]] = t;
 	}
-
       i = 0;
-      j = block->ipar[0] - 1;
+      j = ipar[0] - 1;
 
       while (j - i > 1)
 	{
 	  k = (i + j) / 2;
-	  if (td < pw[(k + *iw) % block->ipar[0]])
+	  if (td < pw[(k + *iw) % ipar[0]])
 	    {
 	      j = k;
 	    }
-	  else if (td > pw[(k + *iw) % block->ipar[0]])
+	  else if (td > pw[(k + *iw) % ipar[0]])
 	    {
 	      i = k;
 	    }
@@ -950,23 +991,22 @@ void scicos_variable_delay_block (scicos_block * block, int flag)
 	      break;
 	    }
 	}
-      i = (i + *iw) % block->ipar[0];
-      j = (j + *iw) % block->ipar[0];
+      i = (i + *iw) % ipar[0];
+      j = (j + *iw) % ipar[0];
       del = pw[j] - pw[i];
-      if (del != 0.0)
+      if (del != 0.0 && td > 0)
 	{
-	  for (k = 1; k < block->insz[0] + 1; k++)
+	  for (k = 1; k < GetInPortRows (block, 1) + 1; k++)
 	    {
-	      block->outptr[0][k - 1] =
-		((pw[j] - td) * pw[i + block->ipar[0] * k] +
-		 (td - pw[i]) * pw[j + block->ipar[0] * k]) / del;
+	      y1[k - 1] = ((pw[j] - td) * pw[i + ipar[0] * k] +
+			    (td - pw[i]) * pw[j + ipar[0] * k]) / del;
 	    }
 	}
       else
 	{
-	  for (k = 1; k < block->insz[0] + 1; k++)
+	  for (k = 1; k < GetInPortRows (block, 1) + 1; k++)
 	    {
-	      block->outptr[0][k - 1] = pw[i + block->ipar[0] * k];
+	      y1[k - 1] = pw[i + ipar[0] * k];
 	    }
 	}
     }
@@ -980,21 +1020,25 @@ void scicos_variable_delay_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_step_func_block (scicos_block * block, int flag)
 {
+  double *_rpar = GetRparPtrs (block);
+  int _nevprt = GetNevIn (block);
+  double *_y1 = GetRealOutPortPtrs (block, 1);
   int i;
-  if (flag == 1 && block->nevprt == 1)
+  if (flag == 1 && _nevprt == 1)
     {
-      for (i = 0; i < block->outsz[0]; ++i)
+      for (i = 0; i < GetOutPortRows (block, 1); ++i)
 	{
-	  block->outptr[0][i] = block->rpar[block->outsz[0] + i];
+	  _y1[i] = _rpar[GetOutPortRows (block, 1) + i];
 	}
     }
   else if (flag == 4)
     {
-      for (i = 0; i < block->outsz[0]; ++i)
+      for (i = 0; i < GetOutPortRows (block, 1); ++i)
 	{
-	  block->outptr[0][i] = block->rpar[i];
+	  _y1[i] = _rpar[i];
 	}
     }
 }
@@ -1008,65 +1052,45 @@ void scicos_step_func_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_signum_block (scicos_block * block, int flag)
 {
+  int _ng = GetNg (block);
+  double *_g = GetGPtrs (block);
+  int *_mode = GetModePtrs (block);
+  double *_u1 = GetRealInPortPtrs (block, 1);
+  double *_y1 = GetRealOutPortPtrs (block, 1);
+  /* int phase= GetSimulationPhase(block); */
   int i, j;
+  
   if (flag == 1)
     {
-      for (i = 0; i < block->insz[0]; ++i)
+      for (i = 0; i < GetInPortRows (block, 1); ++i)
 	{
-	  if (scicos_get_phase_simulation () == 1 || block->ng == 0)
+	  if (!areModesFixed (phase) || _ng == 0)
 	    {
-	      if (block->inptr[0][i] < 0)
-		{
-		  j = 2;
-		}
-	      else if (block->inptr[0][i] > 0)
-		{
-		  j = 1;
-		}
-	      else
-		{
-		  j = 0;
-		}
+	      j = (_u1[i] < 0) ? 2 : ((_u1[i] > 0) ? 1 : 0);
 	    }
 	  else
 	    {
-	      j = block->mode[i];
+	      j = _mode[i];
 	    }
-	  if (j == 1)
-	    {
-	      block->outptr[0][i] = 1.0;
-	    }
-	  else if (j == 2)
-	    {
-	      block->outptr[0][i] = -1.0;
-	    }
-	  else
-	    {
-	      block->outptr[0][i] = 0.0;
-	    }
+	  _y1[i] = (j == 1) ?  1.0 : ((j == 2) ?  -1.0: 0.0);
 	}
     }
   else if (flag == 9)
     {
-      for (i = 0; i < block->insz[0]; ++i)
+      for (i = 0; i < GetInPortRows (block, 1); ++i)
 	{
-	  block->g[i] = block->inptr[0][i];
-	  if (scicos_get_phase_simulation () == 1)
+	  _g[i] = _u1[i];
+	  if (!areModesFixed (phase))
 	    {
-	      if (block->g[i] < 0)
-		{
-		  block->mode[i] = 2;
-		}
-	      else
-		{
-		  block->mode[i] = 1;
-		}
+	      _mode[i] =  (_g[i] < 0) ?  2 : 1;
 	    }
 	}
     }
 }
+
 
 
 /**
@@ -1076,42 +1100,40 @@ void scicos_signum_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_summation_block (scicos_block * block, int flag)
 {
   int j, k;
+  double *y = GetRealOutPortPtrs (block, 1);
+  int nu = GetInPortRows (block, 1);
+  int mu = GetInPortCols (block, 1);
+  int *ipar = GetIparPtrs (block);
+
   if (flag == 1)
     {
-      if (block->nin == 1)
+      if (GetNin (block) == 1)
 	{
-	  block->outptr[0][0] = 0.0;
-	  for (j = 0; j < block->insz[0]; j++)
-	    {
-	      block->outptr[0][0] = block->outptr[0][0] + block->inptr[0][j];
-	    }
+	  double *u = GetRealInPortPtrs (block, 1);
+	  y[0] = 0.0;
+	  for (j = 0; j < nu * mu; j++)   y[0] +=  u[j];
 	}
       else
 	{
-	  for (j = 0; j < block->insz[0]; j++)
+	  for (j = 0; j < nu * mu; j++)
 	    {
-	      block->outptr[0][j] = 0.0;
-	      for (k = 0; k < block->nin; k++)
+	      y[j] = 0.0;
+	      for (k = 0; k < GetNin (block); k++)
 		{
-		  if (block->ipar[k] > 0)
+		  double *u = GetRealInPortPtrs (block, k + 1);
+		  if (ipar[k] > 0)
 		    {
-		      block->outptr[0][j] =
-			block->outptr[0][j] + block->inptr[k][j];
-		    }
-		  else
-		    {
-		      block->outptr[0][j] =
-			block->outptr[0][j] - block->inptr[k][j];
+		      y[j] += (ipar[k] > 0) ? u[j] : - u[j];
 		    }
 		}
 	    }
 	}
     }
 }
-
 
 /**
  * scicos_switch2_block:
@@ -1122,79 +1144,86 @@ void scicos_summation_block (scicos_block * block, int flag)
  **/
 void scicos_switch2_block (scicos_block * block, int flag)
 {
-  int i = 0, j, phase;
+  int i=0, j;
+  double *_rpar = GetRparPtrs (block);
+  int *_ipar = GetIparPtrs (block);
+  int _ng = GetNg (block);
+  double *_g = GetGPtrs (block);
+  int *_mode = GetModePtrs (block);
+  double *_y1 = GetRealOutPortPtrs (block, 1);
+  double *_u2 = GetRealInPortPtrs (block, 2);
+  double *uytmp;
+  /* int phase=GetSimulationPhase(block); */
   if (flag == 1)
     {
-      phase = scicos_get_phase_simulation ();
-      if (phase == 1)
+      if (!areModesFixed (phase) || _ng == 0)
 	{
 	  i = 2;
-	  if (*block->ipar == 0)
+	  if (*_ipar == 0)
 	    {
-	      if (*block->inptr[1] >= *block->rpar)
+	      if (*_u2 >= *_rpar)
 		i = 0;
 	    }
-	  else if (*block->ipar == 1)
+	  else if (*_ipar == 1)
 	    {
-	      if (*block->inptr[1] > *block->rpar)
+	      if (*_u2 > *_rpar)
 		i = 0;
 	    }
 	  else
 	    {
-	      if (*block->inptr[1] != *block->rpar)
+	      if (*_u2 != *_rpar)
 		i = 0;
 	    }
 	}
       else
 	{
-	  if (block->mode[0] == 1)
+	  if (_mode[0] == 1)
 	    {
 	      i = 0;
 	    }
-	  else if (block->mode[0] == 2)
+	  else if (_mode[0] == 2)
 	    {
 	      i = 2;
 	    }
 	}
-      for (j = 0; j < block->insz[0]; j++)
+      for (j = 0; j < GetInPortRows (block, 1); j++)
 	{
-	  block->outptr[0][j] = block->inptr[i][j];
+	  uytmp = GetRealInPortPtrs (block, i + 1);
+	  _y1[j] = uytmp[j];
 	}
     }
   else if (flag == 9)
     {
-      phase = scicos_get_phase_simulation ();
-      block->g[0] = *block->inptr[1] - (*block->rpar);
-      if (phase == 1)
+      _g[0] = *_u2 - (*_rpar);
+      if (!areModesFixed (phase))
 	{
 	  i = 2;
-	  if (*block->ipar == 0)
+	  if (*_ipar == 0)
 	    {
-	      if (block->g[0] >= 0.0)
+	      if (_g[0] >= 0.0)
 		i = 0;
 	    }
-	  else if (*block->ipar == 1)
+	  else if (*_ipar == 1)
 	    {
-	      if (block->g[0] > 0.0)
+	      if (_g[0] > 0.0)
 		i = 0;
 	    }
 	  else
 	    {
-	      if (block->g[0] != 0.0)
+	      if (_g[0] != 0.0)
 		i = 0;
 	    }
 	  if (i == 0)
 	    {
-	      block->mode[0] = 1;
+	      _mode[0] = 1;
 	    }
 	  else
 	    {
-	      block->mode[0] = 2;
+	      _mode[0] = 2;
 	    }
 	}
     }
 }
-
 
 
 /**
@@ -1207,61 +1236,67 @@ void scicos_switch2_block (scicos_block * block, int flag)
 void scicos_satur_block (scicos_block * block, int flag)
 {
   /* rpar[0]:upper limit,  rpar[1]:lower limit */
+  double *_rpar = GetRparPtrs (block);
+  int _ng = GetNg (block);
+  double *_g = GetGPtrs (block);
+  int *_mode = GetModePtrs (block);
+  double *_u1 = GetRealInPortPtrs (block, 1);
+  double *_y1 = GetRealOutPortPtrs (block, 1);
+
   if (flag == 1)
     {
-      if (scicos_get_phase_simulation () == 1 || block->ng == 0)
+      if (!areModesFixed (block) || _ng == 0)
 	{
-	  if (*block->inptr[0] >= block->rpar[0])
+	  if (*_u1 >= _rpar[0])
 	    {
-	      block->outptr[0][0] = block->rpar[0];
+	      _y1[0] = _rpar[0];
 	    }
-	  else if (*block->inptr[0] <= block->rpar[1])
+	  else if (*_u1 <= _rpar[1])
 	    {
-	      block->outptr[0][0] = block->rpar[1];
+	      _y1[0] = _rpar[1];
 	    }
 	  else
 	    {
-	      block->outptr[0][0] = block->inptr[0][0];
+	      _y1[0] = _u1[0];
 	    }
 	}
       else
 	{
-	  if (block->mode[0] == 1)
+	  if (_mode[0] == 1)
 	    {
-	      block->outptr[0][0] = block->rpar[0];
+	      _y1[0] = _rpar[0];
 	    }
-	  else if (block->mode[0] == 2)
+	  else if (_mode[0] == 2)
 	    {
-	      block->outptr[0][0] = block->rpar[1];
+	      _y1[0] = _rpar[1];
 	    }
 	  else
 	    {
-	      block->outptr[0][0] = block->inptr[0][0];
+	      _y1[0] = _u1[0];
 	    }
 	}
     }
   else if (flag == 9)
     {
-      block->g[0] = *block->inptr[0] - (block->rpar[0]);
-      block->g[1] = *block->inptr[0] - (block->rpar[1]);
-      if (scicos_get_phase_simulation () == 1)
+      _g[0] = *_u1 - (_rpar[0]);
+      _g[1] = *_u1 - (_rpar[1]);
+      if (!areModesFixed (block))
 	{
-	  if (block->g[0] >= 0)
+	  if (_g[0] >= 0)
 	    {
-	      block->mode[0] = 1;
+	      _mode[0] = 1;
 	    }
-	  else if (block->g[1] <= 0)
+	  else if (_g[1] <= 0)
 	    {
-	      block->mode[0] = 2;
+	      _mode[0] = 2;
 	    }
 	  else
 	    {
-	      block->mode[0] = 3;
+	      _mode[0] = 3;
 	    }
 	}
     }
 }
-
 
 /**
  * scicos_logicalop_block:
@@ -1272,33 +1307,39 @@ void scicos_satur_block (scicos_block * block, int flag)
  **/
 void scicos_logicalop_block (scicos_block * block, int flag)
 {
+  int *_ipar = GetIparPtrs (block);
+  int _nin = GetNin (block);
+  double *_u1 = GetRealInPortPtrs (block, 1);
+  double *_y1 = GetRealOutPortPtrs (block, 1);
+  double *uytmp;
   int i, j, k, l;
-  i = block->ipar[0];
+  i = _ipar[0];
   switch (i)
     {
     case 0:
-      if (block->nin == 1)
+      if (_nin == 1)
 	{
-	  block->outptr[0][0] = 1.0;
-	  for (j = 0; j < block->insz[0]; j++)
+	  _y1[0] = 1.0;
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      if (block->inptr[0][j] <= 0)
+	      if (_u1[j] <= 0)
 		{
-		  block->outptr[0][0] = 0.0;
+		  _y1[0] = 0.0;
 		  break;
 		}
 	    }
 	}
       else
 	{
-	  for (j = 0; j < block->insz[0]; j++)
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      block->outptr[0][j] = 1.0;
-	      for (k = 0; k < block->nin; k++)
+	      _y1[j] = 1.0;
+	      for (k = 0; k < _nin; k++)
 		{
-		  if (block->inptr[k][j] <= 0)
+		  uytmp = GetRealInPortPtrs (block, k + 1);
+		  if (uytmp[j] <= 0)
 		    {
-		      block->outptr[0][j] = 0.0;
+		      _y1[j] = 0.0;
 		      break;
 		    }
 		}
@@ -1307,28 +1348,29 @@ void scicos_logicalop_block (scicos_block * block, int flag)
       break;
 
     case 1:
-      if (block->nin == 1)
+      if (_nin == 1)
 	{
-	  block->outptr[0][0] = 0.0;
-	  for (j = 0; j < block->insz[0]; j++)
+	  _y1[0] = 0.0;
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      if (block->inptr[0][j] > 0)
+	      if (_u1[j] > 0)
 		{
-		  block->outptr[0][0] = 1.0;
+		  _y1[0] = 1.0;
 		  break;
 		}
 	    }
 	}
       else
 	{
-	  for (j = 0; j < block->insz[0]; j++)
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      block->outptr[0][j] = 0.0;
-	      for (k = 0; k < block->nin; k++)
+	      _y1[j] = 0.0;
+	      for (k = 0; k < _nin; k++)
 		{
-		  if (block->inptr[k][j] > 0)
+		  uytmp = GetRealInPortPtrs (block, k + 1);
+		  if (uytmp[j] > 0)
 		    {
-		      block->outptr[0][j] = 1.0;
+		      _y1[j] = 1.0;
 		      break;
 		    }
 		}
@@ -1337,28 +1379,29 @@ void scicos_logicalop_block (scicos_block * block, int flag)
       break;
 
     case 2:
-      if (block->nin == 1)
+      if (_nin == 1)
 	{
-	  block->outptr[0][0] = 0.0;
-	  for (j = 0; j < block->insz[0]; j++)
+	  _y1[0] = 0.0;
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      if (block->inptr[0][j] <= 0)
+	      if (_u1[j] <= 0)
 		{
-		  block->outptr[0][0] = 1.0;
+		  _y1[0] = 1.0;
 		  break;
 		}
 	    }
 	}
       else
 	{
-	  for (j = 0; j < block->insz[0]; j++)
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      block->outptr[0][j] = 0.0;
-	      for (k = 0; k < block->nin; k++)
+	      _y1[j] = 0.0;
+	      for (k = 0; k < _nin; k++)
 		{
-		  if (block->inptr[k][j] <= 0)
+		  uytmp = GetRealInPortPtrs (block, k + 1);
+		  if (uytmp[j] <= 0)
 		    {
-		      block->outptr[0][j] = 1.0;
+		      _y1[j] = 1.0;
 		      break;
 		    }
 		}
@@ -1367,28 +1410,29 @@ void scicos_logicalop_block (scicos_block * block, int flag)
       break;
 
     case 3:
-      if (block->nin == 1)
+      if (_nin == 1)
 	{
-	  block->outptr[0][0] = 1.0;
-	  for (j = 0; j < block->insz[0]; j++)
+	  _y1[0] = 1.0;
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      if (block->inptr[0][j] > 0)
+	      if (_u1[j] > 0)
 		{
-		  block->outptr[0][0] = 0.0;
+		  _y1[0] = 0.0;
 		  break;
 		}
 	    }
 	}
       else
 	{
-	  for (j = 0; j < block->insz[0]; j++)
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      block->outptr[0][j] = 1.0;
-	      for (k = 0; k < block->nin; k++)
+	      _y1[j] = 1.0;
+	      for (k = 0; k < _nin; k++)
 		{
-		  if (block->inptr[k][j] > 0)
+		  uytmp = GetRealInPortPtrs (block, k + 1);
+		  if (uytmp[j] > 0)
 		    {
-		      block->outptr[0][j] = 0.0;
+		      _y1[j] = 0.0;
 		      break;
 		    }
 		}
@@ -1397,50 +1441,50 @@ void scicos_logicalop_block (scicos_block * block, int flag)
       break;
 
     case 4:
-      if (block->nin == 1)
+      if (_nin == 1)
 	{
 	  l = 0;
-	  for (j = 0; j < block->insz[0]; j++)
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      if (block->inptr[0][j] > 0)
+	      if (_u1[j] > 0)
 		{
 		  l = (l + 1) % 2;
 		}
 	    }
-	  block->outptr[0][0] = (double) l;
+	  _y1[0] = (double) l;
 	}
       else
 	{
-	  for (j = 0; j < block->insz[0]; j++)
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
 	      l = 0;
-	      for (k = 0; k < block->nin; k++)
+	      for (k = 0; k < _nin; k++)
 		{
-		  if (block->inptr[k][j] > 0)
+		  uytmp = GetRealInPortPtrs (block, k + 1);
+		  if (uytmp[j] > 0)
 		    {
 		      l = (l + 1) % 2;
 		    }
 		}
-	      block->outptr[0][j] = (double) l;
+	      _y1[j] = (double) l;
 	    }
 	}
       break;
 
     case 5:
-      for (j = 0; j < block->insz[0]; j++)
+      for (j = 0; j < GetInPortRows (block, 1); j++)
 	{
-	  if (block->inptr[0][j] > 0)
+	  if (_u1[j] > 0)
 	    {
-	      block->outptr[0][j] = 0.0;
+	      _y1[j] = 0.0;
 	    }
 	  else
 	    {
-	      block->outptr[0][j] = 1.0;
+	      _y1[j] = 1.0;
 	    }
 	}
     }
 }
-
 
 /**
  * scicos_multiplex_block:
@@ -1449,35 +1493,37 @@ void scicos_logicalop_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_multiplex_block (scicos_block * block, int flag)
 {
-  int i, j, k;
-  if (block->nin == 1)
+  int nin = GetNin (block);
+  int nout = GetNout (block);
+  int i;
+  if (nin == 1)
     {
-      k = 0;
-      for (i = 0; i < block->nout; ++i)
+      int k = 0;
+      char *u1 =(char *) GetInPortPtrs (block, 1);
+      for (i = 0; i < nout; ++i)
 	{
-	  for (j = 0; j < block->outsz[i]; ++j)
-	    {
-	      block->outptr[i][j] = block->inptr[0][k];
-	      ++k;
-	    }
+	  int nui = GetOutPortRows (block, i + 1) * GetSizeOfOut (block, i + 1);
+	  char *uytmp =(char *) GetOutPortPtrs (block, i + 1);
+	  memcpy (uytmp, u1 + k, nui);
+	  k = k + nui;
 	}
     }
   else
     {
-      k = 0;
-      for (i = 0; i < block->nin; ++i)
+      int k = 0;
+      char *y1 = (char*) GetOutPortPtrs (block, 1);
+      for (i = 0; i < nin; ++i)
 	{
-	  for (j = 0; j < block->insz[i]; ++j)
-	    {
-	      block->outptr[0][k] = block->inptr[i][j];
-	      ++k;
-	    }
+	  int nui = GetInPortRows (block, i + 1) * GetSizeOfIn (block, i + 1);
+	  char * uytmp = (char *) GetInPortPtrs (block, i + 1);
+	  memcpy (y1 + k, uytmp, nui);
+	  k = k + nui;
 	}
     }
 }
-
 
 /**
  * scicos_hystheresis_block:
@@ -1486,48 +1532,62 @@ void scicos_multiplex_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_hystheresis_block (scicos_block * block, int flag)
 {
-  if (flag == 1)
+  double *rpar = GetRparPtrs (block);
+  int ng = GetNg (block);
+  double *g = GetGPtrs (block);
+  int *mode = GetModePtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  switch (flag)
     {
-      if (scicos_get_phase_simulation () == 1)
+    case 1:
+      if (!areModesFixed (block) || ng == 0)
 	{
-	  if (*block->inptr[0] >= block->rpar[0])
+	  if (u1[0] >= rpar[0])
 	    {
-	      block->outptr[0][0] = block->rpar[2];
+	      y1[0] = rpar[2];
 	    }
-	  else if (*block->inptr[0] <= block->rpar[1])
+	  else if (u1[0] <= rpar[1])
 	    {
-	      block->outptr[0][0] = block->rpar[3];
+	      y1[0] = rpar[3];
+	    }
+	  else if ((y1[0] != rpar[3]) && (y1[0] != rpar[2]))
+	    {
+	      y1[0] = rpar[3];
 	    }
 	}
       else
 	{
-	  if (block->mode[0] < 2)
+	  if (mode[0] == 2)
 	    {
-	      block->outptr[0][0] = block->rpar[3];
+	      y1[0] = rpar[2];
 	    }
 	  else
 	    {
-	      block->outptr[0][0] = block->rpar[2];
+	      y1[0] = rpar[3];
 	    }
 	}
-    }
-  else if (flag == 9)
-    {
-      block->g[0] = *block->inptr[0] - (block->rpar[0]);
-      block->g[1] = *block->inptr[0] - (block->rpar[1]);
-      if (scicos_get_phase_simulation () == 1)
+      break;
+    case 9:
+      g[0] = u1[0] - (rpar[0]);
+      g[1] = u1[0] - (rpar[1]);
+      if (!areModesFixed (block))
 	{
-	  if (block->g[0] >= 0)
+	  if (g[0] >= 0)
 	    {
-	      block->mode[0] = 2;
+	      mode[0] = 2;
 	    }
-	  else if (block->g[1] <= 0)
+	  else if (g[1] <= 0)
 	    {
-	      block->mode[0] = 1;
+	      mode[0] = 1;
 	    }
 	}
+      break;
+    default:
+      break;
     }
 }
 
@@ -1538,54 +1598,53 @@ void scicos_hystheresis_block (scicos_block * block, int flag)
  * @block: 
  * @flag: 
  * 
- * 
  **/
+
 void scicos_ramp_block (scicos_block * block, int flag)
 {
   double dt;
-  if (flag == 1)
+  double *rpar = GetRparPtrs (block);
+  double *g = GetGPtrs (block);
+  int *mode = GetModePtrs (block);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  switch (flag)
     {
-      dt = scicos_get_scicos_time () - block->rpar[1];
-      if (scicos_get_phase_simulation () == 1)
+    case 1:
+      dt = GetScicosTime (block) - rpar[1];
+      if (!areModesFixed (block))
 	{
 	  if (dt > 0)
 	    {
-	      block->outptr[0][0] = block->rpar[2] + block->rpar[0] * dt;
+	      y1[0] = rpar[2] + rpar[0] * dt;
 	    }
 	  else
 	    {
-	      block->outptr[0][0] = block->rpar[2];
+	      y1[0] = rpar[2];
 	    }
 	}
       else
 	{
-	  if (block->mode[0] == 1)
+	  if (mode[0] == 1)
 	    {
-	      block->outptr[0][0] = block->rpar[2] + block->rpar[0] * dt;
+	      y1[0] = rpar[2] + rpar[0] * dt;
 	    }
 	  else
 	    {
-	      block->outptr[0][0] = block->rpar[2];
+	      y1[0] = rpar[2];
 	    }
 	}
-    }
-  else if (flag == 9)
-    {
-      block->g[0] = scicos_get_scicos_time () - (block->rpar[1]);
-      if (scicos_get_phase_simulation () == 1)
+      break;
+    case 9:
+      g[0] = GetScicosTime (block) - (rpar[1]);
+      if (!areModesFixed (block))
 	{
-	  if (block->g[0] >= 0)
-	    {
-	      block->mode[0] = 1;
-	    }
-	  else
-	    {
-	      block->mode[0] = 2;
-	    }
+	  mode[0]= (g[0] >= 0) ? 1 : 2 ;
 	}
+      break;
+    default:
+      break;
     }
 }
-
 
 /**
  * scicos_minmax_block:
@@ -1597,141 +1656,152 @@ void scicos_ramp_block (scicos_block * block, int flag)
 void scicos_minmax_block (scicos_block * block, int flag)
 {
   /*ipar[0]=1 -> min,  ipar[0]=2 -> max */
-  int i, phase;
+  int *ipar = GetIparPtrs (block);
+  int nin = GetNin (block);
+  int ng = GetNg (block);
+  double *g = GetGPtrs (block);
+  int *mode = GetModePtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  double *u2 = GetRealInPortPtrs (block, 2);
+  double *uytmp;
+  int i;
   double maxmin;
-  phase = scicos_get_phase_simulation ();
-  if (flag == 1)
+
+  switch (flag)
     {
-      if (block->nin == 1)
+    case 1:
+      switch (nin)
 	{
-	  if ((block->ng == 0) | (phase == 1))
+	case 1:
+	  if (ng == 0 || !areModesFixed (block))
 	    {
-	      maxmin = block->inptr[0][0];
-	      for (i = 1; i < block->insz[0]; ++i)
+	      maxmin = u1[0];
+	      for (i = 1; i < GetInPortRows (block, 1); ++i)
 		{
-		  if (block->ipar[0] == 1)
+		  if (ipar[0] == 1)
 		    {
-		      if (block->inptr[0][i] < maxmin)
-			maxmin = block->inptr[0][i];
+		      if (u1[i] < maxmin)
+			maxmin = u1[i];
 		    }
 		  else
 		    {
-		      if (block->inptr[0][i] > maxmin)
-			maxmin = block->inptr[0][i];
+		      if (u1[i] > maxmin)
+			maxmin = u1[i];
 		    }
 		}
 	    }
 	  else
 	    {
-	      maxmin = block->inptr[0][block->mode[0] - 1];
+	      maxmin = u1[mode[0] - 1];
 	    }
-	  block->outptr[0][0] = maxmin;
-
-	}
-      else if (block->nin == 2)
-	{
-	  for (i = 0; i < block->insz[0]; ++i)
+	  y1[0] = maxmin;
+	  break;
+	case 2:
+	  for (i = 0; i < GetInPortRows (block, 1); ++i)
 	    {
-	      if ((block->ng == 0) | (phase == 1))
+	      if (ng == 0 || !areModesFixed (block))
 		{
-		  if (block->ipar[0] == 1)
+		  if (ipar[0] == 1)
 		    {
-		      block->outptr[0][i] =
-			Min (block->inptr[0][i], block->inptr[1][i]);
+		      y1[i] = Min (u1[i], u2[i]);
 		    }
 		  else
 		    {
-		      block->outptr[0][i] =
-			Max (block->inptr[0][i], block->inptr[1][i]);
+		      y1[i] = Max (u1[i], u2[i]);
 		    }
 		}
 	      else
 		{
-		  block->outptr[0][i] = block->inptr[block->mode[0] - 1][i];
+		  uytmp = GetRealInPortPtrs (block, mode[0] - 1 + 1);
+		  y1[i] = uytmp[i];
 		}
 	    }
+	  break;
+	default:
+	  break;
 	}
-    }
-  else if (flag == 9)
-    {
-      if (block->nin == 1)
+      break;
+    case 9:
+      switch (nin)
 	{
-	  if (block->nin == 1)
+	case 1:
+	  if (areModesFixed (block))
 	    {
-	      if (phase == 2)
+	      for (i = 0; i < GetInPortRows (block, 1); ++i)
 		{
-		  for (i = 0; i < block->insz[0]; ++i)
+		  if (i != mode[0] - 1)
 		    {
-		      if (i != block->mode[0] - 1)
-			{
-			  block->g[i] =
-			    block->inptr[0][i] -
-			    block->inptr[0][block->mode[0] - 1];
-			}
-		      else
-			{
-			  block->g[i] = 1.0;
-			}
+		      g[i] = u1[i] - u1[mode[0] - 1];
 		    }
-		}
-	      else if (phase == 1)
-		{
-		  maxmin = block->inptr[0][0];
-		  for (i = 1; i < block->insz[0]; ++i)
+		  else
 		    {
-		      block->mode[0] = 1;
-		      if (block->ipar[0] == 1)
-			{
-			  if (block->inptr[0][i] < maxmin)
-			    {
-			      maxmin = block->inptr[0][i];
-			      block->mode[0] = i + 1;
-			    }
-			}
-		      else
-			{
-			  if (block->inptr[0][i] > maxmin)
-			    {
-			      maxmin = block->inptr[0][i];
-			      block->mode[0] = i + 1;
-			    }
-			}
+		      g[i] = 1.0;
 		    }
 		}
 	    }
-	}
-      else if (block->nin == 2)
-	{
-	  for (i = 0; i < block->insz[0]; ++i)
+	  else
 	    {
-	      block->g[i] = block->inptr[0][i] - block->inptr[1][i];
-	      if (phase == 1)
+	      maxmin = u1[0];
+	      mode[0] = 1;
+	      for (i = 1; i < GetInPortRows (block, 1); ++i)
 		{
-		  if (block->ipar[0] == 1)
+		  if (ipar[0] == 1)
 		    {
-		      if (block->g[i] > 0)
+		      if (u1[i] < maxmin)
 			{
-			  block->mode[i] = 2;
-			}
-		      else
-			{
-			  block->mode[i] = 1;
+			  maxmin = u1[i];
+			  mode[0] = i + 1;
 			}
 		    }
 		  else
 		    {
-		      if (block->g[i] < 0)
+		      if (u1[i] > maxmin)
 			{
-			  block->mode[i] = 2;
-			}
-		      else
-			{
-			  block->mode[i] = 1;
+			  maxmin = u1[i];
+			  mode[0] = i + 1;
 			}
 		    }
 		}
 	    }
+	  break;
+	case 2:
+	  for (i = 0; i < GetInPortRows (block, 1); ++i)
+	    {
+	      g[i] = u1[i] - u2[i];
+	      if (!areModesFixed (block))
+		{
+		  if (ipar[0] == 1)
+		    {
+		      if (g[i] > 0)
+			{
+			  mode[i] = 2;
+			}
+		      else
+			{
+			  mode[i] = 1;
+			}
+		    }
+		  else
+		    {
+		      if (g[i] < 0)
+			{
+			  mode[i] = 2;
+			}
+		      else
+			{
+			  mode[i] = 1;
+			}
+		    }
+		}
+	    }
+	  break;
+	default:
+	  break;
 	}
+      break;
+    default:
+      break;
     }
 }
 
@@ -1745,16 +1815,18 @@ void scicos_minmax_block (scicos_block * block, int flag)
  **/
 void scicos_modulo_count_block (scicos_block * block, int flag)
 {
+  int *ipar = GetIparPtrs (block);
+  double *z = GetDstate (block);
+  double *y1 = GetRealOutPortPtrs (block, 1);
   if (flag == 1)
     {
-      *block->outptr[0] = block->z[0];
+      *y1 = z[0];
     }
   else if (flag == 2)
     {
-      block->z[0] = (1 + (int) block->z[0]) % (block->ipar[0]);
+      z[0] = (1 + (int) z[0]) % (ipar[0]);
     }
 }
-
 
 
 /**
@@ -1766,44 +1838,63 @@ void scicos_modulo_count_block (scicos_block * block, int flag)
  **/
 void scicos_mswitch_block (scicos_block * block, int flag)
 {
-  int i, j = 0;
-  i = block->ipar[1];
-  if (i == 0)
+  if ((flag == 1) || (flag == 6))
     {
-      if (*block->inptr[0] > 0)
+      int j = 0;
+      void *y = GetOutPortPtrs (block, 1);
+      int so = GetSizeOfOut (block, 1);
+      int my = GetOutPortRows (block, 1);
+      int ny = GetOutPortCols (block, 1);
+      double *u1 = GetRealInPortPtrs (block, 1);
+      int *ipar = GetIparPtrs (block);
+      int nin = GetNin (block);
+      int i = *(ipar + 1);
+      if (i == 0)
 	{
-	  j = (int) floor (*block->inptr[0]);
+	  if (*u1 > 0)
+	    {
+	      j = (int) floor (*u1);
+	    }
+	  else
+	    {
+	      j = (int) ceil (*u1);
+	    }
+	}
+      else if (i == 1)
+	{
+	  if (*u1 > 0)
+	    {
+	      j = (int) floor (*u1 + .5);
+	    }
+	  else
+	    {
+	      j = (int) ceil (*u1 - .5);
+	    }
+	}
+      else if (i == 2)
+	{
+	  j = (int) ceil (*u1);
+	}
+      else if (i == 3)
+	{
+	  j = (int) floor (*u1);
+	}
+      j = j + 1 - *ipar;
+      j = max (j, 1);
+      if (nin == 2)
+	{
+	  int mu = GetInPortRows (block, 2);
+	  int nu = GetInPortCols (block, 2);
+	  void *uj = GetInPortPtrs (block, 2);
+	  j = min (j, mu * nu);
+	  memcpy (y, uj + (j - 1) * my * ny * so, my * ny * so);
 	}
       else
 	{
-	  j = (int) ceil (*block->inptr[0]);
+	  j = min (j, nin - 1);
+	  void *uj = GetInPortPtrs (block, j + 1);
+	  memcpy (y, uj, my * ny * so);
 	}
-    }
-  else if (i == 1)
-    {
-      if (*block->inptr[0] > 0)
-	{
-	  j = (int) floor (*block->inptr[0] + .5);
-	}
-      else
-	{
-	  j = (int) ceil (*block->inptr[0] - .5);
-	}
-    }
-  else if (i == 2)
-    {
-      j = (int) ceil (*block->inptr[0]);
-    }
-  else if (i == 3)
-    {
-      j = (int) floor (*block->inptr[0]);
-    }
-  j = j + 1 - block->ipar[0];
-  j = Max (j, 1);
-  j = Min (j, block->nin - 1);
-  for (i = 0; i < block->insz[j]; i++)
-    {
-      block->outptr[0][i] = block->inptr[j][i];
     }
 }
 
@@ -1815,42 +1906,49 @@ void scicos_mswitch_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_product_block (scicos_block * block, int flag)
 {
+  int *ipar = GetIparPtrs (block);
+  int nin = GetNin (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  double *uytmp;
   int j, k;
   if (flag == 1)
     {
-      if (block->nin == 1)
+      if (nin == 1)
 	{
-	  block->outptr[0][0] = 1.0;
-	  for (j = 0; j < block->insz[0]; j++)
+	  y1[0] = 1.0;
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      block->outptr[0][0] = block->outptr[0][0] * block->inptr[0][j];
+	      y1[0] = y1[0] * u1[j];
 	    }
 	}
       else
 	{
-	  for (j = 0; j < block->insz[0]; j++)
+	  for (j = 0; j < GetInPortRows (block, 1); j++)
 	    {
-	      block->outptr[0][j] = 1.0;
-	      for (k = 0; k < block->nin; k++)
+	      y1[j] = 1.0;
+	      for (k = 0; k < nin; k++)
 		{
-		  if (block->ipar[k] > 0)
+		  if (ipar[k] > 0)
 		    {
-		      block->outptr[0][j] =
-			block->outptr[0][j] * block->inptr[k][j];
+		      uytmp = GetRealInPortPtrs (block, k + 1);
+		      y1[j] = y1[j] * uytmp[j];
 		    }
 		  else
 		    {
-		      if (block->inptr[k][j] == 0)
+		      uytmp = GetRealInPortPtrs (block, k + 1);
+		      if (uytmp[j] == 0)
 			{
 			  scicos_set_block_error (-2);
 			  return;
 			}
 		      else
 			{
-			  block->outptr[0][j] =
-			    block->outptr[0][j] / block->inptr[k][j];
+			  uytmp = GetRealInPortPtrs (block, k + 1);
+			  y1[j] = y1[j] / uytmp[j];
 			}
 		    }
 		}
@@ -1859,6 +1957,8 @@ void scicos_product_block (scicos_block * block, int flag)
     }
 }
 
+
+
 /**
  * scicos_ratelimiter_block:
  * @block: 
@@ -1866,21 +1966,29 @@ void scicos_product_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_ratelimiter_block (scicos_block * block, int flag)
 {
   /*
    * rpar[0]=rising rate limit, rpar[1]=falling rate limit 
    */
-  double *pw, rate = 0.0, t;
+  void **work = GetPtrWorkPtrs (block);
+  double *rpar = GetRparPtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  double *pw;
+  double rate = 0., t;
+  int phase = GetSimulationPhase (block);
+
   if (flag == 4)
     {
       /* the workspace is used to store previous values */
-      if ((*block->work = scicos_malloc (sizeof (double) * 4)) == NULL)
+      if ((*work = scicos_malloc (sizeof (double) * 4)) == NULL)
 	{
 	  scicos_set_block_error (-16);
 	  return;
 	}
-      pw = *block->work;
+      pw = *work;
       pw[0] = 0.0;
       pw[1] = 0.0;
       pw[2] = 0.0;
@@ -1888,45 +1996,45 @@ void scicos_ratelimiter_block (scicos_block * block, int flag)
     }
   else if (flag == 5)
     {
-      scicos_free (*block->work);
+      scicos_free (*work);
     }
   else if (flag == 1)
     {
-      if (scicos_get_phase_simulation () == 1)
-	scicos_do_cold_restart ();
-      pw = *block->work;
-      t = scicos_get_scicos_time ();
+      if (phase == 1)
+	do_cold_restart ();
+      pw = *work;
+      t = GetScicosTime (block);
       if (t > pw[2])
 	{
 	  pw[0] = pw[2];
 	  pw[1] = pw[3];
-	  rate = (block->inptr[0][0] - pw[1]) / (t - pw[0]);
+	  rate = (u1[0] - pw[1]) / (t - pw[0]);
 	}
       else if (t <= pw[2])
 	{
 	  if (t > pw[0])
 	    {
-	      rate = (block->inptr[0][0] - pw[1]) / (t - pw[0]);
+	      rate = (u1[0] - pw[1]) / (t - pw[0]);
 	    }
 	  else
 	    {
 	      rate = 0.0;
 	    }
 	}
-      if (rate > block->rpar[0])
+      if (rate > rpar[0])
 	{
-	  block->outptr[0][0] = (t - pw[0]) * block->rpar[0] + pw[1];
+	  y1[0] = (t - pw[0]) * rpar[0] + pw[1];
 	}
-      else if (rate < block->rpar[1])
+      else if (rate < rpar[1])
 	{
-	  block->outptr[0][0] = (t - pw[0]) * block->rpar[1] + pw[1];
+	  y1[0] = (t - pw[0]) * rpar[1] + pw[1];
 	}
       else
 	{
-	  block->outptr[0][0] = block->inptr[0][0];
+	  y1[0] = u1[0];
 	}
       pw[2] = t;
-      pw[3] = block->outptr[0][0];
+      pw[3] = y1[0];
     }
 }
 
@@ -1940,76 +2048,90 @@ void scicos_ratelimiter_block (scicos_block * block, int flag)
 
 void scicos_integral_func_block (scicos_block * block, int flag)
 {
+  double *rpar = GetRparPtrs (block);
+  double *xd = GetDerState (block);
+  double *x = GetState (block);
+  double *g = GetGPtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  double *u2 = GetRealInPortPtrs (block, 2);
+  int *mode = GetModePtrs (block);
+  int nevprt = GetNevIn (block);
+  int nx = GetNstate (block);
+  int ng = GetNg (block);
   int i;
-  if (flag == 0)
+  switch (flag)
     {
-      if (block->ng > 0)
+    case 0:
+      if (ng > 0)
 	{
-	  for (i = 0; i < block->nx; ++i)
+	  for (i = 0; i < nx; ++i)
 	    {
-	      if (block->mode[i] == 3)
+	      if (mode[i] == 3)
 		{
-		  block->xd[i] = block->inptr[0][i];
+		  xd[i] = u1[i];
 		}
 	      else
 		{
-		  block->xd[i] = 0.0;
+		  xd[i] = 0.0;
 		}
 	    }
 	}
       else
 	{
-	  for (i = 0; i < block->nx; ++i)
+	  for (i = 0; i < nx; ++i)
 	    {
-	      block->xd[i] = block->inptr[0][i];
+	      xd[i] = u1[i];
 	    }
 	}
-    }
-  else if (flag == 1)
-    {
-      for (i = 0; i < block->nx; ++i)
+      break;
+    case 1:
+    case 6:
+      for (i = 0; i < nx; ++i)
+	y1[i] = x[i];
+      break;
+    case 2:
+      if (nevprt == 1)
 	{
-	  block->outptr[0][i] = block->x[i];
+	  for (i = 0; i < nx; ++i)
+	    x[i] = u2[i];
 	}
-    }
-  else if (flag == 2 && block->nevprt == 1)
-    {
-      for (i = 0; i < block->nx; ++i)
+      break;
+    case 9:
+      if (!areModesFixed (block))
 	{
-	  block->x[i] = block->inptr[1][i];
-	}
-    }
-  else if (flag == 9)
-    {
-      for (i = 0; i < block->nx; ++i)
-	{
-	  if (block->mode[i] == 3)
+	  for (i = 0; i < nx; ++i)
 	    {
-	      block->g[i] =
-		(block->x[i] - (block->rpar[0])) * (block->x[i] -
-						    (block->rpar[1]));
-	    }
-	  else
-	    {
-	      block->g[i] = block->inptr[0][i];
-	    }
-	  if (scicos_get_phase_simulation () == 1)
-	    {
-	      if (block->inptr[0][i] >= 0 && block->x[i] >= block->rpar[0])
+	      if (u1[i] >= 0 && x[i] >= rpar[i])
 		{
-		  block->mode[i] = 1;
+		  mode[i] = 1;
 		}
-	      else if (block->inptr[0][i] <= 0
-		       && block->x[i] <= block->rpar[1])
+	      else if (u1[i] <= 0 && x[i] <= rpar[nx + i])
 		{
-		  block->mode[i] = 2;
+		  mode[i] = 2;
 		}
 	      else
 		{
-		  block->mode[i] = 3;
+		  mode[i] = 3;
 		}
 	    }
 	}
+
+      for (i = 0; i < nx; ++i)
+	{
+	  if (mode[i] == 3)
+	    {
+	      g[i] = (x[i] - (rpar[i])) * (x[i] - (rpar[nx + i]));
+	    }
+	  else
+	    {
+	      g[i] = u1[i];
+	    }
+	}
+
+      break;
+    default:
+      break;
     }
 }
 
@@ -2022,12 +2144,13 @@ void scicos_integral_func_block (scicos_block * block, int flag)
  **/
 void scicos_evtvardly_block (scicos_block * block, int flag)
 {
+  double *evout = GetNevOutPtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
   if (flag == 3)
     {
-      block->evout[0] = block->inptr[0][0];
+      evout[0] = u1[0];
     }
 }
-
 
 /**
  * scicos_relationalop_block:
@@ -2036,156 +2159,58 @@ void scicos_evtvardly_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_relationalop_block (scicos_block * block, int flag)
 {
-  int i;
-  i = block->ipar[0];
+#define CASE_OP1(op)  y1[0] = (u1[0] op u2[0]) ? 1.0: 0.0;
+#define CASE_OP2(op)  mode[0] = (u1[0] op u2[0]) ? 2: 1;
+  int *ipar = GetIparPtrs (block);
+  int ng = GetNg (block);
+  double *g = GetGPtrs (block);
+  int *mode = GetModePtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  double *u2 = GetRealInPortPtrs (block, 2);
+  int i =  ipar[0];
+  
   if (flag == 1)
     {
-      if ((block->ng != 0) & (scicos_get_phase_simulation () == 2))
+      if (ng != 0 && areModesFixed (block))
 	{
-	  block->outptr[0][0] = block->mode[0] - 1.0;
+	  y1[0] = mode[0] - 1.0;
 	}
       else
 	{
 	  switch (i)
 	    {
-	    case 0:
-	      if (block->inptr[0][0] == block->inptr[1][0])
-		{
-		  block->outptr[0][0] = 1.0;
-		}
-	      else
-		{
-		  block->outptr[0][0] = 0.0;
-		}
-	      break;
-
-	    case 1:
-	      if (block->inptr[0][0] != block->inptr[1][0])
-		{
-		  block->outptr[0][0] = 1.0;
-		}
-	      else
-		{
-		  block->outptr[0][0] = 0.0;
-		}
-	      break;
-	    case 2:
-	      if (block->inptr[0][0] < block->inptr[1][0])
-		{
-		  block->outptr[0][0] = 1.0;
-		}
-	      else
-		{
-		  block->outptr[0][0] = 0.0;
-		}
-	      break;
-	    case 3:
-	      if (block->inptr[0][0] <= block->inptr[1][0])
-		{
-		  block->outptr[0][0] = 1.0;
-		}
-	      else
-		{
-		  block->outptr[0][0] = 0.0;
-		}
-	      break;
-	    case 4:
-	      if (block->inptr[0][0] >= block->inptr[1][0])
-		{
-		  block->outptr[0][0] = 1.0;
-		}
-	      else
-		{
-		  block->outptr[0][0] = 0.0;
-		}
-	      break;
-	    case 5:
-	      if (block->inptr[0][0] > block->inptr[1][0])
-		{
-		  block->outptr[0][0] = 1.0;
-		}
-	      else
-		{
-		  block->outptr[0][0] = 0.0;
-		}
-	      break;
+	    case 0: CASE_OP1(==);break;
+	    case 1: CASE_OP1(!=);break;
+	    case 2: CASE_OP1(<);break;
+	    case 3: CASE_OP1(<=);break;
+	    case 4: CASE_OP1(>=);break;
+	    case 5: CASE_OP1(>);break;
 	    }
 	}
 
     }
   else if (flag == 9)
     {
-      block->g[0] = block->inptr[0][0] - block->inptr[1][0];
-      if (scicos_get_phase_simulation () == 1)
+      g[0] = u1[0] - u2[0];
+      if (!areModesFixed (block))
 	{
 	  switch (i)
 	    {
-	    case 0:
-	      if (block->inptr[0][0] == block->inptr[1][0])
-		{
-		  block->mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  block->mode[0] = (int) 1.0;
-		}
-	      break;
-
-	    case 1:
-	      if (block->inptr[0][0] != block->inptr[1][0])
-		{
-		  block->mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  block->mode[0] = (int) 1.0;
-		}
-	      break;
-	    case 2:
-	      if (block->inptr[0][0] < block->inptr[1][0])
-		{
-		  block->mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  block->mode[0] = (int) 1.0;
-		}
-	      break;
-	    case 3:
-	      if (block->inptr[0][0] <= block->inptr[1][0])
-		{
-		  block->mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  block->mode[0] = (int) 1.0;
-		}
-	      break;
-	    case 4:
-	      if (block->inptr[0][0] >= block->inptr[1][0])
-		{
-		  block->mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  block->mode[0] = (int) 1.0;
-		}
-	      break;
-	    case 5:
-	      if (block->inptr[0][0] > block->inptr[1][0])
-		{
-		  block->mode[0] = (int) 2.0;
-		}
-	      else
-		{
-		  block->mode[0] = (int) 1.0;
-		}
-	      break;
+	    case 0: CASE_OP2(==);break;
+	    case 1: CASE_OP2(!=);break;
+	    case 2: CASE_OP2(<);break;
+	    case 3: CASE_OP2(<=);break;
+	    case 4: CASE_OP2(>=);break;
+	    case 5: CASE_OP2(>);break;
 	    }
 	}
     }
+#undef CASE_OP1
+#undef CASE_OP2
 }
 
 
@@ -2967,12 +2992,14 @@ static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
  **/
 void scicos_scalar2vector_block (scicos_block * block, int flag)
 {
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
   int i;
   if (flag == 1)
     {
-      for (i = 0; i < block->outsz[0]; ++i)
+      for (i = 0; i < GetOutPortRows (block, 1); ++i)
 	{
-	  block->outptr[0][i] = block->inptr[0][0];
+	  y1[i] = u1[0];
 	}
     }
 }
@@ -2991,7 +3018,15 @@ void scicos_cstblk4_block (scicos_block * block, int flag)
    * output a vector of constants out(i)=rpar(i)
    * rpar(1:nrpar) : given constants 
    */
-  memcpy (block->outptr[0], block->rpar, block->nrpar * sizeof (double));
+  double *rpar = GetRparPtrs (block);
+  int nrpar = GetNrpar (block);
+  double *y1 = GetRealOutPortPtrs (block, 1);
+  /* Copyright INRIA
+
+     Scicos block simulator
+     output a vector of constants out(i)=rpar(i)
+     rpar(1:nrpar) : given constants */
+  memcpy (y1, rpar, nrpar * sizeof (double));
 }
 
 
@@ -3002,6 +3037,7 @@ void scicos_cstblk4_block (scicos_block * block, int flag)
  * 
  * 
  **/
+
 void scicos_transmit_or_zero_block (scicos_block * block, int flag)
 {
   int j;
@@ -3051,34 +3087,35 @@ void scicos_csslti4_block (scicos_block * block, int flag)
    *   rpar(nx*nx+nx*nu+1:nx*nx+nx*nu+nx*ny)=C
    *   rpar(nx*nx+nx*nu+nx*ny+1:nx*nx+nx*nu+nx*ny+ny*nu)=D 
    */
+
   int un = 1, lb, lc, ld;
-  int nx = block->nx;
-  double *x = block->x;
-  double *xd = block->xd;
-  double *rpar = block->rpar;
-  double *y = block->outptr[0];
-  double *u = block->inptr[0];
-  int *outsz = block->outsz;
-  int *insz = block->insz;
+  int nx = GetNstate (block);
+  double *x = GetState (block);
+  double *xd = GetDerState (block);
+  double *rpar = GetRparPtrs (block);
+  double *y = GetRealOutPortPtrs (block, 1);
+  double *u = GetRealInPortPtrs (block, 1);
+  int noutsz = GetOutPortRows (block, 1);
+  int ninsz = GetInPortRows (block, 1);
 
   lb = nx * nx;
-  lc = lb + nx * insz[0];
+  lc = lb + nx * ninsz;
 
   if (flag == 1 || flag == 6)
     {
       /* y=c*x+d*u     */
-      ld = lc + nx * outsz[0];
+      ld = lc + nx * noutsz;
       if (nx == 0)
 	{
-	  nsp_calpack_dmmul (&rpar[ld], outsz, u, insz, y, outsz, outsz, insz,
-			     &un);
+	  nsp_calpack_dmmul (&rpar[ld], &noutsz, u, &ninsz, y, &noutsz,
+			     &noutsz, &ninsz, &un);
 	}
       else
 	{
-	  nsp_calpack_dmmul (&rpar[lc], outsz, x, &nx, y, outsz, outsz, &nx,
-			     &un);
-	  nsp_calpack_dmmul1 (&rpar[ld], outsz, u, insz, y, outsz, outsz,
-			      insz, &un);
+	  nsp_calpack_dmmul (&rpar[lc], &noutsz, x, &nx, y, &noutsz, &noutsz,
+			     &nx, &un);
+	  nsp_calpack_dmmul1 (&rpar[ld], &noutsz, u, &ninsz, y, &noutsz,
+			      &noutsz, &ninsz, &un);
 	}
     }
 
@@ -3086,9 +3123,11 @@ void scicos_csslti4_block (scicos_block * block, int flag)
     {
       /* xd=a*x+b*u */
       nsp_calpack_dmmul (&rpar[0], &nx, x, &nx, xd, &nx, &nx, &nx, &un);
-      nsp_calpack_dmmul1 (&rpar[lb], &nx, u, insz, xd, &nx, &nx, insz, &un);
+      nsp_calpack_dmmul1 (&rpar[lb], &nx, u, &ninsz, xd, &nx, &nx, &ninsz,
+			  &un);
     }
 }
+
 
 /*
  *  This is an old block but with new graphics (that's why 

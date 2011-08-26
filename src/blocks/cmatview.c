@@ -58,7 +58,7 @@ void cmatview (scicos_block * block, int flag)
       {
 	cmatview_data *D;
 	int wid, i;
-	NspGMatrix *gm;
+	NspGMatrix *gm=NULL;
 	/* ipar=[ zmin,zmax, colormap_size],
 	 * the colormap is stored in rpar; 
 	 */
