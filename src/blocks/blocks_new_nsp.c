@@ -2261,7 +2261,8 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
  * @flag: 
  * 
  * a scope:
- * new nsp graphics jpc 
+ * Copyright (C) 2010-2011 J.Ph Chancelier 
+ * new nsp graphics
  **/
 
 typedef struct _cscope_ipar cscope_ipar;
@@ -2440,7 +2441,7 @@ static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
  * @flag: 
  * 
  * a multi scope:
- * new nsp graphics jpc 
+ * Copyright (C) 2010-2011 J.Ph Chancelier 
  **/
 
 typedef struct _cmscope_ipar cmscope_ipar;
@@ -2465,6 +2466,10 @@ struct _cmscope_data
   double tlast; /* last time inserted in csope data */
   NspFigure *F;
 };
+
+/* creates a new Axes object for the multiscope 
+ *
+ */
 
 static NspAxes *nsp_mscope_new_axe(int ncurves,const int *style, double ymin, double ymax)
 {
@@ -2583,11 +2588,17 @@ void scicos_cmscope_block (scicos_block * block, int flag)
       int i;
       Cell *cloc;
       cmscope_data *D = (cmscope_data *) (*block->work);
-      NspList *L = D->F->obj->children;
+      NspList *L =NULL;
       t = GetScicosTime (block);
       k = D->count;
       D->count++;
       D->tlast = t;
+      if ( D->F->obj->ref_count <= 1 ) 
+	{
+	  /* Figure was destroyed during simulation */
+	  return;
+	}
+      L= D->F->obj->children;
       /* insert the points */
       i=0;
       cloc = L->first ;
@@ -2631,8 +2642,8 @@ void scicos_cmscope_block (scicos_block * block, int flag)
       /* initialize a scope window */
       cmscope_data *D;
       /* create a figure with axes and qcurves  */
-      NspFigure *F = nsp_mscope_obj(wid,csi->number_of_subwin,nswin,colors,
-				    period, TRUE,yminmax);
+      NspFigure *F1,*F = nsp_mscope_obj(wid,csi->number_of_subwin,nswin,colors,
+					period, TRUE,yminmax);
       if (F == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -2645,7 +2656,16 @@ void scicos_cmscope_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (cmscope_data *) (*block->work);
-      D->F = F;
+      /* keep a copy in case Figure is destroyed during simulation 
+       * note that is a by reference object 
+       */
+      F1 = nsp_figure_copy(F);
+      if ( F1 == NULL ) 
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      D->F = F1;
       D->count = 0;
       D->tlast = t;
       Xgc = scicos_set_win (wid, &cur);
@@ -2666,6 +2686,13 @@ void scicos_cmscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cmscope_data *D = (cmscope_data *) (*block->work);
+      if ( D->F->obj->ref_count <= 1 ) 
+	{
+	  /* Figure was destroyed during simulation 
+	   * we finish detruction 
+	   */
+	  nsp_figure_destroy(D->F);
+	}
       scicos_free (D);
       /* Xgc = scicos_set_win(wid,&cur); */
     }
@@ -2728,6 +2755,11 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       double *u1 = GetRealInPortPtrs (block, 1);
       double *u2 = GetRealInPortPtrs (block, 2);
       cscope_data *D = (cscope_data *) (*block->work);
+      if ( D->Axes->obj->ref_count <= 1 ) 
+	{
+	  /* Axes was destroyed during simulation */
+	  return;
+	}
       D->count++;
       D->tlast = t;
       /* add nu points for time t, nu is the number of curves */
@@ -2760,7 +2792,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
 	  scopebs = csi->n;
 	}
       /* create an axe with predefined limits */
-      NspAxes *Axes;
+      NspAxes *Axes,*Axes1;
       nu = Min(nu,MAXXY);
       for ( k= 0 ; k < MAXXY ; k++) colors[k]=csi->color+k;
       Axes=nsp_oscillo_obj (wid, nu, colors, scopebs, TRUE, -1, 1,qcurve_std, &L);
@@ -2776,7 +2808,16 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (cscope_data *) (*block->work);
-      D->Axes = Axes;
+      /* keep a copy in case Axes is destroyed during simulation 
+       * axe is a by reference object 
+       */
+      Axes1 = nsp_axes_copy(Axes);
+      if ( Axes1 == NULL ) 
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      D->Axes = Axes1;
       D->L = L;
       D->count = 0;
       D->tlast = t;
@@ -2798,6 +2839,13 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cscope_data *D = (cscope_data *) (*block->work);
+      if ( D->Axes->obj->ref_count <= 1 ) 
+	{
+	  /* Axes was destroyed during simulation 
+	   * we finish detruction 
+	   */
+	  nsp_axes_destroy(D->Axes);
+	}
       scicos_free (D);
       /* Xgc = scicos_set_win(wid,&cur); */
     }
@@ -3218,11 +3266,17 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
   if (flag == 2)
     {
       bouncexy_data *D = (bouncexy_data *) (*block->work);
-      Cell *cloc = D->L->first ;
+      Cell *cloc = NULL;
       double *u1 = GetRealInPortPtrs (block, 1);
       double *u2 = GetRealInPortPtrs (block, 2);
       double *z = GetDstate (block);
       int i=0;
+      if ( D->F->obj->ref_count <= 1 ) 
+	{
+	  /* Figure was destroyed during simulation */
+	  return;
+	}
+      cloc = D->L->first;
       /* 
 	 t = GetScicosTime (block);
 	 k = D->count;
@@ -3256,7 +3310,7 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
       bouncexy_data *D;
       /* create a figure with axes and qcurves  */
       NspList *L = NULL;
-      NspFigure *F = nsp_bouncexy_obj(wid,nballs,colors,xminmax,&L);
+      NspFigure *F1,*F = nsp_bouncexy_obj(wid,nballs,colors,xminmax,&L);
       if (F == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -3269,7 +3323,16 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (bouncexy_data *) (*block->work);
-      D->F = F;
+      /* keep a copy in case Figure is destroyed during simulation 
+       * note that is a by reference object 
+       */
+      F1 = nsp_figure_copy(F);
+      if ( F1 == NULL ) 
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      D->F = F1;
       D->L = L;
       D->count = 0;
       D->tlast = t;
@@ -3289,6 +3352,13 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       bouncexy_data *D = (bouncexy_data *) (*block->work);
+      if ( D->F->obj->ref_count <= 1 ) 
+	{
+	  /* Figure was destroyed during simulation 
+	   * we finish detruction 
+	   */
+	  nsp_figure_destroy(D->F);
+	}
       scicos_free (D);
       /* Xgc = scicos_set_win(wid,&cur); */
     }
@@ -3344,6 +3414,11 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
       int i;
       double vals[10]; /* 10 max a revoir */
       cevscpe_data *D = (cevscpe_data *) (*block->work);
+      if ( D->Axes->obj->ref_count <= 1 ) 
+	{
+	  /* Axes was destroyed during simulation */
+	  return;
+	}
       k = D->count;
       D->count++;
       D->tlast = t;
@@ -3373,6 +3448,7 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
        */
       int scopebs = 10000;
       /* create an axe with predefined limits */
+      NspAxes *Axes1;
       NspAxes *Axes =
 	nsp_oscillo_obj (wid, nbc , csi->colors, scopebs, TRUE, -1, 1,qcurve_stem, &L);
       if (Axes == NULL)
@@ -3387,7 +3463,16 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (cevscpe_data *) (*block->work);
-      D->Axes = Axes;
+      /* keep a copy in case Axes is destroyed during simulation 
+       * axe is a by reference object 
+       */
+      Axes1 = nsp_axes_copy(Axes);
+      if ( Axes1 == NULL ) 
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      D->Axes = Axes1;
       D->L = L;
       D->count = 0;
       D->tlast = t;
@@ -3408,6 +3493,13 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
     {
       cevscpe_data *D = (cevscpe_data *) (*block->work);
       scicos_free (D);
+      if ( D->Axes->obj->ref_count <= 1 ) 
+	{
+	  /* Axes was destroyed during simulation 
+	   * we finish detruction 
+	   */
+	  nsp_axes_destroy(D->Axes);
+	}
       /* Xgc = scicos_set_win(wid,&cur); */
     }
 }

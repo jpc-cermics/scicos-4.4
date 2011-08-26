@@ -1837,9 +1837,7 @@ scicos_zcross2_block (int *flag, int *nevprt, const double *t, double *xd,
 {
 
   int i, j;
-  int surface_matched, exist_enabled_surface;
-
-  exist_enabled_surface = 0;
+  int surface_matched, exist_enabled_surface = 0;
   if ((*flag == 3) && (*nevprt < 0))
     {
       for (i = 0; i < *ntvec; i++)
