@@ -5,15 +5,12 @@ SCIDIR1=..\..\..\..
 
 LIBRARY=libblocks.a 
 
-include ../Makefile.blocks 
-
-OBJSC=  $(BLOCKSC) blocks_new_nsp.o blocks_nsp.o gtkrange.o absolute_valuei.o switch2n.o
+OBJS=$(patsubst %.c,%.o,$(wildcard *.c))
 
 include $(SCIDIR)/Makefile.incl
 
 CFLAGS = $(CC_OPTIONS) 
 FFLAGS = $(FC_OPTIONS)
-OBJS = $(OBJSC) $(OBJSF)
 
 include $(SCIDIR)/config/Makeso.incl
 
