@@ -29,7 +29,7 @@ function [x,y,typ]=DOLLAR(job,arg1,arg2)
       model.sim=list('dollar4_m',4)
       model.odstate=list(a);
       model.dstate=[];
-      [ot,str]=do_get_type(C);
+      [ot,str]=do_get_type(a);
       if ot==9 then 
 	message("type "+str+"not recognized");ok=%f;
 	break;
