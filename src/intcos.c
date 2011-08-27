@@ -32,6 +32,7 @@
 #include <nsp/interf.h>
 #include <scicos/scicos4.h>
 #include <scicos/blocks.h>
+#include "control/ctrlpack.h"
 
 extern void create_scicos_about(void);
 static int scicos_fill_gr(scicos_run *r_scicos, NspCells *Gr);
@@ -901,6 +902,112 @@ static int int_rat(Stack stack, int rhs, int opt, int lhs)
 }
 
 
+/* Computes ppol 
+ */
+
+static int int_ppol(Stack stack, int rhs, int opt, int lhs)
+{
+  int worksize, worksize1, worksize2,i,ierr=0;
+  double tol=0.0;
+  NspMatrix *A=NULL, *B=NULL,*P=NULL,*Work=NULL,*Z=NULL,*Nblk=NULL,*G=NULL,*Po=NULL;
+  double *wrka,*wrk1,*wrk2,*rm1,*rm2,*rv1,*rv2,*rv3,*rv4;
+  int *iwrk, *jpvt, ncont, indcon,mode=1;
+  CheckStdRhs(3,3);
+  CheckLhs(0,1);
+  if ((A = GetRealMatCopy(stack,1)) == NULLMAT) return RET_BUG;
+  if ((B = GetRealMatCopy(stack,2)) == NULLMAT) return RET_BUG;
+  if ((P = GetMat(stack,3)) == NULLMAT) return RET_BUG;
+  CheckSquare(NspFname(stack),1,A);
+  if ( B->m != A->m )
+    { 
+      Scierror("%s: second argument is incompatible, expecting a %dxm matrix\n"
+	       ,NspFname(stack),A->m);
+      return RET_BUG;
+    }
+  if ( P->mn != A->m) 
+    {
+      Scierror("%s: third argument is incompatible, expecting a %d vector\n"
+	       ,NspFname(stack),A->m);
+      return RET_BUG;
+    }
+  /* canonical form 
+   * wrka: double(A->m*B->n), wrk1: double(B->n), wrk2: double(B->n), iwrk: int(B->n);
+   */
+  worksize1 = A->m*B->n+3*B->n;
+  /* Pole placement worksize 
+   * jpvt: int B->n
+   * rm1:  double B->nxB->n; rm2:  double B->nxMax(B->n,2);
+   * rv1,rv2: double A->m; rv3,rv4: double B->n;
+   */
+  worksize2 = B->n + B->n*B->n + B->n*Max(B->n,2) + 2*A->m+2*B->n;
+  worksize = Max(worksize1, worksize2);
+  if ((Work = nsp_matrix_create(NVOID,A->rc_type, 1, worksize))==NULL)
+    goto fail;
+  /* work affectation one */
+  wrka = Work->R ;
+  wrk1 = wrka + A->m*B->n;
+  wrk2 = wrk1 + B->n;
+  iwrk = (int *) (wrk2 + B->m);
+  /* work affectation two */
+  jpvt = Work->I;
+  rm1 = Work->R + B->n;
+  rm2 = rm1 + B->n*B->n;
+  rv1 = rm2 + B->n*Max(B->n,2);
+  rv2 = rv1 + A->m;
+  rv3 = rv2 + A->m;
+  rv4 = rv3 + B->n;
+  /* */
+  if ((Z = nsp_matrix_create(NVOID,A->rc_type, A->m,A->n))==NULL)
+    goto fail;
+  if ((Nblk = nsp_matrix_create(NVOID,A->rc_type, A->m, 1))==NULL)
+    goto fail;
+  if ((Po = nsp_matrix_create(NVOID,'r',P->mn,2))==NULL)
+    goto fail;
+  if ( P->rc_type == 'c')
+    {
+      for ( i=0; i < P->mn; i++)
+	{
+	  Po->R[i] = P->C[i].r;
+	  Po->R[i+Po->m] = P->C[i].i;
+	}
+    }
+  else
+    {
+      for ( i=0; i < P->mn; i++)
+	{
+	  Po->R[i] = P->R[i];
+	  Po->R[i+Po->m] = 0.0;
+	}
+    }
+  if ((G = nsp_matrix_create(NVOID,A->rc_type, B->n, A->m))==NULL)
+    goto fail;
+  /*  calcul de la forme canonique orthogonale */
+  nsp_ctrlpack_ssxmc(&A->m,&B->n, A->R,&A->m, B->R,&ncont,&indcon,
+		     Nblk->I, Z->R, wrka, wrk1,wrk2,iwrk,&tol,&mode);
+  if( ncont != A->m )
+    {
+      Scierror("Error: given pair (A,B) is not controlable !\n");
+      goto fail;
+    }
+  nsp_ctrlpack_polmc(&A->m,&B->n,&A->m,&B->n,A->R,B->R,G->R,Po->R,Po->R+Po->m,
+		     Z->R,&indcon,Nblk->I,&ierr, jpvt,rm1,rm2,rv1,rv2,rv3,rv4);
+  if( ierr != 0)
+    {
+      Scierror("Error: given pair (A,B) is not controlable !\n");
+      goto fail;
+    }
+  MoveObj(stack,1,NSP_OBJECT(G));
+  FREE(Work);FREE(Z);FREE(Nblk);FREE(Po);
+  return 1;
+ fail:
+  FREE(Work);FREE(Z);FREE(Nblk);FREE(G);FREE(Po);
+  return RET_BUG;
+}
+
+    
+
+
+
 static OpTab Scicos_func[] = {
   {"sci_tree4", int_scicos_ftree4},
   {"sci_sctree", int_sctree},
@@ -921,6 +1028,7 @@ static OpTab Scicos_func[] = {
   {"scicos_get_internal_name", int_scicos_get_internal_name },
   /* utilities */
   {"rat",int_rat},
+  {"ppol",int_ppol},
   {(char *) 0, NULL}
 };
 
@@ -937,3 +1045,4 @@ void Scicos_Interf_Info (int i, char **fname, function (**f))
   *fname = Scicos_func[i].name;
   *f = Scicos_func[i].fonc;
 }
+

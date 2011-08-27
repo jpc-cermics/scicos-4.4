@@ -1,27 +1,138 @@
-/* ssxmc.f -- translated by f2c (version 19961017).
- *
- *
- */
-
 #include "ctrlpack.h"
 
-/* Table of constant values */
+/*! calling sequence 
+ *      n        int 
+ *               -the order of original state-space representation; 
+ *               declared first dimension of nblk,wrka; declared 
+ *               second dimension of a (and z, if mode .ne. 0) 
+ *      m        int 
+ *               -the number of system inputs; declared first dimension 
+ *               of iwrk,wrk1,wrk2; declared second dimension of b,wrka 
+ *      a        double precision(n,n) 
+ *               -the original state dynamics matrix.  note that this 
+ *               matrix is overwritten here 
+ *      na       int 
+ *               -the declared first dimension of a,b (and z, if 
+ *               mode .ne. 0).  note that na .ge. n 
+ *      b        double precision(n,m) 
+ *               -the original input/state matrix.  note that this 
+ *               matrix is overwritten here 
+ *      tol      double precision 
+ *               -if greater than the machine precision, tol is used 
+ *               as zero tolerance in rank determination when trans- 
+ *               forming (a,b,c): otherwise (eg tol = 0.0d+0), the 
+ *               machine precision is used 
+ *      mode     int 
+ *               -mode = 0 if accumulation of the orthogonal trans- 
+ *               formation z is not required, and non-zero if this 
+ *               matrix is required 
+ *arguments out 
+ * 
+ *      a        double precision(ncont,ncont) 
+ *               -the upper block hessenberg state dynamics matrix of 
+ *               a controllable realization for the original system 
+ *      b        double precision(ncont,m) 
+ *               -the transformed input/state matrix 
+ *      ncont    int 
+ *               -the order of controllable state-space representation 
+ *      indcon   int 
+ *               -the controllability index of transformed 
+ *               system representation 
+ *      nblk     int(indcon) 
+ *               -the dimensions of the diagonal blocks of the trans- 
+ *               formed a 
+ *      z        double precision(n,n) 
+ *               -the orthogonal similarity transformation which 
+ *               reduces the given system to orthogonal canonical 
+ *               form.  note that, if mode .eq. 0, z is not referenced 
+ *               and so can be a scalar dummy variable 
+ *!working space 
+ *      wrka     double precision(n,m) 
+ *      wrk1     double precision(m) 
+ *      wrk2     double precision(m) 
+ *      iwrk     int(m) 
+ *!purpose 
+ * 
+ *       to reduce the linear time-invariant multi-input system 
+ * 
+ *            dx/dt = a * x + b * u, 
+ * 
+ *       where a and b are (n x n) and (n x m) matrices respectively, 
+ *       to orthogonal canonical form using (and optionally accum- 
+ *       ulating) orthogonal similarity transformations. 
+ * 
+ *!method 
+ * 
+ *       b is first qr-decomposed and the appropriate orthogonal 
+ *       similarity transformation applied to a.  leaving the first 
+ *       rank(b) states unchanged, the resulting lower left block 
+ *       of a is now itself qr-decomposed and this new orthogonal 
+ *       similarity transformation applied.  continuing in this 
+ *       manner, a completely controllable state-space pair (acont, 
+ *       bcont) is found for the given (a,b), where acont is upper 
+ *       block hessenberg with each sub-diagonal block of full row 
+ *       rank, and bcont is zero apart from its (independent) first 
+ *       rank(b) rows.  note finally that the system controllability 
+ *       indices are easily calculable from the dimensions of the 
+ *       blocks of acont. 
+ * 
+ *!reference 
+ * 
+ *       konstantinov, m.m., petkov, p.hr. and christov, n.d. 
+ *       "orthogonal invariants and canonical forms for linear 
+ *       controllable systems" 
+ *       proc. ifac 8th world congress, 1981. 
+ * 
+ *!auxiliary routines 
+ * 
+ *       dqrdc (linpack) 
+ * 
+ *!originator 
+ * 
+ *               p.hr.petkov, higher institute of mechanical and 
+ *               electrical engineering, sofia, bulgaria, april 1981 
+ *    Copyright SLICOT 
+ * 
+ *!comments 
+ * 
+ *               none 
+ * 
+ *!user-supplied routines 
+ * 
+ *               none 
+ *! 
+ ******************************************************************** 
+ * 
+ * 
+ * 
+ * 
+ *    local variables: 
+ * 
+ * 
+ * 
+ *     common /smprec/eps 
+ * 
+ *    common block smprec is shared with routine ddata which provides 
+ *    a value for eps, a machine-dependent parameter which specifies 
+ *    the relative precision of drealing-point arithmetic 
+ * 
+ * 
+ *     call ddata 
+ * 
+ */
+
 
 static int c__1 = 1;
 static int c__11 = 11;
 static int c__0 = 0;
 
 int
-nsp_ctrlpack_ssxmc (int *n, int *m, double *a, int *na, double *b, int *ncont,
-		    int *indcon, int *nblk, double *z__, double *wrka,
-		    double *wrk1, double *wrk2, int *iwrk, double *tol,
-		    int *mode)
+nsp_ctrlpack_ssxmc ( int *n, int *m, double *a, int *na, double *b, int *ncont, int *indcon, int *nblk, double *z__, double *wrka, double *wrk1, double *wrk2, int *iwrk, double *tol, int *mode)
 {
   /* System generated locals */
   int a_dim1, a_offset, b_dim1, b_offset, z_dim1, z_offset, wrka_dim1,
     wrka_offset, i__1, i__2;
   double d__1, d__2;
-
   /* Local variables */
   int ierr, irnk;
   double temp;
@@ -32,154 +143,6 @@ nsp_ctrlpack_ssxmc (int *n, int *m, double *a, int *na, double *b, int *ncont,
   double thrtol;
   int ist;
 
-  /*! calling sequence 
-   *       subroutine ssxmc(n,m,a,na,b,ncont,indcon,nblk,z, 
-   *   1                    wrka,wrk1,wrk2,iwrk,tol,mode) 
-   * 
-   *       int n,m,na,ncont,indcon,nblk(n),iwrk(m),mode 
-   * 
-   *       real*8 a(na,n),b(na,m),z(na,n),wrka(n,m) 
-   *    real*8 wrk1(m),wrk2(m),tol 
-   * 
-   *arguments in 
-   * 
-   *      n        int 
-   *               -the order of original state-space representation; 
-   *               declared first dimension of nblk,wrka; declared 
-   *               second dimension of a (and z, if mode .ne. 0) 
-   * 
-   *      m        int 
-   *               -the number of system inputs; declared first dimension 
-   *               of iwrk,wrk1,wrk2; declared second dimension of b,wrka 
-   * 
-   *      a        double precision(n,n) 
-   *               -the original state dynamics matrix.  note that this 
-   *               matrix is overwritten here 
-   * 
-   *      na       int 
-   *               -the declared first dimension of a,b (and z, if 
-   *               mode .ne. 0).  note that na .ge. n 
-   * 
-   *      b        double precision(n,m) 
-   *               -the original input/state matrix.  note that this 
-   *               matrix is overwritten here 
-   * 
-   *      tol      double precision 
-   *               -if greater than the machine precision, tol is used 
-   *               as zero tolerance in rank determination when trans- 
-   *               forming (a,b,c): otherwise (eg tol = 0.0d+0), the 
-   *               machine precision is used 
-   * 
-   *      mode     int 
-   *               -mode = 0 if accumulation of the orthogonal trans- 
-   *               formation z is not required, and non-zero if this 
-   *               matrix is required 
-   * 
-   *arguments out 
-   * 
-   *      a        double precision(ncont,ncont) 
-   *               -the upper block hessenberg state dynamics matrix of 
-   *               a controllable realization for the original system 
-   * 
-   *      b        double precision(ncont,m) 
-   *               -the transformed input/state matrix 
-   * 
-   *      ncont    int 
-   *               -the order of controllable state-space representation 
-   * 
-   *      indcon   int 
-   *               -the controllability index of transformed 
-   *               system representation 
-   * 
-   *      nblk     int(indcon) 
-   *               -the dimensions of the diagonal blocks of the trans- 
-   *               formed a 
-   * 
-   *      z        double precision(n,n) 
-   *               -the orthogonal similarity transformation which 
-   *               reduces the given system to orthogonal canonical 
-   *               form.  note that, if mode .eq. 0, z is not referenced 
-   *               and so can be a scalar dummy variable 
-   * 
-   *!working space 
-   * 
-   *      wrka     double precision(n,m) 
-   * 
-   *      wrk1     double precision(m) 
-   * 
-   *      wrk2     double precision(m) 
-   * 
-   *      iwrk     int(m) 
-   * 
-   *!purpose 
-   * 
-   *       to reduce the linear time-invariant multi-input system 
-   * 
-   *            dx/dt = a * x + b * u, 
-   * 
-   *       where a and b are (n x n) and (n x m) matrices respectively, 
-   *       to orthogonal canonical form using (and optionally accum- 
-   *       ulating) orthogonal similarity transformations. 
-   * 
-   *!method 
-   * 
-   *       b is first qr-decomposed and the appropriate orthogonal 
-   *       similarity transformation applied to a.  leaving the first 
-   *       rank(b) states unchanged, the resulting lower left block 
-   *       of a is now itself qr-decomposed and this new orthogonal 
-   *       similarity transformation applied.  continuing in this 
-   *       manner, a completely controllable state-space pair (acont, 
-   *       bcont) is found for the given (a,b), where acont is upper 
-   *       block hessenberg with each sub-diagonal block of full row 
-   *       rank, and bcont is zero apart from its (independent) first 
-   *       rank(b) rows.  note finally that the system controllability 
-   *       indices are easily calculable from the dimensions of the 
-   *       blocks of acont. 
-   * 
-   *!reference 
-   * 
-   *       konstantinov, m.m., petkov, p.hr. and christov, n.d. 
-   *       "orthogonal invariants and canonical forms for linear 
-   *       controllable systems" 
-   *       proc. ifac 8th world congress, 1981. 
-   * 
-   *!auxiliary routines 
-   * 
-   *       dqrdc (linpack) 
-   * 
-   *!originator 
-   * 
-   *               p.hr.petkov, higher institute of mechanical and 
-   *               electrical engineering, sofia, bulgaria, april 1981 
-   *    Copyright SLICOT 
-   * 
-   *!comments 
-   * 
-   *               none 
-   * 
-   *!user-supplied routines 
-   * 
-   *               none 
-   *! 
-   ******************************************************************** 
-   * 
-   * 
-   * 
-   * 
-   *    local variables: 
-   * 
-   * 
-   * 
-   *     common /smprec/eps 
-   * 
-   *    common block smprec is shared with routine ddata which provides 
-   *    a value for eps, a machine-dependent parameter which specifies 
-   *    the relative precision of drealing-point arithmetic 
-   * 
-   * 
-   *     call ddata 
-   * 
-   */
   /* Parameter adjustments */
   --nblk;
   --iwrk;
@@ -238,7 +201,7 @@ nsp_ctrlpack_ssxmc (int *n, int *m, double *a, int *na, double *b, int *ncont,
     }
   /* 
    */
-L30:
+ L30:
   i__1 = *n;
   for (i__ = 1; i__ <= i__1; ++i__)
     {
@@ -257,7 +220,7 @@ L30:
     }
   /* 
    */
-L60:
+ L60:
   ++ist;
   /* 
    *    qr decomposition with column pivoting 
@@ -339,7 +302,7 @@ L60:
     }
   /* 
    */
-L200:
+ L200:
   if (irnk < 2)
     {
       goto L230;
@@ -366,7 +329,7 @@ L200:
    *    backward permutation of the columns 
    * 
    */
-L230:
+ L230:
   i__1 = mb;
   for (j = 1; j <= i__1; ++j)
     {
@@ -432,7 +395,7 @@ L230:
    *    form  a 
    * 
    */
-L300:
+ L300:
   i__1 = irnk;
   for (i__ = 1; i__ <= i__1; ++i__)
     {
@@ -452,7 +415,7 @@ L300:
     }
   /* 
    */
-L330:
+ L330:
   if (irnk == nb)
     {
       goto L360;
@@ -484,8 +447,9 @@ L330:
   goto L60;
   /* 
    */
-L360:
+ L360:
   /* 
    */
   return 0;
-}				/* ssxmc_ */
+}
+

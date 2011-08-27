@@ -27,7 +27,8 @@ CONTROL=riccpack.o dexpm1.o wexpm1.o wpade.o pade.o bdiag.o wbdiag.o \
 	balbak.o corth.o cortr.o cbal.o exch.o split.o shrslv.o \
 	dgesl.o dgefa.o dgeco.o giv.o wshrsl.o wexchn.o comqr3.o \
 	hqror2.o ortran.o orthes.o balanc.o dclmat.o coef.o cerr.o \
-	wgesl.o wgeco.o wclmat.o wcerr.o wgefa.o dgelsy1.o 
+	wgesl.o wgeco.o wclmat.o wcerr.o wgefa.o dgelsy1.o \
+	polmc.o ssxmc.o dqrdc.o hhdml.o dqrsm.o dqrsl.o
 
 CALELM=dad.o dmcopy.o wdiv.o wasum.o wdotcr.o wdotci.o \
 	waxpy.o wsign.o wrscal.o wmul.o pythag.o \

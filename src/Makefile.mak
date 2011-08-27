@@ -30,7 +30,8 @@ CONTROL=riccpack.obj dexpm1.obj wexpm1.obj wpade.obj pade.obj bdiag.obj wbdiag.o
 	balbak.obj corth.obj cortr.obj cbal.obj exch.obj split.obj shrslv.obj \
 	dgesl.obj dgefa.obj dgeco.obj giv.obj wshrsl.obj wexchn.obj comqr3.obj \
 	hqror2.obj ortran.obj orthes.obj balanc.obj dclmat.obj coef.obj cerr.obj \
-	wgesl.obj wgeco.obj wclmat.obj wcerr.obj wgefa.obj dgelsy1.obj 
+	wgesl.obj wgeco.obj wclmat.obj wcerr.obj wgefa.obj dgelsy1.obj \
+	polmc.obj ssxmc.obj dqrdc.obj hhdml.obj dqrsm.obj dqrsl.obj
 
 CALELM=dad.obj dmcopy.obj wdiv.obj wasum.obj wdotcr.obj wdotci.obj \
 	waxpy.obj wsign.obj wrscal.obj wmul.obj pythag.obj \
