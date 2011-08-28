@@ -5,14 +5,8 @@ SCIDIR1=..\..\..
 
 LIBRARY=libscicos.a
 
-include Makefile.blocks
+BLOCKS=$(patsubst %.c,%.o,$(wildcard blocks/*.c))
 
-OBJSF=  intcos.o coselm.o sciblk.o  \
-	sctree.o ftree2.o ftree3.o ftree4.o skipvars.o scierr.o scifunc.o \
-	list2vars.o dtosci.o itosci.o scitoi.o scitod.o vvtosci.o \
-	scitovv.o  $(BLOCKS_CODE)
-
-OBJSF = 
 
 # utilities for blocks 
 
@@ -42,23 +36,17 @@ SUNDIALS=cvode.o cvode_io.o cvode_dense.o nvector_serial.o ida.o ida_dense.o \
 	sundials_dense.o sundials_smalldense.o\
 	kinsol.o kinsol_dense.o kinsol_io.o dopri5m.o
 
-
-OBJSC=  import.o scicos.o intcos.o simul.o sciblk2.o trees.o ezxml.o scicos_utils.o \
-	evaluate_expr.o about.o \
-	blocks/blocks_new_nsp.o blocks/blocks_nsp.o blocks/gtkrange.o \
-	blocks/absolute_valuei.o blocks/switch2n.o \
+OBJSC=  import.o scicos.o intcos.o simul.o sciblk2.o trees.o ezxml.o \
+	scicos_utils.o evaluate_expr.o about.o $(BLOCKS) \
 	$(addprefix sundials/,$(SUNDIALS)) \
-	$(addprefix blocks/,$(BLOCKSC)) \
 	$(addprefix control/,$(CONTROL)) \
-	$(addprefix calelm/,$(CALELM)) 
-
-BLOCKS=$(BLOCKSF) $(BLOCKSC) $(BLOCKS_MULTIC)
+	$(addprefix calelm/,$(CALELM)) \
 
 include $(SCIDIR)/Makefile.incl
 
 CFLAGS = $(CC_OPTIONS) 
 FFLAGS = $(FC_OPTIONS)
-OBJS = $(OBJSC) $(OBJSF)
+OBJS = $(OBJSC)
 
 include $(SCIDIR)/config/Makeso.incl
 

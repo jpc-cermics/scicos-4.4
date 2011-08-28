@@ -1,94 +1,5 @@
 #include "blocks.h"
 
-
-/* Common Block Declarations */
-
-struct
-{
-  double stk[2];
-} stack_;
-
-#define stack_1 stack_
-
-struct
-{
-  int bot, top, idstk[60000] /* was [6][10000] */ , lstk[10000],
-    leps, bbot, bot0, infstk[10000], gbot, gtop, isiz;
-} vstk_;
-
-#define vstk_1 vstk_
-
-struct
-{
-  int ids[24576] /* was [6][4096] */ , pstk[4096], rstk[4096], pt, niv,
-    macr, paus, icall, krec;
-} recu_;
-
-#define recu_1 recu_
-
-struct
-{
-  int ddt, err, lct[8], lin[65536], lpt[6], hio, rio, wio, rte, wte;
-} iop_;
-
-#define iop_1 iop_
-
-struct
-{
-  int err1, err2, errct, toperr, errpt, ieee, catch__;
-} errgst_;
-
-#define errgst_1 errgst_
-
-struct
-{
-  int sym, syn[6], char1, fin, fun, lhs, rhs, ran[2], comp[3];
-} com_;
-
-#define com_1 com_
-
-struct
-{
-  char alfa[63], alfb[63], buf[4096];
-} cha1_;
-
-#define cha1_1 cha1_
-
-struct
-{
-  int wmac, lcntr, nmacs, macnms[600] /* was [6][100] */ , lgptrs[
-								  101],
-    bptlg[1000];
-} dbg_;
-
-#define dbg_1 dbg_
-
-struct
-{
-  int lbot, ie, is, ipal, nbarg, ladr[1024];
-} adre_;
-
-#define adre_1 adre_
-
-struct
-{
-  int nbvars, iwhere[1024], nbrows[1024], nbcols[1024], itflag[1024],
-    ntypes[1024], lad[1024], ladc[1024], lhsvar[1024];
-} intersci_;
-
-#define intersci_1 intersci_
-
-typedef struct
-{
-  long int cierr;
-  long int ciunit;
-  long int ciend;
-  char *cifmt;
-  long int cirec;
-} cilist;
-
-typedef char *address;
-
 typedef struct
 {
   double r, i;
@@ -96,12 +7,13 @@ typedef struct
 
 /* Table of constant values */
 
-static int c__1 = 1;
-static double c_b12 = 0.;
-static int c__3 = 3;
 
 int writef4 (scicos_block * block, int flag)
 {
+#if 0
+static int c__1 = 1;
+static double c_b12 = 0.;
+static int c__3 = 3;
   double *z__ = block->z;
   double *u = block->inptr[0];
   int *nu = block->insz;
@@ -369,10 +281,6 @@ int writef4 (scicos_block * block, int flag)
   s_cat (ch__1, a__1, i__4, &c__3, (short) 4118);
   basout_ (&io, &iop_1.wte, ch__1, lfil + 22);
   iflag = -1;
+#endif 
   return 0;
-}				/* writef_ */
-
-#undef zstk
-#undef sstk
-#undef istk
-#undef cstk
+}

@@ -2470,7 +2470,7 @@ scicos_mux_block (int *flag__, int *nevprt, const double *t, double *xd,
 		  double *uy17, int *nuy17, double *uy18, int *nuy18)
 {
   double *res = NULL;
-  int dim = ipar[0] - 1, offset = 0;
+  int dim = ipar[0]-1, offset = 0;
   switch (dim)
     {
     case 1:
@@ -2495,34 +2495,33 @@ scicos_mux_block (int *flag__, int *nevprt, const double *t, double *xd,
       res = uy9;
       break;
     }
-  memcpy (res + offset, uy1, (*nuy2) * sizeof (double));
+  memcpy (res + offset, uy1, (*nuy1) * sizeof (double));
+  offset += (*nuy1);
+  memcpy (res + offset, uy2, (*nuy2) * sizeof (double));
   offset += (*nuy2);
-  memcpy (res + offset, uy2, (*nuy3) * sizeof (double));
-  offset += (*nuy3);
   if (dim <= 1)
     return;
-  memcpy (res + offset, uy3, (*nuy4) * sizeof (double));
-  offset += (*nuy4);
+  memcpy (res + offset, uy3, (*nuy3) * sizeof (double));
+  offset += (*nuy3);
   if (dim <= 2)
     return;
-  memcpy (res + offset, uy4, (*nuy5) * sizeof (double));
-  offset += (*nuy5);
+  memcpy (res + offset, uy4, (*nuy4) * sizeof (double));
+  offset += (*nuy4);
   if (dim <= 3)
     return;
-  memcpy (res + offset, uy5, (*nuy6) * sizeof (double));
-  offset += (*nuy6);
+  memcpy (res + offset, uy5, (*nuy5) * sizeof (double));
+  offset += (*nuy5);
   if (dim <= 4)
     return;
-  memcpy (res + offset, uy6, (*nuy7) * sizeof (double));
-  offset += (*nuy7);
+  memcpy (res + offset, uy6, (*nuy6) * sizeof (double));
+  offset += (*nuy6);
   if (dim <= 5)
     return;
-  memcpy (res + offset, uy7, (*nuy8) * sizeof (double));
-  offset += (*nuy8);
+  memcpy (res + offset, uy7, (*nuy7) * sizeof (double));
+  offset += (*nuy7);
   if (dim <= 6)
     return;
   memcpy (res + offset, uy8, (*nuy9) * sizeof (double));
-  
 }
 
 

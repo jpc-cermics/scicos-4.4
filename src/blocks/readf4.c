@@ -1,142 +1,6 @@
 #include "blocks.h"
 
-/* Common Block Declarations */
-int bfrdr ();
-struct
-{
-  double stk[2];
-} stack_;
 
-#define stack_1 stack_
-
-struct
-{
-  int bot, top, idstk[60000] /* was [6][10000] */ , lstk[10000],
-    leps, bbot, bot0, infstk[10000], gbot, gtop, isiz;
-} vstk_;
-
-#define vstk_1 vstk_
-
-struct
-{
-  int ids[24576] /* was [6][4096] */ , pstk[4096], rstk[4096], pt, niv,
-    macr, paus, icall, krec;
-} recu_;
-
-#define recu_1 recu_
-
-struct
-{
-  int ddt, err, lct[8], lin[65536], lpt[6], hio, rio, wio, rte, wte;
-} iop_;
-
-#define iop_1 iop_
-
-struct
-{
-  int err1, err2, errct, toperr, errpt, ieee, catch__;
-} errgst_;
-
-#define errgst_1 errgst_
-
-struct
-{
-  int sym, syn[6], char1, fin, fun, lhs, rhs, ran[2], comp[3];
-} com_;
-
-#define com_1 com_
-
-struct
-{
-  char alfa[63], alfb[63], buf[4096];
-} cha1_;
-
-#define cha1_1 cha1_
-
-struct
-{
-  int wmac, lcntr, nmacs, macnms[600] /* was [6][100] */ , lgptrs[
-								  101],
-    bptlg[1000];
-} dbg_;
-
-#define dbg_1 dbg_
-
-struct
-{
-  int lbot, ie, is, ipal, nbarg, ladr[1024];
-} adre_;
-
-#define adre_1 adre_
-
-struct
-{
-  int nbvars, iwhere[1024], nbrows[1024], nbcols[1024], itflag[1024],
-    ntypes[1024], lad[1024], ladc[1024], lhsvar[1024];
-} intersci_;
-
-typedef struct
-{
-  long int cierr;
-  long int ciunit;
-  long int ciend;
-  char *cifmt;
-  long int cirec;
-} cilist;
-
-#define intersci_1 intersci_
-
-typedef char *address;
-
-typedef struct
-{
-  double r, i;
-} doublecomplex;
-
-
-#ifndef max
-#define max(a,b) ((a) >= (b) ? (a) : (b))
-#endif
-
-/* Table of constant values */
-
-static int c__1 = 1;
-static int c__3 = 3;
-static int c__2 = 2;
-
-int readf4 (scicos_block * block, int flag)
-{
-
-  int nz = block->nz;
-  double *z__ = block->z;
-  double *y = block->outptr[0];
-  int *ny = block->outsz;
-  int *ipar = block->ipar;
-  double *tvec = block->evout;
-  double t = GetScicosTime (block);
-
-  /* System generated locals */
-  address a__1[3], a__2[2];
-  int i__1, i__2[3], i__3[2];
-  char ch__1[4118], ch__2[4115];
-
-  /* Builtin functions */
-  int s_cat ();
-
-  /* Local variables */
-  static int mode[2], lfil, kmax;
-#define cstk ((char *)&stack_1)
-  static int ierr;
-#define istk ((int *)&stack_1)
-  static int ievt, lfmt;
-#define sstk ((float *)&stack_1)
-#define zstk ((doublecomplex *)&stack_1)
-  static int k, n;
-  extern int dcopy_ ();
-  static int lunit;
-  extern int cvstr_ ();
-  static int io, no;
-  extern int basout_ (), clunit_ ();
 
   /*     Copyright INRIA
 
@@ -151,6 +15,38 @@ int readf4 (scicos_block * block, int flag)
 	 ipar(5+lfil:4+lfil+lfmt) = character codes for format if any
 	 ipar(5+lfil+lfmt:5+lfil+lfmt+ny+ievt) = reading mask */
 
+int readf4 (scicos_block * block, int flag)
+{
+  Sciprintf("Readf4 to be done \n");
+  return 0;
+#if 0
+static int c__1 = 1;
+static int c__3 = 3;
+static int c__2 = 2;
+
+  int nz = block->nz;
+  double *z__ = block->z;
+  double *y = block->outptr[0];
+  int *ny = block->outsz;
+  int *ipar = block->ipar;
+  double *tvec = block->evout;
+  double t = GetScicosTime (block);
+  /* System generated locals */
+  address a__1[3], a__2[2];
+  int i__1, i__2[3], i__3[2];
+  char ch__1[4118], ch__2[4115];
+  /* Builtin functions */
+  int s_cat ();
+  /* Local variables */
+  static int mode[2], lfil, kmax;
+  static int ierr;
+  static int ievt, lfmt;
+  static int k, n;
+  extern int dcopy_ ();
+  static int lunit;
+  extern int cvstr_ ();
+  static int io, no;
+  extern int basout_ (), clunit_ ();
 
   /* Parameter adjustments */
   --y;
@@ -289,48 +185,29 @@ int readf4 (scicos_block * block, int flag)
   basout_ (&io, &iop_1.wte, ch__2, lfil + 19);
   flag = -1;
   return 0;
-}				/* readf */
+#endif 
+}
 
-#undef zstk
-#undef sstk
-#undef istk
-#undef cstk
-
-
-int bfrdr (lunit, ipar, z__, no, kmax, ierr)
-  int *lunit, *ipar;
-double *z__;
-int *no, *kmax, *ierr;
+#if 0
+int bfrdr (int * lunit,int * ipar,double * z__, int *no, int *kmax,int * ierr)
 {
   /* System generated locals */
   int i__1, i__2, i__3;
   cilist ci__1;
-
   /* Builtin functions */
   int s_rsue (), do_uio (), e_rsue (), s_rsfe (), do_fio (), e_rsfe ();
-
   /* Local variables */
-#define cstk ((char *)&stack_1)
   static int lfmt;
-#define istk ((int *)&stack_1)
   static int ievt;
-#define sstk ((float *)&stack_1)
-#define zstk ((doublecomplex *)&stack_1)
   static int i__, j, n, imask;
   extern /* Subroutine */ int cvstr_ ();
   static int mm;
   static double tmp[100];
-
   /* Fortran I/O blocks */
   static cilist io___26 = { 1, 0, 1, 0, 0 };
-
-
-  /* *------------------------------------------------------------------ */
-
   /* Parameter adjustments */
   --z__;
   --ipar;
-
   /* Function Body */
   ievt = ipar[3];
   n = ipar[4];
@@ -450,9 +327,7 @@ int *no, *kmax, *ierr;
  L100:
   *ierr = 1;
   return 0;
-}				/* bfrdr */
+}
 
-#undef zstk
-#undef sstk
-#undef istk
-#undef cstk
+
+#endif 
