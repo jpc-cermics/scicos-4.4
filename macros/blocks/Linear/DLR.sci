@@ -23,18 +23,20 @@ function [x,y,typ]=DLR(job,arg1,arg2)
     exprs(2)=varnumsubst(exprs(2),"%z","z")
 
     while %t do
-      [ok,num,den,exprs]=getvalue('Set discrete SISO transfer parameters',..
-				  ['Numerator (z)';
+      [ok,num,den,exprs]=getvalue('Set discrete SISO transfer parameters',...
+				  ['Numerator (z)';...
 		    'Denominator (z)'],..
 				  list('pol',1,'pol',1),exprs)
       if ~ok then break,end
+      if type(num,'short')=='m' then num=m2p(num);end
+      if type(den,'short')=='m' then den=m2p(den);end
       if degree(num)>degree(den) then
 	message('Transfer function must be proper')
 	ok=%f
       end
       if ok then
-	H=cont_frm(num,den)
-	[A,B,C,D]=H(2:5);
+	// H=cont_frm(num,den);[A,B,C,D]=H(2:5);
+	[A,B,C,D]=scicos_getabcd(num,den);
 	// back substs 
 	exprs(1)=varnumsubst(exprs(1),"z","%z")
 	exprs(2)=varnumsubst(exprs(2),"z","%z")

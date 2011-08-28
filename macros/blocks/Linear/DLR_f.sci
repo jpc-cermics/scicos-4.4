@@ -29,18 +29,17 @@ function [x,y,typ]=DLR_f(job,arg1,arg2)
 		    'Denominator (z)'],..
 				  list('pol',1,'pol',1),exprs)
       if ~ok then break,end
+      if type(num,'short')=='m' then num=m2p(num);end
+      if type(den,'short')=='m' then den=m2p(den);end
       if degree(num)>degree(den) then
 	message('Transfer must be proper')
 	ok=%f
       end
       if ok then
-	H=cont_frm(num,den)
-	[A,B,C,D]=H(2:5);
-
+	// H=cont_frm(num,den);[A,B,C,D]=H(2:5);
+	[A,B,C,D]=scicos_getabcd(num,den);
 	exprs(1)=varnumsubst(exprs(1),"z","%z")
 	exprs(2)=varnumsubst(exprs(2),"z","%z")
-
-
 	graphics.exprs=exprs;
 	[ns1,vns1]=size(A)
 	if ns1<=ns then
