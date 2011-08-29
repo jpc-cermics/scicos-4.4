@@ -18,44 +18,40 @@ function [x,y,typ]=CMAT3D(job,arg1,arg2)
       exprs=[exprs;"35";"45"] //backward compatibility
     end
     model=arg1.model;
+    gv_titles=['Bounds Vector X (-1 for standard)';
+	       'Bounds Vector Y (-1 for standard)';
+	       'ColorMap';
+	       'Zmin';
+	       'Zmax'
+	       'Alpha';
+	       'Theta'];
+    gv_types=list('vec',-1,'vec',-1,'vec',-1,'vec',1,'vec',1,'vec',1,'vec',1);
+        
     while %t do
-      [ok,vec_x,vec_y,colormap,cmin,cmax,al,th,exprs]=getvalue(..
-						  'Set Scope parameters',..
-						  ['Bounds Vector X (-1 for standard)';
-		    'Bounds Vector Y (-1 for standard)';
-		    'ColorMap';
-		    'Zmin';
-		    'Zmax'
-		    'Alpha';
-		    'Theta'],..
-						  list('vec',-1,'vec',-1,'vec',-1,'vec',1,'vec',1,'vec',1,'vec',1),exprs)
+      [ok,vec_x,vec_y,colormap,cmin,cmax,al,th,exprs]=getvalue('Set Scope parameters',...
+						  gv_titles,gv_types,exprs);
       if ~ok then break,end //user cancel modification
       mess=[]
       if size(vec_x,'*')<>size(vec_y,'*') then
-	mess=[mess;'Vector X and Vector Y must have the same size';' ']
-	ok=%f
+	message(['Vector X and Vector Y must have the same size']);
+	continue;
       end
       if cmax<=cmin then
-	mess=[mess;'Error with minimum and maximum value';' ']
-	ok=%f
+	message(['Error Zmax should be greater than Zmin']);
+	continue;
       end
-      if ~ok then
-	message(['Some specified values are inconsistent:';' ';mess])
-      end
-      if ok then
-	size_x = size(vec_x,'*');
-	size_c=size(colormap,1);
-	ipar=[cmin;cmax;size_c;size_x];
-  	rpar=[colormap(:);vec_x(:);vec_y(:)];
-	model.ipar=ipar;
-	model.rpar=rpar;
-        model.opar=list(al,th)
-	graphics.exprs=exprs;
-	x.graphics=graphics;
-        x.model=model;
-	break;
-      end
+      break;
     end
+    size_x = size(vec_x,'*');
+    size_c=size(colormap,1);
+    ipar=[cmin;cmax;size_c;size_x];
+    rpar=[colormap(:);vec_x(:);vec_y(:)];
+    model.ipar=ipar;
+    model.rpar=rpar;
+    model.opar=list(al,th)
+    graphics.exprs=exprs;
+    x.graphics=graphics;
+    x.model=model;
    case 'define' then
     cmin = 0;
     cmax = 100;
