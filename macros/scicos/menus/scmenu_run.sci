@@ -96,7 +96,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
 	if kfun<>0 then
 	  path=corinv(kfun)
 	  //** get error cmd for the block
-	  XXXXX 
+	  //XXXXX 
 	  str_err=lasterror();
 	  cmd=get_errorcmd(path,'End problem.',str_err);
 	  //** send error cmd to scicos via the Scicos_commands global variable
@@ -154,7 +154,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
     %cpr.state=state
     if ~execok then
       // execution failed 
-      XXXX
+      //XXXX
       str_err=lasterror();
       kfun=curblock();
       corinv=%cpr.corinv
