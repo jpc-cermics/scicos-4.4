@@ -218,6 +218,11 @@ function scs_m=do_update_scilab_schema(scs_m)
 	o.model.rpar=do_update_scilab_schema(o.model.rpar)
       end
       scs_m.objs(i)=o;
+    elseif o.type =='Text' then 
+      sizes=[8,10,12,14,18,24];
+      o.model.ipar(2)=sizes(min(max(1,o.model.ipar(2)),6))/10;
+      o.graphics.exprs(3)= sci2exp(o.model.ipar(2));
+      scs_m.objs(i)=o;
     end
   end
 endfunction
