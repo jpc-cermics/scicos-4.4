@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "nsp/machine.h"
+#include <nsp/nsp.h>
 #include <nsp/graphics-new/Graphics.h>
 #include <nsp/object.h>
 #include <nsp/matrix.h>
@@ -82,6 +82,8 @@ static int scicos_fill_state (NspHash * State, scicos_sim * scst)
 	      Scierror ("Elements are supposed to be real matrice\n");
 	      return FAIL;
 	    }
+	  /* be sure that Matrix is ok */
+	  scst->State_elts[i]=Mat2double(scst->State_elts[i]);
 	  /* put the pointer in the struct */
 	  loc[i] = (void *) ((NspMatrix *) scst->State_elts[i])->R;
 	}
@@ -178,6 +180,10 @@ static int scicos_fill_from_list (NspList * L, scicos_list_flat * F)
       if (IsMat (Obj))
 	{
 	  NspMatrix *A = (NspMatrix *) Obj;
+	  /* take care that A must be switched to double or 
+	   * expanded if in implicit compact mode
+	   */
+	  A = Mat2double (A);
 	  F->sz[i] = A->m;
 	  F->sz[i + F->n] = A->n;
 	  if (A->rc_type == 'r')
@@ -331,7 +337,12 @@ static int scicos_fill_sim (NspHash * Sim, scicos_sim * scsim)
       if (loc + i != (void *) &scsim->funs
 	  && loc + i != (void *) &scsim->labels
 	  && loc + i != (void *) &scsim->opar)
-	loc[i] = (void *) ((NspMatrix *) scsim->Sim_elts[i])->R;
+	{
+	  /* be sure to be in proper state before getting R */
+	  if (IsMat (scsim->Sim_elts[i]) == TRUE)
+	    scsim->Sim_elts[i]= Mat2double(scsim->Sim_elts[i]);
+	  loc[i] = (void *) ((NspMatrix *) scsim->Sim_elts[i])->R;
+	}
     }
 
   scsim->Sim = Sim;
