@@ -71,6 +71,8 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
 	end
       end
       if ~v_ok then continue;end 
+      // force all u to be present variables 
+      %bexp.set_extra_names['u'+string(1:8)];
       %nz=%bexp.logicals[];
       %bexp.bcomp[];
       [ipar,rpar]=%bexp.get_bcode[];
