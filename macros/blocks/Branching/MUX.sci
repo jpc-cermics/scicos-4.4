@@ -19,25 +19,36 @@ function [x,y,typ]=MUX(job,arg1,arg2)
 			     'Number of input ports or vector of sizes',list('vec',-1),exprs)
       if ~ok then break,end
       if size(in,'*')==1 then
-	if in<2|in>31 then
-	  message('Block must have at least two input ports and at most 31')
+	if in<1|in>31 then
+	  message('Block must have at least one input port and at most 31')
 	  ok=%f
 	else
-	  [model,graphics,ok]=check_io(model,graphics,-[1:in]',0,[],[])
+	  it=-ones(in,1)
+	  ot=-1
+	  inp=[-[1:in]',ones(in,1)]
+	  oup=[0,1]
+	  [model,graphics,ok]=set_io(model,graphics,...
+				     list(inp,it),...
+				     list(oup,ot),[],[])
 	end
       else
-	if size(in,'*')<2| or(in==0)|size(in,'*')>31 then
-	  message(['Block must have at least two input ports';
+	if size(in,'*')==0| or(in==0)|size(in,'*')>31 then
+	  message(['Block must have at least one input port';
 		   'and at most 31. Size 0 is not allowed. '])
 	  ok=%f
 	else
 	  if min(in)<0 then nout=0,else nout=sum(in),end
-	  [model,graphics,ok]=check_io(model,graphics,in(:),nout,[],[])
-	  if ok then in=size(in,'*'),end
+	  it=-ones(size(in,'*'),1)
+	  ot=-1
+	  inp=[in(:),ones(size(in,'*'),1)]
+	  oup=[nout,1]
+	  [model,graphics,ok]=set_io(model,graphics,...
+				     list(inp,it),...
+				     list(oup,ot),[],[])
 	end
       end
       if ok then
-	graphics.exprs=exprs;model.ipar=in
+	graphics.exprs=exprs;
 	x.graphics=graphics;x.model=model
 	break
       end
@@ -47,8 +58,9 @@ function [x,y,typ]=MUX(job,arg1,arg2)
     model=scicos_model()
     model.sim=list('multiplex',4)
     model.in=-[1:in]'
+    model.intyp=-ones(in,1)
     model.out=0
-    model.ipar=in
+    model.outtyp=-1
     model.blocktype='c'
     model.dep_ut=[%t %f]
 
@@ -57,6 +69,6 @@ function [x,y,typ]=MUX(job,arg1,arg2)
 	  'if ~exists(''%zoom'') then %zoom=1, end;'
 	  'fz=2*%zoom*4;'
 	  'xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx=''center'',posy=''bottom'',size=fz);'];
-    x=standard_define([.5 2],model,exprs,gr_i,'MUX');
+    x=standard_define([.5 2],model,exprs,gr_i,'MUX')
   end
 endfunction

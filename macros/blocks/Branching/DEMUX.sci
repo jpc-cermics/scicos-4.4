@@ -18,26 +18,42 @@ function [x,y,typ]=DEMUX(job,arg1,arg2)
       [ok,out,exprs]=getvalue('Set DEMUX block parameters',..
 			      ['Number of output ports or vector of sizes'],list('vec',-1),exprs)
       if ~ok then break,end
+
       if size(out,'*')==1 then
-	if out<2|out>31 then
-	  message('Block must have at least 2 and at most 31 output ports')
+	if out<1|out>31 then
+	  message('Block must have at least 1 and at most 31 output ports')
 	  ok=%f
 	else
-	  [model,graphics,ok]=check_io(model,graphics,0,-[1:out]',[],[])
+
+          it=-1
+          ot=-ones(out,1)
+          oup=[-[1:out]',ones(out,1)]
+          inp=[0,1]
+          [model,graphics,ok]=set_io(model,graphics,...
+                                 list(inp,it),...
+                                 list(oup,ot),[],[])
 	end
       else
-        if size(out,'*')<2| or(out==0)|size(out,'*')>31 then
-	  message(['Block must have at least 2 and at most 31 output ports';
+        if size(out,'*')==0| or(out==0)|size(out,'*')>31 then
+	  message(['Block must have at least 1 and at most 31 output ports';
 		   'size 0 is not allowed'])
 	  ok=%f
 	else
 	  if min(out)<0 then nin=0,else nin=sum(out),end
-	  [model,graphics,ok]=check_io(model,graphics,nin,out(:),[],[])
-	  if ok then out=size(out,'*'),end
+
+          it=-1
+          ot=-ones(size(out,'*'),1)
+          oup=[out(:),ones(size(out,'*'),1)]
+          inp=[nin,1]
+ 
+          [model,graphics,ok]=set_io(model,graphics,...
+                                 list(inp,it),...
+                                 list(oup,ot),[],[])
 	end
       end
+
       if ok then
-	graphics.exprs=exprs;model.ipar=out
+	graphics.exprs=exprs;
 	x.graphics=graphics;x.model=model
 	break
       end
@@ -48,7 +64,8 @@ function [x,y,typ]=DEMUX(job,arg1,arg2)
     model.sim=list('multiplex',4)
     model.in=0 //means equal to the sum of the outputs
     model.out=-[1:out]'
-    model.ipar=out
+    model.intyp=-1
+    model.outtyp=-ones(out,1)
     model.blocktype='c'
     model.firing=[]
     model.dep_ut=[%t %f]
@@ -58,6 +75,6 @@ function [x,y,typ]=DEMUX(job,arg1,arg2)
 	  'if ~exists(''%zoom'') then %zoom=1, end;'
 	  'fz=2*%zoom*4;'
 	  'xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx=''center'',posy=''bottom'',size=fz);'];
-    x=standard_define([.5 2],model,exprs,gr_i,'DEMUX');
+    x=standard_define([.5 2],model,exprs,gr_i,'DEMUX')
   end
 endfunction

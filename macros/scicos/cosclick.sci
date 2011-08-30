@@ -166,7 +166,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   end
 
   if ~isempty(%pt) then 
-    str_pt=sprintf("[%05.0f,%05.0f]",%pt(1),%pt(2));
+    str_pt= sprintf("[%05.0f,%05.0f]",%pt(1),%pt(2));
   else
     str_pt= "[]";
   end
