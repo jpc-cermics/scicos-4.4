@@ -222,7 +222,7 @@ static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
   D->pol->obj->mesh = TRUE;
   D->pol->obj->shade = FALSE;/* shade; */
   /* insert the new polyhedron */
-  if ( nsp_objs3d_insert_child(D->objs3d, (NspGraphic *) D->pol)== FAIL)
+  if ( nsp_objs3d_insert_child(D->objs3d, (NspGraphic *) D->pol,FALSE)== FAIL)
     {
       Scierror("Error: failed to insert contour in Figure\n");
       return;
