@@ -30,7 +30,7 @@ function [x,y,typ]=CMAT3D(job,arg1,arg2)
     while %t do
       [ok,vec_x,vec_y,colormap,cmin,cmax,al,th,exprs]=getvalue('Set Scope parameters',...
 						  gv_titles,gv_types,exprs);
-      if ~ok then break,end //user cancel modification
+      if ~ok then return;end //user cancel modification
       mess=[]
       if size(vec_x,'*')<>size(vec_y,'*') then
 	message(['Vector X and Vector Y must have the same size']);
