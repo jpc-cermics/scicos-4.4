@@ -1,8 +1,8 @@
 function txt_xml=lecture_xml(nom)
 // Copyright INRIA
 // développé par EADS-CCR
-  txt_xml=[];
-  vect=mgetl('SCI/toolboxes/scicos-4.4/macros/blocks/PDE/'+nom);
+  txt_xml=m2s([]);
+  vect=scicos_mgetl('SCI/toolboxes/scicos-4.4/macros/blocks/PDE/'+nom);
   // //lecture du code xml
   for i=1:size(vect,1)
     txt_xml=txt_xml+vect(i)+'$';
