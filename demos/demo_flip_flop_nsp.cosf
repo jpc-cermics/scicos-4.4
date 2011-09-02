@@ -1928,7 +1928,7 @@ H__0=hash_create(17);
        H__3('exprs')= []
        L__4=list();
         L__4(1)=
-        [ "draw_dlatch(orig,sz,o);" ]
+        [ "dlatch_draw(orig,sz,o);" ]
         
         L__4(2)=
         [   24 ]
