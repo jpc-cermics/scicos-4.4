@@ -128,11 +128,25 @@ function vect=addf_mat(M,N)
 endfunction
 
 function str=addf(a,b)
+// Il y a ici une grosse difficulté 
+// Il faut pouvoir évaluer a et b 
+// sans aller chercher dans les environement 
+// appellant.
+  
+  an=a;bn=b;
   ea=evstr(a);
-  if ~isempty(ea) && ea.equal[0] then str=b;return;end
+  if ~isempty(ea) then an= m2s(ea,'%15.9f");end 
   eb=evstr(b);
-  if ~isempty(eb) && eb.equal[0] then str=a;return;end
-  str=a+"+"+b
+  if ~isempty(eb) then bn= m2s(eb,'%15.9f");end 
+  if ea.equal[0] then str=bn;return;end
+  if eb.equal[0] then str=an;return;end
+  if ~validvar(an,id='NAME') && ~validvar(an,id='NUMBER') then 
+    an='('+an+')';
+  end
+  if ~validvar(bn,id='NAME') && ~validvar(bn,id='NUMBER') then 
+    bn='('+bn+')';
+  end
+  str=an+"+"+bn
   estr= evstr(str);
   if ~isempty(estr) && type(estr,"short')=='m' then 
     if estr == int(estr) then 

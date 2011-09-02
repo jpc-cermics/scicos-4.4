@@ -1,6 +1,8 @@
-function r=validvar(s)
+function r=validvar(s,id='NAME')
 // Copyright INRIA
-// check if the string s is a valid identifier
+// checks if the string s is a valid object of 
+// type id. id can be choosen among 
+// 'NAME', 'NUMBER','INUMBER32', INUMBER64, UNUMBER32,UNUMBER64
 // rewriten for nsp (jpc Nov 2010) 
 // 
   s=stripblanks(s)
@@ -13,7 +15,8 @@ function r=validvar(s)
   ast = pl2l(foo);
   ok= execstr('name = ast(3)(2)(2)',errcatch=%t);
   if ~ok then  lasterror(); return;end 
-  if type(name,'short')== 'astnode' && name.get_idname[] == 'NAME' then 
+  if type(name,'short')== 'astnode' && name.get_idname[] == id  then 
     r=%t;
   end 
 endfunction
+
