@@ -2,6 +2,8 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
           a,b,b1,b2,b3,b4,b5,b6,b7,vbc,kbc)
 // Copyright INRIA
 // développé par EADS-CCR
+// Attention a2 et a4 sont obtenus par environement.
+// 
 // Cette fonction est pour la génération des équations DAE du bloc        //
 // sorties :                                                              //
 //    - equations (String) : vecteur qui contient le code C des équations //
@@ -154,3 +156,10 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
   
 endfunction
 
+if %f then 
+  F3=(1:4);
+  A=sprand(4,4);
+  B1=sprand(4,4);B2=sprand(4,4);C1=sprand(4,4);
+  C2=sprand(4,4);C3=sprand(4,4);
+  [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,[1],4,0,1,"un","deux","trois","quatre","cinq","six","sept",['poo','foo'],[0,0]);
+end
