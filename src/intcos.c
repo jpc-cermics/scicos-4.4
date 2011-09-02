@@ -1018,6 +1018,7 @@ static OpTab Scicos_func[] = {
   {"curblock", int_curblock},
   {"setblockerror", int_setblockerror},
   {"time_scicos", int_time_scicos},
+  {"scicos_time", int_time_scicos},
   {"duplicate", int_duplicate},
   {"xproperty", int_xproperty},
   {"phase_simulation", int_get_phase_simulation},
