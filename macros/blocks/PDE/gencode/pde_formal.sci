@@ -9,6 +9,7 @@ function y = multMatVect(M, x)
 // M: a pxn sparse matrix of double
 // x: a nx1 vector of string
 // y: a px1 vector of string
+  if isempty(M) then y=m2s([]); return;end
   [ij,v,mn_M]=spget(M);
   mn_x = size(x);
   if(mn_x(1) <> mn_M(2)) then
@@ -52,7 +53,7 @@ function C=mulfstring(A,B)
 // developed by EADS-CCR
 // multiply two matrices 
 // C= A * B 
-  if isempty(A) | isempty(B) then
+  if isempty(A) || isempty(B) then
      C=m2s([]);
      return;
   end
@@ -163,7 +164,7 @@ endfunction
 function x=mulfv(x1,x2)
 // Copyright INRIA
 // developed by EADS-CCR
-  if (isempty(x1) | isempty(x2) | x1 == '' | x2 == '') then
+  if (isempty(x1) || isempty(x2) || x1.equal[''] || x2.equal[''] ) then
     x='0';
   else
     x=mulf(x1,x2);
@@ -173,7 +174,7 @@ endfunction
 function x=mulf3v(x1,x2,x3)
 // Copyright INRIA
 // developed by EADS-CCR
-  if isempty(x1) | isempty(x2) | isempty(x3) then
+  if isempty(x1) || isempty(x2) || isempty(x3) then
     x='0';
   else
     x=mulf3(x1,x2,x3);

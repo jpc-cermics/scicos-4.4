@@ -42,9 +42,16 @@ function [equations,impl_type,Nfictif]=gen_code_FDM(a1,b1,a2,b2,a3,b3,a4,b4,..
     //    - ai (String) : les coeficient (ai(x)) des opérateurs               //
     //------------------------------------------------------------------------//  
     x=a;
+    for j=1:7
+      execstr(sprintf('a%d_ev=zeros(N,1)',j));
+    end
     for i=1:N
-      a1_ev(i)=evstr(a1); a2_ev(i)=evstr(a2); a3_ev(i)=evstr(a3); a4_ev(i)=evstr(a4); 
-      a5_ev(i)=evstr(a5); a7_ev(i)=evstr(a7); a6_ev(i)=evstr(a6);
+      for j=1:7;
+	execstr(sprintf('r=evstr(a%d);',j));
+	if ~isempty(r) then 
+	  execstr(sprintf('a%d_ev(%d)=r',j,i));
+	end
+      end
       x=x+h;
     end
     if (kbc(1) == 1) then
@@ -137,8 +144,11 @@ function [equations,impl_type,Nfictif]=gen_code_FDM(a1,b1,a2,b2,a3,b3,a4,b4,..
           end
         end
       else        
-        B=addfv(mulfv(mulfv(msprintfv(a3_ev(i)),b3),vec2(i+Nfictif)),mulfv(multMatVect(coef4(i,:),vec2(Nfictif+1:$)),b4));
-        C=addfv(mulfv(multMatVect(coef2(i,:),vec2(1:Nfictif)),b2),addfv(mulfv(multMatVect(coef5(i,:),..
+        B=addfv(mulfv(mulfv(msprintfv(a3_ev(i)),b3),vec2(i+Nfictif)), ...
+		mulfv(multMatVect(coef4(i,:),vec2(Nfictif+1:$)),b4));
+	if isempty(coef2) then coef2i=sparse([]);else coef2i=coef2(i,:);end
+	if isempty(coef5) then coef5i=sparse([]);else coef5i=coef5(i,:);end;
+        C=addfv(mulfv(multMatVect(coef2i,vec2(1:Nfictif)),b2),addfv(mulfv(multMatVect(coef5i,..
           vec2(1:Nfictif)),b5),mulf3v(msprintfv(a6_ev(i)),b6,vec2(i))));
         A=mulf3v(msprintfv(a1_ev(i)),b1,dvec2(i+Nfictif));
         equations(i+Nfictif)='   res['+string(i+Nfictif-1)+']='+subfv(subfv(subfv(F,A),B),C)+';';
@@ -182,7 +192,9 @@ function [equations,impl_type,Nfictif]=gen_code_FDM(a1,b1,a2,b2,a3,b3,a4,b4,..
         end
       else
         B=addfv(mulfv(mulfv(msprintfv(a3_ev(i)),b3),dvec2(i)),mulfv(multMatVect(coef4(i,:),dvec2(:)),b4));
-        C=addfv(mulfv(multMatVect(coef2(i,:),vec2(:)),b2),addfv(mulfv(multMatVect(coef5(i,:),..
+	if isempty(coef2) then coef2i=sparse([]);else coef2i=coef2(i,:);end;
+	if isempty(coef5) then coef5i=sparse([]);else coef5i=coef5(i,:);end;
+        C=addfv(mulfv(multMatVect(coef2i,vec2(:)),b2),addfv(mulfv(multMatVect(coef5i,..
           vec2(:)),b5),mulf3v(msprintfv(a6_ev(i)),b6,vec2(i))));
         equations(i)='   res['+string(i-1)+']='+subfv(subfv(F,B),C)+';';
       end
@@ -225,8 +237,11 @@ function [equations,impl_type,Nfictif]=gen_code_FDM(a1,b1,a2,b2,a3,b3,a4,b4,..
         end
       else
         B=mulf3v(msprintfv(a3_ev(i)),b3,dvec2(i));
-        C=addfv(mulfv(multMatVect(coef2(i,:),vec2(:)),b2),addfv(mulfv(multMatVect(coef5(i,:),..
-          vec2(:)),b5),mulf3v(msprintfv(a6_ev(i)),b6,vec2(i))));
+	if isempty(coef2) then coef2i=sparse([]);else coef2i=coef2(i,:);end;
+	if isempty(coef5) then coef5i=sparse([]);else coef5i=coef5(i,:);end;
+	C=addfv(mulfv(multMatVect(coef2i,vec2(:)),b2),...
+		addfv(mulfv(multMatVect(coef5i, vec2(:)),b5),...
+		      mulf3v(msprintfv(a6_ev(i)),b6,vec2(i))));
         equations(i)='   res['+string(i-1)+']='+subfv(subfv(F,B),C)+';';
       end
     end
@@ -266,8 +281,11 @@ function [equations,impl_type,Nfictif]=gen_code_FDM(a1,b1,a2,b2,a3,b3,a4,b4,..
           end
         end
       else     
-        C=addfv(mulfv(multMatVect(coef2(i,:),vec2(:)),b2),addfv(mulfv(multMatVect(coef5(i,:),..
-          vec2(:)),b5),mulf3v(msprintfv(a6_ev(i)),b6,vec2(i))));
+	if isempty(coef2) then coef2i=sparse([]);else coef2i=coef2(i,:);end;
+	if isempty(coef5) then coef5i=sparse([]);else coef5i=coef5(i,:);end;
+        C=addfv(mulfv(multMatVect(coef2i,vec2(:)),b2),...
+		addfv(mulfv(multMatVect(coef5i,vec2(:)),b5),...
+		      mulf3v(msprintfv(a6_ev(i)),b6,vec2(i))));
         equations(i)='   res['+string(i-1)+']='+subfv(F,C)+';';
       end 
     end

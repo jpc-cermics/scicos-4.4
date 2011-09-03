@@ -65,8 +65,8 @@ function [x,y,typ]=PDE(job,arg1,arg2)
 	  break;
 	end
       end
+      label(3)=lab;
     end
-    label(3)=lab;
     // arbre de decision
     if (choix == 0) then
       // Choix automatique 
@@ -140,10 +140,12 @@ function [x,y,typ]=PDE(job,arg1,arg2)
 	end
       end
     end
-    // Ecriture, compilation et linkage du code
-    // if (fun(3) == "clickin") then  
-    // always ulink and link 
-    ok=CFORTREDP(rdnom,tt);
+    // compile and link the code
+    if ~isempty(tt) then
+      [ok]=scicos_block_link(rdnom,tt,'c');
+    else
+      ok=%f;
+    end  
     if ~ok then return;end
     //end
     [model,graphics,ok]=check_io(model,graphics,ones(k,1),out(:),[],[])
@@ -208,7 +210,6 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     params_pde.CLb="0";
     params_pde.CLb_exp="IN_CL2(t)";
     params_pde.points="";
-        
     // dans label on mis infos de getvalue, infos ihm et le code C
     label=list(params_pde,[],'pde');
     gr_i=['txt=CCC;';
@@ -216,4 +217,5 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     x=standard_define([4 4],model,label,gr_i,'PDE');
   end
 endfunction
+
 

@@ -9,12 +9,10 @@ function M=Disc_diff_oper2(N,h)
 //    - N (Entier) : est le nombre de noeuds                                       //
 //    - h (Double) : est le pas de discretisation h= (b-a)/N  (i.e x(i)= i* h)     //
 //---------------------------------------------------------------------------------//
-  // operateur d'ordre 2 d2u/dx2
-  
+// operateur d'ordre 2 d2u/dx2
   h1=h^2;
-  
   // Matrice identique quel que soit le centrage
-  Mij=[[(1:N) (2:N) (1:N-1)]',[(1:N) (1:N-1) (2:N)]'];
+  Mij=[[(1:N),(2:N),(1:N-1)]',[(1:N),(1:N-1),(2:N)]'];
   Mmn=[N, N];
   Mval=[(-2/h1)*ones(N,1); (1/h1)*ones(N-1,1); (1/h1)*ones(N-1,1)];
   M=sparse(Mij, Mval, Mmn);

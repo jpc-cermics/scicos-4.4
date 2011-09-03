@@ -16,7 +16,7 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
   // pour plus d'information voir les fonctions de calcul des blocs Scicos de type 4      
   // (explicite) et de type 10004 (implicite).                                            
 
-  Code=['#include <scicos/scicos_block.h>'
+  Code=['#include <scicos/scicos_block4.h>'
 	'#include <math.h>'
         ' '       
         'void  '+rdnom+'(scicos_block *block,int flag)'
@@ -93,14 +93,14 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
     if isempty(find(oper == 1)) then
       for i=1:N
         condini=[condini
-                 '   x['+string(i-1)+']='+msprintf('%.16g',evstr(CI))+';'];
+                 '   x['+string(i-1)+']='+sprintf('%.16g',evstr(CI))+';'];
         x=x+h;
       end
     else
       for i=1:N
         condini=[condini
-                 '   x['+string(i-1)+']='+msprintf('%.16g',evstr(CI))+';';
-                 '   x['+string(i+N-1)+']='+msprintf('%.16g',evstr(CI1))+';'];
+                 '   x['+string(i-1)+']='+sprintf('%.16g',evstr(CI))+';';
+                 '   x['+string(i+N-1)+']='+sprintf('%.16g',evstr(CI1))+';'];
         x=x+h;
       end
     end
