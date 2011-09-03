@@ -81,14 +81,19 @@ function [x,y,typ]=PDE(job,arg1,arg2)
 	elseif (signe == 0) then,
 	  delta=0;
 	else
-	  x_message(['le discriminant n''est pas constant,'; 'Vous devez choisir son signe dans l''IHM']);
+	  x_message(['Dicriminant is not constant';
+		     'You must select a sign in gui']);
 	  return;
 	end
       else
 	delta=evstr(a4)^2-4*evstr(a1)*evstr(a2);
       end
       if (isempty(delta)) then, delta=0; end        
-      type_meth=arbre_decision(delta); 
+      if delta > 0 then	type_meth = 1;
+      elseif delta < 0 then type_meth = 3;
+      else 
+	type_meth = 2;
+      end
     end
     // a voir si c'est à rajouter pour ne pas regenerer dans le cas d'eval
     //if ~ok then
