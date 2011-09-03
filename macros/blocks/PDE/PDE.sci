@@ -29,126 +29,128 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
     
     while %t do
-      if non_interactive then 
-	[ok,a_domaine,b_domaine,discr,signe,choix,type_meth,degre,Nbr_maillage,..
-	 CI,CI1,CLa_type,CLa_exp,CLb_type,CLb_exp,oper,a1,b1,a2,b2,a3,b3,a4,b4,a5,b5,..
-	 a6,b6,a7,b7,k,mesures,params_pde]=setvalue_IHM_EDP(params_pde);
-      else
-	// use GUI 
-	[ok,a_domaine,b_domaine,discr,signe,choix,type_meth,degre,Nbr_maillage,..
-	 CI,CI1,CLa_type,CLa_exp,CLb_type,CLb_exp,oper,a1,b1,a2,b2,a3,b3,a4,b4,a5,b5,..
-	 a6,b6,a7,b7,k,mesures,params_pde]=IHM_EDP(params_pde);
-	if ok then 
+      if ~non_interactive then 
+	params_pde = pde_getvalue(params_pde);
+	if isempty(params_pde) then ok=%f; return;end // abort selected in GUI.
+      end
+      if ~pde_validate(params_pde) then
+	if non_interactive then 
+	  message(['Error: set failed for PDE but we are in a non "+...
+		   '  interactive function and thus we abort the set !']);
+	  return;
+	else
+	  continue;
+	end
+      end
+      break;
+    end
+    [a_domaine,b_domaine,discr,signe,choix,type_meth,degre,Nbr_maillage,..
+     CI,CI1,CLa_type,CLa_exp,CLb_type,CLb_exp,oper,a1,b1,a2,b2,a3,b3,a4,b4,a5,b5,..
+     a6,b6,a7,b7,k,mesures,params_pde]=pde_set(params_pde);
+    // Get the name of the file
+    rdnom='PDE';
+    if non_interactive then 
+      rdnom=label(3);
+      if rdnom==emptystr() then rdnom='pde';end
+    else
+      while %t do
+	[ok,rdnom,lab]=getvalue('Please give the block''s name.',...
+				'New block''s name :',list('str',1),label(3));
+	if ~ok then return;end// cancel in menu 
+	rdnom=stripblanks(rdnom);
+	if rdnom.equal[''] then 
+	  x_message('Blocks name should not be an empty string');
+	  continue;
+	else
+	  break;
+	end
+      end
+    end
+    label(3)=lab;
+    // arbre de decision
+    if (choix == 0) then
+      // Choix automatique 
+      ind4=strindex(a4,'x');
+      ind1=strindex(a1,'x');
+      ind2=strindex(a2,'x');
+      if (~isempty(ind4) | ~isempty(ind1) |~isempty(ind2)) then 
+	if (signe == 1) then,
+	  delta=1;
+	elseif (signe == 2) then,
+	  delta=-1;
+	elseif (signe == 0) then,
+	  delta=0;
+	else
+	  x_message(['le discriminant n''est pas constant,'; 'Vous devez choisir son signe dans l''IHM']);
 	  return;
 	end
-      end
-      
-      //**********************************
-      // Get the name of the file
-      //***********************************
-      okk=%f;rdnom='PDE';ok1=%t;
-      while %t do
-	[okk,rdnom,lab]=getvalue('PLEASE, GIVE US THE BLOCK''s NAME. ',..
-				 'New block''s name :',list('str',1),label(3));
-	
-	if okk==%f then ok1=%f;return; end
-	label(3)=lab;
-	rdnom=stripblanks(rdnom);     
-	if rdnom==emptystr() then 
-	  ok1=%f;x_message('sorry C file name not defined');
-	end
-	if ok1 then break,end
-      end
-      
-      // arbre de decision
-      if (choix == 0) then
-	// Choix automatique 
-	ind4=strindex(a4,'x');
-	ind1=strindex(a1,'x');
-	ind2=strindex(a2,'x');
-	if (~isempty(ind4) | ~isempty(ind1) |~isempty(ind2)) then 
-	  if (signe == 1) then,
-	    delta=1;
-	  elseif (signe == 2) then,
-	    delta=-1;
-	  elseif (signe == 0) then,
-	    delta=0;
-	  else
-	    x_message(['le discriminant n''est pas constant,'; 'Vous devez choisir son signe dans l''IHM']);
-	    return;
-	  end
-	else
-	  delta=evstr(a4)^2-4*evstr(a1)*evstr(a2);
-	end
-	if (isempty(delta)) then, delta=0; end        
-	type_meth=arbre_decision(delta); 
-      end
-      // a voir si c'est à rajouter pour ne pas regenerer dans le cas d'eval
-      //if ~ok then
-      [flag_type,rdnom,DF_type,tt]=translate(CI,CI1,CLa_type,CLa_exp,CLb_type,CLb_exp,oper,type_meth,degre,a_domaine,..
-					     b_domaine,Nbr_maillage,a1,b1,a2,b2,a3,b3,a4,b4,a5,b5,a6,b6,a7,b7,rdnom,mesures);
-      //else
-      //   tt=label(3);
-      //end
-      
-      // augmentation du systeme avec les noeuds fictifs
-      Nbr=Nbr_maillage;
-      if ((CLa_type == 1) & (DF_type == 0 | DF_type == 1)) | ((CLb_type == 1) & (DF_type == 0 | DF_type == 2)) then
-	Nbr=Nbr+1;
-      end 
-      
-      if ( isempty(mesures )) then
-	out=Nbr_maillage;
       else
-	out=[Nbr_maillage;size(mesures,'*')];
+	delta=evstr(a4)^2-4*evstr(a1)*evstr(a2);
       end
-      if (flag_type == 1) then 
-	// explicite
-	model.sim=list(rdnom,2004);
-	if ~isempty(find(oper == 1)) then
-	  model.state=zeros(2*Nbr_maillage,1);  
-	else
-	  model.state=zeros(Nbr_maillage,1);
-	end
-      elseif (flag_type == 2) then 
-	model.sim=list(rdnom,12004);
-	if ~isempty(find(oper == 1)) then
-	  if (type_meth ==3 & ( ~isempty(find(oper == 2)) | ~isempty(find(oper == 4)))) then
-	    model.state=zeros(6*Nbr_maillage,1);
-	  elseif (type_meth == 1) then
-	    model.state=zeros(4*Nbr,1);
-	  else 
-	    model.state=zeros(4*Nbr_maillage,1);
-	  end
-	else
-	  if (type_meth == 3 & (~isempty(find(oper == 2)) | ~isempty(find(oper == 4)))) then
-	    model.state=zeros(4*Nbr_maillage,1);
-	  elseif (type_meth == 1) then
-	    model.state=zeros(2*Nbr,1);
-	  else
-	    model.state=zeros(2*Nbr_maillage,1);
-	  end
-	end
-      end
-      
-      // Ecriture, compilation et linkage du code
-      // if (fun(3) == "clickin") then  
-      // always ulink and link 
-      [ok1]=CFORTREDP(rdnom,tt);
-      if ~ok1 then break,end
-      //end
-      
-      if ~ok then
-	[model,graphics,ok]=check_io(model,graphics,ones(k,1),out(:),[],[])
-      end
-      label(1)=params_pde;
-      label(2)=tt;
-      graphics.exprs=label;
-      x.graphics=graphics;
-      x.model=model;
-      break
+      if (isempty(delta)) then, delta=0; end        
+      type_meth=arbre_decision(delta); 
     end
-    
+    // a voir si c'est à rajouter pour ne pas regenerer dans le cas d'eval
+    //if ~ok then
+    [flag_type,rdnom,DF_type,tt]=translate(CI,CI1,CLa_type,CLa_exp,CLb_type,CLb_exp,...
+					   oper,type_meth,degre,a_domaine,..
+					   b_domaine,Nbr_maillage,a1,b1,a2,b2,a3,...
+					   b3,a4,b4,a5,b5,a6,b6,a7,b7,rdnom,mesures);
+    // augmentation du systeme avec les noeuds fictifs
+    Nbr=Nbr_maillage;
+    if ((CLa_type == 1) & (DF_type == 0 | DF_type == 1)) || ...
+	  ((CLb_type == 1) & (DF_type == 0 | DF_type == 2)) then
+      Nbr=Nbr+1;
+    end 
+    if ( isempty(mesures )) then
+      out=Nbr_maillage;
+    else
+      out=[Nbr_maillage;size(mesures,'*')];
+    end
+    if (flag_type == 1) then 
+      // explicite
+      model.sim=list(rdnom,2004);
+      if ~isempty(find(oper == 1)) then
+	model.state=zeros(2*Nbr_maillage,1);  
+      else
+	model.state=zeros(Nbr_maillage,1);
+      end
+    elseif (flag_type == 2) then 
+      model.sim=list(rdnom,12004);
+      if ~isempty(find(oper == 1)) then
+	if (type_meth ==3 & ( ~isempty(find(oper == 2)) | ~isempty(find(oper == 4)))) then
+	  model.state=zeros(6*Nbr_maillage,1);
+	elseif (type_meth == 1) then
+	  model.state=zeros(4*Nbr,1);
+	else 
+	  model.state=zeros(4*Nbr_maillage,1);
+	end
+      else
+	if (type_meth == 3 & (~isempty(find(oper == 2)) | ~isempty(find(oper == 4)))) then
+	  model.state=zeros(4*Nbr_maillage,1);
+	elseif (type_meth == 1) then
+	  model.state=zeros(2*Nbr,1);
+	else
+	  model.state=zeros(2*Nbr_maillage,1);
+	end
+      end
+    end
+    // Ecriture, compilation et linkage du code
+    // if (fun(3) == "clickin") then  
+    // always ulink and link 
+    [ok1]=CFORTREDP(rdnom,tt);
+    if ~ok1 then break,end
+    //end
+    if ~ok then
+      [model,graphics,ok]=check_io(model,graphics,ones(k,1),out(:),[],[])
+    end
+    label(1)=params_pde;
+    label(2)=tt;
+    graphics.exprs=label;
+    x.graphics=graphics;
+    x.model=model;
+    break
+   
    case 'define' then
     model=scicos_model()
     model.state=zeros(10,1)

@@ -1,27 +1,28 @@
 function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
           a,b,b1,b2,b3,b4,b5,b6,b7,vbc,kbc)
-// Copyright INRIA
-// développé par EADS-CCR
-// Attention a2 et a4 sont obtenus par environement.
-// 
-// Cette fonction est pour la génération des équations DAE du bloc        //
-// sorties :                                                              //
-//    - equations (String) : vecteur qui contient le code C des équations //
-//      d'etat (DAE)                                                      //
-//    - impl_type (Entier) : indique si le type des états                 //
-//      (différentiels 1 ou algébrique -1)                                //       
-// entrées :                                                              //
-//    - Ai, Bi (Doubles) : matrices d'assemblage A, B (B1 (oper 3) et     //
-//      B2(oper 4), C (C1 pour oper 2, C2 pour oper 5 et C3 pour oper 6)  //
-//      et F3 pour oper 7) pour le système: A*d2u/dt2 + B*du/dt + C*u = F // 
-//    - oper (Entier) : vecteur des opérateurs selectionnes de 1 à 7      //   
-//    - N (Entier) : est le nombre de noeuds                              //
-//    - a, b (Double) : limites du domaine [a b]                          //
-//    - ai, bi (String) : les differents coeficients des opérateurs       //
-//      (ai(x) et bi(t))                                                  //
-//    - vbc (String) : vecteur des conditions aux limites en a et b       //
-//    - kbc (Entier) : vecteur types des conditions au limites            //
-//------------------------------------------------------------------------//  
+  // Copyright INRIA
+  // développé par EADS-CCR
+  // Attention a2 et a4 sont obtenus par environement.
+  // 
+  // Cette fonction est pour la génération des équations DAE du bloc       
+  // sorties :                                                             
+  //    - equations (String) : vecteur qui contient le code C des équations
+  //      d'etat (DAE)                                                     
+  //    - impl_type (Entier) : indique si le type des états                
+  //      (différentiels 1 ou algébrique -1)                                      
+  // entrées :                                                             
+  //    - A,B1,B2,C1,C2,C3,F3,(sparse Doubles):
+  //      matrices d'assemblage A, B (B1 (oper 3) et C2(oper 4), 
+  //      C (C1 pour oper 2, C2 pour oper 5 et C3 pour oper 6)  
+  //      et F3 pour oper 7) pour le système: A*d2u/dt2 + B*du/dt + C*u = F 
+  //    - oper (Entier) : vecteur contenant les opérateurs selectionnés de 1 à 7        
+  //    - N (Entier) : est le nombre de noeuds                             
+  //    - a, b (Double) : limites du domaine [a b]                         
+  //    - ai, bi (String) : les differents coeficients des opérateurs      
+  //      (ai(x) et bi(t))                                                 
+  //    - vbc (String) : vecteur des conditions aux limites en a et b      
+  //    - kbc (Entier) : vecteur types des conditions au limites           
+  //------------------------------------------------------------------------//  
   Cla2=[];Clb2=[];Cla4=[];Clb4=[];lambda=spzeros(N,N);
   impl_type=1; // 1 pour système d'état, -1 pour le système algébrique 
   sep=[',','*','/'];
@@ -46,17 +47,12 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
     end
   end    
   //*******************************************************
-    
+  
   if ~isempty(find(oper == 1)) then
   // cas d2u/dt2 ==> implicite
     equations=emptystr(2*N,1);
-    vec2=equations;
-    dvec2=vec2;
-    for i=1:2*N
-      vec2(i)='x['+string(i-1)+']';
-      dvec2(i)='xd['+string(i-1)+']';
-    end
-  
+    vec2='x['+string((1:2*N)'-1)+']';
+    dvec2='xd['+string((1:2*N)'-1)+']';
     for i=1:N
       equations(i)='   res['+string(i-1)+']='+subf(vec2(i+N),dvec2(i))+';';
       F=mulfv(msprintfv(F3(i)),b7);
@@ -87,13 +83,8 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
   elseif ~isempty( find(oper == 3)) | ~isempty(find(oper == 4)) then
     // cas du/dt (oper 3 ou 4) ==> implicite 
     equations=emptystr(N,1);
-    vec2=equations;
-    dvec2=vec2;
-    for i=1:N
-      vec2(i)='x['+string(i-1)+']';
-      dvec2(i)='xd['+string(i-1)+']';
-    end
-    
+    vec2='x['+string((1:N)'-1)+']';
+    dvec2='xd['+string((1:N)'-1)+']';
     for i=1:N
       F=mulfv(msprintfv(F3(i)),b7);
       if (i == 1) then
@@ -123,11 +114,8 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
     // cas algébrique ==> implicite 
     impl_type=-1;
     equations=emptystr(N,1);
-    vec2=equations;
-    for i=1:N
-      vec2(i)='x['+string(i-1)+']';
-    end
-
+    vec2='x['+string((1:N)'-1)+']';
+    
     for i=1:N
       F=mulfv(msprintfv(F3(i)),b7);
       if (i == 1) then
@@ -149,17 +137,19 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
       end      
       C=mulfstring(addf_mat(multVectStr(-C1(i,:),b2),addf_mat(addf_mat(multVectStr(C2(i,:),b5),..
         multVectStr(C3(i,:),b6)),msprintfv(full(lambda(i,:))')')),vec2(:));
-         
       equations(i)='   res['+string(i-1)+']='+subfv(F,C)+';';
     end    
   end
-  
 endfunction
+
 
 if %f then 
   F3=(1:4);
-  A=sprand(4,4);
-  B1=sprand(4,4);B2=sprand(4,4);C1=sprand(4,4);
-  C2=sprand(4,4);C3=sprand(4,4);
-  [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,[1],4,0,1,"un","deux","trois","quatre","cinq","six","sept",['poo','foo'],[0,0]);
+  A=int(100*sprand(4,4,0.9))./10; A=sparse(int(100*rand(4,4))/10);
+  B1=int(100*sprand(4,4,0.9))./10;
+  B2=int(100*sprand(4,4,0.9))./10;
+  C1=int(100*sprand(4,4,0.9))./10;
+  C2=int(100*sprand(4,4,0.9))./10;
+  C3=int(100*sprand(4,4,0.9))./10;
+  [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,[1:7],4,0,1,"un","deux","trois","quatre","cinq","six","sept",['poo','foo'],[0,0]);
 end
