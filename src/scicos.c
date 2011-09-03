@@ -2886,7 +2886,7 @@ static void callf (const double *t, scicos_block * block, int *flag)
   ScicosFi2 loci2;
   ScicosFi2z loci2z;
   ScicosF4 loc4;
-
+  
   int solver = Scicos->params.solver;
   int cosd = Scicos->params.debug;
   /*int kf     = Scicos->params.curblk; */
@@ -3773,7 +3773,8 @@ void putevs (const double *t, int *evtnb, int *ierr1)
 
 /* Subroutine idoit */
 void idoit (double *told)
-{				/* initialisation (propagation of constant blocks outputs) */
+{	
+  /* initialisation (propagation of constant blocks outputs) */
   /*     Copyright INRIA */
 
   int i2;

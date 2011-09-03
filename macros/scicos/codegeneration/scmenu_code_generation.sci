@@ -10946,8 +10946,8 @@ function [Code,Code_xml_param]=make_standalone43()
   //@@ scicoslab headers
   Code=[Code;
         '/* ---- ScicosLab headers ---- */'
-        '#include '"scicos_block4.h'"'
-        '#include '"machine.h'"'
+        '#include <scicos/scicos_block4.h>'
+        '#include <nsp/machine.h>'
         '']
 
   //@@ solver headers

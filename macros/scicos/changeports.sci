@@ -132,42 +132,39 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
   //** Inputs of the OLD block 
   xsmin=[] ; ysmin =[] ; tsmin = []; xein = [] ; yein = []
   for i=1:size_inputs
-
-     if tin(i)==1 | tin(i)==2 | tin(i)==3 then //** standard,buses OR Modelica input
-        xsmin = [ xsmin xin(i) ] ;
-	ysmin = [ ysmin yin(i) ] ;
-	tsmin = [ tsmin tin(i) ] ;
-     elseif tin(i)==-1 then //** event input
-        xein  = [ xein xin(i) ] ;
-	yein  = [ yein yin(i) ] ;
-     else
-       printf("InOLD:The input type is unknow\n"); pause
-     end
-
-  end //**... of for loop
-
+    if tin(i)==1 | tin(i)==2 | tin(i)==3 then
+      // standard,buses OR Modelica input
+      xsmin = [ xsmin xin(i) ] ;
+      ysmin = [ ysmin yin(i) ] ;
+      tsmin = [ tsmin tin(i) ] ;
+    elseif tin(i)==-1 then //** event input
+      xein  = [ xein xin(i) ] ;
+      yein  = [ yein yin(i) ] ;
+    else
+      printf("InOLD:The input type is unknow\n"); pause
+    end
+  end
+  
   //** Inputs of the NEW block
   xsmin_n=[] ; ysmin_n =[] ; tsmin_n = []; xein_n = [] ; yein_n = []
   for i=1:size_inputs_n
-
-     if tin_n(i)==1 | tin_n(i)==2 | tin_n(i)==3 then //** standard,buses OR Modelica input
-        xsmin_n = [ xsmin_n xin_n(i) ] ;
-	ysmin_n = [ ysmin_n yin_n(i) ] ;
-	tsmin_n = [ tsmin_n tin_n(i) ] ;
+     if tin_n(i)==1 | tin_n(i)==2 | tin_n(i)==3 then
+       //** standard,buses OR Modelica input
+       xsmin_n = [ xsmin_n xin_n(i) ] ;
+       ysmin_n = [ ysmin_n yin_n(i) ] ;
+       tsmin_n = [ tsmin_n tin_n(i) ] ;
      elseif tin_n(i)==-1 then //** event input
-        xein_n  = [ xein_n xin_n(i) ] ;
-        yein_n  = [ yein_n yin_n(i) ] ;
+       xein_n  = [ xein_n xin_n(i) ] ;
+       yein_n  = [ yein_n yin_n(i) ] ;
      else
        printf("InNew:The input type is unknow\n"); pause
      end 
-
-  end //**... of for loop
-
+  end 
   //** Outputs of the OLD block 
   xsmout=[] ; ysmout =[] ; tsmout = []; xeout = [] ; yeout = []
   for i=1:size_outputs
-
-     if tout(i)==1 | tout(i)==2 |tout(i)==3 then //** standard,buses OR Modelica output
+    if tout(i)==1 | tout(i)==2 |tout(i)==3 then 
+       //** standard,buses OR Modelica output
         xsmout = [ xsmout xout(i) ] ;
 	ysmout = [ ysmout yout(i) ] ;
 	tsmout = [ tsmout tout(i) ] ;
@@ -176,15 +173,13 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 	yeout  = [ yeout yout(i) ] ;
      else
        printf("OutOLD:The output type is unknow\n"); pause
-     end
-
-  end //**... of for loop 
-
+    end
+  end
   //** Outputs of the NEW block
   xsmout_n=[] ; ysmout_n =[] ; tsmout_n = []; xeout_n = [] ; yeout_n = []
   for i=1:size_outputs_n
-
-     if tout_n(i)==1 | tout_n(i)==2 | tout_n(i)==3 then //** standard,buses OR Modelica output
+    if tout_n(i)==1 | tout_n(i)==2 | tout_n(i)==3 then 
+      //** standard,buses OR Modelica output
         xsmout_n = [ xsmout_n xout_n(i) ] ;
         ysmout_n = [ ysmout_n yout_n(i) ] ;
         tsmout_n = [ tsmout_n tout_n(i) ] ;
@@ -194,9 +189,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
      else
        printf("OutNew:The output type is unknow\n"); pause
      end
-
-  end //**... of for loop
-
+  end
   //** variables for input link
   InputLinkToCon = []; xInPortToCon = []; yInPortToCon = []; NumInPortToCon = [];
   //** variables for output link

@@ -381,7 +381,7 @@ static int scicos_fill_sim (NspHash * Sim, scicos_sim * scsim)
 	{
 	  if (count >= scsim->nblk)
 	    {
-	      Scierror ("Error: funs lenght should be %d\n", scsim->nblk);
+	      Scierror ("Error: funs length should be %d\n", scsim->nblk);
 	      goto fail;
 	    }
 	  if (IsString (cloc->O))
@@ -579,9 +579,10 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
   for (kf = 0; kf < scsim->nblk; ++kf)
     {
       int b_type = scsim->funtyp[kf];
+      Sciprintf("Info: simulation type %d:\n",b_type);
       Blocks[kf].type =
 	(b_type < 10000) ? (b_type % 1000) : b_type % 1000 + 10000;
-      
+      Sciprintf("Info: après modif: %d\n",Blocks[kf].type);
       if (scsim->funflag[kf] == fun_pointer)
 	{
 	  Blocks[kf].scsptr = NULL;
@@ -638,8 +639,10 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
       Blocks[kf].nrpar = scsim->rpptr[kf + 1] - scsim->rpptr[kf];
       Blocks[kf].nipar = scsim->ipptr[kf + 1] - scsim->ipptr[kf];
       Blocks[kf].nopar = scsim->opptr[kf + 1] - scsim->opptr[kf];
-      Blocks[kf].nin = scsim->inpptr[kf + 1] - scsim->inpptr[kf];	/* number of input ports */
-      Blocks[kf].nout = scsim->outptr[kf + 1] - scsim->outptr[kf];	/* number of output ports */
+      /* number of input ports */
+      Blocks[kf].nin = scsim->inpptr[kf + 1] - scsim->inpptr[kf];
+      /* number of output ports */
+      Blocks[kf].nout = scsim->outptr[kf + 1] - scsim->outptr[kf];
 
       /* in insz, we store :
        *  - insz[0..nin-1] : first dimension of input ports

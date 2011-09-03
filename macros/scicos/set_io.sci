@@ -47,7 +47,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
       ierr=1,
       resume, 
     end
-    if var#<>list() then
+    if ~isempty(var#) then
       if length(var#)<>2 then
 	ierr=2,
 	resume, 
@@ -58,7 +58,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
 	  resume, 
 	end
       end
-      if var#(1)<>[] then
+      if ~isempty(var#(1)) then
 	if size(var#(1),2)<>2 then
 	  ierr=10,
 	  resume, 
@@ -190,7 +190,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
 
   I='E'
 
-  if ip1<>[] then
+  if ~isempty(ip1) then
     in_impl=I(ones(size(ip1)))
     in_impl(in_implicit)='I'
     in_impl(in_bus)='B'
@@ -205,7 +205,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
   else
     in_impl=[]
   end
-  if op1<>[] then
+  if ~isempty(op1) then
     out_impl=I(ones(size(op1)))
     out_impl(out_implicit)='I'
     out_impl(out_bus)='B'
@@ -241,6 +241,5 @@ function [model, graphics, ok]=set_io(model, graphics,...
   model.outtyp=out_t
   model.evtin=clkin
   model.evtout=clkout
-
 endfunction
 
