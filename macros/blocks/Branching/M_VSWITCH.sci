@@ -13,6 +13,7 @@ function [x,y,typ]=M_VSWITCH(job,arg1,arg2)
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
+    if ~exists('btn') then btn=2;end 
     if btn == 2 then       
       while %t do
 	[ok,nin,exprs]=getvalue('Set parameters',...

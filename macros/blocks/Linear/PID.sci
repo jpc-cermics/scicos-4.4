@@ -12,6 +12,7 @@ function [x,y,typ]=PID(job,arg1,arg2)
     [x,y]=standard_origin(arg1)
    case 'set' then
     newpar=list();
+    exprs=m2s(zeros(3,1));
     xx1=arg1.model.rpar.objs(3)
     exprs(1)=xx1.graphics.exprs(1)
     p_old=xx1.model.rpar

@@ -15,14 +15,14 @@ function [x,y,typ]=DLR_f(job,arg1,arg2)
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
     x0=model.dstate;ns=prod(size(x0));
-    %scicos_context=%scicos_context;
-    %z=poly(0,0,name='z');
-    %scicos_context.z=%z //
-
+    if ~exists('%scicos_context') then 
+      %scicos_context=hash(1);
+    else
+      %scicos_context=%scicos_context;
+    end
+    %scicos_context.z=poly(0,'z');
     exprs(1)=varnumsubst(exprs(1),"%z","z")
     exprs(2)=varnumsubst(exprs(2),"%z","z")
-
-
     while %t do
       [ok,num,den,exprs]=getvalue('Set discrete SISO transfer parameters',..
 				  ['Numerator (z)';

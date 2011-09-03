@@ -17,7 +17,11 @@ function [x,y,typ]=DLR(job,arg1,arg2)
     x0=model.dstate;ns=prod(size(x0));
     // exprs is kept with %z but edited or given 
     // with z. we add z to the %scicos_context
-    %scicos_context=%scicos_context;
+    if ~exists('%scicos_context') then 
+      %scicos_context=hash(1);
+    else
+      %scicos_context=%scicos_context;
+    end
     %scicos_context.z=poly(0,'x');
     exprs(1)=varnumsubst(exprs(1),"%z","z")
     exprs(2)=varnumsubst(exprs(2),"%z","z")

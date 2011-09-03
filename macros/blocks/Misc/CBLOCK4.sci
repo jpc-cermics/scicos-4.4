@@ -19,8 +19,12 @@ function [x,y,typ]=CBLOCK4(job,arg1,arg2)
     label_1=graphics.exprs(1)(1:19);
     label_2=graphics.exprs(2);
 
+    gv_types=list('str',1,'str',1,'mat',[-1 2],'vec',-1,...
+		  'mat',[-1 2],'vec',-1,'vec',-1,'vec',-1,...
+		  'vec',-1,'vec',-1,'lis',-1,'vec',-1,...
+		  'vec',-1,'lis',-1,'vec',1,'vec',1,'vec','sum(%8)',..
+		  'str',1,'str',1);
     while %t do
-
       [ok,junction_name,impli,in,it,out,ot,ci,co,xx,z,oz,...
        rpar,ipar,opar,nmode,nzcr,auto0,depu,dept,lab]=..
 	  getvalue('Set C-Block4 block parameters',..
@@ -42,11 +46,8 @@ function [x,y,typ]=CBLOCK4(job,arg1,arg2)
 		    'Number of zero crossings';
 		    'Initial firing vector (<0 for no firing)';
 		    'Direct feedthrough (y or n)';
-		    'Time dependence (y or n)'],..
-		   list('str',1,'str',1,'mat',[-1 2],'vec',-1,'mat',[-1 2],'vec',-1,'vec',-1,'vec',-1,..
-			'vec',-1,'vec',-1,'lis',-1,'vec',-1,'vec',-1,'lis',-1,'vec',1,'vec',1,'vec','sum(%8)',..
-			'str',1,'str',1),label_1)
-
+		    'Time dependence (y or n)'],...
+		   gv_types,label_1);
       if ~ok then
         break
       end

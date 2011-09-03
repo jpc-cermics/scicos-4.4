@@ -39,7 +39,8 @@ case 'set' then
     fname1=stripblanks(fname1)
     frmt1=stripblanks(frmt1)
     fmts=['s','l','d','f','c','us','ul','uc','ull','uls','ubl','ubs',..
-	   'dl','fl','ll','sl','db','fb','lb','sb']
+	   'dl','fl','ll','sl','db','fb','lb','sb'];
+    if ~exists('alreadyran') then alreadyran=%f;end;
     if prod(size(tmask1))>1 then
       message('Time record selection must be a scalar or an empty matrix')
     elseif and(frmt1<>fmts) then

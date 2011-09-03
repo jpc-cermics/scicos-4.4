@@ -20,6 +20,12 @@ function [x,y,typ]=CLR_f(job,arg1,arg2)
     // not sure that varnumsubs is really usefull here 
     // polynomials are kept with %s internally and exposed 
     // with s 
+    if ~exists('%scicos_context') then 
+      %scicos_context=hash(1);
+    else
+      %scicos_context=%scicos_context;
+    end
+    %scicos_context.s=poly(0,'s');
     exprs(1)=varnumsubst(exprs(1),"%s","s")
     exprs(2)=varnumsubst(exprs(2),"%s","s")
     while %t do

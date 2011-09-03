@@ -17,8 +17,12 @@ function [x,y,typ]=CLR(job,arg1,arg2)
     x0=model.state
     rpar=model.rpar
     ns=prod(size(x0));nin=1;nout=1
-    %scicos_context=%scicos_context;
-    %scicos_context.s=%s
+    if ~exists('%scicos_context') then 
+      %scicos_context=hash(1);
+    else
+      %scicos_context=%scicos_context;
+    end
+    %scicos_context.s=poly(0,'s');
     exprs(1)=varnumsubst(exprs(1),"%s","s")
     exprs(2)=varnumsubst(exprs(2),"%s","s")
     while %t do
