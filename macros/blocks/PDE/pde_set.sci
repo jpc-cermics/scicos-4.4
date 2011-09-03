@@ -155,7 +155,7 @@ function params_pde = pde_getvalue(params_pde)
   // params_pde.check_op1="0" ou "1" 
   // params_pde.a1 et  params_pde.b1;
   Le=Lres(8);
-  v=['0','1'];
+  v=['1','0'];
   for i=1:7
     co = stripblanks(Le(i)(1));
     co = b2m(co.equal['']);

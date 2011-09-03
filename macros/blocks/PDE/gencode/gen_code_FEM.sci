@@ -55,7 +55,11 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
     dvec2='xd['+string((1:2*N)'-1)+']';
     for i=1:N
       equations(i)='   res['+string(i-1)+']='+subf(vec2(i+N),dvec2(i))+';';
-      F=mulfv(msprintfv(F3(i)),b7);
+      if ~isempty(F3) then
+	F=mulfv(msprintfv(F3(i)),b7);
+      else
+	F='0';
+      end
       if (i == 1) then
         // prise en compte des conditions aux limites de type Dirichlet par dualisation en a 
         if (kbc(1) == 0) then 
@@ -73,9 +77,14 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
           F=subfv(F,addfv(mulfv(Clb2,b2),mulfv(Clb4,b4)));
         end
       end
-      B=mulfstring(addf_mat(multVectStr(B1(i,:),b3),multVectStr(-B2(i,:),b4)),vec2(N+1:$));      
-      C=mulfstring(addf_mat(multVectStr(-C1(i,:),b2),addf_mat(addf_mat(multVectStr(C2(i,:),b5),..
-        multVectStr(C3(i,:),b6)),msprintfv(full(lambda(i,:))')')),vec2(1:N));
+      if isempty(B2) then B2i=sparse([]);else B2i=B2(i,:);end
+      if isempty(B1) then B1i=sparse([]);else B1i=B1(i,:);end
+      B=mulfstring(addf_mat(multVectStr(B1i,b3),multVectStr(-B2i, b4)),vec2(N+1:$));      
+      if isempty(C2) then C2i=sparse([]);else C2i=C2(i,:);end
+      if isempty(C1) then C1i=sparse([]);else C1i=C1(i,:);end
+      if isempty(C3) then C3i=sparse([]);else C3i=C3(i,:);end
+      C=mulfstring(addf_mat(multVectStr(-C1i,b2),addf_mat(addf_mat(multVectStr(C2i,b5),..
+        multVectStr(C3i,b6)),msprintfv(full(lambda(i,:))')')),vec2(1:N));
       Ai=mulfstring(multVectStr(A(i,:),b1),dvec2(N+1:$));
       equations(i+N)='   res['+string(i+N-1)+']='+subfv(subfv(subfv(F,Ai),B),C)+';';
     end 
@@ -86,7 +95,11 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
     vec2='x['+string((1:N)'-1)+']';
     dvec2='xd['+string((1:N)'-1)+']';
     for i=1:N
-      F=mulfv(msprintfv(F3(i)),b7);
+      if ~isempty(F3) then
+	F=mulfv(msprintfv(F3(i)),b7);
+      else
+	F='0';
+      end
       if (i == 1) then
         // prise en compte des conditions aux limites de type Dirichlet par dualisation en a 
         if (kbc(1) == 0) then 
@@ -104,9 +117,14 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
           F=subfv(F,addfv(mulfv(Clb2,b2),mulfv(Clb4,b4)));
         end
       end     
-      B=mulfstring(addf_mat(multVectStr(B1(i,:),b3),multVectStr(-B2(i,:),b4)),dvec2(:));      
-      C=mulfstring(addf_mat(multVectStr(-C1(i,:),b2),addf_mat(addf_mat(multVectStr(C2(i,:),b5),..
-        multVectStr(C3(i,:),b6)),msprintfv(full(lambda(i,:))')')),vec2(:));
+      if isempty(B2) then B2i=sparse([]);else B2i=B2(i,:);end
+      if isempty(B1) then B1i=sparse([]);else B1i=B1(i,:);end
+      B=mulfstring(addf_mat(multVectStr(B1i,b3),multVectStr(-B2i,b4)),dvec2(:));      
+      if isempty(C2) then C2i=sparse([]);else C2i=C2(i,:);end
+      if isempty(C1) then C1i=sparse([]);else C1i=C1(i,:);end
+      if isempty(C3) then C3i=sparse([]);else C3i=C3(i,:);end
+      C=mulfstring(addf_mat(multVectStr(-C1i,b2),addf_mat(addf_mat(multVectStr(C2i,b5),..
+        multVectStr(C3i,b6)),msprintfv(full(lambda(i,:))')')),vec2(:));
         
       equations(i)='   res['+string(i-1)+']='+subfv(subfv(F,B),C)+';';
      end 
@@ -117,7 +135,11 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
     vec2='x['+string((1:N)'-1)+']';
     
     for i=1:N
-      F=mulfv(msprintfv(F3(i)),b7);
+      if ~isempty(F3) then
+	F=mulfv(msprintfv(F3(i)),b7);
+      else
+	F='0';
+      end
       if (i == 1) then
         // prise en compte des conditions aux limites de type Dirichlet par dualisation en a 
         if (kbc(1) == 0) then 
@@ -135,8 +157,11 @@ function [equations,impl_type]=gen_code_FEM(A,B1,B2,C1,C2,C3,F3,oper,N,..
           F=subfv(F,addfv(mulfv(Clb2,b2),mulfv(Clb4,b4)));
         end
       end      
-      C=mulfstring(addf_mat(multVectStr(-C1(i,:),b2),addf_mat(addf_mat(multVectStr(C2(i,:),b5),..
-        multVectStr(C3(i,:),b6)),msprintfv(full(lambda(i,:))')')),vec2(:));
+      if isempty(C2) then C2i=sparse([]);else C2i=C2(i,:);end
+      if isempty(C1) then C1i=sparse([]);else C1i=C1(i,:);end
+      if isempty(C3) then C3i=sparse([]);else C3i=C3(i,:);end
+      C=mulfstring(addf_mat(multVectStr(-C1i,b2),addf_mat(addf_mat(multVectStr(C2i,b5),..
+        multVectStr(C3i,b6)),msprintfv(full(lambda(i,:))')')),vec2(:));
       equations(i)='   res['+string(i-1)+']='+subfv(F,C)+';';
     end    
   end

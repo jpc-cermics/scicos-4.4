@@ -97,6 +97,7 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     end
     // a voir si c'est à rajouter pour ne pas regenerer dans le cas d'eval
     //if ~ok then
+    pause xxx;
     [flag_type,rdnom,DF_type,tt]=translate(CI,CI1,CLa_type,CLa_exp,CLb_type,CLb_exp,...
 					   oper,type_meth,degre,a_domaine,..
 					   b_domaine,Nbr_maillage,a1,b1,a2,b2,a3,...

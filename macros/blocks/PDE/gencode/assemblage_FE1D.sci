@@ -185,7 +185,6 @@ function [ek,ef] = elemoper(x1,x2,n,nl,xi,w,operi,a6)
 //  Reference: Finite element. An introduction by E.Becker, G.Carey, 
 //  and J.Oden, Vol.1., pp. 97-99.                                   
   dx = (x2-x1)/2;
-  
   // Initialisation des matrices élémentaires
   ef = zeros(n,1);
   ek = zeros(n,n);
@@ -211,39 +210,35 @@ function [ek,ef] = elemoper(x1,x2,n,nl,xi,w,operi,a6)
     end
   end
 
-  // Début de la boucle d'itégration
+  // Début de la boucle d'intégration
   for l=1:nl
     x = x1 + (1.0 + xi(l))*dx;
     [psi,dpsi] = shape(xi(l),n);
     ev_a6=evstr(a6);
     // Assemblage de la matrice élémentaire et le vecteur charge.
-    for i=1:n,
-      if (operi == 7) then
-	ef(i) = ef(i) + psi(i)*ev_a6*w(l)*dx;
-      end
-      for j=1:n
-	if ~isempty( find([1,3,6] == operi)) then
-	  // psi*psi (oper = 1, 3, 6)
-	  ek(i,j)=ek(i,j)+(ev_a6*psi(i)*psi(j) )*w(l)*dx;
-	elseif (operi == 5) then 
-	  // psi*dpsi (oper =5)
-	  ek(i,j)=ek(i,j)+(ev_a6*psi(i)*dpsi(j) )*w(l);
-	elseif (operi == 4) then
-	  // dpsi*psi (oper =4)
-	  ek(i,j)=ek(i,j)+(ev_a6*dpsi(i)*psi(j) )*w(l);
-	elseif (operi == 2) then
-	  // dpsi*dpsi (oper =2)
-	  if ( isempty(a6_x)) then
-	    // cas où a6 ne depend pas de x 
-	    ek(i,j)=ek(i,j)+(ev_a6*dpsi(i)*dpsi(j) )*w(l)/dx;
-	  else
-	    // cas où a6 depend de x, on calcul A=a(j)*dpsj+a(j+1)*dps(j+1) 
-	    ek(i,j)=ek(i,j)+(ev_a6*dpsi(i)*dpsi(j)/dx + ax*dpsi(i)*psi(j))*w(l);
-	  end
-	end
+    if isempty(ev_a6) then continue;end
+    if (operi == 7) then
+      ef = ef + psi(:)*ev_a6*w(l)*dx;
+    end
+    if ~isempty( find([1,3,6] == operi)) then
+      // psi*psi (oper = 1, 3, 6)
+      ek=ek +(ev_a6*psi'*psi)*w(l)*dx;
+    elseif (operi == 5) then 
+      // psi*dpsi (oper =5)
+      ek=ek +(ev_a6*psi'*dpsi)*w(l);
+    elseif (operi == 4) then
+      // dpsi*psi (oper =4)
+      ek=ek+(ev_a6*dpsi'*psi')*w(l);
+    elseif (operi == 2) then
+      // dpsi*dpsi (oper =2)
+      if ( isempty(a6_x)) then
+	// cas où a6 ne depend pas de x 
+	ek=ek+(ev_a6*dpsi'*dpsi)*w(l)/dx;
+      else
+	// cas où a6 depend de x, on calcul A=a(j)*dpsj+a(j+1)*dps(j+1) 
+	ek=ek+(ev_a6*dpsi'*dpsi/dx + ax*dpsi'*psi)*w(l);
       end
     end
   end
-
 endfunction
 
