@@ -55,7 +55,8 @@ function [a_domaine,b_domaine,discr,signe,choix,type_meth,degre,Nbr_maillage,..
     if v then 
       oper=[oper;op];
       b = stripblanks(params_pde('b'+string(op)))
-      if ( b == 'IN_EDP1(t)') then
+      in = sprintf('IN_EDP%d(t)',op);
+      if  b == in  then
 	execstr(sprintf('b%d=''inptr[%d][0]''',op,k));
 	k=k+1;
       end

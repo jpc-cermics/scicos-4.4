@@ -1,24 +1,23 @@
 function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
                               N,Ninitiale,impl_type,type_meth,oper)
-// Copyright INRIA
-// développé par EADS-CCR
-// Cette fonction conserne la génération du code de la la fonction de calcul du bloc EDP //
-// entrées :                                                                             //
-//           - equations : vecteurs de chaine de caractères corespond aux équation ODE   //
-//                         ou DAE générées selon les différentes methodes de             //
-//                         discrètisation.                                               //
-//           - impl_type : entier correspond au type des équation DAE (implicites)       //
-//                         ( -1 pour les systèmes algébriques, 1 pour les systèmes       //
-//                         algébro-différentiels).                                       //
-// sortie :                                                                              //
-//           - Code : vecteur de chaine de caratères qui renvoi le code du bloc à        //
-//                    imprimer par la suite dans le fichier .c                           //
-// pour plus d'information voir les fonctions de calcul des blocs Scicos de type 4       //
-// (explicite) et de type 10004 (implicite).                                             //
-//---------------------------------------------------------------------------------------//
+  // Copyright INRIA
+  // développé par EADS-CCR
+  // Cette fonction conserne la génération du code de la la fonction de calcul du bloc EDP
+  // entrées :                                                                            
+  //           - equations : vecteurs de chaine de caractères corespond aux équation ODE  
+  //                         ou DAE générées selon les différentes methodes de            
+  //                         discrètisation.                                              
+  //           - impl_type : entier correspond au type des équation DAE (implicites)      
+  //                         ( -1 pour les systèmes algébriques, 1 pour les systèmes      
+  //                         algébro-différentiels).                                      
+  // sortie :                                                                             
+  //           - Code : vecteur de chaine de caratères qui renvoi le code du bloc à       
+  //                    imprimer par la suite dans le fichier .c                          
+  // pour plus d'information voir les fonctions de calcul des blocs Scicos de type 4      
+  // (explicite) et de type 10004 (implicite).                                            
 
-  Code=['#include '"'+SCI+'/routines/scicos/scicos_block.h'"'
-        '#include <math.h>'
+  Code=['#include <scicos/scicos_block.h>'
+	'#include <math.h>'
         ' '       
         'void  '+rdnom+'(scicos_block *block,int flag)'
         '{'
@@ -37,7 +36,7 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
 	      ' int property['+string(3*N)+'];']
       else
         Code=[Code
-            ' int property['+string(2*N)+'];']
+	      ' int property['+string(2*N)+'];']
       end
     elseif ~isempty(find(oper == 1)) then
       Code=[Code
@@ -54,7 +53,7 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
         ' '
         ' if (flag == 0){'
         equations
-        ' }else if (flag == 1){'];
+        ' } else if (flag == 1){'];
   if (type_meth == 3 & (~isempty(find(oper == 2)) | ~isempty(find(oper == 4)))) then      
     sorties1=['   /* la première sortie */ '
               '   for (i=0;i<'+string(N)+';i++){'
@@ -63,14 +62,14 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
     sorties2=['   /* la deuxième sortie */ '];
     for i=1:size(eq_pts_mes,'*')
       sorties2=[sorties2
-               '   outptr[1]['+string(i-1)+']='+eq_pts_mes(i)+';'];
+		'   outptr[1]['+string(i-1)+']='+eq_pts_mes(i)+';'];
     end
   else
     if (kbc(1) == 1) & (DF_type == 0 | DF_type == 1) then
-    sorties1=['   /* la première sortie */ '
-              '   for (i=1;i<'+string(Ninitiale)+';i++){'
-             '     outptr[0][i]=x[i];'
-             '   }']; 
+      sorties1=['   /* la première sortie */ '
+		'   for (i=1;i<'+string(Ninitiale)+';i++){'
+		'     outptr[0][i]=x[i];'
+		'   }']; 
     else
       sorties1=['   /* la première sortie */ '
                 '   for (i=0;i<'+string(Ninitiale)+';i++){'
@@ -80,7 +79,7 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
     sorties2=['   /* la deuxième sortie */ '];
     for i=1:size(eq_pts_mes,'*')
       sorties2=[sorties2
-               '   outptr[1]['+string(i-1)+']='+eq_pts_mes(i)+';'];
+		'   outptr[1]['+string(i-1)+']='+eq_pts_mes(i)+';'];
     end
   end
   Code=[Code
@@ -111,7 +110,7 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
         '/* }else if (flag == 5){ */'];
   final=[];
   Code=[Code
-       final]
+	final]
   if (flag_type == 2) then
     property=[];
     if ~isempty(find(oper == 1)) then
@@ -145,13 +144,13 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
           end
         else
           property=[property
-                      '   property['+string(0)+']='+string(-1)+';'];
+		    '   property['+string(0)+']='+string(-1)+';'];
           for i=2:N-1
             property=[property
                       '   property['+string(i-1)+']='+string(impl_type)+';'];
           end
           property=[property
-                      '   property['+string(N-1)+']='+string(-1)+';'];
+		    '   property['+string(N-1)+']='+string(-1)+';'];
         end
       end
     end
@@ -159,7 +158,7 @@ function Code=code_generation(rdnom,equations,eq_pts_mes,flag_type,h,CI,CI1,a,..
     Code=[Code
           ' }else if (flag == 7){'
           property
-          '  set_pointer_xproperty(property);']
+          '  scicos_set_pointer_xproperty(property);']
   end
   Code=[Code
         ' }'

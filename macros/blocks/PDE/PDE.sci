@@ -97,7 +97,6 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     end
     // a voir si c'est à rajouter pour ne pas regenerer dans le cas d'eval
     //if ~ok then
-    pause xxx;
     [flag_type,rdnom,DF_type,tt]=translate(CI,CI1,CLa_type,CLa_exp,CLb_type,CLb_exp,...
 					   oper,type_meth,degre,a_domaine,..
 					   b_domaine,Nbr_maillage,a1,b1,a2,b2,a3,...
@@ -144,19 +143,16 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     // Ecriture, compilation et linkage du code
     // if (fun(3) == "clickin") then  
     // always ulink and link 
-    [ok1]=CFORTREDP(rdnom,tt);
-    if ~ok1 then break,end
+    ok=CFORTREDP(rdnom,tt);
+    if ~ok then return;end
     //end
-    if ~ok then
-      [model,graphics,ok]=check_io(model,graphics,ones(k,1),out(:),[],[])
-    end
+    [model,graphics,ok]=check_io(model,graphics,ones(k,1),out(:),[],[])
+    if ~ok then return;end
     label(1)=params_pde;
     label(2)=tt;
     graphics.exprs=label;
     x.graphics=graphics;
     x.model=model;
-    break
-   
    case 'define' then
     model=scicos_model()
     model.state=zeros(10,1)
@@ -205,8 +201,8 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     params_pde.degre="1";
     params_pde.nnode="10"; // maillage 
     params_pde.txt_pas="";
-    params_pde.CI="";
-    params_pde.dCI="";
+    params_pde.CI="0";
+    params_pde.dCI="0";
     params_pde.CLa="0";
     params_pde.CLa_exp="IN_CL1(t)";
     params_pde.CLb="0";
@@ -218,8 +214,6 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     gr_i=['txt=CCC;';
 	  'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'');']
     x=standard_define([4 4],model,label,gr_i,'PDE');
-
-    
   end
 endfunction
 
