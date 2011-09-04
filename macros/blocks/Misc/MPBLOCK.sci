@@ -302,7 +302,7 @@ function [ok,cancel,paramv,lab_2]=MPBLOCK_get_parameters_values(param,exprs)
     for i=1:(Tparam_sz- length(lab_2))
       lab_2($+1)="0"
     end
-  elseif Tparam_sz<lstsize(lab_2) then
+  elseif Tparam_sz<length(lab_2) then
     lab_2_tmp=list()
     if Tparam_sz<>0 then //if param
       for i=1:Tparam_sz

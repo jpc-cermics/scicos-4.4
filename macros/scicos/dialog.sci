@@ -16,3 +16,15 @@ function result=scicos_mdialog(varargin)
   end
 endfunction
 
+function result=scicos_editsmat(title,txt,comment='Enter code:')
+// wrapper of editsmap that changes when it is to 
+// be called in a non-interactive way or in interactive way.
+// jpc 
+  non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+  if non_interactive then 
+    result=txt
+  else
+    result=editsmat(title,txt,comment=comment);
+  end
+endfunction
+

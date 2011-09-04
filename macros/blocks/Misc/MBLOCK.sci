@@ -137,7 +137,7 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
 		  sci2exp(param(:)),..
 		  list(string(0.1),string(.0001)),...
 		  sci2exp(pprop(:)),..
-		  nameF,[])
+		  nameF,m2s([]))
 
     model=scicos_model()
     model.blocktype='c'
@@ -369,7 +369,7 @@ function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
   
   if (extF=='' | (extF=='.mo' & ~file('exists',funam))) then
     editblk=%t;
-    txt = editsmat('Modelica class edition',textmp,comment=cm);
+    txt = scicos_editsmat('Modelica class edition',textmp,comment=cm);
     Quit = %t;
   elseif (extF=='.mo' && file('exists',funam)) then
     editblk=%f;
@@ -512,6 +512,8 @@ function [ok,tt]=MODCOM_NI(funam,tt,vinp,vout,vparam,vparamv,vpprop)
   // fill the funam file 
   nameF=file('root',file('tail',funam));
   extF =file('extension',funam);
+  // tt should be a string and it was initialized to [] in the past.
+  if type(tt,'short')=='m' then tt=m2s([]);end 
   if extF=='' then 
     funam1=file('join',[getenv('NSP_TMPDIR');'Modelica';nameF+'.mo']);
     scicos_mputl(tt,funam1);

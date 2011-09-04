@@ -1079,12 +1079,18 @@ function XX=gen_allblk_new()
   XX.graphics.exprs(2)=toto
 
   //@@ run 'set' job of the CBLOCK4
-  prot=funcprot()
-  funcprot(0)
   getvalue=setvalue;
-  deff('message(txt)','x_message(''In block ''+XX.gui+'': ''+txt);global %scicos_prob;%scicos_prob=%t')
-  deff('[ok,tt,cancel,'+...
-       'libss,cflags] =  CC4(funam,tt,i,o,libss,cflags)','ok=%t,cancel=%f')
+  
+  function message(txt)
+    x_message('In block '+XX.gui+': '+txt);
+    global %scicos_prob;%scicos_prob=%t
+  endfunction
+  
+  function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
+    ok=%t,cancel=%f;
+    libss=libss;cflags=cflags;
+  endfunction
+
   %scicos_prob = %f
   XX = CBLOCK4('set',XX)
   funcprot(prot)
@@ -1215,9 +1221,16 @@ function [XX]=gen_allblk()
   prot=funcprot()
   funcprot(0)
   getvalue=setvalue;
-  deff('message(txt)','x_message(''In block ''+XX.gui+'': ''+txt);global %scicos_prob;%scicos_prob=%t')
-  deff('[ok,tt,cancel,'+...
-       'libss,cflags] =  CC4(funam,tt,i,o,libss,cflags)','ok=%t,cancel=%f')
+  function message(txt)
+    x_message('In block '+XX.gui+': '+txt);
+    global %scicos_prob;%scicos_prob=%t
+  endfunction
+
+  function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
+    ok=%t,cancel=%f;
+    libss=libss;cflags=cflags;
+  endfunction
+
   %scicos_prob = %f
   XX = CBLOCK4('set',XX)
   funcprot(prot)

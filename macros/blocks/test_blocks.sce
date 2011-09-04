@@ -12,7 +12,7 @@ function [x,y,ok,gc]=edit_curv(x,y,job,tit,gc); ok=%t; endfunction
 function [ok,tt,dep_ut]=genfunc1(tt,ni,no,nci,nco,nx,nz,nrp,type_)
   dep_ut=model.dep_ut;ok=%t; 
 endfunction
-function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
+function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,libss,cflags)
   ok=%t,cancel=%f;
 endfunction
 function result= dialog(labels,valueini); result=valueini;endfunction

@@ -22,6 +22,32 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,%SubSystemEval,fla
 // This function (re)-evaluates blocks in the scicos data structure scs_m 
 // Copyright INRIA
 // Last Updated 14 Jan 2009 Fady NASSIF
+
+  function scicos_check_params(title,equations,equations_n)
+    if isempty(equations.parameters) then return;end
+    if isempty(equations_n.parameters) then return;end
+    if model.equations.parameters.equal[model_n.equations.parameters] then
+      return;
+    end
+    // equations.parameters should be: list(<string-mat>,list(val1,...valn)) 
+    // but it can also be empty.
+    if ~equations.parameters(1).equal[equations_n.parameters(1)] then 
+      // name of parameters differ 
+      resume(needcompile1=4);
+    end
+    if equations.parameters(2).equal[equations_n.parameters(2)] then 
+      // list of values differ 
+      resume(needcompile=0);
+      XML=file('join',[TMPDIR;stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
+      XMLTMP=file('join',[TMPDIR;stripblanks(scs_m.props.title(1))+'_imSim.xml']);
+      file('delete',XML);
+      file('delete',XMLTMP);
+    end
+  endfunction
+
+  
+  
+  
   if ~exists('needcompile') then needcompile=0;
   else
     needcompile=needcompile;
@@ -74,7 +100,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,%SubSystemEval,fla
     dep_ut=model.dep_ut;ok=%t; 
   endfunction
   function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
-    ok=%t,cancel=%f;
+    ok=%t,cancel=%f;tt=tt;
     libss=libss;cflags=cflags;
   endfunction
   function result= dialog(labels,valueini); result=valueini;endfunction
@@ -179,33 +205,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,%SubSystemEval,fla
 	    end
 	    if (prod(size(model.sim))==1 && type(model.equations,'short')=='h') |...
 		  itisanMBLOCK then
-	      if ~model.equations.parameters.equal[model_n.equations.parameters] then
-		param_name   = model.equations.parameters(1);
-		param_name_n = model_n.equations.parameters(1);
-		if ~param_name.equal[param_name_n] then
-		  needcompile1=4
-		else
-		  for i=1:length(model.equations.parameters(2))
-		    if or((model.equations.parameters(2)(i))<>(model_n.equations.parameters(2)(i))) then
-		      needcompile=0
-		      XML=file('join',[TMPDIR;stripblanks(scs_m.props.title(1))+'_imf_init.xml']);
-		      //XML=pathconvert(XML,%f,%t);    
-		      XMLTMP=file('join',[TMPDIR;stripblanks(scs_m.props.title(1))+'_imSim.xml']);
-		      //XMLTMP=pathconvert(XMLTMP,%f,%t);
-		      if (%win32) then 
-			cmnd='del /F '+XML+' '+XMLTMP;
-		      else
-			cmnd='rm -f '+XML+' '+XMLTMP
-		      end
-		      if ~execstr('system(cmnd)',errcatch=%t) then
-			%err_mess_eval=[%err_mess_eval;'Unable to delete the XML file'];
-			lasterror();
-		      end
-		      break;
-		    end
-		  end
-		end
-	      end
+	      scicos_check_params(scs_m.props.title(1),model.equations,model_n.equations);
 	    end
 	  end
 	end
@@ -240,3 +240,4 @@ function ok=do_eval_report(message,subsys)
   end
   ok=%f;
 endfunction
+
