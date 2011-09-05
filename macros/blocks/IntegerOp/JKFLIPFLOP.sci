@@ -24,8 +24,8 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
 			   ['Initial Value'],..
 			   list('vec',1),exprs)
       if ~ok then break,end
-      if init<=0 then init=m2i(0,'int8');
-      elseif init >0 then init=m2i(1,'int8');
+      if i2m(init) <=0 then init=m2i(0,'int8');
+      elseif i2m(init) >0 then init=m2i(1,'int8');
       end
       if ok then 
 	xx.graphics.exprs(1)=exprs0

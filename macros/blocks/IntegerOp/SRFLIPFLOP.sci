@@ -18,13 +18,13 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
     init_old= model.odstate(1)
     while %t do
       [ok,init,exprs0]=getvalue(['Set parameters';'The Initial Value must be 0 or 1 of type int8';..
-	                       'Negatif values are considered as int8(0)';..
-			       'Positif values are considered as int8(1)'] ,..
+	                       'Negative values are considered as int8(0)';..
+			       'Positive values are considered as int8(1)'] ,..
 			   ['Initial Value'],..
 			   list('vec',1),exprs)
       if ~ok then break,end
-      if init<=0 then init=m2i(0,'int8');
-      elseif init >0 then init=m2i(1,'int8');
+      if i2m(init) <=0 then init=m2i(0,'int8');
+      elseif i2m(init) >0 then init=m2i(1,'int8');
       end
       if ok then 
 	xx.graphics.exprs(1)=exprs0
@@ -35,7 +35,7 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
       end
     end
     needcompile=0
-    if init_old<>init then 
+    if ~init_old.equal[init] then 
       // parameter  changed
       newpar(size(newpar)+1)=1// Notify modification
       needcompile=2      

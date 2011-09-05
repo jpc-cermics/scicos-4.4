@@ -242,6 +242,13 @@ function [m,den,off,count,m1,fir,frequ,offset,ok]=mfrequ_clk(frequ,offset)
 // Date: 2007-2008
 // Last Update 15 Dec 2008
   ok=%t;
+  if exists('scs_m') then 
+    mfrequ_tol= scs_m.props.tol(3);
+  else
+    params=scicos_params();
+    mfrequ_tol= params.tol(3);
+  end
+  
   m=[];den=[];off=[];count=[];m1=[];fir=[];x=treat_sample_clk;
   // m1 is a vector of different frequencies or same frequencies with different offsets
   [m1,k]=ts_uni(frequ,offset);
@@ -257,7 +264,7 @@ function [m,den,off,count,m1,fir,frequ,offset,ok]=mfrequ_clk(frequ,offset)
     ok=%f;
     return; 
   end
-  [frd1,den]=GetDenNum(v,max_v,scs_m.props.tol(3));
+  [frd1,den]=GetDenNum(v,max_v,mfrequ_tol);
   ppcm=lcm(frd1(1:size(frequ,'*')));
   frd1=double(frd1);
   if size(frequ,'*')>1 then   // more than one frequency

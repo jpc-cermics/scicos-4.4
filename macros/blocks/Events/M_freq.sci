@@ -26,6 +26,7 @@ case 'set' then
       message("The |Offset| must be less than the Frequency");ok=%f
     end
     if ok then
+      if ~exists(scs_m) then return;end
       [m,den,off,count,m1,fir,frequ,offset,ok]=mfrequ_clk(frequ,offset);
     end
     if ok then

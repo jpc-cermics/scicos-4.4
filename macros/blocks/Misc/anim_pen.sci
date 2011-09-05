@@ -1,4 +1,4 @@
-///withoutPrompt 
+
 function [blocks] = anim_pen(blocks,flag)
   win=20000+curblock()
   if flag<>4 then H=scf(win), end
@@ -52,5 +52,6 @@ function [blocks] = anim_pen(blocks,flag)
     blocks.z=x
     show_pixmap()
   end
-endfunction ///\withPrompt{}
+endfunction 
+
 
