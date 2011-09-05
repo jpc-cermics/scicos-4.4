@@ -74,8 +74,19 @@ function o=standard_define(sz,model,label,gr_i,gui)
 // Copyright INRIA
   if nargin <= 3 then gr_i = [] ; end 
   if nargin <= 4 then gui = "" ;
-    error("gui should be defined for nsp blocks");
-    return;
+    if %f then 
+      error("gui should be defined for nsp blocks");
+      return;
+    else
+      // we can recover the name of the calling function 
+      // by getting the calling frame name
+      S=exists();// matrix
+      if size(S,'*') >= 2 then 
+	gui=S(2);
+      else
+	error("gui should be defined for nsp blocks");
+      end
+    end
   end 
   
   nin=size(model.in,1);

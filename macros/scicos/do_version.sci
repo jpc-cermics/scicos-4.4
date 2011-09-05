@@ -191,10 +191,15 @@ function scs_m_new=do_version42(scs_m)
 	scs_m_new.objs(j).model.dstate=[]
         scs_m_new.objs(j).model.sim=list('cmscope', 4)
 	in = scs_m_new.objs(j).model.in(:);
+	// be sure that the number of refresh period values 
+	// equals the number of entries.
 	a = size(in,1);
-	B=stripblanks(scs_m.objs(j).graphics.exprs(8));
-	B(1:a)=B;
-        B = strcat(B', ' ');
+        B=stripblanks(scs_m.objs(j).graphics.exprs(8));
+	B=split(B);
+	if size(B,'*')<> a then 
+	  B(1:a)=B(1);
+	end
+	B = catenate(B,sep=' ');
         scs_m_new.objs(j).graphics.exprs(8) = B;
 	rpar=scs_m_new.objs(j).model.rpar(:);
 	N=scs_m_new.objs(j).model.ipar(2);
@@ -256,13 +261,19 @@ function scs_m_new=do_version42(scs_m)
         exprs = scs_m.objs(j).graphics.exprs;
         if size(exprs)<11 then exprs(11)=emptystr(),end // compatibility
         scs_m_new.objs(j).graphics.exprs=exprs;
-        scs_m_new.objs(j).model.dstate=[]
+        scs_m_new.objs(j).model.dstate=[];
 	in = scs_m_new.objs(j).model.in(:);
+	// be sure that the number of refresh period values 
+	// equals the number of entries.
 	a = size(in,1);
         B=stripblanks(scs_m.objs(j).graphics.exprs(8));
-        B(1:a)=B;
-        B = strcat(B', ' ');
+	B=split(B);
+	if size(B,'*')<> a then 
+	  B(1:a)=B(1);
+	end
+	B = catenate(B,sep=' ');
         scs_m_new.objs(j).graphics.exprs(8)=B;
+	// 
         rpar=scs_m_new.objs(j).model.rpar(:);
         N=scs_m_new.objs(j).model.ipar(2);
         period = [];

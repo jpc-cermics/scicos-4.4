@@ -9,11 +9,18 @@ function nobj = update_scs_m(obj)
   typ = type(obj,'short');
   select typ 
    case 'h' then 
-    // Object is an hash table 
+    // Object is a hash table 
     if obj.iskey['type'] && type(obj.type,'short')== 's' then 
       typ=obj.type;
-      if H.iskey[obj.type] then typ=H(obj.type);end
-      execstr(sprintf('nobj= scicos_%s();',typ));
+      // if typ is in H then use H value instead.
+      if H.iskey[typ] then typ=H(typ);end 
+      // check if a function exists
+      fun=sprintf('scicos_%s',typ);
+      if exists(fun,'nsp-function') then 
+	execstr(sprintf('nobj= scicos_%s();',typ));
+      else
+	nobj= hash(length(obj));
+      end
     else
       nobj= hash(length(obj));
     end
@@ -25,7 +32,7 @@ function nobj = update_scs_m(obj)
       end
     end
     keys= obj.__keys;
-    keys=setdiff(keys,['type','tlist','mlist']);
+    //keys=setdiff(keys,['type','tlist','mlist']);
     for i=1:size(keys,'*')
       nobj(keys(i))=update_scs_m(obj(keys(i)));
     end
