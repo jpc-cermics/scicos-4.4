@@ -101,7 +101,7 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
        end
      end
      if ModifEncore && non_interactive then 
-       message(['Error: set failed for AUTOMAT but we are in a non "+...
+       message(['Error: set failed for AUTOMAT but we are in a non ";
 		'  interactive function and thus we abort the set !']);
        ModifEncore=%f;
      end

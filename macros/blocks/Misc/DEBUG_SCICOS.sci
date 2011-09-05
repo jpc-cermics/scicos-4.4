@@ -30,7 +30,7 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
       if ~ok then
 	message(['Error in the instructions defining debug_scicos:';catenate(lasterror())])
 	if non_interactive then 
-	  message(['Error: set failed for DEBUG_SCICOS but we are in a non "+...
+	  message(['Error: set failed for DEBUG_SCICOS but we are in a non ";
 		   '  interactive function and thus we abort the set !']);
 	  return;
 	else 

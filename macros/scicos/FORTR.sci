@@ -1,54 +1,53 @@
 function [ok,tt]=FORTR(funam,tt,inp,out)
 //
+  ok=%t;
   ni=size(inp,'*')
   no=size(out,'*')
   if isempty(tt) then
-
-    tete1=['      subroutine '+funam+'(flag,nevprt,t,xd,x,nx,z,nz,tvec,';
-	   '     $        ntvec,rpar,nrpar,ipar,nipar']
-
-    tete2= '     $        '
-    for i=1:ni
-      tete2=tete2+',u'+string(i)+',nu'+string(i)
-    end
-    for i=1:no
-      tete2=tete2+',y'+string(i)+',ny'+string(i)
-    end
-    tete2=tete2+')'
-
-    tete3=['      double precision t,xd(*),x(*),z(*),tvec(*)';
-	   '      integer flag,nevprt,nx,nz,ntvec,nrpar,ipar(*)']
-
-    tete4= '      double precision rpar(*)'
-    for i=1:ni
-      tete4=tete4+',u'+string(i)+'(*)'
-    end
-    for i=1:no
-      tete4=tete4+',y'+string(i)+'(*)'
-    end
-    tetec=['c';'c'];tetev=[' ';' '];
-    tetend='      end'
+    ud=catenate(sprintf('u%d,nu%d',(1:ni)',(1:ni)'),sep=',');
+    u1d=catenate(sprintf('u%d(*)',(1:ni)'),sep=',');
+    yd=catenate(sprintf('y%d,ny%d',(1:no)',(1:no)'),sep=',');
+    y1d=catenate(sprintf('y%d(*)',(1:no)'),sep=',');
     
-    textmp=[tete1;tete2;tetec;tete3;tete4;tetec;tetev;tetec;tetend];
+    textmp=['      subroutine '+funam+'(flag,nevprt,t,xd,x,nx,z,nz,tvec,';
+	    '     $        ntvec,rpar,nrpar,ipar,nipar,';
+	    '     $        ' + ud + ',';
+	    '     $        ' + yd + ')'
+	    '      double precision t,xd(*),x(*),z(*),tvec(*)';
+	    '      integer flag,nevprt,nx,nz,ntvec,nrpar,ipar(*)';
+	    '      double precision rpar(*)';
+	    '      double precision '+ u1d;
+	    '      double precision '+ y1d;
+	    'c      ';
+	    ''
+	    ''
+	    'c      ';
+	    '      end'];
   else
     textmp=tt;
   end
+  cm=catenate(['Function definition in fortran';
+	       'Here is a skeleton of the functions which you should edit'],sep='\n');
+  non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
   
-  while 1==1
-    [txt]=x_dialog(['Function definition in fortran';
-		    'Here is a skeleton of the functions which you shoud edit'],
-    textmp);
-
-    if ~isempty(txt) then
-      tt=txt
-      [ok]=scicos_block_link(funam,tt,'f')
-      if ok then
-	textmp=txt;
+  while %t
+    // edit the code 
+    [txt]=scicos_editsmat('Edit fortran function',textmp,comment=cm);
+    if isempty(txt) then return;end // abort in gui
+    [ok]=scicos_block_link(funam,txt,'f');
+    if ~ok then
+      if non_interactive then 
+	// even if link failed we have to quit not to enter infinite
+        // loop.
+	message(['Error: failed for link in FORTR but we are in a non ";
+		 '  interactive function and thus we abort the set !']);
+	return;
       end
-      break;
+      textmp=txt;
+      continue;
     else
-      ok=%f;break;
-    end  
+      break;
+    end
   end
-  
+  ok=%t;tt=txt;  
 endfunction

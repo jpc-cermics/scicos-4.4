@@ -35,7 +35,7 @@ function [x,y,typ]=PDE(job,arg1,arg2)
       end
       if ~pde_validate(params_pde) then
 	if non_interactive then 
-	  message(['Error: set failed for PDE but we are in a non "+...
+	  message(['Error: set failed for PDE but we are in a non ";
 		   '  interactive function and thus we abort the set !']);
 	  return;
 	else

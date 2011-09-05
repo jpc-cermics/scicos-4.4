@@ -47,8 +47,8 @@ function [x,y,typ]=DOLLAR(job,arg1,arg2)
 	break
       end
       if non_interactive then 
-	message(['Error: set failed for DOLLAR but we are in a non "+...
-		'  interactive function and thus we abort the set !']);
+	message(['Error: set failed for DOLLAR but we are in a non ";
+		 '  interactive function and thus we abort the set !']);
 	break;
       end
     end
