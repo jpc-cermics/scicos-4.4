@@ -19,7 +19,6 @@ function [ierreport]=scicos_test(fname)
       ierr=execstr('[state,t]=scicosim(%cpr.state,par.tf,par.tf,'+..
 		   '%cpr.sim,''finish'',par.tol)',errcatch=%t);
       %cpr.state=state;
-      pause xxx
       curdir=getcwd();
       path=file('join',[scicos_test_path;'data_file']);
       state_var_=state;
@@ -28,7 +27,7 @@ function [ierreport]=scicos_test(fname)
       sref = file('join',[path;scs_m.props.title(1)+'_s.ref']);
       if ~file('exists',sref) then 
 	save(sref,state_var_);
-	printf('Create the state reference file in'+path);
+	printf('Create the state reference file in'+path+'\n');
       end
     end
   endfunction
@@ -159,8 +158,8 @@ function [ierreport]=scicos_test(fname)
     tolerances(6)=solver;
   elseif (%cpr.sim.xptr($)-1==size(%cpr.state.x,'*')) & ..
 	( solver==100 & size(%cpr.state.x,'*')<>0) then
-    printf('Diagram has been compiled for explicit solver')
-    printf('switching to explicit Solver');
+    printf('Diagram has been compiled for explicit solver\n')
+    printf('switching to explicit Solver\n');
     solver=0
     tolerances(6)=solver
   end
@@ -205,7 +204,7 @@ function [ierreport]=scicos_test(fname)
     else
       %tcur=t
     end
-    printf('The data files are created/updated in the ""data_file"" folder');
+    printf('The data files are created/updated in the ""data_file"" folder\n');
   else
     ierreport='Execution problem:'+catenate(lasterror());
   end
