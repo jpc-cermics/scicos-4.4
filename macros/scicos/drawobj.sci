@@ -83,7 +83,7 @@ function o=drawobj(o,F)
       // rotate the objects contained in the compound C
       [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
       tr=[orig(1)+sz(1)/2,orig(2)+sz(2)/2];
-      theta=o.graphics.theta;
+      theta= -o.graphics.theta;
       o.gr.translate[-tr];
       o.gr.rotate[[cos(theta*%pi/180),sin(theta*%pi/180)]];
       o.gr.translate[tr];

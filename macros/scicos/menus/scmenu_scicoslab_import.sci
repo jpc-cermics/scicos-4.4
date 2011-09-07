@@ -124,6 +124,7 @@ endfunction
 //    are different in nsp (options are passed as option=val.
 // -- ipar is to be regenerated for block who hard code 
 //    string into scilab code.
+// -- angle is to be changed since conventions are not the same.
 
 function scs_m=do_update_scilab_schema(scs_m)
   n=size(scs_m.objs);
@@ -217,6 +218,7 @@ function scs_m=do_update_scilab_schema(scs_m)
       if o.model.sim.equal['super'] | o.model.sim.equal['csuper'] then
 	o.model.rpar=do_update_scilab_schema(o.model.rpar)
       end
+      o.graphics.theta = - o.graphics.theta;
       scs_m.objs(i)=o;
     elseif o.type =='Text' then 
       sizes=[8,10,12,14,18,24];
