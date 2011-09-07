@@ -85,7 +85,7 @@ function o=drawobj(o,F)
       tr=[orig(1)+sz(1)/2,orig(2)+sz(2)/2];
       theta=o.graphics.theta;
       o.gr.translate[-tr];
-      o.gr.rotate[[cos(-theta*%pi/180),sin(-theta*%pi/180)]];
+      o.gr.rotate[[cos(theta*%pi/180),sin(theta*%pi/180)]];
       o.gr.translate[tr];
     end
   end
