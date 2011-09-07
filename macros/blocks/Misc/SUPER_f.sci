@@ -16,7 +16,7 @@ function [x,y,typ]=SUPER_f(job,arg1,arg2)
     while %t do
       [x,newparameters,needcompile,edited]=scicos(arg1.model.rpar)
       arg1.model.rpar=x
-      [ok,arg1]=adjust_s_ports(arg1)
+      [ok,arg1]=adjust_s_ports(arg1);
       if ok then
 	x=arg1
 	y=needcompile
