@@ -42,3 +42,22 @@ int scicos_mtran (double *a, int na, double *b, int nb, int m, int n)
     }
   return 0;
 }
+
+/* the following function can be called from Modelica 
+ * generated code 
+ */
+
+double exp_(double x) 
+{
+  return exp(x);
+}
+
+double log_(double x)
+{
+  return log(x);
+}
+
+double pow_(double x, double y)
+{
+  return pow(x,y);
+}

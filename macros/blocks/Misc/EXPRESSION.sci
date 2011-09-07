@@ -19,7 +19,6 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
       cmd='exprs(2)=varnumsubst(exprs(2),'"%u'"+string(ii),'"u'"+string(ii))';
       execstr(cmd);
     end
-    
     while %t do
       [ok,%nin,%exx,%usenz,exprs]=getvalue(...
 	  ['Give a scalar expression using inputs u1, u2,...';
@@ -50,12 +49,18 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
 	message(['Erroneous expression';lasterror()]) 
 	continue;
       end
+      // we need here to replace constants 
+      // by their values i.e %pi,%e etc...
+      // and to apply context.
       if exists('%scicos_context') then
 	//printf('change expression with context\n");
 	lc=%scicos_context;
-	lc.remove[ 'u'+string(1:8)];
-	%bexp.apply_context[lc];
-      end 
+      else
+	lc=hash(5);
+      end
+      lc.enter[%pi=%pi,%e=%e]; // to be improved 
+      lc.remove[ 'u'+string(1:8)];
+      %bexp.apply_context[lc];
       // check that the expression is correct 
       vars = %bexp.get_vars[];
       if %nin > 1 then 
