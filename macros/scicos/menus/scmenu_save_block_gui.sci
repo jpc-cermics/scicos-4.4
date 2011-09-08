@@ -10,11 +10,11 @@ endfunction
 
 function fname=do_save_block_gui(scs_m,fdef)
 // Copyright INRIA
-  
+// save code associated to a masked super block 
+// this can be used to disign a new block.
+    
   if nargin < 2 then fdef="";end 
-  
   fname = "";
-  
   if isempty(Select) || isempty(find(Select(:,2)==curwin)) then
     message('Make a selection first');
     return;
@@ -25,14 +25,13 @@ function fname=do_save_block_gui(scs_m,fdef)
     message('Select only one block for save block gui !');
     return;
   end
-  
+  // The block which is to be saved.
   o = scs_m.objs(K);
   
   if %f && o.gui<>'DSUPER' then
     message('Only Masked blocks can be saved.')
     return;
   end
-  
   if fdef<>"" then 
     fname = fdef;
   else
@@ -42,7 +41,6 @@ function fname=do_save_block_gui(scs_m,fdef)
       return
     end
   end
-    
   if file('extension',fname)<>'.sci' then
     fname = file('root',fname)+'.sci';
   end
@@ -57,6 +55,8 @@ function fname=do_save_block_gui(scs_m,fdef)
     return 
   end
   
+  // Ready to do the job 
+  
   graphics=o.graphics;
   exprs0=graphics.exprs(2)(1);
   btitre=graphics.exprs(2)(2)(1);
@@ -69,7 +69,7 @@ function fname=do_save_block_gui(scs_m,fdef)
       tt=tt+',scicos_context.'+exprs0(i),
     end
     ss=graphics.exprs(2)(3)
-
+    
     txtset=[
 	'  y=needcompile'
 	'  typ=list()'
@@ -126,19 +126,20 @@ function fname=do_save_block_gui(scs_m,fdef)
        '   case ''set'' then'
        txtset;
        '   case ''define'' then'];
-  
 
   fprintf(F,"%s\n",txt);
   dimen=o.graphics.sz/20
   dimen=dimen(:)'
-
-  textdef=['  //model=scicos_model()']
+  // we separately save the model and the superblock 
   model=o.model
   model.ipar=1;
-  rpar=model.rpar
-  rpar=scs_m_remove_gr(rpar)
-  model.rpar=rpar
-  fprint(F,model,as_read=%t,indent=3);
+  diagram=scs_m_remove_gr(model.rpar);
+  model.rpar=[]; // we will save the diagram latter.
+  txt=scicos_schema2smat(model,name='model',indent=4);
+  F.put_smatrix[txt];
+  F.put_smatrix[sprintf('    model.rpar=%s_diagram();',bname)];
+  // now the exprs 
+  textdef=['  //model=scicos_model()']
   exprs_txt='  exprs=['
   for i=1:size(exprs0,1)
     ierr=execstr('strtmp=sci2exp(evstr(exprs0(i)),0)',errcatch=%t)
@@ -158,11 +159,20 @@ function fname=do_save_block_gui(scs_m,fdef)
            '  gr_i='+gr_i_tmp];
   textdef=[textdef;
 	   sprintf('  x=standard_define(%s,model,exprs,gr_i,''%s'')',sci2exp(dimen),bname)];
-
-
   txt=[ textdef
 	'  end'
 	'endfunction']
   fprintf(F,"%s\n",txt);
+  
+  // now save the diagram
+  fprintf(F,"function scs_m= %s_diagram()\n",bname);
+  fprintf(F,"// internal diagram of block %s\n",bname);
+  if %t then 
+    txt=scicos_schema2smat(diagram,name='scs_m',indent=4);
+  else
+    txt=scicos_schema2serial(diagram,name='scs_m',indent=4);
+  end
+  F.put_smatrix[txt];
+  fprintf(F,"endfunction\n");
   F.close[];
 endfunction

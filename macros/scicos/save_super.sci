@@ -184,7 +184,7 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
   
   // we separately save the model and the superblock 
   // first the model.rpar 
-  if %f then 
+  if %t then 
     txt=scicos_schema2smat(model.rpar,name='sblock',indent=4);
   else
     txt=scicos_schema2serial(model.rpar,name='sblock',indent=4);
@@ -212,47 +212,6 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
   F.close[];
 endfunction
 
-function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
-// returns in txt a string representation of obj which 
-// should recreate obj if executed. Note that the generated 
-// code contains some call ro scicos_xxx functions instead of 
-// a pure as_read==%t print of obj. This enables updates of 
-// obj if this functions are updates. 
-// Note however that a print(,as_read=%t) followed by update_scs_m
-// should do the same. 
-  
-  H=hash(3, codegeneration='codegen',Block='block',Link='link',Text='text');
-  txt = m2s([]);
-  typ = type(obj,'short');
-  w=catenate(smat_create(indent,1,' '));
-  temp='x_'+string(tag);
-  select typ 
-   case 'h' then 
-    if obj.iskey['type'] then 
-      typ=obj.type;
-      if H.iskey[obj.type] then typ=H(obj.type);end
-      txt.concatd[sprintf('%s%s=scicos_%s();',w,temp,typ)];
-    else
-      txt.concatd[sprintf('%s%s=hash(%d);',w,temp,length(obj))];
-    end
-    keys= obj.__keys;
-    keys=setdiff(keys,['type','tlist','mlist']);
-    for i=1:size(keys,'*')
-      nname= sprintf('%s(''%s'')',temp,keys(i));
-      txt.concatd[scicos_schema2smat(obj(keys(i)),name=nname,tag=tag+1,indent=indent+1)];
-    end
-    txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
-   case 'l' then
-    txt.concatd[sprintf('%s%s=list();',w,temp)];
-    for i=1:size(obj)
-      txt.concatd[scicos_schema2smat(obj(i),name=temp+'('+string(i)+')',tag=tag+1,indent=indent+1)];
-    end
-    txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
-  else
-    txt.concatd[sprint(obj,as_read=%t,name=name,indent=indent)];
-  end
-endfunction;
-
 function txt=scicos_schema2serial(obj,name='z',tag=0,indent=0)
 // print a serialized version of obj in txt 
 // we could also compress the serialized object 
@@ -265,7 +224,7 @@ function txt=scicos_schema2serial(obj,name='z',tag=0,indent=0)
 endfunction
 
   
-function txt=scicos_schema2smat_new(obj,name='z',tag=0,indent=0)
+function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
 // XX en cours   
   function txt=scicos_obj2smat(obj,name='z',tag=0,indent=0)
   // returns in txt a representation of obj which 
