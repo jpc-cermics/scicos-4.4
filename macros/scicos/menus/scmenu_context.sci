@@ -35,7 +35,6 @@ function [ok,new_context]=do_context(scs_m)
   else
     env_context=hash(1);
   end
-  if nargin < 2 then env_context=hash(1);end 
   new_context='';
   context=scs_m.props.context;
   if type(context,'string')<>'SMat' then context='',end
