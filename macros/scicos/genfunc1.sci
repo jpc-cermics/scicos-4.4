@@ -1,9 +1,9 @@
 function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
-// manages dialog to get  definition (with scilab instruction) of a new scicos 
-// block
-//!
 // Copyright INRIA
-
+// manages dialog to get  definition of a new scicos 
+// block defined by nsp code.
+// [ok,tt,dep_ut]=genfunc1(m2s([]),[6,7],[1:3],2,2,2,3,4)
+  
   ni=size(inp,'*')
   no=size(out,'*')
 
@@ -25,60 +25,30 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
   //if nci==0 then dep(5)=emptystr(),end
   if nrp==0 then dep(6)=emptystr(),end
 
-
-  //flag = 1
-  if no>0 then
+  //----------  block output
+  if no > 0 then
+    // block output instructions 
     depp=strcat(dep([1:5,6]))
-    w=[]
-    for k=1:no,w=[w;'y'+string(k)+' (size: '+string(out(k))+')'],end
-    
-    comment=['Define function which computes the output';
-	     ' '
-	     'Enter Scilab instructions defining';
+    ind=(1:no)';
+    w='y'+string(ind)+' (size: '+string(out(ind))+')';
+    comment=['In order to define the function which computes';
+	     'the block output, give nsp instructions which '
+	     'calculates';
 	     w;
 	     'as a functions of '+depp];
-    while %t do
-      // new version with editsmat 
-      txt1= editsmat('Genfunc1 Edition',txt1,comment=catenate(comment,sep='\n'));
-      if isempty(txt1) then
-	// aborting edition
-	return,
-      end	
-      // check if txt defines y from u
-      //mac=null(); deff('[]=mac()',txt1,'n')
-      ok=execstr(['function []=mac()';txt1;'endfunction'],errcatch=%t);
-      if ~ok then 
-	message(['Incorrect syntax: ';
-		 lasterror()]);
-      else
-	// XXXXXX macrovar not implemented 
-	printf('macrovar is to be implemented\n");
-	if %f then 
-	  vars=macrovar(mac)
-	  for k=1:ni
-	    if or(vars(3)=='u'+string(k)) then dep_u=%t,end
-	  end
-	  if or(vars(3)=='t') then dep_t=%t,end
-	  w=[];w(no)=%f;
-	  for k=1:no,if or(vars(5)=='y'+string(k)) then w(k)=%t,end,end
-	  if ~and(w) then 
-	    k1=find(~w)
-	    w=[];for k=1:size(k1,'*'),w=[w;'y'+string(k)+' (size: '+string(out(k))+')'],end
-	    message('You did not define '+strcat(w,',')+' !')
-	  else
-	    break
-	  end
-	else
-	  break;
-	end
-      end
+    vars='y'+string(ind);
+    lcheckdep=list(['u'+string(1:ni)],'t');
+    [ok,txt1,mvars,ldep]=genfunc_edit(comment,txt1,vars,lcheckdep);
+    if isempty(txt1) then return;end // abort in edition 
+    if ok then 
+      dep_u=ldep(1);dep_t=ldep(2);
     end
   else
     txt1=[]
   end
 
-  //flag = 2
-  if nx>0 then
+  //----------  xdot 
+  if nx > 0 then
     // xdot
     depp=strcat(dep([1:4,6]))
     comment=['Define continuous states evolution';
@@ -86,193 +56,119 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
 	     'Enter Scilab instructions defining:';
 	     'derivative of continuous state xd (size:'+string(nx)+')'
 	     'as  function(s) of '+depp];
-    while %t do
-      if isempty(txt0) then txt0=' ',end
-      // new version with editsmat 
-      txt0= editsmat('Genfunc1 Edition',txt0,comment=catenate(comment,sep='\n'));
-      if isempty(txt0) then return,end	
-      mac=null();deff('[]=mac()',txt0,'n')
-      ok1=check_mac(mac)	
-      if ok1 then
-	vars=macrovar(mac)
-	if or(vars(5)=='xd') then
-	  break,
-	else
-	  message('You did not define xd !')
-	end
-      end
-    end
+    [ok,txt0,mvars,ldep]=genfunc_edit(comment,txt0,'xd',list());
+    if isempty(txt0) then return;end // abort in edition 
   else
     txt0='xd=[]'
   end
-  if (nci>0&(nx>0|nz>0))|nz>0 then // x+ z+
+  
+  //----------  x et z 
+  
+  if (nci>0&(nx>0|nz>0))|nz>0 then 
+    // x+ z+
     depp=strcat(dep([1:5,6]))
-    while %t do
-      if isempty(txt2) then txt2=' ',end
-      t1=[]
-      if nx>0 then
-	t1=[t1;'-new continuous state x (size:'+string(nx)+')']
-      end
-      if nz>0 then
-	t1=[t1;'-new discrete state z (size:'+string(nz)+')']
-      end
-      comment = ['You may define:';
-		 t1
-		 'at event time, as functions of '+depp];
-      // new version with editsmat 
-      txt2= editsmat('Genfunc1 Edition',txt2,comment=catenate(comment,sep='\n'));
-      if isempty(txt2) then return,end	
-      //ZZZ
-      ok=execstr(['function []=mac()';txt2;'endfunction'],errcatch=%t);
-      if ~ok then 
-	message(['Incorrect syntax: ';
-		 lasterror()]);
-      else
-	// XXXXX macrovar 
-	if %f then 
-	  vars=macrovar(mac)
-	  if ~or(vars(5)=='x') then txt3=[txt3;'x=[]'];end
-	  if ~or(vars(5)=='z') then txt3=[txt3;'z=[]'];end
-	  break;
-	else
-	  break;
-	end
-      end
+    if isempty(txt2) then txt2=' ',end
+    comment='You may define:';
+    if nx>0 then
+      comment.concatd['-new continuous state x (size:'+string(nx)+')'];
+    end
+    if nz>0 then
+      comment.concatd['-new discrete state z (size:'+string(nz)+')'];
+    end
+    comment.concatd['at event time, as functions of '+depp];
+    [ok,txt2,mvars,ldep]=genfunc_edit(comment,txt2,m2s([]),list());
+    if isempty(txt2) then return;end // abort in edition 
+    if ok then 
+      if ~mvars.lhs.iskey['x'] then txt2=[txt2;'x=[]'];end 
+      if ~mvars.lhs.iskey['z'] then txt2=[txt2;'z=[]'];end 
     end
   else
     txt2=' '
-  end // end of x+ z+
+  end 
 
-  //flag = 3
-  if nci>0&nco>0 then
+  //----------  t_evo 
+    
+  if nci > 0 & nco > 0 then
+
     depp=strcat(dep)
-
-    while %t do
-      if isempty(txt3) then txt3=' ',end
-      comment=['Using '+depp+',you may set '
-	       'vector of output time events t_evo (size:'+string(nco)+')'
-	       'at event time. '];
-      txt3=editsmat('Genfunc1 Edition',txt3,comment=catenate(comment,sep='\n'));
-      if isempty(txt3) then return,end	
-      ok=execstr(['function []=mac()';txt3;'endfunction'],errcatch=%t);
-      if ~ok then 
-	message(['Incorrect syntax: ';
-		 lasterror()]);
-      else
-	if %f then 
-	  vars=macrovar(mac)
-	  if ~or(vars(5)=='t_evo') then txt3=[txt3;'t_evo=[]'];end
-	  break;
-	else
-	  break;
-	end
-      end
+    if isempty(txt3) then txt3=' ',end
+    comment=['Using '+depp+',you may set '
+	     'vector of output time events t_evo (size:'+string(nco)+')'
+	     'at event time. '];
+    [ok,txt3,mvars,ldep]=genfunc_edit(comment,txt3,m2s([]),list());
+    if isempty(txt3) then return;end // abort in edition 
+    if ok then 
+      if ~mvars.lhs.iskey['t_evo'] then txt3=[txt3;'t_evo=[]'];end 
     end
   else
     txt3=' '
   end
-
-  //flag = 4
-  depp=strcat(dep([2 3 6]))
-  t1=[]
-  if nx>0 then
-    t1=[t1;'- continuous state x (size:'+string(nx)+')']
-  end
-  if nz>0 then
-    t1=[t1;'- discrete state z (size:'+string(nz)+')']
-  end
-  if ~isempty(t1) then
-    t1=['You may also re-initialize:';
-	t1]
-  end
-  while %t do
-    if isempty(txt4) then txt4=' ',end
-    comment= ['You may do whatever needed for initialization :'
-	      'File or graphic opening,'
-	      t1
-	      'as  function(s) of '+depp];
-    txt4=editsmat('Genfunc1 Edition',txt4,comment=catenate(comment, sep='\n'));
-    if isempty(txt4) then return,end	
-    ok=execstr(['function []=mac()';txt4;'endfunction'],errcatch=%t);
-    if ~ok then 
-      message(['Incorrect syntax: ';
-	       lasterror()]);
-    else
-      break;
-    end
-  end
-
-  //flag = 5
-  depp=strcat(dep([2 3 6]))
-  t1=[]
-  if nx>0 then
-    t1=[t1;'- continuous state x (size:'+string(nx)+')']
-  end
-  if nz>0 then
-    t1=[t1;'- discrete state z (size:'+string(nz)+')']
-  end
-  if ~isempty(t1) then
-    t1=['You may also change final value of:';t1]
-  end
-  while %t do
-    if isempty(txt5) then txt5=' ',end
-    comment = ['You may do whatever needed to finish :'
-	       'File or graphic closing,'
-	       t1
-	       'as  function(s) of '+depp];
-    txt5= editsmat('Genfunc1 Edition',txt5,comment=catenate(comment,sep='\n'));
-    if isempty(txt5) then return,end	
-    ok=execstr(['function []=mac()';txt5;'endfunction'],errcatch=%t);
-    if ~ok then 
-      message(['Incorrect syntax: ';
-	       lasterror()]);
-    else
-      break;
-    end
-  end
-
-  //flag = 6
-  if nx>0|nz>0|no>0 then
-    t1=[]
-    if nx>0 then
-      t1=[t1;'- state x (size:'+string(nx)+')']
+  
+  //----------- initialization 
+  
+  if isempty(txt4) then txt4=' ',end
+  depp=strcat(dep([2 3 6]));
+  comment= ['You may do whatever needed for initialization :'
+	    'File or graphic opening,'];
+  if nx > 0 || nz > 0 then
+    comment.concatd[['You may also re-initialize:']];
+    if nx > 0 then 
+      comment.concatd['- continuous state x (size:'+string(nx)+')'];
     end
     if nz>0 then
-      t1=[t1;'- state z (size:'+string(nz)+')']
+      comment.concatd['- discrete state z (size:'+string(nz)+')'];
     end
-    w=[]
-    for k=1:no
-      w=[w;'- output y'+string(k)+' (size : '+string(out(k))+')']
+  end
+  [ok,txt4,mvars,ldep]=genfunc_edit(comment,txt4,m2s([]),list());
+  if isempty(txt4) then return;end // abort in edition 
+
+  //----------- ending 
+  
+  if isempty(txt5) then txt5=' ',end
+  depp=strcat(dep([2 3 6]))
+  comment = ['You may do whatever needed to finish :'
+	     'File or graphic closing,'];
+  if nx > 0 || nz > 0 then
+    comment.concatd[['You may also change final value of:']];
+    if nx > 0 then
+      comment.concatd['- continuous state x (size:'+string(nx)+')']
+    end
+    if nz > 0 then
+      comment.concatd['- discrete state z (size:'+string(nz)+')']
+    end
+  end
+  comment.concatd[ 'as  function(s) of '+depp];
+  
+  [ok,txt5,mvars,ldep]=genfunc_edit(comment,txt5,m2s([]),list());
+  if isempty(txt5) then return;end // abort in edition 
+  
+  //----------- 
+    
+  if nx>0|nz>0|no>0 then
+  
+    depp=strcat(dep([2:4,6]));
+    comment= ['You may define here functions imposing contraints';
+	      'on initial inputs, states and outputs';
+	      'Note: these functions may be called more than once';
+	      ' ';
+	      'Enter Scilab instructions defining:'];
+    if nx > 0 then
+      comment.concatd[  '- state x (size:'+string(nx)+')']
+    end
+    if nz > 0 then
+      comment.concatd[ '- state z (size:'+string(nz)+')']
+    end
+    if no > 0 then 
+      comment.concatd['- output y'+string((1:no)')+' (size : '+string(out((1:no)'))+')'];
     end    
-    if ~isempty(w) then t1=[t1;w];end 
-
-    depp=strcat(dep([2:4,6]))
-
-    while %t do
-      comment= ['You may define here functions imposing contraints';
-		'on initial inputs, states and outputs';
-		'Note: these functions may be called more than once';
-		' ';
-		'Enter Scilab instructions defining:'
-		t1;
-		'as a function of '+depp];
-      txt6= editsmat('Genfunc1 Edition',txt6,comment=catenate(comment,sep='\n'));
-      if isempty(txt6) then return,end	
-      ok=execstr(['function []=mac()';txt6;'endfunction'],errcatch=%t);
-      if ~ok then 
-	message(['Incorrect syntax: ';
-		 lasterror()]);
-      else
-	if %f then 
-	  vars=macrovar(mac)
-	  for k=1:no
-	    if and(vars(5)<>'y'+string(k)) then txt6=[txt6;'y'+string(k)+'=[]'],end
-	  end
-	  break,
-	else
-	  break;
-	end
-      end
+    comment.concatd['as a function of '+depp];
+    [ok,txt6,mvars,ldep]=genfunc_edit(comment,txt6,m2s([]),list());
+    if isempty(txt6) then return;end // abort in edition 
+    if ok then 
+      yy='y'+string((1:no)');
+      w=mvars.lhs.iskey[yy];
+      bad=yy(~w);
+      if ~isempty(bad) then txt6=[txt6;bad+'=[]'];end;
     end
   else
     txt6=[]
@@ -280,7 +176,78 @@ function [ok,tt,dep_ut]=genfunc1(tt,inp,out,nci,nco,nx,nz,nrp,type_)
 
   ok=%t
   tt=list(txt1,txt0,txt2,txt3,txt4,txt5,txt6)
-
-
   dep_ut=[dep_u dep_t]
+
 endfunction
+
+function [ok,txt,mvars,ldep]=genfunc_edit(comment,txt,vars,lcheckdep)
+// a kind of generic function to acquire data in an editor.
+// The behaviour depends on the fact that this function is 
+// interactive or not.
+// 1/ when interactive editsmat will enter an editor and loop
+//   until a correct code is entered or a cancel is performed 
+//   on cancel: ok=%t and txt is empty.
+//   on correct exit: ok=%t and txt is not empty.
+// 2/ when non-interactive mode is used then the entry txt 
+//   is returned in txt. ok is set to %t if txt satisfy the 
+//   constraint that it computes the variables in vars and 
+//   set to %f on the contrary.
+//
+// mvars contains the result of a macrovar evaluation of txt;
+// lcheck can be used to check dependencies. It is a list of string 
+// matrices. For each l(i) we check if instructions in txt use variables 
+// for l(i) the result is returned in ldep. 
+// For example if lcheckdep=list(['u'+string(1:ni)],'t') then the
+// returned value ldep=list(dep_u,dep_t) where dep_u is true is txt
+// depends on one ui value and dep_t is true if txt depend on t.
+  
+  ok=%t; mvars=hash(0); ldep=list();
+  non_interactive = exists('getvalue') && getvalue.get_fname[]=='setvalue';
+  // block output instructions 
+  while %t do
+    // new version with editsmat 
+    txt= editsmat('Genfunc1 Edition',txt,comment=catenate(comment,sep='\n'));
+    if isempty(txt) then  // aborting edition
+      return 
+    end	
+    ok=execstr(['function []=mac()';txt;'endfunction'],errcatch=%t);
+    if ~ok then 
+      message(['Incorrect syntax: ';
+	       lasterror()]);
+      if non_interactive then 
+	message(['Error: set failed for genfunc1 but we are in a non ";
+		 '  interactive function and thus we abort the set !']);
+	ok=%f;
+	return;
+      end
+      continue; // loop in while 
+    end
+    // check variables 
+    mvars=macrovar(mac);
+    // compute ldep 
+    ldep=list();
+    for i=1:length(lcheckdep)
+      ldep(i)=%f;
+      if or(mvars.called.iskey[lcheckdep(i)]) then ldep(i)=%t,end;
+    end
+    // check if the requested vars are computed 
+    if ~isempty(vars) then 
+      w = mvars.lhs.iskey[vars];
+      if ~and(w) then 
+	message('You did not define '+strcat(vars(~w),',')+' !');
+	if non_interactive then 
+	  message(['Error: set failed for genfunc1 but we are in a non ";
+		   '  interactive function and thus we abort the set !']);
+	  ok=%f;
+	  return;
+	end
+	continue; // loop in while 
+      end
+    end
+    // here we can quit 
+    break;
+  end
+endfunction
+
+
+

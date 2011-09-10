@@ -8,7 +8,18 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
 // associated to this modelica block. filbally the C code is compiled and
 // dynamically linked. 
 // The correspondind model data structure is returned.
-// get the name of the generated main modelica file
+  
+  function id_out=cleanID1(id)
+  // replace characters of id which are no alphabetic or digit to _
+  // moreover if starting character is a digit it is replaced by '_'.
+    T=isalnum(id);
+    ida=ascii(id);
+    ida(~T)=ascii('_');
+    if length(ida)>= 1 && isdigit(ascii(ida(1))) then ida(1)=ascii('_');end;
+    id_out=ascii(ida);
+  endfunction
+    
+  // get the name of the generated main modelica file
   name=stripblanks(scs_m.props.title(1))+'_im'; 
   if (name<> cleanID1(name) )
     x_message('Error: '''+name+''' is not a valid name for a Modelica model.');
@@ -60,18 +71,9 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
   
 endfunction
 
-function id_out=cleanID1(id)
-// replace characters of id which are no alphabetic or digit to _
-// moreover if starting character is a digit it is replaced by '_'.
-  T=isalnum(id);
-  ida=ascii(id);
-  ida(~T)=ascii('_');
-  if length(ida)>= 1 && isdigit(ascii(ida(1))) then ida(1)=ascii('_');end;
-  id_out=ascii(ida);
-endfunction
-
 function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
 // Copyright INRIA
+  
   if exists('%Modelica_Init')==%f then 
     // Modelica_Init becomes true only in "Modelicainitialize_.sci"
     %Modelica_Init=%f;
@@ -145,9 +147,9 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
       Parj=mo.parameters(1)(j)
       Parjv=mo.parameters(2)(j)
       Parj_in=Parj+'_'+BlockName
-      if type(Parjv,'string')=='Mat' then // if Real/Complex	Integers are used with "fixed=true"
-
-//	rpar=[rpar;matrix(Parjv,-1,1)] ;// should to be removed once modelciac is updated
+      if type(Parjv,'string')=='Mat' then 
+	// if Real/Complex	Integers are used with "fixed=true"
+	//	rpar=[rpar;matrix(Parjv,-1,1)] ;// should to be removed once modelciac is updated
         Parjv_plat=Parjv(:);
         for jj=1:size(Parjv_plat,'*')
          opar($+1)=Parjv_plat(jj)
@@ -174,8 +176,6 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
     //#########
     //## models
     //#########
-
-    
     Bnumbers=[Bnumbers k];
 
     //## update list of names of modelica blocks
@@ -256,16 +256,17 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
 endfunction
 
 function r=validvar_modelica(s)
- r=validvar(s);
- if r then
-   bad_char=['%' '#' '$']
-   for j=1:size(bad_char,2)
-     if strindex(s,bad_char(j)) then
-       r=%f
-       return
-     end
-   end
- end
+// unused function 
+  r=validvar(s);
+  if r then
+    bad_char=['%' '#' '$']
+    for j=1:size(bad_char,2)
+      if strindex(s,bad_char(j)) then
+	r=%f
+	return
+      end
+    end
+  end
 endfunction
 
 function [ok,Paro]=construct_Pars(Pari,opari,Parembed)
@@ -712,18 +713,27 @@ endfunction
 
 function model_name=get_model_name(mo_model,id,AllNames)
 //Copyright INRIA
-//## return a unique name for a modelica model
-//## for the compiled modelica structure
-//##
-//## inputs :
-//##   mo_model : a string that gives the name of the model
-//##              in the modelica list (equations) of a modelica block.
-//##
-//##   Bnames   : vector of strings of already attribuated model names
-//##
-//## output :
-//##   model_name : the output string of the model name
-//##
+// return a unique name for a modelica model
+// for the compiled modelica structure
+//
+// inputs :
+//   mo_model : a string that gives the name of the model
+//              in the modelica list (equations) of a modelica block.
+//
+//   Bnames   : vector of strings of already attribuated model names
+//
+// output :
+//   model_name : the output string of the model name
+//
+  
+  function id_out=cleanID(id)
+  // replace characters of id which are no alphabetic or digit to _
+    T=isalnum(id);
+    ida=ascii(id);
+    ida(~T)=ascii('_');
+    id_out=ascii(ida);
+  endfunction
+
   // pause get_model_name 
   ido=cleanID(id);
   mo_model=cleanID(mo_model)
@@ -735,14 +745,6 @@ function model_name=get_model_name(mo_model,id,AllNames)
       ind = ind + 1
     end
   end
-endfunction
-
-function id_out=cleanID(id)
-// replace characters of id which are no alphabetic or digit to _
-  T=isalnum(id);
-  ida=ascii(id);
-  ida(~T)=ascii('_');
-  id_out=ascii(ida);
 endfunction
 
 function [ok,modelicac,translator,xml2modelica]=Modelica_execs()
