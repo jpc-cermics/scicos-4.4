@@ -286,7 +286,7 @@ static int scicos_list_to_vars (double *outptr[], int nout, int outsz[],
       NspObject *elt = nsp_list_get_element (L, k + 1);
       if (elt == NULL)
 	return FAIL;
-      if (scicos_scitod (outptr[k], outsz[k], 1, elt) == FAIL)
+      if (scicos_scitod (outptr[k], outsz[k], outsz[k+nout], elt) == FAIL)
 	return FAIL;
     }
   return OK;
