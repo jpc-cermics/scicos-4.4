@@ -47,7 +47,7 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
     old_cc=cc;cc=[];
     for i=1:size(cc_temp,1)
       ind=find(busmat(:,1)==evstr(cc_temp(i,3)));
-      if ind<>[] then
+      if ~isempty(ind) then
 	I1=cc_temp(i,1);
 	I2=cc_temp(i,2);
 	I3=cc_temp(i,5);
@@ -108,15 +108,15 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
   vec=sort(evstr(vec))
   for i=1:size(vec,'*')
     ind1=find(evstr(cc(:,1))>=vec(i));
-    if ind1<>[] then cc(ind1,1)=string(evstr(cc(ind1,1))-1);end
+    if ~isempty(ind1) then cc(ind1,1)=string(evstr(cc(ind1,1))-1);end
     ind1=find(ccmat(:,1)>=vec(i));
-    if ind1<>[] then ccmat(ind1,1)=ccmat(ind1,1)-1;end
+    if ~isempty(ind1) then ccmat(ind1,1)=ccmat(ind1,1)-1;end
     ind1=find(evstr(sco_mat(:,1))>=vec(i) & sco_mat(:,5)=='10');
-    if ind1<>[] then sco_mat(ind1,1)=string(evstr(sco_mat(ind1,1))-1);end
+    if ~isempty(ind1) then sco_mat(ind1,1)=string(evstr(sco_mat(ind1,1))-1);end
     ind1=find(evstr(cc(:,3))>=vec(i));
-    if ind1<>[] then cc(ind1,3)=string(evstr(cc(ind1,3))-1);end
+    if ~isempty(ind1) then cc(ind1,3)=string(evstr(cc(ind1,3))-1);end
     ind1=find(ccmat(:,3)>=vec(i));
-    if ind1<>[] then ccmat(ind1,3)=ccmat(ind1,3)-1;end
+    if ~isempty(ind1) then ccmat(ind1,3)=ccmat(ind1,3)-1;end
     //adjusting in cor
 
    // vv=corinv(vec(i));
