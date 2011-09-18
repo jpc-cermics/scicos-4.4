@@ -9,7 +9,7 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
     ind=find(cc(:,3)==string(busmat(i,1)));
     ind1=evstr(cc(ind(:),4));
     o=scs_m(scs_full_path(corinv(busmat(i,1))));
-    sourcesign=evstr(list2vec(o.graphics.exprs(2)(1)));
+    sourcesign=evstr(o.graphics.exprs(2)(1)(:));
     //sourcesign=list2vec(blklst(busmat(i,1)).opar);
     sourcesign=sourcesign(ind1);
     if and(cc(ind,5)=='NAN') then 
@@ -26,8 +26,7 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
     ind=find(cc(:,1)==string(busmat(i,3)));
     ind1=evstr(cc(ind(:),2));
     o=scs_m(scs_full_path(corinv(busmat(i,3))));
-    destsign=evstr(list2vec(o.graphics.exprs(2)(1)));
-    //destsign=list2vec(blklst(busmat(i,3)).opar);
+    destsign=evstr(o.graphics.exprs(2)(1)(:));
     destsign=destsign(ind1);
      if and(cc(ind,5)=='NAN') then 
       cc(ind,5)=destsign;
@@ -74,12 +73,12 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
     ind=find(cc(:,3)==cc(dstsrc(i),1)&cc(:,5)==cc(dstsrc(i),5));
     if isempty(ind) then
       msg='The Signal ""'+cc(dstsrc(i),5)+'"" is not defined! Please check the hilighted block.';
-      path=list2vec(findinlistcmd(cor,evstr(cc(dstsrc(i),1)),'='));
+      path=(findinlistcmd(cor,evstr(cc(dstsrc(i),1)),'='))(:);
       hilite_path(path,msg,%t);
       ok=%f;return;
     elseif size(ind,'*')>1 then
       msg='There are '+sci2exp(size(ind,'*'))+' signals with the same name ""'+cc(dstsrc(i),5)+'"" received by the hilighted block! Please check it.';
-      path=list2vec(findinlistcmd(cor,evstr(cc(dstsrc(i),1)),'='));
+      path=(findinlistcmd(cor,evstr(cc(dstsrc(i),1)),'='))(:);
       hilite_path(path,msg,%t);
       ok=%f;return;
     else     
@@ -148,4 +147,40 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
   end
   //adjusting reg
   reg=1:size(corinv);
+endfunction
+
+function [path]=findinlistcmd(L,v,oper,path)
+// Copyright INRIA
+//recherche si un element de valeur v existe dans la liste L
+  global paths
+  //if and(type(L)<>(15:17)) then error('First argument should be a list'),end
+  if and(type(L,'string')<>(["List"])) then error('First argument should be a list'),end
+  firstlevel=nargin<4
+  if firstlevel then paths=list(),path=[];end
+  for k=1:size(L)
+    l=L(k)
+    if or(type(l,'string')==(["List"])) then
+    //if or(type(l)==(15:17)) then
+      findinlistcmd(l,v,oper,[path,k])
+    else
+      if oper=='=' then
+	if and(l(:)==v) then
+	  paths($+1)=[path k]
+	end
+      elseif oper=='>' then
+	if or(l(:) > v) then 
+	  paths($+1)=[path k]
+	end
+      elseif oper=='<' then
+	if or(l(:) < v) then 
+	  paths($+1)=[path k]
+	end
+      else
+      end
+    end
+  end
+  if firstlevel then
+    path=paths
+    clearglobal paths
+  end
 endfunction
