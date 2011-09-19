@@ -1,4 +1,41 @@
 function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,ccmat,busmat,cor,corinv,reg,MaxBlock,sco_mat,scs_m)
+
+  
+  function [paths]=findinlistcmd(L,v,oper,path)
+  // Copyright INRIA
+  // search the elements of L trying to find elements 
+  // for which and(L(i)==v) (for oper equal to '==' ) 
+  // or or(L(i) oper v) (for oper equal to '>' or '<').
+  // when elements of L are list the recursion is performed.
+  // All the occurences for which the test is positive 
+  // are returned in paths by their path in L. 
+  // 
+    paths = list()
+    if nargin < 4 then ; path=[];end 
+    if nargin < 3 then oper = "==";end 
+    if type(L,'short')<>'l' then
+      error('First argument should be a list');
+    end
+    for k=1:length(L)
+      l=L(k)
+      if type(l,'short')=='l' then
+	paths.concat[findinlistcmd(l,v,oper,[path,k])];
+      elseif oper=='==' then
+	if and(l(:)==v) then
+	  paths($+1)=[path k];
+	end
+      elseif oper=='>' then
+	if or(l(:) > v) then 
+	  paths($+1)=[path k];
+	end
+      elseif oper=='<' then
+	if or(l(:) < v) then 
+	  paths($+1)=[path k];
+	end
+      end
+    end
+  endfunction
+  
   ok=%t;
   cc=string(cmat);
   blklst_temp=blklst;corinv_temp=corinv;
@@ -149,38 +186,3 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
   reg=1:size(corinv);
 endfunction
 
-function [path]=findinlistcmd(L,v,oper,path)
-// Copyright INRIA
-//recherche si un element de valeur v existe dans la liste L
-  global paths
-  //if and(type(L)<>(15:17)) then error('First argument should be a list'),end
-  if and(type(L,'string')<>(["List"])) then error('First argument should be a list'),end
-  firstlevel=nargin<4
-  if firstlevel then paths=list(),path=[];end
-  for k=1:size(L)
-    l=L(k)
-    if or(type(l,'string')==(["List"])) then
-    //if or(type(l)==(15:17)) then
-      findinlistcmd(l,v,oper,[path,k])
-    else
-      if oper=='=' then
-	if and(l(:)==v) then
-	  paths($+1)=[path k]
-	end
-      elseif oper=='>' then
-	if or(l(:) > v) then 
-	  paths($+1)=[path k]
-	end
-      elseif oper=='<' then
-	if or(l(:) < v) then 
-	  paths($+1)=[path k]
-	end
-      else
-      end
-    end
-  end
-  if firstlevel then
-    path=paths
-    clearglobal paths
-  end
-endfunction
