@@ -95,6 +95,13 @@ function scmenu_code_generation()
 		
 	if ok.equal[%t] then
 	  if cblock==1 then
+            //@@ remove XX.gr
+            ishilited=%f
+            if XX.iskey['gr'] then
+              F=get_current_figure();
+              ishilited=XX.gr.hilited
+              F.remove[XX.gr]
+            end
 	    XX=gencblk4(XX,gui_path)
 	  end
 	  scs_m = changeports(scs_m,list('objs',k), XX);  //scs_m.objs(k)=XX
