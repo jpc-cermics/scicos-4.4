@@ -20,7 +20,8 @@ function scmenu_create_mask()
     message('Mask can only be created for Super Blocks.')
     return;
   end
-  if (o.model.sim =='csuper' & isequal(o.model.ipar,1))  then
+
+  if (isequal(o.model.sim,'csuper') & isequal(o.model.ipar,1))  then
     message('This block is already masked.')
     return;
   end

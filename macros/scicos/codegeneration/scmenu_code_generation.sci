@@ -6,20 +6,21 @@ function scmenu_code_generation()
 //
 // modified for nsp 
   
-  k = [] ; //** index of the CodeGen source superbloc candidate
-
-  xc = %pt(1); //** last valid click position
-  yc = %pt(2);
-
+  k     = [] ; //** index of the CodeGen source superbloc candidate
   %pt   = []   ;
   Cmenu = "" ;
 
-  k  = getobj(scs_m,[xc;yc]) ; //** look for a block
   needcompile = 4  ;// this have to be done before calling the generator to avoid error with modelica blocks
   // updateC in compile_modelica must be true when linking the functions
 
   //@@ default global variable
   ALL         = %f;                  //@@ entire diagram generation
+
+  if ~isempty(%pt) then
+    xc = %pt(1); //** last valid click position
+    yc = %pt(2);
+    k  = getobj(scs_m,[xc;yc]) ; //** look for a block
+  end
 
   //** check if we have clicked near an object
   if isempty(k) then
@@ -1613,7 +1614,7 @@ function [CCode,FCode]=gen_blocks()
   //@@
   //@@ warning we use cpr :
   if ALL then
-    cod_include=[]
+    cod_include=''
     for kf=1:size(cpr.sim.funtyp,1)
       if (cpr.sim.funtyp(kf)==4) | (cpr.sim.funtyp(kf)==10004) then
         if isempty(find(cpr.sim.funs(kf)==cod_include)) then
@@ -1802,7 +1803,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
 
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
-    
+
     for i=1:2:length(CCode)
             
       CCode(i+1)=['/* Code of '+CCode(i)+' routine ';
@@ -1818,8 +1819,12 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
         ok=%f
         return
       else
-        if isempty(find(Cblocks_files==CCode(i))) then
-          Cblocks_files = [Cblocks_files CCode(i)]
+        if isempty(Cblocks_files) then
+          Cblocks_files = CCode(i)
+        else
+          if isempty(find(Cblocks_files==CCode(i))) then
+            Cblocks_files = [Cblocks_files CCode(i)]
+          end
         end
       end
     end
@@ -3148,7 +3153,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   if eok then
     for i=1:cpr.sim.nb
       if state.iz(i)<>0 then
-	with_work(i)=%t
+	with_work(i)=1
       end
     end
     eok=execstr('[state,t]=scicosim(state,0,0,cpr.sim,'+..
@@ -3168,7 +3173,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   //@@ add a work ptr for agenda blk
   for i=cpr.sim.nb:-1:1
     if cpr.sim.funs(i)=='agenda_blk' then
-      with_work(i)=%t
+      with_work(i)=1
       break
     end
   end
@@ -11070,9 +11075,13 @@ function [Code,Code_xml_param]=make_standalone43()
     end
   end
 
-  Code_end_mac=[Code_end_mac;
-                '/* Define Cosend macro */'
-                Code_end_mac
+//  Code_end_mac=[Code_end_mac;
+//                '/* Define Cosend macro */'
+//                Code_end_mac
+//                '']
+
+  Code_end_mac=['/* Define Cosend macro */'
+                Code_end_mac(:)
                 '']
 
   //@@ Cosend in a function

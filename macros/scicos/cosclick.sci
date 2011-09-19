@@ -33,6 +33,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   end
 
   if (btn==-2) then 
+    //%pt=[]
     // menu activated 
     if part(str,1:7)=='execstr' then
       // A menu was activated and str is like 
@@ -49,6 +50,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       printf('cosclick: using toolbar cmd [%s]\n",mcmd);
     elseif part(str,1:9)=='scicos_br' then 
       // A browser row was activated 
+      printf('cosclick: A browser row was activated');
       [str1,pathh]=sscanf(str,'scicos_br(%[^,],%[^)])');
       Scicos_commands=['%diagram_path_objective='+pathh+';%scicos_navig=1';
 		       'Cmenu='''';%win=curwin;xselect();%scicos_navig=[]'];
