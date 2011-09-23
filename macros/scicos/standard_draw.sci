@@ -49,7 +49,7 @@ function standard_draw_new(o,frame,draw_ports,identup)
   if isempty(coli) then
     coli=xget('background')
   end
-  
+
   // Draw the frame of the block if requested 
   // i.e draw boundaries + paint the background 
   

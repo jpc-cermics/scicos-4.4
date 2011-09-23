@@ -25,7 +25,7 @@ function scmenu_create_mask()
     message('This block is already masked.')
     return;
   end
-    
+  
   model=o.model
   graphics=o.graphics;
   if type(model.sim,'short')<>'s' || model.sim <> 'super' then

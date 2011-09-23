@@ -1,4 +1,4 @@
-function [ierreport]=scicos_test(fname)
+function [ierreport]=scicos_test(fname,import=%f)
 // make a full step test for diagram stored 
 // in fname. Simulation results are stored in a repository 
 // comparison.
@@ -115,7 +115,11 @@ function [ierreport]=scicos_test(fname)
   if ~exists(dd) then file("mkdir",dd);end
   do_terminate=do_terminate2;
   // load the diagram and update 
-  [ok,scs_m,%cpr]=do_load(fname);
+  if import then 
+    [ok,scs_m,%cpr]=do_scicoslab_import(fname);
+  else
+    [ok,scs_m,%cpr]=do_load(fname);
+  end
   if ~ok then
     ierreport='Cannot load the diagram '+fname;
     return
