@@ -98,7 +98,7 @@ function scicos_show_icon(name,zoom)
   options=scs_m.props.options
   set_background();
   scs_m=scs_m_remove_gr(scs_m);
-  %zoom=zoom*restore(curwin,[],1.0);
+  %zoom=zoom*restore(curwin,1.0);
   drawobjs(scs_m,curwin);
 endfunction
 
@@ -119,7 +119,7 @@ function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
   options=scs_m.props.options
   set_background();
   scs_m=scs_m_remove_gr(scs_m);
-  %zoom=restore(curwin,[],1.0);
+  %zoom=restore(curwin,1.0);
   drawobjs(scs_m,curwin);
   // reset the extension just in case 
   xexport(curwin,name,figure_background=figure_background);

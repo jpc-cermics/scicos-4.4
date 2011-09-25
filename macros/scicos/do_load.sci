@@ -152,7 +152,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   if tolower(ext) == 'xml' then
     needcompile=4;
     //      [ok,scs_m]=do_define_and_set(scs_m) 
-    [scs_m,cpr,vv,ok]=do_eval(scs_m,list(),hash(1),%f,'XML');
+    [scs_m,cpr,vv,ok]=do_eval(scs_m,list(),hash(1),'XML');
     if ~ok then
       x_message(['An error occured while opening the diagram\n';
 		 catenate(lasterror());

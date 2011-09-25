@@ -1,5 +1,24 @@
 function [x,y,typ]=SUMMATION(job,arg1,arg2)
 // Copyright INRIA
+
+  function SUMMATION_draw(o,sz,orig)
+    [x,y,typ]=standard_inputs(o) 
+    dd=sz(1)/8,de=0;
+    if ~arg1.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
+    for k=1:size(x,'*');
+      if size(sgn,1) >= k then
+	if sgn(k) > 0 then;
+	  xstring(orig(1)+dd,y(k)-4,'+');
+	else;
+	  xstring(orig(1)+dd,y(k)-4,'-');
+	end;
+      end;
+    end;
+    xx=sz(1)*[.8 .4 0.75 .4 .8]+orig(1)+de;
+    yy=sz(2)*[.8 .8 .5 .2 .2]+orig(2);
+    xpoly(xx,yy,type='lines');
+  endfunction
+    
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -75,6 +94,8 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     satur=model.rpar
     model.rpar=[]
     Datatype=model.outtyp(1)
+    Dt=["","_z","i32n","i16","i8","ui32","ui16","ui8"];
+    Tag=["n","s","e"];
     if Datatype==1 then 
       model.sim=list('summation',4)
     elseif Datatype==2 then
@@ -82,53 +103,11 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     elseif Datatype>8 then
       error("Datatype is not supported");
     else
-      if satur==0 then
-	if Datatype==3 then
-	  model.sim=list('summation_i32n',4)
-	elseif Datatype==4 then
-	  model.sim=list('summation_i16n',4)
-	elseif Datatype==5 then
-	  model.sim=list('summation_i8n',4)
-	elseif Datatype==6 then
-	  model.sim=list('summation_ui32n',4)
-	elseif Datatype==7 then
-	  model.sim=list('summation_ui16n',4)
-	elseif Datatype==8 then
-	  model.sim=list('summation_ui8n',4)
-	end
-      elseif satur==1 then
-	if Datatype==3 then
-	  model.sim=list('summation_i32s',4)
-	elseif Datatype==4 then
-	  model.sim=list('summation_i16s',4)
-	elseif Datatype==5 then
-	  model.sim=list('summation_i8s',4)
-	elseif Datatype==6 then
-	  model.sim=list('summation_ui32s',4)
-	elseif Datatype==7 then
-	  model.sim=list('summation_ui16s',4)
-	elseif Datatype==8 then
-	  model.sim=list('summation_ui8s',4)
-	end
-      elseif satur==2 then
-	if Datatype==3 then
-	  model.sim=list('summation_i32e',4)
-	elseif Datatype==4 then
-	  model.sim=list('summation_i16e',4)
-	elseif Datatype==5 then
-	  model.sim=list('summation_i8e',4)
-	elseif Datatype==6 then
-	  model.sim=list('summation_ui32e',4)
-	elseif Datatype==7 then
-	  model.sim=list('summation_ui16e',4)
-	elseif Datatype==8 then
-	  model.sim=list('summation_ui8e',4)
-	end
-      end
+      simstr=sprintf('summation%s%s',Dt(Datatype),Tag(satur+1))
+      model.sim=list(simstr,4);
     end
     x=model
-
-
+    
    case 'define' then
     sgn=[1;-1]
     model=scicos_model()
@@ -140,24 +119,9 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     model.ipar=sgn
     model.blocktype='c'
     model.dep_ut=[%t %f]
-
     
     exprs=sci2exp(sgn)
-    gr_i=['[x,y,typ]=standard_inputs(o) ';
-	  'dd=sz(1)/8,de=0,'
-	  'if ~arg1.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end'
-	  'for k=1:size(x,''*'')';
-	  'if size(sgn,1)>1 then'
-	  '  if sgn(k)>0 then';
-	  '    xstring(orig(1)+dd,y(k)-4,''+'')';
-	  '  else';
-	  '    xstring(orig(1)+dd,y(k)-4,''-'')';
-	  '  end';
-	  'end';
-	  'end';
-	  'xx=sz(1)*[.8 .4 0.75 .4 .8]+orig(1)+de';
-	  'yy=sz(2)*[.8 .8 .5 .2 .2]+orig(2)';
-	  'xpoly(xx,yy,type=''lines'')']
+    gr_i=['SUMMATION_draw(o,sz,orig);'];
     x=standard_define([2 3],model, exprs,gr_i,'SUMMATION');
   end
 endfunction

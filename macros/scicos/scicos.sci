@@ -264,7 +264,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
             if isequal(%diagram_path_objective,super_path) then 
 	      // must add after testing &%scicos_navig<>[] 
               if ~or(curwin==winsid()) then 
-                %zoom=restore(curwin,menus,%zoom)
+                %zoom=restore(curwin,%zoom)
 		scs_m=scs_m_remove_gr(scs_m,recursive=%f);
 		window_set_size();
 		ok=execstr('drawobjs(scs_m,curwin)',errcatch=%t);
@@ -295,7 +295,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       if ~or(curwin==winsid()) then
         xset('window',curwin)
         xset('recording',0)
-        %zoom=restore(curwin,menus,%zoom)
+        %zoom=restore(curwin,%zoom)
         Cmenu='Replot'
         Select_back=[];Select=[]
       end
@@ -531,7 +531,7 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
       super_block=%t
       curwin=inactive_windows(2)(i)
       xset('window',curwin)
-      %zoom=restore(curwin,menus,%zoom)
+      %zoom=restore(curwin,%zoom)
       %wdm=scs_m.props.wpar
       window_set_size()
       scs_m=do_replot(scs_m)

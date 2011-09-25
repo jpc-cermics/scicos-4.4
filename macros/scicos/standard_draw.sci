@@ -109,10 +109,9 @@ function standard_draw_new(o,frame,draw_ports,identup)
     orig=orig+e
     sz=sz-e
   end
-    
   if  ~execstr(gr_i,errcatch=%t) then
     printf("%s",lasterror());
-    message(['Error in Icon defintion';
+    message([sprintf('Error in Icon definition of block %s',o.gui);
 	     'See error message in nsp window']);
   end
   xset('pattern',pat)
