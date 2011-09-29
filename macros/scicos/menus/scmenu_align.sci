@@ -1,7 +1,7 @@
 function scmenu_align()
   Cmenu='';
   sc=scs_m;
-  [scs_m,changed]= do_align(scs_m);
+  [scs_m,changed]=do_align(scs_m);
   if changed then 
     edited=%t; scs_m_save=sc;enable_undo=%t;
   end
@@ -9,10 +9,10 @@ endfunction
 
 function [scs_m,changed]=do_align(%pt,scs_m)
 // Copyright INRIA
+
+  //return;// XXXXX
   
-  return;// XXXXX
-  
-  function pt= select_port(obj,x,y)
+  function pt=select_port(obj,x,y)
     [xout,yout,typout]=getoutputs(obj)
     [xin,yin,typin]=getinputs(obj)
     x1=[xout,xin]
@@ -30,16 +30,19 @@ function [scs_m,changed]=do_align(%pt,scs_m)
       pt=[];
     end
   endfunction
-  
+
   changed=%f;
+  scs_m=scs_m;
+
   if isempty(Select) || isempty(find(Select(:,2)==curwin)) then
     message('Make a selection first');
     return;
   end
+
   // K contains selected indices restricted to curwin 
   K=Select(find(Select(:,2)==curwin),1);
   if length(K)<> 1 then 
-    message('Select only one block for identification !');
+    message('Select first only one block for alignement !');
     return;
   end
   
@@ -70,7 +73,7 @@ function [scs_m,changed]=do_align(%pt,scs_m)
       if ~isempty(k2) && k2<>K then o2=scs_m.objs(k2);break,end
     end
   end
-  // pause xx
+
   // 
   if ~isempty(get_connected(scs_m,k2)) then
     hilite_obj(k2)
@@ -101,9 +104,14 @@ function [scs_m,changed]=do_align(%pt,scs_m)
       orig2(2)=orig2(2)- pt2(2) + pt1(2);
     end
   end
+
   tr=orig2-graphics2.orig; 
-  scs_m.objs(k2).graphics.orig=orig2;
+  //scs_m.objs(k2).graphics.orig=orig2;
+  o2.graphics.orig=orig2
+  scs_m.objs(k2)=o2
+
   changed=%t;
+
   // translate object 
   o2.gr.translate[tr];
   // this should be useless 
