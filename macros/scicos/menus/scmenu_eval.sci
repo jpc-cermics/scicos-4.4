@@ -54,7 +54,11 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
       needcompile=needcompile;
     end 
     msg=m2s([]);
-        
+
+    // to detect that message was activated
+    global %scicos_prob;     // detect pbs in non interactive blovk evaluation
+    global %scicos_setvalue; // detect loop in non interactive blovk evaluation
+
     // enrich context with scs_m.props.context 
     [context,ierr]=script2var(scs_m.props.context,context);
     if ierr<>0 then 
@@ -130,7 +134,8 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	    // 
 	  else
 	    //should we generate a message here?
-	    %scicos_prob=%f
+	    %scicos_prob=%f;
+	    %scicos_setvalue=[];
 	    eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
 	    if ~eok || %scicos_prob  then 
 	      [ok,msg]=do_eval_report('',o.gui);
@@ -228,14 +233,11 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
   
   // window 0 existed 
   %win0_exists=or(winsid()==0)
-  // to detect that message was activated
-  global %scicos_prob
-  %scicos_prob=%f
   // overload some functions used in GUI
   getvalue=setvalue;
   
   [scs_m,cpr,needcompile,ok,msg]=do_eval_rec(scs_m,cpr,context,flag);
-  if ~ok then if isempty(msg) then pause;end ; x_message(catenate(msg));end
+  if ~ok then x_message(catenate(msg));end
   if needcompile==4 then cpr=list(),end
   if ~%win0_exists then xdel(0);end
 endfunction

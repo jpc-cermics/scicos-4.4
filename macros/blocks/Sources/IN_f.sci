@@ -61,7 +61,7 @@ function [x,y,typ]=IN_f(job,arg1,arg2)
     if size(exprs,'*')==1 then exprs=[exprs(1);'-1';'-1'],end //compatibility
     while %t do
       [ok,prt,otsz,ot,exprs]=getvalue('Set Input block parameters',..
-				      ['Port number';'Outport Size (-1 for inherit)';'Outport Type (-1 for inherit)'],list('vec',1,'vec',-1,'vec',1),exprs)
+				      ['Port number';'Outport Size (-1 for inherit)';'Outport Type (-1 for inherit)'],list('vec',1,'vec',-1,'vec',1),exprs);
       if ~ok then break,end
       prt=int(prt)
       if prt<=0 then
