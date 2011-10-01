@@ -48,7 +48,16 @@ function ninnout=under_connection(path_out,prt_out,nout,path_in,prt_in,nin,flagg
   path_out=path_out(k(1)) // "from" block number
   path_in=path_in(k(1))   // "to" block number
   sc=scs_m;
+
+  //##
+  codegen=%f
   if exists('Code_gene_run') then
+    if ~ALL then
+      codegen=%t
+    end
+  end
+
+  if codegen then
     mxwin=max(winsid())
     if isempty(path) then path=0, end
     path=path+1 // Consider locally compiled superblock as a superblock
