@@ -237,7 +237,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
   getvalue=setvalue;
   
   [scs_m,cpr,needcompile,ok,msg]=do_eval_rec(scs_m,cpr,context,flag);
-  if ~ok then x_message(catenate(msg));end
+  if ~ok && ~isempty(msg) then x_message(catenate(msg));end
   if needcompile==4 then cpr=list(),end
   if ~%win0_exists then xdel(0);end
 endfunction
