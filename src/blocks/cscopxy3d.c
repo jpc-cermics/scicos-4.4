@@ -1,206 +1,224 @@
-/**
-   \file cscopxy3d.c
-   \author Benoit Bayol
-   \version 1.0
-   \date September 2006 - January 2007
-   \brief CSCOPXY3D is a scope in 2D which draw its input as a XYZ scope, there is no animation, everything is keep in memory instead of CANIMXY3D
-   \see CSCOPXY3D.sci in macros/scicos_blocks/Sinks/
-*/
-
+#include <nsp/nsp.h>
+#include <nsp/objects.h>
+#include <nsp/graphics-new/Graphics.h> 
+#include <nsp/objs3d.h>
+#include <nsp/polyline3d.h>
+#include <nsp/points3d.h>
+#include <nsp/polyhedron.h>
+#include <nsp/figuredata.h>
+#include <nsp/figure.h>
+#include <nsp/gmatrix.h>
 
 #include "blocks.h"
 
+extern BCG *scicos_set_win(int wid,int *oldwid);
+
+typedef struct _cscope_data cscope_data;
+
+struct _cscope_data
+{
+  NspObjs3d *objs3d;
+  NspMatrix *Mcol;
+  int count;    /* number of points inserted in the scope buffer */
+  int max;      /* number of points which can be inserted */
+  int malloc_size ; /* we allocate malloc_size rows on re-allocation */
+};
+
+typedef struct _cscopxy3D_rpar cscopxy3D_rpar;
+struct _cscopxy3D_rpar
+{
+  double xmin,xmax,ymin,ymax,zmin,zmax;
+  double alpha,theta;
+};
+
+static int cscopexy3d_add_pts(cscope_data *D);
+static int cscopexy3d_add_value(cscope_data *D,double *u1,double *u2,double *u3);
+
 void cscopxy3d (scicos_block * block, int flag)
 {
-  Sciprintf ("cscopxy3d is to be done for nsp \n");
-}
-
-#if 0
-#include "scoMemoryScope.h"
-#include "scoWindowScope.h"
-#include "scoMisc.h"
-#include "scoGetProperty.h"
-#include "scoSetProperty.h"
-#include "blocks.h"
-
-/** \fn cscopxy3d_draw(scicos_block * block, ScopeMemory ** pScopeMemory, int firstdraw)
-    \brief Function to draw or redraw the window
-*/
-void cscopxy3d_draw (scicos_block * block, ScopeMemory ** pScopeMemory,
-		     int firstdraw)
-{
-  int *ipar;			//Integer Parameters
-  int color_number;		//Flag on Color
-  int *color;
-  int *line_size;
-  int animed;
-  int win;			//Windows ID : To give a name to the window
-  int buffer_size;		//Buffer Size
-  int win_pos[2];		//Position of the Window
-  int win_dim[2];		//Dimension of the Window
-  int nipar;
-  double *rpar;			//Reals parameters
-  double xmin, xmax, ymin, ymax, zmin, zmax, alpha, theta;	//Ymin and Ymax are vectors here
-  int number_of_subwin;
-  int number_of_curves_by_subwin;
-  int dimension = 3;
-  int i;
-  int size = 0;
-  char *label;
-  scoGraphicalObject ShortDraw;
-  scoGraphicalObject LongDraw;
-
-  /*Retrieving Parameters */
-  ipar = GetIparPtrs (block);
-  nipar = GetNipar (block);
-  rpar = GetRparPtrs (block);
-  win = ipar[0];
-  color_number = ipar[1];
-  buffer_size = ipar[2];
-  label = GetLabelPtrs (block);
-  color = (int *) scicos_malloc (color_number * sizeof (int));
-  line_size = (int *) scicos_malloc (color_number * sizeof (int));
-  for (i = 0; i < color_number; i++)
-    {
-      color[i] = ipar[i + 3];
-      line_size[i] = ipar[i + 3 + color_number];
-    }
-  size = 2 * color_number;
-  animed = ipar[size + 3];
-  win_pos[0] = ipar[size + 4];
-  win_pos[1] = ipar[size + 5];
-  win_dim[0] = ipar[size + 6];
-  win_dim[1] = ipar[size + 7];
-  xmin = rpar[0];
-  xmax = rpar[1];
-  ymin = rpar[2];
-  ymax = rpar[3];
-  zmin = rpar[4];
-  zmax = rpar[5];
-  alpha = rpar[6];
-  theta = rpar[7];
-
-  number_of_subwin = 1;
-  number_of_curves_by_subwin = ipar[size + 8];	//it is a trick to recognize the type of scope, not sure it is a good way because normally a curve is the combination of a short and a longdraw
-
-  if (firstdraw == 1)
-    {
-      scoInitScopeMemory (GetPtrWorkPtrs (block), pScopeMemory,
-			  number_of_subwin, &number_of_curves_by_subwin);
-      scoSetShortDrawSize (*pScopeMemory, 0, buffer_size);
-      scoSetLongDrawSize (*pScopeMemory, 0, 5000);
-    }
-
-  scoInitOfWindow (*pScopeMemory, dimension, win, win_pos, win_dim, &xmin,
-		   &xmax, &ymin, &ymax, &zmin, &zmax);
-  if (scoGetScopeActivation (*pScopeMemory) == 1)
-    {
-      pSUBWIN_FEATURE (scoGetPointerAxes (*pScopeMemory, 0))->alpha = alpha;
-      pSUBWIN_FEATURE (scoGetPointerAxes (*pScopeMemory, 0))->theta = theta;
-      scoAddTitlesScope (*pScopeMemory, label, "x", "y", "z");
-
-
-      for (i = 0; i < scoGetNumberOfCurvesBySubwin (*pScopeMemory, 0); i++)
-	{
-	  scoAddPolylineForShortDraw (*pScopeMemory, 0, i, color[i]);
-	  scoAddPolylineForLongDraw (*pScopeMemory, 0, i, color[i]);
-
-	  ShortDraw = scoGetPointerShortDraw (*pScopeMemory, 0, i);
-	  LongDraw = scoGetPointerLongDraw (*pScopeMemory, 0, i);
-
-	  /* Set ShortDraw properties */
-	  sciSetLineWidth (ShortDraw, line_size[i]);
-	  sciSetMarkSize (ShortDraw, line_size[i]);
-
-	  /* Set LongDraw properties */
-	  sciSetLineWidth (LongDraw, line_size[i]);
-	  sciSetMarkSize (LongDraw, line_size[i]);
-
-	}
-    }
-  scicos_free (color);
-  scicos_free (line_size);
-}
-
-/** \fn void cscopxy3d(scicos_block * block, int flag)
-    \brief the computational function
-    \param block A pointer to a scicos_block
-    \param flag An int which indicates the state of the block (init, update, ending)
-*/
-void cscopxy3d (scicos_block * block, int flag)
-{
-  void **_work = GetPtrWorkPtrs (block);
-  /* Declarations */
-  int i;
-  ScopeMemory *pScopeMemory;
-  scoGraphicalObject Pinceau;	//Pointer to each polyline of each axes
-  double *u1, *u2, *u3;
-  int NbrPtsShort;
-  int **user_data_ptr, *size_ptr;
-
-
-  /* State Machine Control */
-  switch (flag)
+  SCSINT_COP nbcurv = GetInPortRows(block,1);
+  SCSINT_COP *ipar = (SCSINT_COP *) GetIparPtrs(block);
+  BCG *Xgc=NULL;
+  int cur=0;
+  int nclr = (int) ipar[1];
+  int buffer_size= (int) ipar[2];
+  int *color= (int *) &ipar[3];
+  int *line_size = (int *) &ipar[3+nclr];
+  
+  switch (flag) 
     {
     case Initialization:
       {
-	cscopxy3d_draw (block, &pScopeMemory, 1);
-	break;			//Break of the switch condition don t forget it
-      }				//End of Initialization
-
+	cscope_data *D=NULL;
+	cscopxy3D_rpar *csr = (cscopxy3D_rpar *) GetRparPtrs(block);
+	int wid=(int) ipar[0];
+	int nclr=(int) ipar[1];;
+	int *color=(int *) &ipar[3];;
+	int *line_size=(int *) &ipar[3+nclr];;
+	int animed=(int) ipar[3+2*nclr];;
+	int wpos[2],wdim[2];
+	int i,l;
+	/* wid */
+	wid = (wid == -1) ? 20000 + scicos_get_block_number () : wid;
+	/* buffer size: 
+	 *  when animated==0 it means draw when buffer_size new points are acquired. 
+	 *  when animated==1 it is the number of past points to keep for drawing.
+	 */
+	buffer_size = (int) ipar[2];
+	/* line_size */
+	line_size = (int *) &ipar[3+nclr];
+	/* wpos, wdim */
+	wpos[0] = ipar[3+2*nclr+1];
+	wpos[1] = ipar[3+2*nclr+2];
+	wdim[0] = ipar[3+2*nclr+3];
+	wdim[1] = ipar[3+2*nclr+4];
+	if ((*block->work = scicos_malloc(sizeof(cscope_data))) == NULL)
+	  {
+	    goto err;
+	  }
+	/* store created data in work area of block */
+	D=(cscope_data *) (*block->work);
+	/* we allocate points by increment of alloc_size */
+	D->malloc_size = Max(buffer_size,1000);
+	Xgc=scicos_set_win(wid, &cur);
+	if (wpos[0]>=0) {
+	  Xgc->graphic_engine->xset_windowpos (Xgc, wpos[0],wpos[1]);
+	}
+	if (wdim[0]>=0) {
+	  Xgc->graphic_engine->xset_windowdim (Xgc, wdim[0],wdim[1]);
+	}
+	D->objs3d=NULL;
+	if((D->objs3d=nsp_check_for_objs3d(Xgc,NULL)) == NULL) goto err;
+	D->objs3d->obj->alpha=csr->alpha;
+	D->objs3d->obj->theta=csr->theta;
+	if ((D->Mcol = nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
+	/* clean previous plots in case objs3d was in use.  */ 
+	l =  nsp_list_length(D->objs3d->obj->children);
+	for ( i = 0 ; i < l  ; i++)
+	  nsp_list_remove_first(D->objs3d->obj->children);
+        for ( i = 0 ; i < nbcurv ; i++) 
+	  {
+	    NspObject *obj;
+	    NspMatrix *M;
+	    if ((M =nsp_matrix_create("coord",'r',D->malloc_size,3))== NULLMAT) goto err;
+	    if (color[i]>=0) 
+	      {
+		NspMatrix *Mc;
+		if ((Mc=nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
+		Mc->R[0]=color[i];
+		obj=(NspObject *)nsp_polyline3d_create("pol",M,NULL,Mc,NULL,0,0,NULL);
+		if (obj==NULL) goto err;
+	      } 
+	    else 
+	      {
+		obj =(NspObject *)nsp_points3d_create("pts",M,NULL,-1,-color[i],-1,NULL,0,0,NULL);
+		if (obj==NULL) goto err;
+	      }
+	    if (nsp_objs3d_insert_child(D->objs3d, (NspGraphic *)obj,FALSE)== FAIL) goto err;
+	  }
+	/* SetEch3d1(Xgc, nsp_box_3d *box,const double *bbox,csr->theta,csr->alpha,(i=0)); */
+	nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
+	D->count=0;
+	D->max = D->malloc_size;
+	break;
+      }
     case StateUpdate:
       {
-	scoRetrieveScopeMemory (_work, &pScopeMemory);
-	if (scoGetPointerScopeWindow (pScopeMemory) == NULL)
-	  return;
-	if (scoGetScopeActivation (pScopeMemory) == 1)
+	cscope_data *D=(cscope_data *) (*GetPtrWorkPtrs(block));
+	double *u1 = GetRealInPortPtrs (block, 1);
+	double *u2 = GetRealInPortPtrs (block, 2);
+	double *u3 = GetRealInPortPtrs (block, 3);
+	/* increase curve size by step of buffer_size points */
+	if ( D->count >= D->max ) 
 	  {
-	    /* Charging Elements */
-
-
-	    u1 = GetRealInPortPtrs (block, 1);
-	    u2 = GetRealInPortPtrs (block, 2);
-	    u3 = GetRealInPortPtrs (block, 3);
-
-	    for (i = 0; i < scoGetNumberOfCurvesBySubwin (pScopeMemory, 0);
-		 i++)
+	    /* need to expand D->max */
+	    if (  cscopexy3d_add_pts(D) == FAIL)
 	      {
-		Pinceau = scoGetPointerShortDraw (pScopeMemory, 0, i);
-
-		NbrPtsShort = pPOLYLINE_FEATURE (Pinceau)->n1;
-
-		pPOLYLINE_FEATURE (Pinceau)->pvx[NbrPtsShort] = u1[i];
-		pPOLYLINE_FEATURE (Pinceau)->pvy[NbrPtsShort] = u2[i];
-		pPOLYLINE_FEATURE (Pinceau)->pvz[NbrPtsShort] = u3[i];
-
-		pPOLYLINE_FEATURE (Pinceau)->n1++;
+		scicos_set_block_error (-16);
+		return;
 	      }
-
-	    scoDrawScopeXYStyle (pScopeMemory);
 	  }
-	break;			//Break of the switch don t forget it !
-      }				//End of stateupdate
-
-      //This case is activated when the simulation is done or when we close scicos
+	/* add one point */
+	cscopexy3d_add_value(D,u1,u2,u3);
+	D->count++;
+	if ( D->count % buffer_size == 0) 
+	  {
+	    /* when we have inserted buffer_size points: then we must draw */
+	    nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
+	  }
+	break;
+      }
     case Ending:
       {
-	scoRetrieveScopeMemory (_work, &pScopeMemory);
-	if (scoGetScopeActivation (pScopeMemory) == 1)
-	  {
-	    if (scoGetPointerScopeWindow (pScopeMemory) != NULL)
-	      {
-		sciSetUsedWindow (scoGetWindowID (pScopeMemory));
-		Pinceau = sciGetCurrentFigure ();
-		sciGetPointerToUserData (Pinceau, &user_data_ptr, &size_ptr);
-		FREE (*user_data_ptr);
-		*user_data_ptr = NULL;
-		*size_ptr = 0;
-	      }
-	  }
-	scoFreeScopeMemory (_work, &pScopeMemory);
-	break;			//Break of the switch
+	cscope_data *D = (cscope_data *) (*GetPtrWorkPtrs(block));
+	scicos_free(D);
+	break;
       }
-      //free the memory which is allocated at each turn by some variables
     }
+  return;
+ err: 
+  scicos_set_block_error (-16);
 }
-#endif
+
+/* increase size of polylines by D->malloc_size */
+
+static int cscopexy3d_add_pts(cscope_data *D)
+{
+  NspList *Children= D->objs3d->obj->children;
+  /* we have to loop here to collect the number of faces */
+  Cell *cloc = Children->first ;
+  int count=0;
+  while ( cloc != NULLCELL ) 
+    {
+      NspGraphic *G = (NspGraphic *) cloc->O;
+      if (IsPolyline3d(cloc->O)) 
+	{
+	  if ( nsp_polyline3d_add_pts(G,D->malloc_size) == FAIL) 
+	    return FAIL;
+	}
+      else if (IsPoints3d(cloc->O)) 
+	{
+	  if ( nsp_points3d_add_pts(G,D->malloc_size) == FAIL) 
+	    return FAIL;
+	}
+      count++;
+      cloc = cloc->next;
+    }
+  D->max += D->malloc_size ; 
+  return OK;
+}
+
+/* add one new value in the polylines */
+
+static int cscopexy3d_add_value(cscope_data *D,double *u1,double *u2,double *u3)
+{
+  NspList *Children= D->objs3d->obj->children;
+  /* we have to loop here to collect the number of faces */
+  Cell *cloc = Children->first ;
+  int count=0;
+  while ( cloc != NULLCELL ) 
+    {
+      if (IsPolyline3d(cloc->O)) 
+	{
+	  nsp_polyline3d *p =((NspPolyline3d *) cloc->O)->obj;
+	  NspMatrix *M= p->Mcoord;
+	  p->max++; 
+	  memcpy(M->R+D->count         ,u1 + count,sizeof(double));
+	  memcpy(M->R+M->m+D->count   ,u2 + count,sizeof(double));
+	  memcpy(M->R+2*M->m+D->count ,u3 + count,sizeof(double));
+	}
+      else if (IsPoints3d(cloc->O)) 
+	{
+	  nsp_points3d *p =((NspPoints3d *) cloc->O)->obj;
+	  NspMatrix *M= p->Mcoord;
+	  p->max++; 
+	  memcpy(M->R+D->count         ,u1 + count,sizeof(double));
+	  memcpy(M->R+M->m+D->count   ,u2 + count,sizeof(double));
+	  memcpy(M->R+2*M->m+D->count ,u3 + count,sizeof(double));
+	}
+      count++;
+      cloc = cloc->next;
+    }
+  return OK;
+}
+
