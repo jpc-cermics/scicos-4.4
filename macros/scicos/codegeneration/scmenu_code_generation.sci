@@ -163,7 +163,7 @@ function scmenu_code_generation()
     //** quick fix for sblock that contains scope
     //gh_curwin=scf(curwin)
 
-    if ok==%t then
+    if ok.equal[%t] then
       props              = scs_m.props;
       nscs_m             = get_new_scs_m()
       nscs_m.props       = props
@@ -11380,7 +11380,8 @@ function [Code,Code_xml_param]=make_standalone43()
 
   //@@@@----@@@@
   filen = rpat+'/'+rdnom+'_params.dat'
-  fpp   = mopen(filen,'wb');
+  //fpp   = mopen(filen,'wb');
+  fpp   = fopen(filen,mode="wb",swap=%t);
 
   //@@ main() function
   Code=[Code;
@@ -12729,6 +12730,10 @@ function [Code,Code_xml_param]=make_standalone43()
   Code_inptr=[];
   Code_ooutsz=[];
   Code_outptr=[];
+
+  if isempty(capt) then capt=zeros(0,5);end
+  if isempty(actt) then actt=zeros(0,5);end
+
   for kf=1:nblk
     nin=inpptr(kf+1)-inpptr(kf);  //** number of input ports
     Code_insz=[];
@@ -12762,6 +12767,7 @@ function [Code,Code_xml_param]=make_standalone43()
                     mat2scs_c_typ(outtb(lprt))]
       end
     end
+
     if ~isempty(Code_insz) then
       Code_toinsz=cformatline(strcat(Code_insz,','),70);
       Code_toinsz(1)='int insz_'+string(kf)+'[]={'+Code_toinsz(1);
@@ -12902,7 +12908,8 @@ function [Code,Code_xml_param]=make_standalone43()
   end
 
   //@@@@----@@@@
-  mclose(fpp);
+  //mclose(fpp);
+  fpp.close[]
 
   //## input connection to outtb
   Code_inptr=[]
@@ -16512,12 +16519,15 @@ function [txt]=code_to_read_params(varname,var,fpp,typ_str)
   case 'm' then
    //real matrix
    if isreal(var) then
-     mput(var,"dl",fpp)
+     //mput(var,"dl",fpp)
+     fpp.put[var,type="dl"]
      if isempty(typ_str) then typ_str='SCSREAL_COP', end
      txt='fread('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
    else
-     mput(real(var),"dl",fpp)
-     mput(imag(var),"dl",fpp)
+     //mput(real(var),"dl",fpp)
+     //mput(imag(var),"dl",fpp)
+     fpp.put[real(var),type="dl"]
+     fpp.put[imag(var),type="dl"]
      if isempty(typ_str) then typ_str='SCSCOMPLEX_COP', end
      txt='fread('+varname+', 2*sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
    end
@@ -16525,27 +16535,33 @@ function [txt]=code_to_read_params(varname,var,fpp,typ_str)
   case 'i' then
    select var.itype[]
     case 'int32' then
-     mput(var,"ll",fpp)
+     //mput(var,"ll",fpp)
+     fpp.put[i2m(var),type="ll"]
      if isempty(typ_str) then typ_str='SCSINT32_COP', end
      txt='fread('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
     case 'int16' then
-     mput(var,"sl",fpp)
+     //mput(var,"sl",fpp)
+     fpp.put[i2m(var),type="sl"]
      if isempty(typ_str) then typ_str='SCSINT16_COP', end
      txt='fread('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
     case 'int8' then
-     mput(var,"cl",fpp)
+     //mput(var,"cl",fpp)
+     fpp.put[i2m(var),type="cl"]
      if isempty(typ_str) then typ_str='SCSINT8_COP', end
      txt='fread('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
     case 'uint32' then
-     mput(var,"ull",fpp)
+     //mput(var,"ull",fpp)
+     fpp.put[i2m(var),type="ull"]
      if isempty(typ_str) then typ_str='SCSUINT32_COP', end
      txt='fread('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
     case 'uint16' then
-     mput(var,"usl",fpp)
+     //mput(var,"usl",fpp)
+     fpp.put[i2m(var),type="usl"]
      if isempty(typ_str) then typ_str='SCSUINT16_COP', end
      txt='fread('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
     case 'uint8' then
-     mput(var,"ucl",fpp)
+     //mput(var,"ucl",fpp)
+     fpp.put[i2m(var),type="ucl"]
      if isempty(typ_str) then typ_str='SCSUINT8_COP', end
      txt='fread('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
    end
@@ -16581,12 +16597,15 @@ function [txt]=code_to_write_params(varname,var,fpp,typ_str)
    case 'm' then
     //real matrix
     if isreal(var) then
-        mput(var,"dl",fpp)
+        //mput(var,"dl",fpp)
+        fpp.put[var,type="dl"]
         if isempty(typ_str) then typ_str='SCSREAL_COP', end
         txt='fwrite('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
       else
-        mput(real(var),"dl",fpp)
-        mput(imag(var),"dl",fpp)
+        //mput(real(var),"dl",fpp)
+        //mput(imag(var),"dl",fpp)
+        fpp.put[real(var),type="dl"]
+        fpp.put[imag(var),type="dl"]
         if isempty(typ_str) then typ_str='SCSCOMPLEX_COP', end
         txt='fwrite('+varname+', 2*sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
       end
@@ -16594,27 +16613,33 @@ function [txt]=code_to_write_params(varname,var,fpp,typ_str)
    case 'i' then
       select var.itype[]
          case 'int32' then
-           mput(var,"ll",fpp)
+           //mput(var,"ll",fpp)
+           fpp.put[i2m(var),type="ll"]
            if isempty(typ_str) then typ_str='SCSINT32_COP', end
            txt='fwrite('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
          case 'int16' then
-           mput(var,"sl",fpp)
+           //mput(var,"sl",fpp)
+           fpp.put[i2m(var),type="sl"]
            if isempty(typ_str) then typ_str='SCSINT16_COP', end
            txt='fwrite('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
          case 'int8' then
-           mput(var,"cl",fpp)
+           //mput(var,"cl",fpp)
+           fpp.put[i2m(var),type="cl"]
            if isempty(typ_str) then typ_str='SCSINT8_COP', end
            txt='fwrite('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
          case 'uint32' then
-           mput(var,"ull",fpp)
+           //mput(var,"ull",fpp)
+           fpp.put[i2m(var),type="ull"]
            if isempty(typ_str) then typ_str='SCSUINT32_COP', end
            txt='fwrite('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
          case 'uint16' then
-           mput(var,"usl",fpp)
+           //mput(var,"usl",fpp)
+           fpp.put[i2m(var),type="usl"]
            if isempty(typ_str) then typ_str='SCSUINT16_COP', end
            txt='fwrite('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
          case 'uint8' then
-           mput(var,"ucl",fpp)
+           //mput(var,"ucl",fpp)
+           fpp.put[i2m(var),type="ucl"]
            if isempty(typ_str) then typ_str='SCSUINT8_COP', end
            txt='fwrite('+varname+', sizeof('+typ_str+'), '+string(size(var,'*'))+', fpp)'
       end
