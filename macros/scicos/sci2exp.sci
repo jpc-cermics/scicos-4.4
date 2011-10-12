@@ -32,6 +32,8 @@ function y=sci2exp(exp,nam)
     // transpose to avoid breaks
     y=strcat(stripblanks(y));
     y=strsubst(y,';',',');
+  elseif type(exp,'short')=='i' then 
+    y='m2i('+sci2exp(i2m(x))+','""+x.itype[]+'"")'
   elseif type(exp,'short')=='l' then 
     y="";
     if length(exp) >= 1 then 
