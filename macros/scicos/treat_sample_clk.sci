@@ -12,7 +12,7 @@ function [scs_m,corinv,cor,sco_mat,links_table,ok,flgcdgen,freof]=...
   if ~isempty(index) then
     sco_mat1=sco_mat(index,:);
     sco_mat(index,:)=[];
-    if flgcdgen<>-1 then  // Code Generator or Scicos Simulator with fixed step
+    if ~isequal(flgcdgen,-1) then  // Code Generator or Scicos Simulator with fixed step
       [scs_m,corinv,cor,links_table,ok,flgcdgen,freof]=FixedStepMethod(scs_m,corinv,cor,sco_mat1,links_table,path)
     else // Scicos Simulator with variable step
       [scs_m,corinv,cor,links_table,ok]=VariableStepMethod(scs_m,corinv,cor,sco_mat1,links_table,path)
@@ -65,10 +65,14 @@ function [scs_m,corinv,cor,Ts,flgcdgen,freof]=update_changes(scs_m,corinv,cor,MA
 // when the function is called by the code generator we add an input event to the diagram
 // the major clock will be put outside the superblock. it will be explicitly drawn.
 // In the other case the major clock will be implicitly used in the diagram.
-// Adding the first block 
+// Adding the first block
   new_blk=scicos_block();
-  if flgcdgen<>-1 then // when the function is called by the codegeneration.
-    flgcdgen=flgcdgen+1 	// the flgcdgen contains the number of event input.
+  if ~isequal(flgcdgen,-1) then // when the function is called by the codegeneration.
+    if isempty(flgcdgen) then
+      flgcdgen=1                // the flgcdgen contains the number of event input.
+    else
+      flgcdgen=flgcdgen+1       // the flgcdgen contains the number of event input.
+    end
     // we incremented to be able to add the sampleclk to the diagram at the end
     // Adding the event input block.
     new_blk.model=scicos_model(sim=list("bidon",0),in=[],in2=[],intyp=1,out=[],out2=[],..
@@ -88,7 +92,7 @@ function [scs_m,corinv,cor,Ts,flgcdgen,freof]=update_changes(scs_m,corinv,cor,MA
   // Adjusting cor and corinv
   [corinv,cor]=AdjustingCorCorinv(corinv,cor,path,MAT,n_scs_m)
   nb=size(corinv)
-  if flgcdgen==-1 then
+  if isequal(flgcdgen,-1) then
     // linking the output of the evtdly to its input.
     Ts($+1:$+2,:)=[nb 1 -1 -1;..
 		   nb 1 1  -1]

@@ -19,7 +19,7 @@ function [scs_m]=do_move(%pt,scs_m,Select)
   else
     [scs_m]=do_stupidMultimove(%pt,Select,scs_m)
   end
-  resume(scs_m_save,needreplay,enable_undo,edited,nc_save);
+ // resume(scs_m_save,needreplay,enable_undo,edited,nc_save);
 endfunction
 
 
