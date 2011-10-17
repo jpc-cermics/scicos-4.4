@@ -22,23 +22,22 @@ function wpar=do_setup(wpar)
   else
     hmax=tolerances(7)
   end
-
+  %scs_help='Setup_Scicos'
   while %t do
-    [ok,tf,scale,atol,rtol,ttol,deltat,solver,hmax]=getvalue('Set parameters',
+    [ok,tf,scale,atol,rtol,ttol,deltat,solver,hmax]=getvalue('Set simulator parameters',
     ['Final integration time';
      'Realtime scaling';
      'Integrator absolute tolerance';
      'Integrator relative tolerance';
      'Tolerance on time';
-     'max integration time interval'
-     'solver 0(lsodar)/100(dasrt)'
-     'maximum step size (0 means no limit)'],...
+     'Maximum integration time interval'
+     'Solver 0-5(ODE) / 100(DAE)'
+     'Maximum step size (0 means auto)'],...
 	list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1),...
-	[string(tf);string(scale);string(atol);string(rtol);...
-	 string(ttol);string(deltat);string(solver);string(hmax)])
+	[stringcos([tf;scale;atol;rtol;ttol;deltat;solver;hmax])])
     if ~ok then break,end
     if or([tf,atol,rtol,ttol,deltat]<=0) then
-      message('Parameter must  be positive')
+      message('Parameter must be positive')
     else
       wpar.tol=[atol;rtol;ttol;deltat;scale;solver;hmax]
       wpar.tf=tf
@@ -47,4 +46,11 @@ function wpar=do_setup(wpar)
   end
 endfunction
 
+
+function a=stringcos(s)
+  a=''
+  for i=1:size(s,1)
+    a(i)=string(s(i))
+  end
+endfunction
 
