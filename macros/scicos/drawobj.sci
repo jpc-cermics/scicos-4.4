@@ -1,4 +1,4 @@
-function o=drawobj(o,F)
+function [o,ok]=drawobj(o,F)
 // Copyright INRIA
 // This function creates a graphical object 
 // associated to object o. The graphical object is 
@@ -11,7 +11,7 @@ function o=drawobj(o,F)
 //
 // Adapted to nsp new graphics: Chancelier, Layec 2011.
 //
-
+  ok=%t;
   if nargin<=1 then F= get_figure(curwin); end
   // keep track of previous hilited field 
   ishilited=%f
@@ -29,14 +29,13 @@ function o=drawobj(o,F)
       message(['Block with an undefined gui field';
 	       'You must leave scicos and define it now.']),
       ok = %f;
-      break;
-    end
-    // perform graphics redirected to create a compound in F.
-    ok=execstr(o.gui+'(''plot'',o)' ,errcatch=%t)
-    if ~ok then
-      message(['Error in '+ o.gui+'(''plot'',o) evaluation:\n'; ...
-	       catenate(lasterror())]);
-      break;
+    else
+      // perform graphics redirected to create a compound in F.
+      ok=execstr(o.gui+'(''plot'',o)' ,errcatch=%t)
+      if ~ok then
+	message(['Error in '+ o.gui+'(''plot'',o) evaluation:\n'; ...
+		 catenate(lasterror())]);
+      end
     end
    case 'Link' then
     // draw a link 
@@ -52,7 +51,6 @@ function o=drawobj(o,F)
     if ~ok then
       message(['Error in '+ o.gui+'(''plot'',o) evaluation\n'; ...
 	       catenate(lasterror())]);
-      ok=%f;
     end
   else 
     // other cases.
@@ -65,7 +63,7 @@ function o=drawobj(o,F)
     F.remove[C];
     return;
   end
-
+  
   C=F.end_compound[];
   if o.iskey['gr'] then 
     // remove previous graphic object 
