@@ -213,6 +213,7 @@ function [%scicos_short, %scicos_help, ...
   //** menus of type 1 (require %pt)
   %CmenuTypeOneVector =..
      ['Region to Super Block', "Press lef mouse button, drag region and release (right button to cancel)";
+      'scmenu_region_to_super_block', "Press lef mouse button, drag region and release (right button to cancel)";
       'Region to Palette',     "Press lef mouse button, drag region and"+...
       " release (right button to cancel)";
       'Load as Palette',       '';
@@ -225,6 +226,7 @@ function [%scicos_short, %scicos_help, ...
       'Smart Link',            "Drag, click left for final or intermediate points or right to cancel";
       'Delete',                "Delete: Click on the object to delete";
       'Flip',                  "Click on block to be flipped"      ;
+      'scmenu_flip',           "Click on block to be flipped"      ;
       'Rotate Left',           "Click on block to be turned left"  ;
       'Rotate Right',          "Click on block to be turned right" ;
       'Open/Set',              "Click to open block or make a link";

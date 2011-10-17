@@ -33,7 +33,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   end
 
   if (btn==-2) then 
-    //%pt=[]
+    %pt=[]
     // menu activated 
     if part(str,1:7)=='execstr' then
       // A menu was activated and str is like 
