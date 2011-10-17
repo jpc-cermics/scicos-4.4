@@ -15,16 +15,19 @@ endfunction
 function [scs_m]=do_move(%pt,scs_m,Select)
   if ~isempty(Select) && size(Select,1) == 1 && 
     scs_m.objs(Select(1)).type=="Link" then
-    [%pt,scs_m]=do_stupidmove(%pt,Select,scs_m)
+    [%pt,scs_m,have_moved]=do_stupidmove(%pt,Select,scs_m)
   else
-    [scs_m]=do_stupidMultimove(%pt,Select,scs_m)
+    [scs_m,have_moved]=do_stupidMultimove(%pt,Select,scs_m)
   end
- // resume(scs_m_save,needreplay,enable_undo,edited,nc_save);
+  if have_moved then
+    resume(scs_m_save,needreplay,enable_undo,edited,nc_save);
+  end
 endfunction
 
 
-function [%pt,scs_m]=do_stupidmove(%pt,Select,scs_m)
+function [%pt,scs_m,have_moved]=do_stupidmove(%pt,Select,scs_m)
   rela=15/100;
+  have_moved=%f;
   win=%win;
   xc=%pt(1);yc=%pt(2);
   [k,wh,scs_m]=stupid_getobj(scs_m,Select,[xc;yc]);
@@ -32,16 +35,18 @@ function [%pt,scs_m]=do_stupidmove(%pt,Select,scs_m)
   scs_m_save=scs_m;
   xcursor(52);
   if scs_m.objs(k).type == 'Link' then
-    scs_m=stupid_movecorner(scs_m,k,xc,yc,wh);
+    [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh);
     xcursor();
   end
   if Cmenu=='Quit' then
     resume(%win, Cmenu)
   end
-  resume(scs_m_save,needreplay,enable_undo=%t,edited=%t,nc_save=needcompile);
+  if have_moved then
+    resume(scs_m_save,needreplay,enable_undo=%t,edited=%t,nc_save=needcompile);
+  end
 endfunction
 
-function scs_m=stupid_movecorner(scs_m,k,xc,yc,wh)
+function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
 // move a corner of a link  
 //
   o=scs_m.objs(k);
@@ -49,6 +54,7 @@ function scs_m=stupid_movecorner(scs_m,k,xc,yc,wh)
   o_link=size(xx);
   link_size=o_link(1);
   moving_seg=[-wh-1:-wh+1];
+  have_moved=%f;
   
   if (-wh-1)==1 then //** the moving include the starting point  
     start_seg=[];
@@ -139,6 +145,7 @@ function scs_m=stupid_movecorner(scs_m,k,xc,yc,wh)
       xx(moving_seg)=x1
       yy(moving_seg)=y1
     end
+    have_moved=%t
     o.xx=xx;o.yy=yy;
     o.gr.children(1).x=o.xx
     o.gr.children(1).y=o.yy
@@ -234,7 +241,7 @@ function [k,wh,scs_m]=stupid_getobj(scs_m,Select,pt)
 endfunction
 
 
-function [scs_m] = do_stupidMultimove(%pt, Select, scs_m)
+function [scs_m,have_moved] = do_stupidMultimove(%pt, Select, scs_m)
   rel=15/100
   have_moved=%f
   xc = %pt(1)
