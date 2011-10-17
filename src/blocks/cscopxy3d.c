@@ -46,7 +46,7 @@ void cscopxy3d (scicos_block * block, int flag)
   int *line_size = (int *) &ipar[3+nclr];
   
   switch (flag) 
-    {
+  {
     case Initialization:
       {
 	cscope_data *D=NULL;
@@ -72,10 +72,9 @@ void cscopxy3d (scicos_block * block, int flag)
 	wpos[1] = ipar[3+2*nclr+2];
 	wdim[0] = ipar[3+2*nclr+3];
 	wdim[1] = ipar[3+2*nclr+4];
-	if ((*block->work = scicos_malloc(sizeof(cscope_data))) == NULL)
-	  {
-	    goto err;
-	  }
+
+	if ((*block->work = scicos_malloc(sizeof(cscope_data))) == NULL) goto err;
+
 	/* store created data in work area of block */
 	D=(cscope_data *) (*block->work);
 	/* we allocate points by increment of alloc_size */
@@ -93,34 +92,30 @@ void cscopxy3d (scicos_block * block, int flag)
 	D->objs3d->obj->theta=csr->theta;
 	if ((D->Mcol = nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
 	/* clean previous plots in case objs3d was in use.  */ 
-	l =  nsp_list_length(D->objs3d->obj->children);
-	for ( i = 0 ; i < l  ; i++)
-	  nsp_list_remove_first(D->objs3d->obj->children);
-        for ( i = 0 ; i < nbcurv ; i++) 
-	  {
-	    NspObject *obj;
-	    NspMatrix *M;
-	    if ((M =nsp_matrix_create("coord",'r',D->malloc_size,3))== NULLMAT) goto err;
-	    if (color[i]>=0) 
-	      {
-		NspMatrix *Mc;
-		if ((Mc=nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
-		Mc->R[0]=color[i];
-		obj=(NspObject *)nsp_polyline3d_create("pol",M,NULL,Mc,NULL,0,0,NULL);
-		if (obj==NULL) goto err;
-	      } 
-	    else 
-	      {
-		obj =(NspObject *)nsp_points3d_create("pts",M,NULL,-1,-color[i],-1,NULL,0,0,NULL);
-		if (obj==NULL) goto err;
-	      }
-	    if (nsp_objs3d_insert_child(D->objs3d, (NspGraphic *)obj,FALSE)== FAIL) goto err;
-	  }
+        l=nsp_list_length(D->objs3d->obj->children);
+        for (i=0;i<l;i++) nsp_list_remove_first(D->objs3d->obj->children);
+        for (i=0;i<nbcurv;i++) {
+          NspObject *obj;
+          NspMatrix *M;
+          if ((M=nsp_matrix_create("coord",'r',D->malloc_size,3))== NULLMAT) goto err;
+          if (color[i]>=0) {
+            NspMatrix *Mc;
+            if ((Mc=nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
+            Mc->R[0]=color[i];
+            obj=(NspObject *)nsp_polyline3d_create("pol",M,NULL,Mc,NULL,0,0,NULL);
+            if (obj==NULL) goto err;
+          } 
+          else {
+            obj=(NspObject *)nsp_points3d_create("pts",M,NULL,-1,-color[i],-1,NULL,0,0,NULL);
+            if (obj==NULL) goto err;
+          }
+          if (nsp_objs3d_insert_child(D->objs3d, (NspGraphic *)obj,FALSE)== FAIL) goto err;
+        }
 	/* SetEch3d1(Xgc, nsp_box_3d *box,const double *bbox,csr->theta,csr->alpha,(i=0)); */
-	nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
-	D->count=0;
-	D->max = D->malloc_size;
-	break;
+        nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
+        D->count=0;
+        D->max=D->malloc_size;
+        break;
       }
     case StateUpdate:
       {
@@ -129,24 +124,21 @@ void cscopxy3d (scicos_block * block, int flag)
 	double *u2 = GetRealInPortPtrs (block, 2);
 	double *u3 = GetRealInPortPtrs (block, 3);
 	/* increase curve size by step of buffer_size points */
-	if ( D->count >= D->max ) 
-	  {
-	    /* need to expand D->max */
-	    if (  cscopexy3d_add_pts(D) == FAIL)
-	      {
-		scicos_set_block_error (-16);
-		return;
-	      }
-	  }
-	/* add one point */
-	cscopexy3d_add_value(D,u1,u2,u3);
-	D->count++;
-	if ( D->count % buffer_size == 0) 
-	  {
-	    /* when we have inserted buffer_size points: then we must draw */
-	    nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
-	  }
-	break;
+        if (D->count >= D->max) {
+          /* need to expand D->max */
+          if (cscopexy3d_add_pts(D) == FAIL) {
+            scicos_set_block_error(-16);
+            return;
+          }
+        }
+        /* add one point */
+        cscopexy3d_add_value(D,u1,u2,u3);
+        D->count++;
+        if (D->count % buffer_size == 0) {
+          /* when we have inserted buffer_size points: then we must draw */
+          nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
+        }
+        break;
       }
     case Ending:
       {
@@ -154,10 +146,10 @@ void cscopxy3d (scicos_block * block, int flag)
 	scicos_free(D);
 	break;
       }
-    }
+  }
   return;
  err: 
-  scicos_set_block_error (-16);
+  scicos_set_block_error(-16);
 }
 
 /* increase size of polylines by D->malloc_size */
