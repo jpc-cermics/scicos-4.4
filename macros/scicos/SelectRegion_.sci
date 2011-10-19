@@ -125,6 +125,7 @@ function [rect,btn]=rubberbox(rect,edit_mode)
   C=F.end_compound[];
   R=C.children(1);
   R.invalidate[];
+  in=[];
   while rep(3)<>-5 do
     F.process_updates[];
     rep=xgetmouse(clearq=%f,cursor=%f,getrelease=edit_mode,getmotion=%t);
@@ -134,6 +135,22 @@ function [rect,btn]=rubberbox(rect,edit_mode)
     R.y=max(yc,yc1)
     R.w=abs(xc-xc1)
     R.h=abs(yc-yc1)
+    //Alan : Next lignes toberemoved if too slow
+    //####
+    [in_n,out] = get_objs_in_rect(scs_m,R.x,R.y,R.w,R.h)
+    if ~isempty(in_n) then
+      if ~isempty(in) then
+        unhilite_obj(in)
+      end
+      hilite_obj(in_n)
+      in=in_n
+    else
+      if ~isempty(in) then
+        unhilite_obj(in)
+        in=[]
+      end
+    end
+    //####
     R.invalidate[];
   end
   F.remove[C];

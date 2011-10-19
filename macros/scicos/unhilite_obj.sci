@@ -7,7 +7,7 @@ function unhilite_obj(o,draw=%t)
     return;
   end
   if ~o.iskey['gr'] then return;end 
-  if o.type =='Block' then
+  if o.type =='Block'|o.type=='Text' then
     o.gr.hilited = %f;
     o.gr.invalidate[];
   elseif o.type =='Link' then
