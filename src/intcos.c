@@ -954,9 +954,38 @@ static int int_ppol(Stack stack, int rhs, int opt, int lhs)
   return RET_BUG;
 }
 
-    
+static int int_coserror(Stack stack, int rhs, int opt, int lhs)
+{
+  NspSMatrix *SMat1;
+  int i;
+  CheckRhs(1,1);
+  if ((SMat1=GetSMat(stack,1))==NULLSMAT) return RET_BUG;
+  for(i=0;i<SMat1->mn;i++) {
+    Scierror("%s\n",SMat1->S[i]);
+  }
+  scicos_set_block_error(-5);
+  return 0;
+}
 
+static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
+{
+  int m1;
+  CheckRhs (1, 1);
+  if (GetScalarInt (stack, 1, &m1) == FAIL)
+    return RET_BUG;
+  scicos_set_block_error (m1);
+  return 0;
+}
 
+static int int_callblk(Stack stack, int rhs, int opt, int lhs)
+{
+  int m1;
+  CheckRhs (1, 1);
+  if (GetScalarInt (stack, 1, &m1) == FAIL)
+    return RET_BUG;
+  scicos_set_block_error (m1);
+  return 0;
+}
 
 static OpTab Scicos_func[] = {
   {"sci_tree4", int_scicos_ftree4},
@@ -977,6 +1006,11 @@ static OpTab Scicos_func[] = {
   {"buildouttb", int_buildouttb},
   {"scicos_about", int_scicos_about},
   {"scicos_get_internal_name", int_scicos_get_internal_name },
+
+  {"coserror", int_coserror},
+  {"model2blk", int_model2blk},
+  {"callblk", int_callblk},
+
   /* utilities */
   {"rat",int_rat},
   {"ppol",int_ppol},

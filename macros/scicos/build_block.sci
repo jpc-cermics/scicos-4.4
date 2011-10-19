@@ -3,13 +3,33 @@ function [model,ok]=build_block(o)
   ok=%t;
   model=o.model
   graphics=o.graphics
+
   if model.sim(1)=='scifunc' then
-    // take care that model.ipar is not always a scalar.
-    if model.ipar.equal[0] then
-      message('A scifunc block has not been defined')
-      ok=%f; return
+    if type(model.sim,'short')=='l' then
+      if model.sim(2)==5 | model.sim(2)==10005 then
+        name=graphics.exprs(1)(1)
+        TMPDIR=getenv('NSP_TMPDIR')
+        NameF=file("join",[TMPDIR,"scifunc5_tmp.sci"])
+        scicos_mputl(graphics.exprs(2),NameF)
+        execstr('clear '+name)
+        exec(NameF)
+        execstr('model.sim=list('+name+',model.sim(2))')
+      else
+        // take care that model.ipar is not always a scalar.
+        if model.ipar.equal[0] then
+          message('A scifunc block has not been defined')
+          ok=%f; return
+        end
+        model.sim=list(genmac(model.ipar,size(model.in,'*'),size(model.out,'*')),3)
+      end
+    else
+      // take care that model.ipar is not always a scalar.
+      if model.ipar.equal[0] then
+        message('A scifunc block has not been defined')
+        ok=%f; return
+      end
+      model.sim=list(genmac(model.ipar,size(model.in,'*'),size(model.out,'*')),3)
     end
-    model.sim=list(genmac(model.ipar,size(model.in,'*'),size(model.out,'*')),3)
   elseif type(model.sim,'short')=='l' then
     modsim=modulo(model.sim(2),10000)
     if int(modsim/1000)==1 then   //fortran block
