@@ -967,23 +967,74 @@ static int int_coserror(Stack stack, int rhs, int opt, int lhs)
   return 0;
 }
 
+/*
+ * fill a scicos_block structure 
+ * with pointers from the Hash table Model
+ *
+ */
+
+static int scicos_fill_model(NspHash *Model,scicos_block *Block)
+{
+  int i;
+
+  char *model[]={"sim","in","in2","intyp","out","out2","outtyp",
+                 "evtin","evtout","state","dstate","odstate","rpar","ipar","opar",
+                 "blocktype","firing","dep_ut","label","nzcross","nmode","equations"};
+
+  const int nmodel=22;
+  
+  for (i =0;i<nmodel;i++) {
+    NspObject *obj;
+    if (nsp_hash_find(Model,model[i],&obj)==FAIL) return FAIL;
+  }
+
+  return OK;
+}
+
+/* 
+ * int_model2blk : Build a scicos_block structure from
+ * a scicos model.
+ *
+ * [Block]=model2blk(objs.model)
+ *
+ */
+ 
 static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
 {
-  int m1;
-  CheckRhs (1, 1);
-  if (GetScalarInt (stack, 1, &m1) == FAIL)
+  NspHash *Model;
+  scicos_block *Block;
+  
+  CheckRhs(1,1);
+
+  if ((Model=GetHashCopy(stack,1))==NULLHASH) return RET_BUG;
+  if (scicos_fill_model(Model,Block)==FAIL) {
+    Scierror("Bad scicos block model.\n");
     return RET_BUG;
-  scicos_set_block_error (m1);
+  }
+
   return 0;
 }
 
+/*
+ * int_callblk  : Call a scicos block defined by
+ * a scicos_block structure.
+ *
+ * [Block]=callblk(Block,flag,t)
+ *
+ */
+
 static int int_callblk(Stack stack, int rhs, int opt, int lhs)
 {
-  int m1;
-  CheckRhs (1, 1);
-  if (GetScalarInt (stack, 1, &m1) == FAIL)
-    return RET_BUG;
-  scicos_set_block_error (m1);
+  NspHash *BlkHash;
+  int flag;
+  double tcur;
+
+  CheckRhs (3,3);
+
+  if ((BlkHash=GetHashCopy(stack,1))==NULLHASH) return RET_BUG;
+  if (GetScalarInt(stack,2,&flag)==FAIL) return RET_BUG;
+  if (GetScalarDouble(stack,3,&tcur)==FAIL) return RET_BUG;
+
   return 0;
 }
 
@@ -1006,8 +1057,8 @@ static OpTab Scicos_func[] = {
   {"buildouttb", int_buildouttb},
   {"scicos_about", int_scicos_about},
   {"scicos_get_internal_name", int_scicos_get_internal_name },
-
   {"coserror", int_coserror},
+
   {"model2blk", int_model2blk},
   {"callblk", int_callblk},
 
