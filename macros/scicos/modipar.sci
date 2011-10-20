@@ -101,9 +101,9 @@ if nargin<7 then job="default",end
       [fun,statek,dstatek,odstatek,rpark,ipark,opark]=...
           (om.sim,om.state,om.dstate,om.odstate,om.rpar,om.ipar,om.opar);
       if type(fun,'short')=='l' then
-	if (fun(2)==3 | fun(2)==5 |  fun(2)==10005) then 
-	  if ~isempty(rpark) then rpark=var2vec(rpark); end
-	  if ~isempty(dstatek) then dstatek=var2vec(dstatek),end
+	if (fun(2)==3 | fun(2)==5 | fun(2)==10005) then
+	  if ~isempty(rpark) then rpark=serialize(rpark,'m'); end
+	  if ~isempty(dstatek) then dstatek=serialize(dstatek,'m'),end
 	end
 	if fun(2)>10000 then
 	  statekd=statek($/2+1:$)

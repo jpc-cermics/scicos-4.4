@@ -276,7 +276,7 @@ static int scicos_scitoi (int x[], int mx, int nx, const NspObject * Ob)
  * Return value: 
  **/
 
-static int scicos_list_to_vars (double *outptr[], int nout, int outsz[],
+static int scicos_list_to_vars (void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
 				NspObject * Ob)
 {
   int k;
@@ -286,7 +286,7 @@ static int scicos_list_to_vars (double *outptr[], int nout, int outsz[],
       NspObject *elt = nsp_list_get_element (L, k + 1);
       if (elt == NULL)
 	return FAIL;
-      if (scicos_scitod (outptr[k], outsz[k], outsz[k+nout], elt) == FAIL)
+      if (scicos_scitod ((double *)outptr[k], outsz[k], outsz2[k], elt) == FAIL)
 	return FAIL;
     }
   return OK;
@@ -303,8 +303,8 @@ static int scicos_list_to_vars (double *outptr[], int nout, int outsz[],
  * Return value: 
  **/
 
-static NspObject *scicos_vars_to_list (const char *name, double **inptr,
-				       int nin, int *insz)
+static NspObject *scicos_vars_to_list (const char *name, void **inptr,
+				       int nin, int *insz, int *insz2, int *intyp)
 {
   int k;
   NspList *Ob;
@@ -313,7 +313,7 @@ static NspObject *scicos_vars_to_list (const char *name, double **inptr,
   for (k = 0; k < nin; k++)
     {
       NspObject *elt;
-      if ((elt = scicos_dtosci ("el", inptr[k], insz[k], 1)) == NULL)
+      if ((elt = scicos_dtosci ("el", (double *)inptr[k], insz[k], insz2[k])) == NULL)
 	{
 	  nsp_list_destroy (Ob);
 	  return NULL;
@@ -361,7 +361,8 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
     goto err;
   if ((Args[6] = scicos_itosci (NVOID, ipar, *nipar, 1)) == NULL)
     goto err;
-  if ((Args[7] = scicos_vars_to_list (NVOID, inptr, *nin, insz)) == NULLOBJ)
+  if ((Args[7] = scicos_vars_to_list (NVOID, (void **)inptr,
+                                      *nin, insz, &insz[(*nin)], &insz[2*(*nin)])) == NULLOBJ)
     goto err;
 
   /* function to be evaluated or name of function to be evaluated */
@@ -377,7 +378,8 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
       scicos_scitod (x, *nx, 1, Ret[1]);
       if (*nout != 0)
 	{
-	  if (scicos_list_to_vars (outptr, *nout, outsz, Ret[0]) == FAIL)
+	  if (scicos_list_to_vars ((void **)outptr, *nout,
+	                           outsz, &outsz[(*nout)], &outsz[2*(*nout)], Ret[0]) == FAIL)
 	    goto err;
 	}
       break;
@@ -406,7 +408,8 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
       scicos_scitod (x, *nx, 1, Ret[1]);
       if (*nout != 0)
 	{
-	  if (scicos_list_to_vars (outptr, *nout, outsz, Ret[0]) == FAIL)
+	  if (scicos_list_to_vars ((void **)outptr, *nout,
+	      outsz, &outsz[(*nout)], &outsz[2*(*nout)], Ret[0]) == FAIL)
 	    goto err;
 	}
       break;
@@ -436,7 +439,7 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
  * for type 5 blocks (sciblk4) but maybe not for sciblk2 ? 
  */
 
-void scicos_sciblk4 (scicos_block * Blocks, int flag)
+void scicos_sciblk4 (scicos_block *Blocks, int flag)
 {
   int mlhs = 1, mrhs = 2;
   NspObject *Ob;
@@ -477,7 +480,7 @@ void scicos_sciblk4 (scicos_block * Blocks, int flag)
     goto err;
   if ((Hel[p++] =
        scicos_vars_to_list ("inptr", Blocks->inptr, Blocks->nin,
-			    Blocks->insz)) == NULLOBJ)
+			    Blocks->insz,&(Blocks->insz[Blocks->nin]),&(Blocks->insz[2*Blocks->nin]))) == NULLOBJ)
     goto err;
   if ((Hel[p++] =
        scicos_itosci ("outsz", Blocks->outsz, Blocks->nout, 1)) == NULL)
@@ -486,7 +489,7 @@ void scicos_sciblk4 (scicos_block * Blocks, int flag)
     goto err;
   if ((Hel[p++] =
        scicos_vars_to_list ("outptr", Blocks->outptr, Blocks->nout,
-			    Blocks->outsz)) == NULLOBJ)
+			    Blocks->outsz,&(Blocks->outsz[Blocks->nin]),&(Blocks->outsz[2*Blocks->nin]))) == NULLOBJ)
     goto err;
   if ((Hel[p++] = scicos_itosci ("nevout", &Blocks->nevout, 1, 1)) == NULL)
     goto err;
@@ -567,7 +570,8 @@ void scicos_sciblk4 (scicos_block * Blocks, int flag)
 	  if (nsp_hash_find (H, "outptr", &Ob) == FAIL)
 	    goto err;
 	  if (scicos_list_to_vars
-	      (Blocks->outptr, Blocks->nout, Blocks->outsz, Ob) == FAIL)
+	      (Blocks->outptr, Blocks->nout,
+	       Blocks->outsz, &(Blocks->outsz[Blocks->nout]), &(Blocks->outsz[2*Blocks->nout]), Ob) == FAIL)
 	    goto err;
 	}
       break;
@@ -655,7 +659,8 @@ void scicos_sciblk4 (scicos_block * Blocks, int flag)
 	  if (nsp_hash_find (H, "outptr", &Ob) == FAIL)
 	    goto err;
 	  if (scicos_list_to_vars
-	      (Blocks->outptr, Blocks->nout, Blocks->outsz, Ob) == FAIL)
+	      (Blocks->outptr, Blocks->nout,
+	       Blocks->outsz, &(Blocks->outsz[Blocks->nout]), &(Blocks->outsz[2*Blocks->nout]), Ob) == FAIL)
 	    goto err;
 	}
       break;
