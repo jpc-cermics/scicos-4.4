@@ -968,6 +968,26 @@ static int int_coserror(Stack stack, int rhs, int opt, int lhs)
 }
 
 /*
+ *
+ */
+
+static int ModelDim2BlkPort(NspMatrix *Dim1,NspMatrix *Dim2,NspMatrix *Typ,void *n,void *sz,void *ptr)
+{
+  
+  return OK;
+}
+
+/*
+ *
+ */
+
+static int ModelHash2BlkTData(NspHash *MHash,void *n,void *sz,void *typ,void *ptr)
+{
+  
+  return OK;
+}
+
+/*
  * fill a scicos_block structure 
  * with pointers from the Hash table Model
  *
@@ -988,6 +1008,62 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
     if (nsp_hash_find(Model,model[i],&obj)==FAIL) return FAIL;
   }
 
+  /* 1 : model.sim  */
+  
+  /* input ports      */
+  /* 2 : model.in     */
+  /* 3 : model.in2    */
+  /* 4 : model.intyp  */
+       /**** ModelDim2BlkPort ***/
+  
+  /* output ports     */
+  /* 5 : model.out    */
+  /* 6 : model.out2   */
+  /* 7 : model.outtyp */
+       /**** ModelDim2BlkPort ***/
+  
+  /* event input port */
+  /* 8 : model.evtin  */
+
+  /* event output port  */
+  /* 9 : model.evtout   */
+  /* 17 : model.firing  */
+       /**** scicos_scitod ***/
+  
+  /* continuous state  */
+  /* 10 : model.state  */
+       /**** scicos_scitod ***/
+
+  /* discrete state  */
+  /* 11 : model.dstate  */
+       /**** scicos_scitod ***/
+  
+  /* discrete object state  */
+  /* 12 : model.odstate  */
+       /**** ModelHash2BlkTData ***/
+  
+  /* real parameters */
+  /* 13 : model.rpar  */
+       /**** scicos_scitod ***/
+  
+  /* integer parameters */
+  /* 14 : model.ipar  */
+       /**** scicos_scitoi ***/
+  
+  /* object parameters */
+  /* 15 : model.opar  */
+       /**** ModelHash2BlkTData ***/
+  
+  /* labels */
+  /* 19 : model.label  */
+  
+  /* zero crossing */
+  /* 20 : model.nzcross  */
+  
+  /* mode */
+  /* 21 : model.nmode  */
+  
+  /* work */
   return OK;
 }
 
