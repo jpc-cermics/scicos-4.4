@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2006-2009 Jean-Philippe Chancelier (Enpc)
+ * Copyright (C) 2006-2011 Jean-Philippe Chancelier (Enpc), Alan Layec
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -26,6 +26,7 @@
 #include <nsp/object.h>
 #include <nsp/matrix.h>
 #include <nsp/smatrix.h>
+#include <nsp/imatrix.h> 
 #include <nsp/hash.h>
 #include <nsp/serial.h>
 #include <nsp/list.h>
@@ -90,6 +91,70 @@ static NspObject *scicos_itosci (const char *name, const int *x, int mx,
   for (i = 0; i < M->mn; i++)
     M->R[i] = (double) x[i];
   return NSP_OBJECT (M);
+}
+
+/**
+ * scicos_inttosci:
+ * @name: 
+ * @x: 
+ * @mx: 
+ * @nx: 
+ * @typ:
+ * 
+ * 
+ * Return value: 
+ **/
+
+static NspObject *scicos_inttosci (const char *name, const void *x, int mx,
+                                   int nx, int typ)
+{
+  nsp_itype itype;
+  NspIMatrix *M;
+  
+  switch (typ)
+  {
+    case SCSINT_N    : itype=nsp_gint;
+                       break;
+    case SCSINT8_N   : itype=nsp_gint8;
+                       break;
+    case SCSINT16_N  : itype=nsp_gint16;
+                       break;
+    case SCSINT32_N  : itype=nsp_gint32;
+                       break; 
+    case SCSUINT_N   : itype=nsp_guint;
+                       break; 
+    case SCSUINT8_N  : itype=nsp_guint8;
+                       break; 
+    case SCSUINT16_N : itype=nsp_guint16;
+                       break;  
+    case SCSUINT32_N : itype=nsp_guint32;
+                       break; 
+    default          : return NULLOBJ;
+  }
+  
+  if ((M = nsp_imatrix_create(name, mx, nx, itype)) == NULLIMAT) return NULLOBJ;
+  
+  switch (typ)
+  {
+    case SCSINT_N    : memcpy((gint *) M->Gint, (SCSINT_COP *) x, M->mn*sizeof(gint));
+                       break;
+    case SCSINT8_N   : memcpy((gint8 *) M->Gint8, (SCSINT8_COP *) x, M->mn*sizeof(gint8));
+                       break;
+    case SCSINT16_N  : memcpy((gint16 *) M->Gint16, (SCSINT16_COP *) x, M->mn*sizeof(gint16));
+                       break;
+    case SCSINT32_N  : memcpy((gint32 *) M->Gint32, (SCSINT32_COP *) x, M->mn*sizeof(gint32));
+                       break; 
+    case SCSUINT_N   : memcpy((guint *) M->Guint, (SCSUINT_COP *) x, M->mn*sizeof(guint));
+                       break; 
+    case SCSUINT8_N  : memcpy((guint8 *) M->Guint8, (SCSUINT8_COP *) x, M->mn*sizeof(guint8));
+                       break; 
+    case SCSUINT16_N : memcpy((guint16 *) M->Guint16, (SCSUINT16_COP *) x, M->mn*sizeof(guint16));
+                       break;  
+    case SCSUINT32_N : memcpy((guint32 *) M->Guint32, (SCSUINT32_COP *) x, M->mn*sizeof(guint32));
+                       break;
+  }
+
+  return NSP_OBJECT(M);
 }
 
 /**
@@ -220,7 +285,7 @@ static NspObject *scicos_mserial_to_obj (const char *name, const double *x,
  * Return value: 
  **/
 
-static int scicos_scitod (double *x, int mx, int nx, const NspObject * Ob)
+static int scicos_scitod(double *x, int mx, int nx, const NspObject * Ob)
 {
   NspMatrix *M = ((NspMatrix *) Ob);
   int i;
@@ -248,7 +313,7 @@ static int scicos_scitod (double *x, int mx, int nx, const NspObject * Ob)
  * Return value: 
  **/
 
-static int scicos_scitoi (int x[], int mx, int nx, const NspObject * Ob)
+static int scicos_scitoi(int x[], int mx, int nx, const NspObject * Ob)
 {
   NspMatrix *M = ((NspMatrix *) Ob);
   int i;
@@ -265,6 +330,52 @@ static int scicos_scitoi (int x[], int mx, int nx, const NspObject * Ob)
 }
 
 /**
+ * scicos_scitoint:
+ * @: 
+ * @mx: 
+ * @nx: 
+ * @Ob: 
+ * 
+ * 
+ * 
+ * Return value: 
+ **/
+
+static int scicos_scitoint(void *x, int mx, int nx, const NspObject *Ob)
+{
+  NspIMatrix *M = (NspIMatrix *) Ob;
+
+  if (mx * nx == 0 || M->mn == 0) return OK;
+  if (M->m != mx || M->n != nx) {
+    Sciprintf("Expecting a (%d,%d) matrix and (%d,%d) returned\n", mx, nx,
+              M->m, M->n);
+  }
+ 
+  switch (M->itype)
+  {
+    case nsp_gint    : memcpy((SCSINT_COP *) x, (gint *) M->Gint, M->mn*sizeof(SCSINT_COP));
+                       break;
+    case nsp_gint8   : memcpy((SCSINT8_COP *) x, (gint8 *) M->Gint8, M->mn*sizeof(SCSINT_COP));
+                       break;
+    case nsp_gint16  : memcpy((SCSINT16_COP *) x, (gint16 *) M->Gint16, M->mn*sizeof(SCSINT_COP));
+                       break;
+    case nsp_gint32  : memcpy((SCSINT32_COP *) x, (gint32 *) M->Gint32, M->mn*sizeof(SCSINT_COP));
+                       break;
+    case nsp_guint   : memcpy((SCSUINT_COP *) x, (guint *) M->Guint, M->mn*sizeof(SCSUINT_COP));
+                       break;
+    case nsp_guint8  : memcpy((SCSUINT8_COP *) x, (guint8 *) M->Guint8, M->mn*sizeof(SCSUINT8_COP));
+                       break;
+    case nsp_guint16 : memcpy((SCSUINT16_COP *) x, (guint16 *) M->Guint16, M->mn*sizeof(SCSUINT16_COP));
+                       break;
+    case nsp_guint32 : memcpy((SCSUINT32_COP *) x, (guint32 *) M->Guint32, M->mn*sizeof(SCSUINT32_COP));
+                       break;
+    default          : return FAIL;
+  }
+
+  return OK;
+}
+
+/**
  * scicos_list_to_vars:
  * @: 
  * @nout: 
@@ -276,19 +387,20 @@ static int scicos_scitoi (int x[], int mx, int nx, const NspObject * Ob)
  * Return value: 
  **/
 
-static int scicos_list_to_vars (void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
-				NspObject * Ob)
+static int scicos_list_to_vars(void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
+                               NspObject * Ob)
 {
   int k;
   NspList *L = (NspList *) Ob;
-  for (k = nout - 1; k >= 0; k--)
-    {
-      NspObject *elt = nsp_list_get_element (L, k + 1);
-      if (elt == NULL)
-	return FAIL;
-      if (scicos_scitod ((double *)outptr[k], outsz[k], outsz2[k], elt) == FAIL)
-	return FAIL;
+  for (k=nout-1;k>=0;k--) {
+    NspObject *elt = nsp_list_get_element(L, k+1);
+    if (elt == NULL) return FAIL;
+    if (IsIMat(elt)) {
+      if (scicos_scitoint(outptr[k], outsz[k], outsz2[k], elt) == FAIL) return FAIL;
+    } else {
+      if (scicos_scitod((double *)outptr[k], outsz[k], outsz2[k], elt) == FAIL) return FAIL;
     }
+  }
   return OK;
 }
 
@@ -303,27 +415,41 @@ static int scicos_list_to_vars (void *outptr[], int nout, int outsz[], int outsz
  * Return value: 
  **/
 
-static NspObject *scicos_vars_to_list (const char *name, void **inptr,
-				       int nin, int *insz, int *insz2, int *intyp)
+static NspObject *scicos_vars_to_list(const char *name, void **inptr,
+                                      int nin, int *insz, int *insz2, int *intyp)
 {
   int k;
   NspList *Ob;
-  if ((Ob = nsp_list_create (name)) == NULL)
-    return NULL;
-  for (k = 0; k < nin; k++)
+  if ((Ob = nsp_list_create (name)) == NULL) return NULL;
+  for (k=0;k<nin;k++) {
+    NspObject *elt;
+    switch (intyp[k])
     {
-      NspObject *elt;
-      if ((elt = scicos_dtosci ("el", (double *)inptr[k], insz[k], insz2[k])) == NULL)
-	{
-	  nsp_list_destroy (Ob);
-	  return NULL;
-	}
-      if (nsp_list_insert (Ob, elt, k + 1) == FAIL)
-	{
-	  nsp_list_destroy (Ob);
-	  return NULL;
-	}
+      case SCSINT_N    :
+      case SCSINT8_N   :
+      case SCSINT16_N  : 
+      case SCSINT32_N  : 
+      case SCSUINT_N   :
+      case SCSUINT8_N  :
+      case SCSUINT16_N :
+      case SCSUINT32_N :
+        if ((elt=scicos_inttosci("el", inptr[k], insz[k], insz2[k],intyp[k])) == NULL) {
+          nsp_list_destroy(Ob);
+          return NULL;
+        }
+        break;
+      default          :
+        if ((elt=scicos_dtosci("el", (double *)inptr[k], insz[k], insz2[k])) == NULL) {
+          nsp_list_destroy(Ob);
+          return NULL;
+        }
+        break;
     }
+    if (nsp_list_insert(Ob, elt, k+1) == FAIL) {
+      nsp_list_destroy(Ob);
+      return NULL;
+    }
+  }
   return NSP_OBJECT (Ob);
 }
 
