@@ -235,6 +235,16 @@ static int scicos_fill_from_list (NspList * L, scicos_list_flat * F)
 	      return FAIL;
 	    }
 	}
+      else if ( ( IsList(Obj) &&
+                ( (strcmp(nsp_object_get_name(NSP_OBJECT(L)),"oz")==0) ||
+                  (strcmp(nsp_object_get_name(NSP_OBJECT(L)),"opar")==0) ) ) )
+        {
+          /* should one do a test to know if it is a scilab block */
+          F->ptr[i] = (NspList *) Obj;
+	  F->sz[i] = 1; /* size of the list */
+	  F->sz[i + F->n] = 1;
+          F->type[i] = SCSUNKNOW_N;
+        }
       else
 	{
 	  Scierror ("Error: %s(%d) is not a real or int matrix\n",nsp_object_get_name(NSP_OBJECT(L)), i + 1);
