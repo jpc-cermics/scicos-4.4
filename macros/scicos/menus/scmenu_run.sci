@@ -148,7 +148,6 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       //	 'or you can save the XML file defined in the initialization GUI']);
       //return;
     end
-
     grs=scicos_graphic_array(%cpr,scs_m);
     execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''start'',tolerances,grs)',errcatch=%t)
     %cpr.state=state
@@ -166,7 +165,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
         global Scicos_commands
         Scicos_commands=cmd;
       else
-	message(['Initialisation problem:';lasterror()])
+	message(['Initialisation problem:';str_err])
 	xset('window',curwin);
 	scicos_set_stop_sensitivity(%f);
       end

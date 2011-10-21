@@ -165,7 +165,7 @@ static int scicos_fill_from_list (NspList * L, scicos_list_flat * F)
   F->type = malloc (F->n * sizeof (int));
   if (F->ptr == NULL || F->sz == NULL || F->type == NULL)
     {
-      Scierror ("Error: failed to allocate memory for outtb\n");
+      Scierror("Error: failed to allocate memory for %s\n",nsp_object_get_name(NSP_OBJECT(L)));
       return FAIL;
     }
   F->nelem = 0;
@@ -174,7 +174,7 @@ static int scicos_fill_from_list (NspList * L, scicos_list_flat * F)
       NspObject *Obj = L_cell->O;
       if (Obj == NULLOBJ)
 	{
-	  Scierror ("Error: outtb(%d) is a null object\n", i + 1);
+	  Scierror ("Error: %s(%d) is a null object\n",nsp_object_get_name(NSP_OBJECT(L)), i + 1);
 	  return FAIL;
 	}
       if (IsMat (Obj))
@@ -230,14 +230,14 @@ static int scicos_fill_from_list (NspList * L, scicos_list_flat * F)
 	      F->type[i] = SCSUINT32_N;
 	      break;
 	    default:
-	      Scierror ("Error: outtb(%d) has an unsupported integer type\n",
-			i + 1);
+	      Scierror ("Error: %s(%d) has an unsupported integer type\n",
+			nsp_object_get_name(NSP_OBJECT(L)),i + 1);
 	      return FAIL;
 	    }
 	}
       else
 	{
-	  Scierror ("Error: outtb(%d) is not a real or int matrix\n", i + 1);
+	  Scierror ("Error: %s(%d) is not a real or int matrix\n",nsp_object_get_name(NSP_OBJECT(L)), i + 1);
 	  return FAIL;
 	}
       L_cell = L_cell->next;
