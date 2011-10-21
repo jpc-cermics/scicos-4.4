@@ -422,7 +422,7 @@ static int scicos_nsp_list_to_list(void *outptr[], int nout, int outsz[], int ou
 {
   int i,nel;
   NspObject *O;
-  NspList *L1 = (NspList *)NSP_OBJECT(outptr[0]);
+  NspList *L1 = (NspList *) NSP_OBJECT(outptr[0]);
   NspList *L2 = (NspList *) Ob;
   
   /* Remove all elts of L1 */
@@ -431,12 +431,14 @@ static int scicos_nsp_list_to_list(void *outptr[], int nout, int outsz[], int ou
     nsp_list_remove_first(L1);
   }
   
-  /*copy all elts of L2 in L1*/
+  /* Copy all elts of L2 in L1*/
   nel=L2->nel;
   for (i=0;i<nel;i++) {
     if ( (O = nsp_list_get_element(L2,i+1)) == NULLOBJ ) return FAIL;
     if ( (O = nsp_object_copy_with_name(O)) == NULLOBJ ) return FAIL;
-    if ( nsp_list_end_insert(L1,O) == FAIL ) return FAIL;
+    if ( nsp_list_end_insert(L1,O) == FAIL ) {
+      return FAIL;
+    }
   }
   
   return OK;
