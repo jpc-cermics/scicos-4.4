@@ -203,13 +203,19 @@ function [ok,txt_out]=genfunc5(name,txt_in,ni,no,nie,noe,nx,nz,nzcr)
   ptxtedit=scicos_txtedit(clos = 0,...
 			  typ  = "Scifunc5",...
 			  head = head);
+  comment = catenate(head,sep='\n');
   while %t 
-    [txt,Quit] = scstxtedit(textmp,ptxtedit);
-    if Quit then
-      // a cancel in edition
+    //[txt,Quit] = scstxtedit(textmp,ptxtedit);
+    txt = scicos_editsmat('Nsp code',textmp,comment=comment);
+    if isempty(txt) then
       ok = %f;
       break;
-    end
+    end // abort in edition.
+//    if Quit then
+//      // a cancel in edition
+//      ok = %f;
+//      break;
+//    end
     fname=file('join',[getenv('NSP_TMPDIR');'scifunc5_tmp.sci']);
     scicos_mputl(txt,fname);
     execstr(sprintf('clear(''%s'');',name));

@@ -376,6 +376,57 @@ static int scicos_scitoint(void *x, int mx, int nx, const NspObject *Ob)
 }
 
 /**
+ * scicos_list_to_nsp_list:
+ * @: 
+ * @nout: 
+ * @: 
+ * @Ob: 
+ * 
+ * 
+ * 
+ * Return value: 
+ **/
+
+static NspObject *scicos_list_to_nsp_list(const char *name, void **inptr,
+                                          int nin, int *insz, int *insz2, int *intyp)
+{
+  NspList *Ob;
+  if (nin!=0) {
+    if (IsList(NSP_OBJECT(inptr[0]))) {
+      if ((Ob=nsp_list_full_copy((NspList *)NSP_OBJECT(inptr[0])))==NULLLIST) return NULL;
+      nsp_object_set_name(NSP_OBJECT(Ob),name);
+    } else { 
+      Sciprintf("Expecting a list for %s. Return an empty list.\n",name);
+      if ((Ob=nsp_list_create(name))==NULLLIST) return NULL;
+    }
+  } else {
+    if ((Ob=nsp_list_create(name))==NULLLIST) return NULL;
+  }
+  return NSP_OBJECT(Ob);
+}
+
+/**
+ * scicos_nsp_list_to_list:
+ * @: 
+ * @nout: 
+ * @: 
+ * @Ob: 
+ * 
+ * 
+ * 
+ * Return value: 
+ **/
+
+static int scicos_nsp_list_to_list(void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
+                                   NspObject *Ob)
+{
+  NspList *L = (NspList *) Ob;
+  if ((outptr[0]=(void *)nsp_list_full_copy( L ))==NULLLIST) return FAIL;
+  return OK;
+}
+
+
+/**
  * scicos_list_to_vars:
  * @: 
  * @nout: 
@@ -592,6 +643,17 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
 	   scicos_mserial_to_obj ("z", Blocks->z, Blocks->nz)) == NULL)
 	goto err;
     }
+  if (Blocks->scsptr_flag == fun_pointer) {
+    if ((Hel[p++] = 
+        scicos_vars_to_list("oz", Blocks->ozptr, Blocks->noz,
+                            Blocks->ozsz,&(Blocks->ozsz[Blocks->noz]),Blocks->oztyp)) == NULLOBJ)
+      goto err;
+  } else {
+    if ((Hel[p++] = 
+        scicos_list_to_nsp_list("oz", Blocks->ozptr, Blocks->noz,
+                                 Blocks->ozsz,&(Blocks->ozsz[Blocks->noz]),Blocks->oztyp)) == NULLOBJ)
+      goto err;
+  }
   /* if ((Hel[p++]=   scicos_itosci("nx",&Blocks->nx,1,1))== NULL) goto err; */
   if ((Hel[p++] = scicos_dtosci ("x", Blocks->x, Blocks->nx, 1)) == NULL)
     goto err;
@@ -644,6 +706,17 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
   if ((Hel[p++] =
        scicos_itosci ("ipar", Blocks->ipar, Blocks->nipar, 1)) == NULL)
     goto err;
+  if (Blocks->scsptr_flag == fun_pointer) {
+    if ((Hel[p++] = 
+        scicos_vars_to_list("opar", Blocks->oparptr, Blocks->nopar,
+                            Blocks->oparsz,&(Blocks->oparsz[Blocks->nopar]),Blocks->opartyp)) == NULLOBJ)
+      goto err;
+  } else {
+    if ((Hel[p++] = 
+        scicos_list_to_nsp_list("opar", Blocks->oparptr, Blocks->nopar,
+                                 Blocks->oparsz,&(Blocks->oparsz[Blocks->nopar]),Blocks->opartyp)) == NULLOBJ)
+      goto err;
+  }
   /* if ((Hel[p++]=   scicos_itosci("ng",&Blocks->ng,1,1))== NULL) goto err; */
   if ((Hel[p++] = scicos_dtosci ("g", Blocks->g, Blocks->ng, 1)) == NULL)
     goto err;
@@ -677,20 +750,19 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
   switch (flag)
     {
     case 1:
-      /* z,x et outptr */
-      if (Blocks->nx != 0)
-	{
-	  if (nsp_hash_find (H, "x", &Ob) == FAIL)
-	    goto err;
-	  scicos_scitod (Blocks->x, Blocks->nx, 1, Ob);
-	}
-      if (Blocks->nz != 0)
-	{
-	  if (nsp_hash_find (H, "z", &Ob) == FAIL)
-	    goto err;
-	  if (scicos_obj_to_mserial (Blocks->z, Blocks->nz, Ob) == FAIL)
-	    goto err;
-	}
+      /* outptr */
+/*      if (Blocks->nx != 0)
+ *	{
+ *	  if (nsp_hash_find (H, "x", &Ob) == FAIL)
+ *	    goto err;
+ *	  scicos_scitod (Blocks->x, Blocks->nx, 1, Ob);
+ *	}
+ *      if (Blocks->nz != 0)
+ *	{
+ *	  if (nsp_hash_find (H, "z", &Ob) == FAIL)
+ *	    goto err;
+ *	}
+ */
       if (Blocks->nout != 0)
 	{
 	  if (nsp_hash_find (H, "outptr", &Ob) == FAIL)
@@ -720,9 +792,28 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
 	{
 	  if (nsp_hash_find (H, "z", &Ob) == FAIL)
 	    goto err;
-	  if (scicos_obj_to_mserial (Blocks->z, Blocks->nz, Ob) == FAIL)
-	    goto err;
+          if (Blocks->scsptr_flag == fun_pointer) {
+	    scicos_scitod (Blocks->z, Blocks->nz, 1, Ob);
+	  } else {
+	    if (scicos_obj_to_mserial (Blocks->z, Blocks->nz, Ob) == FAIL)
+	      goto err;
+	  }
 	}
+      /* oz */
+      if (Blocks->noz != 0) {
+        if (nsp_hash_find (H, "oz", &Ob) == FAIL) goto err;
+        if (Blocks->scsptr_flag == fun_pointer) {
+          if (scicos_list_to_vars
+              (Blocks->ozptr,Blocks->noz,
+               Blocks->ozsz,&(Blocks->ozsz[Blocks->nout]),Blocks->oztyp,Ob) == FAIL)
+            goto err;
+        } else {
+          if (scicos_nsp_list_to_list
+              (Blocks->ozptr,Blocks->noz,
+               Blocks->ozsz,&(Blocks->ozsz[Blocks->nout]),Blocks->oztyp,Ob) == FAIL)
+            goto err;
+        }
+      }
       /* x */
       if (Blocks->nx != 0)
 	{

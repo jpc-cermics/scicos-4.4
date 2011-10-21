@@ -240,7 +240,8 @@ static int scicos_fill_from_list (NspList * L, scicos_list_flat * F)
                   (strcmp(nsp_object_get_name(NSP_OBJECT(L)),"opar")==0) ) ) )
         {
           /* should one do a test to know if it is a scilab block */
-          F->ptr[i] = (NspList *) Obj;
+	  NspList *A = (NspList *) Obj;
+          F->ptr[i] = A;
 	  F->sz[i] = 1; /* size of the list */
 	  F->sz[i + F->n] = 1;
           F->type[i] = SCSUNKNOW_N;
