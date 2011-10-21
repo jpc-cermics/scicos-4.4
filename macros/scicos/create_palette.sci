@@ -64,6 +64,7 @@ function [routines]=build_palette(lisf,path,fname)
   for k=1:size(lisf,'*')
     fil = lisf(k);
     // check if fil contains a block definition
+    blk=[];
     cmd=sprintf("blk=%s(''define'');",file('root',fil));
     if ~exists('needcompile') then needcompile=0;end
     eok=execstr(cmd,errcatch=%t);
@@ -71,6 +72,12 @@ function [routines]=build_palette(lisf,path,fname)
       //message(['Error: define failed';catenate(lasterror())]);
       to_del=[to_del i];
       lasterror();
+      continue
+    end
+    if type(blk,'short')<>'h' then 
+      to_del=[to_del i];
+      lasterror();
+      continue
     end
     routines=[routines;blk.model.sim(1)]
     blk.graphics.sz=20*blk.graphics.sz;
