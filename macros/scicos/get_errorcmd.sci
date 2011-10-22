@@ -102,7 +102,7 @@ function cmd=get_errorcmd(path,scs_m_in,title_err,mess_err)
     // update spec_err
     spec_err='The hilited '+spec_err+' returns the error :';
     //
-    scf(curwin)
+    xset('window',curwin)
     // call bad_connection
     bad_connection(path,...
 		   [title_err;spec_err;mess_err],0,1,0,-1,0,1)

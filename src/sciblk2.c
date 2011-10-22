@@ -431,7 +431,7 @@ static int scicos_nsp_list_to_list(void *outptr[], int nout, int outsz[], int ou
     nsp_list_remove_first(L1);
   }
   
-  /* Copy all elts of L2 in L1*/
+  /* Copy all elts of L2 in L1 */
   nel=L2->nel;
   for (i=0;i<nel;i++) {
     if ( (O = nsp_list_get_element(L2,i+1)) == NULLOBJ ) return FAIL;
@@ -696,7 +696,7 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
     goto err;
   if ((Hel[p++] =
        scicos_vars_to_list ("outptr", Blocks->outptr, Blocks->nout,
-			    Blocks->outsz,&(Blocks->outsz[Blocks->nin]),&(Blocks->outsz[2*Blocks->nin]))) == NULLOBJ)
+			    Blocks->outsz,&(Blocks->outsz[Blocks->nout]),&(Blocks->outsz[2*Blocks->nout]))) == NULLOBJ)
     goto err;
   if ((Hel[p++] = scicos_itosci ("nevout", &Blocks->nevout, 1, 1)) == NULL)
     goto err;
@@ -763,8 +763,9 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
   if ((Args[1] = scicos_itosci (NVOID, &flag, 1, 1)) == NULL)
     goto err;
 
-  if (scicos_scifunc (Blocks->scsptr_flag,Blocks->scsptr,Args, mrhs, Ret, &mlhs) == FAIL)
+  if (scicos_scifunc (Scicos->params.scsptr_flag,Scicos->params.scsptr, Args, mrhs, Ret, &mlhs) == FAIL)
     goto err;
+  
   H = (NspHash *) Ret[0];
   switch (flag)
     {

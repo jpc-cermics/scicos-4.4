@@ -263,7 +263,7 @@ int scicos_main (scicos_run * sr, double *t0_in, double *tf_in,
     }
 
 
-  Scicos->sim.debug_block = -1;	/* no debug block for start */
+  /* Scicos->sim.debug_block = -1;*/	/* no debug block for start */
 
   Scicos->params.debug_counter = 0;
 
@@ -3342,8 +3342,9 @@ void call_debug_scicos (scicos_block * block, int *flag, int flagi,
   ScicosF4 loc4;
   double *ptr_d = NULL;
 
-  Scicos->params.debug_counter += 1;
-  /* C2F(scsptr).ptr = Blocks[deb_blk].scsptr; */
+  Scicos->params.debug_counter += 1
+  Scicos->params.scsptr = Blocks[deb_blk].scsptr; 
+  Scicos->params.scsptr_flag = Blocks[deb_blk].scsptr_flag;
 
   loc = Blocks[deb_blk].funpt;	/* GLOBAL */
   loc4 = (ScicosF4) loc;
@@ -3358,7 +3359,7 @@ void call_debug_scicos (scicos_block * block, int *flag, int flagi,
 	   *flag, block, loc);
 
   (*loc4) (block, *flag);
-  fprintf (stderr, "outthe block=%d  %d %d %p \n", deb_blk, flagi, *flag,
+  fprintf (stderr, "Out the block=%d  %d %d %p \n", deb_blk, flagi, *flag,
 	   block);
 
   /* Implicit Solver & explicit block & flag==0 */
