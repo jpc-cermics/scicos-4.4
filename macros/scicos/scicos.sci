@@ -126,13 +126,13 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       load(getenv('NSP_TMPDIR')+'/BackupInfo')
       scs_m=rec_restore_gr(scs_m,inactive_windows)
     end
+    nsp_clear_queue()
     needsavetest=%f
   end
   
   if scs_m.type<>'diagram' then
     error('First argument must be a scicos diagram')
   end
-
   
   options=scs_m.props.options
   %scicos_solver=scs_m.props.tol(6);

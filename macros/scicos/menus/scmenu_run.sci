@@ -168,6 +168,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
 	message(['Initialisation problem:';str_err])
 	xset('window',curwin);
 	scicos_set_stop_sensitivity(%f);
+        nsp_clear_queue()
       end
       ok=%f
       return
@@ -237,6 +238,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
     ok=%f
   end
   scicos_set_stop_sensitivity(%f);
+  nsp_clear_queue()
   resume(needreplay);
 endfunction
 
