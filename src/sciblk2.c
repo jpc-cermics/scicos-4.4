@@ -33,7 +33,6 @@
 
 #include <nsp/interf.h>
 
-
 #include "nsp/interf.h"
 #include "scicos/scicos4.h"
 
@@ -81,8 +80,7 @@ static int scicos_scifunc (scicos_funflag scsptr_flag, void *scsptr, NspObject *
  * Return value: 
  **/
 
-static NspObject *scicos_itosci (const char *name, const int *x, int mx,
-				 int nx)
+static NspObject *scicos_itosci (const char *name, const int *x, int mx,int nx)
 {
   int i;
   NspMatrix *M;
@@ -105,8 +103,7 @@ static NspObject *scicos_itosci (const char *name, const int *x, int mx,
  * Return value: 
  **/
 
-static NspObject *scicos_inttosci (const char *name, const void *x, int mx,
-                                   int nx, int typ)
+static NspObject *scicos_inttosci (const char *name, const void *x, int mx,int nx, int typ)
 {
   nsp_itype itype;
   NspIMatrix *M;
@@ -170,8 +167,7 @@ static NspObject *scicos_inttosci (const char *name, const void *x, int mx,
  * Return value: 
  **/
 
-static NspObject *scicos_dtosci (const char *name, const double *x, int mx,
-                                 int nx,char type)
+static NspObject *scicos_dtosci (const char *name, const double *x, int mx,int nx,char type)
 {
   NspMatrix *M;
   if ((M = nsp_matrix_create (name, type, mx, nx)) == NULLMAT) return NULLOBJ;
@@ -247,8 +243,7 @@ static int scicos_obj_to_mserial (double *x, int nx, const NspObject * Obj)
  * Return value: %NULLOBJ or a new #NspObject
  **/
 
-static NspObject *scicos_mserial_to_obj (const char *name, const double *x,
-					 int nx)
+static NspObject *scicos_mserial_to_obj (const char *name, const double *x,int nx)
 {
   NspMatrix *Z = NULL;
   NspSerial *S = NULL;
@@ -326,8 +321,7 @@ static int scicos_scitoi(int x[], int mx, int nx, const NspObject * Ob)
   if (mx * nx == 0 || M->mn == 0)
     return OK;
   if (M->m != mx || M->n != nx || M->rc_type != 'r') {
-    Sciprintf ("Expecting a (%d,%d) matrix and (%d,%d) returned\n", mx, nx,
-               M->m, M->n);
+    Sciprintf ("Expecting a (%d,%d) matrix and (%d,%d) returned\n", mx, nx,M->m, M->n);
   }
   for (i = 0; i < Min (M->mn, mx * nx); i++) x[i] = M->R[i];
   return OK;
