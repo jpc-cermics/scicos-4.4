@@ -3342,7 +3342,7 @@ void call_debug_scicos (scicos_block * block, int *flag, int flagi,
   ScicosF4 loc4;
   double *ptr_d = NULL;
 
-  Scicos->params.debug_counter += 1
+  Scicos->params.debug_counter += 1;
   Scicos->params.scsptr = Blocks[deb_blk].scsptr; 
   Scicos->params.scsptr_flag = Blocks[deb_blk].scsptr_flag;
 
