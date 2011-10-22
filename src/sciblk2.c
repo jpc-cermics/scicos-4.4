@@ -163,6 +163,7 @@ static NspObject *scicos_inttosci (const char *name, const void *x, int mx,
  * @x: 
  * @mx: 
  * @nx: 
+ * @type: 
  * 
  * 
  * 
@@ -380,10 +381,13 @@ static int scicos_scitoint(void *x, int mx, int nx, const NspObject *Ob)
 
 /**
  * scicos_list_to_nsp_list:
- * @: 
- * @nout: 
- * @: 
- * @Ob: 
+ * @:
+ * @name:
+ * @inptr:
+ * @nin:
+ * @insz:
+ * @insz2:
+ * @intyp:
  * 
  * 
  * 
@@ -410,10 +414,13 @@ static NspObject *scicos_list_to_nsp_list(const char *name, void **inptr,
 
 /**
  * scicos_nsp_list_to_list:
- * @: 
- * @nout: 
- * @: 
- * @Ob: 
+ * @:
+ * @outptr:
+ * @nout:
+ * @outsz:
+ * @outsz2:
+ * @outtyp:
+ * @Ob:
  * 
  * 
  * 
@@ -451,9 +458,12 @@ static int scicos_nsp_list_to_list(void *outptr[], int nout, int outsz[], int ou
 /**
  * scicos_list_to_vars:
  * @: 
- * @nout: 
- * @: 
- * @Ob: 
+ * @outptr:
+ * @nout:
+ * @outsz:
+ * @outsz2:
+ * @outtyp:
+ * @Ob:
  * 
  * 
  * 
@@ -479,9 +489,13 @@ static int scicos_list_to_vars(void *outptr[], int nout, int outsz[], int outsz2
 
 /**
  * scicos_vars_to_list:
- * @: 
- * @nin: 
- * @: 
+ * @:
+ * @name:
+ * @inptr:
+ * @nin:
+ * @insz:
+ * @insz2:
+ * @intyp:
  * 
  * 
  * 
