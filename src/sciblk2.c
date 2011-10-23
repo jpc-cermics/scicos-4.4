@@ -773,7 +773,7 @@ static NspHash *createblklist(double time, scicos_block *Block)
  * Voir livre page 205-> Note however that it should be the case 
  * for type 5 blocks (sciblk4) but maybe not for sciblk2 ? 
  */
-
+ 
 void scicos_sciblk4 (scicos_block *Blocks, int flag)
 {
   int mlhs = 1, mrhs = 2;
