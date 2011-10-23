@@ -287,7 +287,6 @@ static NspObject *scicos_mserial_to_obj (const char *name, const double *x,int n
 static int scicos_scitod(double *x, int mx, int nx, const NspObject * Ob)
 {
   NspMatrix *M = ((NspMatrix *) Ob);
-  int i;
   if (mx * nx == 0 || M->mn == 0)
     return OK;
   if (M->m != mx || M->n != nx || M->rc_type != 'r' || M->rc_type != 'c') {
@@ -640,6 +639,126 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
   *flag = -1;
 }
 
+/**
+ * createblklist:
+ * @:
+ * @time:
+ * @Block:
+ * 
+ * create a Nsp hash table from a Scicos C block struct
+ * 
+ * Return value:  %NULLOBJ or a new #NspHash
+ **/
+
+static NspHash *createblklist(double time, scicos_block *Block)
+{
+  NspHash *Hi = NULL;
+  NspObject *Hel[32];
+  int p=0, i;
+  
+  if ((Hel[p++] = scicos_dtosci("time", &time, 1, 1,'r')) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_itosci("nevprt", &Block->nevprt, 1, 1)) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_itosci("type", &Block->type, 1, 1)) == NULL)
+    goto err;
+  /* if ((Hel[p++]=   scicos_itosci(&Block->scsptr,0,1))== NULL) goto err; */
+  /* if ((Hel[p++]=   scicos_itosci("nz",&Block->nz,1,1))== NULL) goto err; */
+  if (Block->scsptr_flag == fun_pointer) {
+    if ((Hel[p++] = scicos_dtosci("z", Block->z, Block->nz, 1,'r')) == NULL)
+      goto err;
+  } else {
+    if ((Hel[p++] = scicos_mserial_to_obj("z", Block->z, Block->nz)) == NULL)
+      goto err;
+  }
+  if (Block->scsptr_flag == fun_pointer) {
+    if ((Hel[p++] = scicos_vars_to_list("oz", Block->ozptr, Block->noz,
+                            Block->ozsz,&(Block->ozsz[Block->noz]),Block->oztyp)) == NULLOBJ)
+      goto err;
+  } else {
+    if ((Hel[p++] = scicos_list_to_nsp_list("oz", Block->ozptr, Block->noz,
+                                 Block->ozsz,&(Block->ozsz[Block->noz]),Block->oztyp)) == NULLOBJ)
+      goto err;
+  }
+  /* if ((Hel[p++] = scicos_itosci("nx",&Block->nx,1,1))== NULL) goto err; */
+  if ((Hel[p++] = scicos_dtosci("x", Block->x, Block->nx, 1,'r')) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_dtosci("xd", Block->xd, Block->nx, 1,'r')) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_dtosci("res", Block->res, Block->nx, 1,'r')) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_itosci("nin", &Block->nin, 1, 1)) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_itosci("insz", Block->insz, Block->nin, 1)) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_vars_to_list("inptr", Block->inptr, Block->nin,
+                           Block->insz,&(Block->insz[Block->nin]),&(Block->insz[2*Block->nin]))) == NULLOBJ)
+    goto err;
+  if ((Hel[p++] =
+       scicos_itosci("outsz", Block->outsz, Block->nout, 1)) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_itosci("nout", &Block->nout, 1, 1)) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_vars_to_list("outptr", Block->outptr, Block->nout,
+                           Block->outsz,&(Block->outsz[Block->nout]),&(Block->outsz[2*Block->nout]))) == NULLOBJ)
+    goto err;
+  if ((Hel[p++] = scicos_itosci("nevout", &Block->nevout, 1, 1)) == NULL)
+    goto err;
+  if ( Block->nevout != 0 ) {
+    if ((Hel[p++] = scicos_dtosci("evout", Block->evout, Block->nevout, 1,'r')) == NULL)
+      goto err;
+  }
+  /* if ((Hel[p++] = scicos_itosci("nrpar",&Block->nrpar,1,1))== NULL) goto err; */
+  if (Block->scsptr_flag == fun_pointer) {
+    if ((Hel[p++] = scicos_dtosci("rpar", Block->rpar, Block->nrpar, 1,'r')) == NULL)
+      goto err;
+  } else {
+    if ((Hel[p++] = scicos_mserial_to_obj("rpar", Block->rpar, Block->nrpar)) == NULL)
+      goto err;
+  }
+  /* if ((Hel[p++] = scicos_itosci("nipar",&Block->nipar,1,1))== NULL) goto err; */
+  if ((Hel[p++] = scicos_itosci("ipar", Block->ipar, Block->nipar, 1)) == NULL)
+    goto err;
+  if (Block->scsptr_flag == fun_pointer) {
+    if ((Hel[p++] = scicos_vars_to_list("opar", Block->oparptr, Block->nopar,
+                            Block->oparsz,&(Block->oparsz[Block->nopar]),Block->opartyp)) == NULLOBJ)
+      goto err;
+  } else {
+    if ((Hel[p++] = scicos_list_to_nsp_list("opar", Block->oparptr, Block->nopar,
+                                 Block->oparsz,&(Block->oparsz[Block->nopar]),Block->opartyp)) == NULLOBJ)
+      goto err;
+  }
+  /* if ((Hel[p++]=   scicos_itosci("ng",&Block->ng,1,1))== NULL) goto err; */
+  if ((Hel[p++] = scicos_dtosci("g", Block->g, Block->ng, 1,'r')) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_itosci("ztyp", &Block->ztyp, 1, 1)) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_itosci("jroot", Block->jroot, Block->ng, 1)) == NULL)
+    goto err;
+  if ((Hel[p++] = scicos_str2sci("label", Block->label)) == NULL)
+    goto err;
+  if ((Hel[p++]=  scicos_itosci("work",(int *)&Block->work,1,1))== NULL)
+    goto err;
+  /* if ((Hel[p++]=  scicos_itosci("nmode",&Block->nmode,1,1))== NULL) goto err; */
+  if ((Hel[p++] = scicos_itosci("mode", Block->mode, Block->nmode, 1)) == NULL)
+    goto err;
+ 
+  if ((Hi = nsp_hash_create(NVOID, p)) == NULLHASH)
+    goto err;
+  
+  for (i = 0; i < p; i++) {
+    if (nsp_hash_enter(Hi, Hel[i]) == FAIL)
+      goto err;
+  }
+  return Hi;
+  
+ err:
+   for (i=0;i<p;i++) {
+     nsp_object_destroy(&Hel[i]);
+   }
+   return NULL;
+}
+
 /* 
  * time added in block 
  * Note that we can entre scicos_sciblk4 even if Blocks is not 
@@ -663,123 +782,9 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
   NspObject *Hel[32], *Args[2], *Ret[1];
   int p = 0, i;
   double time = scicos_get_scicos_time ();
-  if ((Hel[p++] = scicos_dtosci ("time", &time, 1, 1,'r')) == NULL)
+  if ((Hi = createblklist(time, Blocks)) == NULL) 
     goto err;
-  if ((Hel[p++] = scicos_itosci ("nevprt", &Blocks->nevprt, 1, 1)) == NULL)
-    goto err;
-  if ((Hel[p++] = scicos_itosci ("type", &Blocks->type, 1, 1)) == NULL)
-    goto err;
-  /* if ((Hel[p++]=   scicos_itosci(&Blocks->scsptr,0,1))== NULL) goto err; */
-  /* if ((Hel[p++]=   scicos_itosci("nz",&Blocks->nz,1,1))== NULL) goto err; */
-  if (Blocks->scsptr_flag == fun_pointer)
-    {
-      if ((Hel[p++] = scicos_dtosci ("z", Blocks->z, Blocks->nz, 1,'r')) == NULL)
-	goto err;
-    }
-  else
-    {
-      if ((Hel[p++] =
-	   scicos_mserial_to_obj ("z", Blocks->z, Blocks->nz)) == NULL)
-	goto err;
-    }
-  if (Blocks->scsptr_flag == fun_pointer) {
-    if ((Hel[p++] = 
-        scicos_vars_to_list("oz", Blocks->ozptr, Blocks->noz,
-                            Blocks->ozsz,&(Blocks->ozsz[Blocks->noz]),Blocks->oztyp)) == NULLOBJ)
-      goto err;
-  } else {
-    if ((Hel[p++] = 
-        scicos_list_to_nsp_list("oz", Blocks->ozptr, Blocks->noz,
-                                 Blocks->ozsz,&(Blocks->ozsz[Blocks->noz]),Blocks->oztyp)) == NULLOBJ)
-      goto err;
-  }
-  /* if ((Hel[p++]=   scicos_itosci("nx",&Blocks->nx,1,1))== NULL) goto err; */
-  if ((Hel[p++] = scicos_dtosci ("x", Blocks->x, Blocks->nx, 1,'r')) == NULL)
-    goto err;
-  if ((Hel[p++] = scicos_dtosci ("xd", Blocks->xd, Blocks->nx, 1,'r')) == NULL)
-    goto err;
-  if ((Hel[p++] = scicos_dtosci ("res", Blocks->res, Blocks->nx, 1,'r')) == NULL)
-    goto err;
-  if ((Hel[p++] = scicos_itosci ("nin", &Blocks->nin, 1, 1)) == NULL)
-    goto err;
-  if ((Hel[p++] =
-       scicos_itosci ("insz", Blocks->insz, Blocks->nin, 1)) == NULL)
-    goto err;
-  if ((Hel[p++] =
-       scicos_vars_to_list ("inptr", Blocks->inptr, Blocks->nin,
-			    Blocks->insz,&(Blocks->insz[Blocks->nin]),&(Blocks->insz[2*Blocks->nin]))) == NULLOBJ)
-    goto err;
-  if ((Hel[p++] =
-       scicos_itosci ("outsz", Blocks->outsz, Blocks->nout, 1)) == NULL)
-    goto err;
-  if ((Hel[p++] = scicos_itosci ("nout", &Blocks->nout, 1, 1)) == NULL)
-    goto err;
-  if ((Hel[p++] =
-       scicos_vars_to_list ("outptr", Blocks->outptr, Blocks->nout,
-			    Blocks->outsz,&(Blocks->outsz[Blocks->nout]),&(Blocks->outsz[2*Blocks->nout]))) == NULLOBJ)
-    goto err;
-  if ((Hel[p++] = scicos_itosci ("nevout", &Blocks->nevout, 1, 1)) == NULL)
-    goto err;
-  if ( Blocks->nevout != 0 ) 
-    {
-      if ((Hel[p++] =
-	   scicos_dtosci ("evout", Blocks->evout, Blocks->nevout, 1,'r')) == NULL)
-	goto err;
-    }
-
-  /* if ((Hel[p++]=   scicos_itosci("nrpar",&Blocks->nrpar,1,1))== NULL) goto err; */
-  if (Blocks->scsptr_flag == fun_pointer)
-    {
-      if ((Hel[p++] =
-	   scicos_dtosci ("rpar", Blocks->rpar, Blocks->nrpar, 1,'r')) == NULL)
-	goto err;
-    }
-  else
-    {
-      if ((Hel[p++] =
-	   scicos_mserial_to_obj ("rpar", Blocks->rpar,
-				  Blocks->nrpar)) == NULL)
-	goto err;
-    }
-  /* if ((Hel[p++]=   scicos_itosci("nipar",&Blocks->nipar,1,1))== NULL) goto err; */
-  if ((Hel[p++] =
-       scicos_itosci ("ipar", Blocks->ipar, Blocks->nipar, 1)) == NULL)
-    goto err;
-  if (Blocks->scsptr_flag == fun_pointer) {
-    if ((Hel[p++] = 
-        scicos_vars_to_list("opar", Blocks->oparptr, Blocks->nopar,
-                            Blocks->oparsz,&(Blocks->oparsz[Blocks->nopar]),Blocks->opartyp)) == NULLOBJ)
-      goto err;
-  } else {
-    if ((Hel[p++] = 
-        scicos_list_to_nsp_list("opar", Blocks->oparptr, Blocks->nopar,
-                                 Blocks->oparsz,&(Blocks->oparsz[Blocks->nopar]),Blocks->opartyp)) == NULLOBJ)
-      goto err;
-  }
-  /* if ((Hel[p++]=   scicos_itosci("ng",&Blocks->ng,1,1))== NULL) goto err; */
-  if ((Hel[p++] = scicos_dtosci ("g", Blocks->g, Blocks->ng, 1,'r')) == NULL)
-    goto err;
-  if ((Hel[p++] = scicos_itosci ("ztyp", &Blocks->ztyp, 1, 1)) == NULL)
-    goto err;
-  if ((Hel[p++] =
-       scicos_itosci ("jroot", Blocks->jroot, Blocks->ng, 1)) == NULL)
-    goto err;
-  if ((Hel[p++] = scicos_str2sci ("label", Blocks->label)) == NULL)
-    goto err;
-  /* if ((Hel[p++]=  scicos_mserial_to_obj(Blocks->work,0))== NULL) goto err; */
-  /* if ((Hel[p++]=   scicos_itosci("nmode",&Blocks->nmode,1,1))== NULL) goto err; */
-  if ((Hel[p++] =
-       scicos_itosci ("mode", Blocks->mode, Blocks->nmode, 1)) == NULL)
-    goto err;
-
-  if ((Hi = nsp_hash_create (NVOID, p)) == NULLHASH)
-    goto err;
-  for (i = 0; i < p; i++)
-    {
-      if (nsp_hash_enter (Hi, Hel[i]) == FAIL)
-	goto err;
-    }
-  Args[0] = NSP_OBJECT (Hi);
+  Args[0] = NSP_OBJECT(Hi);
   if ((Args[1] = scicos_itosci (NVOID, &flag, 1, 1)) == NULL)
     goto err;
 
@@ -933,8 +938,6 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
     }
   scicos_set_block_error (-1);
 }
-
-
 
 /*     routine used to evaluate a block defined by a scilab function 
  *     scilab function syntax must be 
