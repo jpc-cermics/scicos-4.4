@@ -779,8 +779,7 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
   int mlhs = 1, mrhs = 2;
   NspObject *Ob;
   NspHash *H = NULL, *Hi = NULL;
-  NspObject *Hel[32], *Args[2], *Ret[1];
-  int p = 0, i;
+  NspObject *Args[2], *Ret[1];
   double time = scicos_get_scicos_time ();
   if ((Hi = createblklist(time, Blocks)) == NULL) 
     goto err;
