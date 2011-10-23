@@ -1008,6 +1008,22 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
     if (nsp_hash_find(Model,model[i],&obj)==FAIL) return FAIL;
   }
 
+  /* minimal block list structure allocation */
+  Block->type=0;
+  Block->nin=0;
+  Block->nout=0;
+  Block->nevout=0;
+  Block->nx=0;
+  Block->nz=0;
+  Block->noz=0;
+  Block->nrpar=0;
+  Block->nipar=0;
+  Block->nopar=0;
+  Block->label="";
+  Block->ng=0;
+  Block->nmode=0;
+  Block->work=NULL;
+  
   /* 1 : model.sim  */
   
   /* input ports      */
@@ -1064,8 +1080,80 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   /* 21 : model.nmode  */
   
   /* work */
+  
   return OK;
 }
+
+/* unalloc a C scicos block struct
+ *
+ */
+void unalloc_block(scicos_block *Block)
+{
+  int j;
+
+  if (Block->nin!=0) {
+    FREE(Block->insz);
+    for(j=0;j<Block->nin;j++) FREE(Block->inptr[j]);
+    FREE(Block->inptr);
+  }
+  
+  if (Block->nout!=0) {
+    FREE(Block->outsz);
+    for(j=0;j<Block->nout;j++) FREE(Block->outptr[j]);
+    FREE(Block->outptr);
+  }
+  
+  if (Block->nevout!=0) {
+    FREE(Block->evout);
+  }
+  
+  if (Block->nx!=0) {
+    FREE(Block->x);
+    FREE(Block->xd);
+    FREE(Block->res);
+  }
+  
+  if (Block->nz!=0) {
+    FREE(Block->z);
+  }
+  
+  if (Block->noz!=0) {
+    FREE(Block->ozsz);
+    FREE(Block->oztyp);
+    for(j=0;j<Block->noz;j++) FREE(Block->ozptr[j]);
+    FREE(Block->ozptr);
+  }
+  
+  if (Block->nrpar!=0) {
+    FREE(Block->rpar);
+  }
+  
+  if (Block->nipar!=0) {
+    FREE(Block->ipar);
+  }
+  
+  if (Block->nopar!=0) {
+    FREE(Block->oparsz);
+    FREE(Block->opartyp);
+    for(j=0;j<Block->nopar;j++) FREE(Block->oparptr[j]);
+    FREE(Block->oparptr);
+  }
+  
+  if (strlen(Block->label)!=0) {
+    FREE(Block->label);
+  }
+  
+  if (Block->ng!=0) {
+    FREE(Block->g);
+    FREE(Block->jroot);
+  }
+  
+  if (Block->nmode!=0) {
+    FREE(Block->mode);
+  }
+}
+
+extern NspHash *createblklist(double time, scicos_block *Block);
 
 /* 
  * int_model2blk : Build a scicos_block structure from
@@ -1078,17 +1166,25 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
 static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
 {
   NspHash *Model;
-  scicos_block *Block;
+  NspHash *HModel;
+  scicos_block Block;
+  double time=0.;
   
+  CheckLhs(0,1);
   CheckRhs(1,1);
 
   if ((Model=GetHashCopy(stack,1))==NULLHASH) return RET_BUG;
-  if (scicos_fill_model(Model,Block)==FAIL) {
+  if (scicos_fill_model(Model,&Block)==FAIL) {
     Scierror("Bad scicos block model.\n");
     return RET_BUG;
   }
-
-  return 0;
+  if ((HModel = createblklist(time, &Block))==NULL) {
+    unalloc_block(&Block);
+    return RET_BUG;
+  }
+  unalloc_block(&Block);
+  MoveObj(stack,1,NSP_OBJECT(HModel));
+  return Max(lhs,1);
 }
 
 /*

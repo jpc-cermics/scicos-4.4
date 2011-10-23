@@ -8,6 +8,7 @@ function scmenu_calc()
   restore_scs_gc(scs_gc);
   clear('scs_gc');
   //scs_gc=null();
+  nsp_clear_queue()
   Cmenu='Replot'
 endfunction
 

@@ -43,6 +43,8 @@ extern int nsp_gtk_eval_function_by_name (char *name, NspObject * args[],
 					  int n_args, NspObject * ret[],
 					  int *nret);
 
+extern NspHash *createblklist(double time, scicos_block *Block);
+
 static int scicos_scifunc (scicos_funflag scsptr_flag, void *scsptr, NspObject ** Args, 
 			   int mrhs, NspObject ** Ret, int *mlhs)
 {
@@ -647,10 +649,10 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
  * 
  * create a Nsp hash table from a Scicos C block struct
  * 
- * Return value:  %NULLOBJ or a new #NspHash
+ * Return value:  %NULL or a new #NspHash
  **/
 
-static NspHash *createblklist(double time, scicos_block *Block)
+NspHash *createblklist(double time, scicos_block *Block)
 {
   NspHash *Hi = NULL;
   NspObject *Hel[32];
