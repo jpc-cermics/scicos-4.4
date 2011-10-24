@@ -593,12 +593,12 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
       Sciprintf("Info: simulation type %d:\n",b_type);
       Blocks[kf].type =
 	(b_type < 10000) ? (b_type % 1000) : b_type % 1000 + 10000;
-      Sciprintf("Info: après modif: %d\n",Blocks[kf].type);
+      Sciprintf("Info: after modif: %d\n",Blocks[kf].type);
       if (scsim->funflag[kf] == fun_pointer)
 	{
 	  Blocks[kf].scsptr = NULL;
-	  Blocks[kf].funpt = scsim->funptr[kf];
 	  Blocks[kf].scsptr_flag = scsim->funflag[kf];
+	  Blocks[kf].funpt = scsim->funptr[kf];
 	}
       else
 	{

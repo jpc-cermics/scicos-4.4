@@ -27,6 +27,7 @@
 #include <nsp/smatrix.h>
 #include <nsp/hash.h>
 #include <nsp/list.h>
+#include <nsp/plist.h>
 #include <nsp/cells.h>
 #include <nsp/graphic.h>
 #include <nsp/interf.h>
@@ -987,103 +988,6 @@ static int ModelHash2BlkTData(NspHash *MHash,void *n,void *sz,void *typ,void *pt
   return OK;
 }
 
-/*
- * fill a scicos_block structure 
- * with pointers from the Hash table Model
- *
- */
-
-static int scicos_fill_model(NspHash *Model,scicos_block *Block)
-{
-  int i;
-
-  char *model[]={"sim","in","in2","intyp","out","out2","outtyp",
-                 "evtin","evtout","state","dstate","odstate","rpar","ipar","opar",
-                 "blocktype","firing","dep_ut","label","nzcross","nmode","equations"};
-
-  const int nmodel=22;
-  
-  for (i =0;i<nmodel;i++) {
-    NspObject *obj;
-    if (nsp_hash_find(Model,model[i],&obj)==FAIL) return FAIL;
-  }
-
-  /* minimal block list structure allocation */
-  Block->type=0;
-  Block->nin=0;
-  Block->nout=0;
-  Block->nevout=0;
-  Block->nx=0;
-  Block->nz=0;
-  Block->noz=0;
-  Block->nrpar=0;
-  Block->nipar=0;
-  Block->nopar=0;
-  Block->label="";
-  Block->ng=0;
-  Block->nmode=0;
-  Block->work=NULL;
-  
-  /* 1 : model.sim  */
-  
-  /* input ports      */
-  /* 2 : model.in     */
-  /* 3 : model.in2    */
-  /* 4 : model.intyp  */
-       /**** ModelDim2BlkPort ***/
-  
-  /* output ports     */
-  /* 5 : model.out    */
-  /* 6 : model.out2   */
-  /* 7 : model.outtyp */
-       /**** ModelDim2BlkPort ***/
-  
-  /* event input port */
-  /* 8 : model.evtin  */
-
-  /* event output port  */
-  /* 9 : model.evtout   */
-  /* 17 : model.firing  */
-       /**** scicos_scitod ***/
-  
-  /* continuous state  */
-  /* 10 : model.state  */
-       /**** scicos_scitod ***/
-
-  /* discrete state  */
-  /* 11 : model.dstate  */
-       /**** scicos_scitod ***/
-  
-  /* discrete object state  */
-  /* 12 : model.odstate  */
-       /**** ModelHash2BlkTData ***/
-  
-  /* real parameters */
-  /* 13 : model.rpar  */
-       /**** scicos_scitod ***/
-  
-  /* integer parameters */
-  /* 14 : model.ipar  */
-       /**** scicos_scitoi ***/
-  
-  /* object parameters */
-  /* 15 : model.opar  */
-       /**** ModelHash2BlkTData ***/
-  
-  /* labels */
-  /* 19 : model.label  */
-  
-  /* zero crossing */
-  /* 20 : model.nzcross  */
-  
-  /* mode */
-  /* 21 : model.nmode  */
-  
-  /* work */
-  
-  return OK;
-}
-
 /* unalloc a C scicos block struct
  *
  */
@@ -1151,6 +1055,178 @@ void unalloc_block(scicos_block *Block)
   if (Block->nmode!=0) {
     FREE(Block->mode);
   }
+}
+
+/*
+ * fill a scicos_block structure 
+ * with pointers from the Hash table Model
+ *
+ */
+
+static int scicos_fill_model(NspHash *Model,scicos_block *Block)
+{
+  NspObject *obj;
+  int i,funtyp=0;
+
+  char *model[]={"sim","in","in2","intyp","out","out2","outtyp",
+                 "evtin","evtout","state","dstate","odstate","rpar","ipar","opar",
+                 "blocktype","firing","dep_ut","label","nzcross","nmode","equations"};
+
+  const int nmodel=22;
+  
+  for (i =0;i<nmodel;i++) {
+    if (nsp_hash_find(Model,model[i],&obj)==FAIL) return FAIL;
+  }
+
+  /* minimal block list structure allocation */
+  Block->type=0;
+  Block->nin=0;
+  Block->nout=0;
+  Block->nevout=0;
+  Block->nx=0;
+  Block->nz=0;
+  Block->noz=0;
+  Block->nrpar=0;
+  Block->nipar=0;
+  Block->nopar=0;
+  Block->label="";
+  Block->ng=0;
+  Block->nmode=0;
+  Block->work=NULL;
+  
+  /* 1 : model.sim  */
+  nsp_hash_find(Model,model[0],&obj);
+  if (IsList(obj)) {
+    NspMatrix *M;
+    M = (NspMatrix *) nsp_list_get_element((NspList *)obj,2);
+    funtyp = (int) M->R[0];
+    obj = nsp_list_get_element((NspList *)obj,1);
+  } else {
+    funtyp = 0;
+  }
+  Sciprintf("Info: simulation type %d:\n",funtyp);
+  Block->type = (funtyp < 10000) ? (funtyp % 1000) : funtyp % 1000 + 10000;
+  Sciprintf("Info: after modif: %d\n",Block->type);
+
+  if (IsString(obj)) {
+    void *fptr=scicos_get_function (((NspSMatrix *) obj)->S[0]);
+    Sciprintf("Info: Searching block simulation fn %s: %s\n",
+             ((NspSMatrix *) obj)->S[0],
+             (fptr != NULL) ? "found": "not found, assuming macro");
+    if (fptr!=NULL) {
+      /* a hard code function given by its adress */
+      Block->scsptr = NULL;
+      Block->scsptr_flag = fun_pointer;
+      Block->funpt  = fptr;
+    } else {
+      /* a macros given ny its name */
+      Block->scsptr_flag = fun_macro_name;
+      Block->scsptr = ((NspSMatrix *) obj)->S[0];
+    }
+  }
+  else if (IsNspPList(obj)) {
+    /* a macro given by a pointer to its code */
+    Block->scsptr_flag = fun_macros;
+    Block->scsptr = obj;
+  } else {
+    Scierror("Simulation function should be a plist or a string.\n");
+    goto err;
+  }
+ 
+  if (Block->scsptr_flag != fun_pointer) {
+    switch (funtyp)
+    {
+      case 0:
+        Block->funpt = scicos_sciblk;
+        break;
+      case 1:
+      case 2:
+        Scierror("Error: block type %d function not allowed for scilab blocks\n",funtyp);
+        goto err;
+      case 3:
+        Block->funpt = scicos_sciblk2;
+        Block->type = 2;
+        break;
+      case 5:
+        Block->funpt = scicos_sciblk4;
+        Block->type = 4;
+        break;
+      case 99: /* debugging block */
+        Block->funpt = scicos_sciblk4;
+        Block->type = 4;
+        /* TODO */
+        /* scsim->debug_block = kf; */
+        break;
+      case 10005:
+        Block->funpt = scicos_sciblk4;
+        Block->type = 10004;
+        break;
+      default:
+        Scierror ("Error:block, Undefined Function type %d\n",funtyp);
+        goto err;
+    }
+  }
+  
+  /* input ports      */
+  /* 2 : model.in     */
+  /* 3 : model.in2    */
+  /* 4 : model.intyp  */
+       /**** ModelDim2BlkPort ***/
+  
+  /* output ports     */
+  /* 5 : model.out    */
+  /* 6 : model.out2   */
+  /* 7 : model.outtyp */
+       /**** ModelDim2BlkPort ***/
+  
+  /* event input port */
+  /* 8 : model.evtin  */
+
+  /* event output port  */
+  /* 9 : model.evtout   */
+  /* 17 : model.firing  */
+       /**** scicos_scitod ***/
+  
+  /* continuous state  */
+  /* 10 : model.state  */
+       /**** scicos_scitod ***/
+
+  /* discrete state  */
+  /* 11 : model.dstate  */
+       /**** scicos_scitod ***/
+  
+  /* discrete object state  */
+  /* 12 : model.odstate  */
+       /**** ModelHash2BlkTData ***/
+  
+  /* real parameters */
+  /* 13 : model.rpar  */
+       /**** scicos_scitod ***/
+  
+  /* integer parameters */
+  /* 14 : model.ipar  */
+       /**** scicos_scitoi ***/
+  
+  /* object parameters */
+  /* 15 : model.opar  */
+       /**** ModelHash2BlkTData ***/
+  
+  /* labels */
+  /* 19 : model.label  */
+  
+  /* zero crossing */
+  /* 20 : model.nzcross  */
+  
+  /* mode */
+  /* 21 : model.nmode  */
+  
+  /* work */
+  
+  return OK;
+  
+  err :
+    unalloc_block(Block);
+    return FAIL;
 }
 
 extern NspHash *createblklist(double time, scicos_block *Block);

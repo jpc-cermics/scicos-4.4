@@ -664,7 +664,12 @@ NspHash *createblklist(double time, scicos_block *Block)
     goto err;
   if ((Hel[p++] = scicos_itosci("type", &Block->type, 1, 1)) == NULL)
     goto err;
-  /* if ((Hel[p++]=   scicos_itosci(&Block->scsptr,0,1))== NULL) goto err; */
+  if ((Hel[p++]=   scicos_itosci("scsptr",(int *)&Block->scsptr,1,1))== NULL)
+    goto err;
+  if ((Hel[p++]=   scicos_itosci("scsptr_flag", (int *)&Block->scsptr_flag,1,1))== NULL)
+    goto err;
+  if ((Hel[p++]=   scicos_itosci("funpt",(int *)&Block->funpt,1,1))== NULL)
+    goto err;
   /* if ((Hel[p++]=   scicos_itosci("nz",&Block->nz,1,1))== NULL) goto err; */
   if (Block->scsptr_flag == fun_pointer) {
     if ((Hel[p++] = scicos_dtosci("z", Block->z, Block->nz, 1,'r')) == NULL)
@@ -862,7 +867,7 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
         if (Blocks->scsptr_flag == fun_pointer) {
           scicos_scitod (Blocks->z, Blocks->nz, 1, Ob);
         } else {
-        if (scicos_obj_to_mserial (Blocks->z, Blocks->nz, Ob) == FAIL) goto err;
+          if (scicos_obj_to_mserial (Blocks->z, Blocks->nz, Ob) == FAIL) goto err;
         }
       }
       /* oz */
