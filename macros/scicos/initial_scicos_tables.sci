@@ -202,6 +202,9 @@ function [%scicos_short, %scicos_help, ...
   //Scicos Modelica librabry path definitions==============================
   
   modelica_libs=scicospath+'/macros/blocks/'+['ModElectrical','ModHydraulics','ModLinear'];
+  if exists('coselica_path') then
+    modelica_libs=[modelica_libs,file('join',[coselica_path,'macros'])];
+  end
 
   //add TMPDIR/Modelica for generic modelica blocks
   rpat=getenv('NSP_TMPDIR')+'/Modelica";

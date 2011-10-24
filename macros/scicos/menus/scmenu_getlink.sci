@@ -101,22 +101,22 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     [m,kp1]=min((yc1-yout).^2+(xc1-xout).^2)
     k=kp1
     xo=xout(k);yo=yout(k);typo=typout(k)
-    if typo==1|typo==3 then
+    if typo==1|typo==3 then //regular and buses output port
       port_number=k
-      if op(port_number)<>0 then
-        hilite_obj(kfrom)
-	message('selected port is already connected')
-        unhilite_obj(kfrom)
+      if isempty(port_number) || op(port_number)<>0 then
+        //hilite_obj(kfrom)
+	// message('selected port is already connected')
+        //unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
       typpfrom='out'
     elseif (typo==2 & k<=size(op,'*')) then //implicit  output port
       port_number=k
-      if op(port_number)<>0 then
-        hilite_obj(kfrom)
-	message('selected port is already connected')
-        unhilite_obj(kfrom)
+      if isempty(port_number) || op(port_number)<>0 then
+        //hilite_obj(kfrom)
+	//message('selected port is already connected')
+        //unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
@@ -124,22 +124,26 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     elseif (typo==2 & k>size(op,'*')+size(cop,'*')) then //implicit  input port
       typpfrom='in' 
       k=k-size(op,'*')-size(cop,'*')
-//      port_number=k,//out port
-      port_number=i_ImplIndx(k)
-      if impi(port_number)<>0 then
-        hilite_obj(kfrom)
-	message('selected port is already connected'),
-        unhilite_obj(kfrom)
+      //      port_number=k,//out port
+      if isempty(i_ImplIndx) then 
+	port_number=[];
+      else
+	port_number=i_ImplIndx(k)
+      end
+      if isempty(port_number) || impi(port_number)<>0 then
+        //hilite_obj(kfrom)
+	//message('selected port is already connected'),
+        //unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
       typpfrom='in'
-    else
+    else //event output port
       port_number=k-size(op,'*') //k-prod(size(find(typout==1)))
-      if cop(port_number)<>0 then
-        hilite_obj(kfrom)
-	message('selected port is already connected'),
-        unhilite_obj(kfrom)
+      if  cop(port_number)<>0 then
+        //hilite_obj(kfrom)
+	//message('selected port is already connected'),
+        //unhilite_obj(kfrom)
 	xset('color',dash)
 	return
       end
@@ -251,9 +255,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       end
       if typi==1|typi==3 then
 	port_number=k
-	if ip(port_number)<>0 then
+	if  ip(port_number)<>0 then
           hilite_obj(kto)
-	  message('selected port is already connected'),
+	  //message('selected port is already connected'),
           unhilite_obj(kto)
           F.draw_latter[];
 	  F.remove[C];
@@ -314,9 +318,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         end
       elseif (typi==2 & k<=size(ip,'*')) then //implicit "input" port
 	port_number=k
-	if ip(port_number)<>0 then
+	if  ip(port_number)<>0 then
           hilite_obj(kto)
-	  message('selected port is already connected')
+	  //message('selected port is already connected')
           unhilite_obj(kto)
           F.draw_latter[];
 	  F.remove[C];
@@ -336,10 +340,14 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	k=k-size(ip,'*')-size(cip,'*')
 	typpto='out'
 	//port_number=k
-        port_number=o_ImplIndx(k)
-	if impo(port_number)<>0 then
+	if isempty(o_ImplIndx) then 
+	  port_number=[];
+	else
+	  port_number=o_ImplIndx(k)
+	end
+	if isempty(port_number) || impo(port_number)<>0 then
           hilite_obj(kto)
-	  message('selected port is already connected')
+	  //message('selected port is already connected')
           unhilite_obj(kto)
           F.draw_latter[];
 	  F.remove[C];
@@ -359,7 +367,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	port_number=k-size(ip,'*')  //port_number=k-prod(size(find(typin==1)))
 	if cip(port_number)<>0 then
           hilite_obj(kto)
-	  message('selected port is already connected'),
+	  //message('selected port is already connected'),
           unhilite_obj(kto)
           F.draw_latter[];
 	  F.remove[C];

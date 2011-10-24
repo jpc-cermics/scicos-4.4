@@ -428,6 +428,9 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       // to use do_compile outside of scicos
       modelica_libs=get_scicospath()+'/macros/blocks/'+...
 	  ['ModElectrical','ModHydraulics','ModLinear'];
+      if exists('coselica_path') then
+	modelica_libs=[modelica_libs,file('join',[coselica_path,'macros'])];
+      end
     end
     mlibs=modelica_libs;
     mlibsM=file('join',[tmpdir;'Modelica']);
@@ -504,7 +507,6 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
 	overwrite=1;//yes
       end        
     end
-
     commandok=%t;
     if ~(overwrite==2) then 
       // run translator 
@@ -527,7 +529,6 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       nx_ns=0;nin=0;nout=0;nm=0;ng=0;
       return
     end
-    
     if (%Modelica_Init) then 
       //---------------------------
       printf('%s',' Init XML file : '+xmlfile); printf('\n\r');
@@ -558,8 +559,8 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     //---------------------------------------------------------------------
     if ~file("exists",Flat_functions) then,
       Flat_functions=m2s([]); 
-    else
-      Flat_functions='""'+Flat_functions+'""';
+      //else
+      // Flat_functions='""'+Flat_functions+'""';
     end
     XMLfiles=m2s([]);
     if ((running=="1" )& (file("exists",xmlfile))) then // if GUI is running
