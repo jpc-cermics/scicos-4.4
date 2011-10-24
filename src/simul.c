@@ -302,6 +302,47 @@ NspHash *scicos_get_state_copy (scicos_sim * scst)
 }
 
 /*
+ * scicos_get_scsptr
+ *
+ * input :
+ *  obj
+ *
+ * output :
+ *  funflag
+ *  funptr
+ *
+ * Return OK or FAIL
+ */
+
+int scicos_get_scsptr(NspObject *obj, scicos_funflag *funflag, void **funptr)
+{
+  if (IsString(obj)) {
+    void *fptr=scicos_get_function (((NspSMatrix *) obj)->S[0]);
+    Sciprintf("Info: Searching block simulation fn %s: %s\n",
+             ((NspSMatrix *) obj)->S[0],
+             (fptr != NULL) ? "found": "not found, assuming macro");
+    if (fptr!=NULL) {
+      /* a hard code function given by its adress */
+      *funflag = fun_pointer;
+      *funptr  = fptr;
+    } else {
+      /* a macros given ny its name */
+      *funflag = fun_macro_name;
+      *funptr  = (void *) ((NspSMatrix *) obj)->S[0];
+    }
+  }
+  else if (IsNspPList(obj)) {
+    /* a macro given by a pointer to its code */
+    *funflag = fun_macros;
+    *funptr = (void *)obj;
+  } else {
+    Scierror("Simulation function should be a plist or a string.\n");
+    return FAIL;
+  }
+  return OK;
+}
+
+/*
  * fill a scicos_sim structure 
  * with pointers from the Hash table Sim 
  */
@@ -390,43 +431,14 @@ static int scicos_fill_sim (NspHash * Sim, scicos_sim * scsim)
     {
       if (cloc->O != NULLOBJ)
 	{
-	  if (count >= scsim->nblk)
-	    {
-	      Scierror ("Error: funs length should be %d\n", scsim->nblk);
-	      goto fail;
-	    }
-	  if (IsString (cloc->O))
-	    {
-	      void *fptr =
-		scicos_get_function (((NspSMatrix *) cloc->O)->S[0]);
-	      Sciprintf("Info: Searching block simulation fn %s: %s\n",
-			((NspSMatrix *) cloc->O)->S[0],
-			( fptr != NULL) ? "found": "not found, assuming macro");
-	      
-	      if (fptr != NULL)
-		{
-		  /* a hard code function given by its adress */
-		  scsim->funflag[count] = fun_pointer;
-		  scsim->funptr[count] = fptr;
-		}
-	      else
-		{
-		  /* a macros given ny its name */
-		  scsim->funflag[count] = fun_macro_name;
-		  scsim->funptr[count] = ((NspSMatrix *) cloc->O)->S[0];
-		}
-	    }
-	  else if (IsNspPList (cloc->O))
-	    {
-	      /* a macro given by a pointer to its code */
-	      scsim->funflag[count] = fun_macros;
-	      scsim->funptr[count] = cloc->O;
-	    }
-	  else
-	    {
-	      Scierror ("Error: funs should contain strings or macros\n");
-	      goto fail;
-	    }
+	  if (count >= scsim->nblk) {
+            Scierror ("Error: funs length should be %d\n", scsim->nblk);
+	    goto fail;
+	  }
+          if ((scicos_get_scsptr(cloc->O,
+                                 (scicos_funflag *) &scsim->funflag[count],
+                                 &scsim->funptr[count]))==FAIL)
+	    goto fail;
 	}
       count++;
       cloc = cloc->next;
@@ -573,6 +585,74 @@ NspHash *scicos_get_sim_copy (scicos_sim * scsim)
 }
 
 /*
+ * scicos_find_scsptr
+ *
+ * input :
+ *   Block
+ *   funtyp
+ *   funflag
+ *   funptr
+ *
+ * adjust :
+ *   Block.type
+ *   Block.scsptr
+ *   Block.scsptr_flag
+ *   Block.funpt
+ *
+ * return : OK or FAIL
+ *
+ */
+int scicos_update_scsptr(scicos_block *Block, int funtyp, scicos_funflag funflag, void * funptr)
+{
+  int b_type = funtyp;
+  Sciprintf("Info: simulation type %d:\n",b_type);
+  Block->type = (b_type < 10000) ? (b_type % 1000) : b_type % 1000 + 10000;
+  Sciprintf("Info: after modif: %d\n",Block->type);
+
+  if (funflag == fun_pointer) {
+    Block->scsptr = NULL;
+    Block->scsptr_flag = funflag;
+    Block->funpt = funptr;
+  } else {
+    /* a NspObject containing a macro or a macro name */
+    Block->scsptr = funptr;
+    Block->scsptr_flag = funflag;
+    /* the function is a macro or it is a Debug block */
+    switch (funtyp)
+    {
+      case 0:
+        Block->funpt = scicos_sciblk;
+        break;
+       case 1:
+       case 2:
+         Scierror("Error: block, type %d function not allowed for scilab blocks\n",funtyp);
+         return FAIL;
+       case 3:
+         Block->funpt = scicos_sciblk2;
+         Block->type = 2;
+         break;
+       case 5:
+         Block->funpt = scicos_sciblk4;
+         Block->type = 4;
+         break;
+       case 99:  /* debugging block */
+         Block->funpt = scicos_sciblk4;
+         Block->type = 4;
+	 /*scsim->debug_block = kf;*/
+       break;
+         case 10005:
+	   Block->funpt = scicos_sciblk4;
+	   Block->type = 10004;
+	   break;
+       default:
+         Scierror("Error:block, Undefined Function type %d\n",funtyp);
+	 return FAIL;
+    }
+  }
+  return OK;
+}
+
+/*
  * creates and fills an array of Blocks.
  */
 
@@ -589,59 +669,15 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
 
   for (kf = 0; kf < scsim->nblk; ++kf)
     {
-      int b_type = scsim->funtyp[kf];
-      Sciprintf("Info: simulation type %d:\n",b_type);
-      Blocks[kf].type =
-	(b_type < 10000) ? (b_type % 1000) : b_type % 1000 + 10000;
-      Sciprintf("Info: after modif: %d\n",Blocks[kf].type);
-      if (scsim->funflag[kf] == fun_pointer)
-	{
-	  Blocks[kf].scsptr = NULL;
-	  Blocks[kf].scsptr_flag = scsim->funflag[kf];
-	  Blocks[kf].funpt = scsim->funptr[kf];
-	}
-      else
-	{
-	  /* a NspObject containing a macro or a macro name */
-	  Blocks[kf].scsptr = scsim->funptr[kf];
-	  Blocks[kf].scsptr_flag = scsim->funflag[kf];
-	  /* the function is a macro or it is a Debug block */
-	  switch (scsim->funtyp[kf])
-	    {
-	    case 0:
-	      Blocks[kf].funpt = scicos_sciblk;
-	      break;
-	    case 1:
-	    case 2:
-	      Scierror
-		("Error: block %d, type %d function not allowed for scilab blocks\n",
-		 kf + 1, scsim->funtyp[kf]);
-	      scicos_clear_blocks (Blocks, kf + 1);
-	      return NULL;
-	    case 3:
-	      Blocks[kf].funpt = scicos_sciblk2;
-	      Blocks[kf].type = 2;
-	      break;
-	    case 5:
-	      Blocks[kf].funpt = scicos_sciblk4;
-	      Blocks[kf].type = 4;
-	      break;
-	    case 99:		/* debugging block */
-	      Blocks[kf].funpt = scicos_sciblk4;
-	      Blocks[kf].type = 4;
-	      scsim->debug_block = kf;
-	      break;
-	    case 10005:
-	      Blocks[kf].funpt = scicos_sciblk4;
-	      Blocks[kf].type = 10004;
-	      break;
-	    default:
-	      Scierror ("Error:block %d, Undefined Function type %d\n",
-			kf + 1, scsim->funtyp[kf]);
-	      scicos_clear_blocks (Blocks, kf + 1);
-	      return NULL;
-	    }
-	}
+      if ( (scicos_update_scsptr(&Blocks[kf], scsim->funtyp[kf],
+                               scsim->funflag[kf], scsim->funptr[kf])) == FAIL ) {
+        scicos_clear_blocks (Blocks, kf + 1);
+        return NULL;
+      }
+
+      /* debugging block */
+      if (scsim->funtyp[kf]==99) scsim->debug_block = kf;
+
       Blocks[kf].ztyp = scsim->ztyp[kf];
       Blocks[kf].nx = scsim->xptr[kf + 1] - scsim->xptr[kf];
       Blocks[kf].ng = scsim->zcptr[kf + 1] - scsim->zcptr[kf];

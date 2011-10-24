@@ -1057,6 +1057,9 @@ void unalloc_block(scicos_block *Block)
   }
 }
 
+extern int scicos_update_scsptr(scicos_block *Block, int funtyp, scicos_funflag funflag, void * funptr);
+extern int scicos_get_scsptr(NspObject *obj, scicos_funflag *funflag, void **funptr);
+
 /*
  * fill a scicos_block structure 
  * with pointers from the Hash table Model
@@ -1067,6 +1070,8 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
 {
   NspObject *obj;
   int i,funtyp=0;
+  scicos_funflag funflag;
+  void *funptr;
 
   char *model[]={"sim","in","in2","intyp","out","out2","outtyp",
                  "evtin","evtout","state","dstate","odstate","rpar","ipar","opar",
@@ -1104,69 +1109,17 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   } else {
     funtyp = 0;
   }
-  Sciprintf("Info: simulation type %d:\n",funtyp);
-  Block->type = (funtyp < 10000) ? (funtyp % 1000) : funtyp % 1000 + 10000;
-  Sciprintf("Info: after modif: %d\n",Block->type);
-
-  if (IsString(obj)) {
-    void *fptr=scicos_get_function (((NspSMatrix *) obj)->S[0]);
-    Sciprintf("Info: Searching block simulation fn %s: %s\n",
-             ((NspSMatrix *) obj)->S[0],
-             (fptr != NULL) ? "found": "not found, assuming macro");
-    if (fptr!=NULL) {
-      /* a hard code function given by its adress */
-      Block->scsptr = NULL;
-      Block->scsptr_flag = fun_pointer;
-      Block->funpt  = fptr;
-    } else {
-      /* a macros given ny its name */
-      Block->scsptr_flag = fun_macro_name;
-      Block->scsptr = ((NspSMatrix *) obj)->S[0];
-    }
-  }
-  else if (IsNspPList(obj)) {
-    /* a macro given by a pointer to its code */
-    Block->scsptr_flag = fun_macros;
-    Block->scsptr = obj;
-  } else {
-    Scierror("Simulation function should be a plist or a string.\n");
-    goto err;
-  }
- 
-  if (Block->scsptr_flag != fun_pointer) {
-    switch (funtyp)
-    {
-      case 0:
-        Block->funpt = scicos_sciblk;
-        break;
-      case 1:
-      case 2:
-        Scierror("Error: block type %d function not allowed for scilab blocks\n",funtyp);
-        goto err;
-      case 3:
-        Block->funpt = scicos_sciblk2;
-        Block->type = 2;
-        break;
-      case 5:
-        Block->funpt = scicos_sciblk4;
-        Block->type = 4;
-        break;
-      case 99: /* debugging block */
-        Block->funpt = scicos_sciblk4;
-        Block->type = 4;
-        /* TODO */
-        /* scsim->debug_block = kf; */
-        break;
-      case 10005:
-        Block->funpt = scicos_sciblk4;
-        Block->type = 10004;
-        break;
-      default:
-        Scierror ("Error:block, Undefined Function type %d\n",funtyp);
-        goto err;
-    }
-  }
   
+  if ((scicos_get_scsptr(obj,&funflag,&funptr)) == FAIL)
+    goto err;
+
+  if ((scicos_update_scsptr(Block, funtyp, funflag, funptr)) == FAIL)
+    goto err;
+        
+  /* TODO */
+  /* debugging block */
+  /*if (funtyp==99) scsim->debug_block = kf;*/
+
   /* input ports      */
   /* 2 : model.in     */
   /* 3 : model.in2    */
