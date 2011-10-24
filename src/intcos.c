@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2005-2011 Jean-Philippe Chancelier Enpc/Cermics
+ * Copyright (C) 2005-2011 Jean-Philippe Chancelier Enpc/Cermics, Alan
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -969,12 +969,161 @@ static int int_coserror(Stack stack, int rhs, int opt, int lhs)
 }
 
 /*
+ * scicos_moddimtoblkport : allocate scicos C block in/out ports
+ * from a scicos nsp model in/out ports definition
+ *
+ * input :
+ *   NspMatrix *Dim1  : model.in/out
+ *   NspMatrix *Dim2  : model.in2/out2
+ *   NspMatrix *Typ   : model.intyp/outtyp
+ *   const char *name : "in" or "out" -for error message-
+ *
+ * output :
+ *   int *n      : allocated block.nin/nout
+ *   int **sz    : allocated block.insz/outsz
+ *   void ***ptr : allocated block.inptr/outptr
+ *
+ * Return OK or FAIL
  *
  */
 
-static int ModelDim2BlkPort(NspMatrix *Dim1,NspMatrix *Dim2,NspMatrix *Typ,void *n,void *sz,void *ptr)
+static int scicos_moddimtoblkport(NspMatrix *Dim1,
+                                  NspMatrix *Dim2,
+                                  NspMatrix *Typ,
+                                  int *n,
+                                  int **sz,
+                                  void ***ptr,
+                                  const char *name)
 {
+  int blk_n=0;
+  int *blk_sz=NULL;
+  void **blk_ptr=NULL;
+  int i,j;
   
+  if (Dim1->mn==0) {
+    *n=blk_n;
+    *sz=blk_sz;
+    *ptr=blk_ptr;
+    return OK;
+  }
+  
+  if ( (Dim1->mn!=Dim2->mn) || (Dim1->mn!=Typ->mn) ) {
+    Scierror("Cross size checking not ok for model.%s, model.%s2, model.%styp.\n",name,name,name);
+    return FAIL;
+  } else {
+    Sciprintf("Cross size checking ok for model.(%s,%s2,%styp)!\n",name,name,name);
+    for (i=0;i<Dim1->mn;i++) {
+      if (Dim1->R[i]<0) {
+        Scierror("Bad value for model.%s(%d)=%d.\n",name,i+1,(int) Dim1->R[i]);
+        return FAIL;
+      }
+      if (Dim2->R[i]<0) {
+        Scierror("Bad value for model.%s2(%d)=%d.\n",name,i+1,(int) Dim2->R[i]);
+        return FAIL;
+      }
+      if ( (Typ->R[i]!=1.) && (Typ->R[i]!=2.) && (Typ->R[i]!=3.) && (Typ->R[i]!=4.) && \
+           (Typ->R[i]!=5.) && (Typ->R[i]!=6.) && (Typ->R[i]!=7.) && (Typ->R[i]!=8.) && \
+           (Typ->R[i]!=9.) ) {
+        Scierror("Bad value for model.%styp(%d)=%d.\n",name,i+1,(int) Typ->R[i]);
+        return FAIL;
+      }
+    }
+    Sciprintf("Dims and type value ok for model.(%s,%s2,%styp)!\n",name,name,name);
+    /* blk->n allocation */
+    blk_n = Dim1->mn;
+    /* blk->sz allocation */
+    if ((blk_sz=(int *) malloc(blk_n*3*sizeof(int))) == NULL) {
+      Scierror("Allocation error for blk->%ssz.\n",name);
+      return FAIL;
+    }
+    for(i=0;i<blk_n;i++) {
+      blk_sz[i]=(int) Dim1->R[i];
+      blk_sz[blk_n+i]=(int) Dim2->R[i];
+      if (Typ->R[i]==1.) blk_sz[2*blk_n+i]=SCSREAL_N;
+      else if (Typ->R[i]==2.) blk_sz[2*blk_n+i]=SCSCOMPLEX_N;
+      else if (Typ->R[i]==3.) blk_sz[2*blk_n+i]=SCSINT32_N;
+      else if (Typ->R[i]==4.) blk_sz[2*blk_n+i]=SCSINT16_N;
+      else if (Typ->R[i]==5.) blk_sz[2*blk_n+i]=SCSINT8_N;
+      else if (Typ->R[i]==6.) blk_sz[2*blk_n+i]=SCSUINT32_N;
+      else if (Typ->R[i]==7.) blk_sz[2*blk_n+i]=SCSUINT16_N;
+      else if (Typ->R[i]==8.) blk_sz[2*blk_n+i]=SCSUINT8_N;
+      else if (Typ->R[i]==9.) blk_sz[2*blk_n+i]=SCSBOOL_N;
+    }
+    /* blk->ptr allocation */
+    if ((blk_ptr=(void **) malloc(blk_n*sizeof(void *))) == NULL) {
+      Scierror("Allocation error for blk->%sptr.\n",name);
+      return FAIL;
+    }
+    for(i=0;i<blk_n;i++) {
+      switch(blk_sz[2*blk_n+i])
+      {
+        case SCSREAL_N    :
+          if ((blk_ptr[i]=(SCSREAL_COP *) malloc((blk_sz[i]*blk_sz[blk_n+i])*sizeof(SCSREAL_COP))) == NULL) {
+            Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+            return FAIL;
+          }
+          for (j=0;j<(blk_sz[i]*blk_sz[blk_n+i]);j++) *((SCSREAL_COP *)(blk_ptr[i])+j)=0.;
+          break;
+        case SCSCOMPLEX_N :
+          if ((blk_ptr[i]=(SCSCOMPLEX_COP *) malloc((2*blk_sz[i]*blk_sz[blk_n+i])*sizeof(SCSCOMPLEX_COP))) == NULL) {
+            Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+            return FAIL;
+          }
+          for (j=0;j<2*(blk_sz[i]*blk_sz[blk_n+i]);j++) *((SCSCOMPLEX_COP *)(blk_ptr[i])+j)=0.;
+          break;
+        case SCSINT32_N   :
+          if ((blk_ptr[i]=(SCSINT32_COP *) malloc((blk_sz[i]*blk_sz[blk_n+i])*sizeof(SCSINT32_COP))) == NULL) {
+            Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+            return FAIL;
+          }
+          for (j=0;j<(blk_sz[i]*blk_sz[blk_n+i]);j++) *((SCSINT32_COP *)(blk_ptr[i])+j)=0;
+          break;
+        case SCSINT16_N   :
+          if ((blk_ptr[i]=(SCSINT16_COP *) malloc((blk_sz[i]*blk_sz[blk_n+i])*sizeof(SCSINT16_COP))) == NULL) {
+            Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+            return FAIL;
+          }
+          for (j=0;j<(blk_sz[i]*blk_sz[blk_n+i]);j++) *((SCSINT16_COP *)(blk_ptr[i])+j)=0;
+          break;
+        case SCSINT8_N    :
+          if ((blk_ptr[i]=(SCSINT8_COP *) malloc((blk_sz[i]*blk_sz[blk_n+i])*sizeof(SCSINT8_COP))) == NULL) {
+            Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+            return FAIL;
+          }
+          for (j=0;j<(blk_sz[i]*blk_sz[blk_n+i]);j++) *((SCSINT8_COP *)(blk_ptr[i])+j)=0;
+          break;
+        case SCSUINT32_N  :
+          if ((blk_ptr[i]=(SCSUINT32_COP *) malloc((blk_sz[i]*blk_sz[blk_n+i])*sizeof(SCSUINT32_COP))) == NULL) {
+            Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+            return FAIL;
+          }
+          for (j=0;j<(blk_sz[i]*blk_sz[blk_n+i]);j++) *((SCSUINT32_COP *)(blk_ptr[i])+j)=0;
+          break;
+        case SCSUINT16_N  :
+          if ((blk_ptr[i]=(SCSUINT16_COP *) malloc((blk_sz[i]*blk_sz[blk_n+i])*sizeof(SCSUINT16_COP))) == NULL) {
+            Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+            return FAIL;
+          }
+          for (j=0;j<(blk_sz[i]*blk_sz[blk_n+i]);j++) *((SCSUINT16_COP *)(blk_ptr[i])+j)=0;
+          break;
+        case SCSUINT8_N   :
+          if ((blk_ptr[i]=(SCSUINT8_COP *) malloc((blk_sz[i]*blk_sz[blk_n+i])*sizeof(SCSUINT8_COP))) == NULL) {
+            Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+            return FAIL;
+          }
+          for (j=0;j<(blk_sz[i]*blk_sz[blk_n+i]);j++) *((SCSUINT8_COP *)(blk_ptr[i])+j)=0;
+          break;
+/*        case SCSBOOL_N    :
+ *         TODO
+ *         break;
+ */
+      }
+    }
+  }
+    
+  *n=blk_n;
+  *sz=blk_sz;
+  *ptr=blk_ptr;
   return OK;
 }
 
@@ -988,10 +1137,10 @@ static int ModelHash2BlkTData(NspHash *MHash,void *n,void *sz,void *typ,void *pt
   return OK;
 }
 
-/* unalloc a C scicos block struct
+/* unalloc a single C scicos block struct
  *
  */
-void unalloc_block(scicos_block *Block)
+void scicos_unalloc_block(scicos_block *Block)
 {
   int j;
 
@@ -1069,6 +1218,9 @@ extern int scicos_get_scsptr(NspObject *obj, scicos_funflag *funflag, void **fun
 static int scicos_fill_model(NspHash *Model,scicos_block *Block)
 {
   NspObject *obj;
+  NspObject *Dim1;
+  NspObject *Dim2;
+  NspObject *Typ;
   int i,funtyp=0;
   scicos_funflag funflag;
   void *funptr;
@@ -1113,7 +1265,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   if ((scicos_get_scsptr(obj,&funflag,&funptr)) == FAIL)
     goto err;
 
-  if ((scicos_update_scsptr(Block, funtyp, funflag, funptr)) == FAIL)
+  if ((scicos_update_scsptr(Block,funtyp,funflag,funptr)) == FAIL)
     goto err;
         
   /* TODO */
@@ -1124,13 +1276,33 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   /* 2 : model.in     */
   /* 3 : model.in2    */
   /* 4 : model.intyp  */
-       /**** ModelDim2BlkPort ***/
+  nsp_hash_find(Model,model[1],&Dim1);
+  nsp_hash_find(Model,model[2],&Dim2);
+  nsp_hash_find(Model,model[3],&Typ);
+  if ((scicos_moddimtoblkport((NspMatrix *)Dim1,
+                              (NspMatrix *)Dim2,
+                              (NspMatrix *)Typ,
+                              &Block->nin,
+                              &Block->insz,
+                              &Block->inptr,
+                              "in")) == FAIL)
+    goto err;
   
   /* output ports     */
   /* 5 : model.out    */
   /* 6 : model.out2   */
   /* 7 : model.outtyp */
-       /**** ModelDim2BlkPort ***/
+  nsp_hash_find(Model,model[4],&Dim1);
+  nsp_hash_find(Model,model[5],&Dim2);
+  nsp_hash_find(Model,model[6],&Typ);
+  if ((scicos_moddimtoblkport((NspMatrix *)Dim1,
+                              (NspMatrix *)Dim2,
+                              (NspMatrix *)Typ,
+                              &Block->nout,
+                              &Block->outsz,
+                              &Block->outptr,
+                              "out")) == FAIL)
+    goto err;
   
   /* event input port */
   /* 8 : model.evtin  */
@@ -1178,7 +1350,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   return OK;
   
   err :
-    unalloc_block(Block);
+    scicos_unalloc_block(Block);
     return FAIL;
 }
 
@@ -1208,10 +1380,10 @@ static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
     return RET_BUG;
   }
   if ((HModel = createblklist(time, &Block))==NULL) {
-    unalloc_block(&Block);
+    scicos_unalloc_block(&Block);
     return RET_BUG;
   }
-  unalloc_block(&Block);
+  scicos_unalloc_block(&Block);
   MoveObj(stack,1,NSP_OBJECT(HModel));
   return Max(lhs,1);
 }
