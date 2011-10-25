@@ -28,6 +28,7 @@
 #include <nsp/hash.h>
 #include <nsp/list.h>
 #include <nsp/plist.h>
+#include <nsp/serial.h>
 #include <nsp/cells.h>
 #include <nsp/graphic.h>
 #include <nsp/interf.h>
@@ -1128,12 +1129,181 @@ static int scicos_moddimtoblkport(NspMatrix *Dim1,
 }
 
 /*
+ * scicos_modlisttoblktdata : allocate scicos C block typed data
+ * from a scicos nsp list definition
+ *
+ * input :
+ *   NspObject *Obj : a nsp list
+ *   const char *name : "in" or "out" -for error message-
+ *
+ * output :
+ *   int *n      : allocated block.npar
+ *   int **sz    : allocated block.sz
+ *   int **typ   : allocated block.typ
+ *   void ***ptr : allocated block.ptr
+ *
+ * Return OK or FAIL
  *
  */
 
-static int ModelHash2BlkTData(NspHash *MHash,void *n,void *sz,void *typ,void *ptr)
+static int scicos_modlisttoblktdata(NspObject *Obj,
+                                    int *n,
+                                    int **sz,
+                                    int **typ,
+                                    void ***ptr,
+                                    const char *name) 
 {
+  int blk_n=0;
+  int *blk_sz=NULL;
+  int *blk_typ=NULL;
+  void **blk_ptr=NULL;
+  NspList *L = (NspList *) Obj;
+  int i,nel;
   
+  *n=blk_n;
+  *sz=blk_sz; 
+  *typ=blk_typ;
+  *ptr=blk_ptr;
+  nel=L->nel;
+
+  if (nel!=0) {
+    for(i=nel-1;i>=0;i--) {
+      NspObject *elt = nsp_list_get_element(L, i+1);
+      if ( !(IsIMat(elt)) &&  !(IsMat(elt)) ) {
+        Scierror("Bad object for model.%s(%d).\n",name,i+1);
+        return FAIL;
+      }
+    }
+    Sciprintf("Object type are ok for model.%s!\n",name);
+    /* blk_n allocation */
+    blk_n=nel;
+    /* blk_sz allocation */
+    if ((blk_sz=(int *) malloc(blk_n*2*sizeof(int))) == NULL) {
+      Scierror("Allocation error for blk->%ssz.\n",name);
+      return FAIL;
+    }
+    /* blk_typ allocation */
+    if ((blk_typ=(int *) malloc(blk_n*sizeof(int))) == NULL) {
+      Scierror("Allocation error for blk->%styp.\n",name);
+      return FAIL;
+    }
+    /* blk_ptr allocation */
+    if ((blk_ptr=(void **) malloc(blk_n*sizeof(void *))) == NULL) {
+      Scierror("Allocation error for blk->%sptr.\n",name);
+      return FAIL;
+    }
+    for(i=nel-1;i>=0;i--) {
+      NspObject *elt = nsp_list_get_element(L, i+1);
+      if (IsMat(elt)) {
+        NspMatrix *M = (NspMatrix *) elt;
+        blk_sz[i]=M->m;
+        blk_sz[i+blk_n]=M->n;
+        switch (M->rc_type)
+        {
+          case 'c' :
+            if ((blk_ptr[i]=(SCSCOMPLEX_COP *) malloc(2*M->mn*sizeof(SCSCOMPLEX_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSCOMPLEX_N;
+            memcpy((SCSCOMPLEX_COP *)blk_ptr[i], (double *)M->R, 2*M->mn*sizeof(SCSCOMPLEX_COP));
+            break;
+          case 'r' :
+            if ((blk_ptr[i]=(SCSREAL_COP *) malloc(M->mn*sizeof(SCSREAL_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSREAL_N;
+            memcpy((SCSREAL_COP *)blk_ptr[i], (double *)M->R, M->mn*sizeof(SCSREAL_COP));
+            break;
+          default  :
+            Scierror("Bad matrix type for model.%s(%d).\n",name,i+1);
+            return FAIL;
+        }
+      } else {
+        NspIMatrix *M = (NspIMatrix *) elt;
+        blk_sz[i]=M->m;
+        blk_sz[i+blk_n]=M->n;
+        switch (M->itype)
+        {
+          case nsp_gint    :
+            if ((blk_ptr[i]=(SCSINT_COP *) malloc(M->mn*sizeof(SCSINT_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSINT_N;
+	    memcpy((SCSINT_COP *) blk_ptr[i], (gint *) M->Gint, M->mn*sizeof(SCSINT_COP));
+            break;
+          case nsp_gint8   :
+            if ((blk_ptr[i]=(SCSINT8_COP *) malloc(M->mn*sizeof(SCSINT8_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSINT8_N;
+	    memcpy((SCSINT8_COP *) blk_ptr[i], (gint8 *) M->Gint, M->mn*sizeof(SCSINT8_COP));
+            break;
+          case nsp_gint16  :
+            if ((blk_ptr[i]=(SCSINT16_COP *) malloc(M->mn*sizeof(SCSINT16_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSINT16_N;
+	    memcpy((SCSINT16_COP *) blk_ptr[i], (gint16 *) M->Gint, M->mn*sizeof(SCSINT16_COP));
+            break;
+          case nsp_gint32  :
+            if ((blk_ptr[i]=(SCSINT32_COP *) malloc(M->mn*sizeof(SCSINT32_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSINT32_N;
+	    memcpy((SCSINT32_COP *) blk_ptr[i], (gint32 *) M->Gint, M->mn*sizeof(SCSINT32_COP));
+            break;
+          case nsp_guint   :
+            if ((blk_ptr[i]=(SCSUINT_COP *) malloc(M->mn*sizeof(SCSUINT_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSUINT_N;
+	    memcpy((SCSUINT_COP *) blk_ptr[i], (guint *) M->Gint, M->mn*sizeof(SCSUINT_COP));
+            break;
+          case nsp_guint8  :
+            if ((blk_ptr[i]=(SCSUINT8_COP *) malloc(M->mn*sizeof(SCSUINT8_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSUINT8_N;
+	    memcpy((SCSINT_COP *) blk_ptr[i], (guint8 *) M->Gint, M->mn*sizeof(SCSINT_COP));
+            break;
+          case nsp_guint16 :
+            if ((blk_ptr[i]=(SCSUINT16_COP *) malloc(M->mn*sizeof(SCSUINT16_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSUINT16_N;
+	    memcpy((SCSUINT16_COP *) blk_ptr[i], (guint16 *) M->Gint, M->mn*sizeof(SCSUINT16_COP));
+            break;
+          case nsp_guint32 :
+            if ((blk_ptr[i]=(SCSUINT32_COP *) malloc(M->mn*sizeof(SCSUINT32_COP))) == NULL) {
+              Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
+              return FAIL;
+            }
+            blk_typ[i]=SCSUINT32_N;
+	    memcpy((SCSUINT32_COP *) blk_ptr[i], (guint32 *) M->Gint, M->mn*sizeof(SCSUINT32_COP));
+            break;
+          default          :
+            Scierror("Bad imatrix type for model.%s(%d).\n",name,i+1);
+            return FAIL;
+        }
+      } 
+    }
+    /*   FONCTIONNEPAS!! */
+    /*   scicos_list_to_vars(blk_ptr, blk_n, blk_sz, &blk_sz[blk_n], blk_typ,Obj); */
+  }
+
+  *n=blk_n;
+  *sz=blk_sz; 
+  *typ=blk_typ;
+  *ptr=blk_ptr;
   return OK;
 }
 
@@ -1221,6 +1391,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   NspObject *Dim1;
   NspObject *Dim2;
   NspObject *Typ;
+  NspMatrix *M,*M2;
   int i,funtyp=0;
   scicos_funflag funflag;
   void *funptr;
@@ -1310,19 +1481,112 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   /* event output port  */
   /* 9 : model.evtout   */
   /* 17 : model.firing  */
-       /**** scicos_scitod ***/
+  nsp_hash_find(Model,model[8],&obj);
+  M=(NspMatrix *)obj;
+  nsp_hash_find(Model,model[16],&obj);
+  M2=(NspMatrix *)obj;
+  Block->nevout=M->mn;
+  Block->evout=NULL;
+  if (M->mn!=0) {
+    if ((Block->evout=(double *) malloc(Block->nevout*sizeof(double)))==NULL)
+      goto err;
+    if (M->mn==M2->mn) {
+      for(i=0;i<Block->nevout;i++) {
+        Block->evout[i]=M2->R[i];
+      }
+    }
+    else {
+      for(i=0;i<Block->nevout;i++) {
+        Block->evout[i]=-1.;
+      }
+    }
+  }
   
   /* continuous state  */
   /* 10 : model.state  */
-       /**** scicos_scitod ***/
-
+  nsp_hash_find(Model,model[9],&obj);
+  M=(NspMatrix *)obj;
+  Block->nx=M->mn;
+  Block->x=NULL;
+  Block->xd=NULL;
+  Block->res=NULL;
+  Block->xprop=NULL;
+  if (M->mn!=0) {
+    if ((Block->x=(double *) malloc(Block->nx*sizeof(double)))==NULL)
+      goto err;
+    if ((Block->xd=(double *) malloc(Block->nx*sizeof(double)))==NULL)
+      goto err;
+    if ((Block->res=(double *) malloc(Block->nx*sizeof(double)))==NULL)
+      goto err;
+    if ((Block->xprop=(int *) malloc(Block->nx*sizeof(int)))==NULL)
+      goto err;
+    for(i=0;i<Block->nx;i++) Block->x[i]=M->R[i];
+    for(i=0;i<Block->nx;i++) Block->xd[i]=0.;
+    for(i=0;i<Block->nx;i++) Block->res[i]=0.;
+    for(i=0;i<Block->nx;i++) Block->xprop[i]=1;
+  }
+  
   /* discrete state  */
   /* 11 : model.dstate  */
-       /**** scicos_scitod ***/
+  nsp_hash_find(Model,model[10],&obj);
+  M=(NspMatrix *)obj;
+  Block->nz=M->mn;
+  Block->z=NULL;
+  if (M->mn!=0) {
+    if (Block->scsptr_flag == fun_pointer) {
+      if ((Block->z=(double *) malloc(Block->nz*sizeof(double)))==NULL)
+        goto err;
+      for(i=0;i<Block->nz;i++) Block->z[i]=M->R[i];
+    } else {
+      /* serialize for scilab block
+       * to be fixed in scicoslab
+       */
+      NspObject *S;
+      if ((S=nsp_object_serialize(obj))==NULLOBJ)
+        goto err;
+      M2=nsp_serial_to_matrix((NspSerial *) S);
+      nsp_object_destroy (&S);
+      if (M2==NULLMAT)
+        goto err;
+      Block->nz=M2->mn;
+      if ((Block->z=(double *) malloc(Block->nz*sizeof(double)))==NULL)
+        goto err;
+      for(i=0;i<Block->nz;i++) Block->z[i]=M2->R[i];
+      nsp_matrix_destroy(M2); 
+    }
+  }
   
   /* discrete object state  */
   /* 12 : model.odstate  */
-       /**** ModelHash2BlkTData ***/
+  nsp_hash_find(Model,model[11],&obj);
+  if (Block->scsptr_flag == fun_pointer) {
+     if ((scicos_modlisttoblktdata(obj,
+                                   &Block->noz,
+                                   &Block->ozsz,
+                                   &Block->oztyp,
+                                   &Block->ozptr,
+                                   "odstate")) == FAIL)
+       goto err;
+  } else {
+    /* scilab block : don't extract */
+    NspList *L = (NspList *) obj;
+    int nel;
+    nel=L->nel;
+    if (nel!=0) {
+      Block->noz=1;
+      if ((Block->ozsz=(int *) malloc(2*Block->noz*sizeof(int)))==NULL)
+        goto err;
+      if ((Block->oztyp=(int *) malloc(Block->noz*sizeof(int)))==NULL)
+        goto err;
+      if ((Block->ozptr=(void **) malloc(Block->noz*sizeof(void *)))==NULL)
+        goto err;
+      Block->ozsz[0]=1;
+      Block->ozsz[1]=1;
+      Block->oztyp[0]=SCSUNKNOW_N;
+      if ((Block->ozptr[0]=(void *)nsp_list_full_copy(L))==NULLLIST)
+        goto err;
+    }
+  }
   
   /* real parameters */
   /* 13 : model.rpar  */

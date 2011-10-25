@@ -226,7 +226,7 @@ static int scicos_obj_to_mserial (double *x, int nx, const NspObject * Obj)
   if (A->mn != nx)
     {
       Sciprintf
-	("Error: cannot store a serialized nsp object (size %d) in double array (soze %d)\n",
+	("Error: cannot store a serialized nsp object (size %d) in double array (size %d)\n",
 	 A->mn, nx);
     }
   for (i = 0; i < A->mn; i++)
@@ -655,7 +655,7 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
 NspHash *createblklist(double time, scicos_block *Block)
 {
   NspHash *Hi = NULL;
-  NspObject *Hel[32];
+  NspObject *Hel[35];
   int p=0, i;
   
   if ((Hel[p++] = scicos_dtosci("time", &time, 1, 1,'r')) == NULL)
@@ -694,6 +694,8 @@ NspHash *createblklist(double time, scicos_block *Block)
     goto err;
   if ((Hel[p++] = scicos_dtosci("res", Block->res, Block->nx, 1,'r')) == NULL)
     goto err;
+  if ((Hel[p++] = scicos_itosci("xprop", Block->xprop, Block->nx, 1)) == NULL)
+    goto err;
   if ((Hel[p++] = scicos_itosci("nin", &Block->nin, 1, 1)) == NULL)
     goto err;
   if ((Hel[p++] = scicos_itosci("insz", Block->insz, Block->nin, 1)) == NULL)
@@ -711,10 +713,8 @@ NspHash *createblklist(double time, scicos_block *Block)
     goto err;
   if ((Hel[p++] = scicos_itosci("nevout", &Block->nevout, 1, 1)) == NULL)
     goto err;
-  if ( Block->nevout != 0 ) {
-    if ((Hel[p++] = scicos_dtosci("evout", Block->evout, Block->nevout, 1,'r')) == NULL)
-      goto err;
-  }
+  if ((Hel[p++] = scicos_dtosci("evout", Block->evout, Block->nevout, 1,'r')) == NULL)
+    goto err;
   /* if ((Hel[p++] = scicos_itosci("nrpar",&Block->nrpar,1,1))== NULL) goto err; */
   if (Block->scsptr_flag == fun_pointer) {
     if ((Hel[p++] = scicos_dtosci("rpar", Block->rpar, Block->nrpar, 1,'r')) == NULL)
