@@ -52,7 +52,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     end
     scs_m=scs_m_out;
   endfunction
-  
+
   global %scicos_demo_mode ; 
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
@@ -69,14 +69,14 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     xpause(100)  // quick and dirty fix for windows bug on fast
     // computers
   end
-  
-  if %scicos_demo_mode==1 then
+
+  if ~isempty(%scicos_demo_mode) then
     //** open a demo file
     if isempty(fname) then
       if exists('%scicos_gui_mode') && %scicos_gui_mode==1 then
-	file_mask = ["*.cos*","*.xml"]
+        file_mask = ["*.cos*","*.xml"]
       else
-	file_mask = "*.cos*"
+        file_mask = "*.cos*"
       end
       path=file('join',[get_scicospath();"demos"]);
       // fname     = getfile(file_mask, path)
@@ -86,18 +86,18 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     //** conventional Open
     if isempty(fname) then
       if exists('%scicos_gui_mode') && %scicos_gui_mode==1 then
-	// fname = getfile(['*.cos*','*.xml'])
-	fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t);
+        // fname = getfile(['*.cos*','*.xml'])
+        fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t);
       else
-	// fname = getfile('*.cos*')
-	fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t);
+        // fname = getfile('*.cos*')
+        fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t);
       end
     end
   end 
   %scicos_demo_mode = []; //** clear the variable
 
   fname = stripblanks(fname)
-  
+
   if fname.equal[""] then 
     // We have canceled the open 
     ok=%f

@@ -1,2 +1,2 @@
-SCIDIR=../..
-SCIDIR1=..\..
+SCIDIR=/home/alan/Dev/nsp2_dep/nsp2
+SCIDIR1=\home\alan\Dev\nsp2_dep\nsp2

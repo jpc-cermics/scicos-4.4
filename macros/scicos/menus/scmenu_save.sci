@@ -47,12 +47,13 @@ function ok=do_save(scs_m,filenamepath)
   end
   if nargin>1 then
     fname=filenamepath
+    [path,name,ext]=splitfilepath(fname)
   else
     fname=path+scs_m.props.title(1)+'.cos'
   end
   // jpc: test if directory is writable 
   if file('writable',path) == %f then 
-    message(['Cannot create file '+fname]);  // ;lasterror()])
+    message(['Directory write access denied '''+path+'''']);  // ;lasterror()])
     ok=%f
     return 
   end

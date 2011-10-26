@@ -86,11 +86,17 @@ function cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,flag)
   [ok,stdo,stde,msg]=spawn_sync(fexe);
   // check that spawing was ok 
   if ~ok then
-    x_message('Error: spawning paksazi.exe failed:\n'+msg);
+    message('Error: spawning paksazi.exe failed:\n'+msg);
+    cpr=list()
+    chdir(pw)
+    return
   end
   // check that paksazi has not returned an error 
   if length(stde)<> 0 then 
-    x_message('Error: paksazi.exe message:\n'+catenat(stde));
+    message('Error: paksazi.exe message:\n'+catenat(stde));
+    cpr=list()
+    chdir(pw)
+    return
   end
   exec('mlcos.sci');
   chdir(pw)

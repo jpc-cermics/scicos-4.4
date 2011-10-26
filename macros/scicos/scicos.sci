@@ -116,7 +116,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   else
     xset('window',Main_Scicos_window);
     xset('recording',0);
-    
+
     ok = execstr('load(getenv(''NSP_TMPDIR'')+''/BackupSave.cos'')',errcatch=%t)
     if ~ok then
       lasterror();
