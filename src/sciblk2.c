@@ -768,13 +768,13 @@ NspHash *createblklist(double time, scicos_block *Block)
 
 /* 
  * time added in block 
- * Note that we can entre scicos_sciblk4 even if Blocks is not 
+ * Note that we can enter scicos_sciblk4 even if Blocks is not 
  * nsp block, just because we are in debug mode and the evaluated block
  * is the debug block. 
  * Thus here we have to test the Block type since for real nsp-coded blocks 
  * "z" and "rpar" are to be serialized. 
  * 
- * XXX: note that the array z transmited here is suposed 
+ * XXX: note that the array z transmited here is supposed 
  * to be a nsp object serialized in a matrix. 
  * Thus we have to serialize/unserialize here.
  * Voir livre page 205-> Note however that it should be the case 

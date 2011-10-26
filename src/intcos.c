@@ -1329,7 +1329,11 @@ static int scicos_modlisttoblktdata(NspObject *Obj,
  *
  */
   
-static int scicos_modvectoblkvec(NspObject *obj,int *n,double **x,scicos_funflag funflag,const char* name)
+static int scicos_modvectoblkvec(NspObject *obj,
+                                 int *n,
+                                 double **x,
+                                 scicos_funflag funflag,
+                                 const char* name)
 {
   NspMatrix *M;
   double *v;
@@ -1407,13 +1411,13 @@ static int scicos_modobjtoblkobj(NspObject *Obj,
   *ptr=blk_ptr;
 
   if (funflag == fun_pointer) {
-     if ((scicos_modlisttoblktdata(Obj,
-                                   &blk_n,
-                                   &blk_sz,
-                                   &blk_typ,
-                                   &blk_ptr,
-                                   name)) == FAIL)
-       return FAIL;
+    if ((scicos_modlisttoblktdata(Obj,
+                                  &blk_n,
+                                  &blk_sz,
+                                  &blk_typ,
+                                  &blk_ptr,
+                                  name)) == FAIL)
+      return FAIL;
   } else {
     /* scilab block : don't extract */
     NspList *L = (NspList *) Obj;
