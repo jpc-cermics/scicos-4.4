@@ -43,7 +43,6 @@ function [%pt,scs_m,have_moved]=do_stupidmove(%pt,Select,scs_m)
   [k,wh,scs_m]=stupid_getobj(scs_m,Select,[xc;yc]);
   if isempty(k) then return, end;
   scs_m_save=scs_m;
-  xcursor(52);
   if scs_m.objs(k).type == 'Link' then
     [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh);
     xcursor();
@@ -99,6 +98,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
   F=get_current_figure()
   F.draw_latter[]
   rep(3)=-1;
+  cursor_changed=%f;
   while 1 do
     if rep(3)==3 then
       global scicos_dblclk
@@ -122,6 +122,12 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
     y1(2)=Y1(2)-(yc-yc1);
     rect_now=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
               min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
+    if ~cursor_changed then
+      if ~isequal(rect,rect_now) then
+        cursor_changed=%t
+        xcursor(52);
+      end
+    end
     if size(o.gr.children)>1 then
       data=[o.gr.children(2).x-(rect(1)-rect_now(1)),..
             o.gr.children(2).y-(rect(2)-rect_now(2))]
@@ -131,6 +137,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
   end
   F.draw_latter[]
   if and(rep(3)<>[2 5]) then //** if the link manipulation is OK 
+    have_moved=%t
     rect=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
           min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
     if abs(x1(1)-x1(2))<rela*abs(y1(1)-y1(2)) then
@@ -155,7 +162,6 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       xx(moving_seg)=x1
       yy(moving_seg)=y1
     end
-    have_moved=%t
     o.xx=xx;o.yy=yy;
     o.gr.children(1).x=o.xx
     o.gr.children(1).y=o.yy
@@ -425,7 +431,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   //** ------------------------------- INTERACTIVE MOVEMENT LOOP ------------------------------
 
   moved_dist=0
-  xcursor(52);
+  cursor_changed=%f;
   while 1 do //** interactive move loop
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
     //** left button release, right button (press, click)
@@ -485,7 +491,13 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
 
     moved_dist=moved_dist+abs(delta_x)+abs(delta_y)
     // under window clicking on a block in a different window causes a move
-    if moved_dist>.001 then have_moved=%t,end
+    if ~cursor_changed then
+      if moved_dist>.001 then
+        have_moved=%t
+      end
+      cursor_changed=%t
+      xcursor(52)
+    end
 
     //** Move the SuperCompound
     for k = SuperCompound_id
