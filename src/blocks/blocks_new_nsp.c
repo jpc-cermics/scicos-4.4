@@ -3037,13 +3037,15 @@ void scicos_cstblk4_block (scicos_block * block, int flag)
 
 void scicos_transmit_or_zero_block (scicos_block * block, int flag)
 {
+  double **outptr = (double **) block->outptr;
+  double **inptr =  (double **) block->inptr;
   int j;
   if (flag == 1)
     {
       if (block->ipar[0] == 1)
 	for (j = 0; j < block->insz[0]; j++)
 	  {
-	    block->outptr[0][j] = block->inptr[0][j];
+	    outptr[0][j] = inptr[0][j];
 	  }
     }
 }
@@ -3058,12 +3060,14 @@ void scicos_transmit_or_zero_block (scicos_block * block, int flag)
 
 void scicos_mvswitch_block (scicos_block * block, int flag)
 {
+  double **outptr = (double **) block->outptr;
+  double **inptr =  (double **) block->inptr;
   /* switch selected with ipar  */
   int i, j = 0;
   j = Min (Max (block->ipar[0], 0), block->nin - 1);
   for (i = 0; i < block->insz[j]; i++)
     {
-      block->outptr[0][i] = block->inptr[j][i];
+      outptr[0][i] = inptr[j][i];
     }
 }
 

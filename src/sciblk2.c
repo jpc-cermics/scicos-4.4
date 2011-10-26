@@ -701,14 +701,14 @@ NspHash *createblklist(double time, scicos_block *Block)
   if ((Hel[p++] = scicos_itosci("insz", Block->insz, Block->nin, 1)) == NULL)
     goto err;
   if ((Hel[p++] = scicos_vars_to_list("inptr", Block->inptr, Block->nin,
-                           Block->insz,&(Block->insz[Block->nin]),&(Block->insz[2*Block->nin]))) == NULLOBJ)
+				      Block->insz,&(Block->insz[Block->nin]),&(Block->insz[2*Block->nin]))) == NULLOBJ)
     goto err;
   if ((Hel[p++] =
        scicos_itosci("outsz", Block->outsz, Block->nout, 1)) == NULL)
     goto err;
   if ((Hel[p++] = scicos_itosci("nout", &Block->nout, 1, 1)) == NULL)
     goto err;
-  if ((Hel[p++] = scicos_vars_to_list("outptr", Block->outptr, Block->nout,
+  if ((Hel[p++] = scicos_vars_to_list("outptr",(void **) Block->outptr, Block->nout,
                            Block->outsz,&(Block->outsz[Block->nout]),&(Block->outsz[2*Block->nout]))) == NULLOBJ)
     goto err;
   if ((Hel[p++] = scicos_itosci("nevout", &Block->nevout, 1, 1)) == NULL)
@@ -814,7 +814,7 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
       /* outptr */
       if (Blocks->nout != 0) {
         if (nsp_hash_find (H, "outptr", &Ob) == FAIL) goto err;
-        if (scicos_list_to_vars(Blocks->outptr, Blocks->nout,
+        if (scicos_list_to_vars((void **) Blocks->outptr, Blocks->nout,
                                 Blocks->outsz, &(Blocks->outsz[Blocks->nout]), &(Blocks->outsz[2*Blocks->nout]), Ob) == FAIL)
           goto err;
       }
@@ -896,7 +896,7 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
         /* outptr */
         if (Blocks->nout != 0) {
           if (nsp_hash_find (H, "outptr", &Ob) == FAIL) goto err;
-          if (scicos_list_to_vars(Blocks->outptr, Blocks->nout,
+          if (scicos_list_to_vars((void **) Blocks->outptr, Blocks->nout,
                                   Blocks->outsz, &(Blocks->outsz[Blocks->nout]), &(Blocks->outsz[2*Blocks->nout]), Ob) == FAIL)
             goto err;
         }
