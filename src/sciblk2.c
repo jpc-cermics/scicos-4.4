@@ -21,8 +21,7 @@
  * 
  *--------------------------------------------------------------------------*/
 
-#include "nsp/machine.h"
-#include <nsp/graphics-new/Graphics.h>
+#include <nsp/nsp.h>
 #include <nsp/object.h>
 #include <nsp/matrix.h>
 #include <nsp/smatrix.h>
@@ -30,18 +29,9 @@
 #include <nsp/hash.h>
 #include <nsp/serial.h>
 #include <nsp/list.h>
-
+#include <nsp/eval.h>
 #include <nsp/interf.h>
-
-#include "nsp/interf.h"
-#include "scicos/scicos4.h"
-
-/* XXXXX */
-extern int nsp_gtk_eval_function (NspPList * func, NspObject * args[],
-				  int n_args, NspObject * ret[], int *nret);
-extern int nsp_gtk_eval_function_by_name (char *name, NspObject * args[],
-					  int n_args, NspObject * ret[],
-					  int *nret);
+#include <scicos/scicos4.h> 
 
 extern NspHash *createblklist(double time, scicos_block *Block);
 
@@ -55,14 +45,14 @@ static int scicos_scifunc (scicos_funflag scsptr_flag, void *scsptr, NspObject *
        *         Sciprintf("Evaluate a given macro\n");
        *         nsp_object_print( Scicos->params.scsptr,0,0,0);
        */
-      return nsp_gtk_eval_function ((NspPList *) scsptr, Args,   mrhs, Ret, mlhs);
+      return nsp_gtk_eval_function_catch ((NspPList *) scsptr, Args,   mrhs, Ret, mlhs, TRUE,TRUE);
       break;
     case fun_macro_name:
       /* 
        *         Sciprintf("Evaluate a macro given by its name: %s\n",
        *         Scicos->params.scsptr);
        */
-      return nsp_gtk_eval_function_by_name (scsptr, Args, mrhs,  Ret, mlhs);
+      return nsp_gtk_eval_function_by_name_catch (scsptr, Args, mrhs,  Ret, mlhs, TRUE,TRUE);
     case fun_pointer:
       Scierror ("Internal error: Expecting a macro or macro name\n");
       return FAIL;
