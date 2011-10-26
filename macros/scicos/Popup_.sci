@@ -71,12 +71,17 @@ function Popup_()
         elseif scs_m.objs(k).type=='Text' then
           state_var=6
         end
+        selecthilite(Select,%f);
         Select=[k,%win]
         selecthilite(Select,%t);
       else
         //** popup in the void
         state_var=2
         %ppt=%pt
+        if ~isempty(Select) then
+          selecthilite(Select,%f);
+          Select=[]
+        end
       end
     elseif slevel>1 then
       // popup in a SuperBlock Scicos Window that is NOT the current window ----------

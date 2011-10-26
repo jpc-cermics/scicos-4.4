@@ -21,6 +21,16 @@ function [scs_m]=do_move(%pt,scs_m,Select)
   end
   if have_moved then
     resume(scs_m_save,needreplay,enable_undo,edited,nc_save);
+  else
+    if size(Select,1)>1 then
+      if %win == curwin then
+        k=getobj(scs_m,%pt)
+        if ~isempty(k) then
+	  Select=[k,%win];
+          resume(Select)
+        end
+      end
+    end
   end
 endfunction
 
