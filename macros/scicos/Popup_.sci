@@ -20,10 +20,40 @@ function Popup_()
     elseif windows(kc,1)<0 then
       // Palette -----------------------------------
       state_var=3
-      state_pal=1	      
-    elseif %win==curwin then
+      state_pal=1
+    elseif isequal(%win,curwin) then
+      k = getobj(scs_m,%pt)
       // popup in the CURRENT Scicos window : Main Scicos Window (not inside a superblock) ----------
-      state_var=1
+      if ~isempty(k) then
+        //check if popup is on a selected objects
+        if ~isempty(find(Select(:,1)==k)) then
+          state_var=1
+        else
+          //** popup over a valid object in the current Scicos window
+          if scs_m.objs(k).type=='Block' then
+            if scs_m.objs(k).model.sim(1)=='super' | scs_m.objs(k).gui=='DSUPER' then
+              state_var=7
+            else
+              state_var=4
+            end
+          elseif scs_m.objs(k).type=='Link' then
+            state_var=5
+          elseif scs_m.objs(k).type=='Text' then
+            state_var=6
+          end
+          selecthilite(Select,%f);
+          Select=[k %win]
+          selecthilite(Select,%t)
+        end
+      else
+        //** popup in the void
+        state_var=2
+        %ppt=%pt
+        if ~isempty(Select) then
+          selecthilite(Select,%f);
+          Select=[]
+        end
+      end
     elseif slevel>1 then
       //** popup in a SuperBlock Scicos Window that is NOT the current window ----------
       state_var=3
