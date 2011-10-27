@@ -238,6 +238,10 @@ function scicos_set_uimanager(is_top)
   if rep==0 then 
     printf("building menus failed: \n");
   end
+  // initial sensitivity 
+  scicos_action_set_sensitivity(window,"scmenu_cut",%f)
+  scicos_action_set_sensitivity(window,"scmenu_copy",%f)
+  scicos_action_set_sensitivity(window,"scmenu_paste",%f)
 endfunction
 
 function scicos_activate_action(action,args) 
@@ -296,10 +300,17 @@ function fname=scicos_action_name_to_fname(name)
 endfunction
 
 function scicos_action_set_sensitivity(win,name,sensitive)
-//
-//  return; // temporarily not activated XXXX
+// set the sensitivity of action name for window win to 
+// the value of sensitive 
+// win can be a number of a window widget.
+// 
+  return; // temporarily not activated XXXX
   printf("Setting %s sensitivity to %d\n',name,sensitive);
-  window=nsp_graphic_widget(win);
+  if type(win,'short')== 'm' then 
+    window=nsp_graphic_widget(win);
+  else
+    window=win;
+  end
   if window.check_data['uimanager']==%f then return;end 
   uimanager = window.get_data['uimanager'];
   L=uimanager.get_action_groups[]
@@ -315,6 +326,8 @@ function scicos_action_set_sensitivity(win,name,sensitive)
 endfunction
   
 function scicos_set_stop_sensitivity(sensitive) 
+// set the stop sensitivity for a set of windows.
+// 
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for i=1:length(wins)
     window=nsp_graphic_widget(wins(i));
@@ -465,11 +478,11 @@ function S=scicos_actions()
 endfunction
 
 
+
 function scicos_menus_set_sensitivity(selection,win) 
 // change menu sensitivity according to selection 
 // here we change cut and copy 
   return ;// to be activated latter XXXX 
-  
   if isempty(selection) then 
     sel= 'None';
   elseif length(selection) > 1 then 
@@ -486,3 +499,14 @@ function scicos_menus_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_copy",%t);
   end
 endfunction
+
+function scicos_menus_set_paste_sensitivity(flag)
+// change paste sensitivity according to emptiness 
+// or not of the clipboard. 
+  return; // to be activated latter XXXX 
+  wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
+  for k=1:size(wins,'*') 
+    scicos_action_set_sensitivity(wins(k),"scmenu_paste",%t);
+  end
+endfunction
+

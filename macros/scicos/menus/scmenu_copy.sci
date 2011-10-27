@@ -5,15 +5,17 @@ function scmenu_copy()
     //** ... more than a single object 
     [pt1,win1,scs_m_sel] = get_selection2(Select,%pt,%win)
     if size(scs_m_sel.objs)==1 then
-       Clipboard = scs_m_sel.objs(1)   
+      Clipboard = scs_m_sel.objs(1)   
     else
-    	Clipboard = scs_m_sel
+      Clipboard = scs_m_sel
     end
+    scicos_menus_set_paste_sensitivity(%t);
     Cmenu='';
   elseif size(Select,1)==1
     //** single object 
     [pt1,win1,o] = get_selection(Select,%pt,%win)
     Clipboard = o ;
+    scicos_menus_set_paste_sensitivity(%t);
     Cmenu='';
   else
     //** no object 
