@@ -62,7 +62,7 @@ function ok=do_save(scs_m,filenamepath)
   // save current diagram 
   if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then 
     message(['Save error:']);
-    lasterror()])
+    lasterror();
     ok=%f
     return
   end
