@@ -13,7 +13,7 @@
 // Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 // Boston, MA 02111-1307, USA.
 //
-// (Copyright (C) 20011-2011 Jean-Philippe Chancelier)
+// (Copyright (C) 2011-2011 Jean-Philippe Chancelier)
 
 function scicos_set_uimanager(is_top)
 // Get the vbox which contains the default menubar 
@@ -297,7 +297,8 @@ endfunction
 
 function scicos_action_set_sensitivity(win,name,sensitive)
 //
-  return; // temporarily not activated XXXX
+//  return; // temporarily not activated XXXX
+  printf("Setting %s sensitivity to %d\n',name,sensitive);
   window=nsp_graphic_widget(win);
   if window.check_data['uimanager']==%f then return;end 
   uimanager = window.get_data['uimanager'];
@@ -307,7 +308,9 @@ function scicos_action_set_sensitivity(win,name,sensitive)
     action_group = L(i);
     // Attention bug si name n'existe pas 
     action = action_group.get_action[name];
-    action.set_property["sensitive", sensitive];
+    if type(action,'short')== 'GtkAction' then 
+      action.set_property["sensitive", sensitive];
+    end
   end
 endfunction
   
@@ -462,3 +465,24 @@ function S=scicos_actions()
 endfunction
 
 
+function scicos_menus_set_sensitivity(selection,win) 
+// change menu sensitivity according to selection 
+// here we change cut and copy 
+  return ;// to be activated latter XXXX 
+  
+  if isempty(selection) then 
+    sel= 'None';
+  elseif length(selection) > 1 then 
+    sel='Multi'
+  else  
+    sel= scs_m.objs(selection).type 
+  end
+  printf('selection is ==>%s \n",sel);
+  if sel== 'None' then 
+    scicos_action_set_sensitivity(win,"scmenu_cut",%f);
+    scicos_action_set_sensitivity(win,"scmenu_copy",%f);
+  else
+    scicos_action_set_sensitivity(win,"scmenu_cut",%t);
+    scicos_action_set_sensitivity(win,"scmenu_copy",%t);
+  end
+endfunction

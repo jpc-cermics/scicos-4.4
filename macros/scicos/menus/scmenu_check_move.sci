@@ -5,6 +5,7 @@ function scmenu_check_move()
   if ~Sel.equal[Select] then 
     // XXX selection have to be changed 
     Select=Sel;
+    scicos_menus_set_sensitivity(Select,curwin) 
   end
   if Cmenu=='' then pt=[];end 
 endfunction

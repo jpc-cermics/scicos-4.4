@@ -45,24 +45,6 @@ function Select=do_select_region(win);
   end
 endfunction
 
-function scicos_menus_set_sensitivity(selection,win) 
-// change menu sensitivity according to selection 
-// the diagram is scs_m 
-// sel contains selection in curwin 
-  if isempty(selection) then 
-    sel= 'None';
-  elseif length(selection) > 1 then 
-    sel='Multi'
-  else  
-    sel= scs_m.objs(selection).type 
-  end
-  printf('selection is ==>%s \n",sel);
-  if sel== 'None' then 
-    scicos_action_set_sensitivity(win,"scmenu_cut",%f);
-  else
-    scicos_action_set_sensitivity(win,"scmenu_cut",%t);
-  end
-endfunction
 
 function [in,out] = get_objs_in_rect(scs_m,ox,oy,w,h)
   in=[];out=[];ok=%f;
