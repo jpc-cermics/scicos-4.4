@@ -16,7 +16,7 @@ function scmenu_cut()
     else
       Clipboard=scs_m_sel;
     end
-    scicos_menus_set_paste_sensitivity(%t);
+    scicos_menus_paste_set_sensitivity(%t);
     [scs_m,DEL]=do_delete1(scs_m,Select(:,1)',%t);
     Select(find(Select(:,2)==curwin),:)=[];
     if ~isempty(DEL) then 
@@ -28,7 +28,7 @@ function scmenu_cut()
         if length(scs_m.objs)==0 then break,end;
       end
     end
-    scicos_menus_set_sensitivity(Select, curwin); 
+    scicos_menus_select_set_sensitivity(Select, curwin); 
     Cmenu='';
   else
     message(['Only current diagram can be edited'])

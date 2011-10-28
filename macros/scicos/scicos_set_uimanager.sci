@@ -89,23 +89,28 @@ function scicos_set_uimanager(is_top)
 	   "      <menuitem name=""Cut"" action=""scmenu_cut"" />";
 	   "      <menuitem name=""Copy"" action=""scmenu_copy"" />";
 	   "      <menuitem name=""Paste"" action=""scmenu_paste"" />";
-	   "      <menuitem name=""Duplicate"" action=""scmenu_duplicate"" />";
 	   "      <menuitem name=""Delete"" action=""scmenu_delete"" />";
 	   "      <menuitem name=""Align"" action=""scmenu_align"" />";
-	   "      <menuitem name=""Flip"" action=""scmenu_flip"" />";
 	   "      <menuitem name=""Add new block"" action=""scmenu_add_new_block"" />";
 	   "      <menu name=""Block Menu"" action=""scmenu_block_menu"">";
-	   "        <menuitem name=""Resize"" action=""scmenu_resize"" />";
+	   "        <menuitem name=""Copy"" action=""scmenu_copy"" />";
+	   "        <menuitem name=""Cut"" action=""scmenu_cut"" />";
+	   "        <menuitem name=""Delete"" action=""scmenu_delete"" />";
+	   "        <menuitem name=""Duplicate"" action=""scmenu_duplicate"" />";
+	   "        <separator name=""bsep1"" />"
+	   "        <menuitem name=""Color"" action=""scmenu_color"" />";
+	   "        <menuitem name=""Flip"" action=""scmenu_flip"" />";
+	   "        <menuitem name=""Resize"" action=""scmenu_resize"" />";	   
 	   "        <menuitem name=""Rotate Left"" action=""scmenu_rotate_left"" />";
 	   "        <menuitem name=""Rotate Right"" action=""scmenu_rotate_right"" />";
-	   "        <menuitem name=""Icon"" action=""scmenu_icon"" />";
-	   "        <menuitem name=""Icon Editor"" action=""scmenu_icon_edit"" />";
-	   "        <menuitem name=""Color"" action=""scmenu_color"" />";				    
-	   "        <menuitem name=""Label"" action=""scmenu_label"" />";
-	   "        <menuitem name=""Get Info"" action=""scmenu_get_info"" />";
-	   "        <menuitem name=""Details"" action=""scmenu_details"" />";
-	   "        <menuitem name=""Identification"" action=""scmenu_identification"" />";
+	   "        <separator name=""bsep2"" />"
 	   "        <menuitem name=""Block Documentation"" action=""scmenu_block_documentation"" />";
+	   "        <menuitem name=""Details"" action=""scmenu_details"" />";
+	   "        <menuitem name=""Get Info"" action=""scmenu_get_info"" />";
+	   "        <menuitem name=""Icon Editor"" action=""scmenu_icon_edit"" />";
+	   "        <menuitem name=""Icon"" action=""scmenu_icon"" />";
+	   "        <menuitem name=""Identification"" action=""scmenu_identification"" />";
+	   "        <menuitem name=""Label"" action=""scmenu_label"" />";
 	   "      </menu>"
 	   "    </menu>";
 	   "    <menu name=""View"" action=""scmenu_view_menu"">";
@@ -304,7 +309,7 @@ function scicos_action_set_sensitivity(win,name,sensitive)
 // the value of sensitive 
 // win can be a number of a window widget.
 // 
-  return; // temporarily not activated XXXX
+  // return; // temporarily not activated XXXX
   printf("Setting %s sensitivity to %d\n',name,sensitive);
   if type(win,'short')== 'm' then 
     window=nsp_graphic_widget(win);
@@ -479,10 +484,10 @@ endfunction
 
 
 
-function scicos_menus_set_sensitivity(selection,win) 
+function scicos_menus_select_set_sensitivity(selection,win) 
 // change menu sensitivity according to selection 
 // here we change cut and copy 
-  return ;// to be activated latter XXXX 
+  // return ;// to be activated latter XXXX 
   if isempty(selection) then 
     sel= 'None';
   elseif length(selection) > 1 then 
@@ -494,16 +499,29 @@ function scicos_menus_set_sensitivity(selection,win)
   if sel== 'None' then 
     scicos_action_set_sensitivity(win,"scmenu_cut",%f);
     scicos_action_set_sensitivity(win,"scmenu_copy",%f);
-  else
+    scicos_action_set_sensitivity(win,"scmenu_delete",%f);
+    scicos_action_set_sensitivity(win,"scmenu_block_menu",%f);
+  elseif  sel== 'Multi' then 
     scicos_action_set_sensitivity(win,"scmenu_cut",%t);
     scicos_action_set_sensitivity(win,"scmenu_copy",%t);
+    scicos_action_set_sensitivity(win,"scmenu_delete",%t);
+    scicos_action_set_sensitivity(win,"scmenu_block_menu",%f);
+  else 
+    scicos_action_set_sensitivity(win,"scmenu_cut",%t);
+    scicos_action_set_sensitivity(win,"scmenu_copy",%t);
+    scicos_action_set_sensitivity(win,"scmenu_delete",%t);
+    if scs_m.objs(selection).type=='Block'
+      scicos_action_set_sensitivity(win,"scmenu_block_menu",%t);
+    else 
+      scicos_action_set_sensitivity(win,"scmenu_block_menu",%f);
+    end
   end
 endfunction
 
-function scicos_menus_set_paste_sensitivity(flag)
+function scicos_menus_paste_set_sensitivity(flag)
 // change paste sensitivity according to emptiness 
 // or not of the clipboard. 
-  return; // to be activated latter XXXX 
+  // return; // to be activated latter XXXX 
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for k=1:size(wins,'*') 
     scicos_action_set_sensitivity(wins(k),"scmenu_paste",%t);

@@ -3,9 +3,10 @@ function scmenu_check_move()
 // move actions 
   [Cmenu,Sel]=do_check_move(Select);
   if ~Sel.equal[Select] then 
-    // XXX selection have to be changed 
-    Select=Sel;
-    scicos_menus_set_sensitivity(Select,curwin) 
+    // selection have to be changed 
+    Select = Sel;
+    if ~isempty(Sel) then Sel=Sel(1);end 
+    scicos_menus_select_set_sensitivity(Sel,curwin) 
   end
   if Cmenu=='' then pt=[];end 
 endfunction

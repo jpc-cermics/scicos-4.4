@@ -120,7 +120,7 @@ function scmenu_paste()
     end //** object type 
   end //** valid Paste as "replace" or "in the void"
   F.draw_now[];
-  scicos_menus_set_sensitivity(Select, curwin); 
+  scicos_menus_select_set_sensitivity(Select, curwin); 
   Cmenu='';
   %pt=[]; 
 endfunction
