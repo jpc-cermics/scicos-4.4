@@ -26,7 +26,7 @@ function [scs_m,edited]=do_SaveAs()
   tit=['For saving in binary file use .cos extension,';
        'for saving in ascii file use .cosf extension'];
   // FIXME: 
-  fname=xgetfile(masks=['Scicos';'*.cos*'],title='cos or cosf',save=%t)
+  fname=xgetfile(masks=['Scicos';'*.cos*';'*.xml'],title='cos, cosf or xml',save=%t)
   if fname=="" then return,end
   [path,name,ext]=splitfilepath(fname)
   select ext
@@ -34,8 +34,10 @@ function [scs_m,edited]=do_SaveAs()
     ok=%t
    case 'cosf' then
     ok=%t
+   case 'xml' then
+    ok=%t
   else
-    message('Only *.cos binary or cosf ascii files allowed');
+    message('Only *.cos binary, cosf ascii, xml files allowed');
     return
   end
   if ~super_block & ~pal_mode then
@@ -73,7 +75,7 @@ function scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver)
   scs_m = scs_m;
   scs_m.props.title=[name,path]; // Change the title
   scs_m=do_purge(scs_m);
-  scs_m= scs_m_remove_gr(scs_m);
+  scs_m=scs_m_remove_gr(scs_m);
   if ext=='cos' then
     // save in binary mode 
     rep = execstr('save('''+fname+''',scicos_ver,scs_m,%cpr)',errcatch=%t);
@@ -81,6 +83,20 @@ function scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver)
       message(['File or directory write access denied';lasterror()])
       return
     end
+  elseif ext=='xml' then
+    // save in xml syntax mode
+    rep=execstr('F=fopen('''+ fname+''',mode = ''w'');',errcatch=%t);
+    if rep==%f then
+      message('Cannot open file '+fname)
+      return
+    end
+    [ok,t]=cos2xml(scs_m,'',atomic=%f);
+    if ~ok then 
+      message('Error in xml format.');
+    else
+      F.put_smatrix[t];
+    end
+    F.close[];
   else
     // save in nsp syntax mode 
     rep=execstr('F=fopen('''+ fname+''',mode = ''w'');',errcatch=%t);
