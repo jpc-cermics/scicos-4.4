@@ -19,6 +19,8 @@ function [x,y,typ]=LOOKUP_c(job,arg1,arg2)
     model=arg1.model
     graphics=arg1.graphics
     exprs=graphics.exprs
+    if or(exprs(5)==['y','Y']) then exprs(5)='yes';end 
+    if or(exprs(5)==['n','N']) then exprs(5)='no';end 
     ok=%f;
     SaveExit=%f
     while %t do
@@ -26,7 +28,7 @@ function [x,y,typ]=LOOKUP_c(job,arg1,arg2)
       [ok,Method,xx,yy,extrapo,graf,exprs]=getvalue('Lookup table parameters',..
 						    ['Spline Interpolation method (0..9)';..
 		    'x';'y';'Extrapolate method (0,1)';'Launch graphic window(y/n)?'],..
-						    list('vec',1,'vec',-1,'vec',-1,'vec',1,'str',1),exprs)
+						    list('vec',1,'vec',-1,'vec',-1,'vec',1,'combo',['yes','no']),exprs)
       // 9 : nearest
       // 8 : above
       // 0:  below
@@ -52,17 +54,17 @@ function [x,y,typ]=LOOKUP_c(job,arg1,arg2)
 	xy=[xx,yy];
 	[xy]=lookup_cleandata(xy);// just for sorting to be able to compare data before and after poke_point(.)
 	N= size(xy,'r');
-	exprs(5)='n';// exprs.graf='n'
-	if graf=='y' | graf=='Y' then //_______Graphic editor___________
+	exprs(5)='no';// exprs.graf='n'
+	if graf=='yes' then //_______Graphic editor___________
 	  ipar=[N;mtd;PO;extrapo];
 	  rpar=[];
 	  if ~exists('curwin') then
-	    gh=gcf();
-	    curwin=gh.figure_id
+            F=get_current_figure()
+	    curwin=F.id
 	  end
 	  save_curwin=curwin;
-	  curwin=max(winsid())+1; 
-	  [orpar,oipar,ok]=lookup_poke_point(xy,ipar,rpar);   
+	  curwin=max(winsid())+1;
+	  [orpar,oipar,ok]=lookup_poke_point(xy,ipar,rpar);
 	  curwin=save_curwin;
 	  if ~ok then break;end;//  exit without save
 
@@ -120,7 +122,7 @@ function [x,y,typ]=LOOKUP_c(job,arg1,arg2)
 
     xx=[-1;0.5;1;1.5;2.5]
     yy=[-6;-1;-3;3;-4]
-    N=length(xx);  Method=1;   Graf='n'
+    N=length(xx);  Method=1;Graf='no'
     model.sim=list('lookup_c',4)
     model.in=-1
     model.in2=-2
@@ -157,37 +159,64 @@ function [x,y,typ]=LOOKUP_c(job,arg1,arg2)
 endfunction
 
 function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
-  [lhs,rhs]=argn(0)
+  //[lhs,rhs]=argn(0)
   //in line definition of get_click
-  deff('[btn,xc,yc,win,Cmenu]=get_click(flag)',[
-      'if ~or(winsid() == curwin) then   Cmenu = ''Quit'';return,end,';
-      'if argn(2) == 1 then';
-      '  [btn, xc, yc, win, str] = xclick(flag);';
-      'else';
-      '  [btn, xc, yc, win, str] = xclick();';
-      'end;'; 
-      'if btn == -100 then';
-      '  if win == curwin then';
-      '    Cmenu = ''Quit'';';
-      '  else';
-      '    Cmenu = ''Open/Set'';';
-      '  end,';
-      '  return,';
-      'end';
-      'if btn == -2 then';
-      '  xc = 0;yc = 0;';
-      '  try '    // added to handle unwanted menu actions in french version
-      '    execstr(''Cmenu='' + part(str, 9:length(str) - 1));';
-      '    execstr(''Cmenu='' + Cmenu);';
-      '  catch'
-      '    Cmenu=[]'    
-      '  end '    
-      '  return,';
-      'end';
-      'Cmenu=[]'])
+  function [btn,xc,yc,win,Cmenu]=get_click(flag)
+    if ~or(winsid() == curwin) then
+      Cmenu = 'Quit';
+      return
+    end;
+    [btn, xc, yc, win, str] = xclick();
+    if btn == -100 then
+      if win == curwin then
+        Cmenu = 'Quit'
+      else
+       Cmenu = 'Open/Set';
+      end
+      return
+    end
+    if btn == -2 then
+      xc = 0;yc = 0;
+      try  // added to handle unwanted menu actions in french version
+        execstr('Cmenu=' + part(str, 9:length(str) - 1));
+        execstr('Cmenu=' + Cmenu)
+      catch
+        Cmenu=""
+      end  
+      return
+    end
+    Cmenu=""
+  endfunction
+
+//   deff('[btn,xc,yc,win,Cmenu]=get_click(flag)',[
+//       'if ~or(winsid() == curwin) then   Cmenu = ''Quit'';return,end,';
+//       'if argn(2) == 1 then';
+//       '  [btn, xc, yc, win, str] = xclick(flag);';
+//       'else';
+//       '  [btn, xc, yc, win, str] = xclick();';
+//       'end;'; 
+//       'if btn == -100 then';
+//       '  if win == curwin then';
+//       '    Cmenu = ''Quit'';';
+//       '  else';
+//       '    Cmenu = ''Open/Set'';';
+//       '  end,';
+//       '  return,';
+//       'end';
+//       'if btn == -2 then';
+//       '  xc = 0;yc = 0;';
+//       '  try '    // added to handle unwanted menu actions in french version
+//       '    execstr(''Cmenu='' + part(str, 9:length(str) - 1));';
+//       '    execstr(''Cmenu='' + Cmenu);';
+//       '  catch'
+//       '    Cmenu=[]'    
+//       '  end '    
+//       '  return,';
+//       'end';
+//       'Cmenu=[]'])
   
   ok=%f
-  if rhs==0 then ixy=[];end;
+  if nargin==0 then ixy=[];end;
   if size(xy,'c')<2 then 
     xinfo(' No y provided');
     return
@@ -196,19 +225,19 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
   [xy]=lookup_cleandata(ixy)
   N=size(xy,'r');
 
-  if rhs<=1 then
+  if nargin<=1 then
     NOrder=1;
     PeridicOption=0;
     extrapo=0
     ipar=[N;NOrder;PeridicOption;extrapo]
     rpar=[]
-  elseif rhs==2 then  
+  elseif nargin==2 then  
       NOrder=iparin(2);
       PeridicOption=iparin(3);
       extrapo=iparin(4);
       ipar=iparin;
       rpar=[]
-  elseif rhs==3 then  
+  elseif nargin==3 then  
       NOrder=iparin(2);
       PeridicOption=iparin(3);
       extrapo=iparin(4);
@@ -243,27 +272,9 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
 
   rect=[xmn,ymn;xmx,ymx];
   //===================================================================
-  f=scf();
-
-  if ~MSDOS then
-    delmenu(curwin,'3D Rot.')
-    delmenu(curwin,'Edit')
-    delmenu(curwin,'File')
-    delmenu(curwin,'Insert')
-  else
-    hidetoolbar(curwin)
-    // French
-    delmenu(curwin,'&Fichier')
-    delmenu(curwin,'&Editer')
-    delmenu(curwin,'&Outils')
-    delmenu(curwin,'&Inserer')
-    // English
-    delmenu(curwin,'&File')
-    delmenu(curwin,'&Edit')
-    delmenu(curwin,'&Tools')
-    delmenu(curwin,'&Insert')
-  end
-  //menuss=menus;menuss(1)=menus(1)(2:$);menubar(curwin,menuss)	  
+  xset('window',curwin)
+  delmenu(curwin,'3D Rot.')
+  delmenu(curwin,'File')
 
   menu_r=[];
   menu_s=[];
@@ -293,67 +304,39 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
   addmenu(curwin,MENU(5),menu_e)
   //===================================================================
   //initial draw
-  f.pixmap='off';
-  drawlater();
-  a=gca();
-  a.data_bounds=rect;
-  a.axes_visible='on';
-  a.clip_state='on';
-  xtitle( '', 'time', 'Output' ) ; 
-  a.title.font_size=2;
-  a.title.font_style=4;
-  a.title.foreground=2;
+  xsetech(frect=[rect(1),rect(3),rect(2),rect(4)]);
+  xtitle('', 'Input', 'Output' );
+  xpolys(xy(:,1),xy(:,2),[5]);
+  xpolys(xy(:,1),xy(:,2),[-1]);
+  F=get_current_figure();
+  a=F.children(1);
+  splines=F.children(1).children(1);
+  points=F.children(1).children(2);
+  points.children(1).hilited=%t;
+  [rpar,ipar]=lookup_autoscale(a,xy,ipar,rpar)
+  F.invalidate[]
+  dblclick=%f
 
-  a.grid=[2 2];
-  xpolys(xy(:,1),xy(:,2),[-1]);   //children(2)
-  xpolys(xy(:,1),xy(:,2),[5]);    //children(1)
-  splines=a.children(1).children
-  points=a.children(2).children
-  //---------------------------------------
-
-  [rpar,ipar]=lookup_autoscale(a,xy,ipar,rpar) 
-  drawnow();
-  // -- boucle principale
-  lines(0);
-  while %t then //=================================================
+  // start of interactive loop 
+  while %t then
     N=size(xy,'r');
     [btn,xc,yc,win,Cmenu]=get_click();
+    printf("Lookup_c : Cmenu =%s, btn=%d\n",Cmenu,btn);
     if ((win>0) & (win<>curwin)) then
       Cmenu='Mouse click is Offside!';
     end
-    if isempty(Cmenu) then Cmenu='edit',end
+    if Cmenu.equal[""] then Cmenu='edit',end
     if (Cmenu=='Exit') |(Cmenu=='Quit' ) then, ipar=[];rpar=[];ok=%f;return; end
-    //-------------------------------------------------------------------
-    if ((Cmenu=='zero order-below') | (Cmenu=='linear') | (Cmenu=='order 2')| ...
-	(Cmenu=='not_a_knot')| (Cmenu=='periodic')| (Cmenu=='monotone')| ...
-	(Cmenu=='fast')| (Cmenu=='clamped') |(Cmenu=='zero order-above')|(Cmenu=='zero order-nearest')) then
-      
-      select  Cmenu
-       case 'zero order-below' then
-	NOrder=0;
-       case 'linear' then
-	NOrder=1;
-       case 'order 2' then
-	NOrder=2;
-       case 'not_a_knot' then
-	NOrder=3;
-       case 'periodic' then
-	NOrder=4;
-       case 'monotone' then
-	NOrder=5;
-       case 'fast' then
-	NOrder=6;
-       case 'clamped' then
-	NOrder=7;
-       case 'zero order-above' then
-	NOrder=8;
-       case 'zero order-nearest' then
-	NOrder=9;
-      end
-      ipar(2)=NOrder;
+    methods=['zero order-below';'linear';'order 2';'not_a_knot';'periodic'; ...
+	     'monotone';'fast';'clamped';'zero order-above';'zero order-nearest'];
+    
+    NOrder = find(Cmenu== methods);
+    if ~isempty(NOrder) then 
+      printf("Lookup_c : Norder =%d\n",NOrder);
+      ipar(2)= NOrder -1;
       [rpar,ipar]=lookup_autoscale(a,xy,ipar,rpar)  
     end
-    //-------------------------------------------------------------------  
+
     select Cmenu
      case 'Data Bounds' then
       rectx=lookup_findrect(a);
@@ -367,9 +350,10 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
 	  mok=%f;
 	end
 	if mok then 
-	  a.data_bounds=[xmn1,ymn1;xmx1,ymx1];
+	  xsetech(frect=[xmn1,ymn1,xmx1,ymx1],fixed=%t);
 	end
       end
+      a.invalidate[];
       //drawnow();//show_pixmap(); 
       //-------------------------------------------------------------------  
      case 'Autoscale' then 
@@ -386,6 +370,9 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       end
       //-------------------------------------------------------------------
      case 'sine' then 
+      if ~exists('Sin_exprs') then 
+	Sin_exprs=list("1","%pi","0","0","10");
+      end
       [mok,Amp,wp,phase,offset,np1,Sin_exprs2]=getvalue(' Sine parameters', ...
 							['Amplitude';'Frequency(rad/sec)'; ...
 		    'Phase(rad)';'Bias';'number of points'],list('vec',1,'vec',1,'vec',1, ...
@@ -403,6 +390,9 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       end
       //-------------------------------------------------------------------
      case 'sawtooth1' then 
+      if ~exists('Sawt1_exprs') then 
+	Sawt1_exprs=list("1","3","2");
+      end
       [mok,sAmp,sTp,sdelay,Sawt1_exprs2]=getvalue('Sawtooth signal parameters', ...
 						  ['Amplitude';'Period';'delay'], ...
 						  list('vec',1,'vec',1,'vec',1),Sawt1_exprs)   
@@ -422,6 +412,9 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       end
       //-------------------------------------------------------------------
      case 'sawtooth2' then     
+      if ~exists('Sawt2_exprs') then 
+	Sawt2_exprs=list("1","3");
+      end
       [mok,sAmp2,sTp2,Sawt2_exprs2]=getvalue('Sawtooth signal parameters', ...
 					     ['Amplitude';'Period'],list('vec',1,'vec',1),Sawt2_exprs)    
       if mok & sTp2>0 then
@@ -435,6 +428,9 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       end
       //-------------------------------------------------------------------
      case 'pulse' then
+      if ~exists('Pulse_exprs') then 
+	Pulse_exprs=list("1","3","2","0","0");
+      end
       [mok,Amp3,Tp3,Pw3,Pd3,Bias3,Pulse_exprs2]=getvalue('Square wave pulse signal', ...
 						  ['Amplitude';'Period (sec)';'Pulse width(% of period)';'Phase delay (sec)';'Bias'],list('vec',1, ...
 						  'vec',1,'vec',1,'vec',1,'vec', ...
@@ -461,6 +457,9 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       end
       //-------------------------------------------------------------------
      case 'random normal' then
+      if ~exists('random_n_exprs') then 
+	random_n_exprs=list("0","1","0","3","10");
+      end
       [mok,mean4,var4,seed4,sample4,np4,random_n_exprs2]=getvalue('Normal (Gaussian) random signal', ...
 						  ['Mean';'Variance';'Initial seed';'Sample time';'Number of points'],list('vec',1, ...
 						  'vec',1,'vec',1,'vec', ...
@@ -477,6 +476,9 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       end
       //-------------------------------------------------------------------
      case 'random uniform' then
+      if ~exists('random_u_exprs') then 
+	random_u_exprs=list("-1","1","0","3","10");
+      end
       [mok,min5,max5,seed5,sample5,np5,random_u_exprs2]=getvalue('Uniform random signal', ...
 						  ['Minimum';'Maximum';'Initial seed';'Sample time';'Number of points'],list('vec',1, ...
 						  'vec',1,'vec',1,'vec', ...
@@ -511,14 +513,14 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       end
       
       ok=%t
-      delete(f);
+      xdel(curwin);
       return 
       //-------------------------------------------------------------------
      case 'Exit without save' then 
       ipar=[];
       rpar=[];
       ok=%f
-      delete(f);
+      xdel(curwin);
       return
       //-------------------------------------------------------------------
      case 'Clear' then    
@@ -567,70 +569,64 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       //---------------------------------------------------------------       
      case 'Replot' then
       if ~isempty(xy) then 
-	drawlater();
 	points.data=xy;
 	[rpar,ipar]=lookup_drawsplin(a,xy,ipar,rpar);
-	drawnow()
       end
       //----------------------------------------------------------
-     case 'edit' then 
+     case 'edit' then
       HIT=%f
       if N<>0 then
 	xt=xy(:,1);yt=xy(:,2);
 	dist=((xt-ones(N,1)*xc)).^2+((yt-ones(N,1)*yc)).^2
 	[dca,k]=min(dist);
-	rectx=a.data_bounds;
-	ex=abs(rectx(2,1)-rectx(1,1))/80;
-	ey=abs(rectx(2,2)-rectx(1,2))/80;
+	rectx=a.frect;
+	ex=abs(rectx(3)-rectx(1))/80;
+	ey=abs(rectx(4)-rectx(2))/80;
 	if (abs(xc-xt(k))<ex & abs(yc-yt(k))<ey) then 
 	  HIT=%t
 	end
       end
       
+      printf("Edit case : HIT=%d, btn=%d\n",HIT,btn);
       //_________________________
       //  if ~((NOrder==-1|NOrder==-2|NOrder==-3|NOrder==-4)) then
-      if (~HIT)&(btn==0 | btn==3) then    // add point
-	xy=[xy;xc,yc];
-	[xtt,k2]=gsort(xy(:,1),'r','i');xy=xy(k2,:)
-	f.pixmap='on';
-	drawlater();
-	points.data=xy;
-	[rpar,ipar]=lookup_drawsplin(a,xy,ipar,rpar);  
-	show_pixmap(); 
-	drawnow()
-	f.pixmap='off';
+      if ~HIT && (btn==2 | btn==5) then    // add point
+	  xy=[xy;xc,yc];
+ 	  [xtt,k2]=gsort(xy(:,1),'r','i');
+          xy=xy(k2,:)
+	  [xy]=lookup_cleandata(xy)
+          points.children(1).x=xy(:,1);
+	  points.children(1).y=xy(:,2);
+	  [rpar,ipar]=lookup_drawsplin(a,xy,ipar,rpar);  
+	  F.invalidate[]
       end
       
-      if (HIT)&(btn==2 | btn==5) then  //   remove point
-	f.pixmap='on';
-	xy(k,:)=[];
-	drawlater();
-	points.data=xy;
+      if HIT && (btn==2 | btn==5) then  //   remove point
+	if (xy(k,1)>0) |( xy(k,1)==0 & (size(find(xy(:,1)==0),'*')>1)) then 
+	  xy(k,:)=[];
+	end
+	points.children(1).x=xy(:,1);
+	points.children(1).y=xy(:,2);
 	[rpar,ipar]=lookup_drawsplin(a,xy,ipar,rpar);  
-	show_pixmap(); 
-	drawnow()
-	f.pixmap='off';
+	F.invalidate[]
       end   
 
-      if (HIT)&(btn==0) then             // move point
-	f.pixmap='on';
-	[xy,rpar,ipar]=lookup_movept(a,xy,ipar,rpar,k)   
-	f.pixmap='off';
+      if HIT && (btn==0) then             // move point
+	[xy,rpar,ipar,dblclick]=lookup_movept(a,xy,ipar,rpar,k)
       end
       
-      if (HIT)&(btn==10) then             // change data:: double click
+      if (HIT && dblclick) then
+        // change data:: double click
+        dblclick=%f
 	[mok,xt,yt]=getvalue('Enter new x and y',['x';'y'],list('vec', ...
 						  1,'vec',1),list(sci2exp(xy(k,1)),sci2exp(xy(k,2))));
 	if mok then 
 	  xy(k,:)=[xt,yt];
 	  [xy]=lookup_cleandata(xy)
-	  f.pixmap='on';
-	  drawlater();
-	  points.data=xy;
+	  points.children(1).x=xy(:,1);
+	  points.children(1).y=xy(:,2);
 	  [rpar,ipar]=lookup_autoscale(a,xy,ipar,rpar) 
-	  show_pixmap(); 
-	  drawnow()
-	  f.pixmap='off';
+	  F.invalidate[]
 	end
       end
 
@@ -645,90 +641,106 @@ endfunction
 function [orpar,oipar]=lookup_drawsplin(a,xy,iipar,irpar)
   N=size(xy,'r');// new size of xy
   x=xy(:,1);  y=xy(:,2);
-  points=a.children(2).children
-  splines=a.children(1).children
   order=iipar(2);
   periodicoption=iipar(3);
   extrapo=iipar(4);
   orpar=irpar;
-  
   METHOD=lookup_getmethod(order);
-  
-  if periodicoption==1 then PERIODIC='periodic, T='+string(x(N)-x(1));
-  else PERIODIC='aperiodic';end  
-    a.title.text=[string(N)+' points,  '+'Method: '+METHOD+',  '+PERIODIC];
+  if periodicoption==1 then
+    PERIODIC='periodic, T='+string(x(N)-x(1));
+  else
+    PERIODIC='aperiodic';
+  end
+  xtitle(string(N)+' points,  '+'Method: '+METHOD+',  '+PERIODIC);
+  if (N==0) then, return; end
+  if (N==1) then, order=0; end
+  //  NP=50;// number of intermediate points between two data points 
+//   points=a.children(2).children
+//   splines=a.children(1).children
+//    a.title.text=[string(N)+' points,  '+'Method: '+METHOD+',  '+PERIODIC];
 
-    if (N==0) then, return; end
-    if (N==1) then, order=0; end
-    //  NP=50;// number of intermediate points between two data points 
+
+  a.children(2).children(1).x = xy(:,1);  
+  a.children(2).children(1).y = xy(:,2);
+  a.children(1).children(1).x = xy(:,1);
+  a.children(1).children(1).y = xy(:,2);
+
+  points=[a.children(2).children(1).x a.children(2).children(1).y]
+  splines=[a.children(1).children(1).x a.children(1).children(1).y]
+  xmx=max(points(:,1));
+  xmn=min(points(:,1));
+  xmx1=a.frect(3);
+  xmn1=a.frect(1);
+
+  [X,Y,orpar]=Lookup_Do_Spline(N,order,x,y,xmx,xmn,extrapo);
     
-    xmx=max(points.data(:,1));    xmn=min(points.data(:,1)); 
-    xmx1=max(a.x_ticks.locations); xmn1=min(a.x_ticks.locations)
-    xmx=max(xmx,xmx1);    xmn=min(xmn,xmn1);    
-    [X,Y,orpar]=Lookup_Do_Spline(N,order,x,y,xmx,xmn,extrapo);
-    
-    if (periodicoption==1) then 
-      X=[X;X($)];
-      Y=[Y;Y(1)];
-    else
-      //X=[X;XMX];
-      //Y=[Y;Y($)];
-    end
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    splines.data=[X,Y];    
-    oipar=[N;iipar(2);periodicoption;extrapo]
+  if (periodicoption==1) then 
+    X=[X;X($)];
+    Y=[Y;Y(1)];
+  else
+    //X=[X;XMX];
+    //Y=[Y;Y($)];
+  end
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //splines.data=[X,Y];    
+  a.children(1).children(1).x=X
+  a.children(1).children(1).y=Y
+  a.invalidate[];
+  oipar=[N;iipar(2);periodicoption;extrapo]
 endfunction
 
 
-function [xyt,orpar,oipar]=lookup_movept(a,xy,iipar,irpar,k)
+function [xyt,orpar,oipar,dblclick]=lookup_movept(a,xy,iipar,irpar,k)
 //on bouge un point existant
-  points=a.children(2).children
-  splines=a.children(1).children  
+  splines=a.children(1).children(1)
+  points=a.children(2).children(1)
   oipar=iipar
   orpar=irpar
   order=iipar(2);
   x=xy(:,1);  y=xy(:,2);  
-  
   x(k)=[];
   y(k)=[]; 
-
   btn=-1
-
   while ~(btn==3 | btn==0| btn==10| btn==-5)
-    rep=xgetmouse([%t %t]); xc=rep(1);yc=rep(2);btn=rep(3);
-
+    rep=xgetmouse(getmotion=%t,getrelease=%t);
+    xc=rep(1);yc=rep(2);btn=rep(3);
+    xinfo(sprintf('(%5.2f,%5.2f)',xc,yc));
     xt=[x;xc];
     yt=[y;yc];
-    [xt,k2]=gsort(xt,'r','i');yt=yt(k2)
-    xyt=[xt,yt];
-    
-    drawlater();
-    points.data=xyt;    
+    [xt,k2]=gsort(xt,'r','i');
+    yt=yt(k2)
+    xyt=lookup_cleandata([xt,yt]);
+    points.x=xyt(:,1);
+    points.y=xyt(:,2);
     [orpar,oipar]=lookup_drawsplin(a,xyt,oipar,orpar); 
-    show_pixmap();  
-    drawnow()
+    a.invalidate[];
   end
-
+  if btn==3 then
+    dblclick=%t
+  else
+    dblclick=%f
+  end
 endfunction
 
-function   rectx=lookup_findrect(a) 
-  splines=a.children(1).children  
-  points=a.children(2).children
-  if isempty(points.data) then 
-    rectx=a.data_bounds;
-    return;
-  end    
-  ymx1=max(splines.data(:,2));  ymn1=min(splines.data(:,2))
-  xmx=max(points.data(:,1));xmn=min(points.data(:,1));
-  ymx=max(points.data(:,2));ymn=min(points.data(:,2));
-  XMX=max(xmx);            XMN=max(xmn);
-  YMX=max(ymx,ymx1);  YMN=min(ymn,ymn1);
-  dx=XMX-XMN;dy=YMX-YMN
-  if dx==0 then dx=max(XMX/2,1),end;
-  XMX=XMX+dx/50
-  if dy==0 then dy=max(YMX/2,1),end;
-  YMN=YMN-dy/50;YMX=YMX+dy/50;  
-  rectx=[XMN,YMN;XMX,YMX];
+function rectx=lookup_findrect(a)
+    splines=a.children(1).children(1)
+    points=a.children(2).children(1)
+    if isempty(points.x) then 
+      rectx=a.frect;
+      rectx=[rectx(1),rectx(2);rectx(3),rectx(4)];
+      return;
+    end    
+    ymx1=max(splines.y);  ymn1=min(splines.y);
+    xmx=max(points.x);xmn=min(points.x);
+    ymx=max(points.y);ymn=min(points.y);
+    XMX=max(xmx);     XMN=max(xmn);
+    YMX=max(ymx,ymx1);  YMN=min(ymn,ymn1);
+    dx=XMX-XMN;dy=YMX-YMN
+    if dx==0 then dx=max(XMX/2,1),end;
+    XMX=XMX+dx/50
+    if dy==0 then dy=max(YMX/2,1),end;
+    YMN=YMN-dy/50;YMX=YMX+dy/50;  
+    rectx=[XMN,YMN;XMX,YMX];
 endfunction
 
 
@@ -850,19 +862,18 @@ function [xyo]=lookup_cleandata(xye)
   xyo=[xo,yo];
 endfunction
 
-function  [orpar,oipar]=lookup_autoscale(a,xy,inipar,inrpar)   
-  drawlater();    
+function  [orpar,oipar]=lookup_autoscale(a,xy,inipar,inrpar)
   oipar=inipar
   orpar=inrpar
-  points=a.children(2).children
-  splines=a.children(1).children
-  points.data=xy;
-  splines.data=xy;
+  if isempty(xy) then return;end
+  a.children(2).children(1).x = xy(:,1);  
+  a.children(2).children(1).y = xy(:,2);
+  a.children(1).children(1).x = xy(:,1);
+  a.children(1).children(1).y = xy(:,2);
   [orpar,oipar]=lookup_drawsplin(a,xy,oipar,orpar);
-  rectx=lookup_findrect(a);     
-  a.data_bounds=rectx;
-  show_pixmap(); 
-  drawnow()
+  rectx=lookup_findrect(a); 
+  xsetech(frect= [rectx(1),rectx(3),rectx(2),rectx(4)],fixed=%t);
+  a.invalidate[];
 endfunction
 
 function METHOD=lookup_getmethod(order)
@@ -1081,10 +1092,10 @@ function [X,Y,orpar]=Lookup_Do_Spline(N,order,x,y,xmx,xmn,extrapo)
     catch
       xinfo('ERROR in SPLINE: '+METHOD)    
     end
-  end  
+  end
   if extrapo==0 then 
-    X=[X;xmx];
-    Y=[Y;y(N)];
+    X=[X(:);xmx];
+    Y=[Y(:);y(N)];
   end
 
 endfunction

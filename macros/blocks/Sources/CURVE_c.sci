@@ -193,7 +193,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
     oipar=[N;iipar(2);periodicoption;extrapo]
   endfunction
 
-  function [xyt,orpar,oipar]=curve_movept(a,xy,iipar,irpar,k)
+  function [xyt,orpar,oipar,dblclick]=curve_movept(a,xy,iipar,irpar,k)
   // handler activated when moving a control point 
     splines=a.children(1).children(1)
     points=a.children(2).children(1)
@@ -232,6 +232,11 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
       points.y=xyt(:,2);
       [orpar,oipar]=curve_update_spline(a,xyt,oipar,orpar); 
       a.invalidate[];
+    end
+    if btn==3 then
+      dblclick=%t
+    else
+      dblclick=%f
     end
   endfunction
 
@@ -599,9 +604,9 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
   points.children(1).hilited=%t;
   [rpar,ipar]=curve_autoscale(a,xy,ipar,rpar) 
   F.invalidate[];  
+  dblclick=%f
 
   // start of interactive loop 
-  
   while %t then 
     N=size(xy,'r');
     [btn,xc,yc,win,Cmenu]=get_click();
@@ -900,11 +905,12 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
 
       if HIT && btn==0 then 
 	// move point
-	[xy,rpar,ipar]=curve_movept(a,xy,ipar,rpar,k)   
+	[xy,rpar,ipar,dblclick]=curve_movept(a,xy,ipar,rpar,k)   
       end
       
-      if (HIT)&(btn==10) then             
+      if (HIT && dblclick) then             
 	// change data:: double click
+        dblclick=%f
 	[mok,xt,yt]=getvalue('Enter new x and y',['x';'y'],...
 			     list('vec', 1,'vec',1),...
 			     list(sci2exp(xy(k,1)),sci2exp(xy(k,2))));
