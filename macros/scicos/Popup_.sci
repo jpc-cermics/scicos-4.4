@@ -44,7 +44,6 @@ function Popup_()
           selecthilite(Select,%f);
           Select=[k %win]
           selecthilite(Select,%t)
-	  scicos_menus_select_set_sensitivity(k,%win);
         end
       else
         //** popup in the void
@@ -53,7 +52,6 @@ function Popup_()
         if ~isempty(Select) then
           selecthilite(Select,%f);
           Select=[]
-	  scicos_menus_select_set_sensitivity([],%win);
         end
       end
     elseif slevel>1 then
@@ -82,7 +80,6 @@ function Popup_()
         state_pal=1 
         Select=[k %win]
         selecthilite(Select,%t)
-	scicos_menus_select_set_sensitivity(k,%win);
       else
         //** in the void of a palette 
         Cmenu='';%pt=[];%ppt=[];Select=[];
@@ -107,7 +104,6 @@ function Popup_()
         selecthilite(Select,%f);
         Select=[k,%win]
         selecthilite(Select,%t);
-	scicos_menus_select_set_sensitivity(k,%win);
       else
         //** popup in the void
         state_var=2
@@ -115,7 +111,6 @@ function Popup_()
         if ~isempty(Select) then
           selecthilite(Select,%f);
           Select=[]
-	  scicos_menus_select_set_sensitivity([],%win);
         end
       end
     elseif slevel>1 then
@@ -124,7 +119,6 @@ function Popup_()
       if ~isempty(k) then
         Select=[k,%win];
         selecthilite(Select,%t)
-	scicos_menus_select_set_sensitivity(k,%win);
         state_var=3
       else
         //** in the void 
@@ -148,6 +142,5 @@ function Popup_()
     %pt=[];%ppt=[];
     selecthilite(Select,%f);
     Select=[];
-    scicos_menus_select_set_sensitivity([],%win);
   end
 endfunction

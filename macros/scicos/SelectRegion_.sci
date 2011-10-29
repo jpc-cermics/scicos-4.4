@@ -33,7 +33,6 @@ function Select=do_select_region(win);
   elseif win==curwin then 
     //click inside the current window
     [in,out]=get_objs_in_rect(scs_m,ox,oy,w,h)
-    scicos_menus_select_set_sensitivity(in,win) 
   elseif slevel>1 then
     //CESTFAUXICI
     execstr('[in,out]=get_objs_in_rect(scs_m_'+string(windows(kc,1))',ox,oy,w,h)

@@ -258,6 +258,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
             selecthilite(Select_back,%f)
             selecthilite(Select,%t)
           end
+          scicos_menu_update_sensitivity(Clipboard,Select)
+
           if Cmenu=="OpenSet" then
             ierr=execstr('exec(OpenSet_);',errcatch=%t)
             if ierr==%f then message(catenate(lasterror())),end
@@ -304,6 +306,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
           Select=[]; //** imply a full Reset 
         end
       end
+      scicos_menu_update_sensitivity(Clipboard,Select)
 
       [CmenuType, mess]=CmType(Cmenu);
       xinfo(mess);

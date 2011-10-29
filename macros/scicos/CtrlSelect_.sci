@@ -22,7 +22,6 @@ function CtrlSelect_()
       ki=find(k==Select(:,1)&%win==Select(:,2))
     else
       Select=[Select;[k,%win]];
-      scicos_menus_select_set_sensitivity(Select(:,1),%win) ;
       %pt=[];return
     end
     if ~isempty(Select) & Select(1,2)<>%win then
@@ -30,12 +29,9 @@ function CtrlSelect_()
     end
     if isempty(ki) then
       Select=[Select;[k,%win]];
-      scicos_menus_select_set_sensitivity(Select(:,1),%win) ;
       %pt=[];return
     else 
       Select(ki,:)=[];
-      if isempty(Select) then Select=zeros(0,1);end 
-      scicos_menus_select_set_sensitivity(Select(:,1),%win) ;
       %pt=[];return
     end
   else

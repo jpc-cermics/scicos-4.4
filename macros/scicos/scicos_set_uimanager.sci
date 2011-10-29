@@ -90,6 +90,7 @@ function scicos_set_uimanager(is_top)
 	   "      <menuitem name=""Copy"" action=""scmenu_copy"" />";
 	   "      <menuitem name=""Paste"" action=""scmenu_paste"" />";
 	   "      <menuitem name=""Delete"" action=""scmenu_delete"" />";
+	   "      <menuitem name=""Select All"" action=""scmenu_select_all"" />";
 	   "      <menuitem name=""Align"" action=""scmenu_align"" />";
 	   "      <menuitem name=""Add new block"" action=""scmenu_add_new_block"" />";
 	   "      <menu name=""Block Menu"" action=""scmenu_block_menu"">";
@@ -454,6 +455,7 @@ function S=scicos_actions()
 	      'scmenu_save_block_gui','Save Block GUI',"","";
 	      'scmenu_scicos_documentation','Scicos Documentation',"","";
 	      'scmenu_scicoslab_import','Scicoslab Import',"","";
+	      'scmenu_select_all','Select All',"<Ctrl>a","";
 	      'scmenu_set_code_gen_properties','Set Code Gen Properties',"","";
 	      'scmenu_set_default_action','Set Default Action',"","";
 	      'scmenu_set_diagram_info','Set Diagram Info',"","";
@@ -487,7 +489,7 @@ endfunction
 function scicos_menus_select_set_sensitivity(selection,win) 
 // change menu sensitivity according to selection 
 // here we change cut and copy 
-  // return ;// to be activated latter XXXX 
+  // return ;// to be activated latter XXXX
   if isempty(selection) then 
     sel= 'None';
   elseif length(selection) > 1 then 
@@ -524,7 +526,19 @@ function scicos_menus_paste_set_sensitivity(flag)
   // return; // to be activated latter XXXX 
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for k=1:size(wins,'*') 
-    scicos_action_set_sensitivity(wins(k),"scmenu_paste",%t);
+    scicos_action_set_sensitivity(wins(k),"scmenu_paste",flag);
   end
 endfunction
 
+function scicos_menu_update_sensitivity(Clipboard,Select)
+  if ~isempty(Clipboard) then
+    scicos_menus_paste_set_sensitivity(%t)
+  else
+    scicos_menus_paste_set_sensitivity(%f)
+  end
+  if ~isempty(Select) then
+    scicos_menus_select_set_sensitivity(Select(:,1),curwin);
+  else
+    scicos_menus_select_set_sensitivity(Select,curwin);
+  end
+endfunction

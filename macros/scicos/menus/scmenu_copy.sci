@@ -9,13 +9,11 @@ function scmenu_copy()
     else
       Clipboard = scs_m_sel
     end
-    scicos_menus_paste_set_sensitivity(%t);
     Cmenu='';
   elseif size(Select,1)==1
     //** single object 
     [pt1,win1,o] = get_selection(Select,%pt,%win)
     Clipboard = o ;
-    scicos_menus_paste_set_sensitivity(%t);
     Cmenu='';
   else
     //** no object 
@@ -62,4 +60,3 @@ function [%pt,%win,reg] = get_selection2(Select,%pt,%win)
   %win=win
 endfunction
 
-  

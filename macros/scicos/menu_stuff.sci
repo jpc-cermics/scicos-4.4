@@ -106,6 +106,7 @@ function [menus]=scicos_menu_prepare()
 	  'Shortcuts';
 	  'Calc';
 	  'Help';
+          'Select All';
 	  'Scicos Documentation';
 	  'Demos';
 	  'Force Open';
@@ -129,7 +130,6 @@ function [menus]=scicos_menu_prepare()
 	   'PlaceDropped'    , 'PlaceDropped_'
 	   'BrowseTo'        , 'BrowseTo_'
 	   'Place in Browser', 'PlaceinBrowser_'
-	   'Select All'      , 'SelectAll_'   
 	   'Smart Link'      , 'scmenu_smart_getlink'];
 
 endfunction
