@@ -47,8 +47,8 @@ function [scs_m,edited]=do_SaveAs()
     else
       [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0, needcompile)
       if ~ok then 
-	message('do_update failed');
-	return,
+        message('do_update failed');
+        return
       end
       %cpr.state=%state0
     end
