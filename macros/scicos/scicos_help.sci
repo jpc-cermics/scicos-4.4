@@ -302,7 +302,7 @@ function H=scicos_help_menu()
 
   H('scmenu_default_window_parameters')=...
       [" When you select this menu item";
-       " default size and view is applied";
+       " default size and view are applied";
        " to the current window."];
 
   H('scmenu_scmenu_available_parameters')=...
