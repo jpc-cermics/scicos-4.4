@@ -256,6 +256,7 @@ PNGS= ABSBLK_f.png \
 	SUM_f.png \
 	SUMMATION.png \
 	SUPER_f.png \
+        SWITCH2_s.png \
 	SWITCH2_m.png \
 	SWITCH2.png \
 	SWITCH_f.png \
