@@ -13,7 +13,7 @@ function %zoom=restore(curwin,%zoom)
   end
   xset('window',curwin);
   xselect();
-  
+
   if size(scs_m.props.wpar,'*')>12 then
     // we already have sizes recorded in scs_m
     gh=nsp_graphic_widget(curwin);

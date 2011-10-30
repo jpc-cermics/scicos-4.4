@@ -2,7 +2,7 @@ function scmenu_replot()
   Cmenu=''
   %pt=[]
   Select=[]
-  // we would need also a Replot without a resize 
+  // we would need also a Replot without a resize
   window_set_size();
   scs_m=do_replot(scs_m);
 endfunction

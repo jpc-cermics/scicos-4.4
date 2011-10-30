@@ -14,7 +14,6 @@ function window_set_size(win,viewport)
   [mrect,wdim]=windows_compute_size();
   xset("wresize",0);
   xset('wdim',wdim(1),wdim(2));
-  
   arect=[0 0 0 0]
   wrect=[0,0,1,1];
   
@@ -28,24 +27,35 @@ function window_set_size(win,viewport)
     A.clip=%f
     // rect is hidden but can be accessed through set and get
     A.set[rect=mrect];
+    A.invalidate[]
   end
-  xflush()
   // center the graphic viewport inside the graphic window
   if isequal(viewport,%f) then
     Vbox=gh.get_children[]
-    Vbox=Vbox(1)
+    Vbox=Vbox(1);
     ScrolledWindow=Vbox.get_children[];
     // scrolled window is the mast one 
-    ScrolledWindow=ScrolledWindow($)
-    hscrollbar=ScrolledWindow.get_hadjustment[]
-    vscrollbar=ScrolledWindow.get_vadjustment[]
-    %XSHIFT=(hscrollbar.upper-hscrollbar.page_size)/2
-    %YSHIFT=(vscrollbar.upper-vscrollbar.page_size)/2
+    ScrolledWindow=ScrolledWindow($);
+    hscrollbar=ScrolledWindow.get_hadjustment[];
+    vscrollbar=ScrolledWindow.get_vadjustment[];
+    %XSHIFT=(int(wdim(1))-hscrollbar.page_size)/2
+    %YSHIFT=(int(wdim(2))-vscrollbar.page_size)/2
+
+    //printf("wdim(1)=%f, XSHIFT=%f\n",wdim(1),%XSHIFT);
+    //printf("hscroll : upper=%f, page_size=%f, XSHIFT=%f\n",hscrollbar.upper,hscrollbar.page_size,(hscrollbar.upper-hscrollbar.page_size)/2);
+
+    //printf("wdim(2)=%f, YSHIFT=%f\n",wdim(2),%YSHIFT);
+    //printf("vscroll : upper=%f, page_size=%f, YSHIFT=%f\n",vscrollbar.upper,vscrollbar.page_size,(vscrollbar.upper-vscrollbar.page_size)/2);
+
+    hscrollbar.set_value[%XSHIFT]
+    vscrollbar.set_value[%YSHIFT]
   else
     %XSHIFT=viewport(1)
     %YSHIFT=viewport(2)
+    xset('viewport',%XSHIFT,%YSHIFT)
   end
-  xset('viewport',%XSHIFT,%YSHIFT)
+  F.invalidate[]
+  F.process_updates[]
   xflush()
 endfunction
 

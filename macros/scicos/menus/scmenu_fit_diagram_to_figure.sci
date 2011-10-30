@@ -22,11 +22,13 @@ function scmenu_fit_diagram_to_figure()
    hrect=hscrollbar.allocation
    vrect=vscrollbar.allocation
 
-   %zoom_w=(r(1)-vrect.width)/(w*(1+margins(1)+margins(2)))
+   r=[hrect.width vrect.height]
+
+   %zoom_w=r(1)/(w*(1+margins(1)+margins(2)))
    //suppose for that time that menu bar & status bar have the same height
    //like the scroolbar
-   %zoom_h=(r(2)-hrect.height*3)/(h*(1+margins(3)+margins(4)))
+   %zoom_h=r(2)/(h*(1+margins(3)+margins(4)))
    %zoom=min(%zoom_w,%zoom_h);
-   window_set_size();
    xinfo(' ');
+   window_set_size(curwin,%f);
 endfunction

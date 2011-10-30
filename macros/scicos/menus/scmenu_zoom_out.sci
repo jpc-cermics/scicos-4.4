@@ -8,7 +8,8 @@ function scmenu_zoom_out()
   winsize=gh.get_size[]
   viewport=xget("viewport");
   viewport=viewport/zoomfactor-0.5*winsize*(1-1/zoomfactor)
-  window_set_size(curwin,viewport)
-  scs_m=do_replot(scs_m);
+  //window_set_size(curwin,viewport)
+  window_set_size(curwin,%f)
+  //scs_m=do_replot(scs_m);
   xinfo(' ')
 endfunction
