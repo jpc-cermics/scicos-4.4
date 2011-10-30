@@ -300,6 +300,10 @@ function H=scicos_help_menu()
        " the diagram is fit to the size";
        " of the current window."];
 
+  H('scmenu_default_window_parameters')=...
+      [" When you select this menu item";
+       " default size and view is applied";
+       " to the current window."];
 
   H('scmenu_scmenu_available_parameters')=...
       ["This menu shows the list of symbolic parameters defined";

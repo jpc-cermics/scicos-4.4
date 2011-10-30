@@ -27,7 +27,7 @@ function scicos_set_uimanager(is_top)
 	   "    <toolitem name=""Zoom in"" action=""scmenu_zoom_in"" />"
 	   "    <toolitem name=""Zoom out"" action=""scmenu_zoom_out"" />"
 	   "    <toolitem name=""Zoom fit"" action=""scmenu_fit_diagram_to_figure"" />"
-	   "    <toolitem name=""Zoom 100"" action=""scmenu_zoom_100"" />"
+	   "    <toolitem name=""Zoom 100"" action=""scmenu_default_window_parameters"" />"
 	   "    <separator name=""tsep1"" />"
 	   "    <toolitem name=""Cut"" action=""scmenu_cut"" />"
 	   "    <toolitem name=""Copy"" action=""scmenu_copy"" />"
@@ -117,7 +117,6 @@ function scicos_set_uimanager(is_top)
 	   "    <menu name=""View"" action=""scmenu_view_menu"">";
 	   "      <menuitem name=""Zoom in"" action=""scmenu_zoom_in"" />";
 	   "      <menuitem name=""Zoom out"" action=""scmenu_zoom_out"" />";
-	   "      <menuitem name=""Zoom 100"" action=""scmenu_zoom_100"" />";
 	   "      <menuitem name=""Fit diagram to figure"" action=""scmenu_fit_diagram_to_figure"" />";
 	   "      <menuitem name=""Default window parameters"" action=""scmenu_default_window_parameters"" />";
 	   "      <menuitem name=""Available Parameters"" action=""scmenu_available_parameters"" />";
@@ -406,7 +405,7 @@ function S=scicos_actions()
 	      'scmenu_cut','Cut',"<control>X","gtk-cut";
 	      'scmenu_debug_level','Debug Level',"","";
 	      'scmenu_default_link_colors','Default Link Colors',"","";
-	      'scmenu_default_window_parameters','Default window parameters',"","";
+	      'scmenu_default_window_parameters','Default window parameters',"","gtk-zoom-100";
 	      'scmenu_delete','Delete',"Delete","";
 	      'scmenu_demos','Demos',"","";
 	      'scmenu_details','Details',"","";
@@ -466,7 +465,6 @@ function S=scicos_actions()
 	      'scmenu_undo','Undo',"","gtk-undo";
 	      'scmenu_up','Up to Parent',"","gtk-go-up";
 	      'scmenu_up_to_main_diagram','Up To Main Diagram',"","gtk-goto-top";
-	      'scmenu_zoom_100','Zoom 100',"","gtk-zoom-100";
 	      'scmenu_zoom_in','Zoom in',"","gtk-zoom-in";
 	      'scmenu_zoom_out','Zoom out',"","gtk-zoom-out"];
   S.menu= [ "scmenu_block_menu","Block","","";

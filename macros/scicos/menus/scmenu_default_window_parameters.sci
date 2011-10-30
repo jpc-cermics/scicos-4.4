@@ -4,5 +4,5 @@ function scmenu_default_window_parameters()
   %zoom=1.4   // not a good idea, use a variable. It is also used in scicos.sci
   pwindow_set_size();
   window_set_size();
-  
 endfunction
+
