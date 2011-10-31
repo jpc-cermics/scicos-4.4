@@ -333,7 +333,6 @@ endfunction
 function scicos_set_stop_sensitivity(sensitive) 
 // set the stop sensitivity for a set of windows.
 //
-pause
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for i=1:length(wins)
     window=nsp_graphic_widget(wins(i));
@@ -342,7 +341,7 @@ pause
       L=uimanager.get_action_groups[]
       for j=1:length(L)
 	action_group = L(j);
-	if action_group.get_name[]=="scicos_stop" then 
+	if action_group.get_name[]=="scicos_stop" then
 	  action_group.set_property["sensitive",sensitive];
 	end
       end
@@ -360,6 +359,7 @@ function enablemenus()
 // disable all actions 
 //printf("debug: enable all menus \n");
   scicos_menu_sensitivity(%t);
+  scicos_set_stop_sensitivity(%f);
 endfunction
 
 function scicos_menu_sensitivity(flag)
@@ -530,7 +530,6 @@ function scicos_menus_paste_set_sensitivity(flag)
 endfunction
 
 function scicos_menu_update_sensitivity(Clipboard,Select)
-  scicos_set_stop_sensitivity(%f);
   if ~isempty(Clipboard) then
     scicos_menus_paste_set_sensitivity(%t)
   else
