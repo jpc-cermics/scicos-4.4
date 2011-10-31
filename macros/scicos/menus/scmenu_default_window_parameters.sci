@@ -5,4 +5,3 @@ function scmenu_default_window_parameters()
   pwindow_set_size();
   window_set_size();
 endfunction
-

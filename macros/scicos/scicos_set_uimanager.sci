@@ -332,7 +332,8 @@ endfunction
   
 function scicos_set_stop_sensitivity(sensitive) 
 // set the stop sensitivity for a set of windows.
-// 
+//
+pause
   wins=intersect(winsid(),[inactive_windows(2)(:);curwin]');
   for i=1:length(wins)
     window=nsp_graphic_widget(wins(i));
@@ -529,6 +530,7 @@ function scicos_menus_paste_set_sensitivity(flag)
 endfunction
 
 function scicos_menu_update_sensitivity(Clipboard,Select)
+  scicos_set_stop_sensitivity(%f);
   if ~isempty(Clipboard) then
     scicos_menus_paste_set_sensitivity(%t)
   else
