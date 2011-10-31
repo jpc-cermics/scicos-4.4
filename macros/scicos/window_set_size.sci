@@ -11,23 +11,29 @@ function window_set_size(win,viewport)
   F=get_current_figure()
   gh=nsp_graphic_widget(win)
 
+  if length(F.children)==0 then
+    with_axe_obj=%f
+  else
+    with_axe_obj=%t
+    A=F.children(1)
+    A.show=%f
+  end
+
   [mrect,wdim]=windows_compute_size();
   xset("wresize",0);
   xset('wdim',wdim(1),wdim(2));
   arect=[0 0 0 0]
   wrect=[0,0,1,1];
   
-  if length(F.children)==0 then
+  if ~with_axe_obj then
     xsetech(arect=arect,frect=mrect,fixed=%t,clip=%f,axesflag=0,iso=%t)
   else
-    A=F.children(1)
     A.arect=arect
     A.frect=mrect
     A.fixed=%t
     A.clip=%f
     // rect is hidden but can be accessed through set and get
     A.set[rect=mrect];
-    A.invalidate[]
   end
   // center the graphic viewport inside the graphic window
   if isequal(viewport,%f) then
@@ -57,6 +63,10 @@ function window_set_size(win,viewport)
   F.invalidate[]
   F.process_updates[]
   xflush()
+  if with_axe_obj then
+    A.show=%t;
+    A.invalidate[];
+  end
 endfunction
 
 function [frect,wdim]=windows_compute_size()
