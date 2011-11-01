@@ -6,8 +6,10 @@ function scmenu_undo()
     // need also to replot sub diagrams 
     %r=message(['Undo operation undoes changes in a subdiagram';
                 'These changes will be lost for ever'],['Proceed';'Cancel'])
-    if %r<>2 then
-      [scs_m]=do_undo(scs_m);
+    if isequal(%r,1) then
+      [scs_m]     = do_undo(scs_m);
+      Select      = [];
+      needcompile = nc_save;
       supers=findopenchildren(scs_m,super_path,list(super_path))
       Scicos_commands=[]
       for i=1:size(supers)
@@ -15,6 +17,7 @@ function scmenu_undo()
 			 '%diagram_path_objective='+sci2exp(supers(i))+';%scicos_navig=1';
 			 'Cmenu='"Replot'"'];
       end
+      enable_undo = %f;
     end
   elseif enable_undo then
     [scs_m]     = do_undo(scs_m);
