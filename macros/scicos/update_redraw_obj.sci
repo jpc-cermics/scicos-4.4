@@ -18,7 +18,8 @@ function scs_m=update_redraw_obj(scs_m,path,o)
   if or(curwin==winsid()) then
     F=get_current_figure();
     F.remove[scs_m(path).gr];
-    o=drawobj(o,F)    
+    o=drawobj(o,F)
+    F.invalidate[]
   end
   scs_m(path)=o;
 endfunction

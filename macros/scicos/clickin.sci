@@ -203,7 +203,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
     // 
     resume(Cmenu='Link');
   elseif o.type  =='Text' then
-    // 
+    //
     eok=execstr('o_n='+o.gui+'(''set'',o)',errcatch=%t)
     if ~eok then
       message('Error in GUI of block %s\n',o.gui);
