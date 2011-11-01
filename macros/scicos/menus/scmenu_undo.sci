@@ -1,6 +1,6 @@
 function scmenu_undo()
-// menu activated when undoing 
-  Cmenu=''; %pt=[]
+  Cmenu='';
+  %pt=[];
   
   if isequal(enable_undo,2) then 
     // need also to replot sub diagrams 
@@ -17,13 +17,13 @@ function scmenu_undo()
       end
     end
   elseif enable_undo then
-    // standard undo 
-    [scs_m]=do_undo(scs_m);
+    [scs_m]     = do_undo(scs_m);
+    Select      = [];
+    needcompile = nc_save;
+    enable_undo = %f;
   else
-    // no undo 
     message('No more undo available.')
   end
-  Select=[]; needcompile=nc_save; enable_undo=%f
 endfunction
 
 function [scs_m]=do_undo(scs_m)
