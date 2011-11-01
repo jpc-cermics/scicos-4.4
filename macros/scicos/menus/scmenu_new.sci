@@ -23,5 +23,6 @@ function scmenu_new()
     window_set_size()
     Cmenu='Replot'
     edited=%f
+    Select=[]
   end
 endfunction
