@@ -163,6 +163,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     if ~gh_current_window.check_data['user_data'] then 
       gh_current_window.user_data=list([]);
     end
+    //pause
     user_data=gh_current_window.user_data;
     if ~isequal(user_data(1),scs_m) then
       ierr=execstr('load(getenv(''NSP_TMPDIR'')+''/AllWindows'')',errcatch=%t)
@@ -190,6 +191,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       window_set_size();
       scs_m=drawobjs(scs_m,curwin);
     else
+      if size(user_data(1).props.wpar,'*')>12 then
+        %zoom=scs_m.props.wpar(13)
+      end
       Select=user_data(2)
       enable_undo=user_data(3)
       scs_m_save=user_data(4)
