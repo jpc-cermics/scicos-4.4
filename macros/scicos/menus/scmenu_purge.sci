@@ -4,7 +4,7 @@ function scmenu_purge()
   [scs_m,changed]= do_purge(scs_m);
   if changed then 
     edited=%t;
-    scs_m_save=sc;enable_undo=%t;needcompile=4;
+    scs_m_save=sc;enable_undo=%t;needcompile=4;unhilite_all(scs_m,draw=%t);Select=[]
   end
 endfunction
 
@@ -17,7 +17,7 @@ function [scs_m_new,changed]=do_purge(scs_m)
   //get index of deleted blocks
   deleted=[];
   for k=1:nx
-    typ=scs_m.objs(k).type 
+    typ=scs_m.objs(k).type
     if typ=='Deleted' then
       deleted=[deleted,k];
     elseif typ=='Block' then
@@ -31,7 +31,6 @@ function [scs_m_new,changed]=do_purge(scs_m)
     scs_m_new=scs_m;
     return
   end
-
   retained=1:nx;retained(deleted)=[];
   //compute index cross table
   old_to_new=ones_new(1,nx);
