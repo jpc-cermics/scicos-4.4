@@ -444,46 +444,9 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
     end
     
     //** Window change and window closure protection
-    //gh_figure = gcf()
-    //if gh_figure.figure_id<>curwin | rep(3)==-100 then
-    //  [%win,Cmenu] = resume(curwin,'Quit')
-    //end
+    //TODO
 
-    if %scicos_snap then
-      SnapIncX = %scs_wgrid(1)
-      SnapIncY = %scs_wgrid(2)
-      if abs( floor(rep(1)/SnapIncX)-(rep(1)/SnapIncX) ) <...
-	    abs(  ceil(rep(1)/SnapIncX)-(rep(1)/SnapIncX) )
-	delta_x  = floor((rep(1)-xc)/SnapIncX)*SnapIncX;
-	xc = floor(rep(1)/SnapIncX)*SnapIncX ;
-      else
-	delta_x  = ceil((rep(1)-xc)/SnapIncX)*SnapIncX;
-	xc = ceil(rep(1)/SnapIncX)*SnapIncX ;
-      end
-      if abs( floor(rep(2)/SnapIncY)-(rep(2)/SnapIncY) ) <...
-	    abs(  ceil(rep(2)/SnapIncY)-(rep(2)/SnapIncY) )
-	delta_y  = floor((rep(2)-yc)/SnapIncY)*SnapIncY;
-	yc = floor(rep(2)/SnapIncY)*SnapIncY ;
-      else
-	delta_y  = ceil((rep(2)-yc)/SnapIncY)*SnapIncY;
-	yc = ceil(rep(2)/SnapIncY)*SnapIncY ;
-      end
-    else
-      //** Mouse movement limitation: to avoid go off the screen
-      //if rep(1)>x_min & rep(1)<x_max
-      delta_x = rep(1) - xc ; //** calc the differential position
-      xc = rep(1);
-      //else
-      //  delta_x = 0.0 ;
-      //end
-
-      //if rep(2)>y_min & rep(2)<y_max
-      delta_y = rep(2) - yc ; //** calc the differential position
-      yc = rep(2)
-      //else
-      //  delta_y = 0.0 ;
-      //end
-    end
+    [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,%scicos_snap,%scs_wgrid(1),%scs_wgrid(2))
 
     //** Integrate the movements
     move_x = move_x +  delta_x ;
@@ -742,3 +705,30 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
     end //** of if
   end //**----------------------------------------
 endfunction
+
+function [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,%scicos_snap,SnapIncX,SnapIncY)
+  if %scicos_snap then
+    if abs( floor(rep(1)/SnapIncX)-(rep(1)/SnapIncX) ) <...
+	    abs(  ceil(rep(1)/SnapIncX)-(rep(1)/SnapIncX) )
+      delta_x  = floor((rep(1)-xc)/SnapIncX)*SnapIncX;
+      xc = floor(rep(1)/SnapIncX)*SnapIncX ;
+    else
+      delta_x  = ceil((rep(1)-xc)/SnapIncX)*SnapIncX;
+      xc = ceil(rep(1)/SnapIncX)*SnapIncX ;
+    end
+    if abs( floor(rep(2)/SnapIncY)-(rep(2)/SnapIncY) ) <...
+	    abs(  ceil(rep(2)/SnapIncY)-(rep(2)/SnapIncY) )
+      delta_y  = floor((rep(2)-yc)/SnapIncY)*SnapIncY;
+      yc = floor(rep(2)/SnapIncY)*SnapIncY ;
+    else
+      delta_y  = ceil((rep(2)-yc)/SnapIncY)*SnapIncY;
+      yc = ceil(rep(2)/SnapIncY)*SnapIncY ;
+    end
+  else
+    delta_x = rep(1)-xc;
+    xc = rep(1);
+    delta_y = rep(2)-yc;
+    yc = rep(2);
+  end
+endfunction
+

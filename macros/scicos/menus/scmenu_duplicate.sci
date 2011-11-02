@@ -50,11 +50,11 @@ function [scs_m,changed]=do_duplicate(pt,scs_m,Select)
   F.draw_now[];
   while rep(3)==-1 then 
     // get new position
-    //printf("In Copy moving %d\n",curwin);
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f)
-    //printf("In Copy moving after getmouse %f,%f,%f\n",rep(1),rep(2),rep(3));
-    tr = rep(1:2) - pt;
-    pt = rep(1:2)
+    [tr(1),tr(2),pt(1),pt(2)]=get_scicos_delta(rep,..
+                                 pt(1),pt(2),%scicos_snap,%scs_wgrid(1),%scs_wgrid(2))
+//    tr = rep(1:2) - pt;
+//    pt = rep(1:2)
     F.draw_latter[];
     o.gr.translate[tr];
     o.graphics.orig=o.graphics.orig + tr;

@@ -91,8 +91,10 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
     if or(rep(3)==[0,-5, 2, 3, 5]) then
       break
     end
-    pt = rep(1:2);
-    tr= pt - pto;
+    [tr(1),tr(2),pt(1),pt(2)]=get_scicos_delta(rep,..
+                                 pto(1),pto(2),%scicos_snap,%scs_wgrid(1),%scs_wgrid(2))
+    //pt = rep(1:2);
+    //tr= pt - pto;
     // draw block shape
     o.gr.translate[tr];
     // draw moving links
