@@ -185,7 +185,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       needsavetest=%f
       xset('window',curwin);
       scicos_set_uimanager(slevel <=1 );
-      //pause
       scs_m=scs_m_remove_gr(scs_m,recursive=%f);
       %zoom=restore(curwin,%zoom)
       window_set_size();
@@ -215,10 +214,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
     end
   end
-
-  //scicos_set_uimanager(slevel <=1 );
-  //printf(" ********* scicos.sci, après set ui manager\n");
-  //window_set_size(); //TOBEREMOVED
 
   // be sure that context is ok at this level.
   if type(scs_m.props.context,'short')<>'s' then 
