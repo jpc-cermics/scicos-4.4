@@ -1,4 +1,17 @@
 function [x,y,typ]=M_VSWITCH(job,arg1,arg2)
+  
+  function draw_m_switch(orig,sz)
+  // used to draw the icon.
+    nn=evstr(arg1.graphics.exprs(1));
+    dd=sz(2)/(nn);
+    d=dd*(0:(nn-1))
+    rects=[orig(1)-0*d;orig(2)+sz(2)-d;sz(1)+0*d;dd+0*d];
+    colors=8*ones_new(1,nn);
+    colors(arg1.model.ipar+1)=3;
+    xrects(rects,colors);
+    xsegs([orig(1)+0*d;orig(1)+sz(1)+0*d],[orig(2)+sz(2)-d;orig(2)+sz(2)-d]);
+  endfunction
+  
   x=[];y=[];typ=[]
   select job
    case 'plot' then
@@ -58,18 +71,6 @@ function [x,y,typ]=M_VSWITCH(job,arg1,arg2)
     gr_i=['draw_m_switch(orig,sz)'];
     x=standard_define([2 2],model,exprs,gr_i,'M_VSWITCH')
   end
-endfunction
-
-
-function draw_m_switch(orig,sz)
-  nn=evstr(arg1.graphics.exprs(1));
-  dd=sz(2)/(nn);
-  d=dd*(0:(nn-1))
-  rects=[orig(1)-0*d;orig(2)+sz(2)-d;sz(1)+0*d;dd+0*d];
-  colors=8*ones_new(1,nn);
-  colors(arg1.model.ipar+1)=3;
-  xrects(rects,colors);
-  xsegs([orig(1)+0*d;orig(1)+sz(1)+0*d],[orig(2)+sz(2)-d;orig(2)+sz(2)-d]);
 endfunction
 
 
