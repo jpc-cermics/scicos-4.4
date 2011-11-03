@@ -1,16 +1,3 @@
-
-function H=scicos_help() 
-// Build the main hash table 
-
-  h=tlist(['scilst']);
-  if getenv('LANGUAGE','void')=='fr' then str='_fr' else str='';end 
-  for x=['diagram','params','model','graphics','link','state','sim','block','cpr'] do
-    cmd= sprintf('h(x)=scicos_help_%s%s',x,str);
-    ok=execstr('cmd',errcatch=%t);
-  end
-  H=tlist(['sch','menu','scilst'],scicos_help_menu(),h);
-endfunction
-
 function H=scicos_help_menu()
 // Build a hash table with scicos help menu 
 // i.e help strings for the scicos menus 
@@ -635,2323 +622,2349 @@ function H=scicos_help_menu()
   //                 " on a node of the ""Navigator"" window."];
 endfunction
 
-function H=scicos_help_cpr()
-// help fo cpr 
-  H=hash(100);
-  
-  H(  'cpr')=...
-      [" The Scilab object {scicos_cpr} contains "
-       " the result of the compilation."
-       " That structure includes fields {scicos_state}, {scicos_sim},"
-       " {cor} and {corinv}."
-       ""
-       " Size : 5.";
-       " Type : scilab list."];
-
-  H(  'state')=...
-      [" Scilab typed list of type {xcs}. It contains all"
-       " the states of the model, that is, everything than"
-       " can evolve during the simulation.";
-       " state contains {x}, {z}, {oz}, {iz}, "
-       " {tevts}, {evtspt}, {pointi} and {outtb}."
-       " ";
-       " Size : 9.";
-       " Type : scilab tlist."];
-
-  H(  'sim')=...
-      [" Scilab typed list of type {scs}. It contains "
-       " static arrays coming from the result of the"
-       " compilation. That arrays does not evolve"
-       " during the simulation."
-       " ";
-       " Size : 33.";
-       " Type : scilab tlist."];
-
-  H(  'cor')=...
-      [" It is a list with same recursive structure"
-       " as scs_m. Each leaf contains the index of "
-       " associated block in sim data structure. "
-       " ";
-       " Size : number of objects in scs_m.";
-       " Type : scilab list."];
-
-
-  H(  'corinv')=...
-      [" corinv(i) is the path of i th block"
-       " defined in sim data structure in the"
-       " scs_m data structure."
-       " ";
-       " Size : number of blocks in the compiled structre.";
-       " Type : scilab list."];
-endfunction 
-
-function H=scicos_help_block()
-//******* scicos_block *******/
-  H=hash(100);
-
-  H(  'block')=...
-      [" Basic  structure that define a Scicos block.";
-       " That structure includes fields {scicos_graphics}, {scicos_model},"
-       " {gui} and {doc}."
-       ""
-       " Size : 5.";
-       " Type : scilab list."];
-
-  H(  'graphics')=...
-      [" Scilab object including"
-       " graphical information concerning"
-       " the features of the block.";
-       " "
-       " Size : 14.";
-       " Type : scilab list."];
-
-  H(  'model')=...
-      [" Scilab list that contains the features";
-       " of the block used for the compilation.";
-       " ";
-       " Size : 23.";
-       " Type : Scilab list."];
-
-  H(  'gui')=...
-      [" The name of the Scilab GUI function associated"
-       " with the block."
-       " ";
-       " Size : 1.";
-       " Type : string."];
-
-  H(  'doc')=...
-      [" Field used for documentation"
-       " of the block"
-       " ";
-       " Size : 1.";
-       " Type : string."];
-endfunction 
-
-
-function H=scicos_help_diagram() 
-//****** scicos_diagram ******/
-  H=hash(100);
-
-  H(  'diagram')=...
-      [" ";
-       " Size : 4.";
-       " Type : scilab list."];
-
-  H(  'props')=...
-      [" Diagram properties.";
-       " This entry contains various informations such";
-       " some main diagram initials values.";
-       " ";
-       " This variable is a tlist of type {scicos_params} and";
-       " contains {wpar}, {title}, {tol}, {tf}, {context},";
-       " {options} and {doc}.";
-       " ";
-       " Size : 11.";
-       " Type : Scilab tlist of type {scicos_params}."];
-
-  H(  'objs')=...
-      [" List of objects included in the Scicos diagram.";
-       " The objects used in scicos are {scicos_block}, {scicos_link} and Text.";
-       " The objects can also be deleted object data structure.";
-       " Deleted object data structure is marked list(''Deleted'').";
-       " ";
-       " ";
-       " Size : total number of objects in the diagram.";
-       " Type : Scilab tlist of type {scicos_block}, {scicos_link} or Text."];
-
-  H(  'version')=...
-      [" A string that gives the version of the Scicos diagram.";
-       " This is used to provide compatibility with old diagram."
-       " Note that you can get the current version of Scicos by";
-       " using the entry ''About scicos'' in the help menu"
-       " or by using the function get_scicos_version()."
-       ""
-       " Size : 1.";
-       " Type : String."];
-endfunction 
-
-function H=scicos_help_params()
-//****** scicos_params ******/
-  H=hash(100);
-
-  H(  'params')=...
-      [" ";
-       " Size : 11.";
-       " Type : scilab list."];
-
-  H(  'wpar')=...
-      [" This vector is not currently used."
-       " It may be used in the future to code "
-       " window sizes of the editor.";
-       " ";
-       " Size : 6.";
-       " Type : column vector or real."];
-
-  H(  'title')=...
-      [" Vector of character strings, where the first one is the"
-       " diagram title and default name of save file name, "
-       " and the second one is the path of the directory of "
-       " the file name.";
-       " ";
-       " Size : 2.";
-       " Type : row vector of strings."];
-
-  H(  'tol')=...
-      ["";
-       " A vector containing simulation parameters including"
-       " various tolerances used by the solver: ";
-       " ";
-       "  -- {atol}   : Integrator absolute tolerance for the numerical solver.";
-       " ";
-       "  -- {rtol}   : Integrator relative tolerance for the numerical solver.";
-       " ";
-       "  -- {ttol}   : Tolerance on time."
-       "                If an integration period is less";
-       "                than {ttol}, the numerical solver is not called."
-       " ";
-       "  -- {deltat} : Maximum integration time interval."
-       "                If an integration period is larger than"
-       "                {deltat}, the numerical solver is called more than"
-       "                once in such a way that for each call the integration"
-       "                period remains below {deltat}";
-       " ";
-       "  -- {scale}  : Real-time scaling; the value 0 corresponds to no"
-       "                real-time scaling."
-       "                It associates a Scicos simulation time to the real"
-       "                time in seconds."
-       "                A value of 1 means that each Scicos unit of time"
-       "                corresponds to one second.";
-       " ";
-       "  -- {solver} : Choice of numerical solver."
-       "                The value 0 implies an ODE solver and 100"
-       "                implies a DAE solver."
-       " ";
-       "  -- {hmax}   : Maximum step size for the numerical solver.";
-       "                0 means no limit.";
-       " ";
-       " Size : 7.";
-       " Type : column vector of real."];
-
-  H(  'tf')=...
-      [" Final time simulation."
-       " The simulation stops at this time."
-       " The default value is 100000.";
-       " ";
-       " Size : 1.";
-       " Type : real."];
-
-  H(  'context')=...
-      [" A vector of strings containing Scilab instructions"
-       " defining Scilab variables to be used inside block''s dialog box"
-       " as symbolic parameters."
-       " All valid Scilab instructions can be used and "
-       " also comments.";
-       " ";
-       " Size : number of lines of the context.";
-       " Type : column vector of strings."];
-
-  H(  'void1')=...
-      [" unused field.";
-       " ";
-       " Size : -.";
-       " Type : -."];
-
-  H(  'options')=...
-      [" Scilab object of type {scsopt} defining"
-       " graphical properties of the editor such"
-       " as background color and link color."
-       " ";
-       " The fields are the following:";
-       " ";
-       "  -- {3D}         : A list with two entries. The first one is a boolean"
-       "                    indicating whether or not blocks should have 3D aspect."
-       "                    The second entry indicates the color in the current colormap"
-       "                    to be used to create the 3D effect."
-       "                    The default is 33 which corresponds to gray added by"
-       "                    Scicos to the standard colormap, which contains 32 colors."
-       "                    The default value is list(%t,33)."
-       " ";
-       "  -- {Background} : Vector with two entries: background and"
-       "                    foreground colors."
-       "                    The default value is [8,1]."
-       " ";
-       "  -- {link}       : Default link colors for regular and activation links."
-       "                    These colors are used only at link construction."
-       "                    Changing them does not affect already constructed links."
-       "                    The default value is [1,5], which corresponds to black and"
-       "                    red if the standard Scilab colormap is used."
-       " ";
-       "  -- {ID}         : A list of two vectors including font number and sizes."
-       "                    The default value is [5,1],[4,1]."
-       " ";
-       "  -- {Cmap}       : An n,3 matrix containing RGB values of colors"
-       "                    to be added to the colormap."
-       "                    The default value is, [0.8,0.8,0.8] i.e., the color gray."
-       " ";
-       " Size : 6.";
-       " Type : scilab tlist of type {scsopt}."];
-
-  H(  'void2')=...
-      [" unused field.";
-       " ";
-       " Size : -.";
-       " Type : -."];
-
-  H(  'void3')=...
-      [" unused field.";
-       " ";
-       " Size : -.";
-       " Type : -."];
-
-  H(  'doc')=...
-      [" User defined diagram documentation structure.";
-       " ";
-       " Size : 1.";
-       " Type : Strings."];
-endfunction 
-
-function H=scicos_help_model()
-//****** scicos_model ******/
-
-  H(  'model')=...
-      [" Scilab list that contains the features";
-       " of the block used for the compilation.";
-       " ";
-       " Size : 23.";
-       " Type : Scilab list."];
-
-  H(  'sim')=...
-      ["A list containing two elements. The first element is"
-       "a string containing the name of the computational function"
-       "(C, Fortran,or Scilab). The second element is an integer"
-       "specifying the type of the computational function. Currently"
-       "type 4 and 5 are used, but older types continue to work to "
-       "ensure backward compatibility.";
-       "For some older case, {sim} can be a single string and that"
-       "means that the type is supposed to be 0."
-       " ";
-       " Size : 2.";
-       " Type : Scilab list."];
-
-  H(  'in')=...
-      [" A vector specifying the number and size of the first"
-       " dimension of regular input ports indexed from top to";
-       " bottom of the block. If no input port exist in==[].";
-       " ";
-       " The size can be negative, equal to zero or positive :";
-       " ";
-       "  -- If a size is less than zero, the compiler will";
-       "     try to find the appropriate size.";
-       " ";
-       "  -- If a size is equal to zero, the compiler will";
-       "     affect this dimension by added all positive size";
-       "     found in that vector";
-       " ";
-       "  -- If a size is greater than zero, then the size is"
-       "     explicitly given.";
-       " ";
-       " Size : number of regular input ports.";
-       " Type : column vector of integer numbers."];
-
-  H(  'in2')=...
-      [" A vector specifying the second dimension of regular"
-       " input ports indexed from top to bottom of the block."
-       " {in} with {in2} formed then the regular input sizes matrix.";
-       " For compatibility, this dimension can stay empty ([]).";
-       "  That means that the dimensions of input ports will be in,1";
-       " ";
-       " The size can be negative, equal to zero or positive :";
-       " ";
-       "  -- If a size is less than zero, the compiler will";
-       "     try to find the appropriate size.";
-       " ";
-       "  -- If a size is equal to zero, the compiler will";
-       "     affect this dimension by added all positive size";
-       "     found in that vector.";
-       " ";
-       "  -- If a size is greater than zero, then the size is"
-       "     explicitly given.";
-       " ";
-       " Size : number of regular input ports.";
-       " Type : column vector of integer numbers."];
-
-  H(  'intyp')=...
-      [" A vector specifying the types of regular input ports."
-       " Its sizes is equal to the sizes of {in}.";
-       " The types of regular input ports can be :";
-       ""
-       "  -- 1  real matrix,";
-       "  -- 2  complex matrix,";
-       "  -- 3  int32 matrix,";
-       "  -- 4  int16 matrix,";
-       "  -- 5  int8 matrix,";
-       "  -- 6  uint32 matrix,";
-       "  -- 7  uint16 matrix,";
-       "  -- 8  uint8 matrix.";
-       " ";
-       " Size : number of regular input ports.";
-       " Type : column vector of integer numbers."];
-
-  H(  'out')=...
-      ["";
-       " A vector specifying the number and size of the first"
-       " dimension of regular output ports indexed from top to";
-       " bottom of the block. If no output port exist out==[].";
-       " ";
-       " The size can be negative, equal to zero or positive :";
-       " ";
-       "  -- If a size is less than zero, the compiler will";
-       "     try to find the appropriate size.";
-       " ";
-       "  -- If a size is equal to zero, the compiler will";
-       "     affect this dimension by added all positive size";
-       "     found in that vector";
-       " ";
-       "  -- If a size is greater than zero, then the size is"
-       "     explicitly given.";
-       " ";
-       " Size : number of regular output ports.";
-       " Type : column vector of integer numbers."];
-
-  H(  'out2')=...
-      [" A vector specifying the second dimension of regular"
-       " output ports indexed from top to bottom of the block."
-       " {out} with {out2} formed then the regular output sizes matrix.";
-       " For compatibility, this dimension can stay empty ([]). That";
-       " means that the dimensions of output ports will be out,1";
-       " ";
-       " That dimension can be negative, equal to zero or positive :";
-       " ";
-       "  -- If a size is less than zero, the compiler will";
-       "     try to find the appropriate size.";
-       " ";
-       "  -- If a size is equal to zero, the compiler will";
-       "     affect this dimension by added all positive size";
-       "     found in that vector.";
-       " ";
-       "  -- If a size is greater than zero, then the size is"
-       "     explicitly given.";
-       " ";
-       " Size : number of regular output ports.";
-       " Type : column vector of integer numbers."];
-
-  H(  'outtyp')=...
-      [" A vector specifying the types of regular output ports."
-       " Its sizes is equal to the sizes of {out}.";
-       " The types of regular output ports can be :";
-       ""
-       "  -- 1  real matrix,";
-       "  -- 2  complex matrix,";
-       "  -- 3  int32 matrix,";
-       "  -- 4  int16 matrix,";
-       "  -- 5  int8 matrix,";
-       "  -- 6  uint32 matrix,";
-       "  -- 7  uint16 matrix,";
-       "  -- 8  uint8 matrix.";
-       " ";
-       " Size : number of regular output ports.";
-       " Type : column vector of integer numbers."];
-
-  H(  'evtin')=...
-      [" A vector specifying the number and sizes of"
-       " activation inputs. Currently activation ports"
-       " can be only of size one.";
-       " If no event input port exists evtin must be "
-       " equal to [].";
-       " ";
-       " Size : number of input event ports.";
-       " Type : column vector of integer numbers."];
-
-  H(  'evtout')=...
-      [" A vector specifying the number and sizes of"
-       " activation outputs."
-       " Currently activation ports can be only of "
-       " size one.";
-       " If no event output port exists evtout must be "
-       " equal to [].";
-       " ";
-       " Size : number of output event ports.";
-       " Type : column vector of integer numbers."];
-
-  H(  'state')=...
-      [" Vector containing initial values of continuous-time state.";
-       " Must be [] if no continuous state.";
-       " ";
-       " Size : number of continuous-time state.";
-       " Type : column vector of real numbers."];
-
-  H(  'dstate')=...
-      [" Vector containing initial values of discrete-time state.";
-       " Must be [] if no discrete state.";
-       " ";
-       " Size : number of discrete-time state.";
-       " Type : column vector of real numbers."];
-
-  H(  'odstate')=...
-      [" List containing initial values of objects state.";
-       " Must be list() if no objects state.";
-       " ";
-       " Objects state can be any types of scilab variable.";
-       " In the computational function case of type 4 (C blocks)";
-       " only elements containing matrix of real, complex,";
-       " int32, int16 ,int8 ,uint32, uit16 and uint8 will be correctly";
-       " provided for readind/writing.";
-       " ";
-       " Size : number of objects state.";
-       " Type : scilab list of scilab objects."];
-
-  H(  'rpar')=...
-      [" The vector of floating point block parameters."
-       " Must be [] if no floating point parameters.";
-       " ";
-       " Size : number of real parameters.";
-       " Type : column vector of real numbers."];
-
-  H(  'ipar')=...
-      [" The vector of integer block parameters."
-       " Must be [] if no integer parameters.";
-       " ";
-       " Size : number of integer parameters.";
-       " Type : column vector of integer numbers."];
-
-  H(  'opar')=...
-      [" List of objects block parameters. "
-       " Must be list() if no objects parameters.";
-       " ";
-       " Objects parameters can be any types of scilab variable.";
-       " In the computational function case of type 4 (C blocks)";
-       " only elements containing matrix of real, complex,";
-       " int32, int16 ,int8 ,uint32, uit16 and uint8 will be correctly";
-       " provided for reading.";
-       " ";
-       " Size : number of objetcs parameters.";
-       " Type : list of scilab object."];
-
-  H(  'blocktype')=...
-      [" Character that can be set to ''c'' or ''d''"
-       " indifferently for standard blocks. ''x'' is used"
-       " if we want to force the computational function to"
-       " be called during the simulation phase even if"
-       " the block does not contribute to computation of" 
-       " the state derivative.";
-       " ''l'', ''m'' and ''s'' are reserved. Not to be used."
-       " ";
-       " Size : 1.";
-       " Type : Character."];
-
-  H(  'firing')=...
-      [" Vector of initial event firing times of size "
-       " equal to the number of activation output ports";
-       " (see {evout}). It contains output initial event dates";
-       " (Events generated before any input event arises). "
-       " Negative values stands for no initial event on the "
-       " corresponding port. ";
-       ""
-       " Size : number of output event ports.";
-       " Type : column vector of real numbers."];
-
-  H(  'dep_ut')=...
-      ["Boolean vector [dep_u, dep_t]."
-       " ";
-       "  -- dep_u : true if block is always active."
-       "          (output depends continuously of the time)";
-       " ";
-       "  -- dep_t : true if block has direct feed-through,"
-       "          i.e., at least one of the outputs depends"
-       "          directly (not through the states) on one"
-       "          of the inputs.   "
-       "          In other words, when the computational"
-       "          function is called with flag 1, the value "
-       "          of an input is used to compute the output."
-       " ";
-       " Size : 2.";
-       " Type : Boolean vector."];
-
-  H(  'label')=...
-      [" String that defines a label. "
-       " It can be used to identify a block "
-       " in order to access or modify its "
-       " parameters during simulation.";
-       " ";
-       " Size : 1.";
-       " Type : string."];
-
-  H(  'nzcross')=...
-      [" Number of zero-crossing surfaces.";
-       " ";
-       " Size : Number of zero-crossing surfaces.";
-       " Type : column vector of integer numbers."];
-
-  H(  'nmode')=...
-      [" Length of the mode register. Note that this gives the size of"
-       " the vector mode and not the total number of modes"
-       " in which a block can operate in. Suppose a block "
-       " has 3 modes and each mode can take two values, then"
-       " the block can have up to 2^3=8 modes.";
-       " ";
-       " Size : Number of modes.";
-       " Type : column vector of integer numbers."];
-
-  H(  'equations')=...
-      [" Used in case of implicit blocks.";
-       " Data structure of type {modelica} which contains modelica"
-       " code description if any. That list contains four entries :";
-       " ";
-       "  -- model : a string given the name of the file that contains"
-       "             the modelica function.";
-       " ";
-       "  -- inputs : a colunm vector of strings that contains the names of";
-       "              the modelica variables used as inputs.";
-       ""
-       "  -- outputs : a colunm vector of strings that contains the names of";
-       "               the modelica variables used as outputs.";
-       " ";
-       "  -- parameters : a list with two entries. The first is a vector of strings"
-       "                  for the name of modelica variable names used as parameters";
-       "                  and the second entries is a list that contains the value of"
-       "                  parameters.";
-       "                  Names of modelica states can also be informed with"
-       "                  {parameters}. In that case a third entry is used to do the"
-       "                  difference between parameters and states."
-       "                  For i,e :";
-       "                    mo.parameters=list([''C'',''v''],list(C,v),[0,1])"
-       "                  means that ''C'' is a parameter(0) of value C, and ''v''";
-       "                  is a state(1) with initial value v.";
-       " ";
-       " Size : 5.";
-       " Type : scilab list."];
-endfunction 
-
-function H=scicos_help_graphics()
-//****** scicos_graphics ******/
-
-  H(  'graphics')=...
-      [" Scilab object including"
-       " graphical information concerning"
-       " the features of the block.";
-       " "
-       " Size : 14.";
-       " Type : scilab list."];
-
-  H(  'orig')=...
-      [" Vector [xo,yo], where xo is the x coordinate"
-       " of the  block origin and yo is the y coordinate"
-       " of the  block origin.";
-       " ";
-       " [xo,yo] is the coordinate of down-left point of"
-       " the block shape.";
-       " ";
-       " Size : 2.";
-       " Type : row vector of real."];
-
-  H(  'sz')=...
-      [" Vector [w,h], where w is the block width and"
-       " h the block height.";
-       " ";
-       " Size : 2.";
-       " Type : row vector of real."];
-
-  H(  'flip')=...
-      [" Set the block orientation. If true the input ports"
-       " are on the left of the box and output ports are on the right."
-       " If false the input ports are on the right of the box and "
-       " output ports are on the left.";
-       " ";
-       " Size : 1.";
-       " Type : boolean."];
-
-  H(  'theta')=...
-      [" Set the angle of the Scicos object."
-       " This value is in degree and is "
-       " included in [-360,360].";
-       " ";
-       " Size : 1.";
-       " Type : real."];
-
-  H(  'exprs')=...
-      [" Strings including formal expressions"
-       " used in the dialog box of the block.";
-       " ";
-       " Size : number of formal expressions.";
-       " Type : column vector of strings."];
-
-  H(  'pin')=...
-      [" Vector. pin(i) is the number  of the link"
-       " connected to the ith regular input port "
-       " (counting from one), or 0 if this port is"
-       " not connected.";
-       " ";
-       " Size : number of regular input ports.";
-       " Type : column vector of integers."];
-
-  H(  'pout')=...
-      [" Vector. pout(i) is the number of the link"
-       " connected to the ith regular output port "
-       " (counting from one), or 0 if this port is"
-       " not connected.";
-       " ";
-       " Size : number of regular output ports.";
-       " Type : column vector of integers."];
-
-  H(  'pein')=...
-      [" Vector. pein(i) is the number of the link"
-       " connected to the ith event input port "
-       " (counting from one), or 0 if this port is"
-       " not connected.";
-       " ";
-       " Size : number of events input ports.";
-       " Type : column vector of integers."];
-
-  H(  'peout')=...
-      [" Vector. peout(i) is the number of the link"
-       " connected to the ith event output port "
-       " (counting from one), or 0 if this port is"
-       " not connected.";
-       " ";
-       " Size : number of events output ports.";
-       " Type : column vector of integers."];
-
-  H(  'gr_i')=...
-      [" Strings including Scilab graphics"
-       " expressions for customizing the block graphical"
-       " aspect. This field may be set with {Icon} sub_menu."
-       " ";
-       " Size : -.";
-       " Type : column vector of strings."];
-
-  H(  'id')=...
-      [" A string including an identification for the"
-       " block. The string is displayed under the"
-       " block in the diagram.";
-       " ";
-       " Size : 1.";
-       " Type : string."];
-
-  H(  'in_implicit')=...
-      [" A vector of strings including ''E'' or ''I''."
-       " ''E'' and ''I'' stand respectively for explicit and"
-       " implicit port, and this vector indicates the nature"
-       " of each input port. For regular blocks (not implicit),"
-       " this vector is empty or contains only ""E"".";
-       " ";
-       " Size : nul or number of regular input ports.";
-       " Type : column vector of strings."];
-
-  H(  'out_implicit')=...
-      [" A vector of strings including ''E'' or ''I''."
-       " ''E'' and ''I'' stand respectively for explicit and"
-       " implicit port, and this vector indicates the nature"
-       " of each output port. For regular blocks (not implicit),"
-       " this vector is empty or contains only ""E"".";
-       " ";
-       " Size : nul or number of regular output ports.";
-       " Type : column vector of strings."];
-endfunction 
-
-function H=scicos_help_link()
-//****** scicos_link ******/
-
-  H(  'link')=...
-      [" ";
-       " Size : 8.";
-       " Type : scilab list."];
-
-  H(  'xx')=...
-      [" Vector of x coordinates of the link path.";
-       " A link is defined as a polyline line.";
-       " ";
-       " Size : number of points of the link.";
-       " Type : column vector of real numbers."];
-
-  H(  'yy')=...
-      [" Vector of y coordinates of the link path.";
-       " A link is defined as a polyline line.";
-       " ";
-       " Size : number of points of the link.";
-       " Type : column vector of real numbers."];
-
-  H(  'id')=...
-      [" Character string, the link identification.";
-       " ";
-       " Size : 1.";
-       " Type : string."];
-
-  H(  'thick')=...
-      [" Vector of size two defining line thickness.";
-       " ";
-       " Size : 2.";
-       " Type : row vector of integers."];
-
-  H(  'ct')=...
-      [" The first entry of this vector designates the color,"
-       " and the second, the nature of the link. The second"
-       " entry is 1 for a regular link, -1 for an activation"
-       " link, and 2 for an implicit link.";
-       " ";
-       " Size : 2.";
-       " Type : row vector of integers."];
-
-  H(  'from')=...
-      [" Vector of size three including the block number,"
-       " port number, and port type (0 for output, 1 for"
-       " input) at the origin of the link. Note that the "
-       " third entry may be 1 if the link is implicit;  "
-       " otherwise it is zero.";
-       " ";
-       " Size : 3.";
-       " Type : row vector of integers."];
-
-  H(  'to')=...
-      [" Vector of size three including the block number,"
-       " port number, and port type (0  for output, 1 for"
-       " input) at the destination of the link. Note that the "
-       " third entry may be 1 if the link is implicit;  "
-       " otherwise it is zero.";
-       " ";
-       " Size : 3.";
-       " Type : row vector of integers."];
-
-endfunction 
-function H=scicos_help_state()
-//****** scicos_state ******/
-
-  H(  'state')=...
-      [" Scilab typed list of type {xcs}. It contains all"
-       " the states of the model, that is, everything than"
-       " can evolve during the simulation.";
-       " state contains {x}, {z}, {oz}, {iz}, "
-       " {tevts}, {evtspt}, {pointi} and {outtb}."
-       " ";
-       " Size : 9.";
-       " Type : scilab tlist."];
-
-  H(  'x')=...
-      [" The continuous-time state register, which is obtained "
-       " by concatenating the continuous-time states of all "
-       " the blocks.";
-       " ";
-       " Size : total of all the size of continuous-time state registers.";
-       " Type : column vector of real numbers."];
-
-  H(  'z')=...
-      [" The discrete-time state register, which is obtained"
-       " by concatenating the discrete-time states of all"
-       " the blocks.";
-       " ";
-       " Size : total of all the size of discrete-time state registers.";
-       " Type : column vector of real number."];
-
-  H(  'oz')=...
-      [" The list of the object discrete-time state, which"
-       " is obtained by concatenating the object "
-       " discrete-time states of all the blocks.";
-       " ";
-       " Size : total of all the size of object state.";
-       " Type : list of scilab object."];
-
-  H(  'iz')=...
-      [" Vector of size equal to the number of blocks."
-       " That vector is used to store pointers of the "
-       " working state register (work). If a block needs "
-       " to allocate memory at initialization (flag 4), "
-       " the associated pointer is saved here.";
-       " ";
-       " Size : number of blocks.";
-       " Type : column vector of real numbers."];
-
-  H(  'tevts')=...
-      [" Vector of size equal to the number of activation"
-       " sources. It contains the scheduled times for"
-       " programmed activations in {evtspt}.";
-       " ";
-       " Size : number of activation sources.";
-       " Type : column vector of integers."];
-
-  H(  'evtspt')=...
-      [" Vector of size equal to the number of activation"
-       " sources. It is an event scheduler.";
-       " ";
-       " Size : number of activation sources.";
-       " Type : column vector of integers."];
-
-  H(  'pointi')=...
-      [" The number of the next programmed event.";
-       " ";
-       " Size : 1.";
-       " Type : integer."];
-
-  H(  'outtb')=...
-      [" Scilab list containing all output registers "
-       " of blocks. Each element of that list contains "
-       " typed matrix-based data.";
-       " ";
-       " Size : number of regular output ports.";
-       " Type : list of scilab matrix."];
-endfunction 
-function H=scicos_help_sim()
-//****** scicos_sim ******/
-
-  H(  'sim')=...
-      [" Scilab typed list of type {scs}. It contains "
-       " static arrays coming from the result of the"
-       " compilation. That arrays does not evolve"
-       " during the simulation."
-       " ";
-       " Size : 33.";
-       " Type : scilab tlist."];
-
-  H(  'funs')=...
-      [" A list containing names of the computational"
-       " functions or scilab functions.";
-       " "
-       " Size : number of blocks.";
-       " Type : list of strings and/or scilab function."];
-
-  H(  'xptr')=...
-      [" A vector pointer to the continuous time state "
-       " register {x}. The continuous-time state of "
-       " block {i} is "
-       " {state.x(sim.xptr(i):sim.xptr(i+1)-1)}.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integers."];
-
-  H(  'zptr')=...
-      [" A vector pointer to the discrete time state "
-       " register {z}. The discrete-time state of "
-       " block {i} is "
-       " {state.z(sim.zptr(i):sim.zptr(i+1)-1)}.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integers."];
-
-  H(  'ozptr')=...
-      [" A vector pointer to the object discrete state "
-       " register {oz}. The object discrete state of "
-       " block {i} is "
-       " {state.oz(sim.ozptr(i):sim.ozptr(i+1)-1)}.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integers."];
-
-  H(  'zcptr')=...
-      [" A vector pointer to the zero-crossing surfaces.";
-       " register. That vector gives by block the used";
-       " number of the zero-crossing.";
-       "";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integers."];
-
-  H(  'inpptr')=...
-      [" (sim.inpptr(i+1)-sim.inpptr(i)) gives the number of";
-       " regular input ports of the i block.";
-       " inpptr(i) points to the beginning of ith block";
-       " inputs within the indirection table {inplnk}.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integers."];
-
-  H(  'outptr')=...
-      [" (sim.outptr(i+1)-sim.outptr(i)) gives the number of";
-       " regular ouyput ports of the i block.";
-       " outptr(i) points to the beginning of ith block";
-       " outputs within the indirection table {outlnk}.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integers."];
-
-  H(  'inplnk')=...
-      [" (cpr.sim.inplnk(cpr.sim.inpptr(i)-1+j))"
-       " is the index of the link connected to "
-       " the jth input port of the ith block where "
-       " j goes from 1 to "
-       " (cpr.sim.inpptr(i+1)-cpr.sim.inpptr(i)).";
-       " ";
-       " Size : total number of regular input port.";
-       " Type : column vector of integers."];
-
-  H(  'outlnk')=...
-      [" (cpr.sim.outlnk(cpr.sim.outptr(i)-1+j))"
-       " is the index of the link connected to "
-       " the jth output port of the ith block where "
-       " j goes from 1 to "
-       " (cpr.sim.outptr(i+1)-cpr.sim.outptr(i)).";
-       " ";
-       " Size : total number of regular output port.";
-       " Type : column vector of integers."];
-
-  H(  'rpar')=...
-      [" Vector of real parameters that is "
-       " obtained by concatenating the real" 
-       " parameters registers of all the blocks.";
-       " ";
-       " Size : total number of real parameters.";
-       " Type : column vector of real numbers."];
-
-  H(  'rpptr')=...
-      [" A vector pointer to the real parameters"
-       " register {rpar}. The real parameters of"
-       " block i are "
-       " {sim.rpar(sim.rpptr(i):sim.rpptr(i+1)-1)}.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integer."];
-
-  H(  'ipar')=...
-      [" Vector of integer parameters that is "
-       " obtained by concatenating the integer"
-       " parameters registers of all the blocks.";
-       " ";
-       " Size : total number of integer parameters.";
-       " Type : column vector of integer."];
-
-  H(  'ipptr')=...
-      [" A vector pointer to the integer parameters"
-       " register {ipar}. The integer parameters of"
-       " block i are "
-       " {sim.ipar(sim.ipptr(i):sim.ipptr(i+1)-1)}.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of real numbers."];
-
-  H(  'opar')=...
-      [" List of object parameters that is "
-       " obtained by concatenating the list"
-       " of object parameters of all the blocks.";
-       " ";
-       " Size : total number of object parameters.";
-       " Type : list of scilab objects."];
-
-  H(  'opptr')=...
-      [" A vector pointer to the object parameters"
-       " list {opar}. The object parameters of"
-       " block i are "
-       " {sim.opar(sim.opptr(i):sim.opptr(i+1)-1)}.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integers."];
-
-  H(  'clkptr')=...
-      [" A vector pointer to output activation ports.";
-       " (cpr.sim.clkptr(i):cpr.sim.clkptr(i+1)-1) "
-       " gives the number of output event ports";
-       " of the block i.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integers."];
-
-  H(  'ordptr')=...
-      [" A vector pointer to {ordclk} designating the"
-       " part of {ordclk} corresponding to a given"
-       " activation.";
-       "(cpr.sim.ordptr(i):cpr.sim.ordptr(i+1)-1)"
-       " points to the region within ordclk indicates "
-       " the number of blocks activated by the output"
-       " event ports numbered i."
-       " ";
-       " Size : number of sources of activation + 1.";
-       " Type : column vector of integers."];
-
-  H(  'execlk')=...
-      ["Unused.";
-       " ";
-       " Size : -";
-       " Type : matrix of real."];
-
-  H(  'ordclk')=...
-      [" A matrix associated to blocks activated by"
-       " output activation ports. The first column"
-       " contains the block number, and  the second,"
-       " the event code by which the block should be"
-       " called.";
-       " ";
-       " Size : total number of blocks summed by source of activations.";
-       " Type : matrix of integers."];
-
-  H(  'cord')=...
-      [" A matrix associated to always active blocks."
-       " The first column contains the block number, "
-       " and the second, the event code by which the "
-       " block should be called.";
-       " ";
-       " Size : ncord.";
-       " Type : matrix of integers."];
-
-  H(  'oord')=...
-      [" Subset of {cord}. Blocks of that matrix "
-       " have outputs which affect computation of"
-       " continuous state derivatives."
-       " ";
-       " Size : noord.";
-       " Type : matrix of integers."];
-
-  H(  'zord')=...
-      [" Subset of {zord}. Blocks of that matrix "
-       " have outputs which affect computation of"
-       " zero-crossing surfaces."
-       " ";
-       " Size : nzord.";
-       " Type : matrix of integers."];
-
-  H(  'critev')=...
-      [" A vector of size equal to the number of "
-       " activations and containing zeros and "
-       " ones. The value one indicates that the "
-       " activation is critical in the sense that"
-       " the continuous-time solver must be cold "
-       " restarted.";
-       " ";
-       " Size : number of source of activation.";
-       " Type : column vector of integers."];
-
-  H(  'nb')=...
-      [" Number of blocks. Note that the number of"
-       " blocks may differ from the original number"
-       " of blocks in the diagram because {c_pass2}"
-       " may duplicate some conditional blocks."
-       " ";
-       " Size : 1.";
-       " Type : integer."];
-
-  H(  'ztyp')=...
-      [" A vector of size equal to the number of blocks."
-       " A 1 entry indicates that the block may have "
-       " zero-crossings, even if it doesn''t in the "
-       " context of the diagram.  Usually not used by "
-       " the simulator.";
-       " ";
-       " Size : number of blocks.";
-       " Type : column vector of integers."];
-
-  H(  'nblk')=...
-      ["Not used. Set to {nb}.";
-       " ";
-       " Size : 1";
-       " Type : integer."];
-
-  H(  'ndcblk')=...
-      ["Not used.";
-       " ";
-       " Size : -";
-       " Type : integer."];
-
-  H(  'subscr')=...
-      [" Not used.";
-       " ";
-       " Size : 0";
-       " Type : empty real."];
-
-  H(  'funtyp')=...
-      [" A vector of size equal to the number of blocks"
-       " indicating the type of the computational function"
-       " of the block. Block type can be 0 through 5."
-       " Currently only type 4 (C language) and type 5"
-       " (Scilab language) computational functions should"
-       " be used. But older blocks can also be used.";
-       " ";
-       " Size : number of blocks.";
-       " Type : column vector of integer."];
-
-  H(  'iord')=...
-      [" A matrix associated to blocks that"
-       " must be activated at the start of "
-       " the simulation. This includes blocks "
-       " inheriting from constant blocks and "
-       " always active blocks.";
-       " ";
-       " Size : niord.";
-       " Type : matrix of integers."];
-
-  H(  'labels')=...
-      [" A string vector of size equal"
-       " to the number of blocks "
-       " containing block labels.";
-       " ";
-       " Size : numbers of blocks.";
-       " Type : column vector of strings."];
-
-  H(  'modptr')=...
-      [" A vector pointer to the block modes.";
-       " ";
-       " Size : number of blocks + 1.";
-       " Type : column vector of integer."];
-
-
-  /// FRENCH 
-endfunction 	 
-function H=scicos_help_cpr_fr()
-//******* cpr *******/
-
-  H(  'cpr')=...
-      [" La liste scilab {scicos_cpr} contient "
-       " le résultat de la compilation."
-       " Cette structure est composée des champs"
-       " {scicos_state}, {scicos_sim}, {cor} et {corinv}."
-       ""
-       " Taille : 5.";
-       " Type : tlist scilab."];
-
-  H(  'state')=...
-      [" Une liste typée scilab de type {xcs}. Cette";
-       " liste contient tous les états du diagramme qui";
-       " vont évoluer pendant la simulation.";
-       " state contient {x}, {z}, {oz}, {iz}, "
-       " {tevts}, {evtspt}, {pointi} et {outtb}."
-       " ";
-       " Taille : 9.";
-       " Type : tlist scilab."];
-
-  H(  'sim')=...
-      [" Une liste typée scilab de type {scs}. Cette";
-       " liste contient des tableaux statiques issus"
-       " du résultat de la compilation. Ces tableaux"
-       " n''évoluent pas pendant la simulation."
-       " ";
-       " Taille : 33.";
-       " Type : tlist scilab."];
-
-  H(  'cor')=...
-      [" C''est une liste avec la même structure récursive"
-       " que la liste scs_m. Chaque feuille contient l''indice "
-       " d''un bloc associé à la structure compilée sim."
-       " ";
-       " Taille : nombre d''objets dans scs_m.";
-       " Type : scilab list."];
-
-  H(  'corinv')=...
-      [" corinv(i) est le chemin du bloc i"
-       " définit dans la structure compilée sim"
-       " dans la structure scs_m."
-       " ";
-       " Taille : nombre de blocs dans la structure compilée.";
-       " Type : scilab list."];
-endfunction 
-function H=scicos_help_block_fr()
-//******* scicos_block *******/
-//****************************/
-  H(  'block')=...
-      [" Une structure de base qui définit un bloc Scicos.";
-       " Cette structure inclut les champs {scicos_graphics}, {scicos_model},"
-       " {gui} et {doc}."
-       ""
-       " Size : 5.";
-       " Type : scilab list."];
-
-  H(  'graphics')=...
-      [" Liste Scilab contenant les informations"
-       " sur les données graphiques du bloc."
-       " "
-       " Taille : 14.";
-       " Type : scilab list."];
-
-  H(  'model')=...
-      [" Liste Scilab qui contient les informations";
-       " du bloc utilisées pour la compilation.";
-       " ";
-       " Taille : 23.";
-       " Type : liste scilab."];
-
-  H(  'gui')=...
-      [" Le nom de la fonction d''interface Scilab";
-       " associée au bloc.";
-       " ";
-       " Taille : 1.";
-       " Type : chaîne de caractères."];
-
-  H(  'doc')=...
-      [" Un champ utilisé pour la documentation";
-       " du bloc.";
-       " ";
-       " Taille : 1.";
-       " Type : chaîne de caractères."];
-
-endfunction 
-function H=scicos_help_diagram_fr()
-//****** scicos_diagram ******/
-//****************************/
-  H(  'diagram')=...
-      [" ";
-       " Taille : 4.";
-       " Type : liste scilab."];
-
-  H(  'props')=...
-      [" Propriétés du diagramme.";
-       " Cette entrée contient des informations diverses";
-       " telles que des valeurs initiales du diagramme";
-       " principal.";
-       " ";
-       " Cette variable est une tlist de type {scicos_params} et";
-       " contient {wpar}, {title}, {tol}, {tf}, {context},";
-       " {options} et {doc}.";
-       " ";
-       " Taille : 11.";
-       " Type : tlist scilab de type {scicos_params}."];
-
-  H(  'objs')=...
-      [" Une liste d''objets inclus dans le diagramme Scicos.";
-       " Les objets utilisés dans Scicos sont {scicos_block}, {scicos_link} et";
-       " Text.";
-       " Les objets peuvent aussi être des structures de donnée effacées."
-       " Les objets effacés sont marqués par list(''Deleted'').";
-       " ";
-       " Taille : nombre total d''objets dans le diagramme.";
-       " Type : tlist scilab de type {scicos_block}, {scicos_link} ou Text."];
-
-  H(  'version')=...
-      [" Une chaîne de caractères qui donne le numéro de version";
-       " du diagramme Scicos. Cela est utilisé pour fournir une";
-       " compatibilité avec les anciens diagrammes."
-       " Notez que vous pouvez retrouver la version courante de"
-       " Scicos en utilisant l''entrée ''About scicos'' dans le"
-       " menu help ou en utilisant la fonction get_scicos_version()."
-       " ";
-       " Taille : 1.";
-       " Type : chaîne de caractères."];
-  
-endfunction 
-function H=scicos_help_params_fr()
-//****** scicos_params ******/
-
-  H(  'params')=...
-      [" ";
-       " Size : 11.";
-       " Type : liste scilab."];
-
-  H(  'wpar')=...
-      [" Ce vecteur n''est actuellement pas utilisé.";
-       " Il devrait être utilisé dans le futur";
-       " pour enregistrer les paramètres de la"
-       " fenêtre tels que la position et la taille.";
-       " ";
-       " Taille : 6.";
-       " Type : vecteur colonne de nombre réels."];
-
-  H(  'title')=...
-      [" Vecteur de chaîne de caractères, où la première contient";
-       " le titre du diagramme (le nom par défaut du ficher de";
-       " sauvegarde) et la deuxième est le chemim du répertoire.";
-       " ";
-       " Taille : 2.";
-       " Type : vecteur line de chaîne de caractères."];
-
-  H(  'tol')=...
-      [" Un vecteur contenant les paramètres de la simulation qui";
-       " inclue les tolérances utilisées par le solveur: ";
-       " ";
-       "  -- {atol}   : tolérance absolue pour l''intégration";
-       " ";
-       "  -- {rtol}   : tolérance relative pour l''intégration.";
-       " ";
-       "  -- {ttol}   : tolérance sur le temps. Si une période d''intégration est";
-       "               inférieure à {ttol}, le solveur n''est pas appellé."
-       " ";
-       "  -- {deltat} : Interval temporel maximal entre deux points d''intégration."
-       "               Si une période d''intégration est plus grande que {deltat}, ";
-       "               le solveur est appelé plus d''une fois de manière à maintenir"
-       "               le pas au niveau de {deltat}";
-       " ";
-       "  -- {scale}  : Facteur d''échelle temps-réel (Real-time scaling);"
-       "               la valeur 0 correspond à un facteur d''échelle nul."
-       "               Ce facteur associe le temps de la simulation au temps"
-       "               réel en seconde. Une valeur égale à 1, signifie que "
-       "               chaque untité de temps Scicos correspond à une seconde."
-       " ";
-       "  -- {solver} : Choix du solveur numérique. Une valeur 0 signifie qu''un"
-       "               solveur ODE sera utilisé et 100 signifie qu''un solveur"
-       "               DAE sera utilisé.";
-       " ";
-       "  -- {hmax}   : Pas maximal d''intégration pour le solveur.";
-       "               0 signifie pas de limites.";
-       " ";
-       " Taille : 7.";
-       " Type : vecteur colonne de nombre réels."];
-
-  H(  'tf')=...
-      [" Le temps final de simulation."
-       " La simulation s''arrête a ce temps."
-       " La valeur par défaut est 100000.";
-       " ";
-       " Taille : 1.";
-       " Type : réel."];
-
-  H(  'context')=...
-      [" Un vecteur de chaînes de caractères contenant des";
-       " instructions Scilab définissant des variables";
-       " Scilab à utiliser dans les boîtes de dialogues ";
-       " des blocs (comme paramètres symboliques).";
-       " Toutes instructions valides Scilab peuvent être";
-       " utilisées ainsi que des commentaires.";
-       " ";
-       " Taille : nombre de lignes du contexte.";
-       " Type : Vecteur colonne de chaînes de caractères."];
-
-  H(  'void1')=...
-      [" Champ inutilisé.";
-       " ";
-       " Taille : -.";
-       " Type : -."];
-
-  H(  'options')=...
-      [" Liste Scilab de type {scsopt} définissant les";
-       " propriétés graphiques de l''éditeur telles que";
-       " la couleur de fond et la couleur des liens.";
-       " ";
-       " Les champs sont les suivant:";
-       " ";
-       "  -- {3D}         : Une liste à deux entrées. La première est un booléen"
-       "                   indiquant si les blocs doivent avoir un aspect 3D.";
-       "                   La seconde entrée indique la couleur dans la palette de"
-       "                   couleur courante (colormap) qui doit être utilisée pour"
-       "                   créer l''effet 3D. Par défaut celle ci est 33 ce qui"
-       "                   correspond à gris, couleur ajoutée par Scicos à la palette"
-       "                   standard qui contients 32 couleurs."
-       " ";
-       "                   La valeur par défault de cette list est donc list(%t,33)."
-       "  -- {Background} : Un vecteur avec deux entrées: la couleur d''arrière plan et"
-       "                   la couleur d''avant plan. La valeur par défaut est [8,1].";
-       " ";
-       "  -- {link}       : Les couleurs par défauts pour les liens réguleurs et les"
-       "                   liens d''activations. Ces couleurs sont utilisées uniquement";
-       "                   pour de nouvelles constructions. Ces choix n''affectent pas";
-       "                   les liens déjà présent sur le diagramme.";
-       " ";
-       "                   Les valeurs par défaut sont [1,5] ce qui correspond à noir";
-       "                   et rouge pour la palette de couleurs standard de Scilab.";
-       "  -- {ID}         : Une liste de deux vecteurs qui définit le type de la police"
-       "                   et la taille de la police. Les valeurs par défaut sont";
-       "                   [5,1],[4,1].";
-       " ";
-       "  -- {Cmap}       : Une matrice de taille 3,n contenant les valeurs RGB des"
-       "                   couleurs à ajouter à la palette de couleur. La valeur par";
-       "                   défaut est [0.8,0.8,0.8] (couleur grise).";
-       " ";
-       " Taille : 6.";
-       " Type : tlist scilab de type {scsopt}."];
-
-  H(  'void2')=...
-      [" Champ inutilisé.";
-       " ";
-       " Taille : -.";
-       " Type : -."];
-
-  H(  'void3')=...
-      [" Champ inutilisé.";
-       " ";
-       " Taille : -.";
-       " Type : -."];
-
-  H(  'doc')=...
-      [" Structure utilisateur pour la documentation des diagrammes.";
-       " ";
-       " Taille : 1.";
-       " Type : Chaînes de caractères."];
-
-endfunction 
-
-function H=scicos_help_model_fr()
-//****** scicos_model ******/
-//**************************/
-  H(  'model')=...
-      [" Liste Scilab qui contient les informations";
-       " du bloc utilisées pour la compilation.";
-       " ";
-       " Taille : 23.";
-       " Type : liste scilab."];
-
-  H(  'sim')=...
-      [" Une liste Scilab contenant deux éléments. Le premier élément";
-       " est une chaîne de caractères contenant le nom de la fonction";
-       " de calcul (C, Fortran ou Scilab). Le deuxième élément est un";
-       " entier spécifiant le type de la fonction de calcul. Les types";
-       " courant sont 4 et 5, mais les anciens types sont toujours";
-       " compatibles.";
-       " Pour des anciens blocs, {sim} peut être une simple liste, ce";
-       " qui signifie que le type est supposé être 0.";
-       " ";
-       " Taille : 2.";
-       " Type : liste Scilab."];
-
-  H(  'in')=...
-      [" Un vecteur spécifiant le nombre et la première";
-       " dimension des ports d''entrée réguliers du bloc";
-       " indéxés du haut vers le bas.";
-       " Si il n''existe pas de port d''entrées, alors";
-       " in=[].";
-       ""
-       " Les dimensions peuvent être négatives, égales à zéro"
-       " ou positives : "
-       ""
-       "  -- Lorsqu''une dimension négative est utilisée, "
-       "     alors le compilateur essaiera de déterminer "
-       "     quelle est la dimension appropriée."
-       ""
-       "  -- Lorsqu''une dimension égale à zéro est utilisée, "
-       "     alors le compilateur déterminera la valeur de "
-       "     cette dimension en sommant toutes les tailles "
-       "     positives trouvées dans ce vecteur de dimensions."
-       ""
-       "  -- Si les dimensions sont positives, elles sont"
-       "     alors explicitement renseignées."
-       " "
-       " Taille : nombre de ports réguliers d''entrée.";
-       " Type : vecteur colonne de nombres entiers."];
-
-  H(  'in2')=...
-      [" Un vecteur spécifiant la deuxième dimension";
-       " des ports réguliers d''entrées du bloc (indéxé";
-       " du haut vers le bas)."
-       " {in} avec {in2} forment alors les tailles des matrices"
-       " d''entrée."
-       " Pour des raisons de compatibilité, cette dimension"
-       " peut rester non renseignée ([]), ce qui signifiera"
-       " que les dimensions des ports seront in,1."
-       ""
-       " Les dimensions peuvent être négatives, égales à zéro"
-       " ou positives : "
-       ""
-       "  -- Lorsqu''une dimension négative est utilisée, "
-       "     alors le compilateur essaiera de déterminer "
-       "     quelle est la dimension appropriée."
-       ""
-       "  -- Lorsqu''une dimension égale à zéro est utilisée, "
-       "     alors le compilateur déterminera la valeur de "
-       "     cette dimension en sommant toutes les tailles "
-       "     positives trouvées dans ce vecteur de dimensions."
-       ""
-       "  -- Si les dimensions sont positives, elles sont"
-       "     alors explicitement renseignées."
-       " "
-       " Taille : nombre de ports réguliers d''entrée.";
-       " Type : vecteur colonne de nombres entiers."];
-  
-  H(  'intyp')=...
-      [" Un vecteur spécifiant les types des ports d''entrée réguliers.";
-       " Sa taille est égale à {in}. ";
-       " Les types des ports d''entrée peuvent être :";
-       "  -- 1 matrice de nombres réels,";
-       "  -- 2 matrice de nombres complexes,";
-       "  -- 3 matrice de int32,";
-       "  -- 4 matrice de int16,";
-       "  -- 5 matrice de int8,";
-       "  -- 6 matrice de uint32,";
-       "  -- 7 matrice de uint16,";
-       "  -- 8 matrice de uint8.";
-       " ";
-       " Taille : nombre de ports réguliers d''entrée.";
-       " Type : vecteur colonne de nombres entiers."];
-
-  H(  'out')=...
-      [" Un vecteur spécifiant le nombre et la première";
-       " dimension des ports de sortie réguliers du bloc";
-       " indéxés du haut vers le bas.";
-       " Si il n''existe pas de port de sorties, alors";
-       " out==[].";
-       ""
-       " Les dimensions peuvent être négatives, égales à zéro"
-       " ou positives : "
-       ""
-       "  -- Lorsqu''une dimension négative est utilisée, "
-       "     alors le compilateur essaiera de déterminer "
-       "     quelle est la dimension appropriée."
-       ""
-       "  -- Lorsqu''une dimension égale à zéro est utilisée, "
-       "     alors le compilateur déterminera la valeur de "
-       "     cette dimension en sommant toutes les tailles "
-       "     positives trouvées dans ce vecteur de dimensions."
-       ""
-       "  -- Si les dimensions sont positives, elles sont"
-       "     alors explicitement renseignées."
-       " "
-       " Taille : nombre de ports réguliers de sortie.";
-       " Type : vecteur colonne de nombres entiers."];
-
-  H(  'out2')=......
-      [" Un vecteur spécifiant la deuxième dimension";
-       " des ports réguliers de sortie du bloc (indéxé";
-       " du haut vers le bas)."
-       " {out} avec {out2} forment alors les tailles des matrices"
-       " de sorties."
-       " Pour des raisons de compatibilité, cette dimension"
-       " peut rester non renseignée ([]), ce qui signifiera"
-       " que les dimensions des ports seront out,1."
-       ""
-       " Les dimensions peuvent être négatives, égales à zéro"
-       " ou positives : "
-       ""
-       "  -- Lorsqu''une dimension négative est utilisée, "
-       "     alors le compilateur essaiera de déterminer "
-       "     quelle est la dimension appropriée."
-       ""
-       "  -- Lorsqu''une dimension égale à zéro est utilisée, "
-       "     alors le compilateur déterminera la valeur de "
-       "     cette dimension en sommant toutes les tailles "
-       "     positives trouvées dans ce vecteur de dimensions."
-       ""
-       "  -- Si les dimensions sont positives, elles sont"
-       "     alors explicitement renseignées."
-       " "
-       " Taille : nombre de ports réguliers de sortie.";
-       " Type : vecteur colonne de nombres entiers."];
-  
-  H(  'outtyp')=...
-      [" Un vecteur spécifiant les types des ports de sortie réguliers.";
-       " Sa taille est égale à {out}. ";
-       " Les types des ports de sortie peuvent être :";
-       "  -- 1  matrice de nombres réels,";
-       "  -- 2  matrice de nombres complexes,";
-       "  -- 3  matrice de int32,";
-       "  -- 4  matrice de int16,";
-       "  -- 5  matrice de int8,";
-       "  -- 6  matrice de uint32,";
-       "  -- 7  matrice de uint16,";
-       "  -- 8  matrice de uint8.";
-       " ";
-       " Taille : nombre de ports réguliers de sortie.";
-       " Type : vecteur colonne de nombres entiers."];
-
-  H(  'evtin')=...
-      [" Un vecteur indiquant la taille et le nombre";
-       " de ports événementiels d''entrée. Actuellement";
-       " les ports peuvent seulement avoir une taille";
-       " égale à 1.";
-       " Si aucun port événementiel existe alors";
-       " evtin est égal à 1.";
-       " ";
-       " Taille : nombre de ports événementiel d''entrée.";
-       " Type : vecteur colonne de nombres entiers."];
-
-  H(  'evtout')=...
-      [" Un vecteur indiquant la taille et le nombre";
-       " de ports événementiels de sorties. Actuellement";
-       " les ports peuvent seulement avoir une taille";
-       " égale à 1.";
-       " Si aucun port événementiel existe alors";
-       " evtout est égal à 1.";
-       " ";
-       " Taille : nombre de ports événementiel de sortie.";
-       " Type : vecteur colonne de nombres entiers."];
-
-  H(  'state')=...
-      [" Un vecteur contenant les valeurs initiales des états";
-       " continus.";
-       " Ce vecteur doit être égal à [] si le bloc ne possède";
-       " pas d''état continus.";
-       " ";
-       " Taille : nombre d''états continus.";
-       " Type : vecteur colonne de nombres réels."];
-
-  H(  'dstate')=...
-      [" Un vecteur contenant les valeurs initiales des états";
-       " discrets.";
-       " Ce vecteur doit être égal à [] si le bloc ne possède";
-       " pas d''état discrets.";
-       " ";
-       " Taille : nombre d''états discrets.";
-       " Type : vecteur colonne de nombres discrets."];
-
-  H(  'odstate')=...
-      [" Une liste contenant les valeurs initiales des états";
-       " objets.";
-       " Ce vecteur doit être égal à [] si le bloc ne possède";
-       " pas d''état discrets";
-       " ";
-       " Les états objets acceptent tous les types de variables";
-       " Scilab.";
-       " Dans le cas des fonctions de calcul de type 4 (bloc C),";
-       " seul les éléments contenant des matrices de nombres réels,";
-       " complexes, int32, int16 ,int8 ,uint32, uit16 et uint8 seront";
-       " correctement fournis pour la lecture/écriture.";
-       " ";
-       " Taille : nombre d''états objets.";
-       " Type : liste scilab."];
-
-  H(  'rpar')=...
-      [" Le vecteur des paramètres à virgule flotante.";
-       " Doit être [] si le bloc ne possède pas de";
-       " paramètres réels.";
-       " ";
-       " Taille : nombre de paramètres réels.";
-       " Type : vecteur colonne de nombre réels."];
-
-  H(  'ipar')=...
-      [" Le vecteur des parametres entiers.";
-       " Doit être [] si le bloc ne possède pas de";
-       " paramètres entiers.";
-       " ";
-       " Taille : nombre de paramètres entiers.";
-       " Type : vecteur colonne de nombre entiers."];
-
-  H(  'opar')=...
-      [" La liste des parametres objets.";
-                  " Doit être list() si le bloc ne possède pas de";
-                  " paramètres objets.";
-                  " Les paramètres objets acceptent tous les types"
-                  " de variables Scilab.";
-                  " ";
-                  " Dans le cas des fonctions de calcul de type 4 (bloc C),";
-                  " seul les éléments contenant des matrices de nombres réels,";
-                  " complexes, int32, int16 ,int8 ,uint32, uit16 et uint8 seront";
-                  " correctement fournis pour la lecture.";
-                  " ";
-                  " Taille : nombre de paramètres objets.";
-                  " Type : liste d''objets scilab."];
-
-  H(  'blocktype')=...
-                 [" Un caractère qui peut être mis indifféremment à";
-                  " ''c'' ou ''d'' pour les blocs standards. ''x'' est";
-                  " utilisé pour forcer l''appel à la fonction de calcul";
-                  " d''un bloc lors des calculs des états continu, même ";
-                  " si le bloc ne possède pas de tels états.";
-                  " ''l'', ''m'' et ''s'' sont réservés et ne doivent pas";
-                  " être utilisés.";
-                  " ";
-                  " Taille : 1.";
-                  " Type : caractère."];
-
-  H(  'firing')=...
-                 [" Un vecteur des temps initiaux de taille";
-                  " égale au nombre de ports événementiels de";
-                  " sortie. Celui ci contient les dates initiales";
-                  " (événements générés avant tout autre événements)";
-                  " Des valeurs négatives indiquent qu''aucun";
-                  " événement inital ne sera généré.";
-                  " ";
-                  " Taille : nombre de ports événementiel de sortie.";
-                  " Type : vecteur colonne de nombre réels."];
-
-  H(  'dep_ut')=...
-                 [" Un vecteur de booléen. [dep_u, dep_t].";
-                  " ";
-                  "  -- dep_u : vrai si le bloc est toujours actif."
-                  "          (la sortie dépend continuellement du temps)";
-                  " ";
-                  "  -- dep_t : vrai si le bloc à une relation directe entre"
-                  "          une entrée régulière et une sortie régulière."
-                  "          En d''autres termes, lorsque la fonction de calcul"
-                  "          est appelée avec flag 1, la valeur d''une entrée"
-                  "          est utilisée pour calculer la sortie."
-                  " ";
-                  " Taille : 2.";
-                  " Type : vecteur de boléens."];
-
-  H(  'label')=...
-                 [" Chaîne de caractères qui définit un label.";
-                  " Le label peut être utilisé pour identifier";
-                  " un bloc pour avoir accés ou modifier ses "
-                  " paramètres pendant la simulation."
-                  " ";
-                  " Taille : 1.";
-                  " Type : chaine de caractères."];
-
-  H(  'nzcross')=...
-                 [" Nombre de détection de surfaces.";
-                  " ";
-                  " Taille : nombre de détection de surfaces.";
-                  " Type : vecteur colonne de nombre entiers."];
-
-  H(  'nmode')=...
-                 [" La longeur du registre des modes. Notez que cela donne la taille";
-                  " du vecteur des modes mais pas le nombre total de";
-                  " modes utilisés par le bloc.";
-                  " En supposant qu''un bloc a 3 modes et que chaque";
-                  " mode peut prendre deux valeurs, alors le bloc";
-                  " peut avoir jusqu''à 2^3=8 modes.";
-                  " ";
-                  " Taille : longueur du registre des modes.";
-                  " Type : vecteur colonne de nombre entiers."];
-
-  H(   'equations')=...
-                 [" Utilisé dans les cas des blocs implicites.";
-                  " Structure de données de type {modelica} qui";
-                  " contient des descriptions relatives au code modelica.";
-                  " Cette liste contient quatre entrées :";
-                  " ";
-                  "  -- model : une chaîne de caractères donnant le nom du fichier";
-                  "            de la fonction modelica.";
-                  " ";
-                  "  -- inputs : un vecteur colonne de chaînes de caractères donnant";
-                  "             les noms des variables utilisées comme entrées.";
-                  " ";
-                  "  -- outputs : un vecteur colonne de chaînes de caractères donnant";
-                  "              les noms des variables utilisées comme sorties.";
-                  " ";
-                  "  -- parameters : une liste à deux entrées. La première est un vecteur";
-                  "                 de chaînes de caractères contenant les noms des variables";
-                  "                 modelica utilisées en tant que paramètres et la deuxième";
-                  "                 une liste contenant les valeurs de ces paramètres.";
-                  "                 Les noms des états modelica peuvent aussi être informés";
-                  "                 via {parameters}. Dans ce cas une troisième entrée est";
-                  "                 utilisée pour différencier les paramètres des états.";
-                  "                 Par exemple :";
-                  "                    mo.parameters=list([''C'',''v''],list(C,v),[0,1])"
-                  "                 signifie que ''C'' est un paramètre(0) de valeur C, et";
-                  "                 que ''v'' est une variable d''état(1) avec une valeur";
-                  "                 initiale v.";
-                  " ";
-                  " Taille : 5.";
-                  " Type : liste scilab."];
-  
-endfunction 
-function H=scicos_help_graphics_fr()
-//****** scicos_graphics ******/
-//*****************************/
-  H(  'graphics')=...
-                 [" Liste Scilab contenant les informations"
-                  " sur les données graphiques du bloc."
-                  " "
-                  " Size : 14.";
-                  " Type : scilab list."];
-
-  H(  'orig')=...
-                 [" Un vecteur [xo,yo], où xo est la coordonnée sur";
-                  " l''axe des abscisses de l''origine du bloc et yo est";
-                  " la coordonnée sur l''axe des ordonnées.";
-                  " ";
-                  " [xo,yo] sont les coordonnées en bas à gauche du";
-                  " contours du bloc.";
-                  " ";
-                  " Taille : 2.";
-                  " Type : vecteur ligne de nombres réels."];
-
-  H(  'sz')=...
-                 [" Un vecteur [w,h], où w est la largeur et";
-                  " h la hauteur du bloc.";
-                  " ";
-                  " Taille : 2.";
-                  " Type : vecteur ligne de nombres réels."];
-
-  H(  'flip')=...
-      [" Définit l''orientation du bloc. Si vrai alors les ports";
-                  " d''entrée sont sur la gauche du bloc et les ports de sortie";
-                  " sur la droite. Si faux alors les ports d''entrée sont sur "
-                  " la droite et ceux de sortie sur la gauche.";
-                  " ";
-                  " Taille : 1.";
-                  " Type : booléen."];
-
-  H(  'theta')=...
-                 [" Définit l''angle de l''objet Scicos.";
-                  " Cette valeur est en degrés et est inclut";
-                  " dans [-360,360]."
-                  " ";
-                  " ";
-                  " Taille : 1.";
-                  " Type : nombre réel."];
-
-  H(  'exprs')=...
-                 [" Des chaînes de caractères incluant des expressions";
-                  " formelles utilisées dans la boîte de dialogue.";
-                  " ";
-                  " Taille : Nombre d''expressions formelles.";
-                  " Type : Vecteur colonne de chaînes de caractères."];
-
-  H(  'pin')=...
-                 [" Un vecteur. pin(i) est le numéro du lien";
-                  " connecté à l''entrée régulière i, ou 0 si";
-                  " le port est connecté à aucun lien.";
-                  " ";
-                  " ";
-                  " Taille : nombres de ports réguliers d''entrée.";
-                  " Type : vecteur colonne de nombre entiers."];
-
-  H(  'pout')=...
-                 [" Un vecteur. pout(i) est le numéro du lien";
-                  " connecté à la sortie régulière i, ou 0 si";
-                  " le port est connecté à aucun lien.";
-                  " ";
-                  " ";
-                  " Taille : nombres de ports réguliers de sortie.";
-                  " Type : vecteur colonne de nombre entiers."];
-
-  H(  'pein')=...
-                 [" Un vecteur. pein(i) est le numéro du lien";
-                  " connecté à l''entrée événementielle i, ou 0 si";
-                  " le port est connecté à aucun lien.";
-                  " ";
-                  " ";
-                  " Taille : nombres de ports événementiel d''entrée.";
-                  " Type : vecteur colonne de nombre entiers."];
-
-  H(  'peout')=...
-                 [" Un vecteur. peout(i) est le numéro du lien";
-                  " connecté à la sortie événementielle i, ou 0 si";
-                  " le port est connecté à aucun lien.";
-                  " ";
-                  " ";
-                  " Taille : nombres de ports événementiel de sortie.";
-                  " Type : vecteur colonne de nombre entiers."];
-
-  H(  'gr_i')=...
-                 [" Chaînes de caractère qui contiennent les expression";
-                  " graphiques pour personnaliser l''aspect graphique des";
-                  " blocs. Ce champ peut être renseigné par le sous-menu";
-                  " {Icon}.";
-                  " ";
-                  " Taille : -.";
-                  " Type : Vecteur colonne de chaînes de caractères."];
-
-  H(  'id')=...
-                 [" Une chaîne qui contient un identifiant pour";
-                  " le bloc. Celui ci est affichéé en dessous du";
-                  " bloc dans le diagramme.";
-                  " ";
-                  " Taille : 1.";
-                  " Type : chaînes de caractères."];
-
-  H(  'in_implicit')=...
-                 [" Un vecteur de chaînes de caractères contenant ''E'' ou ''I''.";
-                  " ''E'' et ''I'' correspondent respectivement à explicite ou";
-                  " implicite. Ce vecteur indique donc la nature de chaque ports.";
-                  " Pour les blocs classiques, celui ci est soit vide ou bien égal";
-                  " à ''E''.";
-                  " ";
-                  " Taille : vide ou bien le nombre de ports réguliers d''entrée.";
-                  " Type : vecteur colonne de chaînes de caractères."];
-
-  H(   'out_implicit')=...
-                 [" Un vecteur de chaînes de caractères contenant ''E'' ou ''I''.";
-                  " ''E'' et ''I'' correspondent respectivement à explicite ou";
-                  " implicite. Ce vecteur indique donc la nature de chaque ports.";
-                  " Pour les blocs classiques, celui ci est soit vide ou bien égal";
-                  " à ''E''.";
-                  " ";
-                  " Taille : vide ou bien le nombre de ports réguliers de sorties.";
-                  " Type : vecteur colonne de chaînes de caractères."];
-
-endfunction 
-function H=scicos_help_link_fr()
-//****** scicos_link ******/
-//*************************/
-  H(  'link')=...
-                 [" ";
-                  " Size : 8.";
-                  " Type : liste scilab."];
-
-  H(  'xx')=...
-                 [" Un vecteur de coordonnées des abscisses x ";
-                  " d''un lien. Un lien est définit comme "
-                  " une polyline.";
-                  " ";
-                  " Taille : nombre total de points du liens.";
-                  " Type : vecteur colonne de nombre réels."];
-
-  H(  'yy')=...
-                 [" Un vecteur de coordonnées des ordonnées y";
-                  " d''un lien. Un lien est définit comme";
-                  " une polyline.";
-                  " ";
-                  " Taille : nombre total de points du liens.";
-                  " Type : vecteur colonne de nombre réels."];
-
-  H(  'id')=...
-                 [" Une chaîne de caractères définissant";
-                  " l''identification du lien.";
-                  " ";
-                  " Taille : 1.";
-                  " Type : chaîne de caractères."];
-
-  H(  'thick')=...
-                 [" Un vecteur de taille deux définissant"
-                  " l''épaisseur du lien.";
-                  " ";
-                  " Taille : 2.";
-                  " Type : vecteur ligne de nombre entiers."];
-
-  H(  'ct')=...
-                 [" La première entrée de ce vecteur désigne la couleur";
-                  " et la deuxième la nature du lien. La valeur de cette";
-                  " dernière entrée est 1 pour un lien régulier, -1 pour";
-                  " un lien d''activation et 2 pour un lien implicite.";
-                  " ";
-                  " Taille : 2.";
-                  " Type : vecteur ligne de nombre entiers."];
-
-  H(  'from')=...
-                 [" Un vecteur de taille 3 qui designe un numéro de";
-                  " bloc, un numéro de port et un type de port (0 pour";
-                  " une sortie et 1 pour une entrée) concernant l''origine";
-                  " du lien. Notez que la troisième entrée peut être 1 si";
-                  " le lien est implicite. Sinon il est zéro.";
-                  " ";
-                  " Taille : 3.";
-                  " Type : vecteur ligne de nombre entiers."];
-
-  H(  'to')=...
-                 [" Un vecteur de taille 3 qui designe un numéro de";
-                  " bloc, un numéro de port et un type de port (0 pour";
-                  " une sortie et 1 pour une entrée) concernant la destination";
-                  " du lien. Notez que la troisième entrée peut être 1 si";
-                  " le lien est implicite. Sinon il est zéro.";
-                  " ";
-                  " Taille : 3.";
-                  " Type : vecteur ligne de nombre entiers."];
-endfunction 
+function H=scicos_help() 
+
+  function H=scicos_help_cpr()
+  // help fo cpr 
+    H=hash(100);
     
-function H=scicos_help_state_fr()
-//****** scicos_state ******/
-//**************************/
-  H(  'state')=...
-                  [" Une liste typée scilab de type {xcs}. Cette";
-                   " liste contient tous les états du diagramme qui";
-                   " vont évoluer pendant la simulation.";
-                   " state contient {x}, {z}, {oz}, {iz}, "
-                   " {tevts}, {evtspt}, {pointi} et {outtb}."
-                   " ";
-                   " Taille : 9.";
-                   " Type : tlist scilab."];
+    H(  'cpr')=...
+	[" The Scilab object {scicos_cpr} contains "
+	 " the result of the compilation."
+	 " That structure includes fields {scicos_state}, {scicos_sim},"
+	 " {cor} and {corinv}."
+	 ""
+	 " Size : 5.";
+	 " Type : scilab list."];
 
-  H(  'x')=...
-                 [" Le registre des états continus qui est obtenu";
-                  " en concatenant tous les états continus de tous";
-                  " les blocs."
-                  " ";
-                  " Taille : total des tailles de tous les registres des états continus.";
-                  " Type : vecteur colonne de nombres réels."];
+    H(  'state')=...
+	[" Scilab typed list of type {xcs}. It contains all"
+	 " the states of the model, that is, everything than"
+	 " can evolve during the simulation.";
+	 " state contains {x}, {z}, {oz}, {iz}, "
+	 " {tevts}, {evtspt}, {pointi} and {outtb}."
+	 " ";
+	 " Size : 9.";
+	 " Type : scilab tlist."];
 
-  H(  'z')=...
-                 [" Le registre des états discrets qui est obtenu";
-                  " en concatenant tous les états discrets de tous";
-                  " les blocs."
-                  " ";
-                  " Taille : total des tailles de tous les registres des états discrets.";
-                  " Type : vecteur colonne de nombres réels."];
+    H(  'sim')=...
+	[" Scilab typed list of type {scs}. It contains "
+	 " static arrays coming from the result of the"
+	 " compilation. That arrays does not evolve"
+	 " during the simulation."
+	 " ";
+	 " Size : 33.";
+	 " Type : scilab tlist."];
 
-  H(  'oz')=...
-                 [" La liste des états objets discrets obtenue";
-                  " par la concaténation de tous les états objets";
-                  " de tous les blocs.";
-                  " ";
-                  " Taille : total des tailles de toutes les listes des états objet.";
-                  " Type : liste scilab."];
+    H(  'cor')=...
+	[" It is a list with same recursive structure"
+	 " as scs_m. Each leaf contains the index of "
+	 " associated block in sim data structure. "
+	 " ";
+	 " Size : number of objects in scs_m.";
+	 " Type : scilab list."];
 
-  H(  'iz')=...
-                 [" Vecteur de taille égale au nombre de blocs.";
-                  " Ce vecteur est utilisé pour enregistrer les"
-                  " pointeurs des registres de travail (work)"
-                  " Si un bloc fait une allocation du registre work"
-                  " à l''initialisation (flag=4) alors le pointeur"
-                  " associé est enregistré ici."
-                  " ";
-                  " Taille : nombre de blocs.";
-                  " Type : vecteur colonne de nombres réels."];
 
-  H(  'tevts')=...
-                 [" Un vecteur de taille égale au nombre";
-                  " de sources d''activation. C''est une table"
-                  " contenant les dates des événements"
-                  " programmés dans {evtspt}."
-                  " ";
-                  " Taille : nombre de sources d''activation.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'corinv')=...
+	[" corinv(i) is the path of i th block"
+	 " defined in sim data structure in the"
+	 " scs_m data structure."
+	 " ";
+	 " Size : number of blocks in the compiled structre.";
+	 " Type : scilab list."];
+  endfunction 
 
-  H(  'evtspt')=...
-                 [" Un vecteur de taille égale au nombre";
-                  " de sources d''activation. C''est une table"
-                  " d''événements."
-                  " ";
-                  " Taille : nombre de sources d''activation.";
-                  " Type : vecteur colonne de nombre entiers."];
+  function H=scicos_help_block()
+  //******* scicos_block *******/
+    H=hash(100);
 
-  H(  'pointi')=...
-                 [" Le numéro du prochain événement.";
-                  " ";
-                  " Taille : 1.";
-                  " Type : entier."];
+    H(  'block')=...
+	[" Basic  structure that define a Scicos block.";
+	 " That structure includes fields {scicos_graphics}, {scicos_model},"
+	 " {gui} and {doc}."
+	 ""
+	 " Size : 5.";
+	 " Type : scilab list."];
 
-  H(   'outtb')=...
-                 [" Liste scilab contenant tous les registres";
-                  " de sortie des blocs. Chaque éléments de cette"
-                  " liste contient des données typées matricielles."
-                  " ";
-                  " Taille : nombre de ports réguliers de sortie.";
-                  " Type : liste scilab contenant des matrices."];
+    H(  'graphics')=...
+	[" Scilab object including"
+	 " graphical information concerning"
+	 " the features of the block.";
+	 " "
+	 " Size : 14.";
+	 " Type : scilab list."];
 
-endfunction 
+    H(  'model')=...
+	[" Scilab list that contains the features";
+	 " of the block used for the compilation.";
+	 " ";
+	 " Size : 23.";
+	 " Type : Scilab list."];
 
-function H=scicos_help_sim_fr()
-//****** scicos_sim ******/
-//************************/
-  H(  'sim')=...
-                 [" Une liste typée scilab de type {scs}. Cette";
-                  " liste contient des tableaux statiques issus"
-                  " du résultat de la compilation. Ces tableaux"
-                  " n''évoluent pas pendant la simulation."
-                  " ";
-                  " Taille : 33.";
-                  " Type : tlist scilab."];
+    H(  'gui')=...
+	[" The name of the Scilab GUI function associated"
+	 " with the block."
+	 " ";
+	 " Size : 1.";
+	 " Type : string."];
 
-  H(  'funs')=...
-                 [" Une liste qui contient les noms des";
-                  " fonctions de calculs ou des fonctions";
-                  " scilab.";
-                  " ";
-                  " Taille : nombre de blocs.";
-                  " Type : liste scilab."];
+    H(  'doc')=...
+	[" Field used for documentation"
+	 " of the block"
+	 " ";
+	 " Size : 1.";
+	 " Type : string."];
+  endfunction 
 
-  H(  'xptr')=...
-                 [" Un vecteur pointant vers le registre des états";
-                  " continus {x}. Le registre des états continus";
-                  " du bloc {i} peut-être retrouvé par :";
-                  " {state.x(sim.xptr(i):sim.xptr(i+1)-1)}.";
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
 
-  H(  'zptr')=...
-                 [" Un vecteur pointant vers le registre des états";
-                  " discret {z}. Le registre des états discrets";
-                  " du bloc {i} peut-être retrouvé par :";
-                  " {state.z(sim.zptr(i):sim.zptr(i+1)-1)}.";
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+  function H=scicos_help_diagram() 
+  //****** scicos_diagram ******/
+    H=hash(100);
 
-  H(  'ozptr')=...
-                 [" Un vecteur pointant vers le registre des états";
-                  " objets discret {oz}. Le registre des états objets";
-                  " du bloc {i} peut-être retrouvé par :";
-                  " {state.oz(sim.ozptr(i):sim.ozptr(i+1)-1)}.";
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'diagram')=...
+	[" ";
+	 " Size : 4.";
+	 " Type : scilab list."];
 
-  H(  'zcptr')=...
-                 [" Un vecteur pointant vers le registre des";
-                  " détections de surfaces. Ce vecteur indique";
-                  " par bloc le nombre de passages à zéro utilisé.";
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'props')=...
+	[" Diagram properties.";
+	 " This entry contains various informations such";
+	 " some main diagram initials values.";
+	 " ";
+	 " This variable is a tlist of type {scicos_params} and";
+	 " contains {wpar}, {title}, {tol}, {tf}, {context},";
+	 " {options} and {doc}.";
+	 " ";
+	 " Size : 11.";
+	 " Type : Scilab tlist of type {scicos_params}."];
 
-  H(  'inpptr')=...
-                 [" (sim.inpptr(i+1)-sim.inpptr(i)) donne le nombre";
-                  " de ports réguliers d''entrée du bloc i.";
-                  " inpptr(i) pointe vers le début des ports d''entrée"
-                  " du bloc i et les connections à ces ports peuvent"
-                  " retrouvées par la table d''indirection {inplnk}."
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'objs')=...
+	[" List of objects included in the Scicos diagram.";
+	 " The objects used in scicos are {scicos_block}, {scicos_link} and Text.";
+	 " The objects can also be deleted object data structure.";
+	 " Deleted object data structure is marked list(''Deleted'').";
+	 " ";
+	 " ";
+	 " Size : total number of objects in the diagram.";
+	 " Type : Scilab tlist of type {scicos_block}, {scicos_link} or Text."];
 
-  H(  'outptr')=...
-                 [" (sim.outptr(i+1)-sim.outptr(i)) donne le nombre";
-                  " de ports réguliers de sortie du bloc i.";
-                  " outptr(i) pointe vers le début des ports de sortie"
-                  " du bloc i et les connections à ces ports peuvent"
-                  " retrouvées par la table d''indirection {outlnk}."
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'version')=...
+	[" A string that gives the version of the Scicos diagram.";
+	 " This is used to provide compatibility with old diagram."
+	 " Note that you can get the current version of Scicos by";
+	 " using the entry ''About scicos'' in the help menu"
+	 " or by using the function get_scicos_version()."
+	 ""
+	 " Size : 1.";
+	 " Type : String."];
+  endfunction 
 
-  H(  'inplnk')=...
-                 [" (cpr.sim.inplnk(cpr.sim.inpptr(i)-1+j))";
-                  " est l''index du lien connecté à l''entrée j";
-                  " du bloc i, où j va de 1 jusqu''à";
-                  " (cpr.sim.inpptr(i+1)-cpr.sim.inpptr(i)).";
-                  " ";
-                  " Taille : nombre total de port réguliers d''entrée.";
-                  " Type : vecteur colonne de nombre entier."];
+  function H=scicos_help_params()
+  //****** scicos_params ******/
+    H=hash(100);
 
-  H(  'outlnk')=...
-                 [" (cpr.sim.outlnk(cpr.sim.outptr(i)-1+j))";
-                  " est l''index du lien connecté à la sortie j";
-                  " du bloc i, où j va de 1 jusqu''à";
-                  " (cpr.sim.outptr(i+1)-cpr.sim.outptr(i)).";
-                  " ";
-                  " Taille : nombre total de port réguliers de sortie.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'params')=...
+	[" ";
+	 " Size : 11.";
+	 " Type : scilab list."];
 
-  H(  'rpar')=...
-                 [" Vecteur des paramètres réels qui est";
-                  " obtenu en concatenant les registres"
-                  " des paramètres réels de tous les blocs."
-                  " ";
-                  " Taille : nombre total de paramètres réels.";
-                  " Type : vecteur colonne de nombre réels."];
+    H(  'wpar')=...
+	[" This vector is not currently used."
+	 " It may be used in the future to code "
+	 " window sizes of the editor.";
+	 " ";
+	 " Size : 6.";
+	 " Type : column vector or real."];
 
-  H(  'rpptr')=...
-                 [" Un vecteur pointant vers le registre des";
-                  " paramètres réels {rpar}. Les paramètres "
-                  " réels du bloc i peuvent être retrouvés par :";
-                  " {sim.rpar(sim.rpptr(i):sim.rpptr(i+1)-1)}.";
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'title')=...
+	[" Vector of character strings, where the first one is the"
+	 " diagram title and default name of save file name, "
+	 " and the second one is the path of the directory of "
+	 " the file name.";
+	 " ";
+	 " Size : 2.";
+	 " Type : row vector of strings."];
 
-  H(  'ipar')=...
-                 [" Vecteur des paramètres entiers qui est";
-                  " obtenu en concatenant les registres"
-                  " des paramètres entiers de tous les blocs."
-                  " ";
-                  " Taille : nombre total de paramètres entiers.";
-                  " Type : vecteur colonne de nombre réels."];
+    H(  'tol')=...
+	["";
+	 " A vector containing simulation parameters including"
+	 " various tolerances used by the solver: ";
+	 " ";
+	 "  -- {atol}   : Integrator absolute tolerance for the numerical solver.";
+	 " ";
+	 "  -- {rtol}   : Integrator relative tolerance for the numerical solver.";
+	 " ";
+	 "  -- {ttol}   : Tolerance on time."
+	 "                If an integration period is less";
+	 "                than {ttol}, the numerical solver is not called."
+	 " ";
+	 "  -- {deltat} : Maximum integration time interval."
+	 "                If an integration period is larger than"
+	 "                {deltat}, the numerical solver is called more than"
+	 "                once in such a way that for each call the integration"
+	 "                period remains below {deltat}";
+	 " ";
+	 "  -- {scale}  : Real-time scaling; the value 0 corresponds to no"
+	 "                real-time scaling."
+	 "                It associates a Scicos simulation time to the real"
+	 "                time in seconds."
+	 "                A value of 1 means that each Scicos unit of time"
+	 "                corresponds to one second.";
+	 " ";
+	 "  -- {solver} : Choice of numerical solver."
+	 "                The value 0 implies an ODE solver and 100"
+	 "                implies a DAE solver."
+	 " ";
+	 "  -- {hmax}   : Maximum step size for the numerical solver.";
+	 "                0 means no limit.";
+	 " ";
+	 " Size : 7.";
+	 " Type : column vector of real."];
 
-  H(  'ipptr')=...
-                 [" Un vecteur pointant vers le registre des";
-                  " paramètres entier {ipar}. Les paramètres "
-                  " entiers du bloc i peuvent être retrouvés par :";
-                  " {sim.ipar(sim.ipptr(i):sim.ipptr(i+1)-1)}.";
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entier."];
+    H(  'tf')=...
+	[" Final time simulation."
+	 " The simulation stops at this time."
+	 " The default value is 100000.";
+	 " ";
+	 " Size : 1.";
+	 " Type : real."];
 
-  H(  'opar')=...
-                 [" Liste des paramètres objets qui est";
-                  " obtenue en concatenant les listes"
-                  " des paramètres objets de tous les blocs."
-                  " ";
-                  " Taille : nombre total de paramètres objets.";
-                  " Type : liste scilab."];
+    H(  'context')=...
+	[" A vector of strings containing Scilab instructions"
+	 " defining Scilab variables to be used inside block''s dialog box"
+	 " as symbolic parameters."
+	 " All valid Scilab instructions can be used and "
+	 " also comments.";
+	 " ";
+	 " Size : number of lines of the context.";
+	 " Type : column vector of strings."];
 
-  H(  'opptr')=...
-                 [" Un vecteur pointant vers la liste des";
-                  " paramètres objets {opar}. Les paramètres "
-                  " entiers du bloc i peuvent être retrouvés par :";
-                  " {sim.opar(sim.opptr(i):sim.opptr(i+1)-1)}.";
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'void1')=...
+	[" unused field.";
+	 " ";
+	 " Size : -.";
+	 " Type : -."];
 
-  H(  'clkptr')=...
-                 [" Un vecteur pointant vers les ports ";
-                  " d''activation de sortie."
-                  " (cpr.sim.clkptr(i):cpr.sim.clkptr(i+1)-1)"
-                  " donne les numéros des ports de sortie"
-                  " événementiel du bloc i."
-                  " "
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'options')=...
+	[" Scilab object of type {scsopt} defining"
+	 " graphical properties of the editor such"
+	 " as background color and link color."
+	 " ";
+	 " The fields are the following:";
+	 " ";
+	 "  -- {3D}         : A list with two entries. The first one is a boolean"
+	 "                    indicating whether or not blocks should have 3D aspect."
+	 "                    The second entry indicates the color in the current colormap"
+	 "                    to be used to create the 3D effect."
+	 "                    The default is 33 which corresponds to gray added by"
+	 "                    Scicos to the standard colormap, which contains 32 colors."
+	 "                    The default value is list(%t,33)."
+	 " ";
+	 "  -- {Background} : Vector with two entries: background and"
+	 "                    foreground colors."
+	 "                    The default value is [8,1]."
+	 " ";
+	 "  -- {link}       : Default link colors for regular and activation links."
+	 "                    These colors are used only at link construction."
+	 "                    Changing them does not affect already constructed links."
+	 "                    The default value is [1,5], which corresponds to black and"
+	 "                    red if the standard Scilab colormap is used."
+	 " ";
+	 "  -- {ID}         : A list of two vectors including font number and sizes."
+	 "                    The default value is [5,1],[4,1]."
+	 " ";
+	 "  -- {Cmap}       : An n,3 matrix containing RGB values of colors"
+	 "                    to be added to the colormap."
+	 "                    The default value is, [0.8,0.8,0.8] i.e., the color gray."
+	 " ";
+	 " Size : 6.";
+	 " Type : scilab tlist of type {scsopt}."];
 
-  H(  'ordptr')=...
-                 [" Un vecteur pointant vers {ordclk}";
-                  " (cpr.sim.ordptr(i):cpr.sim.ordptr(i+1)-1)"
-                  " pointe vers la zone de ordclk qui"
-                  " indique les numéros des blocs activés par"
-                  " le port événementiel numérotés i."
-                  " ";
-                  " Taille : nombre de source d''activations + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'void2')=...
+	[" unused field.";
+	 " ";
+	 " Size : -.";
+	 " Type : -."];
 
-  H(  'execlk')=...
-                 ["Non utilisé.";
-                  " ";
-                  " Taille : ";
-                  " Type : "];
+    H(  'void3')=...
+	[" unused field.";
+	 " ";
+	 " Size : -.";
+	 " Type : -."];
 
-  H(  'ordclk')=...
-                 [" Une matrice associé aux blocs activés par";
-                  " événements. La première colonne contient";
-                  " les numéros des blocs et la deuxième le"
-                  " code de l''événement par lequel le bloc"
-                  " sera appelé pendant la simulation."
-                  " ";
-                  " Taille : nombre total de bloc sommé par source d''activations.";
-                  " Type : matrice de nombre entiers."];
+    H(  'doc')=...
+	[" User defined diagram documentation structure.";
+	 " ";
+	 " Size : 1.";
+	 " Type : Strings."];
+  endfunction 
 
-  H(  'cord')=...
-                 [" Une matrice associé aux blocs activés en";
-                  " permanence. La première colonne contient";
-                  " les numéros des blocs et la deuxième le"
-                  " code de l''événement par lequel le bloc"
-                  " sera appelé pendant la simulation."
-                  " ";
-                  " Taille : ncord.";
-                  " Type : matrice de nombres entiers."];
+  function H=scicos_help_model()
+  //****** scicos_model ******/
+    
+    H=hash(100);
+    H(  'model')=...
+	[" Scilab list that contains the features";
+	 " of the block used for the compilation.";
+	 " ";
+	 " Size : 23.";
+	 " Type : Scilab list."];
 
-  H(  'oord')=...
-                 [" Sous-ensemble de {cord}. Les blocs de cette";
-                  " matrice ont des sorties qui affectent le "
-                  " calcul des états continus.";
-                  "  ";
-                  " Taille : noord.";
-                  " Type : matrice de nombres entiers."];
+    H(  'sim')=...
+	["A list containing two elements. The first element is"
+	 "a string containing the name of the computational function"
+	 "(C, Fortran,or Scilab). The second element is an integer"
+	 "specifying the type of the computational function. Currently"
+	 "type 4 and 5 are used, but older types continue to work to "
+	 "ensure backward compatibility.";
+	 "For some older case, {sim} can be a single string and that"
+	 "means that the type is supposed to be 0."
+	 " ";
+	 " Size : 2.";
+	 " Type : Scilab list."];
 
-  H(  'zord')=...
-                 [" Sous-ensemble de {cord}. Les blocs de cette";
-                  " matrice ont des sorties qui affectent le "
-                  " calcul des détections de surface.";
-                  "  ";
-                  " Taille : nzord.";
-                  " Type : matrice de nombres entiers."];
+    H(  'in')=...
+	[" A vector specifying the number and size of the first"
+	 " dimension of regular input ports indexed from top to";
+	 " bottom of the block. If no input port exist in==[].";
+	 " ";
+	 " The size can be negative, equal to zero or positive :";
+	 " ";
+	 "  -- If a size is less than zero, the compiler will";
+	 "     try to find the appropriate size.";
+	 " ";
+	 "  -- If a size is equal to zero, the compiler will";
+	 "     affect this dimension by added all positive size";
+	 "     found in that vector";
+	 " ";
+	 "  -- If a size is greater than zero, then the size is"
+	 "     explicitly given.";
+	 " ";
+	 " Size : number of regular input ports.";
+	 " Type : column vector of integer numbers."];
 
-  H(  'critev')=...
-                 [" Un vecteur de taille égale au nombre";
-                  " d''activation. Ce vecteur est composé de";
-                  " 0 et de 1 qui indiquent si des événements";
-                  " sont critiques dans le sens où le solveur";
-                  " doit redémarrer à froid.";
-                  " ";
-                  " Taille : nombre de sources d''activation.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'in2')=...
+	[" A vector specifying the second dimension of regular"
+	 " input ports indexed from top to bottom of the block."
+	 " {in} with {in2} formed then the regular input sizes matrix.";
+	 " For compatibility, this dimension can stay empty ([]).";
+	 "  That means that the dimensions of input ports will be in,1";
+	 " ";
+	 " The size can be negative, equal to zero or positive :";
+	 " ";
+	 "  -- If a size is less than zero, the compiler will";
+	 "     try to find the appropriate size.";
+	 " ";
+	 "  -- If a size is equal to zero, the compiler will";
+	 "     affect this dimension by added all positive size";
+	 "     found in that vector.";
+	 " ";
+	 "  -- If a size is greater than zero, then the size is"
+	 "     explicitly given.";
+	 " ";
+	 " Size : number of regular input ports.";
+	 " Type : column vector of integer numbers."];
 
-  H(  'nb')=...
-                 [" Nombre de blocs. Notez que le nombre de";
-                  " blocs peut être différent du nombre";
-                  " original de blocs dans le diagramme";
-                  " car la fonction {c_pass2} du compilateur";
-                  " peut dupliquer des blocs synchrones.";
-                  " "
-                  " Taille : 1.";
-                  " Type : entier."];
+    H(  'intyp')=...
+	[" A vector specifying the types of regular input ports."
+	 " Its sizes is equal to the sizes of {in}.";
+	 " The types of regular input ports can be :";
+	 ""
+	 "  -- 1  real matrix,";
+	 "  -- 2  complex matrix,";
+	 "  -- 3  int32 matrix,";
+	 "  -- 4  int16 matrix,";
+	 "  -- 5  int8 matrix,";
+	 "  -- 6  uint32 matrix,";
+	 "  -- 7  uint16 matrix,";
+	 "  -- 8  uint8 matrix.";
+	 " ";
+	 " Size : number of regular input ports.";
+	 " Type : column vector of integer numbers."];
 
-  H(  'ztyp')=...
-                 [" Un vecteur de taille égale au nombre de blocs.";
-                  " Une entrée égale à 1 indique que le bloc possède";
-                  " une détection de surface."
-                  " ";
-                  " Taille : nombre de source d''activations + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'out')=...
+	["";
+	 " A vector specifying the number and size of the first"
+	 " dimension of regular output ports indexed from top to";
+	 " bottom of the block. If no output port exist out==[].";
+	 " ";
+	 " The size can be negative, equal to zero or positive :";
+	 " ";
+	 "  -- If a size is less than zero, the compiler will";
+	 "     try to find the appropriate size.";
+	 " ";
+	 "  -- If a size is equal to zero, the compiler will";
+	 "     affect this dimension by added all positive size";
+	 "     found in that vector";
+	 " ";
+	 "  -- If a size is greater than zero, then the size is"
+	 "     explicitly given.";
+	 " ";
+	 " Size : number of regular output ports.";
+	 " Type : column vector of integer numbers."];
 
-  H(  'nblk')=...
-                 ["Pas utilisé. Mis à {nb}.";
-                  " ";
-                  " Taille : 1.";
-                  " Type : entier."];
+    H(  'out2')=...
+	[" A vector specifying the second dimension of regular"
+	 " output ports indexed from top to bottom of the block."
+	 " {out} with {out2} formed then the regular output sizes matrix.";
+	 " For compatibility, this dimension can stay empty ([]). That";
+	 " means that the dimensions of output ports will be out,1";
+	 " ";
+	 " That dimension can be negative, equal to zero or positive :";
+	 " ";
+	 "  -- If a size is less than zero, the compiler will";
+       "     try to find the appropriate size.";
+       " ";
+       "  -- If a size is equal to zero, the compiler will";
+       "     affect this dimension by added all positive size";
+       "     found in that vector.";
+       " ";
+       "  -- If a size is greater than zero, then the size is"
+       "     explicitly given.";
+       " ";
+       " Size : number of regular output ports.";
+       " Type : column vector of integer numbers."];
 
-  H(  'ndcblk')=...
-                 ["Pas utilisé.";
-                  " ";
-                  " Taille : -.";
-                  " Type : entier."];
+    H(  'outtyp')=...
+	[" A vector specifying the types of regular output ports."
+	 " Its sizes is equal to the sizes of {out}.";
+	 " The types of regular output ports can be :";
+	 ""
+	 "  -- 1  real matrix,";
+	 "  -- 2  complex matrix,";
+	 "  -- 3  int32 matrix,";
+	 "  -- 4  int16 matrix,";
+	 "  -- 5  int8 matrix,";
+	 "  -- 6  uint32 matrix,";
+	 "  -- 7  uint16 matrix,";
+	 "  -- 8  uint8 matrix.";
+	 " ";
+	 " Size : number of regular output ports.";
+	 " Type : column vector of integer numbers."];
 
-  H(  'subscr')=...
-                 ["Pas utilisé.";
-                  " ";
-                  " Taille : 0.";
-                  " Type : vide."];
+    H(  'evtin')=...
+	[" A vector specifying the number and sizes of"
+	 " activation inputs. Currently activation ports"
+	 " can be only of size one.";
+	 " If no event input port exists evtin must be "
+	 " equal to [].";
+	 " ";
+	 " Size : number of input event ports.";
+	 " Type : column vector of integer numbers."];
 
-  H(  'funtyp')=...
-                 [" Un vecteur de taille égale au nombre de blocs";
-                  " qui indique le type de la fonction de calcul.";
-                  " Le type de bloc peut aller de 0 à 5.";
-                  " Les blocs courants de Scicos sont les blocs";
-                  " de type 4 (bloc C) et de type 5 (bloc scilab).";
-                  " Les anciens blocs restent compatibles.";
-                  " ";
-                  " Taille : nombre de blocs.";
-                  " Type : vecteur colonne de nombre entiers."];
+    H(  'evtout')=...
+	[" A vector specifying the number and sizes of"
+	 " activation outputs."
+	 " Currently activation ports can be only of "
+	 " size one.";
+	 " If no event output port exists evtout must be "
+	 " equal to [].";
+	 " ";
+	 " Size : number of output event ports.";
+	 " Type : column vector of integer numbers."];
 
-  H(  'iord')=...
-                 [" Une matrice qui associe les blocs à activer ";
-                  " au début de la simulation. Celà inclue les";
-                  " blocs {Constante} et les blocs activés en";
-                  " permanence.";
-                  " ";
-                  " Taille : niord.";
-                  " Type : matrice de nombres entiers."];
+    H(  'state')=...
+	[" Vector containing initial values of continuous-time state.";
+	 " Must be [] if no continuous state.";
+	 " ";
+	 " Size : number of continuous-time state.";
+	 " Type : column vector of real numbers."];
 
-  H(  'labels')=...
-                 [" Un vecteur de chaîne de caractères de";
-                  " taille égale au nombre de blocs "
-                  " contenant les labels des blocs.";
-                  " ";
-                  " Taille : nombre de blocs.";
-                  " Type : vecteur colonne de chaînes de caractères."];
+    H(  'dstate')=...
+	[" Vector containing initial values of discrete-time state.";
+	 " Must be [] if no discrete state.";
+	 " ";
+	 " Size : number of discrete-time state.";
+	 " Type : column vector of real numbers."];
 
-  H(  'modptr')=...
-                 [" Un vecteur pointant sur les modes des blocs.";
-                  " ";
-                  " Taille : nombre de blocs + 1.";
-                  " Type : vecteur colonne de nombre entiers."];
-endfunction
+    H(  'odstate')=...
+	[" List containing initial values of objects state.";
+	 " Must be list() if no objects state.";
+	 " ";
+	 " Objects state can be any types of scilab variable.";
+	 " In the computational function case of type 4 (C blocks)";
+	 " only elements containing matrix of real, complex,";
+	 " int32, int16 ,int8 ,uint32, uit16 and uint8 will be correctly";
+	 " provided for readind/writing.";
+	 " ";
+	 " Size : number of objects state.";
+	 " Type : scilab list of scilab objects."];
+
+    H(  'rpar')=...
+	[" The vector of floating point block parameters."
+	 " Must be [] if no floating point parameters.";
+	 " ";
+	 " Size : number of real parameters.";
+	 " Type : column vector of real numbers."];
+
+    H(  'ipar')=...
+	[" The vector of integer block parameters."
+	 " Must be [] if no integer parameters.";
+	 " ";
+	 " Size : number of integer parameters.";
+	 " Type : column vector of integer numbers."];
+
+    H(  'opar')=...
+	[" List of objects block parameters. "
+	 " Must be list() if no objects parameters.";
+	 " ";
+	 " Objects parameters can be any types of scilab variable.";
+	 " In the computational function case of type 4 (C blocks)";
+	 " only elements containing matrix of real, complex,";
+	 " int32, int16 ,int8 ,uint32, uit16 and uint8 will be correctly";
+	 " provided for reading.";
+	 " ";
+	 " Size : number of objetcs parameters.";
+	 " Type : list of scilab object."];
+
+    H(  'blocktype')=...
+	[" Character that can be set to ''c'' or ''d''"
+	 " indifferently for standard blocks. ''x'' is used"
+	 " if we want to force the computational function to"
+	 " be called during the simulation phase even if"
+	 " the block does not contribute to computation of" 
+	 " the state derivative.";
+	 " ''l'', ''m'' and ''s'' are reserved. Not to be used."
+	 " ";
+	 " Size : 1.";
+	 " Type : Character."];
+
+    H(  'firing')=...
+	[" Vector of initial event firing times of size "
+	 " equal to the number of activation output ports";
+	 " (see {evout}). It contains output initial event dates";
+	 " (Events generated before any input event arises). "
+	 " Negative values stands for no initial event on the "
+	 " corresponding port. ";
+	 ""
+	 " Size : number of output event ports.";
+	 " Type : column vector of real numbers."];
+
+    H(  'dep_ut')=...
+	["Boolean vector [dep_u, dep_t]."
+	 " ";
+	 "  -- dep_u : true if block is always active."
+	 "          (output depends continuously of the time)";
+	 " ";
+	 "  -- dep_t : true if block has direct feed-through,"
+	 "          i.e., at least one of the outputs depends"
+	 "          directly (not through the states) on one"
+	 "          of the inputs.   "
+	 "          In other words, when the computational"
+	 "          function is called with flag 1, the value "
+	 "          of an input is used to compute the output."
+	 " ";
+	 " Size : 2.";
+	 " Type : Boolean vector."];
+
+    H(  'label')=...
+	[" String that defines a label. "
+	 " It can be used to identify a block "
+	 " in order to access or modify its "
+	 " parameters during simulation.";
+	 " ";
+	 " Size : 1.";
+	 " Type : string."];
+
+    H(  'nzcross')=...
+	[" Number of zero-crossing surfaces.";
+	 " ";
+	 " Size : Number of zero-crossing surfaces.";
+	 " Type : column vector of integer numbers."];
+
+    H(  'nmode')=...
+	[" Length of the mode register. Note that this gives the size of"
+	 " the vector mode and not the total number of modes"
+	 " in which a block can operate in. Suppose a block "
+	 " has 3 modes and each mode can take two values, then"
+	 " the block can have up to 2^3=8 modes.";
+	 " ";
+	 " Size : Number of modes.";
+	 " Type : column vector of integer numbers."];
+
+    H(  'equations')=...
+	[" Used in case of implicit blocks.";
+	 " Data structure of type {modelica} which contains modelica"
+	 " code description if any. That list contains four entries :";
+	 " ";
+	 "  -- model : a string given the name of the file that contains"
+	 "             the modelica function.";
+	 " ";
+	 "  -- inputs : a colunm vector of strings that contains the names of";
+	 "              the modelica variables used as inputs.";
+	 ""
+	 "  -- outputs : a colunm vector of strings that contains the names of";
+	 "               the modelica variables used as outputs.";
+	 " ";
+	 "  -- parameters : a list with two entries. The first is a vector of strings"
+	 "                  for the name of modelica variable names used as parameters";
+	 "                  and the second entries is a list that contains the value of"
+	 "                  parameters.";
+	 "                  Names of modelica states can also be informed with"
+	 "                  {parameters}. In that case a third entry is used to do the"
+	 "                  difference between parameters and states."
+	 "                  For i,e :";
+	 "                    mo.parameters=list([''C'',''v''],list(C,v),[0,1])"
+	 "                  means that ''C'' is a parameter(0) of value C, and ''v''";
+	 "                  is a state(1) with initial value v.";
+	 " ";
+	 " Size : 5.";
+	 " Type : scilab list."];
+  endfunction 
+
+  function H=scicos_help_graphics()
+  //****** scicos_graphics ******/
+
+    H=hash(100);
+    H(  'graphics')=...
+	[" Scilab object including"
+	 " graphical information concerning"
+	 " the features of the block.";
+	 " "
+	 " Size : 14.";
+	 " Type : scilab list."];
+
+    H(  'orig')=...
+	[" Vector [xo,yo], where xo is the x coordinate"
+	 " of the  block origin and yo is the y coordinate"
+	 " of the  block origin.";
+	 " ";
+	 " [xo,yo] is the coordinate of down-left point of"
+	 " the block shape.";
+	 " ";
+	 " Size : 2.";
+	 " Type : row vector of real."];
+
+    H(  'sz')=...
+	[" Vector [w,h], where w is the block width and"
+	 " h the block height.";
+	 " ";
+	 " Size : 2.";
+	 " Type : row vector of real."];
+
+    H(  'flip')=...
+	[" Set the block orientation. If true the input ports"
+	 " are on the left of the box and output ports are on the right."
+	 " If false the input ports are on the right of the box and "
+	 " output ports are on the left.";
+	 " ";
+	 " Size : 1.";
+	 " Type : boolean."];
+
+    H(  'theta')=...
+	[" Set the angle of the Scicos object."
+	 " This value is in degree and is "
+	 " included in [-360,360].";
+	 " ";
+	 " Size : 1.";
+	 " Type : real."];
+
+    H(  'exprs')=...
+	[" Strings including formal expressions"
+	 " used in the dialog box of the block.";
+	 " ";
+	 " Size : number of formal expressions.";
+	 " Type : column vector of strings."];
+
+    H(  'pin')=...
+	[" Vector. pin(i) is the number  of the link"
+	 " connected to the ith regular input port "
+	 " (counting from one), or 0 if this port is"
+	 " not connected.";
+	 " ";
+	 " Size : number of regular input ports.";
+	 " Type : column vector of integers."];
+
+    H(  'pout')=...
+	[" Vector. pout(i) is the number of the link"
+	 " connected to the ith regular output port "
+	 " (counting from one), or 0 if this port is"
+	 " not connected.";
+	 " ";
+	 " Size : number of regular output ports.";
+	 " Type : column vector of integers."];
+
+    H(  'pein')=...
+	[" Vector. pein(i) is the number of the link"
+	 " connected to the ith event input port "
+	 " (counting from one), or 0 if this port is"
+	 " not connected.";
+	 " ";
+	 " Size : number of events input ports.";
+	 " Type : column vector of integers."];
+
+    H(  'peout')=...
+	[" Vector. peout(i) is the number of the link"
+	 " connected to the ith event output port "
+	 " (counting from one), or 0 if this port is"
+	 " not connected.";
+	 " ";
+	 " Size : number of events output ports.";
+	 " Type : column vector of integers."];
+
+    H(  'gr_i')=...
+	[" Strings including Scilab graphics"
+	 " expressions for customizing the block graphical"
+	 " aspect. This field may be set with {Icon} sub_menu."
+	 " ";
+	 " Size : -.";
+	 " Type : column vector of strings."];
+
+    H(  'id')=...
+	[" A string including an identification for the"
+	 " block. The string is displayed under the"
+	 " block in the diagram.";
+	 " ";
+	 " Size : 1.";
+	 " Type : string."];
+
+    H(  'in_implicit')=...
+	[" A vector of strings including ''E'' or ''I''."
+	 " ''E'' and ''I'' stand respectively for explicit and"
+	 " implicit port, and this vector indicates the nature"
+	 " of each input port. For regular blocks (not implicit),"
+	 " this vector is empty or contains only ""E"".";
+	 " ";
+	 " Size : nul or number of regular input ports.";
+	 " Type : column vector of strings."];
+
+    H(  'out_implicit')=...
+	[" A vector of strings including ''E'' or ''I''."
+	 " ''E'' and ''I'' stand respectively for explicit and"
+	 " implicit port, and this vector indicates the nature"
+	 " of each output port. For regular blocks (not implicit),"
+	 " this vector is empty or contains only ""E"".";
+	 " ";
+	 " Size : nul or number of regular output ports.";
+	 " Type : column vector of strings."];
+  endfunction 
+
+  function H=scicos_help_link()
+  //****** scicos_link ******/
+    H=hash(100);
+    
+    H(  'link')=...
+	[" ";
+	 " Size : 8.";
+	 " Type : scilab list."];
+
+    H(  'xx')=...
+	[" Vector of x coordinates of the link path.";
+	 " A link is defined as a polyline line.";
+	 " ";
+	 " Size : number of points of the link.";
+	 " Type : column vector of real numbers."];
+
+    H(  'yy')=...
+	[" Vector of y coordinates of the link path.";
+	 " A link is defined as a polyline line.";
+	 " ";
+	 " Size : number of points of the link.";
+	 " Type : column vector of real numbers."];
+
+    H(  'id')=...
+	[" Character string, the link identification.";
+	 " ";
+	 " Size : 1.";
+	 " Type : string."];
+
+    H(  'thick')=...
+	[" Vector of size two defining line thickness.";
+	 " ";
+	 " Size : 2.";
+	 " Type : row vector of integers."];
+
+    H(  'ct')=...
+	[" The first entry of this vector designates the color,"
+	 " and the second, the nature of the link. The second"
+	 " entry is 1 for a regular link, -1 for an activation"
+	 " link, and 2 for an implicit link.";
+	 " ";
+	 " Size : 2.";
+	 " Type : row vector of integers."];
+
+    H(  'from')=...
+	[" Vector of size three including the block number,"
+	 " port number, and port type (0 for output, 1 for"
+	 " input) at the origin of the link. Note that the "
+	 " third entry may be 1 if the link is implicit;  "
+	 " otherwise it is zero.";
+	 " ";
+	 " Size : 3.";
+	 " Type : row vector of integers."];
+
+    H(  'to')=...
+	[" Vector of size three including the block number,"
+	 " port number, and port type (0  for output, 1 for"
+	 " input) at the destination of the link. Note that the "
+	 " third entry may be 1 if the link is implicit;  "
+	 " otherwise it is zero.";
+	 " ";
+	 " Size : 3.";
+	 " Type : row vector of integers."];
+
+  endfunction 
+  function H=scicos_help_state()
+  //****** scicos_state ******/
+    H=hash(100);
+    H(  'state')=...
+	[" Scilab typed list of type {xcs}. It contains all"
+	 " the states of the model, that is, everything than"
+	 " can evolve during the simulation.";
+	 " state contains {x}, {z}, {oz}, {iz}, "
+	 " {tevts}, {evtspt}, {pointi} and {outtb}."
+	 " ";
+	 " Size : 9.";
+	 " Type : scilab tlist."];
+
+    H(  'x')=...
+	[" The continuous-time state register, which is obtained "
+	 " by concatenating the continuous-time states of all "
+	 " the blocks.";
+	 " ";
+	 " Size : total of all the size of continuous-time state registers.";
+	 " Type : column vector of real numbers."];
+
+    H(  'z')=...
+	[" The discrete-time state register, which is obtained"
+	 " by concatenating the discrete-time states of all"
+	 " the blocks.";
+	 " ";
+	 " Size : total of all the size of discrete-time state registers.";
+	 " Type : column vector of real number."];
+
+    H(  'oz')=...
+	[" The list of the object discrete-time state, which"
+	 " is obtained by concatenating the object "
+	 " discrete-time states of all the blocks.";
+	 " ";
+	 " Size : total of all the size of object state.";
+	 " Type : list of scilab object."];
+
+    H(  'iz')=...
+	[" Vector of size equal to the number of blocks."
+	 " That vector is used to store pointers of the "
+	 " working state register (work). If a block needs "
+	 " to allocate memory at initialization (flag 4), "
+	 " the associated pointer is saved here.";
+	 " ";
+	 " Size : number of blocks.";
+	 " Type : column vector of real numbers."];
+
+    H(  'tevts')=...
+	[" Vector of size equal to the number of activation"
+	 " sources. It contains the scheduled times for"
+	 " programmed activations in {evtspt}.";
+	 " ";
+	 " Size : number of activation sources.";
+	 " Type : column vector of integers."];
+
+    H(  'evtspt')=...
+	[" Vector of size equal to the number of activation"
+	 " sources. It is an event scheduler.";
+	 " ";
+	 " Size : number of activation sources.";
+	 " Type : column vector of integers."];
+
+    H(  'pointi')=...
+	[" The number of the next programmed event.";
+	 " ";
+	 " Size : 1.";
+	 " Type : integer."];
+
+    H(  'outtb')=...
+	[" Scilab list containing all output registers "
+	 " of blocks. Each element of that list contains "
+	 " typed matrix-based data.";
+	 " ";
+	 " Size : number of regular output ports.";
+	 " Type : list of scilab matrix."];
+  endfunction 
+  function H=scicos_help_sim()
+  //****** scicos_sim ******/
+    H=hash(100);
+    H(  'sim')=...
+	[" Scilab typed list of type {scs}. It contains "
+	 " static arrays coming from the result of the"
+	 " compilation. That arrays does not evolve"
+	 " during the simulation."
+	 " ";
+	 " Size : 33.";
+	 " Type : scilab tlist."];
+
+    H(  'funs')=...
+	[" A list containing names of the computational"
+	 " functions or scilab functions.";
+	 " "
+	 " Size : number of blocks.";
+	 " Type : list of strings and/or scilab function."];
+
+    H(  'xptr')=...
+	[" A vector pointer to the continuous time state "
+	 " register {x}. The continuous-time state of "
+	 " block {i} is "
+	 " {state.x(sim.xptr(i):sim.xptr(i+1)-1)}.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'zptr')=...
+	[" A vector pointer to the discrete time state "
+	 " register {z}. The discrete-time state of "
+	 " block {i} is "
+	 " {state.z(sim.zptr(i):sim.zptr(i+1)-1)}.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'ozptr')=...
+	[" A vector pointer to the object discrete state "
+	 " register {oz}. The object discrete state of "
+	 " block {i} is "
+	 " {state.oz(sim.ozptr(i):sim.ozptr(i+1)-1)}.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'zcptr')=...
+	[" A vector pointer to the zero-crossing surfaces.";
+	 " register. That vector gives by block the used";
+	 " number of the zero-crossing.";
+	 "";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'inpptr')=...
+	[" (sim.inpptr(i+1)-sim.inpptr(i)) gives the number of";
+	 " regular input ports of the i block.";
+	 " inpptr(i) points to the beginning of ith block";
+	 " inputs within the indirection table {inplnk}.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'outptr')=...
+	[" (sim.outptr(i+1)-sim.outptr(i)) gives the number of";
+	 " regular ouyput ports of the i block.";
+	 " outptr(i) points to the beginning of ith block";
+	 " outputs within the indirection table {outlnk}.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'inplnk')=...
+	[" (cpr.sim.inplnk(cpr.sim.inpptr(i)-1+j))"
+	 " is the index of the link connected to "
+	 " the jth input port of the ith block where "
+	 " j goes from 1 to "
+	 " (cpr.sim.inpptr(i+1)-cpr.sim.inpptr(i)).";
+	 " ";
+	 " Size : total number of regular input port.";
+	 " Type : column vector of integers."];
+
+    H(  'outlnk')=...
+	[" (cpr.sim.outlnk(cpr.sim.outptr(i)-1+j))"
+	 " is the index of the link connected to "
+	 " the jth output port of the ith block where "
+	 " j goes from 1 to "
+	 " (cpr.sim.outptr(i+1)-cpr.sim.outptr(i)).";
+	 " ";
+	 " Size : total number of regular output port.";
+	 " Type : column vector of integers."];
+
+    H(  'rpar')=...
+	[" Vector of real parameters that is "
+	 " obtained by concatenating the real" 
+	 " parameters registers of all the blocks.";
+	 " ";
+	 " Size : total number of real parameters.";
+	 " Type : column vector of real numbers."];
+
+    H(  'rpptr')=...
+	[" A vector pointer to the real parameters"
+	 " register {rpar}. The real parameters of"
+	 " block i are "
+	 " {sim.rpar(sim.rpptr(i):sim.rpptr(i+1)-1)}.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integer."];
+
+    H(  'ipar')=...
+	[" Vector of integer parameters that is "
+	 " obtained by concatenating the integer"
+	 " parameters registers of all the blocks.";
+	 " ";
+	 " Size : total number of integer parameters.";
+	 " Type : column vector of integer."];
+
+    H(  'ipptr')=...
+	[" A vector pointer to the integer parameters"
+	 " register {ipar}. The integer parameters of"
+	 " block i are "
+	 " {sim.ipar(sim.ipptr(i):sim.ipptr(i+1)-1)}.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of real numbers."];
+
+    H(  'opar')=...
+	[" List of object parameters that is "
+	 " obtained by concatenating the list"
+	 " of object parameters of all the blocks.";
+	 " ";
+	 " Size : total number of object parameters.";
+	 " Type : list of scilab objects."];
+
+    H(  'opptr')=...
+	[" A vector pointer to the object parameters"
+	 " list {opar}. The object parameters of"
+	 " block i are "
+	 " {sim.opar(sim.opptr(i):sim.opptr(i+1)-1)}.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'clkptr')=...
+	[" A vector pointer to output activation ports.";
+	 " (cpr.sim.clkptr(i):cpr.sim.clkptr(i+1)-1) "
+	 " gives the number of output event ports";
+	 " of the block i.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'ordptr')=...
+	[" A vector pointer to {ordclk} designating the"
+	 " part of {ordclk} corresponding to a given"
+	 " activation.";
+	 "(cpr.sim.ordptr(i):cpr.sim.ordptr(i+1)-1)"
+	 " points to the region within ordclk indicates "
+	 " the number of blocks activated by the output"
+	 " event ports numbered i."
+	 " ";
+	 " Size : number of sources of activation + 1.";
+	 " Type : column vector of integers."];
+
+    H(  'execlk')=...
+	["Unused.";
+	 " ";
+	 " Size : -";
+	 " Type : matrix of real."];
+
+    H(  'ordclk')=...
+	[" A matrix associated to blocks activated by"
+	 " output activation ports. The first column"
+	 " contains the block number, and  the second,"
+	 " the event code by which the block should be"
+	 " called.";
+	 " ";
+	 " Size : total number of blocks summed by source of activations.";
+	 " Type : matrix of integers."];
+
+    H(  'cord')=...
+	[" A matrix associated to always active blocks."
+	 " The first column contains the block number, "
+	 " and the second, the event code by which the "
+	 " block should be called.";
+	 " ";
+	 " Size : ncord.";
+	 " Type : matrix of integers."];
+
+    H(  'oord')=...
+	[" Subset of {cord}. Blocks of that matrix "
+	 " have outputs which affect computation of"
+	 " continuous state derivatives."
+	 " ";
+	 " Size : noord.";
+	 " Type : matrix of integers."];
+
+    H(  'zord')=...
+	[" Subset of {zord}. Blocks of that matrix "
+	 " have outputs which affect computation of"
+	 " zero-crossing surfaces."
+	 " ";
+	 " Size : nzord.";
+	 " Type : matrix of integers."];
+
+    H(  'critev')=...
+	[" A vector of size equal to the number of "
+	 " activations and containing zeros and "
+	 " ones. The value one indicates that the "
+	 " activation is critical in the sense that"
+	 " the continuous-time solver must be cold "
+	 " restarted.";
+	 " ";
+	 " Size : number of source of activation.";
+	 " Type : column vector of integers."];
+
+    H(  'nb')=...
+	[" Number of blocks. Note that the number of"
+	 " blocks may differ from the original number"
+	 " of blocks in the diagram because {c_pass2}"
+	 " may duplicate some conditional blocks."
+	 " ";
+	 " Size : 1.";
+	 " Type : integer."];
+
+    H(  'ztyp')=...
+	[" A vector of size equal to the number of blocks."
+	 " A 1 entry indicates that the block may have "
+	 " zero-crossings, even if it doesn''t in the "
+	 " context of the diagram.  Usually not used by "
+	 " the simulator.";
+	 " ";
+	 " Size : number of blocks.";
+	 " Type : column vector of integers."];
+
+    H(  'nblk')=...
+	["Not used. Set to {nb}.";
+	 " ";
+	 " Size : 1";
+	 " Type : integer."];
+
+    H(  'ndcblk')=...
+	["Not used.";
+	 " ";
+	 " Size : -";
+	 " Type : integer."];
+
+    H(  'subscr')=...
+	[" Not used.";
+	 " ";
+	 " Size : 0";
+	 " Type : empty real."];
+
+    H(  'funtyp')=...
+	[" A vector of size equal to the number of blocks"
+	 " indicating the type of the computational function"
+	 " of the block. Block type can be 0 through 5."
+	 " Currently only type 4 (C language) and type 5"
+	 " (Scilab language) computational functions should"
+	 " be used. But older blocks can also be used.";
+	 " ";
+	 " Size : number of blocks.";
+	 " Type : column vector of integer."];
+
+    H(  'iord')=...
+	[" A matrix associated to blocks that"
+	 " must be activated at the start of "
+	 " the simulation. This includes blocks "
+	 " inheriting from constant blocks and "
+	 " always active blocks.";
+	 " ";
+	 " Size : niord.";
+	 " Type : matrix of integers."];
+
+    H(  'labels')=...
+	[" A string vector of size equal"
+	 " to the number of blocks "
+	 " containing block labels.";
+	 " ";
+	 " Size : numbers of blocks.";
+	 " Type : column vector of strings."];
+
+    H(  'modptr')=...
+	[" A vector pointer to the block modes.";
+	 " ";
+	 " Size : number of blocks + 1.";
+	 " Type : column vector of integer."];
+
+
+    /// FRENCH 
+  endfunction 	 
+  function H=scicos_help_cpr_fr()
+  //******* cpr *******/
+    H=hash(100);
+    H(  'cpr')=...
+	[" La liste scilab {scicos_cpr} contient "
+	 " le résultat de la compilation."
+	 " Cette structure est composée des champs"
+	 " {scicos_state}, {scicos_sim}, {cor} et {corinv}."
+	 ""
+	 " Taille : 5.";
+	 " Type : tlist scilab."];
+
+    H(  'state')=...
+	[" Une liste typée scilab de type {xcs}. Cette";
+	 " liste contient tous les états du diagramme qui";
+	 " vont évoluer pendant la simulation.";
+	 " state contient {x}, {z}, {oz}, {iz}, "
+	 " {tevts}, {evtspt}, {pointi} et {outtb}."
+	 " ";
+	 " Taille : 9.";
+	 " Type : tlist scilab."];
+
+    H(  'sim')=...
+	[" Une liste typée scilab de type {scs}. Cette";
+	 " liste contient des tableaux statiques issus"
+	 " du résultat de la compilation. Ces tableaux"
+	 " n''évoluent pas pendant la simulation."
+	 " ";
+	 " Taille : 33.";
+	 " Type : tlist scilab."];
+
+    H(  'cor')=...
+	[" C''est une liste avec la même structure récursive"
+	 " que la liste scs_m. Chaque feuille contient l''indice "
+	 " d''un bloc associé à la structure compilée sim."
+	 " ";
+	 " Taille : nombre d''objets dans scs_m.";
+	 " Type : scilab list."];
+
+    H(  'corinv')=...
+	[" corinv(i) est le chemin du bloc i"
+	 " définit dans la structure compilée sim"
+	 " dans la structure scs_m."
+	 " ";
+	 " Taille : nombre de blocs dans la structure compilée.";
+	 " Type : scilab list."];
+  endfunction 
   
+  function H=scicos_help_block_fr()
+  //******* scicos_block *******/
+  //****************************/
+    H=hash(100);
+    H(  'block')=...
+	[" Une structure de base qui définit un bloc Scicos.";
+	 " Cette structure inclut les champs {scicos_graphics}, {scicos_model},"
+	 " {gui} et {doc}."
+	 ""
+	 " Size : 5.";
+	 " Type : scilab list."];
+
+    H(  'graphics')=...
+	[" Liste Scilab contenant les informations"
+	 " sur les données graphiques du bloc."
+	 " "
+	 " Taille : 14.";
+	 " Type : scilab list."];
+
+    H(  'model')=...
+	[" Liste Scilab qui contient les informations";
+	 " du bloc utilisées pour la compilation.";
+	 " ";
+	 " Taille : 23.";
+	 " Type : liste scilab."];
+
+    H(  'gui')=...
+	[" Le nom de la fonction d''interface Scilab";
+	 " associée au bloc.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : chaîne de caractères."];
+
+    H(  'doc')=...
+	[" Un champ utilisé pour la documentation";
+	 " du bloc.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : chaîne de caractères."];
+
+  endfunction 
+  function H=scicos_help_diagram_fr()
+  //****** scicos_diagram ******/
+  //****************************/
+    H=hash(100);
+    H(  'diagram')=...
+	[" ";
+	 " Taille : 4.";
+	 " Type : liste scilab."];
+
+    H(  'props')=...
+	[" Propriétés du diagramme.";
+	 " Cette entrée contient des informations diverses";
+	 " telles que des valeurs initiales du diagramme";
+	 " principal.";
+	 " ";
+	 " Cette variable est une tlist de type {scicos_params} et";
+	 " contient {wpar}, {title}, {tol}, {tf}, {context},";
+	 " {options} et {doc}.";
+	 " ";
+	 " Taille : 11.";
+	 " Type : tlist scilab de type {scicos_params}."];
+
+    H(  'objs')=...
+	[" Une liste d''objets inclus dans le diagramme Scicos.";
+	 " Les objets utilisés dans Scicos sont {scicos_block}, {scicos_link} et";
+	 " Text.";
+	 " Les objets peuvent aussi être des structures de donnée effacées."
+	 " Les objets effacés sont marqués par list(''Deleted'').";
+	 " ";
+	 " Taille : nombre total d''objets dans le diagramme.";
+	 " Type : tlist scilab de type {scicos_block}, {scicos_link} ou Text."];
+
+    H(  'version')=...
+	[" Une chaîne de caractères qui donne le numéro de version";
+	 " du diagramme Scicos. Cela est utilisé pour fournir une";
+	 " compatibilité avec les anciens diagrammes."
+	 " Notez que vous pouvez retrouver la version courante de"
+	 " Scicos en utilisant l''entrée ''About scicos'' dans le"
+	 " menu help ou en utilisant la fonction get_scicos_version()."
+	 " ";
+	 " Taille : 1.";
+	 " Type : chaîne de caractères."];
+    
+  endfunction 
+  function H=scicos_help_params_fr()
+  //****** scicos_params ******/
+    H=hash(100);
+    H(  'params')=...
+	[" ";
+	 " Size : 11.";
+	 " Type : liste scilab."];
+
+    H(  'wpar')=...
+	[" Ce vecteur n''est actuellement pas utilisé.";
+	 " Il devrait être utilisé dans le futur";
+	 " pour enregistrer les paramètres de la"
+	 " fenêtre tels que la position et la taille.";
+	 " ";
+	 " Taille : 6.";
+	 " Type : vecteur colonne de nombre réels."];
+
+    H(  'title')=...
+	[" Vecteur de chaîne de caractères, où la première contient";
+	 " le titre du diagramme (le nom par défaut du ficher de";
+	 " sauvegarde) et la deuxième est le chemim du répertoire.";
+	 " ";
+	 " Taille : 2.";
+	 " Type : vecteur line de chaîne de caractères."];
+
+    H(  'tol')=...
+	[" Un vecteur contenant les paramètres de la simulation qui";
+	 " inclue les tolérances utilisées par le solveur: ";
+	 " ";
+	 "  -- {atol}   : tolérance absolue pour l''intégration";
+	 " ";
+	 "  -- {rtol}   : tolérance relative pour l''intégration.";
+	 " ";
+	 "  -- {ttol}   : tolérance sur le temps. Si une période d''intégration est";
+	 "               inférieure à {ttol}, le solveur n''est pas appellé."
+	 " ";
+	 "  -- {deltat} : Interval temporel maximal entre deux points d''intégration."
+	 "               Si une période d''intégration est plus grande que {deltat}, ";
+	 "               le solveur est appelé plus d''une fois de manière à maintenir"
+	 "               le pas au niveau de {deltat}";
+	 " ";
+	 "  -- {scale}  : Facteur d''échelle temps-réel (Real-time scaling);"
+	 "               la valeur 0 correspond à un facteur d''échelle nul."
+	 "               Ce facteur associe le temps de la simulation au temps"
+	 "               réel en seconde. Une valeur égale à 1, signifie que "
+	 "               chaque untité de temps Scicos correspond à une seconde."
+	 " ";
+	 "  -- {solver} : Choix du solveur numérique. Une valeur 0 signifie qu''un"
+	 "               solveur ODE sera utilisé et 100 signifie qu''un solveur"
+	 "               DAE sera utilisé.";
+	 " ";
+	 "  -- {hmax}   : Pas maximal d''intégration pour le solveur.";
+	 "               0 signifie pas de limites.";
+	 " ";
+	 " Taille : 7.";
+	 " Type : vecteur colonne de nombre réels."];
+
+    H(  'tf')=...
+	[" Le temps final de simulation."
+	 " La simulation s''arrête a ce temps."
+	 " La valeur par défaut est 100000.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : réel."];
+
+    H(  'context')=...
+	[" Un vecteur de chaînes de caractères contenant des";
+	 " instructions Scilab définissant des variables";
+	 " Scilab à utiliser dans les boîtes de dialogues ";
+	 " des blocs (comme paramètres symboliques).";
+	 " Toutes instructions valides Scilab peuvent être";
+	 " utilisées ainsi que des commentaires.";
+	 " ";
+	 " Taille : nombre de lignes du contexte.";
+	 " Type : Vecteur colonne de chaînes de caractères."];
+
+    H(  'void1')=...
+	[" Champ inutilisé.";
+	 " ";
+	 " Taille : -.";
+	 " Type : -."];
+
+    H(  'options')=...
+	[" Liste Scilab de type {scsopt} définissant les";
+	 " propriétés graphiques de l''éditeur telles que";
+	 " la couleur de fond et la couleur des liens.";
+	 " ";
+	 " Les champs sont les suivant:";
+	 " ";
+	 "  -- {3D}         : Une liste à deux entrées. La première est un booléen"
+	 "                   indiquant si les blocs doivent avoir un aspect 3D.";
+	 "                   La seconde entrée indique la couleur dans la palette de"
+	 "                   couleur courante (colormap) qui doit être utilisée pour"
+	 "                   créer l''effet 3D. Par défaut celle ci est 33 ce qui"
+	 "                   correspond à gris, couleur ajoutée par Scicos à la palette"
+	 "                   standard qui contients 32 couleurs."
+	 " ";
+	 "                   La valeur par défault de cette list est donc list(%t,33)."
+	 "  -- {Background} : Un vecteur avec deux entrées: la couleur d''arrière plan et"
+	 "                   la couleur d''avant plan. La valeur par défaut est [8,1].";
+	 " ";
+	 "  -- {link}       : Les couleurs par défauts pour les liens réguleurs et les"
+	 "                   liens d''activations. Ces couleurs sont utilisées uniquement";
+	 "                   pour de nouvelles constructions. Ces choix n''affectent pas";
+	 "                   les liens déjà présent sur le diagramme.";
+	 " ";
+	 "                   Les valeurs par défaut sont [1,5] ce qui correspond à noir";
+	 "                   et rouge pour la palette de couleurs standard de Scilab.";
+	 "  -- {ID}         : Une liste de deux vecteurs qui définit le type de la police"
+	 "                   et la taille de la police. Les valeurs par défaut sont";
+	 "                   [5,1],[4,1].";
+	 " ";
+	 "  -- {Cmap}       : Une matrice de taille 3,n contenant les valeurs RGB des"
+	 "                   couleurs à ajouter à la palette de couleur. La valeur par";
+	 "                   défaut est [0.8,0.8,0.8] (couleur grise).";
+	 " ";
+	 " Taille : 6.";
+	 " Type : tlist scilab de type {scsopt}."];
+
+    H(  'void2')=...
+	[" Champ inutilisé.";
+       " ";
+       " Taille : -.";
+       " Type : -."];
+    
+    H(  'void3')=...
+	[" Champ inutilisé.";
+	 " ";
+	 " Taille : -.";
+	 " Type : -."];
+
+    H(  'doc')=...
+	[" Structure utilisateur pour la documentation des diagrammes.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : Chaînes de caractères."];
+  endfunction 
+
+  function H=scicos_help_model_fr()
+  //****** scicos_model ******/
+  //**************************/
+    H=hash(100);
+    H(  'model')=...
+	[" Liste Scilab qui contient les informations";
+	 " du bloc utilisées pour la compilation.";
+	 " ";
+	 " Taille : 23.";
+	 " Type : liste scilab."];
+
+    H(  'sim')=...
+	[" Une liste Scilab contenant deux éléments. Le premier élément";
+	 " est une chaîne de caractères contenant le nom de la fonction";
+	 " de calcul (C, Fortran ou Scilab). Le deuxième élément est un";
+	 " entier spécifiant le type de la fonction de calcul. Les types";
+	 " courant sont 4 et 5, mais les anciens types sont toujours";
+	 " compatibles.";
+	 " Pour des anciens blocs, {sim} peut être une simple liste, ce";
+	 " qui signifie que le type est supposé être 0.";
+	 " ";
+	 " Taille : 2.";
+	 " Type : liste Scilab."];
+
+    H(  'in')=...
+	[" Un vecteur spécifiant le nombre et la première";
+	 " dimension des ports d''entrée réguliers du bloc";
+	 " indéxés du haut vers le bas.";
+	 " Si il n''existe pas de port d''entrées, alors";
+	 " in=[].";
+	 ""
+	 " Les dimensions peuvent être négatives, égales à zéro"
+	 " ou positives : "
+	 ""
+	 "  -- Lorsqu''une dimension négative est utilisée, "
+	 "     alors le compilateur essaiera de déterminer "
+	 "     quelle est la dimension appropriée."
+	 ""
+	 "  -- Lorsqu''une dimension égale à zéro est utilisée, "
+	 "     alors le compilateur déterminera la valeur de "
+	 "     cette dimension en sommant toutes les tailles "
+	 "     positives trouvées dans ce vecteur de dimensions."
+	 ""
+	 "  -- Si les dimensions sont positives, elles sont"
+	 "     alors explicitement renseignées."
+	 " "
+	 " Taille : nombre de ports réguliers d''entrée.";
+	 " Type : vecteur colonne de nombres entiers."];
+
+    H(  'in2')=...
+	[" Un vecteur spécifiant la deuxième dimension";
+	 " des ports réguliers d''entrées du bloc (indéxé";
+	 " du haut vers le bas)."
+	 " {in} avec {in2} forment alors les tailles des matrices"
+	 " d''entrée."
+	 " Pour des raisons de compatibilité, cette dimension"
+	 " peut rester non renseignée ([]), ce qui signifiera"
+	 " que les dimensions des ports seront in,1."
+	 ""
+	 " Les dimensions peuvent être négatives, égales à zéro"
+	 " ou positives : "
+	 ""
+	 "  -- Lorsqu''une dimension négative est utilisée, "
+	 "     alors le compilateur essaiera de déterminer "
+	 "     quelle est la dimension appropriée."
+	 ""
+	 "  -- Lorsqu''une dimension égale à zéro est utilisée, "
+	 "     alors le compilateur déterminera la valeur de "
+	 "     cette dimension en sommant toutes les tailles "
+	 "     positives trouvées dans ce vecteur de dimensions."
+	 ""
+	 "  -- Si les dimensions sont positives, elles sont"
+	 "     alors explicitement renseignées."
+	 " "
+	 " Taille : nombre de ports réguliers d''entrée.";
+	 " Type : vecteur colonne de nombres entiers."];
+    
+    H(  'intyp')=...
+	[" Un vecteur spécifiant les types des ports d''entrée réguliers.";
+	 " Sa taille est égale à {in}. ";
+	 " Les types des ports d''entrée peuvent être :";
+	 "  -- 1 matrice de nombres réels,";
+	 "  -- 2 matrice de nombres complexes,";
+	 "  -- 3 matrice de int32,";
+	 "  -- 4 matrice de int16,";
+	 "  -- 5 matrice de int8,";
+	 "  -- 6 matrice de uint32,";
+	 "  -- 7 matrice de uint16,";
+	 "  -- 8 matrice de uint8.";
+	 " ";
+	 " Taille : nombre de ports réguliers d''entrée.";
+	 " Type : vecteur colonne de nombres entiers."];
+
+    H(  'out')=...
+	[" Un vecteur spécifiant le nombre et la première";
+	 " dimension des ports de sortie réguliers du bloc";
+	 " indéxés du haut vers le bas.";
+	 " Si il n''existe pas de port de sorties, alors";
+	 " out==[].";
+	 ""
+	 " Les dimensions peuvent être négatives, égales à zéro"
+	 " ou positives : "
+	 ""
+	 "  -- Lorsqu''une dimension négative est utilisée, "
+	 "     alors le compilateur essaiera de déterminer "
+	 "     quelle est la dimension appropriée."
+	 ""
+	 "  -- Lorsqu''une dimension égale à zéro est utilisée, "
+	 "     alors le compilateur déterminera la valeur de "
+	 "     cette dimension en sommant toutes les tailles "
+	 "     positives trouvées dans ce vecteur de dimensions."
+	 ""
+	 "  -- Si les dimensions sont positives, elles sont"
+	 "     alors explicitement renseignées."
+	 " "
+	 " Taille : nombre de ports réguliers de sortie.";
+	 " Type : vecteur colonne de nombres entiers."];
+
+    H(  'out2')=......
+	[" Un vecteur spécifiant la deuxième dimension";
+	 " des ports réguliers de sortie du bloc (indéxé";
+	 " du haut vers le bas)."
+	 " {out} avec {out2} forment alors les tailles des matrices"
+	 " de sorties."
+	 " Pour des raisons de compatibilité, cette dimension"
+	 " peut rester non renseignée ([]), ce qui signifiera"
+	 " que les dimensions des ports seront out,1."
+	 ""
+	 " Les dimensions peuvent être négatives, égales à zéro"
+	 " ou positives : "
+	 ""
+	 "  -- Lorsqu''une dimension négative est utilisée, "
+	 "     alors le compilateur essaiera de déterminer "
+	 "     quelle est la dimension appropriée."
+	 ""
+	 "  -- Lorsqu''une dimension égale à zéro est utilisée, "
+	 "     alors le compilateur déterminera la valeur de "
+	 "     cette dimension en sommant toutes les tailles "
+	 "     positives trouvées dans ce vecteur de dimensions."
+	 ""
+	 "  -- Si les dimensions sont positives, elles sont"
+	 "     alors explicitement renseignées."
+	 " "
+	 " Taille : nombre de ports réguliers de sortie.";
+	 " Type : vecteur colonne de nombres entiers."];
+    
+    H(  'outtyp')=...
+	[" Un vecteur spécifiant les types des ports de sortie réguliers.";
+	 " Sa taille est égale à {out}. ";
+	 " Les types des ports de sortie peuvent être :";
+	 "  -- 1  matrice de nombres réels,";
+	 "  -- 2  matrice de nombres complexes,";
+	 "  -- 3  matrice de int32,";
+	 "  -- 4  matrice de int16,";
+	 "  -- 5  matrice de int8,";
+	 "  -- 6  matrice de uint32,";
+	 "  -- 7  matrice de uint16,";
+	 "  -- 8  matrice de uint8.";
+	 " ";
+	 " Taille : nombre de ports réguliers de sortie.";
+	 " Type : vecteur colonne de nombres entiers."];
+
+    H(  'evtin')=...
+	[" Un vecteur indiquant la taille et le nombre";
+	 " de ports événementiels d''entrée. Actuellement";
+	 " les ports peuvent seulement avoir une taille";
+	 " égale à 1.";
+	 " Si aucun port événementiel existe alors";
+	 " evtin est égal à 1.";
+	 " ";
+	 " Taille : nombre de ports événementiel d''entrée.";
+	 " Type : vecteur colonne de nombres entiers."];
+
+    H(  'evtout')=...
+	[" Un vecteur indiquant la taille et le nombre";
+	 " de ports événementiels de sorties. Actuellement";
+	 " les ports peuvent seulement avoir une taille";
+	 " égale à 1.";
+	 " Si aucun port événementiel existe alors";
+	 " evtout est égal à 1.";
+	 " ";
+	 " Taille : nombre de ports événementiel de sortie.";
+	 " Type : vecteur colonne de nombres entiers."];
+
+    H(  'state')=...
+	[" Un vecteur contenant les valeurs initiales des états";
+	 " continus.";
+	 " Ce vecteur doit être égal à [] si le bloc ne possède";
+	 " pas d''état continus.";
+	 " ";
+	 " Taille : nombre d''états continus.";
+	 " Type : vecteur colonne de nombres réels."];
+
+    H(  'dstate')=...
+	[" Un vecteur contenant les valeurs initiales des états";
+	 " discrets.";
+	 " Ce vecteur doit être égal à [] si le bloc ne possède";
+	 " pas d''état discrets.";
+	 " ";
+	 " Taille : nombre d''états discrets.";
+	 " Type : vecteur colonne de nombres discrets."];
+
+    H(  'odstate')=...
+	[" Une liste contenant les valeurs initiales des états";
+	 " objets.";
+	 " Ce vecteur doit être égal à [] si le bloc ne possède";
+	 " pas d''état discrets";
+	 " ";
+	 " Les états objets acceptent tous les types de variables";
+	 " Scilab.";
+	 " Dans le cas des fonctions de calcul de type 4 (bloc C),";
+	 " seul les éléments contenant des matrices de nombres réels,";
+	 " complexes, int32, int16 ,int8 ,uint32, uit16 et uint8 seront";
+	 " correctement fournis pour la lecture/écriture.";
+	 " ";
+	 " Taille : nombre d''états objets.";
+	 " Type : liste scilab."];
+
+    H(  'rpar')=...
+	[" Le vecteur des paramètres à virgule flotante.";
+	 " Doit être [] si le bloc ne possède pas de";
+	 " paramètres réels.";
+	 " ";
+	 " Taille : nombre de paramètres réels.";
+	 " Type : vecteur colonne de nombre réels."];
+
+    H(  'ipar')=...
+	[" Le vecteur des parametres entiers.";
+	 " Doit être [] si le bloc ne possède pas de";
+	 " paramètres entiers.";
+	 " ";
+	 " Taille : nombre de paramètres entiers.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'opar')=...
+	[" La liste des parametres objets.";
+	 " Doit être list() si le bloc ne possède pas de";
+	 " paramètres objets.";
+	 " Les paramètres objets acceptent tous les types"
+	 " de variables Scilab.";
+	 " ";
+	 " Dans le cas des fonctions de calcul de type 4 (bloc C),";
+	 " seul les éléments contenant des matrices de nombres réels,";
+	 " complexes, int32, int16 ,int8 ,uint32, uit16 et uint8 seront";
+	 " correctement fournis pour la lecture.";
+	 " ";
+	 " Taille : nombre de paramètres objets.";
+	 " Type : liste d''objets scilab."];
+
+    H(  'blocktype')=...
+	[" Un caractère qui peut être mis indifféremment à";
+	 " ''c'' ou ''d'' pour les blocs standards. ''x'' est";
+	 " utilisé pour forcer l''appel à la fonction de calcul";
+	 " d''un bloc lors des calculs des états continu, même ";
+	 " si le bloc ne possède pas de tels états.";
+	 " ''l'', ''m'' et ''s'' sont réservés et ne doivent pas";
+	 " être utilisés.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : caractère."];
+
+    H(  'firing')=...
+	[" Un vecteur des temps initiaux de taille";
+	 " égale au nombre de ports événementiels de";
+	 " sortie. Celui ci contient les dates initiales";
+	 " (événements générés avant tout autre événements)";
+	 " Des valeurs négatives indiquent qu''aucun";
+	 " événement inital ne sera généré.";
+	 " ";
+	 " Taille : nombre de ports événementiel de sortie.";
+	 " Type : vecteur colonne de nombre réels."];
+
+    H(  'dep_ut')=...
+	[" Un vecteur de booléen. [dep_u, dep_t].";
+	 " ";
+	 "  -- dep_u : vrai si le bloc est toujours actif."
+	 "          (la sortie dépend continuellement du temps)";
+	 " ";
+	 "  -- dep_t : vrai si le bloc à une relation directe entre"
+	 "          une entrée régulière et une sortie régulière."
+	 "          En d''autres termes, lorsque la fonction de calcul"
+	 "          est appelée avec flag 1, la valeur d''une entrée"
+	 "          est utilisée pour calculer la sortie."
+	 " ";
+	 " Taille : 2.";
+	 " Type : vecteur de boléens."];
+
+    H(  'label')=...
+	[" Chaîne de caractères qui définit un label.";
+	 " Le label peut être utilisé pour identifier";
+	 " un bloc pour avoir accés ou modifier ses "
+	 " paramètres pendant la simulation."
+	 " ";
+	 " Taille : 1.";
+	 " Type : chaine de caractères."];
+
+    H(  'nzcross')=...
+	[" Nombre de détection de surfaces.";
+	 " ";
+	 " Taille : nombre de détection de surfaces.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'nmode')=...
+	[" La longeur du registre des modes. Notez que cela donne la taille";
+	 " du vecteur des modes mais pas le nombre total de";
+	 " modes utilisés par le bloc.";
+	 " En supposant qu''un bloc a 3 modes et que chaque";
+	 " mode peut prendre deux valeurs, alors le bloc";
+	 " peut avoir jusqu''à 2^3=8 modes.";
+	 " ";
+	 " Taille : longueur du registre des modes.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(   'equations')=...
+	[" Utilisé dans les cas des blocs implicites.";
+	 " Structure de données de type {modelica} qui";
+	 " contient des descriptions relatives au code modelica.";
+	 " Cette liste contient quatre entrées :";
+	 " ";
+	 "  -- model : une chaîne de caractères donnant le nom du fichier";
+	 "            de la fonction modelica.";
+	 " ";
+	 "  -- inputs : un vecteur colonne de chaînes de caractères donnant";
+	 "             les noms des variables utilisées comme entrées.";
+	 " ";
+	 "  -- outputs : un vecteur colonne de chaînes de caractères donnant";
+	 "              les noms des variables utilisées comme sorties.";
+	 " ";
+	 "  -- parameters : une liste à deux entrées. La première est un vecteur";
+	 "                 de chaînes de caractères contenant les noms des variables";
+	 "                 modelica utilisées en tant que paramètres et la deuxième";
+	 "                 une liste contenant les valeurs de ces paramètres.";
+	 "                 Les noms des états modelica peuvent aussi être informés";
+	 "                 via {parameters}. Dans ce cas une troisième entrée est";
+	 "                 utilisée pour différencier les paramètres des états.";
+	 "                 Par exemple :";
+	 "                    mo.parameters=list([''C'',''v''],list(C,v),[0,1])"
+	 "                 signifie que ''C'' est un paramètre(0) de valeur C, et";
+	 "                 que ''v'' est une variable d''état(1) avec une valeur";
+	 "                 initiale v.";
+	 " ";
+	 " Taille : 5.";
+	 " Type : liste scilab."];
+    
+  endfunction 
+  function H=scicos_help_graphics_fr()
+  //****** scicos_graphics ******/
+  //*****************************/
+    H=hash(100);
+    H(  'graphics')=...
+	[" Liste Scilab contenant les informations"
+	 " sur les données graphiques du bloc."
+	 " "
+	 " Size : 14.";
+	 " Type : scilab list."];
+
+    H(  'orig')=...
+	[" Un vecteur [xo,yo], où xo est la coordonnée sur";
+	 " l''axe des abscisses de l''origine du bloc et yo est";
+	 " la coordonnée sur l''axe des ordonnées.";
+	 " ";
+	 " [xo,yo] sont les coordonnées en bas à gauche du";
+	 " contours du bloc.";
+	 " ";
+	 " Taille : 2.";
+	 " Type : vecteur ligne de nombres réels."];
+
+    H(  'sz')=...
+	[" Un vecteur [w,h], où w est la largeur et";
+	 " h la hauteur du bloc.";
+	 " ";
+	 " Taille : 2.";
+	 " Type : vecteur ligne de nombres réels."];
+
+    H(  'flip')=...
+	[" Définit l''orientation du bloc. Si vrai alors les ports";
+	 " d''entrée sont sur la gauche du bloc et les ports de sortie";
+	 " sur la droite. Si faux alors les ports d''entrée sont sur "
+	 " la droite et ceux de sortie sur la gauche.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : booléen."];
+
+    H(  'theta')=...
+	[" Définit l''angle de l''objet Scicos.";
+	 " Cette valeur est en degrés et est inclut";
+	 " dans [-360,360]."
+	 " ";
+	 " ";
+	 " Taille : 1.";
+	 " Type : nombre réel."];
+
+    H(  'exprs')=...
+	[" Des chaînes de caractères incluant des expressions";
+	 " formelles utilisées dans la boîte de dialogue.";
+	 " ";
+	 " Taille : Nombre d''expressions formelles.";
+	 " Type : Vecteur colonne de chaînes de caractères."];
+
+    H(  'pin')=...
+	[" Un vecteur. pin(i) est le numéro du lien";
+	 " connecté à l''entrée régulière i, ou 0 si";
+	 " le port est connecté à aucun lien.";
+	 " ";
+	 " ";
+	 " Taille : nombres de ports réguliers d''entrée.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'pout')=...
+	[" Un vecteur. pout(i) est le numéro du lien";
+	 " connecté à la sortie régulière i, ou 0 si";
+	 " le port est connecté à aucun lien.";
+	 " ";
+	 " ";
+	 " Taille : nombres de ports réguliers de sortie.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'pein')=...
+	[" Un vecteur. pein(i) est le numéro du lien";
+	 " connecté à l''entrée événementielle i, ou 0 si";
+	 " le port est connecté à aucun lien.";
+	 " ";
+	 " ";
+	 " Taille : nombres de ports événementiel d''entrée.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'peout')=...
+	[" Un vecteur. peout(i) est le numéro du lien";
+	 " connecté à la sortie événementielle i, ou 0 si";
+	 " le port est connecté à aucun lien.";
+	 " ";
+	 " ";
+	 " Taille : nombres de ports événementiel de sortie.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'gr_i')=...
+	[" Chaînes de caractère qui contiennent les expression";
+	 " graphiques pour personnaliser l''aspect graphique des";
+	 " blocs. Ce champ peut être renseigné par le sous-menu";
+	 " {Icon}.";
+	 " ";
+	 " Taille : -.";
+	 " Type : Vecteur colonne de chaînes de caractères."];
+
+    H(  'id')=...
+	[" Une chaîne qui contient un identifiant pour";
+	 " le bloc. Celui ci est affichéé en dessous du";
+	 " bloc dans le diagramme.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : chaînes de caractères."];
+
+    H(  'in_implicit')=...
+	[" Un vecteur de chaînes de caractères contenant ''E'' ou ''I''.";
+	 " ''E'' et ''I'' correspondent respectivement à explicite ou";
+	 " implicite. Ce vecteur indique donc la nature de chaque ports.";
+	 " Pour les blocs classiques, celui ci est soit vide ou bien égal";
+	 " à ''E''.";
+	 " ";
+	 " Taille : vide ou bien le nombre de ports réguliers d''entrée.";
+	 " Type : vecteur colonne de chaînes de caractères."];
+
+    H(   'out_implicit')=...
+	[" Un vecteur de chaînes de caractères contenant ''E'' ou ''I''.";
+	 " ''E'' et ''I'' correspondent respectivement à explicite ou";
+	 " implicite. Ce vecteur indique donc la nature de chaque ports.";
+	 " Pour les blocs classiques, celui ci est soit vide ou bien égal";
+	 " à ''E''.";
+	 " ";
+	 " Taille : vide ou bien le nombre de ports réguliers de sorties.";
+	 " Type : vecteur colonne de chaînes de caractères."];
+
+  endfunction 
+  function H=scicos_help_link_fr()
+  //****** scicos_link ******/
+  //*************************/
+    H=hash(100);
+    H(  'link')=...
+	[" ";
+	 " Size : 8.";
+	 " Type : liste scilab."];
+
+    H(  'xx')=...
+	[" Un vecteur de coordonnées des abscisses x ";
+	 " d''un lien. Un lien est définit comme "
+	 " une polyline.";
+	 " ";
+	 " Taille : nombre total de points du liens.";
+	 " Type : vecteur colonne de nombre réels."];
+
+    H(  'yy')=...
+	[" Un vecteur de coordonnées des ordonnées y";
+	 " d''un lien. Un lien est définit comme";
+	 " une polyline.";
+	 " ";
+	 " Taille : nombre total de points du liens.";
+	 " Type : vecteur colonne de nombre réels."];
+
+    H(  'id')=...
+	[" Une chaîne de caractères définissant";
+	 " l''identification du lien.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : chaîne de caractères."];
+
+    H(  'thick')=...
+	[" Un vecteur de taille deux définissant"
+	 " l''épaisseur du lien.";
+	 " ";
+	 " Taille : 2.";
+	 " Type : vecteur ligne de nombre entiers."];
+
+    H(  'ct')=...
+	[" La première entrée de ce vecteur désigne la couleur";
+	 " et la deuxième la nature du lien. La valeur de cette";
+	 " dernière entrée est 1 pour un lien régulier, -1 pour";
+	 " un lien d''activation et 2 pour un lien implicite.";
+	 " ";
+	 " Taille : 2.";
+	 " Type : vecteur ligne de nombre entiers."];
+
+    H(  'from')=...
+	[" Un vecteur de taille 3 qui designe un numéro de";
+	 " bloc, un numéro de port et un type de port (0 pour";
+	 " une sortie et 1 pour une entrée) concernant l''origine";
+	 " du lien. Notez que la troisième entrée peut être 1 si";
+	 " le lien est implicite. Sinon il est zéro.";
+	 " ";
+	 " Taille : 3.";
+	 " Type : vecteur ligne de nombre entiers."];
+
+    H(  'to')=...
+	[" Un vecteur de taille 3 qui designe un numéro de";
+	 " bloc, un numéro de port et un type de port (0 pour";
+	 " une sortie et 1 pour une entrée) concernant la destination";
+	 " du lien. Notez que la troisième entrée peut être 1 si";
+	 " le lien est implicite. Sinon il est zéro.";
+	 " ";
+	 " Taille : 3.";
+	 " Type : vecteur ligne de nombre entiers."];
+  endfunction 
+  
+  function H=scicos_help_state_fr()
+  //****** scicos_state ******/
+  //**************************/
+    H=hash(100);
+    H(  'state')=...
+	[" Une liste typée scilab de type {xcs}. Cette";
+	 " liste contient tous les états du diagramme qui";
+	 " vont évoluer pendant la simulation.";
+	 " state contient {x}, {z}, {oz}, {iz}, "
+	 " {tevts}, {evtspt}, {pointi} et {outtb}."
+	 " ";
+	 " Taille : 9.";
+	 " Type : tlist scilab."];
+
+    H(  'x')=...
+	[" Le registre des états continus qui est obtenu";
+	 " en concatenant tous les états continus de tous";
+	 " les blocs."
+	 " ";
+	 " Taille : total des tailles de tous les registres des états continus.";
+	 " Type : vecteur colonne de nombres réels."];
+
+    H(  'z')=...
+	[" Le registre des états discrets qui est obtenu";
+	 " en concatenant tous les états discrets de tous";
+	 " les blocs."
+	 " ";
+	 " Taille : total des tailles de tous les registres des états discrets.";
+	 " Type : vecteur colonne de nombres réels."];
+
+    H(  'oz')=...
+	[" La liste des états objets discrets obtenue";
+	 " par la concaténation de tous les états objets";
+	 " de tous les blocs.";
+	 " ";
+	 " Taille : total des tailles de toutes les listes des états objet.";
+	 " Type : liste scilab."];
+
+    H(  'iz')=...
+	[" Vecteur de taille égale au nombre de blocs.";
+	 " Ce vecteur est utilisé pour enregistrer les"
+	 " pointeurs des registres de travail (work)"
+	 " Si un bloc fait une allocation du registre work"
+	 " à l''initialisation (flag=4) alors le pointeur"
+	 " associé est enregistré ici."
+	 " ";
+	 " Taille : nombre de blocs.";
+	 " Type : vecteur colonne de nombres réels."];
+
+    H(  'tevts')=...
+	[" Un vecteur de taille égale au nombre";
+	 " de sources d''activation. C''est une table"
+	 " contenant les dates des événements"
+	 " programmés dans {evtspt}."
+	 " ";
+	 " Taille : nombre de sources d''activation.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'evtspt')=...
+	[" Un vecteur de taille égale au nombre";
+	 " de sources d''activation. C''est une table"
+	 " d''événements."
+	 " ";
+	 " Taille : nombre de sources d''activation.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'pointi')=...
+	[" Le numéro du prochain événement.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : entier."];
+
+    H(   'outtb')=...
+	[" Liste scilab contenant tous les registres";
+	 " de sortie des blocs. Chaque éléments de cette"
+	 " liste contient des données typées matricielles."
+	 " ";
+	 " Taille : nombre de ports réguliers de sortie.";
+	 " Type : liste scilab contenant des matrices."];
+
+  endfunction 
+
+  function H=scicos_help_sim_fr()
+  //****** scicos_sim ******/
+  //************************/
+    H=hash(100);
+    H(  'sim')=...
+	[" Une liste typée scilab de type {scs}. Cette";
+	 " liste contient des tableaux statiques issus"
+	 " du résultat de la compilation. Ces tableaux"
+	 " n''évoluent pas pendant la simulation."
+	 " ";
+	 " Taille : 33.";
+	 " Type : tlist scilab."];
+
+    H(  'funs')=...
+	[" Une liste qui contient les noms des";
+	 " fonctions de calculs ou des fonctions";
+	 " scilab.";
+	 " ";
+	 " Taille : nombre de blocs.";
+	 " Type : liste scilab."];
+
+    H(  'xptr')=...
+	[" Un vecteur pointant vers le registre des états";
+	 " continus {x}. Le registre des états continus";
+	 " du bloc {i} peut-être retrouvé par :";
+	 " {state.x(sim.xptr(i):sim.xptr(i+1)-1)}.";
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'zptr')=...
+	[" Un vecteur pointant vers le registre des états";
+	 " discret {z}. Le registre des états discrets";
+	 " du bloc {i} peut-être retrouvé par :";
+	 " {state.z(sim.zptr(i):sim.zptr(i+1)-1)}.";
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'ozptr')=...
+	[" Un vecteur pointant vers le registre des états";
+	 " objets discret {oz}. Le registre des états objets";
+	 " du bloc {i} peut-être retrouvé par :";
+	 " {state.oz(sim.ozptr(i):sim.ozptr(i+1)-1)}.";
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'zcptr')=...
+	[" Un vecteur pointant vers le registre des";
+	 " détections de surfaces. Ce vecteur indique";
+	 " par bloc le nombre de passages à zéro utilisé.";
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'inpptr')=...
+	[" (sim.inpptr(i+1)-sim.inpptr(i)) donne le nombre";
+	 " de ports réguliers d''entrée du bloc i.";
+	 " inpptr(i) pointe vers le début des ports d''entrée"
+	 " du bloc i et les connections à ces ports peuvent"
+	 " retrouvées par la table d''indirection {inplnk}."
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'outptr')=...
+	[" (sim.outptr(i+1)-sim.outptr(i)) donne le nombre";
+	 " de ports réguliers de sortie du bloc i.";
+	 " outptr(i) pointe vers le début des ports de sortie"
+	 " du bloc i et les connections à ces ports peuvent"
+	 " retrouvées par la table d''indirection {outlnk}."
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'inplnk')=...
+	[" (cpr.sim.inplnk(cpr.sim.inpptr(i)-1+j))";
+	 " est l''index du lien connecté à l''entrée j";
+	 " du bloc i, où j va de 1 jusqu''à";
+	 " (cpr.sim.inpptr(i+1)-cpr.sim.inpptr(i)).";
+	 " ";
+	 " Taille : nombre total de port réguliers d''entrée.";
+	 " Type : vecteur colonne de nombre entier."];
+
+    H(  'outlnk')=...
+	[" (cpr.sim.outlnk(cpr.sim.outptr(i)-1+j))";
+	 " est l''index du lien connecté à la sortie j";
+	 " du bloc i, où j va de 1 jusqu''à";
+	 " (cpr.sim.outptr(i+1)-cpr.sim.outptr(i)).";
+	 " ";
+	 " Taille : nombre total de port réguliers de sortie.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'rpar')=...
+	[" Vecteur des paramètres réels qui est";
+	 " obtenu en concatenant les registres"
+	 " des paramètres réels de tous les blocs."
+	 " ";
+	 " Taille : nombre total de paramètres réels.";
+	 " Type : vecteur colonne de nombre réels."];
+
+    H(  'rpptr')=...
+	[" Un vecteur pointant vers le registre des";
+	 " paramètres réels {rpar}. Les paramètres "
+	 " réels du bloc i peuvent être retrouvés par :";
+	 " {sim.rpar(sim.rpptr(i):sim.rpptr(i+1)-1)}.";
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'ipar')=...
+	[" Vecteur des paramètres entiers qui est";
+	 " obtenu en concatenant les registres"
+	 " des paramètres entiers de tous les blocs."
+	 " ";
+	 " Taille : nombre total de paramètres entiers.";
+	 " Type : vecteur colonne de nombre réels."];
+
+    H(  'ipptr')=...
+	[" Un vecteur pointant vers le registre des";
+	 " paramètres entier {ipar}. Les paramètres "
+	 " entiers du bloc i peuvent être retrouvés par :";
+	 " {sim.ipar(sim.ipptr(i):sim.ipptr(i+1)-1)}.";
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entier."];
+
+    H(  'opar')=...
+	[" Liste des paramètres objets qui est";
+	 " obtenue en concatenant les listes"
+	 " des paramètres objets de tous les blocs."
+	 " ";
+	 " Taille : nombre total de paramètres objets.";
+	 " Type : liste scilab."];
+
+    H(  'opptr')=...
+	[" Un vecteur pointant vers la liste des";
+	 " paramètres objets {opar}. Les paramètres "
+	 " entiers du bloc i peuvent être retrouvés par :";
+	 " {sim.opar(sim.opptr(i):sim.opptr(i+1)-1)}.";
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'clkptr')=...
+	[" Un vecteur pointant vers les ports ";
+	 " d''activation de sortie."
+	 " (cpr.sim.clkptr(i):cpr.sim.clkptr(i+1)-1)"
+	 " donne les numéros des ports de sortie"
+	 " événementiel du bloc i."
+	 " "
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'ordptr')=...
+	[" Un vecteur pointant vers {ordclk}";
+	 " (cpr.sim.ordptr(i):cpr.sim.ordptr(i+1)-1)"
+	 " pointe vers la zone de ordclk qui"
+	 " indique les numéros des blocs activés par"
+	 " le port événementiel numérotés i."
+	 " ";
+	 " Taille : nombre de source d''activations + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'execlk')=...
+	["Non utilisé.";
+	 " ";
+	 " Taille : ";
+	 " Type : "];
+
+    H(  'ordclk')=...
+	[" Une matrice associé aux blocs activés par";
+	 " événements. La première colonne contient";
+	 " les numéros des blocs et la deuxième le"
+	 " code de l''événement par lequel le bloc"
+	 " sera appelé pendant la simulation."
+	 " ";
+	 " Taille : nombre total de bloc sommé par source d''activations.";
+	 " Type : matrice de nombre entiers."];
+
+    H(  'cord')=...
+	[" Une matrice associé aux blocs activés en";
+	 " permanence. La première colonne contient";
+	 " les numéros des blocs et la deuxième le"
+	 " code de l''événement par lequel le bloc"
+	 " sera appelé pendant la simulation."
+	 " ";
+	 " Taille : ncord.";
+	 " Type : matrice de nombres entiers."];
+
+    H(  'oord')=...
+	[" Sous-ensemble de {cord}. Les blocs de cette";
+	 " matrice ont des sorties qui affectent le "
+	 " calcul des états continus.";
+	 "  ";
+	 " Taille : noord.";
+	 " Type : matrice de nombres entiers."];
+
+    H(  'zord')=...
+	[" Sous-ensemble de {cord}. Les blocs de cette";
+	 " matrice ont des sorties qui affectent le "
+	 " calcul des détections de surface.";
+	 "  ";
+	 " Taille : nzord.";
+	 " Type : matrice de nombres entiers."];
+
+    H(  'critev')=...
+	[" Un vecteur de taille égale au nombre";
+	 " d''activation. Ce vecteur est composé de";
+	 " 0 et de 1 qui indiquent si des événements";
+	 " sont critiques dans le sens où le solveur";
+	 " doit redémarrer à froid.";
+	 " ";
+	 " Taille : nombre de sources d''activation.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'nb')=...
+	[" Nombre de blocs. Notez que le nombre de";
+	 " blocs peut être différent du nombre";
+	 " original de blocs dans le diagramme";
+	 " car la fonction {c_pass2} du compilateur";
+	 " peut dupliquer des blocs synchrones.";
+	 " "
+	 " Taille : 1.";
+	 " Type : entier."];
+
+    H(  'ztyp')=...
+	[" Un vecteur de taille égale au nombre de blocs.";
+	 " Une entrée égale à 1 indique que le bloc possède";
+	 " une détection de surface."
+	 " ";
+	 " Taille : nombre de source d''activations + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'nblk')=...
+	["Pas utilisé. Mis à {nb}.";
+	 " ";
+	 " Taille : 1.";
+	 " Type : entier."];
+
+    H(  'ndcblk')=...
+	["Pas utilisé.";
+	 " ";
+	 " Taille : -.";
+	 " Type : entier."];
+
+    H(  'subscr')=...
+	["Pas utilisé.";
+	 " ";
+	 " Taille : 0.";
+	 " Type : vide."];
+
+    H(  'funtyp')=...
+	[" Un vecteur de taille égale au nombre de blocs";
+	 " qui indique le type de la fonction de calcul.";
+	 " Le type de bloc peut aller de 0 à 5.";
+	 " Les blocs courants de Scicos sont les blocs";
+	 " de type 4 (bloc C) et de type 5 (bloc scilab).";
+	 " Les anciens blocs restent compatibles.";
+	 " ";
+	 " Taille : nombre de blocs.";
+	 " Type : vecteur colonne de nombre entiers."];
+
+    H(  'iord')=...
+	[" Une matrice qui associe les blocs à activer ";
+	 " au début de la simulation. Celà inclue les";
+	 " blocs {Constante} et les blocs activés en";
+	 " permanence.";
+	 " ";
+	 " Taille : niord.";
+	 " Type : matrice de nombres entiers."];
+
+    H(  'labels')=...
+	[" Un vecteur de chaîne de caractères de";
+	 " taille égale au nombre de blocs "
+	 " contenant les labels des blocs.";
+	 " ";
+	 " Taille : nombre de blocs.";
+	 " Type : vecteur colonne de chaînes de caractères."];
+
+    H(  'modptr')=...
+	[" Un vecteur pointant sur les modes des blocs.";
+	 " ";
+	 " Taille : nombre de blocs + 1.";
+	 " Type : vecteur colonne de nombre entiers."];
+  endfunction
+  
+  // Build the main hash table 
+
+  h=tlist(['scilst']);
+  if getenv('LANGUAGE','void')=='fr' then str='_fr' else str='';end 
+  for x=['diagram','params','model','graphics','link','state','sim','block','cpr'] do
+    cmd= sprintf('h(""%s"")=scicos_help_%s%s();',x,x,str);
+    ok=execstr(cmd,errcatch=%t);
+    if ~ok then 
+      message([sprintf('unable to insert help for %s\n',x); ...
+	       catenate(lasterror())]);
+    end
+  end
+  H=tlist(['sch','menu','scilst'],scicos_help_menu(),h);
+endfunction
