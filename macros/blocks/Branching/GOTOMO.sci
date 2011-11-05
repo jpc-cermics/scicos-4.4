@@ -1,8 +1,6 @@
 function [x,y,typ]=GOTOMO(job,arg1,arg2)
-  x=[];y=[];typ=[]
-  select job
-   case 'plot' then
-    pat=xget('pattern'); xset('pattern',default_color(0))
+
+  function blk_draw(sz,orig,orient,label)
     orig=arg1.graphics.orig;
     sz=arg1.graphics.sz;
     orient=arg1.graphics.flip;
@@ -18,47 +16,14 @@ function [x,y,typ]=GOTOMO(job,arg1,arg2)
       yy=orig(2)+[0 1/2 1;1 1 1;1 3/4 1/2;1/2 1/4 0;0 0 0]'*sz(2);
       x1=0
     end
-    xpolys(xx,yy)
+    xpolys(xx,yy,color=default_color(0),thickness=2);
     xstringb(orig(1)+x1*sz(1),orig(2),tg,(1-x1)*sz(1),sz(2));
-
-    xf=60
-    yf=40
-    nin=1;nout=0
-		    
-      // set port shape
-      out=[0   -1/14
-	   1/7 -1/14
-	   1/7 1/14
-	   0   1/14
-	   0   -1/14]*diag([xf,yf])
-      in= [-1/7  -1/14
-	   0     -1/14
-	   0      1/14
-	   -1/7   1/14
-	   -1/7  -1/14]*diag([xf,yf])
-      dy=sz(2)/(nin+1)
-      xset('pattern',default_color(1))
-   if orient then  //standard orientation
-      for k=1:nin
-	xfpoly(in(:,1)+ones(5,1)*orig(1),..
-	       in(:,2)+ones(5,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-    else //tilded orientation
-      for k=1:nin
-	xfpoly(in(:,1)+ones(5,1)*(orig(1)+sz(1)+1/7*xf),..
-	       in(:,2)+ones(5,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-    end
-    xset('pattern',pat)
-    //** ------- Identification ---------------------------
-    ident = o.graphics.id
-    // draw Identification
-    if ~isempty(ident) & ident <> ''  then
-      if ~exists('%zoom') then %zoom=1, end
-      fz=2*%zoom*4
-      xstring(orig(1)+sz(1)/2,orig(2),ident,posx='center',posy='up',size=fz);
-    end
-    //** ----- Identification End -----------------------------
+  endfunction
+  
+  x=[];y=[];typ=[]
+  select job
+   case 'plot' then
+    standard_draw(arg1,%f);
    case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
@@ -71,22 +36,22 @@ function [x,y,typ]=GOTOMO(job,arg1,arg2)
     model=arg1.model;
     while %t do
       [ok,tag,tagvis,exprs]=getvalue('Set parameters',..
-		['Tag';'Tag Visibility(1=Local 2=scoped 3= global)'],..
-		    list('str',-1,'vec',1),exprs)
+				     ['Tag';'Tag Visibility(1=Local 2=scoped 3= global)'],..
+				     list('str',-1,'vec',1),exprs)
       if ~ok then break,end
       tagvis=int(tagvis)
       if ((tagvis<1)|(tagvis>3)) then
-          message('Tag Visibility must be between 1 and 3');ok=%f;
+	message('Tag Visibility must be between 1 and 3');ok=%f;
       end
       if ok then 
-	 if ((model.ipar<>tagvis)|(model.opar<>list(tag))) then needcompile=4;y=needcompile,end
-	 graphics.exprs=exprs;
-	 model.opar=list(tag)
-	 model.ipar=tagvis
-	 x.model=model
-	 x.graphics=graphics
-	 arg1=x
-	 break
+	if ((model.ipar<>tagvis)|(model.opar<>list(tag))) then needcompile=4;y=needcompile,end
+	graphics.exprs=exprs;
+	model.opar=list(tag)
+	model.ipar=tagvis
+	x.model=model
+	x.graphics=graphics
+	arg1=x
+	break
       end
     end
     resume(needcompile)
@@ -107,9 +72,9 @@ function [x,y,typ]=GOTOMO(job,arg1,arg2)
     mo.model='gotomo'
     mo.inputs='p'
     exprs=['A';sci2exp(1)]
-    
-    gr_i='';
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([1.5 1.5],model,exprs,gr_i,'GOTOMO');
     x.graphics.in_implicit=['I']
+    x.graphics.id="Goto";
   end
 endfunction

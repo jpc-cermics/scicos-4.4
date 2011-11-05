@@ -17,7 +17,7 @@ function [x,y,typ]=SCALAR2VECTOR(job,arg1,arg2)
       [ok,nout,exprs]=..
 	  getvalue('Set block parameters',..
 		   ['Size of output (-1: if don''t know)'],..
-	  list('vec',1),exprs)
+		   list('vec',1),exprs)
       if ~ok then break,end
       nout=int(nout)
       if(nout<>-1 & (nout<=0)) then
@@ -41,11 +41,9 @@ function [x,y,typ]=SCALAR2VECTOR(job,arg1,arg2)
     model.in=1
     model.blocktype='c'
     model.dep_ut=[%t %f]
-    
     exprs=[string([nout])]
     gr_i=['txt=[''Scalar'';''  to '';''vector''];';
 	  'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'')']
-    
     x=standard_define([2 3],model,exprs,gr_i,'SCALAR2VECTOR');
   end
 endfunction

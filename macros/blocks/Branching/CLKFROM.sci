@@ -1,9 +1,10 @@
 function [x,y,typ]=CLKFROM(job,arg1,arg2)
 // Copyright INRIA
-  x=[];y=[];typ=[]
-  select job
-   case 'plot' then
-    orig=arg1.graphics.orig;sz=arg1.graphics.sz;orient=arg1.graphics.flip;
+
+  function blk_draw(sz,orig,orient,label)
+    orig=arg1.graphics.orig;
+    sz=arg1.graphics.sz;
+    orient=arg1.graphics.flip;
     prt='['+arg1.graphics.exprs+']'
     pat=xget('pattern');xset('pattern',default_color(-1))
     thick=xget('thickness');xset('thickness',2)
@@ -16,30 +17,16 @@ function [x,y,typ]=CLKFROM(job,arg1,arg2)
       x=orig(1)+sz(1)*[0 0 0;0 1/4 1/2;1/2 3/4 1;1 1 1;1 1/2 0]'
       x1=0
     end
-    xpolys(x,y,5*ones(1,5))
-    xstringb(orig(1)+x1*sz(1),orig(2),prt,(1-x1)*sz(1),sz(2))
-
-    xset('thickness',thick)
-    xset('pattern',pat)
-    //identification
-    ident = arg1.graphics.id
-    if ~isempty(ident) & ident <> '' then
-      font=xget('font')
-      xset('font', options.ID(1)(1), options.ID(1)(2))
-      if ~orient then
-	rectangle = xstringl(orig(1), orig(2), ident) ;
-	w = max(rectangle(3), sz(1)) ;
-	h = rectangle(4) * 1.3 ;
-	xstringb(orig(1) + sz(1) / 2 - w / 2, orig(2) - h , ident , w, h) ;
-      else
-	rectangle = xstringl(orig(1), orig(2)+sz(2), ident) ;
-	w = max(rectangle(3), sz(1)) ;
-	h = rectangle(4) * 1.3 ;
-	xstringb(orig(1) + sz(1) / 2 - w / 2, orig(2)+ sz(2) , ident , w, h) ;
-      end
-      xset('font', font(1), font(2))
-    end
-    x=[];y=[]
+    xpolys(x,y,5*ones(1,5),color=default_color(-1),thickness=2);
+    xstringb(orig(1)+x1*sz(1),orig(2),prt,(1-x1)*sz(1),sz(2));
+  endfunction
+      
+  x=[];y=[];typ=[]
+  select job
+   case 'plot' then
+    // do not draw the frame, do not draw the ports
+    function noports(o) ;endfunction
+    standard_draw(arg1,%f,noports,%f,arg1.graphics.flip);
    case 'getinputs' then
     x=[];y=[];typ=[]
    case 'getoutputs' then
@@ -81,9 +68,9 @@ function [x,y,typ]=CLKFROM(job,arg1,arg2)
     model.blocktype='d'
     model.firing=-1
     model.dep_ut=[%f %f]
-
     exprs='A'
-    x=standard_define([1.5 1.5],model,exprs,' ','CLKFROM');
+    gr_i="blk_draw(sz,orig,orient,model.label)";
+    x=standard_define([1.5 1.5],model,exprs,gr_i,'CLKFROM');
     x.graphics.id="From"
   end
 endfunction

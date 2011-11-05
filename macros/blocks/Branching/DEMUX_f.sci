@@ -28,7 +28,7 @@ function [x,y,typ]=DEMUX_f(job,arg1,arg2)
       else
         if size(out,'*')<2| size(out,'*')>8|or(out==0) then
 	  message(['Block must have at least 2 and at most 8 output ports';
-		'and size 0 is not allowed']   )
+		   'and size 0 is not allowed']   )
 	  ok=%f
 	else
 	  if min(out)<0 then nin=0,else nin=sum(out),end

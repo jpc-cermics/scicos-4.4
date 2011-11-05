@@ -38,8 +38,7 @@ function [x,y,typ]=EXTRACTOR(job,arg1,arg2)
     model.dep_ut=[%t %f]
     model.ipar=ind
     exprs=[sci2exp(ind)]
-    gr_i=['txt=[''Extractor''];';
-          'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'');']
+    gr_i=['xstringb(orig(1),orig(2),''Extractor'',sz(1),sz(2),''fill'');']
     x=standard_define([2 2],model,exprs,gr_i,'EXTRACTOR');
   end
 endfunction

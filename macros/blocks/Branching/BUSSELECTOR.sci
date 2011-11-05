@@ -29,8 +29,8 @@ function [x,y,typ]=BUSSELECTOR(job,arg1,arg2)
 	label=list(exprs(2)(1),exprs(1))
 	if isempty(label(1)) then label(1)=['Signal1'];end
 	[ok,SelectedSignals,outputbus,label]=getvalue('This is just for test',..
-						       gv_titles, ...
-						       gv_types,label);
+						      gv_titles, ...
+						      gv_types,label);
 	if ~ok then return;end // abort in gui
 	outputbus=string(outputbus)
 	ok=execstr('SelectedSignals=evstr(SelectedSignals)',errcatch=%t);

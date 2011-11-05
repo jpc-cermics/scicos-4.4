@@ -1,5 +1,12 @@
 function [x,y,typ]=DEMUX(job,arg1,arg2)
 // Copyright INRIA
+  function blk_draw(sz,orig,orient,label)  
+    txt="Demux";
+    if ~exists("%zoom") then %zoom=1, end;
+    fz=2*%zoom*4;
+    xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
+  endfunction
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -30,8 +37,8 @@ function [x,y,typ]=DEMUX(job,arg1,arg2)
           oup=[-[1:out]',ones(out,1)]
           inp=[0,1]
           [model,graphics,ok]=set_io(model,graphics,...
-                                 list(inp,it),...
-                                 list(oup,ot),[],[])
+				     list(inp,it),...
+				     list(oup,ot),[],[])
 	end
       else
         if size(out,'*')==0| or(out==0)|size(out,'*')>31 then
@@ -45,10 +52,10 @@ function [x,y,typ]=DEMUX(job,arg1,arg2)
           ot=-ones(size(out,'*'),1)
           oup=[out(:),ones(size(out,'*'),1)]
           inp=[nin,1]
- 
+	  
           [model,graphics,ok]=set_io(model,graphics,...
-                                 list(inp,it),...
-                                 list(oup,ot),[],[])
+				     list(inp,it),...
+				     list(oup,ot),[],[])
 	end
       end
 
@@ -69,12 +76,8 @@ function [x,y,typ]=DEMUX(job,arg1,arg2)
     model.blocktype='c'
     model.firing=[]
     model.dep_ut=[%t %f]
-
     exprs=string(out)
-    gr_i=['txt=''Demux'';'
-	  'if ~exists(''%zoom'') then %zoom=1, end;'
-	  'fz=2*%zoom*4;'
-	  'xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx=''center'',posy=''bottom'',size=fz);'];
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([.5 2],model,exprs,gr_i,'DEMUX')
   end
 endfunction

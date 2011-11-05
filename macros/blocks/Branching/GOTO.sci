@@ -1,8 +1,6 @@
 function [x,y,typ]=GOTO(job,arg1,arg2)
-  x=[];y=[];typ=[]
-  select job
-   case 'plot' then
-    pat=xget('pattern'); xset('pattern',default_color(0))
+  
+  function blk_draw(sz,orig,orient,label)
     orig=arg1.graphics.orig;
     sz=arg1.graphics.sz;
     orient=arg1.graphics.flip;
@@ -18,73 +16,15 @@ function [x,y,typ]=GOTO(job,arg1,arg2)
       yy=orig(2)+[0 1/2 1;1 1 1;1 3/4 1/2;1/2 1/4 0;0 0 0]'*sz(2);
       x1=1/4
     end
-    xpolys(xx,yy)
+    xpolys(xx,yy,color=default_color(0),thickness=2);
     xstringb(orig(1)+x1*sz(1),orig(2),tg,(1-x1)*sz(1),sz(2));
-
-    xf=60
-    yf=40
-    nin=1;nout=0
-    if size(o.graphics.exprs,'*')==2 then
-      BS='1'
-    else
-      BS=o.graphics.exprs(3)
-    end
-    col=evstr(BS)
-    if orient then  //standard orientation
-		    
-      // set port shape
-      out=[0  -1/14
-	   1/7 0
-	   0   1/14
-	   0  -1/14]*diag([xf,yf])
-      in= [-1/7  -1/14
-	   0    0
-	   -1/7   1/14
-	   -1/7  -1/14]*diag([xf,yf])
-      dy=sz(2)/(nout+1)
-      xset('pattern',default_color(1))
-      for k=1:nout
-	xfpoly(out(:,1)+ones(4,1)*(orig(1)+sz(1)),..
-	       out(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),col)
-      end
-
-      dy=sz(2)/(nin+1)
-      for k=1:nin
-	xfpoly(in(:,1)+ones(4,1)*orig(1),..
-	       in(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),col)
-      end
-    else //tilded orientation
-      out=[0  -1/14
-	   -1/7 0
-	   0   1/14
-	   0  -1/14]*diag([xf,yf])
-      in= [1/7  -1/14
-	   0    0
-	   1/7   1/14
-	   1/7  -1/14]*diag([xf,yf])
-      dy=sz(2)/(nout+1)
-      xset('pattern',default_color(1))
-      for k=1:nout
-	xfpoly(out(:,1)+ones(4,1)*orig(1)-1,..
-	       out(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),col)
-      end
-      dy=sz(2)/(nin+1)
-      for k=1:nin
-	xfpoly(in(:,1)+ones(4,1)*(orig(1)+sz(1))+1,..
-	       in(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),col)
-      end
-    end
-    xset('pattern',pat)
-    // ------- Identification ---------------------------
-    ident = o.graphics.id
-    // draw Identification
-    if ~isempty(ident) & ident <> ''  then
-      if ~exists('%zoom') then %zoom=1, end
-      fz=2*%zoom*4
-      xstring(orig(1)+sz(1)/2,orig(2),ident,posx='center',posy='up',size=fz);
-    end
-  //** ----- Identification End -----------------------------
-
+  endfunction
+ 
+  x=[];y=[];typ=[]
+  select job
+   case 'plot' then
+    // do not draw the frame 
+    standard_draw(arg1,%f);
    case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
@@ -113,14 +53,14 @@ function [x,y,typ]=GOTO(job,arg1,arg2)
       else message('Input Type must be 1 or 2');ok=%f;
       end	
       if ok then 
-	 if ((model.ipar<>tagvis)|(model.opar<>list(tag))) then needcompile=4;y=needcompile,end
-	 graphics.exprs=exprs;
-	 model.opar=list(tag)
-	 model.ipar=tagvis
-	 x.model=model
-	 x.graphics=graphics
-	 arg1=x
-	 break
+	if ((model.ipar<>tagvis)|(model.opar<>list(tag))) then needcompile=4;y=needcompile,end
+	graphics.exprs=exprs;
+	model.opar=list(tag)
+	model.ipar=tagvis
+	x.model=model
+	x.graphics=graphics
+	arg1=x
+	break
       end
     end
     resume(needcompile)
@@ -137,10 +77,8 @@ function [x,y,typ]=GOTO(job,arg1,arg2)
     model.opar=list('A')
     model.blocktype='c'
     model.dep_ut=[%f %f]
-    
     exprs=[sci2exp("A") ;sci2exp(1); sci2exp(1)]
-    
-    gr_i='';
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([1.5 1.5],model,exprs,gr_i,'GOTO');
     x.graphics.id="Goto"
   end

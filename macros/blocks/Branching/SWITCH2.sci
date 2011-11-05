@@ -15,9 +15,9 @@ function [x,y,typ]=SWITCH2(job,arg1,arg2)
     model=arg1.model;
     while %t do
       [ok,rule,thra,nzz,exprs]=getvalue('Set parameters',..
-		['pass first input if: u2>=a (0), u2>a (1), u2~=a (2)';..
+					['pass first input if: u2>=a (0), u2>a (1), u2~=a (2)';..
 		    'threshold a';'use zero crossing: yes (1), no (0)'],..
-		    list('vec',1,'vec',1,'vec',1),exprs)
+					list('vec',1,'vec',1,'vec',1),exprs)
       if ~ok then break,end
       rule=int(rule);
       if (rule<0) then rule=0, end

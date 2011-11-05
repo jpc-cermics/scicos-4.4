@@ -1,5 +1,14 @@
 function [x,y,typ]=GotoTagVisibility(job,arg1,arg2)
 // Copyright INRIA
+
+  function blk_draw(sz,orig,orient,label)
+    xstringb(orig(1),orig(2),["{"+arg1.graphics.exprs(1)+"}"],sz(1),sz(2),"fill");
+    txt=["Goto Tag";"Visibility" ];
+    if ~exists("%zoom") then %zoom=1, end;
+    fz=1.5*%zoom*4;
+    xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
+  endfunction
+  
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -29,25 +38,21 @@ function [x,y,typ]=GotoTagVisibility(job,arg1,arg2)
     end
     resume(needcompile)
    case 'define' then
-   model=scicos_model()
-   model.sim='gototagvisibility'
-   model.in=[]
-   model.in2=[]
-   model.out=[]
-   model.out2=[]
-   model.evtin=[]
-   model.intyp=1
-   model.outtyp=1
-   model.opar=list('""A""');
-   model.blocktype='c'
-   model.firing=%f
-   model.dep_ut=[%f %f]
-   exprs=sci2exp('A')
-   gr_i=['xstringb(orig(1),orig(2),[''{''+arg1.graphics.exprs(1)+''}''],sz(1),sz(2),''fill'');'
-         'txt=[''Goto Tag'';''Visibility'' ];'
-         'if ~exists(''%zoom'') then %zoom=1, end;'
-	 'fz=1.5*%zoom*4;'
-	 'xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx=''center'',posy=''bottom'',size=fz);'];
-   x=standard_define([2 2],model,exprs,gr_i,'GotoTagVisibility');
+    model=scicos_model()
+    model.sim='gototagvisibility'
+    model.in=[]
+    model.in2=[]
+    model.out=[]
+    model.out2=[]
+    model.evtin=[]
+    model.intyp=1
+    model.outtyp=1
+    model.opar=list('""A""');
+    model.blocktype='c'
+    model.firing=%f
+    model.dep_ut=[%f %f]
+    exprs=sci2exp('A')
+    gr_i="blk_draw(sz,orig,orient,model.label)";
+    x=standard_define([2 2],model,exprs,gr_i,'GotoTagVisibility');
   end
 endfunction

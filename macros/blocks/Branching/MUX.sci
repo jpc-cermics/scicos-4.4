@@ -1,5 +1,13 @@
 function [x,y,typ]=MUX(job,arg1,arg2)
 // Copyright INRIA
+
+  function blk_draw(sz,orig,orient,label)
+    txt="Mux";
+    if ~exists("%zoom") then %zoom=1; end
+    fz=2*%zoom*4;
+    xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
+  endfunction
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -63,12 +71,8 @@ function [x,y,typ]=MUX(job,arg1,arg2)
     model.outtyp=-1
     model.blocktype='c'
     model.dep_ut=[%t %f]
-
     exprs=string(in)
-    gr_i=['txt=''Mux'';'
-	  'if ~exists(''%zoom'') then %zoom=1, end;'
-	  'fz=2*%zoom*4;'
-	  'xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx=''center'',posy=''bottom'',size=fz);'];
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([.5 2],model,exprs,gr_i,'MUX')
   end
 endfunction

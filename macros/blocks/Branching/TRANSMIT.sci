@@ -15,9 +15,9 @@ function [x,y,typ]=TRANSMIT(job,arg1,arg2)
     needcompile=4
     y=needcompile;
     if x.model.ipar(1)==1 then 
-       x.model.ipar=[0,5];
+      x.model.ipar=[0,5];
     else
-       x.model.ipar=[1,3];
+      x.model.ipar=[1,3];
     end
     exprs=string(x.model.ipar)
     // printf("model %d %d\n",x.model.ipar(1),x.model.ipar(2));
