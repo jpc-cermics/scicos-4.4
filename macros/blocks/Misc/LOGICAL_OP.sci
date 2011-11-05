@@ -20,7 +20,7 @@ case 'set' then
     [ok,nin,rule,Datatype,tp,exprs]=getvalue('Set parameters',..
 	['Number of inputs';..
 	 'Operator: AND (0), OR (1), NAND (2), NOR (3), XOR (4), NOT (5)'
-         'Datatype (1=double 3=int32 ...)';..
+         'Datatype (-1=inherit 1=double 3=int32 ...)';..
          'Bitwise Rule(0=No 1=yes)'],..
 	list('vec',1,'vec',1,'vec',1,'vec',1),exprs)
     if ~ok then break,end
@@ -33,7 +33,7 @@ case 'set' then
       message('Only one input allowed for NOT operation')
       nin=1
     elseif ((Datatype==1)&(tp~=0))
-      message ("Bitwise Rule is only activated when Data type is integer");ok=%f
+      message("Bitwise Rule applies only if Data type is integer");ok=%f
     end
     if ok then
       if (tp~=0) then tp=1; end
@@ -91,7 +91,7 @@ case 'compile' then
 
 case 'define' then
   in=[-1;-1]
-  ipar=[0]
+  ipar=[0;0]
   nin=2
   
   model=scicos_model()
@@ -102,7 +102,7 @@ case 'define' then
   model.blocktype='c'
   model.dep_ut=[%t %f]
   
-  exprs=[string(nin);string(ipar)]
+  exprs=[string(nin);string(ipar);string(1);string(0)]
   gr_i=['xstringb(orig(1),orig(2),[''Logical Op'';OPER],sz(1),sz(2),''fill'');']
   x=standard_define([2.5 2],model,exprs,gr_i,'LOGICAL_OP');
 end
