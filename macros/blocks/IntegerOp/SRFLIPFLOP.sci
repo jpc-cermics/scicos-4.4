@@ -1,5 +1,24 @@
 function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
 // Copyright INRIA
+
+  function draw_srflipflop(orig,sz,o)
+  [x,y,typ]=standard_inputs(o)
+  dd=sz(1)/8,de=sz(1)*(1/2+1/8);
+  if ~exists('%zoom') then %zoom=1, end;
+  w=sz(1)*(1/2-1/8);
+  h=sz(2)/4;
+  xstringb(orig(1)+dd,y(1)-4,'S',w,h,'fill');
+  xstringb(orig(1)+dd,y(2)-4,'R',w,h,'fill');
+  [x,y,typ]=standard_outputs(o) ;
+  txt='Q'
+  xstringb(orig(1)+de,y(1)-4,'Q',w,h,'fill');
+  xstringb(orig(1)+de,y(2)-4,'!Q',w,h,'fill');
+  w = sz(1);
+  h = sz(2)*(1/4)
+  xstringb(orig(1),orig(2)-1.5*h,'SR FLIP-FLOP',w,h,'fill');
+endfunction
+
+  
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -413,19 +432,3 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
   end
 endfunction
 
-function draw_srflipflop(orig,sz,o)
-  [x,y,typ]=standard_inputs(o)
-  dd=sz(1)/8,de=sz(1)*(1/2+1/8);
-  if ~exists('%zoom') then %zoom=1, end;
-  w=sz(1)*(1/2-1/8);
-  h=sz(2)/4;
-  xstringb(orig(1)+dd,y(1)-4,'S',w,h,'fill');
-  xstringb(orig(1)+dd,y(2)-4,'R',w,h,'fill');
-  [x,y,typ]=standard_outputs(o) ;
-  txt='Q'
-  xstringb(orig(1)+de,y(1)-4,'Q',w,h,'fill');
-  xstringb(orig(1)+de,y(2)-4,'!Q',w,h,'fill');
-  w = sz(1);
-  h = sz(2)*(1/4)
-  xstringb(orig(1),orig(2)-1.5*h,'SR FLIP-FLOP',w,h,'fill');
-endfunction

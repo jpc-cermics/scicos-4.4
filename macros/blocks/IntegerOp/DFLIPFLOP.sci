@@ -1,5 +1,24 @@
 function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
 // Copyright INRIA
+
+  function dflipflop_draw(orig,sz,o)
+    [x,y,typ]=standard_inputs(o)
+    dd=sz(1)/8,de=sz(1)*(1/2+1/8);
+    if ~exists('%zoom') then %zoom=1, end;
+    w=sz(1)*(1/2-1/8);
+    h=sz(2)/4;
+    xstringb(orig(1)+dd,y(1)-4,'D',w,h,'fill');
+    xstringb(orig(1)+dd,y(2)-4,'clk',w,h,'fill');
+    xstringb(orig(1)+dd,y(3)-4,'en',w,h,'fill');
+    [x,y,typ]=standard_outputs(o) ;
+    txt='Q'
+    xstringb(orig(1)+de,y(1)-4,'Q',w,h,'fill');
+    xstringb(orig(1)+de,y(2)-4,'!Q',w,h,'fill');
+    w = sz(1);
+    h = sz(2)*(1/4)
+    xstringb(orig(1),orig(2)-1.5*h,'D FLIP-FLOP',w,h,'fill');
+  endfunction
+
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -31,23 +50,6 @@ function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
   end
 endfunction
 
-function dflipflop_draw(orig,sz,o)
-  [x,y,typ]=standard_inputs(o)
-  dd=sz(1)/8,de=sz(1)*(1/2+1/8);
-  if ~exists('%zoom') then %zoom=1, end;
-  w=sz(1)*(1/2-1/8);
-  h=sz(2)/4;
-  xstringb(orig(1)+dd,y(1)-4,'D',w,h,'fill');
-  xstringb(orig(1)+dd,y(2)-4,'clk',w,h,'fill');
-  xstringb(orig(1)+dd,y(3)-4,'en',w,h,'fill');
-  [x,y,typ]=standard_outputs(o) ;
-  txt='Q'
-  xstringb(orig(1)+de,y(1)-4,'Q',w,h,'fill');
-  xstringb(orig(1)+de,y(2)-4,'!Q',w,h,'fill');
-  w = sz(1);
-  h = sz(2)*(1/4)
-  xstringb(orig(1),orig(2)-1.5*h,'D FLIP-FLOP',w,h,'fill');
-endfunction
 
 function scs_m=dflipflop_rpar()
   scs_m=scicos_diagram(..
@@ -685,107 +687,107 @@ function scs_m=dflipflop_rpar()
 			       model=scicos_model(..
 						  sim=list("ifthel",-1),..
 						  in=1,..
-				in2=1,..
-				intyp=-1,..
-				out=[],..
-				out2=[],..
-				outtyp=1,..
-				evtin=1,..
-				evtout=[1;1],..
-				state=[],..
-				dstate=[],..
-				odstate=list(),..
-				rpar=[],..
-				ipar=[],..
-				opar=list(),..
-				blocktype="l",..
-				firing=[-1,-1],..
-				dep_ut=[%t,%f],..
-				label="",..
-				nzcross=1,..
-				nmode=1,..
-				equations=list()),..
-			doc=list())
-	scs_m_1.objs(8)=scicos_link(..
-			xx=[351;351;450],..
-			yy=[131.29;93;93],..
-			id="drawlink",..
-			thick=[0,0],..
-			ct=[5,-1],..
-			from=[7,1],..
-			to=[3,1])
-	scs_m_1.objs(9)=scicos_link(..
-			xx=[262.57;322.43],..
-			yy=[163;167],..
-			id="drawlink",..
-			thick=[0,0],..
-			ct=[1,1],..
-			from=[1,1],..
-			to=[7,1])
-	scs_m_1.objs(10)=scicos_block(..
-			gui="CLKSPLIT_f",..
-			graphics=scicos_graphics(..
-				orig=[234;275.78348],..
-				sz=[0.3333333,0.3333333],..
-				flip=%t,..
-				theta=0,..
-				exprs=[],..
-				pin=[],..
-				pout=[],..
-				pein=6,..
-				peout=[11;12],..
-				gr_i=list([],8),..
-				id="",..
-				in_implicit=[],..
-				out_implicit=[]),..
-			model=scicos_model(..
-				sim="split",..
-				in=[],..
-				in2=[],..
-				intyp=1,..
-				out=[],..
-				out2=[],..
-				outtyp=1,..
-				evtin=1,..
-				evtout=[1;1],..
-				state=[],..
-				dstate=[],..
-				odstate=list(),..
-				rpar=[],..
-				ipar=[],..
-				opar=list(),..
-				blocktype="d",..
-				firing=[%f,%f,%f],..
-				dep_ut=[%f,%f],..
-				label="",..
-				nzcross=0,..
-				nmode=0,..
-				equations=list()),..
-			doc=list())
-	scs_m_1.objs(11)=scicos_link(..
-			xx=[234;234],..
-			yy=[275.78;198.71],..
-			id="drawlink",..
-			thick=[0,0],..
-			ct=[5,-1],..
-			from=[10,1],..
-			to=[1,2])
-	scs_m_1.objs(12)=scicos_link(..
-			xx=[234;361;361],..
-			yy=[275.78;275.78;202.71],..
-			id="drawlink",..
-			thick=[0,0],..
-			ct=[5,-1],..
-			from=[10,2],..
-			to=[7,1])
-	scs_m.objs(15)=scicos_block(..
-		gui="ANDBLK",..
-		graphics=scicos_graphics(..
-				orig=[233.73039,318.74407],..
-				sz=[40,40],..
-				flip=%t,..
-				theta=0,..
-				exprs=[],..
+						  in2=1,..
+						  intyp=-1,..
+						  out=[],..
+						  out2=[],..
+						  outtyp=1,..
+						  evtin=1,..
+						  evtout=[1;1],..
+						  state=[],..
+						  dstate=[],..
+						  odstate=list(),..
+						  rpar=[],..
+						  ipar=[],..
+						  opar=list(),..
+						  blocktype="l",..
+						  firing=[-1,-1],..
+						  dep_ut=[%t,%f],..
+						  label="",..
+						  nzcross=1,..
+						  nmode=1,..
+						  equations=list()),..
+			       doc=list())
+  scs_m_1.objs(8)=scicos_link(..
+			      xx=[351;351;450],..
+			      yy=[131.29;93;93],..
+			      id="drawlink",..
+			      thick=[0,0],..
+			      ct=[5,-1],..
+			      from=[7,1],..
+			      to=[3,1])
+  scs_m_1.objs(9)=scicos_link(..
+			      xx=[262.57;322.43],..
+			      yy=[163;167],..
+			      id="drawlink",..
+			      thick=[0,0],..
+			      ct=[1,1],..
+			      from=[1,1],..
+			      to=[7,1])
+  scs_m_1.objs(10)=scicos_block(..
+				gui="CLKSPLIT_f",..
+				graphics=scicos_graphics(..
+						  orig=[234;275.78348],..
+						  sz=[0.3333333,0.3333333],..
+						  flip=%t,..
+						  theta=0,..
+						  exprs=[],..
+						  pin=[],..
+						  pout=[],..
+						  pein=6,..
+						  peout=[11;12],..
+						  gr_i=list([],8),..
+						  id="",..
+						  in_implicit=[],..
+						  out_implicit=[]),..
+				model=scicos_model(..
+						   sim="split",..
+						   in=[],..
+						   in2=[],..
+						   intyp=1,..
+						   out=[],..
+						   out2=[],..
+						   outtyp=1,..
+						   evtin=1,..
+						   evtout=[1;1],..
+						   state=[],..
+						   dstate=[],..
+						   odstate=list(),..
+						   rpar=[],..
+						   ipar=[],..
+						   opar=list(),..
+						   blocktype="d",..
+						   firing=[%f,%f,%f],..
+						   dep_ut=[%f,%f],..
+						   label="",..
+						   nzcross=0,..
+						   nmode=0,..
+						   equations=list()),..
+				doc=list())
+  scs_m_1.objs(11)=scicos_link(..
+			       xx=[234;234],..
+			       yy=[275.78;198.71],..
+			       id="drawlink",..
+			       thick=[0,0],..
+			       ct=[5,-1],..
+			       from=[10,1],..
+			       to=[1,2])
+  scs_m_1.objs(12)=scicos_link(..
+			       xx=[234;361;361],..
+			       yy=[275.78;275.78;202.71],..
+			       id="drawlink",..
+			       thick=[0,0],..
+			       ct=[5,-1],..
+			       from=[10,2],..
+			       to=[7,1])
+  scs_m.objs(15)=scicos_block(..
+			      gui="ANDBLK",..
+			      graphics=scicos_graphics(..
+						  orig=[233.73039,318.74407],..
+						  sz=[40,40],..
+						  flip=%t,..
+						  theta=0,..
+						  exprs=[],..
 				pin=[],..
 				pout=[],..
 				pein=[19;16],..

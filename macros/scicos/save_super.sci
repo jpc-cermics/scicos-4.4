@@ -278,11 +278,13 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
       end
       // we have to save each field except if isref is true and 
       // the field is already in ref with the same value 
-      // moreover we do not save models.
+      // moreover we can decide or not to save models (here we 
+      // save models by changing 'models' to 'xxmodels'
       if typ<>'xxmodel' then 
 	keys= obj.__keys;
 	for i=1:size(keys,'*')
-	  if ~(isref && obj(keys(i)).equal[ref(keys(i))]) then 
+	  
+	  if ~(isref && ref.iskey[keys(i)] && obj(keys(i)).equal[ref(keys(i))]) then 
 	    if validvar(keys(i)) then 
 	      nname= sprintf('%s.%s',temp,keys(i));
 	    else
@@ -307,7 +309,7 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
   endfunction;
 
   // main code 
-  format("long");
+  //format("long");
   txt1=scicos_obj2smat(obj,name=name,tag=tag,indent=indent);
   format();
   // second path to remove extra \n

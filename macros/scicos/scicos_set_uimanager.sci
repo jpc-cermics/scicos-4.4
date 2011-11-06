@@ -170,7 +170,7 @@ function scicos_set_uimanager(is_top)
     txt  = catenate(txt,sep='\n');    
   endfunction
   
-  function action_group=scicos_create_actions(gname,S,merge) 
+  function action_group=scicos_create_actions(gname,S,merge)
   // creates an action group named gname and 
   // populated by S.
   //

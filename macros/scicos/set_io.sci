@@ -171,7 +171,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
     //               'Connected ports cannot be suppressed')
     //       ok=%f
     //        return, end
-    cip1=cip1(1:n)
+    cip1=cip1(1:n,:)
   else
     cip1=[cip1;zeros(n-n1,1)]
   end
@@ -183,7 +183,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
     //               'Connected ports cannot be suppressed')
     //       ok=%f
     //        return, end
-    cop1=cop1(1:n)
+    cop1=cop1(1:n,:)
   else
     cop1=[cop1;zeros(n-n1,1)]
   end
