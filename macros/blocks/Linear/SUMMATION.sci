@@ -18,7 +18,7 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     yy=sz(2)*[.8 .8 .5 .2 .2]+orig(2);
     xpoly(xx,yy,type='lines');
   endfunction
-    
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then

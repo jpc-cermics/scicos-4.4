@@ -110,9 +110,9 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     if size(exprs,'*')==1 then exprs=[exprs;sci2exp(0)];end // compatibility
     while %t do
       [ok,gain,over,exprs]=getvalue('Set gain block parameters',..
-			       ['Gain';..
-				'Do On Overflow(0=Nothing 1=Saturate 2=Error)'],..
-				list('mat',[-1,-1],'vec',1),exprs)
+				    ['Gain';..
+		    'Do On Overflow(0=Nothing 1=Saturate 2=Error)'],..
+				    list('mat',[-1,-1],'vec',1),exprs)
       if ~ok then break,end
       if isempty(gain) then
 	message('Gain must have at least one element')
@@ -123,8 +123,8 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
         if ot==1 then
           ot=-1
         elseif ot==2 then
-           message("Complex type is not supported");
-           ok=%f;
+	  message("Complex type is not supported");
+	  ok=%f;
         end
         if ok then
 	  [out,in]=size(gain)
@@ -145,53 +145,53 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
 	end
       end
     end
- 
-    case 'compile' then
+    
+   case 'compile' then
     model=arg1
     ot=model.intyp
     if isequal(model.opar,list()) then
-       gain=model.rpar(1)  
+      gain=model.rpar(1)  
     else
-       gain=model.opar(1)
+      gain=model.opar(1)
     end
     over=model.ipar
     model.ipar=[];
     if ot==1 then 
-       model.rpar=double(gain(:));
-       model.opar=list();
-       model.sim=list('gainblk',4);
+      model.rpar=double(gain(:));
+      model.opar=list();
+      model.sim=list('gainblk',4);
     else
       if ot==2 then
         error("Complex type is not supported");
       else
         select ot
-        case 3
+	 case 3
           model.opar(1)=int32(model.opar(1))
           supp1='i32'
-        case 4
+	 case 4
           model.opar(1)=int16(model.opar(1))
           supp1='i16'
-        case 5
+	 case 5
           model.opar(1)=int8(model.opar(1))
           supp1='i8'
-        case 6
+	 case 6
           model.opar(1)=uint32(model.opar(1))
           supp1='ui32'
-        case 7
+	 case 7
           model.opar(1)=uint16(model.opar(1))
           supp1='ui16'
-        case 8
+	 case 8
           model.opar(1)=uint8(model.opar(1))
           supp1='ui8'
         else
           error("Type "+string(ot)+" not supported.")
         end
         select over
-        case 0
+	 case 0
           supp2='n'
-        case 1
+	 case 1
           supp2='s'
-        case 2
+	 case 2
           supp2='e'
         end
       end

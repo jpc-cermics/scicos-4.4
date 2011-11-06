@@ -1,5 +1,16 @@
 function [x,y,typ]=INTEGRAL(job,arg1,arg2)
 // Copyright INRIA
+
+  function blk_draw(sz,orig,orient,label)
+    thick=xget("thickness")
+    pat=xget("pattern")
+    fnt=xget("font")
+    xpoly(orig(1)+[0.7;0.62;0.549;0.44;0.364;0.291]*sz(1),orig(2)+[0.947;0.947;0.884;0.321;0.255;0.255]*sz(2),type="lines")
+    xset("thickness",thick)
+    xset("pattern",pat)
+    xset("font",fnt(1),fnt(2));
+  endfunction
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -70,13 +81,7 @@ function [x,y,typ]=INTEGRAL(job,arg1,arg2)
     model.dep_ut=[%f %t]
 
     exprs=string([0;0;0;maxp;minp])
-    gr_i=['thick=xget(''thickness'')'
-	  'pat=xget(''pattern'')'
-	  'fnt=xget(''font'')'
-	  'xpoly(orig(1)+[0.7;0.62;0.549;0.44;0.364;0.291]*sz(1),orig(2)+[0.947;0.947;0.884;0.321;0.255;0.255]*sz(2),type="'lines"')'
-	  'xset(''thickness'',thick)'
-	  'xset(''pattern'',pat)'
-	  'xset(''font'',fnt(1),fnt(2))' ];
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([2 2],model,exprs,gr_i,'INTEGRAL');
     x.graphics.id="1/s"
   end

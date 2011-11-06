@@ -1,5 +1,14 @@
 function [x,y,typ]=DERIV(job,arg1,arg2)
 // Copyright INRIA
+  
+  function blk_draw(sz,orig,orient,label)
+    xstringb(orig(1),orig(2)," du/dt   ",sz(1),sz(2),"fill");
+    txt="s";
+    if ~exists("%zoom") then %zoom=1, end;
+    fz=2*%zoom*4;
+    xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
+  endfunction
+  
   x=[];y=[];typ=[]
   select job
    case 'plot' then
@@ -21,11 +30,7 @@ function [x,y,typ]=DERIV(job,arg1,arg2)
     model.dep_ut=[%t %t]
     
     exprs=[]
-    gr_i=['xstringb(orig(1),orig(2),'' du/dt   '',sz(1),sz(2),''fill'');'
-	  'txt=''s'';'
-	  'if ~exists(''%zoom'') then %zoom=1, end;'
-	  'fz=2*%zoom*4;'
-	  'xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx=''center'',posy=''bottom'',size=fz);'];
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([2 2],model,exprs,gr_i,'DERIV');
   end 
 endfunction

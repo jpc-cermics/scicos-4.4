@@ -2,7 +2,7 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
 // Copyright INRIA
   x=[];y=[];typ=[];
   select job
-    case 'plot' then
+   case 'plot' then
     pat=xget('pattern'); xset('pattern',default_color(0))
     orig=arg1.graphics.orig;
     sz=arg1.graphics.sz;
@@ -39,7 +39,7 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
     nin=1;nout=1
 
     if orient then  //standard orientation
-		    
+      
       // set port shape
       out=[0  -1/14
 	   1/7 0
@@ -85,13 +85,13 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
     xset('pattern',pat)
 
     //
-    case 'getinputs' then
+   case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
-    case 'getoutputs' then
+   case 'getoutputs' then
     [x,y,typ]=standard_outputs(arg1)
-    case 'getorigin' then
+   case 'getorigin' then
     [x,y]=standard_origin(arg1)
-    case 'set' then
+   case 'set' then
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
@@ -112,7 +112,7 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
 	end
       end
     end
-    case 'define' then
+   case 'define' then
     gain=1
     in=1;out=1
     model=scicos_model()

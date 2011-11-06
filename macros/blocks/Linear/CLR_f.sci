@@ -31,7 +31,7 @@ function [x,y,typ]=CLR_f(job,arg1,arg2)
     while %t do
       [ok,num,den,exprs]=getvalue('Set continuous SISO transfer parameters',..
 				  ['Numerator (s)';
-		                   'Denominator (s)'],..
+		    'Denominator (s)'],..
 				  list('pol',1,'pol',1),exprs)
       if ~ok then break,end
       if type(num,'short')=='m' then num=m2p(num);end
