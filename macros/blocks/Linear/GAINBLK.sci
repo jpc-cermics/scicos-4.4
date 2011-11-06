@@ -1,9 +1,7 @@
 function [x,y,typ]=GAINBLK(job,arg1,arg2)
 // Copyright INRIA
-  x=[];y=[];typ=[];
-  select job
-   case 'plot' then //** ----------- PLOT -------------------
-    pat=xget('pattern'); xset('pattern',default_color(0))
+
+  function blk_draw(sz,orig,orient,label)
     orig=arg1.graphics.orig;
     sz=arg1.graphics.sz;
     orient=arg1.graphics.flip;
@@ -41,9 +39,7 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     xf=60
     yf=40
     nin=1;nout=1
-
     if orient then  //standard orientation
-      
       // set port shape
       out=[0  -1/14
 	   1/7 0
@@ -59,7 +55,6 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
 	xfpoly(out(:,1)+ones(4,1)*(orig(1)+sz(1)),..
 	       out(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
       end
-
       dy=sz(2)/(nin+1)
       for k=1:nin
 	xfpoly(in(:,1)+ones(4,1)*orig(1),..
@@ -87,7 +82,6 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
       end
     end
     xset('pattern',pat)
-    
     //** ------- Identification ---------------------------
     ident = o.graphics.id
     // draw Identification
@@ -96,8 +90,14 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
       fz=2*%zoom*4
       xstring(orig(1)+sz(1)/2,orig(2),ident,posx='center',posy='up',size=fz);
     end
-    //** ----- Identification End -----------------------------
-   case 'getinputs' then //** GET INPUTS 
+  endfunction 
+  
+  x=[];y=[];typ=[];
+  select job
+   case 'plot' then 
+    // no frame 
+    standard_draw(arg1,%f);
+   case 'getinputs' then 
     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
     [x,y,typ]=standard_outputs(arg1)
@@ -214,7 +214,7 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     model.dep_ut=[%t %f]
 
     exprs=[strcat(sci2exp(gain))]
-    gr_i=''
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([2 2],model,exprs,gr_i,'GAINBLK');
   end
 endfunction

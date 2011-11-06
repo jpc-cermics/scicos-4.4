@@ -1,9 +1,7 @@
 function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
 // Copyright INRIA
-  x=[];y=[];typ=[];
-  select job
-   case 'plot' then
-    pat=xget('pattern'); xset('pattern',default_color(0))
+
+  function blk_draw(sz,orig,orient,label)
     orig=arg1.graphics.orig;
     sz=arg1.graphics.sz;
     orient=arg1.graphics.flip;
@@ -24,67 +22,22 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
 	xfpolys(xx',yy',coli);
 	pcoli=xget('pattern');xset('pattern',coli)
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
-	xset('pattern',pcoli)
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
       else
-	xpoly(xx,yy,type='lines');
+	xpoly(xx,yy,type='lines',color=default_color(0));
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
       end
     else
-      xpoly(xx,yy,type='lines');	
+      xpoly(xx,yy,type='lines',color=default_color(0));	
       xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
     end
-    xf=60
-    yf=40
-    nin=1;nout=1
-
-    if orient then  //standard orientation
-      
-      // set port shape
-      out=[0  -1/14
-	   1/7 0
-	   0   1/14
-	   0  -1/14]*diag([xf,yf])
-      in= [-1/7  -1/14
-	   0    0
-	   -1/7   1/14
-	   -1/7  -1/14]*diag([xf,yf])
-      dy=sz(2)/(nout+1)
-      xset('pattern',default_color(1))
-      for k=1:nout
-	xfpoly(out(:,1)+ones(4,1)*(orig(1)+sz(1)),..
-	       out(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-
-      dy=sz(2)/(nin+1)
-      for k=1:nin
-	xfpoly(in(:,1)+ones(4,1)*orig(1),..
-	       in(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-    else //tilded orientation
-      out=[0  -1/14
-	   -1/7 0
-	   0   1/14
-	   0  -1/14]*diag([xf,yf])
-      in= [1/7  -1/14
-	   0    0
-	   1/7   1/14
-	   1/7  -1/14]*diag([xf,yf])
-      dy=sz(2)/(nout+1)
-      xset('pattern',default_color(1))
-      for k=1:nout
-	xfpoly(out(:,1)+ones(4,1)*orig(1)-1,..
-	       out(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-      dy=sz(2)/(nin+1)
-      for k=1:nin
-	xfpoly(in(:,1)+ones(4,1)*(orig(1)+sz(1))+1,..
-	       in(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-    end
-    xset('pattern',pat)
-
-    //
+  endfunction
+  
+  x=[];y=[];typ=[];
+  select job
+   case 'plot' then
+    // no frame 
+    standard_draw(arg1,%f);
    case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
@@ -124,7 +77,7 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
     model.dep_ut=[%t %f]
     
     exprs=[strcat(sci2exp(gain))]
-    gr_i=''
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([2 2],model,exprs,gr_i,'GAINBLK_f');
   end
 endfunction
