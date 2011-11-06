@@ -1,26 +1,27 @@
 function [x,y,typ]=SyncTag(job,arg1,arg2)
 // Copyright INRIA
+  
+  function blk_draw(sz,orig,orient,label)
+    col=default_color(-1)
+    orig=arg1.graphics.orig;
+    sz=arg1.graphics.sz;
+    orient=arg1.graphics.flip;
+    // a circle with n points 
+    n=100;
+    xx=linspace(0,1,n);
+    yy=(1/4-(xx-1/2).^2).^(1/2);
+    x=orig(1)+sz(1)*[xx,xx($:-1:1)];
+    y=orig(2)+sz(2)*[yy+1/2,-yy($:-1:1)+1/2];
+    xpoly(x,y,color=col,thickness=2);
+    xstringb(orig(1),orig(2),' SyncTag ',sz(1),sz(2),"fill")
+  endfunction
+  
   x=[];y=[],typ=[]
   select job
    case 'plot' then
-     orig=arg1.graphics.orig;sz=arg1.graphics.sz;orient=arg1.graphics.flip;
-     pat=xget('pattern');xset('pattern',default_color(-1))
-     thick=xget('thickness');xset('thickness',2)
-     xx=[0:.01:1];
-     yy=(1/4-(xx-1/2).^2).^(1/2)+1/2;
-     x=(orig(1))*ones(1,101)+sz(1)*xx;
-     y=(orig(2))*ones(1,101)+sz(2)*yy;
-     xset('thickness',2);
-     xpolys(x',y',5*ones(101,1));
-     xx=[1:-.01:.01 0];
-     yy=-(1/4-(xx-1/2).^2).^(1/2)+1/2;
-     x=(orig(1))*ones(1,101)+sz(1)*xx;
-     y=(orig(2))*ones(1,101)+sz(2)*yy;
-     xpolys(x',y',5*ones(101,1));
-     xset('thickness',1);
-     xstringb(orig(1),orig(2),'SyncTag',sz(1),sz(2),"fill")
-     xset('thickness',thick)
-     xset('pattern',pat)
+    // do not draw the frame, do not draw the ports
+    function noports(o) ;endfunction
+    standard_draw(arg1,%f,noports,%f,arg1.graphics.flip);
    case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
@@ -30,9 +31,9 @@ function [x,y,typ]=SyncTag(job,arg1,arg2)
    case 'set' then
     x=arg1
    case 'define' then
-   model=scicos_model()
-   model.sim='synctag'
-   gr_i=[]
-   x=standard_define([2 2],model,'',gr_i,'SyncTag');
+    model=scicos_model()
+    model.sim='synctag';
+    gr_i="blk_draw(sz,orig,orient,model.label)";
+    x=standard_define([2 2],model,'',gr_i,'SyncTag');
   end
 endfunction
