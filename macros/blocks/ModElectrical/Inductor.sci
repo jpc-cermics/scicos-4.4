@@ -1,5 +1,20 @@
 function [x,y,typ]=Inductor(job,arg1,arg2)
 // Copyright INRIA
+
+  function blk_draw(sz,orig,orient,label)  
+    tt=linspace(0.04,0.96,100);
+    xpoly(tt*sz(1)+orig(1),+orig(2)+abs(sin(18*(tt-0.04)))*sz(2),type="lines");
+    xx=orig(1)+[0 0.04 0.04 0.04 0]*sz(1);
+    yy=orig(2)+[1/2 1/2 0  1/2 1/2]*sz(2);
+    xpoly(xx,yy) ;
+    xx=orig(1)+[0.96 0.96 1   0.96 0.96 ]*sz(1);
+    yy=orig(2)+[abs(sin(18*0.92))   1/2   1/2 1/2 abs(sin(18*0.92))]*sz(2);
+    xpoly(xx,yy) ;
+    txt='L= '+L;
+    style=2;
+    xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),'fill');
+  endfunction
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -41,19 +56,7 @@ function [x,y,typ]=Inductor(job,arg1,arg2)
     mo.parameters=list('L',list(L))
     model.equations=mo;
     exprs=string(L)
-
-    gr_i=['tt=linspace(0.04,0.96,100)'';'
-	  'xpoly(tt*sz(1)+orig(1),+orig(2)+abs(sin(18*(tt-0.04)))*sz(2),type=""lines"");';
-	  'xx=orig(1)+[0 0.04 0.04 0.04 0]*sz(1);';
-	  'yy=orig(2)+[1/2 1/2 0  1/2 1/2]*sz(2);';
-	  'xpoly(xx,yy) ';
-	  'xx=orig(1)+[0.96 0.96 1   0.96 0.96 ]*sz(1);';
-	  'yy=orig(2)+[abs(sin(18*0.92))   1/2   1/2 1/2 abs(sin(18*0.92))]*sz(2);';
-	  'xpoly(xx,yy) ';
-	  'txt=''L= ''+L;'
-	  'style=2;'
-	  'xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),''fill'')'];
-        
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([2 0.9],model,exprs,list(gr_i,0),'Inductor');
     x.graphics.in_implicit=['I']
     x.graphics.out_implicit=['I']

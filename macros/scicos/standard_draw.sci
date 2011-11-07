@@ -12,21 +12,14 @@ endfunction
 function standard_draw_new(o,frame,draw_ports,identup)
 // Copyright INRIA
 // modified for nsp new_graphics by jpc 
-  
   xf=60
   yf=40
-
   nin=size(o.model.in,1);
   nout=size(o.model.out,1);
   clkin=size(o.model.evtin,1);
   clkout=size(o.model.evtout,1);
   [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-  //  [orig,sz,orient]=o(2)(1:3)
-  
-  thick=xget('thickness');xset('thickness',2)
-  
   // draw box if needed 
-  
   pat=xget('pattern');
   xset('pattern',default_color(0))
   e=4
@@ -36,10 +29,7 @@ function standard_draw_new(o,frame,draw_ports,identup)
   if o.graphics.iskey['3D'] && o.graphics('3D') == %f then 
     With3D=%f;
   end
-
-  // get the background color of the block if 
-  // specified 
-  
+  // get the background color of the block if specified 
   gr_i=o.graphics.gr_i;
   if is(gr_i,%types.List) then 
     [gr_i,coli]=gr_i(1:2);
@@ -49,10 +39,8 @@ function standard_draw_new(o,frame,draw_ports,identup)
   if isempty(coli) then
     coli=xget('background')
   end
-
   // Draw the frame of the block if requested 
   // i.e draw boundaries + paint the background 
-  
   if frame then
     // offset when using with 3d 
     e = With3D*4; 
@@ -80,10 +68,8 @@ function standard_draw_new(o,frame,draw_ports,identup)
       xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=-1,background=coli);
     end
   end
-  
   // draw ports using the function transmited 
   draw_ports(o)
-
   // draw Identification
   ident = o.graphics.id;
   fnt=xget('font');
@@ -98,9 +84,6 @@ function standard_draw_new(o,frame,draw_ports,identup)
     end
     xset('font', fnt(1), fnt(2));
   end
-  
-  xset('thickness',thick)
-
   function c=scs_color(c); if flag=='background' then c=coli,end;endfunction;
   flag='foreground'
   
@@ -116,5 +99,4 @@ function standard_draw_new(o,frame,draw_ports,identup)
   end
   xset('pattern',pat)
   xset('font',fnt(1),fnt(2))
-  xset('thickness',1)
 endfunction
