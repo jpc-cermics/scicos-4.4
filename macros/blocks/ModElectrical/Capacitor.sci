@@ -4,6 +4,26 @@ function [x,y,typ]=Capacitor(job,arg1,arg2)
 //   -  sans entree ni sortie de conditionnement
 //   -  avec une entree et une sortie de type implicit et de dimension 1
 //   - avec un dialogue de saisie de parametre
+  
+   function blk_draw(sz,orig,orient,label)
+     xx=orig(1)+[0 1/3 1/3 1/3 ]*sz(1);;
+     yy=orig(2)+[1/2 1/2 1 0]*sz(2);;
+     xpoly(xx,yy);
+     xsegs(orig(1)+ sz(1)*2/3*[1 1 1 3/2],orig(2)+(sz(2)*1/2)*[2 0 1 1],style=0);;
+     if orient then
+       xrects([orig(1)+sz(1)*1/2;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));
+       xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,"+");;
+       xstring(orig(1)+sz(1)*7/8,orig(2)+sz(2)*3/4,"-");;
+     else
+       xrects([orig(1)+sz(1)*1/3;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));
+       xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,"-");;
+       xstring(orig(1)+sz(1)*7/8,orig(2)+sz(2)*3/4,"+");;
+     end
+     txt="C= "+C;
+     style=2;
+     xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),"fill");
+  endfunction
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -46,25 +66,7 @@ function [x,y,typ]=Capacitor(job,arg1,arg2)
     model.out=ones(size(mo.outputs,'*'),1)
 
     exprs=string([C;v])
-    gr_i=['xset(''thickness'',2)'
-	  'xx=orig(1)+[0 1/3 1/3 1/3 ]*sz(1);';
-	  'yy=orig(2)+[1/2 1/2 1 0]*sz(2);';
-	  'xpoly(xx,yy);'
-	  'xsegs(orig(1)+ sz(1)*2/3*[1 1 1 3/2],orig(2)+(sz(2)*1/2)*[2 0 1 1],style=0);';
-	  'if orient then'
-	  '  xrects([orig(1)+sz(1)*1/2;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));'
-	  '  xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,''+'');';
-	  '  xstring(orig(1)+sz(1)*7/8,orig(2)+sz(2)*3/4,''-'');';
-	  'else'
-	  '  xrects([orig(1)+sz(1)*1/3;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));'
-	  '  xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,''-'');';
-	  '  xstring(orig(1)+sz(1)*7/8,orig(2)+sz(2)*3/4,''+'');';
-	  'end'
-	  'txt=''C= ''+C;'
-	  'style=2;'
-	  //'xrect(orig(1),orig(2),sz(1),sz(2));';
-	  'xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),''fill'')'];
-    
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([2 1.1],model,exprs,list(gr_i,0),'Capacitor');
     x.graphics.in_implicit=['I']
     x.graphics.out_implicit=['I']
