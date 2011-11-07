@@ -59,3 +59,6 @@ function scmenu_create_mask()
   // redraw the changed object.
   scs_m=update_redraw_obj(scs_m,list('objs',i),o);
 endfunction
+
+
+

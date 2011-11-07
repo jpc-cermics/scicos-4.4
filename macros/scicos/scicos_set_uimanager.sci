@@ -247,6 +247,11 @@ function scicos_set_uimanager(is_top)
   scicos_action_set_sensitivity(window,"scmenu_cut",%f)
   scicos_action_set_sensitivity(window,"scmenu_copy",%f)
   scicos_action_set_sensitivity(window,"scmenu_paste",%f)
+  // 
+  scicos_action_set_sensitivity(win,"scmenu_create_mask",%f);
+  scicos_action_set_sensitivity(win,"scmenu_remove_mask",%f);
+  scicos_action_set_sensitivity(win,"scmenu_customize_mask",%f);
+  scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
 endfunction
 
 function scicos_activate_action(action,args) 
@@ -483,8 +488,6 @@ function S=scicos_actions()
   
 endfunction
 
-
-
 function scicos_menus_select_set_sensitivity(selection,win) 
 // change menu sensitivity according to selection 
 // here we change cut and copy 
@@ -511,13 +514,30 @@ function scicos_menus_select_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_cut",%t);
     scicos_action_set_sensitivity(win,"scmenu_copy",%t);
     scicos_action_set_sensitivity(win,"scmenu_delete",%t);
-    if scs_m.objs(selection).type=='Block'
+    o= scs_m.objs(selection);
+    if o.type=='Block'
       scicos_action_set_sensitivity(win,"scmenu_block_menu",%t);
     else 
       scicos_action_set_sensitivity(win,"scmenu_block_menu",%f);
     end
+    tag=scicos_is_maskable(o);
+    scicos_action_set_sensitivity(win,"scmenu_create_mask",tag);
+    tag=scicos_is_masked(o);
+    scicos_action_set_sensitivity(win,"scmenu_remove_mask",tag);
+    scicos_action_set_sensitivity(win,"scmenu_customize_mask",tag);
+    scicos_action_set_sensitivity(win,"scmenu_save_block_gui",tag);
   end
 endfunction
+
+function y=scicos_is_maskable(o)
+  y=o.type == 'Block' && type(o.model.sim,'short')=='s' ...
+    &&  o.model.sim == 'super';
+endfunction
+
+function y=scicos_is_masked(o)
+  y=o.type == 'Block' && isequal(o.model.sim,'csuper') ...
+    && isequal(o.model.ipar,1);
+endfunction 
 
 function scicos_menus_paste_set_sensitivity(flag)
 // change paste sensitivity according to emptiness 
