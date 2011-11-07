@@ -252,6 +252,9 @@ function scicos_set_uimanager(is_top)
   scicos_action_set_sensitivity(win,"scmenu_remove_mask",%f);
   scicos_action_set_sensitivity(win,"scmenu_customize_mask",%f);
   scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
+  //
+  scicos_action_set_sensitivity(win,"scmenu_create_atomic",%f);
+  scicos_action_set_sensitivity(win,"scmenu_remove_atomic",%f);
 endfunction
 
 function scicos_activate_action(action,args) 
@@ -505,11 +508,26 @@ function scicos_menus_select_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_copy",%f);
     scicos_action_set_sensitivity(win,"scmenu_delete",%f);
     scicos_action_set_sensitivity(win,"scmenu_block_menu",%f);
+    // 
+    scicos_action_set_sensitivity(win,"scmenu_create_mask",%f);
+    scicos_action_set_sensitivity(win,"scmenu_remove_mask",%f);
+    scicos_action_set_sensitivity(win,"scmenu_customize_mask",%f);
+    scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
+    scicos_action_set_sensitivity(win,"scmenu_create_atomic",%f);
+    scicos_action_set_sensitivity(win,"scmenu_remove_atomic",%f);
+    //
   elseif  sel== 'Multi' then 
     scicos_action_set_sensitivity(win,"scmenu_cut",%t);
     scicos_action_set_sensitivity(win,"scmenu_copy",%t);
     scicos_action_set_sensitivity(win,"scmenu_delete",%t);
     scicos_action_set_sensitivity(win,"scmenu_block_menu",%f);
+    // 
+    scicos_action_set_sensitivity(win,"scmenu_create_mask",%f);
+    scicos_action_set_sensitivity(win,"scmenu_remove_mask",%f);
+    scicos_action_set_sensitivity(win,"scmenu_customize_mask",%f);
+    scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
+    scicos_action_set_sensitivity(win,"scmenu_create_atomic",%f);
+    scicos_action_set_sensitivity(win,"scmenu_remove_atomic",%f);
   else 
     scicos_action_set_sensitivity(win,"scmenu_cut",%t);
     scicos_action_set_sensitivity(win,"scmenu_copy",%t);
@@ -526,6 +544,10 @@ function scicos_menus_select_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_remove_mask",tag);
     scicos_action_set_sensitivity(win,"scmenu_customize_mask",tag);
     scicos_action_set_sensitivity(win,"scmenu_save_block_gui",tag);
+    tag= scicos_is_atomicable(o);
+    scicos_action_set_sensitivity(win,"scmenu_create_atomic",tag);
+    tag= scicos_is_atomic(o);
+    scicos_action_set_sensitivity(win,"scmenu_remove_atomic",tag);
   end
 endfunction
 
@@ -538,6 +560,16 @@ function y=scicos_is_masked(o)
   y=o.type == 'Block' && isequal(o.model.sim,'csuper') ...
     && isequal(o.model.ipar,1);
 endfunction 
+
+function y=scicos_is_atomicable(o)
+  y= o.type =='Block' && o.model.sim.equal['super'] && size(o.model.evtin,'*')<=1;
+endfunction
+
+function y=scicos_is_atomic(o)
+  y = o.type =='Block' && o.model.sim(1)=='asuper';
+endfunction
+
+
 
 function scicos_menus_paste_set_sensitivity(flag)
 // change paste sensitivity according to emptiness 

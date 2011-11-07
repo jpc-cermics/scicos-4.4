@@ -12,9 +12,9 @@ function scmenu_create_atomic()
   if size(Select,1)<>1 | curwin<>Select(1,2) then
     return
   end
-  i=Select(1)
+  i=Select(1);
   o=scs_m.objs(i)
-  if o.type =='Block' && o.model.sim=='super' then
+  if o.type =='Block' && o.model.sim.equal['super'] then
     if size(o.model.evtin,'*')>1 then
       message('Atomic Subsystem cannot have more than one activation port');
       return;
@@ -26,6 +26,7 @@ function scmenu_create_atomic()
     message('Create Atomic can only be applied to unmasked Super Blocks.');
   end
 endfunction
+
 
 function [o,needcompile,ok]=do_create_atomic(o,k,scs_m)
 // Replace o by an atomic block.
