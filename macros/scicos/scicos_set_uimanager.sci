@@ -388,20 +388,20 @@ function S=scicos_actions()
 // A set of actions 
 // ['action','name-in-menu', accelerator|"" , icon-name| "" ] 
   S=hash_create(10);
-  S.global =[ 'scmenu_about_scicos','About Scicos',"","";
+  S.global =[ 'scmenu_about_scicos','About Scicos',"","gtk-about";
 	      'scmenu_activate_scicoslab_window','Activate ScicosLab Window',"","";
-	      'scmenu_add_color','Add Color',"","";
+	      'scmenu_add_color','Add Color',"","gtk-select-color";
 	      'scmenu_add_new_block','Add new block',"","";
 	      'scmenu_align','Align',"","";
 	      'scmenu_analyze_diagram','Analyze Diagram',"","";
 	      'scmenu_available_parameters','Available Parameters',"","";
-	      'scmenu_background_color','Background Color',"","";
+	      'scmenu_background_color','Background Color',"","gtk-select-color";
 	      'scmenu_block_documentation','Block Documentation',"","";..
 	      'scmenu_browser','Browser',"","";
 	      'scmenu_calc','Calc',"","";
 	      'scmenu_check_smart_move','Smart Move',"","";
 	      'scmenu_code_generation','Code Generation',"","";
-	      'scmenu_color','Color',"","";
+	      'scmenu_color','Color',"","gtk-select-color";
 	      'scmenu_compile','Compile',"","gtk-execute";
 	      'scmenu_context','Context',"","";
 	      'scmenu_copy','Copy',"<Ctrl>c","gtk-copy";
@@ -410,9 +410,9 @@ function S=scicos_actions()
 	      'scmenu_customize_mask','Customize Mask',"","";
 	      'scmenu_cut','Cut',"<control>X","gtk-cut";
 	      'scmenu_debug_level','Debug Level',"","";
-	      'scmenu_default_link_colors','Default Link Colors',"","";
+	      'scmenu_default_link_colors','Default Link Colors',"","gtk-select-color";
 	      'scmenu_default_window_parameters','Default window parameters',"","gtk-zoom-100";
-	      'scmenu_delete','Delete',"Delete","";
+	      'scmenu_delete','Delete',"Delete","gtk-delete";
 	      'scmenu_demos','Demos',"","";
 	      'scmenu_details','Details',"","";
 	      'scmenu_duplicate','Duplicate',"","";
@@ -424,7 +424,7 @@ function S=scicos_actions()
 	      'scmenu_flip','Flip',"","";
 	      'scmenu_get_info','Get Info',"","";
 	      'scmenu_grid','Grid',"","";
-	      'scmenu_help','Help',"","";
+	      'scmenu_help','Help',"","gtk-help";
 	      'scmenu_icon','Icon',"","";
 	      'scmenu_icon_edit','Icon Editor',"","";
 	      'scmenu_icon_font_option','Icon Font Option',"","";
@@ -453,8 +453,8 @@ function S=scicos_actions()
 	      'scmenu_rotate_left','Rotate Left',"","";
 	      'scmenu_rotate_right','Rotate Right',"","";
 	      'scmenu_run','Run',"","gtk-media-play";
-	      'scmenu_save','Save',"","";
-	      'scmenu_save_as','Save As',"","";
+	      'scmenu_save','Save',"","gtk-save";
+	      'scmenu_save_as','Save As',"","gtk-save-as";
 	      'scmenu_save_as_interf_func','Save as Interf Func',"","";
 	      'scmenu_save_as_palette','Save as Palette',"","";
 	      'scmenu_save_block_gui','Save Block GUI',"","";

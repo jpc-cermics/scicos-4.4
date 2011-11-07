@@ -105,7 +105,14 @@ function scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver)
       return
     end
     fprint(F,scicos_ver,as_read=%t);
-    fprint(F,scs_m,as_read=%t);
+    if %t then 
+      fprint(F,scs_m,as_read=%t);
+    else
+      // A much more compact way to save 
+      txt=scicos_schema2smat(scs_m,name='scs_m',indent=4);
+      F.put_smatrix[txt];
+      F.put_smatrix[['scs_m=do_eval(scs_m)']];
+    end
     //fprint(F,%cpr,'as_read');
     F.close[];
   end

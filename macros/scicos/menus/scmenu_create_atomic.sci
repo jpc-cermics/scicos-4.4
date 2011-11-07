@@ -1,7 +1,6 @@
 function scmenu_create_atomic()
 // Copyright INRIA
   
-  
   if alreadyran then
     // make a do_terminate and restart Create Atomic 
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
