@@ -4,6 +4,20 @@ function [x,y,typ]=Resistor(job,arg1,arg2)
 //   -  sans entree ni sortie de conditionnement
 //   -  avec une entree et une sortie de type implicit et de dimension 1
 //   - avec un dialogue de saisie de parametre
+
+// xstring works badly when we rotate the block 
+// 'xstring(orig(1)+sz(1)/2,orig(2)-3*sz(2),txt,posx=''center'',posy=''up'',size=sf);'
+
+  function blk_draw(sz,orig,orient,label)
+
+    xx=[0,1,1,7,7,8,7,7,1,1]/8;
+    yy=[1,1,0,0,1,1,1,2,2,1]/2;
+    xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); 
+    txt="R= "+R;
+    style=2;
+    xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),"fill");
+  endfunction 
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -45,17 +59,7 @@ function [x,y,typ]=Resistor(job,arg1,arg2)
     model.in=ones(size(mo.inputs,'*'),1)
     model.out=ones(size(mo.outputs,'*'),1)
     exprs=string(R)
-
-    // xstring works badly when we rotate the block 
-    // 'xstring(orig(1)+sz(1)/2,orig(2)-3*sz(2),txt,posx=''center'',posy=''up'',size=sf);'
-
-    gr_i=['xx=[0,1,1,7,7,8,7,7,1,1]/8;';
-	  'yy=[1,1,0,0,1,1,1,2,2,1]/2;';
-	  'xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); '
-	  'txt=''R= ''+R;'
-	  'style=2;'
-	  'xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),''fill'')' ];
-    
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([2 0.18],model,exprs,list(gr_i,0),'Resistor');
     x.graphics.in_implicit=['I']
     x.graphics.out_implicit=['I']

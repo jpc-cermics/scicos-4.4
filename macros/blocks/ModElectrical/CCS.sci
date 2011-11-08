@@ -194,8 +194,8 @@ function [x,y,typ]=CCS(job,arg1,arg2)
     end
     
   endfunction
-   
-   
+  
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then

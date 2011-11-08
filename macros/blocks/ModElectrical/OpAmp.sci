@@ -4,15 +4,15 @@ function [x,y,typ]=OpAmp(job,arg1,arg2)
     if ~exists('%zoom') then %zoom=1;end
     fz= 2*%zoom*4;
     if orient then;
-      xx=orig(1)+[30,28,08,08,00,08,08,00,08,08,28,28]*(sz(1)/32);;
-      yy=orig(2)+[35,35,12,24,24,24,48,48,48,60,35,35]*(sz(2)/70);;
-      xstring(xx(4)+(sz(1)/32),yy(4),"-",posy="center",size=fz);;
-      xstring(xx(7)+(sz(1)/32),yy(7),"+",posy="center",size=fz);;
+      xx=orig(1)+[30,28,08,08,00,08,08,00,08,08,28,28]*(sz(1)/32);
+      yy=orig(2)+[35,35,12,24,24,24,48,48,48,60,35,35]*(sz(2)/70);
+      xstring(xx(4)+(sz(1)/32),yy(4),"-",posy="center",size=fz);
+      xstring(xx(7)+(sz(1)/32),yy(7),"+",posy="center",size=fz);
     else;
-      xx=orig(1)+[02,04,24,24,32,24,24,32,24,24,04,04]*(sz(1)/32);;
-      yy=orig(2)+[35,35,12,24,24,24,48,48,48,60,35,35]*(sz(2)/70);;
-      xstring(xx(4)-(sz(1)/32),yy(4),"-",posx="right",posy="center",size=fz);;
-      xstring(xx(7)-(sz(1)/32),yy(7),"+",posx="right",posy="center",size=fz);;
+      xx=orig(1)+[02,04,24,24,32,24,24,32,24,24,04,04]*(sz(1)/32);
+      yy=orig(2)+[35,35,12,24,24,24,48,48,48,60,35,35]*(sz(2)/70);
+      xstring(xx(4)-(sz(1)/32),yy(4),"-",posx="right",posy="center",size=fz);
+      xstring(xx(7)-(sz(1)/32),yy(7),"+",posx="right",posy="center",size=fz);
     end;
     xpoly(xx,yy,thickness=1);
     xstring(orig(1)+sz(1)/2,orig(2),"Op",posx="center",posy="bottom",size=fz);
