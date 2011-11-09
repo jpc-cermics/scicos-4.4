@@ -4,6 +4,7 @@ function [x,y,typ]=Bache(job,arg1,arg2)
   function blk_draw(sz,orig,orient,label)
     xrects([orig(1);orig(2)+6*sz(2)/10;sz(1);6*sz(2)/10],scs_color(15));
     xpoly(orig(1)+[0;0;10;10;0;0;10]*sz(1)/10,orig(2)+[6;0;0;10;10;6;6]*sz(2)/10);
+    //xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=9);
   endfunction
   
   function [x,y,typ]=bache_inputs(o)

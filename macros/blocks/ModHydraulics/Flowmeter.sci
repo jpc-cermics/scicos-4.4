@@ -4,18 +4,77 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
 //   - avec un dialogue de saisie de parametre
 
   function blk_draw(sz,orig,orient,label)
+    g=scs_color(15);
+    xfarcs([orig(1)+ .2*sz(1); orig(2)+1*sz(2); .6*sz(1); .6*sz(2);0;23040],15);
+    xarcs([orig(1)+ .2*sz(1); orig(2)+1*sz(2); .6*sz(1); .6*sz(2);0;23040],1);
+    xpolys(orig(1)+[ .5, .01; .5,1.01]*sz(1),orig(2)+[ .4, .1; .1,.1]*sz(2),[1,1],thickness=2)  
     if orient then  
-      xfarcs([orig(1)+ .2*sz(1); orig(2)+1*sz(2); .6*sz(1); .6*sz(2);0;23040],15);
-      xpolys(orig(1)+[ .5, .01; .5,1.01]*sz(1),orig(2)+[ .4, .1; .1,.1]*sz(2),[1,1])  
-      xstring(orig(1)+ .01*sz(1),orig(2)+ .84*sz(2),"Q")
+      xstring(orig(1)+0.01*sz(1),orig(2)+0.84*sz(2),"Q")
     else  
-      xfarcs([orig(1)+ .2*sz(1); orig(2)+1*sz(2); .6*sz(1); .6*sz(2);0;23040],15)
-      xpolys(orig(1)+[ .5, .99; .5, .01]*sz(1),orig(2)+[ .4, .1; .1,.1]*sz(2),[1,1])  
-      xstring(orig(1)+sz(1)-( .01*sz(1)),orig(2)+ .84*sz(2),"Q")
+      xstring(orig(1)+sz(1)-(0.01*sz(1)),orig(2)+0.84*sz(2),"Q")
     end;
+    //xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=9);
+  endfunction
+      
+  function [x,y,typ]=Flowmeter_inputs(o)
+    xf=60; yf=40; dx=xf/7; dy=yf/7;
+    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+    if orient then
+      x1=orig(1) -dx;
+    else
+      x1=orig(1)+sz(1)+dx 
+    end
+    y=[orig(2)+0.1*sz(2)];
+    x=[x1];
+    typ=[2]
+  endfunction
+  
+  function [x,y,typ]=Flowmeter_outputs(o)
+  // Copyright INRIA
+    xf=60;yf=40;  dx=xf/7; dy=yf/7;
+    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+    if orient then
+      x2=orig(1)+sz(1)+dx;
+    else
+      x2=orig(1)-dx;
+    end
+    y=[orig(2)+0.1*sz(2),orig(2)+dy+sz(2)]
+    x=[x2,orig(1)+sz(1)/2]
+    typ=[2 1]
   endfunction
   
   function Flowmeter_draw_ports(o)
+    xf=60;yf=40;dx=xf/7; dy=yf/7;
+    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+    nin=size(o.model.in,1);
+    inporttype=o.graphics.in_implicit
+    nout=size(o.model.out,1);
+    outporttype=o.graphics.out_implicit
+    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+    // port orientation 2 in and one out 
+    if orient then 
+      select_face_out=[2,0]; select_face_in=[3];
+      xdelta_out=-[dx,0]; xdelta_in=[dx];ydelta_out=[0,-dy];
+    else 
+      select_face_out=[3,0]; select_face_in=[2];
+      xdelta_out=[dx,0]; xdelta_in=[-dx];ydelta_out=[0,-dy];
+    end
+    [x,y,typ]=Flowmeter_outputs(o)
+    //standard orientation or tilded orientation
+    // select the shape to use square or triangle.
+    port_type=[4,1];// implicit out and one standard  
+    for k=1:nout
+      scicos_lock_draw([x(k)+xdelta_out(k),y(k)+ydelta_out(k)],xf,yf,select_face_out(k),port_type(k));
+    end
+    [x,y,typ]=Flowmeter_inputs(o);
+    port_type=[5]// one implicit
+    for k=1:nin
+      scicos_lock_draw([x(k)+xdelta_in(k),y(k)],xf,yf,select_face_in(k),port_type(k));
+    end
+  endfunction 
+  
+  
+  function Flowmeter_draw_ports_old(o)
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
     xset('pattern',default_color(0))
     // draw input/output ports
@@ -88,7 +147,7 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
 
   
   
-  function [x,y,typ]=Flowmeter_inputs(o)
+  function [x,y,typ]=Flowmeter_inputs_old(o)
   // input port positions
     xf=60
     yf=40
@@ -143,7 +202,7 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
 
   
   //=========================
-  function [x,y,typ]=Flowmeter_outputs(o)
+  function [x,y,typ]=Flowmeter_outputs_old(o)
   // Copyright INRIA
     xf=60
     yf=40
