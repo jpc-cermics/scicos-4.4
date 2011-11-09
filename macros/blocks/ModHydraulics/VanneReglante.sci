@@ -12,62 +12,36 @@ function [x,y,typ]=VanneReglante(job,arg1,arg2)
   endfunction 
 
   function [x,y,typ]=vanne_inputs(o)
-  // Copyright INRIA
-    xf=60
-    yf=40
+    xf=60; yf=40; dx=xf/7; dy=yf/7;
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    //[orig,sz,orient]=o(2)(1:3);
-    inp=size(o.model.in,1);clkinp=size(o.model.evtin,1);
-
     if orient then
-      x1=orig(1)
-      dx1=-xf/7
-      x2=orig(1)+sz(1)
-      dx2=xf/7
+      x1=orig(1) -dx;
     else
-      x1=orig(1)+sz(1)
-      dx1=yf/7
-      x2=orig(1)
-      dx2=-xf/7
+      x1=orig(1)+sz(1)+dx 
     end
-
-    //y=[orig(2)+sz(2)-(sz(2)/2) ,orig(2)+yf/7+sz(2)]
-    y=[orig(2)+2*sz(2)/10 ,orig(2)+yf/7+sz(2)]
-    x=[(x1+dx1)  orig(1)+sz(1)/2]
+    y=[orig(2)+2*sz(2)/10,orig(2)+dy+sz(2)]
+    x=[x1,orig(1)+sz(1)/2]
     typ=[2 1]
-
   endfunction
 
   function [x,y,typ]=vanne_outputs(o)
   // Copyright INRIA
-    xf=60
-    yf=40
+    xf=60;yf=40;  dx=xf/7; dy=yf/7;
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    //[orig,sz,orient]=o(2)(1:3);
-    out=size(o.model.out,1);clkout=size(o.model.evtout,1);
     if orient then
-      x1=orig(1)
-      dx1=-xf/7
-      x2=orig(1)+sz(1)
-      dx2=xf/7
+      x2=orig(1)+sz(1) + dx;
     else
-      x1=orig(1)+sz(1)
-      dx1=yf/7
-      x2=orig(1)
-      dx2=-xf/7
+      x2=orig(1)-dx;
     end
-
     y=[orig(2)+2*sz(2)/10]
-    x=[(x2+dx2) ]
+    x=[x2]
     typ=[2]
-
   endfunction
+  
   function vanne_draw_ports(o)
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
     xset('pattern',default_color(0))
     // draw input/output ports
-    //------------------------
-
     if orient then  //standard orientation
       // set port shape
       out2=[ 0  -1
@@ -79,20 +53,13 @@ function [x,y,typ]=VanneReglante(job,arg1,arg2)
 	    0  -1
 	    0   1
 	    -1   1]*diag([xf/7,yf/14])
-      //dy=sz(2)/2
       xset('pattern',default_color(1))
-      //xpoly(out2(:,1)+(orig(1)+sz(1)),..
-      //  out2(:,2)+(orig(2)+sz(2)-dy),type="lines",close=%t)
       xpoly(out2(:,1)+(orig(1)+sz(1)),..
 	    out2(:,2)+(orig(2)+2*sz(2)/10),type="lines",close=%t)
-
-      //dy=sz(2)/2
-      //xfpoly(in2(:,1)+orig(1),..
-      //   in2(:,2)+(orig(2)+sz(2)-dy),1)
-      
       xfpoly(in2(:,1)+orig(1),..
 	     in2(:,2)+(orig(2)+2*sz(2)/10),1)	
-    else //tilded orientation
+    else 
+      //tilded orientation
       out2=[0  -1
 	    -1  -1
 	    -1   1
@@ -102,42 +69,56 @@ function [x,y,typ]=VanneReglante(job,arg1,arg2)
 	    0  -1
 	    0   1
 	    1   1]*diag([xf/7,yf/14])
-
-      
-      //dy=sz(2)/2
       xset('pattern',default_color(1))
-      //xpoly(out2(:,1)+ones(4,1)*orig(1)-1,..
-      //    out2(:,2)+ones(4,1)*(orig(2)+sz(2)-dy),type="lines",close=%t)  
-      //dy=sz(2)/2
-      //xfpoly(in2(:,1)+ones(4,1)*(orig(1)+sz(1))+1,..
-      //     in2(:,2)+ones(4,1)*(orig(2)+sz(2)-dy),1) 
       xpoly(out2(:,1)+ones(4,1)*orig(1)-1,..
 	    out2(:,2)+ones(4,1)*(orig(2)+2*sz(2)/10),type="lines",close=%t)  
-      dy=sz(2)/2
       xfpoly(in2(:,1)+ones(4,1)*(orig(1)+sz(1))+1,..
 	     in2(:,2)+ones(4,1)*(orig(2)+2*sz(2)/10),1) 
     end
     // valve command port port
     //------------------------
     // set port shape
-
-
-
     in= [-1  1
 	 0  0
 	 1  1
 	 -1  1]*diag([xf/14,yf/7])
-
-
-
     dx=sz(1)/2
-
     xfpoly(in(:,1)+ones(4,1)*(orig(1)+dx),..
 	   in(:,2)+ones(4,1)*(orig(2)+sz(2)),1)
-
+    
+    if %f then 
+      nin=size(o.model.in,1);
+      inporttype=o.graphics.in_implicit
+      nout=size(o.model.out,1);
+      outporttype=o.graphics.out_implicit
+      [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+      // drawing the ports 
+      select_face=[3,2];
+      select_face_out=select_face(orient+1);
+      select_face_in=select_face((~orient)+1);
+      [x,y,typ]=vanne_outputs(o)
+      //standard orientation or tilded orientation
+      // select the shape to use. 
+      outtype=ones_new(1,nout);
+      if ~isempty(outporttype) then  outtype( outporttype == 'I')=4;end
+      delta = [xf/7,-xf/7];
+      delta = delta(b2m(orient)+1);
+      for k=1:nout
+	if ~isempty(outporttype) && outporttype(k)=='B' then xset('pattern',default_color(3));end;
+	scicos_lock_draw([x(k)+delta,y(k)],xf,yf,select_face_out,outtype(k));
+	xset('pattern',default_color(1));
+      end
+      [x,y,typ]=vanne_inputs(o)
+      outtype= 0*ones_new(1,nin);
+      if ~isempty(inporttype) then  outtype( inporttype == 'I')=5;end 
+      for k=1:nin
+	if ~isempty(inporttype) && inporttype(k)=='B' then xset('pattern',default_color(3));end;
+	scicos_lock_draw([x(k)-delta,y(k)],xf,yf,select_face_in,outtype(k));
+	xset('pattern',default_color(1))
+      end
+    end
   endfunction 
-
-  
+    
   x=[];y=[];typ=[];
 
   select job

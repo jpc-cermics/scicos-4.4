@@ -5,10 +5,8 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
 
   function blk_draw(sz,orig,orient,label)
     if orient then  
-      xfarcs([orig(1)+ .2*sz(1); orig(2)+1*sz(2); .6*sz(1); .6*sz(2);0; ...
-	      23040],15);
-      xpolys(orig(1)+[ .5, .01; .5,1.01]*sz(1),orig(2)+[ .4, .1; .1, ...
-		    .1]*sz(2),[1,1])  
+      xfarcs([orig(1)+ .2*sz(1); orig(2)+1*sz(2); .6*sz(1); .6*sz(2);0;23040],15);
+      xpolys(orig(1)+[ .5, .01; .5,1.01]*sz(1),orig(2)+[ .4, .1; .1,.1]*sz(2),[1,1])  
       xstring(orig(1)+ .01*sz(1),orig(2)+ .84*sz(2),"Q")
     else  
       xfarcs([orig(1)+ .2*sz(1); orig(2)+1*sz(2); .6*sz(1); .6*sz(2);0;23040],15)
@@ -17,7 +15,7 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
     end;
   endfunction
   
-  function CapteurD_draw_ports(o)
+  function Flowmeter_draw_ports(o)
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
     xset('pattern',default_color(0))
     // draw input/output ports
@@ -88,8 +86,10 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
     end
   endfunction 
 
-  function [x,y,typ]=CapteurD_inputs(o)
-  // Copyright INRIA
+  
+  
+  function [x,y,typ]=Flowmeter_inputs(o)
+  // input port positions
     xf=60
     yf=40
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
@@ -139,11 +139,11 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
 	end
       end            
     end
-    
-    
   endfunction
+
+  
   //=========================
-  function [x,y,typ]=CapteurD_outputs(o)
+  function [x,y,typ]=Flowmeter_outputs(o)
   // Copyright INRIA
     xf=60
     yf=40
@@ -197,11 +197,11 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
   x=[];y=[];typ=[];
   select job
    case 'plot' then
-    standard_draw(arg1,%f,CapteurD_draw_ports)
+    standard_draw(arg1,%f,Flowmeter_draw_ports)
    case 'getinputs' then
-    [x,y,typ]=CapteurD_inputs(arg1)
+    [x,y,typ]=Flowmeter_inputs(arg1)
    case 'getoutputs' then
-    [x,y,typ]=CapteurD_outputs(arg1)
+    [x,y,typ]=Flowmeter_outputs(arg1)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then

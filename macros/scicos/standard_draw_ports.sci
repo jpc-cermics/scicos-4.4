@@ -21,7 +21,7 @@ function standard_draw_ports(o)
   xset('pattern',default_color(1))
   // select the shape to use. 
   outtype=ones_new(1,nout);
-  if ~isempty(outporttype) then  outtype( outporttype == 'I')=5;end 
+  if ~isempty(outporttype) then  outtype( outporttype == 'I')=4;end 
   for k=1:nout
     if ~isempty(outporttype) && outporttype(k)=='B' then xset('pattern',default_color(3));end;
     scicos_lock_draw([xpos_out,orig(2)+sz(2)-dy*k],xf,yf,select_face_out,outtype(k));
@@ -29,7 +29,7 @@ function standard_draw_ports(o)
   end
   dy=sz(2)/(nin+1)
   outtype= 0*ones_new(1,nin);
-  if ~isempty(inporttype) then  outtype( inporttype == 'I')=4;end 
+  if ~isempty(inporttype) then  outtype( inporttype == 'I')=5;end 
   for k=1:nin
     if ~isempty(inporttype) && inporttype(k)=='B' then xset('pattern',default_color(3));end;
     scicos_lock_draw([xpos_in,orig(2)+sz(2)-dy*k],xf,yf,select_face_in,outtype(k));
