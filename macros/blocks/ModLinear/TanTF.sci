@@ -4,30 +4,12 @@ function [x,y,typ]=TanTF(job,arg1,arg2)
 //   - avec un dialogue de saisie de parametre
 
   function blk_draw(sz,orig,orient,label)
-    xpolys(orig(1)+[0.5,0.05;0.5,0.91]*sz(1),orig(2)+[0.89,0.5;0.05,0.5]*sz(2),[3,3]);
-    xpolys(orig(1)+[1;1;0;0;1]*sz(1),orig(2)+[1;0;0;1;1]*sz(2),3);
-    txt="tan";
-    rectstr=stringbox(txt,orig(1),orig(2),0,1,1);
-    if ~exists("%zoom") then %zoom=1, end;
-    w=(rectstr(1,3)-rectstr(1,2))*%zoom*0.5;
-    h=(rectstr(2,2)-rectstr(2,4))*%zoom;
-    if orient then;
-      xstringb(orig(1)+0.05*sz(1),orig(2)+0.6*sz(2),txt,w,h,"fill");
-      // curve 
-      xpoly(orig(1)+[0.1;0.108;0.116;0.128;0.144;0.1645;0.1965;0.2445;0.321;0.4779;0.667;0.747;0.7955;0.8275;0.852;0.868;0.88;0.888;0.9]*sz(1),...
-	    orig(2)+[0.1;0.158;0.2015;0.25;0.2955;0.335;0.376;0.414;0.4501;0.49465;0.5456;0.581;0.616;0.653;0.6955;0.737;0.7805;0.819;0.9]*sz(2),...
-	    color=5,thickness=1);
-      a=0.4;
-      xfpolys(orig(1)+[0.1+a,0.97;0.06+a,0.86;0.14+a,0.86;0.1+a,0.97]*sz(1),orig(2)+[0.97,0.1+a;0.86,0.14+a;0.86,0.06+a;0.97,0.1+a]*sz(2),[32,32]);
-    else;
-      xstringb(orig(1)+0.55*sz(1),orig(2)+0.6*sz(2),txt,w,h,"fill");
-      // curve 
-      xpoly(orig(1)+[0.9;0.892;0.884;0.872;0.856;0.8355;0.8035;0.7555;0.679;0.5221;0.333;0.253;0.2045;0.1725;0.148;0.132;0.12;0.112;0.1]*sz(1),...
-	    orig(2)+[0.1;0.158;0.2015;0.25;0.2955;0.335;0.376;0.414;0.4501;0.49465;0.5456;0.581;0.616;0.653;0.6955;0.737;0.7805;0.819;0.9]*sz(2),...
-	    color=5,thickness=1);
-      a=0.4;
-      xfpolys(orig(1)+[0.9-a,0.03;0.94-a,0.14;0.86-a,0.14;0.9-a,0.03]*sz(1),orig(2)+[0.97,0.1+a;0.86,0.14+a;0.86,0.06+a;0.97,0.1+a]*sz(2),[32,32]);
-    end
+    scicos_blk_draw_axes(sz,orig,orient,ipos=2,jpos=2,acol=13,fcol=13);
+    x=linspace(-%pi/2+0.1,%pi/2-0.1,20); y=tan(x);
+    scicos_blk_draw_curv(x=x,y=y,color=5)
+    fz=1.5*acquire("%zoom",def=1)*4;
+    xstring(orig(1)+sz(1)/2,orig(2)+sz(2),"tan",...
+	    posx="center",posy="bottom",size=fz);
   endfunction
   
   x=[];y=[];typ=[];
