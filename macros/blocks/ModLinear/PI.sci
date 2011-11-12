@@ -62,7 +62,6 @@ function [x,y,typ]=PI(job,arg1,arg2)
     model.rpar=PrametersValue;
     mo.parameters=list(ParametersName,PrametersValue,zeros_deprecated(ParametersName));
     exprs=["1";"1"]
-    gr_i=["";"if orient then";"  xpolys(orig(1)+[0.1,0.05;0.1,0.91]*sz(1),orig(2)+[0.89,0.1;0.05,0.1]*sz(2),[3,3])";"  xset(''thickness'',2);";"  xpolys(orig(1)+[0.1;0.1;0.8]*sz(1),orig(2)+[0.1;0.4;0.9]*sz(2),1)";"  xset(''color'',12);";"  xstring(orig(1)+0.47*sz(1),orig(2)+0.43*sz(2),""PI"")";"  xset(''color'',2)";"  xfpolys(orig(1)+[0.1,0.97;0.06,0.86;0.14,0.86;0.1,0.97]*sz(1),orig(2)+[0.97,0.1;0.86,0.14;0.86,0.06;0.97,0.1]*sz(2),[1,1])";"  xset(''thickness'',1);";"  xpolys(orig(1)+[0;0;1;1;0]*sz(1),orig(2)+[1;0;0;1;1]*sz(2),3)";"else";"  xpolys(orig(1)+[0.9,0.95;0.9,0.09]*sz(1),orig(2)+[0.89,0.1;0.05,0.1]*sz(2),[3,3])";"  xset(''thickness'',2);";"  xpolys(orig(1)+[0.9;0.9;0.2]*sz(1),orig(2)+[0.1;0.4;0.9]*sz(2),1)";"  xset(''color'',12);";"  xstring(orig(1)+sz(1)-(0.47*sz(1)),orig(2)+0.43*sz(2),""PI"")";"  xset(''color'',2)";"  xfpolys(orig(1)+[0.9,0.03;0.94,0.14;0.86,0.14;0.9,0.03]*sz(1),orig(2)+[0.97,0.1;0.86,0.14;0.86,0.06;0.97,0.1]*sz(2),[1,1])";"  xset(''thickness'',1);";"  xpolys(orig(1)+[1;1;0;0;1]*sz(1),orig(2)+[1;0;0;1;1]*sz(2),3)";"end"]
     model.blocktype='c'                              
     model.dep_ut=[%f %t]                               
     mo.model=ModelName                                 
