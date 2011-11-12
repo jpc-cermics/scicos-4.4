@@ -1,5 +1,5 @@
 
-Files=glob('El*/*.sci');
+Files=glob('*/*.sci');
 
 bugs=m2s([]);
 

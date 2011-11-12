@@ -24,10 +24,7 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
       coli=gr_i(2);
       if ~isempty(coli) then
 	xfpolys(xx',yy',coli);
-	pcoli=xget('pattern');xset('pattern',coli)
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
-	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
-	xset('pattern',pcoli);
       else
 	xpoly(xx,yy,type='lines',color=default_color(0));
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
