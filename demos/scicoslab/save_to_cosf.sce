@@ -16,5 +16,5 @@ function save_to_nsp(fname)
   if ok then scs_m=sc;end
   [%cpr,ok]=do_compile(scs_m);
   fname1 = file('tail',fname);
-  scicos_save_in_file(scs_m,%cpr,fname1,scs_m.version);
+  scicos_save_in_file(fname1,scs_m,%cpr,scs_m.version);
 endfunction
