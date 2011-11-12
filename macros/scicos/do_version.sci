@@ -1562,3 +1562,27 @@ function [scicos_ver]=find_scicos_version(scs_m)
   end
 endfunction
 
+function scs_m=do_upgrade_gri(scs_m)
+// regenerate the gr_i of the blocks using
+// blocks definition;
+  for i=1:size(scs_m.objs)
+    o= scs_m.objs(i);
+    if o.type =='Block' then
+      if o.iskey['gui'] then 
+	execstr( 'obj='+o.gui+'(''define'')');
+	ngri=obj.graphics.gr_i(1);
+	if type(ngri,'short')=='l' then ngri=ngri(1);end
+	if type(o.graphics.gr_i,'short')=='l' then 
+	  o.graphics.gr_i(1) = obj.graphics.gr_i(1);
+	else 
+	  o.graphics.gr_i = obj.graphics.gr_i;
+	end
+      end
+      omod=o.model;
+      if o.model.sim.equal['super'] | o.model.sim.equal['csuper'] then
+	o.model.rpar=do_upgrade_gri(o.model.rpar)
+      end
+      scs_m.objs(i)=o;
+    end
+  end
+endfunction

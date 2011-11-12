@@ -311,7 +311,7 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
   // main code 
   //format("long");
   txt1=scicos_obj2smat(obj,name=name,tag=tag,indent=indent);
-  format();
+  //format();
   // second path to remove extra \n
   txt2=m2s([]);
   i = 1;

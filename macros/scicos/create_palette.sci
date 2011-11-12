@@ -88,7 +88,7 @@ function [routines]=build_palette(lisf,path,fname)
     scs_m.objs($+1)=blk;
   end
   // save in file 
-  scs_m=scicos_save_in_file(scs_m,list(),fname,scicos_ver);
+  scs_m=scicos_save_in_file(fname,scs_m,list(),scicos_ver);
 endfunction
 
 function lisf=scicos_get_palette_content(txt)

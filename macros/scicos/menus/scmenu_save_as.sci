@@ -56,7 +56,7 @@ function [scs_m,edited]=do_SaveAs()
     %cpr=list()
   end
   scs_m_rec=scs_m
-  scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver);
+  scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver);
   scs_m_rec.props=scs_m.props
   scs_m=scs_m_rec
   clear scs_m_rec
@@ -69,8 +69,10 @@ function [scs_m,edited]=do_SaveAs()
   end
 endfunction
 
-function scs_m=scicos_save_in_file(scs_m,%cpr,fname,scicos_ver)
+function scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
 // open the selected file
+  if nargin <= 2 then %cpr=list();end
+  if nargin <= 3 then scicos_ver=get_scicos_version();end 
   [path,name,ext]=splitfilepath(fname)
   scs_m = scs_m;
   scs_m.props.title=[name,path]; // Change the title
