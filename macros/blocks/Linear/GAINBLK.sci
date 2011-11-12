@@ -36,60 +36,6 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     hf=(1/3);
     //xrect(orig(1),orig(2)+sz(2)*(1-hf)/2+sz(2)*hf,w,hf*sz(2));
     xstringb(orig(1),orig(2)+sz(2)*(1-hf)/2,gain,w,hf*sz(2),'fill');
-    xf=60
-    yf=40
-    nin=1;nout=1
-    if orient then  //standard orientation
-      // set port shape
-      out=[0  -1/14
-	   1/7 0
-	   0   1/14
-	   0  -1/14]*diag([xf,yf])
-      in= [-1/7  -1/14
-	   0    0
-	   -1/7   1/14
-	   -1/7  -1/14]*diag([xf,yf])
-      dy=sz(2)/(nout+1)
-      xset('pattern',default_color(1))
-      for k=1:nout
-	xfpoly(out(:,1)+ones(4,1)*(orig(1)+sz(1)),..
-	       out(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-      dy=sz(2)/(nin+1)
-      for k=1:nin
-	xfpoly(in(:,1)+ones(4,1)*orig(1),..
-	       in(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-    else //tilded orientation
-      out=[0  -1/14
-	   -1/7 0
-	   0   1/14
-	   0  -1/14]*diag([xf,yf])
-      in= [1/7  -1/14
-	   0    0
-	   1/7   1/14
-	   1/7  -1/14]*diag([xf,yf])
-      dy=sz(2)/(nout+1)
-      xset('pattern',default_color(1))
-      for k=1:nout
-	xfpoly(out(:,1)+ones(4,1)*orig(1)-1,..
-	       out(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-      dy=sz(2)/(nin+1)
-      for k=1:nin
-	xfpoly(in(:,1)+ones(4,1)*(orig(1)+sz(1))+1,..
-	       in(:,2)+ones(4,1)*(orig(2)+sz(2)-dy*k),1)
-      end
-    end
-    xset('pattern',pat)
-    //** ------- Identification ---------------------------
-    ident = o.graphics.id
-    // draw Identification
-    if ~isempty(ident) & ident <> ''  then
-      if ~exists('%zoom') then %zoom=1, end
-      fz=2*%zoom*4
-      xstring(orig(1)+sz(1)/2,orig(2),ident,posx='center',posy='up',size=fz);
-    end
   endfunction 
   
   x=[];y=[];typ=[];

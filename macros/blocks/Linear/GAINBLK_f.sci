@@ -5,7 +5,11 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
     orig=arg1.graphics.orig;
     sz=arg1.graphics.sz;
     orient=arg1.graphics.flip;
-    gain=arg1.graphics.exprs;
+    if length(arg1.graphics.exprs(1))>6 then
+      gain=part(arg1.graphics.exprs(1),1:4)+'..'
+    else 
+      gain=arg1.graphics.exprs(1);
+    end
     if orient then
       xx=orig(1)+[0 1 0 0]*sz(1);
       yy=orig(2)+[0 1/2 1 0]*sz(2);
@@ -23,6 +27,7 @@ function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
 	pcoli=xget('pattern');xset('pattern',coli)
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
+	xset('pattern',pcoli);
       else
 	xpoly(xx,yy,type='lines',color=default_color(0));
 	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
