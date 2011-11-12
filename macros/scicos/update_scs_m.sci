@@ -43,3 +43,4 @@ function nobj = update_scs_m(obj)
     nobj=obj;
   end
 endfunction;
+
