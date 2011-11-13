@@ -536,10 +536,10 @@ H__0=hash_create(17);
            H__5('opt')=
            [   1 ]
            H__5('replace')= []
-           H__5('cblock')=
-           [   0 ]
            H__5('mlist')=
            [  %t ]
+           H__5('cblock')=
+           [   0 ]
            H__5('rpat')= []
            H__5('libs')= []
            H__5('scopes')= []
@@ -894,8 +894,8 @@ H__0=hash_create(17);
          [ "chaos" ]
          H__4('outtype')=
          [ "[''E'';''E'']" ]
-         H__4('in')=
-         [ "[''eps'';''gamma'']" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('pprop')=
          [ "" ]
          H__4('funtxt')=
@@ -906,8 +906,8 @@ H__0=hash_create(17);
            "der(x)=y;";
            "der(y)=x-x^3-eps*y+gamma*cos(time);";
            "end chaos;" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('in')=
+         [ "[''eps'';''gamma'']" ]
         H__3('exprs')=H__4;
        L__4=list();
         L__4(1)=

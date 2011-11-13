@@ -543,15 +543,15 @@ H__0=hash_create(17);
            [   1 ]
            H__5('remove')= []
            H__5('replace')= []
-           H__5('mlist')=
-           [  %t ]
+           H__5('cblock')=
+           [   0 ]
            H__5('rpat')= []
            H__5('scopes')= []
            H__5('libs')= []
            H__5('silent')=
            [   0 ]
-           H__5('cblock')=
-           [   0 ]
+           H__5('mlist')=
+           [  %t ]
           H__4('codegen')=H__5;
          H__4('version')=
          [ "scicos4.4" ]
@@ -721,8 +721,8 @@ H__0=hash_create(17);
          [ "Bounce" ]
          H__4('outtype')=
          [ "[''E'';''E'']" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('in')=
+         [ "" ]
          H__4('pprop')=
          [ "[0;0]" ]
          H__4('funtxt')=
@@ -737,8 +737,8 @@ H__0=hash_create(17);
            "reinit(v,-k*v);";
            "end when;";
            "end Bounce;" ]
-         H__4('in')=
-         [ "" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('exprs')=H__4;
        L__4=list();
         L__4(1)=

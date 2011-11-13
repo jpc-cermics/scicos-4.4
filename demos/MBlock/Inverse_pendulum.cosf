@@ -1714,8 +1714,8 @@ H__0=hash_create(17);
        H__4=hash_create(23);
          H__4('type')=
          [ "MBLOCK" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('in')=
+         [ "''u''" ]
          H__4('intype')=
          [ "''E''" ]
          H__4('out')=
@@ -1743,8 +1743,8 @@ H__0=hash_create(17);
           H__4('paramv')=L__5;
          H__4('nameF')=
          [ "Pendulum" ]
-         H__4('in')=
-         [ "''u''" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('pprop')=
          [ "[0;0;0;0;1;1]" ]
          H__4('funtxt')=

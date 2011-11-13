@@ -691,8 +691,8 @@ H__0=hash_create(17);
        H__4=hash_create(23);
          H__4('type')=
          [ "MBLOCK" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('in')=
+         [ "" ]
          H__4('intype')=
          [ "" ]
          H__4('out')=
@@ -703,8 +703,8 @@ H__0=hash_create(17);
           H__4('paramv')=L__5;
          H__4('nameF')=
          [ "Ball_Platform" ]
-         H__4('in')=
-         [ "" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('pprop')=
          [ "" ]
          H__4('funtxt')=
