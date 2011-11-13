@@ -1,4 +1,4 @@
-version=
+scicos_ver=
 [ "scicos4.4" ]
 H__0=hash_create(17);
   H__1=hash_create(23);
@@ -41,7 +41,8 @@ H__0=hash_create(17);
     H__1('void2')= []
     H__1('void3')= []
     H__1('wpar')=
-    [      4.8157,    -27.2793,    669.7623,    464.7466,    889.0000,    500.0000,    132.0000,     16.0000,    725.0000,    561.0000,    447.0000,    164.0000 ,...
+    [      4.8157,    -27.2793,    669.7623,    464.7466,    889.0000,    500.0000 ,...
+     132.0000,     16.0000,    725.0000,    561.0000,    447.0000,    164.0000 ,...
        1.4000,    707.0000,    497.0000 ]
     H__1('context')=
     [ "L=.0001;" ]
@@ -66,23 +67,7 @@ H__0=hash_create(17);
          "0" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',2)";
-          "xx=orig(1)+[0 1/3 1/3 1/3 ]*sz(1);";
-          "yy=orig(2)+[1/2 1/2 1 0]*sz(2);";
-          "xpoly(xx,yy);";
-          "xsegs(orig(1)+ sz(1)*2/3*[1 1 1 3/2],orig(2)+(sz(2)*1/2)*[2 0 1 1],style=0);";
-          "if orient then";
-          "  xrects([orig(1)+sz(1)*1/2;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));";
-          "  xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,''+'');";
-          "  xstring(orig(1)+sz(1)*7/8,orig(2)+sz(2)*3/4,''-'');";
-          "else";
-          "  xrects([orig(1)+sz(1)*1/3;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));";
-          "  xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,''-'');";
-          "  xstring(orig(1)+sz(1)*7/8,orig(2)+sz(2)*3/4,''+'');";
-          "end";
-          "txt=''C= ''+C;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -97,39 +82,36 @@ H__0=hash_create(17);
        H__3('pein')= []
        H__3('in_implicit')=
        [ "I" ]
+       H__3('id')=
+       [ "" ]
        H__3('orig')=
        [   333.7012,   234.0793 ]
        H__3('pin')=
        [   7 ]
        H__3('mlist')=
        [  %t ]
+       H__3('peout')= []
        H__3('out_implicit')=
        [ "I" ]
-       H__3('peout')= []
-       H__3('id')=
-       [ "" ]
       H__2('graphics')=H__3;
      H__3=hash_create(47);
        H__3('out')=
        [   1 ]
-       L__4=list();
-        H__3('opar')=L__4;
        H__3('out2')= []
        H__3('evtout')= []
-       H__3('intyp')=
-       [   1 ]
+       H__3('sim')=
+       [ "Capacitor" ]
        H__3('type')=
        [ "model" ]
        H__3('state')= []
        H__3('in2')= []
+       H__3('firing')= []
        H__3('evtin')= []
        H__3('dstate')= []
        H__3('outtyp')=
        [   1 ]
        H__3('mlist')=
        [  %t ]
-       H__3('nzcross')=
-       [   0 ]
        H__3('blocktype')=
        [ "c" ]
        H__3('label')=
@@ -171,16 +153,19 @@ H__0=hash_create(17);
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
-       H__3('sim')=
-       [ "Capacitor" ]
+       H__3('intyp')=
+       [   1 ]
        L__4=list();
         H__3('odstate')=L__4;
        H__3('ipar')= []
-       H__3('nmode')=
-       [   0 ]
        H__3('rpar')=
        [   0.1000 ]
-       H__3('firing')= []
+       H__3('nmode')=
+       [   0 ]
+       L__4=list();
+        H__3('opar')=L__4;
+       H__3('nzcross')=
+       [   0 ]
       H__2('model')=H__3;
      H__2('mlist')=
      [  %t ]
@@ -200,11 +185,7 @@ H__0=hash_create(17);
        [ "" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',3)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],style=0);";
-          "xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],style=0);" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -309,7 +290,7 @@ H__0=hash_create(17);
        H__3('gr_i')= []
        H__3('pout')= []
        H__3('sz')=
-       [   108.2457,    14.7608 ]
+       [   0.20000,   0.04088 ]
        H__3('theta')=
        [   0 ]
        H__3('flip')=
@@ -389,7 +370,7 @@ H__0=hash_create(17);
        H__3('gr_i')= []
        H__3('pout')= []
        H__3('sz')=
-       [   66.9155,   14.7608 ]
+       [   0.12444,   0.04088 ]
        H__3('theta')=
        [   0 ]
        H__3('flip')=
@@ -463,21 +444,7 @@ H__0=hash_create(17);
        H__3('exprs')= []
        L__4=list();
         L__4(1)=
-        [ "xarc(orig(1)+sz(1)*1/8,orig(2)+sz(2)*4.3/5,sz(1)*3/4,sz(2)*3/4,0,360*64);";
-          "xsegs(orig(1)+sz(1)*[0 1/8],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[7/8 1],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1.5/8 2.5/8],orig(2)+sz(2)*[1.3/2 1.2/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[2.5/8 3.2/8],orig(2)+sz(2)*[1.62/2 1.3/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[4.25/5 1.3/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[4.9/8 5.5/8],orig(2)+sz(2)*[1.3/2 1.65/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[5.5/8 6.5/8],orig(2)+sz(2)*[1.2/2 1.32/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1/2 4.5/8],orig(2)+sz(2)*[1/2 1.32/2],style=0) ";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[0.9/8 -1/8],style=0)";
-          "xfarc(orig(1)+sz(1)*0.93/2,orig(2)+sz(2)*1/2,sz(1)*0.2/4,sz(2)*0.2/4,0,360*64);";
-          " xx=orig(1)+sz(1)*4.2/8+[.9 1 0 .9]*sz(1)/12;";
-          "yy=orig(2)+sz(2)*1.27/2+[0.1 1 0.3 0.1]*sz(2)/7;";
-          "xfpoly(xx,yy);";
-          "xstring(orig(1)+sz(1)/2,orig(2)+sz(2)/5,''V'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -714,12 +681,7 @@ H__0=hash_create(17);
          "1" ]
        L__4=list();
         L__4(1)=
-        [ "xarc(orig(1)+sz(1)*1/8,orig(2)+sz(2)*4.3/5,sz(1)*3/4,sz(2)*3/4,0,360*64);";
-          "xsegs(orig(1)+sz(1)*[0 1/8],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[7/8 1],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "V=string(model.rpar(1));";
-          "xstringb(orig(1),orig(2)+sz(2)*0.2,''~'',sz(1),sz(2)*0.3,''fill'')";
-          "xstringb(orig(1),orig(2)+sz(2)*0.5,V,sz(1),sz(2)*0.3,''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -860,21 +822,7 @@ H__0=hash_create(17);
        H__3('exprs')= []
        L__4=list();
         L__4(1)=
-        [ "xarc(orig(1)+sz(1)*1/8,orig(2)+sz(2)*4.3/5,sz(1)*3/4,sz(2)*3/4,0,360*64);";
-          "xsegs(orig(1)+sz(1)*[0 1/8],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[7/8 1],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1.5/8 2.5/8],orig(2)+sz(2)*[1.3/2 1.2/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[2.5/8 3.2/8],orig(2)+sz(2)*[1.62/2 1.3/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[4.25/5 1.3/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[4.9/8 5.5/8],orig(2)+sz(2)*[1.3/2 1.65/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[5.5/8 6.5/8],orig(2)+sz(2)*[1.2/2 1.32/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1/2 4.5/8],orig(2)+sz(2)*[1/2 1.32/2],style=0) ";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[0.9/8 -1/8],style=0)";
-          "xfarc(orig(1)+sz(1)*0.93/2,orig(2)+sz(2)*1/2,sz(1)*0.2/4,sz(2)*0.2/4,0,360*64);";
-          " xx=orig(1)+sz(1)*4.2/8+[.9 1 0 .9]*sz(1)/12;";
-          "yy=orig(2)+sz(2)*1.27/2+[0.1 1 0.3 0.1]*sz(2)/7;";
-          "xfpoly(xx,yy);";
-          "xstring(orig(1)+sz(1)/2,orig(2)+sz(2)/5,''A'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -1497,12 +1445,7 @@ H__0=hash_create(17);
        [ "0.2" ]
        L__4=list();
         L__4(1)=
-        [ "xx=[0,1,1,7,7,8,7,7,1,1]/8;";
-          "yy=[1,1,0,0,1,1,1,2,2,1]/2;";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); ";
-          "txt=''R= ''+R;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -1710,6 +1653,8 @@ H__0=hash_create(17);
        H__4=hash_create(23);
          H__4('type')=
          [ "MBLOCK" ]
+         H__4('in')=
+         [ "''p''" ]
          H__4('intype')=
          [ "''I''" ]
          H__4('out')=
@@ -1722,8 +1667,6 @@ H__0=hash_create(17);
           H__4('paramv')=L__5;
          H__4('nameF')=
          [ "Induct" ]
-         H__4('outtype')=
-         [ "[''I'']" ]
          H__4('tlist')=
          [  %t ]
          H__4('pprop')=
@@ -1740,12 +1683,12 @@ H__0=hash_create(17);
            "0 = p.i + n.i;";
            "i = p.i;";
            "end Induct;" ]
-         H__4('in')=
-         [ "''p''" ]
+         H__4('outtype')=
+         [ "[''I'']" ]
         H__3('exprs')=H__4;
        L__4=list();
         L__4(1)=
-        [ "txt=[''Modelica'';'' Induct ''];";
+        [ "txt=[''Modelica'';'' generic ''];";
           "xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'')" ]
         
         L__4(2)=
@@ -2198,8 +2141,8 @@ H__0=hash_create(17);
     H__1('cblock')=
     [   0 ]
    H__0('codegen')=H__1;
-  L__1=list();
-   H__0('contrib')=L__1;
   H__0('version')=
   [ "scicos4.4" ]
+  L__1=list();
+   H__0('contrib')=L__1;
  scs_m=H__0;
