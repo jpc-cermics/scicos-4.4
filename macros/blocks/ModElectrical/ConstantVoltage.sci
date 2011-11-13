@@ -1,7 +1,7 @@
 function [x,y,typ]=ConstantVoltage(job,arg1,arg2)
 // Copyright INRIA
+
   function blk_draw(sz,orig,orient,label)
-    xset("thickness",2)
     xx=[0 5 5 5]/12;
     if orient then yy=[1 1 2 0]/2;else yy=[2,2,3,1]/4,end
     xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2));

@@ -1,5 +1,17 @@
 function [x,y,typ]=SUPER_f(job,arg1,arg2)
 // Copyright INRIA
+  
+  function blk_draw(sz,orig,orient,label)
+    xx=orig(1)+      [2 4 4]*(sz(1)/7);
+    yy=orig(2)+sz(2)-[2 2 6]*(sz(2)/10);
+    z=ones(1,size(xx,2));
+    g=xget('color','gray');
+    xrects([xx;yy;[sz(1)/7;sz(2)/5]*ones(1,3)],color=z,background=g*z)// thickness=2*z);
+    xx=orig(1)+      [1 2 3 4 5 6 3.5 3.5 3.5 4 5 5.5 5.5 5.5]*sz(1)/7;
+    yy=orig(2)+sz(2)-[3 3 3 3 3 3 3   7   7   7 7 7   7   3  ]*sz(2)/10;
+    xsegs(xx,yy,style=0);//thickness=2);
+  endfunction
+  
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -61,15 +73,7 @@ function [x,y,typ]=SUPER_f(job,arg1,arg2)
     model.rpar=scs;
     model.blocktype='h';
     model.dep_ut=[%f %f];
-
-    gr_i=['thick=xget(''thickness'');xset(''thickness'',2);';
-	  'xx=orig(1)+      [2 4 4]*(sz(1)/7);';
-	  'yy=orig(2)+sz(2)-[2 2 6]*(sz(2)/10);';
-	  'xrects([xx;yy;[sz(1)/7;sz(2)/5]*ones(1,3)]);';
-	  'xx=orig(1)+      [1 2 3 4 5 6 3.5 3.5 3.5 4 5 5.5 5.5 5.5]*sz(1)/7;';
-	  'yy=orig(2)+sz(2)-[3 3 3 3 3 3 3   7   7   7 7 7   7   3  ]*sz(2)/10;';
-	  'xsegs(xx,yy,style=0);';
-	  'xset(''thickness'',thick)']
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([2 2],model,[],gr_i,'SUPER_f');
   end
 endfunction

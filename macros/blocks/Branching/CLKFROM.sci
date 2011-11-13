@@ -7,7 +7,6 @@ function [x,y,typ]=CLKFROM(job,arg1,arg2)
     orient=arg1.graphics.flip;
     prt='['+arg1.graphics.exprs+']'
     pat=xget('pattern');xset('pattern',default_color(-1))
-    thick=xget('thickness');xset('thickness',2)
     if orient then
       y=orig(2)+sz(2)*[1/4 1/2 1;1 1 1;1 1/2 1/4;1/4 1/8 0;0 1/8 1/4]'
       x=orig(1)+sz(1)*[0 0 0;0 1/2 1;1 1 1;1 3/4 1/2;1/2 1/4 0]'
@@ -20,7 +19,7 @@ function [x,y,typ]=CLKFROM(job,arg1,arg2)
     xpolys(x,y,5*ones(1,5),color=default_color(-1),thickness=2);
     xstringb(orig(1)+x1*sz(1),orig(2),prt,(1-x1)*sz(1),sz(2));
   endfunction
-      
+  
   x=[];y=[];typ=[]
   select job
    case 'plot' then

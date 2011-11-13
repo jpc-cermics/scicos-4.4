@@ -42,69 +42,69 @@ function [x,y,typ]=scifunc_block5(job,arg1,arg2)
     
     if ~exists('needcompile') then needcompile=0;
     else needcompile=needcompile;end
-        
-    while %t do
-      [ok,junction_name,impli,in,it,out,ot,ci,co,xx,z,oz,...
-       rpar,ipar,opar,nmode,nzcr,auto0,depu,dept,lab]=..
-	  getvalue('Set Scilab block parameters',..
-		   gv_titles,gv_types,label(1));
-      if ~ok then break,end
-      label(1)=lab
-      junction_name=stripblanks(junction_name)
-      xx=xx(:);z=z(:);rpar=rpar(:);ipar=int(ipar(:));
-      nx=prod(size(xx,'*'))
-      ci=int(ci(:));
-      co=int(co(:));
-      if part(impli,1)=='y' then
-	funtyp=10005
-        if ~isempty(xx) then
-          if int(nx/2)*2<>nx then
-            message(['Warning for implicit block initial derivative state should also be defined.';
-                     'Please check number of Initial continuous state.']);
-            ok=%f;
-          end
-        end
-      else
-	funtyp=5
+      
+      while %t do
+	[ok,junction_name,impli,in,it,out,ot,ci,co,xx,z,oz,...
+	 rpar,ipar,opar,nmode,nzcr,auto0,depu,dept,lab]=..
+	    getvalue('Set Scilab block parameters',..
+		     gv_titles,gv_types,label(1));
+	if ~ok then break,end
+	label(1)=lab
+	junction_name=stripblanks(junction_name)
+	xx=xx(:);z=z(:);rpar=rpar(:);ipar=int(ipar(:));
+	nx=prod(size(xx,'*'))
+	ci=int(ci(:));
+	co=int(co(:));
+	if part(impli,1)=='y' then
+	  funtyp=10005
+	  if ~isempty(xx) then
+	    if int(nx/2)*2<>nx then
+	      message(['Warning for implicit block initial derivative state should also be defined.';
+		       'Please check number of Initial continuous state.']);
+	      ok=%f;
+	    end
+	  end
+	else
+	  funtyp=5
+	end
+	if ~isempty([ci;co]) then
+	  if max([ci;co])>1 then message('vector event links not supported');ok=%f;end
+	end
+	if type(opar,'short')<>'l' then message('object parameter must be a list');ok=%f;end
+	if type(oz,'short')<>'l' then message('discrete object state must be a list');ok=%f;end
+	if ~ok then continue;end
+	depu=stripblanks(depu);if part(depu,1)=='y' then depu=%t; else depu=%f;end
+	dept=stripblanks(dept);if part(dept,1)=='y' then dept=%t; else dept=%f;end
+	dep_ut=[depu dept];
+	[model,graphics,ok]=set_io(model,graphics,list(in,it),list(out,ot),ci,co)
+	if ~ok then continue;end 
+	nz=prod(size(z,'*'))+length(oz)
+	ni=prod(size(in,'*'))
+	no=prod(size(out,'*'))
+	nie=prod(size(ci,'*'))
+	noe=prod(size(co,'*'))
+	[ok,func_txt]=genfunc5(junction_name,label(2),ni,no,nie,noe,nx,nz,nzcr)
+	if ~ok then break;end // we have made a cancel in genfunc5 
+	if ~func_txt.equal[label(2)] then needcompile=4, end
+	model.sim=list('scifunc',funtyp);
+	model.state=xx
+	model.dstate=z
+	model.odstate=oz
+	model.rpar=rpar
+	model.ipar=ipar
+	model.opar=opar
+	model.firing=auto0
+	model.nzcross=nzcr
+	model.nmode=nmode
+	model.dep_ut=dep_ut
+	arg1.model=model
+	label(2)=func_txt
+	graphics.exprs=label
+	arg1.graphics=graphics
+	x=arg1
+	break
       end
-      if ~isempty([ci;co]) then
-	if max([ci;co])>1 then message('vector event links not supported');ok=%f;end
-      end
-      if type(opar,'short')<>'l' then message('object parameter must be a list');ok=%f;end
-      if type(oz,'short')<>'l' then message('discrete object state must be a list');ok=%f;end
-      if ~ok then continue;end
-      depu=stripblanks(depu);if part(depu,1)=='y' then depu=%t; else depu=%f;end
-      dept=stripblanks(dept);if part(dept,1)=='y' then dept=%t; else dept=%f;end
-      dep_ut=[depu dept];
-      [model,graphics,ok]=set_io(model,graphics,list(in,it),list(out,ot),ci,co)
-      if ~ok then continue;end 
-      nz=prod(size(z,'*'))+length(oz)
-      ni=prod(size(in,'*'))
-      no=prod(size(out,'*'))
-      nie=prod(size(ci,'*'))
-      noe=prod(size(co,'*'))
-      [ok,func_txt]=genfunc5(junction_name,label(2),ni,no,nie,noe,nx,nz,nzcr)
-      if ~ok then break;end // we have made a cancel in genfunc5 
-      if ~func_txt.equal[label(2)] then needcompile=4, end
-      model.sim=list('scifunc',funtyp);
-      model.state=xx
-      model.dstate=z
-      model.odstate=oz
-      model.rpar=rpar
-      model.ipar=ipar
-      model.opar=opar
-      model.firing=auto0
-      model.nzcross=nzcr
-      model.nmode=nmode
-      model.dep_ut=dep_ut
-      arg1.model=model
-      label(2)=func_txt
-      graphics.exprs=label
-      arg1.graphics=graphics
-      x=arg1
-      break
-    end
-    resume(needcompile)
+      resume(needcompile)
    case 'define' then
     model=scicos_model()
     junction_name='sciblk';
@@ -211,11 +211,11 @@ function [ok,txt_out]=genfunc5(name,txt_in,ni,no,nie,noe,nx,nz,nzcr)
       ok = %f;
       break;
     end // abort in edition.
-//    if Quit then
-//      // a cancel in edition
-//      ok = %f;
-//      break;
-//    end
+    //    if Quit then
+    //      // a cancel in edition
+    //      ok = %f;
+    //      break;
+    //    end
     fname=file('join',[getenv('NSP_TMPDIR');'scifunc5_tmp.sci']);
     scicos_mputl(txt,fname);
     execstr(sprintf('clear(''%s'');',name));

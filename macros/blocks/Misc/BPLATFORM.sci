@@ -1,4 +1,15 @@
 function [x,y,typ]=BPLATFORM(job,arg1,arg2)
+
+  function blk_draw(sz,orig,orient,label)
+    xx=orig(1)+sz(1)*[3 7 7 3 3]/10;
+    yy=orig(2)+sz(2)*[5 5 4 4 5 ]/10;
+    xpoly(xx,yy,type="lines");
+    xx=orig(1)+sz(1)*[5 4.5 5.5 4.5 5.5 4.5 5.5 4.5  5.5 4.5  5.5]/10;
+    yy=orig(2)+sz(2)*[4 3.5 3.0 3.5 3.0 2.5 2.0 1.5  1.0 0.5 0]/10;
+    xpoly(xx,yy,type="lines");
+    xarc(orig(1)+sz(1)*0.4,orig(2)+sz(2)*0.8,sz(1)*0.2,sz(2)*0.2,0,360*64);
+  endfunction
+  
   x=[];y=[];typ=[]
   select job
    case 'plot' then
@@ -15,10 +26,10 @@ function [x,y,typ]=BPLATFORM(job,arg1,arg2)
     model=arg1.model;dstate=model.dstate
     while %t do
       [ok,plen,csiz,phi,xmin,xmax,ymin,ymax,exprs]=getvalue(..
-        'Set Scope parameters',..
-        ['Pendulum length';'Cart size (square side)';'Slope';
-        'Xmin';'Xmax';  'Ymin'; 'Ymax' ],..
-        list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1),exprs)
+						  'Set Scope parameters',..
+						  ['Pendulum length';'Cart size (square side)';'Slope';
+		    'Xmin';'Xmax';  'Ymin'; 'Ymax' ],..
+						  list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1),exprs)
       if ~ok then break,end
       mess=[]
       if plen<=0|csiz<=0 then
@@ -55,17 +66,8 @@ function [x,y,typ]=BPLATFORM(job,arg1,arg2)
     model.rpar=[plen;csiz;phi;xmin;xmax;ymin;ymax]
     model.blocktype='d'
     model.dep_ut=[%f %f]
-    
+    gr_i="blk_draw(sz,orig,orient,model.label)";    
     exprs=string(model.rpar)
-    gr_i=['thick=xget(''thickness'');xset(''thickness'',2);Couleur=xget(''color'');';
-	'xx=orig(1)+sz(1)*[3 7 7 3 3]/10;';
-	'yy=orig(2)+sz(2)*[5 5 4 4 5 ]/10;';
-	'xpoly(xx,yy,type=''lines'');';
-	'xx=orig(1)+sz(1)*[5 4.5 5.5 4.5 5.5 4.5 5.5 4.5  5.5 4.5  5.5]/10;';
-	'yy=orig(2)+sz(2)*[4 3.5 3.0 3.5 3.0 2.5 2.0 1.5  1.0 0.5 0]/10;';
-	'xpoly(xx,yy,type=''lines'');';
-	'xarc(orig(1)+sz(1)*0.4,orig(2)+sz(2)*0.8,sz(1)*0.2,sz(2)*0.2,0,360*64);';
-	'xset(''thickness'',thick);']
     x=standard_define([2 2],model,exprs,gr_i,'BPLATFORM');
   end
 endfunction

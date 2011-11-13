@@ -1,5 +1,17 @@
 function [x,y,typ]=CURV_f(job,arg1,arg2)
 // Copyright INRIA
+
+  function blk_draw(sz,orig,orient,label)  
+    rpar=arg1.model.rpar;n=model.ipar(1);
+    xx=rpar(1:n);yy=rpar(n+1:2*n);
+    rect=rpar(2*n+1:2*n+4);
+    mxx=rect(3)-rect(1);
+    mxy=rect(4)-rect(2);
+    xx=orig(1)+sz(1)*(1/10+(4/5)*((xx-rect(1))/mxx));
+    yy=orig(2)+sz(2)*(1/10+(4/5)*((yy-rect(2))/mxy));
+    xpoly(xx,yy,type="lines",thickness=2);
+  endfunction
+
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -56,17 +68,7 @@ function [x,y,typ]=CURV_f(job,arg1,arg2)
     model.ipar=[size(xx,1);axisdata(:)]
     model.blocktype='c'
     model.dep_ut=[%f %t]
-
-    gr_i=['rpar=arg1.model.rpar;n=model.ipar(1);';
-	  'thick=xget(''thickness'');xset(''thickness'',2);';
-	  'xx=rpar(1:n);yy=rpar(n+1:2*n);';
-	  'rect=rpar(2*n+1:2*n+4);';
-	  'mxx=rect(3)-rect(1);';
-	  'mxy=rect(4)-rect(2);';
-	  'xx=orig(1)+sz(1)*(1/10+(4/5)*((xx-rect(1))/mxx));';
-	  'yy=orig(2)+sz(2)*(1/10+(4/5)*((yy-rect(2))/mxy));';
-	  'xpoly(xx,yy,type=''lines'');';
-	  'xset(''thickness'',thick);']
+    gr_i="blk_draw(sz,orig,orient,model.label)";	
     x=standard_define([2 2],model,[],gr_i,'CURV_f');
   end
 endfunction

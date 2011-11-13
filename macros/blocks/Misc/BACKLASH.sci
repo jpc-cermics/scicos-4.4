@@ -19,7 +19,7 @@ function [x,y,typ]=BACKLASH(job,arg1,arg2)
       [ok,ini,gap,zcr,exprs]=getvalue('Set backlash parameters',..
 				      ['Initial output';
 		    'Gap';'Use zero-crossing (0:no, 1:yes)'],..
-		    list('vec',1,'vec',1,'vec',1),exprs)
+				      list('vec',1,'vec',1,'vec',1),exprs)
       
       
       if ~ok then break,end

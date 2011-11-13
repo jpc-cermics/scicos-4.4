@@ -26,7 +26,7 @@ function [x,y,typ]=CLKSOM_f(job,arg1,arg2)
       xfpoly(sz(1)*out(:,1)+orig(1),sz(2)*out(:,2)+orig(2)+sz(2)/2,color=col,fill_color=col);
     end
   endfunction
-    
+  
   x=[];y=[];typ=[];
   p=1 //pixel sizes ratio
   select job
@@ -76,8 +76,6 @@ function [x,y,typ]=CLKSOM_f(job,arg1,arg2)
     model.firing=-1
     model.dep_ut=[%f %f]
     gr_i="blk_draw(sz,orig,orient,model.label)";
-    //gr_i=['rx=sz(1)*p/2;ry=sz(2)/2'
-    // 'xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],style=0)']
     x=standard_define([1 1]/1.2,model,[],gr_i,'CLKSOM_f');
   end
 endfunction

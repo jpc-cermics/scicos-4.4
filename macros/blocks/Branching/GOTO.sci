@@ -19,7 +19,7 @@ function [x,y,typ]=GOTO(job,arg1,arg2)
     xpolys(xx,yy,color=default_color(0),thickness=2);
     xstringb(orig(1)+x1*sz(1),orig(2),tg,(1-x1)*sz(1),sz(2));
   endfunction
- 
+  
   x=[];y=[];typ=[]
   select job
    case 'plot' then

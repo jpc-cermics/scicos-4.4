@@ -2,7 +2,6 @@ function [x,y,typ]=NMOS(job,arg1,arg2)
 // Copyright INRIA
 
   function blk_draw(sz,orig,orient,label)
-    Thick=xget("thickness");xset("thickness",2);
     if orient then,;
       x1=orig(1)+  [0, 15,15,15]*(sz(1)/32);
       x2=orig(1)+[17,17,19,19,32,19,19,17]*(sz(1)/32);
@@ -22,9 +21,7 @@ function [x,y,typ]=NMOS(job,arg1,arg2)
     xpoly(x2,y2);
     xpoly(x3,y3);
     xpoly(x4,y4);
-    xset("thickness",Thick);
   endfunction
-
   
   x=[];y=[];typ=[];
   select job

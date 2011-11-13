@@ -15,7 +15,7 @@ function [x,y,typ]=BUSOUT_f(job,arg1,arg2)
       y=orig(2)+sz(2)*[0;1;1;    1/2;0    ]
       xo=orig(1);yo=orig(2)
       in= [-1/7,  -1/14
-              0,    0
+	   0,    0
 	   -1/7,   1/14
 	   -1/7,  -1/14]*diag([xf,yf])
       xfpoly(in(:,1)+ones(4,1)*orig(1),..

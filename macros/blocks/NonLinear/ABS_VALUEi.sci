@@ -21,31 +21,31 @@ function [x,y,typ]=ABS_VALUEi(job,arg1,arg2)
       if ~ok then break,end
       graphics.exprs=exprs
       if zcr<>0 then 
-	  model.nmode=-1;model.nzcross=-1;
-          it=1
-       else
-	  model.nmode=0;model.nzcross=0;
-          it=-1
+	model.nmode=-1;model.nzcross=-1;
+	it=1
+      else
+	model.nmode=0;model.nzcross=0;
+	it=-1
       end 
       in=[-1,-2];
       [model,graphics,ok]=set_io(model,graphics,list(in,it),list(in,it),[],[])
       if ok
-	  x.graphics=graphics;x.model=model
-	  break
+	x.graphics=graphics;x.model=model
+	break
       end
     end
    case 'compile' then
-     model=arg1
-     if model.intyp==2 then
-        error('Complex data type not implemented.')
-     else
-        model.sim(1)="absolute_valuei_"+getNameExt(model.intyp)
-     end
-     if model.nzcross ~= 0 then
-       model.nzcross=model.in*model.in2
-       model.nmode=model.in*model.in2
-     end
-     x=model
+    model=arg1
+    if model.intyp==2 then
+      error('Complex data type not implemented.')
+    else
+      model.sim(1)="absolute_valuei_"+getNameExt(model.intyp)
+    end
+    if model.nzcross ~= 0 then
+      model.nzcross=model.in*model.in2
+      model.nmode=model.in*model.in2
+    end
+    x=model
 
    case 'define' then
     model=scicos_model()
@@ -69,13 +69,13 @@ endfunction
 
 function txt=getNameExt(i)
   typess=["SCSREAL_COP";
-	"SCSCOMPLEX_COP";
-	"SCSINT32_COP";
-	"SCSINT16_COP";
-	"SCSINT8_COP";
-	"SCSUINT32_COP";
-	"SCSUINT16_COP";
-	"SCSUINT8_COP" ];
+	  "SCSCOMPLEX_COP";
+	  "SCSINT32_COP";
+	  "SCSINT16_COP";
+	  "SCSINT8_COP";
+	  "SCSUINT32_COP";
+	  "SCSUINT16_COP";
+	  "SCSUINT8_COP" ];
   if nargin<1 then 
     txt=typess  
   else

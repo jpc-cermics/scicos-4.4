@@ -25,7 +25,7 @@ function [x,y,typ]=PRODUCT(job,arg1,arg2)
     h=(rectstr(2,2)-rectstr(2,4))*%zoom;
     xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,'fill');
   endfunction
-	    
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then

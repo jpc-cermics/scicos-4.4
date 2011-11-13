@@ -47,8 +47,8 @@ function [x,y,typ]=Gyrator(job,arg1,arg2)
     in2= [-1 -1; 1 -1; 1  1; -1  1; -1 -1; 0 0]*diag([xf/28,yf/28])
     out2=[ 1  1;-1  1;-1 -1;  1 -1;  1  1; 0 0]*diag([xf/28,yf/28])
     
-    xset('pattern',default_color(1))           
-    xset('thickness',1)   
+    //xset('pattern',default_color(1))           
+    //xset('thickness',1)   
     
     if orient then
       for i=1:size(P,'r')      

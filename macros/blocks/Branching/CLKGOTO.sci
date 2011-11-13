@@ -6,7 +6,6 @@ function [x,y,typ]=CLKGOTO(job,arg1,arg2)
     rul=['[','{','',']','}','']
     prt=rul(evstr(arg1.graphics.exprs(2)))+arg1.graphics.exprs(1)+rul(evstr(arg1.graphics.exprs(2))+3)
     pat=xget('pattern');xset('pattern',default_color(-1))
-    thick=xget('thickness');xset('thickness',2)
     if ~orient then
       y=orig(2)+sz(2)*[1/4 1/2 1;1 1 1;1 1/2 1/4;1/4 1/8 0;0 1/8 1/4]'
       x=orig(1)+sz(1)*[0 0 0;0 1/2 1;1 1 1;1 3/4 1/2;1/2 1/4 0]'

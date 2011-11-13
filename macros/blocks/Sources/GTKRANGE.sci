@@ -1,22 +1,22 @@
 function [x,y,typ]=GTKRANGE(job,arg1,arg2)
-  //Source block; output defined by tk widget scale
+//Source block; output defined by tk widget scale
   x=[];y=[];typ=[];
   select job
-    case 'plot' then 
+   case 'plot' then 
     standard_draw(arg1)
-    case 'getinputs' then
+   case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
-    case 'getoutputs' then
+   case 'getoutputs' then
     [x,y,typ]=standard_outputs(arg1)
-    case 'getorigin' then
+   case 'getorigin' then
     [x,y]=standard_origin(arg1)
-    case 'set' then
+   case 'set' then
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
     [ok,mi,ml,mu,ms,exprs]=getvalue('Set gtkrange parameters',..
-        ['Initial Value';'Min value';'Max value';'Normalization'],..
-        list('vec',1,'vec',1,'vec',1,'vec',1),exprs)
+				    ['Initial Value';'Min value';'Max value';'Normalization'],..
+				    list('vec',1,'vec',1,'vec',1,'vec',1),exprs)
     // a scalar value in the range [min,max] and divided by
     // normalisation. 
     if ok then
@@ -24,7 +24,7 @@ function [x,y,typ]=GTKRANGE(job,arg1,arg2)
       model.rpar=[mi,ml,mu,ms];
       x.graphics=graphics;x.model=model
     end
-    case 'define' then
+   case 'define' then
     mi=0;ml=-10;mu=10;ms=1;// default parameter values
     model=scicos_model()
     model.sim=list('gtkrange',4);

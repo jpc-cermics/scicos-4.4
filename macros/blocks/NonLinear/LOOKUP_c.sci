@@ -159,8 +159,8 @@ function [x,y,typ]=LOOKUP_c(job,arg1,arg2)
 endfunction
 
 function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
-  //[lhs,rhs]=argn(0)
-  //in line definition of get_click
+//[lhs,rhs]=argn(0)
+//in line definition of get_click
   function [btn,xc,yc,win,Cmenu]=get_click(flag)
     if ~or(winsid() == curwin) then
       Cmenu = 'Quit';
@@ -171,7 +171,7 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       if win == curwin then
         Cmenu = 'Quit'
       else
-       Cmenu = 'Open/Set';
+	Cmenu = 'Open/Set';
       end
       return
     end
@@ -188,32 +188,32 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
     Cmenu=""
   endfunction
 
-//   deff('[btn,xc,yc,win,Cmenu]=get_click(flag)',[
-//       'if ~or(winsid() == curwin) then   Cmenu = ''Quit'';return,end,';
-//       'if argn(2) == 1 then';
-//       '  [btn, xc, yc, win, str] = xclick(flag);';
-//       'else';
-//       '  [btn, xc, yc, win, str] = xclick();';
-//       'end;'; 
-//       'if btn == -100 then';
-//       '  if win == curwin then';
-//       '    Cmenu = ''Quit'';';
-//       '  else';
-//       '    Cmenu = ''Open/Set'';';
-//       '  end,';
-//       '  return,';
-//       'end';
-//       'if btn == -2 then';
-//       '  xc = 0;yc = 0;';
-//       '  try '    // added to handle unwanted menu actions in french version
-//       '    execstr(''Cmenu='' + part(str, 9:length(str) - 1));';
-//       '    execstr(''Cmenu='' + Cmenu);';
-//       '  catch'
-//       '    Cmenu=[]'    
-//       '  end '    
-//       '  return,';
-//       'end';
-//       'Cmenu=[]'])
+  //   deff('[btn,xc,yc,win,Cmenu]=get_click(flag)',[
+  //       'if ~or(winsid() == curwin) then   Cmenu = ''Quit'';return,end,';
+  //       'if argn(2) == 1 then';
+  //       '  [btn, xc, yc, win, str] = xclick(flag);';
+  //       'else';
+  //       '  [btn, xc, yc, win, str] = xclick();';
+  //       'end;'; 
+  //       'if btn == -100 then';
+  //       '  if win == curwin then';
+  //       '    Cmenu = ''Quit'';';
+  //       '  else';
+  //       '    Cmenu = ''Open/Set'';';
+  //       '  end,';
+  //       '  return,';
+  //       'end';
+  //       'if btn == -2 then';
+  //       '  xc = 0;yc = 0;';
+  //       '  try '    // added to handle unwanted menu actions in french version
+  //       '    execstr(''Cmenu='' + part(str, 9:length(str) - 1));';
+  //       '    execstr(''Cmenu='' + Cmenu);';
+  //       '  catch'
+  //       '    Cmenu=[]'    
+  //       '  end '    
+  //       '  return,';
+  //       'end';
+  //       'Cmenu=[]'])
   
   ok=%f
   if nargin==0 then ixy=[];end;
@@ -232,17 +232,17 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
     ipar=[N;NOrder;PeridicOption;extrapo]
     rpar=[]
   elseif nargin==2 then  
-      NOrder=iparin(2);
-      PeridicOption=iparin(3);
-      extrapo=iparin(4);
-      ipar=iparin;
-      rpar=[]
+    NOrder=iparin(2);
+    PeridicOption=iparin(3);
+    extrapo=iparin(4);
+    ipar=iparin;
+    rpar=[]
   elseif nargin==3 then  
-      NOrder=iparin(2);
-      PeridicOption=iparin(3);
-      extrapo=iparin(4);
-      ipar=iparin;
-      rpar=rparin    
+    NOrder=iparin(2);
+    PeridicOption=iparin(3);
+    extrapo=iparin(4);
+    ipar=iparin;
+    rpar=rparin    
   end
 
   Amp=[];wp=[]; phase=[];offset=[];np1=[];
@@ -591,14 +591,14 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       //_________________________
       //  if ~((NOrder==-1|NOrder==-2|NOrder==-3|NOrder==-4)) then
       if ~HIT && (btn==2 | btn==5) then    // add point
-	  xy=[xy;xc,yc];
- 	  [xtt,k2]=gsort(xy(:,1),'r','i');
-          xy=xy(k2,:)
-	  [xy]=lookup_cleandata(xy)
-          points.children(1).x=xy(:,1);
-	  points.children(1).y=xy(:,2);
-	  [rpar,ipar]=lookup_drawsplin(a,xy,ipar,rpar);  
-	  F.invalidate[]
+	xy=[xy;xc,yc];
+	[xtt,k2]=gsort(xy(:,1),'r','i');
+	xy=xy(k2,:)
+	[xy]=lookup_cleandata(xy)
+	points.children(1).x=xy(:,1);
+	points.children(1).y=xy(:,2);
+	[rpar,ipar]=lookup_drawsplin(a,xy,ipar,rpar);  
+	F.invalidate[]
       end
       
       if HIT && (btn==2 | btn==5) then  //   remove point
@@ -655,9 +655,9 @@ function [orpar,oipar]=lookup_drawsplin(a,xy,iipar,irpar)
   if (N==0) then, return; end
   if (N==1) then, order=0; end
   //  NP=50;// number of intermediate points between two data points 
-//   points=a.children(2).children
-//   splines=a.children(1).children
-//    a.title.text=[string(N)+' points,  '+'Method: '+METHOD+',  '+PERIODIC];
+  //   points=a.children(2).children
+  //   splines=a.children(1).children
+  //    a.title.text=[string(N)+' points,  '+'Method: '+METHOD+',  '+PERIODIC];
 
 
   a.children(2).children(1).x = xy(:,1);  
@@ -673,7 +673,7 @@ function [orpar,oipar]=lookup_drawsplin(a,xy,iipar,irpar)
   xmn1=a.frect(1);
 
   [X,Y,orpar]=Lookup_Do_Spline(N,order,x,y,xmx,xmn,extrapo);
-    
+  
   if (periodicoption==1) then 
     X=[X;X($)];
     Y=[Y;Y(1)];
@@ -723,24 +723,24 @@ function [xyt,orpar,oipar,dblclick]=lookup_movept(a,xy,iipar,irpar,k)
 endfunction
 
 function rectx=lookup_findrect(a)
-    splines=a.children(1).children(1)
-    points=a.children(2).children(1)
-    if isempty(points.x) then 
-      rectx=a.frect;
-      rectx=[rectx(1),rectx(2);rectx(3),rectx(4)];
-      return;
-    end    
-    ymx1=max(splines.y);  ymn1=min(splines.y);
-    xmx=max(points.x);xmn=min(points.x);
-    ymx=max(points.y);ymn=min(points.y);
-    XMX=max(xmx);     XMN=max(xmn);
-    YMX=max(ymx,ymx1);  YMN=min(ymn,ymn1);
-    dx=XMX-XMN;dy=YMX-YMN
-    if dx==0 then dx=max(XMX/2,1),end;
-    XMX=XMX+dx/50
-    if dy==0 then dy=max(YMX/2,1),end;
-    YMN=YMN-dy/50;YMX=YMX+dy/50;  
-    rectx=[XMN,YMN;XMX,YMX];
+  splines=a.children(1).children(1)
+  points=a.children(2).children(1)
+  if isempty(points.x) then 
+    rectx=a.frect;
+    rectx=[rectx(1),rectx(2);rectx(3),rectx(4)];
+    return;
+  end    
+  ymx1=max(splines.y);  ymn1=min(splines.y);
+  xmx=max(points.x);xmn=min(points.x);
+  ymx=max(points.y);ymn=min(points.y);
+  XMX=max(xmx);     XMN=max(xmn);
+  YMX=max(ymx,ymx1);  YMN=min(ymn,ymn1);
+  dx=XMX-XMN;dy=YMX-YMN
+  if dx==0 then dx=max(XMX/2,1),end;
+  XMX=XMX+dx/50
+  if dy==0 then dy=max(YMX/2,1),end;
+  YMN=YMN-dy/50;YMX=YMX+dy/50;  
+  rectx=[XMN,YMN;XMX,YMX];
 endfunction
 
 

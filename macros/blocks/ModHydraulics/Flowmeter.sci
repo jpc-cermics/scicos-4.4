@@ -15,7 +15,7 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
     end;
     //xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=9);
   endfunction
-      
+  
   function [x,y,typ]=Flowmeter_inputs(o)
     xf=60; yf=40; dx=xf/7; dy=yf/7;
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
@@ -91,8 +91,8 @@ function [x,y,typ]=Flowmeter(job,arg1,arg2)
     in2= [-1 -1; 1 -1; 1  1; -1  1; -1 -1; 0 0]*diag([xf/28,yf/28])
     out2=[ 1  1;-1  1;-1 -1;  1 -1;  1  1; 0 0]*diag([xf/28,yf/28])
     
-    xset('pattern',default_color(1))           
-    xset('thickness',1)   
+    //xset('pattern',default_color(1))           
+    //xset('thickness',1)   
     
     if orient then
       for i=1:size(P,'r')      

@@ -113,17 +113,17 @@ function [x,y,typ]=MPBLOCK(job,arg1,arg2)
     x.graphics=graphics
 
    case 'define' then
-      in=['u']
-      intype=['I']
-      out=['y1';'y2']
-      outtype=['I';'I']
-      param=[];
-      paramv=list()
-      pprop=[];
+    in=['u']
+    intype=['I']
+    out=['y1';'y2']
+    outtype=['I';'I']
+    param=[];
+    paramv=list()
+    pprop=[];
 
-      nameF='myPackage.myModels.model'
-      k=strindex(nameF,'.');lf=length(nameF);[ns,ms]=max(k);
-      nameF1=part(nameF,ns+1:lf);
+    nameF='myPackage.myModels.model'
+    k=strindex(nameF,'.');lf=length(nameF);[ns,ms]=max(k);
+    nameF1=part(nameF,ns+1:lf);
 
     exprs = tlist(["MPBLOCK","in","intype","out","outtype",...
 		   "param","paramv","pprop","nameF","funtxt"],...
@@ -156,7 +156,7 @@ function [x,y,typ]=MPBLOCK(job,arg1,arg2)
     model.out=ones(size(mo.outputs,'r'),1)
     model.equations=mo
     gr_i=['txt=['' '+nameF1+' ''];';
-              'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'')'];
+	  'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'')'];
     x=standard_define([3 2],model,exprs,gr_i,'MPBLOCK');
     x.graphics.in_implicit =intype
     x.graphics.out_implicit=outtype
@@ -166,7 +166,7 @@ endfunction
 
 function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,nameF,lab_1]=...
       MPBLOCK_get_parameters(exprs,model,graphics)
-// get parameters 
+  // get parameters 
   cancel=%f;
   in=[],out=[],param=[],paramv=[],pprop=[];intype=[];outtype=[];funam='void';
   lab_1=[];
@@ -180,22 +180,22 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,name
 	       exprs.nameF)      //7
 
   [ok,Tin,Tintype,Tout,Touttype,Tparam,pprop,Tfunam,lab_1]=..
-       getvalue(['Set Modelica generic block parameters:';..
-		 'The Modelica model of this block is defined in a package.';...
-		 'In variable field the name of the connectors or input/output '+...
-		 'variables in the Modelica model should be given.';..
-		 'The type of Modelica connectors: ""I"".';..
-		 'The type of variables from/to Scicos: ""E"".'],..
-       ['Input/lefthand variables';..
-        'Input/lefthand variables types';..
-        'Output/righthand variables';..
-        'Output/righthand variables types';..
-        'Common parameters between Modelica and Scicos';..
-        'Parameters properties';..
-        'Model name in the package'],..
-        list('str',-1,'str',-1,'str',-1,'str',-1,'str',-1,..
-             'vec',-1,'str',-1),lab_1)
- 
+      getvalue(['Set Modelica generic block parameters:';..
+		'The Modelica model of this block is defined in a package.';...
+		'In variable field the name of the connectors or input/output '+...
+		'variables in the Modelica model should be given.';..
+		'The type of Modelica connectors: ""I"".';..
+		'The type of variables from/to Scicos: ""E"".'],..
+	       ['Input/lefthand variables';..
+		'Input/lefthand variables types';..
+		'Output/righthand variables';..
+		'Output/righthand variables types';..
+		'Common parameters between Modelica and Scicos';..
+		'Parameters properties';..
+		'Model name in the package'],..
+	       list('str',-1,'str',-1,'str',-1,'str',-1,'str',-1,..
+		    'vec',-1,'str',-1),lab_1)
+  
   // check cancel case
   if ~ok then cancel=%t;ok=%t; return;end 
   // default return value

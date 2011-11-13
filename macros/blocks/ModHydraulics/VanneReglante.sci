@@ -69,7 +69,7 @@ function [x,y,typ]=VanneReglante(job,arg1,arg2)
       scicos_lock_draw([x(k)+xdelta_in(k),y(k)+ydelta_in(k)],xf,yf,select_face_in(k),port_type(k));
     end
   endfunction 
-    
+  
   x=[];y=[];typ=[];
 
   select job

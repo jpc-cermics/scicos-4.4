@@ -6,8 +6,6 @@ function [x,y,typ]=Switch(job,arg1,arg2)
 //   - avec un dialogue de saisie de parametre
 
   function blk_draw(sz,orig,orient,label)
-
-    Thick=xget("thickness");xset("thickness",2);
     x=orig(1)+[0,3,5.0]*sz(1)/8;
     y=orig(2)+[1,1,2.5]*sz(2)/2;
     xpoly(x,y,type="lines",close=%f);
@@ -16,7 +14,6 @@ function [x,y,typ]=Switch(job,arg1,arg2)
     y=orig(2)+[1,1]*sz(2)/2;
     xpoly(x,y,type="lines",close=%f);
     xstring(orig(1)+3,orig(2)+1.8,"sw");
-    xset("thickness",Thick)
   endfunction 
 
   

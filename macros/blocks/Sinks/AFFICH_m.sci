@@ -6,6 +6,15 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
     str = strcat(smat_create(1,n,str),' ');
     str  = smat_create(m,1,str);
   endfunction
+
+  function blk_draw(sz,orig,orient,label)
+    gin1=max(1,model.in);gin2=max(1,model.in2);
+    fnt=xget("font");
+    xset("font",ipar(1),ipar(2));
+    str = affich_str(gin1,gin2,ipar(5:6)); 
+    xstringb(orig(1),orig(2),str,sz(1),sz(2));
+    xset("font",fnt(1),fnt(2));
+  endfunction
   
   x=[];y=[];typ=[]
   select job
@@ -90,7 +99,7 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
 	break
       end
     end
-   
+    
    case 'compile'
     model=arg1
     in=[model.in,model.in2]
@@ -136,13 +145,7 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
 	      string(nt);
 	      string(nd);
 	      string(0) ]
-
-    gr_i=['gin1=max(1,model.in);gin2=max(1,model.in2);'
-	  'fnt=xget(''font'')'
-	  'xset(''font'',ipar(1),ipar(2))';
-	  'str = affich_str(gin1,gin2,ipar(5:6));';
-	  'xstringb(orig(1),orig(2),str,sz(1),sz(2));'
-	  'xset(''font'',fnt(1),fnt(2))']
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x = standard_define([3 2],model,exprs,gr_i,'AFFICH_m');
   end
 endfunction

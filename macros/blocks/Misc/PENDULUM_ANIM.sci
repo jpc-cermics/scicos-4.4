@@ -1,6 +1,15 @@
-///withoutPrompt 
 function [x,y,typ]=PENDULUM_ANIM(job,arg1,arg2)
 // Animation of the cart-pendulum problem
+
+  function blk_draw(sz,orig,orient,label)
+    xx=orig(1)+sz(1)*[.4 .6 .6 .4 .4]
+    yy=orig(2)+sz(2)*[.2 .2 .4 .4 .2]
+    xpoly(xx,yy,type="lines",thickness=2);
+    xx=orig(1)+sz(1)*[.5 .6]
+    yy=orig(2)+sz(2)*[.4 .8]
+    xpoly(xx,yy,thickness=2)
+  endfunction
+  
   x=[];y=[];typ=[]
   select job
    case 'plot' then
@@ -18,9 +27,9 @@ function [x,y,typ]=PENDULUM_ANIM(job,arg1,arg2)
     while %t do
       [ok,plen,csiz,phi,xmin,xmax,ymin,ymax,exprs]=getvalue(..
 						  'Set Scope parameters',..
-        ['Pendulum length';'Cart size (square side)';'Slope';
-        'Xmin';'Xmax';  'Ymin'; 'Ymax' ],..
-        list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1),exprs)
+						  ['Pendulum length';'Cart size (square side)';'Slope';
+		    'Xmin';'Xmax';  'Ymin'; 'Ymax' ],..
+						  list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1),exprs)
       if ~ok then break,end
       mess=[]
       if plen<=0|csiz<=0 then
@@ -59,17 +68,10 @@ function [x,y,typ]=PENDULUM_ANIM(job,arg1,arg2)
     model.dep_ut=[%f %f]
     
     exprs=string(model.rpar)
-    gr_i=['thick=xget(''thickness'');xset(''thickness'',2);';
-          'xx=orig(1)+sz(1)*[.4 .6 .6 .4 .4]'
-          'yy=orig(2)+sz(2)*[.2 .2 .4 .4 .2]'
-          'xpoly(xx,yy,type=''lines'')'
-          'xx=orig(1)+sz(1)*[.5 .6]'
-          'yy=orig(2)+sz(2)*[.4 .8]'
-          'xpoly(xx,yy)'
-          'xset(''thickness'',thick);']
     x=standard_define([3 3],model,exprs,gr_i,'PENDULUM_ANIM');
   end
-endfunction ///\withPrompt{}
+endfunction
+
 
 
 

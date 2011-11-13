@@ -4,7 +4,7 @@ function [x,y,typ]=Feedback(job,arg1,arg2)
 //   - avec un dialogue de saisie de parametre
 
   function blk_draw(sz,orig,orient,label)
-    //xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=9);
+  //xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=9);
     xf=60;yf=40;
     if orient then  
       // an horizontal arrow 
@@ -53,7 +53,7 @@ function [x,y,typ]=Feedback(job,arg1,arg2)
       scicos_lock_draw([x(k)+xdelta_in(k),y(k)+ydelta_in(k)],xf,yf,select_face_in(k),port_type(k));
     end
   endfunction 
-    
+  
   function [x,y,typ]=Feedback_inputs(o)
   // input port positions 2 inputs 
     xf=60;yf=40;dx=xf/7;

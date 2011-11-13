@@ -2,7 +2,6 @@ function [x,y,typ]=Diode(job,arg1,arg2)
 // Copyright INRIA
 
   function blk_draw(sz,orig,orient,label)
-    xset("thickness",2)
     if orient then
       xx=orig(1)+[0,1,1,2,2,2,2,3,2,1,1,2]*(sz(1)/3);
       yy=orig(2)+[2,2,3,2,3,1,2,2,2,1,2,2]*(sz(2)/4);

@@ -23,11 +23,11 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
     model_n=model
     while %t do
       [ok,dt,t0,exprs0]=getvalue('Set Clock block parameters',..
-				['Period';'Init time'],list('vec',1,'vec',1),exprs)
+				 ['Period';'Init time'],list('vec',1,'vec',1),exprs)
       if ~ok then break,end
       if dt<=0 then
-	     message('period must be positive')
-	     ok=%f
+	message('period must be positive')
+	ok=%f
       end
       if ok then
 	xx.graphics.exprs=exprs0

@@ -7,7 +7,6 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
     orig = graphics.orig,
     sz = graphics.sz
     orient = graphics.flip
-    thick  =xget('thickness');
     rx = sz(1)*p/2
     ry = sz(2)/2
     gr_i = arg1.graphics.gr_i
@@ -16,7 +15,6 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
     end
     xarc(orig(1),orig(2)+sz(2),sz(1)*p,sz(2),0,360*64)
     xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],style=0)
-    xset('thickness',thick);
     if orient then  //standard orientation (port)
       out= [0  -1/14
 	    1/7    0
@@ -29,7 +27,7 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
       xfpoly(sz(1)*out(:,1)+orig(1),sz(2)*out(:,2)+orig(2)+sz(2)/2,1)
     end
   endfunction
-    
+  
   x=[];y=[];typ=[];
   p=1 //pixel sizes ratio
   select job

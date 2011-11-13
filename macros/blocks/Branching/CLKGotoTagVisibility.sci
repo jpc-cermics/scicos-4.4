@@ -5,8 +5,8 @@ function [x,y,typ]=CLKGotoTagVisibility(job,arg1,arg2)
     xstringb(orig(1),orig(2),["{"+arg1.graphics.exprs(1)+"}"],sz(1),sz(2),"fill");
     wd=xget("wdim").*[1.016,1.12];
     p=wd(2)/wd(1);p=1;
-    xarc(orig(1)+0.05*sz(1), orig(2)+0.95*sz(2),0.9*sz(1)*p,0.9*sz(2),
-    0,360*64,color=scs_color(5),thickness=2);
+    xarc(orig(1)+0.05*sz(1), orig(2)+0.95*sz(2),0.9*sz(1)*p,0.9*sz(2),0,360*64,...
+	 color=scs_color(5),thickness=2);
     txt=["Goto Tag";"Visibility"];
     if ~exists("%zoom") then %zoom=1, end;
     fz=1.5*%zoom*4;

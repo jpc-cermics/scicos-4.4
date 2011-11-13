@@ -55,7 +55,7 @@ function [x,y,typ]=DLRADAPT_f(job,arg1,arg2)
     for i=1:size(names,'*');
       execstr(sprintf('%s=%s;',names(i),exprs(i)));
     end
-        
+    
     model=scicos_model()
     model.sim='dlradp'
     model.in=[1;1]

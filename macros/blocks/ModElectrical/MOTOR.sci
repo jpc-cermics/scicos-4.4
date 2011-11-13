@@ -17,8 +17,7 @@ function [x,y,typ]=MOTOR(job,arg1,arg2)
   function motor_draw_ports(o)
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
 
-
-    xset('pattern',default_color(0));xset('thickness',1)
+    //xset('pattern',default_color(0));xset('thickness',1)
     // draw input/output ports
     //------------------------
 

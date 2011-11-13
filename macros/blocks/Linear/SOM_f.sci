@@ -27,7 +27,7 @@ function [x,y,typ]=SOM_f(job,arg1,arg2)
       xfpoly(sz(1)*out(:,1)+orig(1),sz(2)*out(:,2)+orig(2)+sz(2)/2,1)
     end
   endfunction
-    
+  
   x=[];y=[];typ=[];
   p=1 //pixel sizes ratio
   select job

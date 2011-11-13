@@ -1,4 +1,16 @@
 function [x,y,typ]=FROMWSB(job,arg1,arg2)
+
+  function blk_draw(sz,orig,orient,label)  
+    xstringb(orig(1),orig(2),"From workspace",sz(1),sz(2),"fill")
+    txt=varnam;
+    style=5;
+    rectstr=stringbox(txt,orig(1),orig(2),0,style,1);
+    if ~exists("%zoom") then %zoom=1, end;
+    w=(rectstr(1,3)-rectstr(1,2))*%zoom;
+    h=(rectstr(2,2)-rectstr(2,4))*%zoom;
+    xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,"fill");
+  endfunction
+
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -178,16 +190,7 @@ function [x,y,typ]=FROMWSB(job,arg1,arg2)
 		       nmode=0,..
 		       equations=list())
     //## modif made by hand
-    gr_i=['xstringb(orig(1),orig(2),''From workspace'',sz(1),sz(2),''fill'')'
-	  'txt=varnam;'
-	  'style=5;'
-	  'rectstr=stringbox(txt,orig(1),orig(2),0,style,1);'
-	  'if ~exists(''%zoom'') then %zoom=1, end;'
-	  'w=(rectstr(1,3)-rectstr(1,2))*%zoom;'
-	  'h=(rectstr(2,2)-rectstr(2,4))*%zoom;'
-	  'xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,''fill'');'
-	  '//e=gce();'
-	  '//e.font_style=style;']
+    gr_i="blk_draw(sz,orig,orient,model.label)";	
     x=standard_define([3.5 2],model,[],gr_i,'FROMWSB');
   end
 endfunction

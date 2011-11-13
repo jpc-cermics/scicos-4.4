@@ -21,8 +21,8 @@ function [x,y,typ]=CLKOUTV_f(job,arg1,arg2)
     end
     xstringb(xo,yo,string(prt),sz(1),sz(2)/1.5,'fill');
     in= [-1/14,  1/7
-	     0,    0
-	  1/14,  1/7
+	 0,    0
+	 1/14,  1/7
 	 -1/14,  1/7]*diag([xf,yf]);
     xfpoly(in(:,1)+ones(4,1)*(orig(1)+sz(1)/2),..
 	   in(:,2)+ones(4,1)*(orig(2)+sz(2)),..

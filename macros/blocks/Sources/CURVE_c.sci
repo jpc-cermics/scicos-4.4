@@ -1,9 +1,24 @@
 function [x,y,typ]=CURVE_c(job,arg1,arg2)
-// 
 // Masoud Najafi 07/2007
 // origine: serge Steer, Habib Jreij 1993
 // Copyright INRIA
 //
+
+  function blk_draw(sz,orig,orient,label)  
+    rpar=arg1.model.rpar;n=arg1.model.ipar(1);order=arg1.model.ipar(2);;
+    xx=rpar(1:n);yy=rpar(n+1:2*n);;
+    [XX,YY,rpardummy]=Do_Spline(n,order,xx,yy);
+    xmx=max(XX);xmn=min(XX);;
+    ymx=max(YY);ymn=min(YY);;
+    dx=xmx-xmn;if dx==0 then dx=max(xmx/2,1);end;
+    xmn=xmn-dx/20;xmx=xmx+dx/20;;
+    dy=ymx-ymn;if dy==0 then dy=max(ymx/2,1);end;;
+    ymn=ymn-dy/20;ymx=ymx+dy/20;;
+    xx2=orig(1)+sz(1)*((XX-xmn)/(xmx-xmn));;
+    yy2=orig(2)+sz(2)*((YY-ymn)/(ymx-ymn));;
+    xpoly(xx2,yy2,type="lines",color=2);
+  endfunction
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -94,20 +109,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
     model.evtout=1
     model.firing=0
     exprs=[sci2exp(Method);sci2exp(xx);sci2exp(yy);PeriodicOption;Graf]
-    
-    gr_i=['rpar=arg1.model.rpar;n=arg1.model.ipar(1);order=arg1.model.ipar(2);';
-	  'xx=rpar(1:n);yy=rpar(n+1:2*n);';
-	  '[XX,YY,rpardummy]=Do_Spline(n,order,xx,yy)';
-	  'xmx=max(XX);xmn=min(XX);';
-	  'ymx=max(YY);ymn=min(YY);';
-	  'dx=xmx-xmn;if dx==0 then dx=max(xmx/2,1);end';
-	  'xmn=xmn-dx/20;xmx=xmx+dx/20;';
-	  'dy=ymx-ymn;if dy==0 then dy=max(ymx/2,1);end;';
-	  'ymn=ymn-dy/20;ymx=ymx+dy/20;';
-	  'xx2=orig(1)+sz(1)*((XX-xmn)/(xmx-xmn));';
-	  'yy2=orig(2)+sz(2)*((YY-ymn)/(ymx-ymn));';
-	  'xset(''color'',2)';
-	  'xpoly(xx2,yy2,type=''lines'');']
+    gr_i="blk_draw(sz,orig,orient,model.label)";	
     x=standard_define([2 2],model,exprs,gr_i,'CURVE_c');
   end
 endfunction
@@ -134,7 +136,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
 // original scilab file: Serge Steer, Habib Jreij INRIA 1993
 // Masoud Najafi 07/2007
 // jpc 2011 (nsp port + changes).
-    
+  
 // utility functions 
 
   function [r]=curve_return_rpar(xy,rpar,ipar)
@@ -149,7 +151,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
       r=[xy(:,1);xy(:,2)]
     end
   endfunction
-    
+  
   function [orpar,oipar]=curve_update_spline(a,xy,iipar,irpar,win=%t)
   // compute spline coordinates and 
   // updates the polyline object a.children(1).children(1) 
@@ -493,7 +495,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
 
   // main function 
   // --------------
-    
+  
   ok=%f
   if nargin ==0 then ixy=[];end;
   if size(ixy,'c') < 2 then 
@@ -930,7 +932,7 @@ endfunction
 function [X,Y,orpar]=Do_Spline(N,order,x,y,extrapo)
 // compute the spline points 
 // ---------------------------------------
-    
+  
   if nargin <=4 then extrapo=0;end 
   
   function METHOD=curve_getmethod(order)

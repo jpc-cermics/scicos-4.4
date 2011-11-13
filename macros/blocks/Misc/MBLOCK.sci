@@ -170,7 +170,7 @@ endfunction
 
 function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,funam,lab_1]=...
       MBLOCK_get_parameters(exprs,model,graphics)
-// get parameters 
+  // get parameters 
   cancel=%f;
   in=[],out=[],param=[],paramv=[],pprop=[];intype=[];outtype=[];funam='void';
   lab_1=[];
@@ -375,7 +375,7 @@ function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
     editblk=%f;
     txt = textmp;
   end
-    
+  
   if isempty(txt) then 
     ok=%f;
     tt=tt;

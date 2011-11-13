@@ -24,7 +24,7 @@ function [x,y,typ]=MAXMIN(job,arg1,arg2)
       [ok,mm,nin,zcr,exprs]=..
 	  getvalue('Set Max/Min block parameters',..
 		   ['Min (1) or Max (2) ';'Number of input vectors (1 or 2)';'Zero-crossing (1: yes, 0;no)'],..
-		    list('vec',1,'vec',1,'vec',1),exprs)
+		   list('vec',1,'vec',1,'vec',1),exprs)
       if ~ok then break,end
       if zcr<>0 then zcr=-1, end
       if mm<>1 then mm=2,end
