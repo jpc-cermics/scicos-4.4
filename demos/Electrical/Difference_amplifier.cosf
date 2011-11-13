@@ -11,8 +11,7 @@ H__0=hash_create(17);
         1.000e+02;
                 0 ]
     H__1('title')=
-    [ "Difference_amplifier" ,...
-  "/home/alan/Dev/nsp2_dep/nsp2/toolboxes/scicos-4.4/demos/Electrical/" ]
+    [ "Difference_amplifier", "./" ]
     H__2=hash_create(17);
       H__2('Background')=
       [   8,   1 ]
@@ -43,9 +42,8 @@ H__0=hash_create(17);
     H__1('void2')= []
     H__1('void3')= []
     H__1('wpar')=
-    [    -110.5909,     801.0806,      11.8389,     628.4746,    1163.0000 ,...
-      787.0000,     178.0000,      88.0000,     807.0000,     670.0000 ,...
-      432.0000,      27.0000,       1.3108 ]
+    [    -110.5909,     801.0806,      11.8389,     628.4746,    1163.0000,     787.0000,     178.0000 ,...
+       88.0000,     807.0000,     670.0000,     432.0000,      27.0000,       1.3108 ]
     H__1('type')=
     [ "params" ]
     H__1('tlist')=
@@ -84,16 +82,7 @@ H__0=hash_create(17);
          "40" ]
        L__4=list();
         L__4(1)=
-        [ "";
-          "if orient then";
-          "  xpolys(orig(1)+[0.45,0.45,0.65,0.45,0.65,1;0.45,0,0.45,0.65,1,0.65]*sz(1),orig(2)+[0.8333333,0.5,0.9166667,0.4166667,0.0833333,0.9166667;0.1666667,0.5,0.5833333,0.0833333,0.0833333,0.9166667]*sz(2),[1,1,1,1,1,1])";
-          "  xset(''color'',0)";
-          "  xfpolys(orig(1)+[0.65;0.62;0.58;0.65]*sz(1),orig(2)+[0.0833333;0.2;0.1333333;0.0833333]*sz(2),2)";
-          "else";
-          "  xpolys(orig(1)+[0.55,0.55,0.35,0.55,0.35,0;0.55,1,0.55,0.35,0,0.35]*sz(1),orig(2)+[0.8333333,0.5,0.9166667,0.4166667,0.0833333,0.9166667;0.1666667,0.5,0.5833333,0.0833333,0.0833333,0.9166667]*sz(2),[1,1,1,1,1,1])";
-          "  xset(''color'',0)";
-          "  xfpolys(orig(1)+[0.35;0.38;0.42;0.35]*sz(1),orig(2)+[0.0833333;0.2;0.1333333;0.0833333]*sz(2),2)";
-          "end" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -109,38 +98,41 @@ H__0=hash_create(17);
        H__3('pein')= []
        H__3('in_implicit')=
        [ "I" ]
-       H__3('id')=
-       [ "" ]
        H__3('orig')=
        [   247.0695,   287.7220 ]
        H__3('pin')=
        [   5 ]
        H__3('mlist')=
        [  %t ]
-       H__3('peout')= []
        H__3('out_implicit')=
        [ "I";
          "I" ]
+       H__3('peout')= []
+       H__3('id')=
+       [ "" ]
       H__2('graphics')=H__3;
      H__3=hash_create(47);
        H__3('out')=
        [   1;
            1 ]
+       L__4=list();
+        H__3('opar')=L__4;
        H__3('out2')= []
        H__3('evtout')= []
-       H__3('sim')=
-       [ "NPN" ]
+       H__3('intyp')=
+       [   1 ]
        H__3('type')=
        [ "model" ]
        H__3('state')= []
        H__3('in2')= []
-       H__3('firing')= []
        H__3('evtin')= []
        H__3('dstate')= []
        H__3('outtyp')=
        [   1 ]
        H__3('mlist')=
        [  %t ]
+       H__3('nzcross')=
+       [   0 ]
        H__3('blocktype')=
        [ "c" ]
        H__3('label')=
@@ -254,11 +246,13 @@ H__0=hash_create(17);
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
-       H__3('intyp')=
-       [   1 ]
+       H__3('sim')=
+       [ "NPN" ]
        L__4=list();
         H__3('odstate')=L__4;
        H__3('ipar')= []
+       H__3('nmode')=
+       [   0 ]
        H__3('rpar')=
        [   5.000e+01;
            1.000e-01;
@@ -277,12 +271,7 @@ H__0=hash_create(17);
            1.000e-15;
            2.585e-02;
            4.000e+01 ]
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
+       H__3('firing')= []
       H__2('model')=H__3;
      H__2('mlist')=
      [  %t ]
@@ -318,16 +307,7 @@ H__0=hash_create(17);
          "40" ]
        L__4=list();
         L__4(1)=
-        [ "";
-          "if orient then";
-          "  xpolys(orig(1)+[0.45,0.45,0.65,0.45,0.65,1;0.45,0,0.45,0.65,1,0.65]*sz(1),orig(2)+[0.8333333,0.5,0.9166667,0.4166667,0.0833333,0.9166667;0.1666667,0.5,0.5833333,0.0833333,0.0833333,0.9166667]*sz(2),[1,1,1,1,1,1])";
-          "  xset(''color'',0)";
-          "  xfpolys(orig(1)+[0.65;0.62;0.58;0.65]*sz(1),orig(2)+[0.0833333;0.2;0.1333333;0.0833333]*sz(2),2)";
-          "else";
-          "  xpolys(orig(1)+[0.55,0.55,0.35,0.55,0.35,0;0.55,1,0.55,0.35,0,0.35]*sz(1),orig(2)+[0.8333333,0.5,0.9166667,0.4166667,0.0833333,0.9166667;0.1666667,0.5,0.5833333,0.0833333,0.0833333,0.9166667]*sz(2),[1,1,1,1,1,1])";
-          "  xset(''color'',0)";
-          "  xfpolys(orig(1)+[0.35;0.38;0.42;0.35]*sz(1),orig(2)+[0.0833333;0.2;0.1333333;0.0833333]*sz(2),2)";
-          "end" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -389,9 +369,8 @@ H__0=hash_create(17);
          [ "NPN" ]
          H__4('inputs')=
          [ "B" ]
-         H__4('outputs')=
-         [ "C";
-           "E" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -486,8 +465,9 @@ H__0=hash_create(17);
               0;
               0 ]
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "C";
+           "E" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -536,12 +516,7 @@ H__0=hash_create(17);
        [ "2e3" ]
        L__4=list();
         L__4(1)=
-        [ "xx=[0,1,1,7,7,8,7,7,1,1]/8;";
-          "yy=[1,1,0,0,1,1,1,2,2,1]/2;";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); ";
-          "txt=''R= ''+R;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -597,8 +572,8 @@ H__0=hash_create(17);
          [ "Resistor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -610,8 +585,8 @@ H__0=hash_create(17);
            [   2000 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -647,12 +622,7 @@ H__0=hash_create(17);
        [ "2e3" ]
        L__4=list();
         L__4(1)=
-        [ "xx=[0,1,1,7,7,8,7,7,1,1]/8;";
-          "yy=[1,1,0,0,1,1,1,2,2,1]/2;";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); ";
-          "txt=''R= ''+R;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -708,8 +678,8 @@ H__0=hash_create(17);
          [ "Resistor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -721,8 +691,8 @@ H__0=hash_create(17);
            [   2000 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -761,14 +731,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   299.3173;
-         299.7220 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   231.9421;
          247.0695 ]
+     H__2('yy')=
+     [   299.3173;
+         299.7220 ]
     L__1(5)=H__2;
    
    H__2=hash_create(23);
@@ -784,14 +754,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   299.7220;
-         299.3173 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   398.6879;
          414.5992 ]
+     H__2('yy')=
+     [   299.7220;
+         299.3173 ]
     L__1(6)=H__2;
    
    H__2=hash_create(23);
@@ -804,12 +774,7 @@ H__0=hash_create(17);
        [ "7e3" ]
        L__4=list();
         L__4(1)=
-        [ "xx=[0,1,1,7,7,8,7,7,1,1]/8;";
-          "yy=[1,1,0,0,1,1,1,2,2,1]/2;";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); ";
-          "txt=''R= ''+R;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -865,8 +830,8 @@ H__0=hash_create(17);
          [ "Resistor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -878,8 +843,8 @@ H__0=hash_create(17);
            [   7000 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -915,13 +880,7 @@ H__0=hash_create(17);
        [ "10" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',2)";
-          "xx=[0 5 5 5]/12;";
-          "if orient then yy=[1 1 2 0]/2;else yy=[2,2,3,1]/4,end";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2));";
-          "xx=[2 2 2 3]/3;";
-          "if orient then yy=[1,3,2,2]/4;else yy=[0 2 1 1]/2;end";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2));" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -977,8 +936,8 @@ H__0=hash_create(17);
          [ "ConstantVoltage" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -990,8 +949,8 @@ H__0=hash_create(17);
            [   10 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -1027,11 +986,7 @@ H__0=hash_create(17);
        [ "" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',3)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],style=0);";
-          "xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],style=0);" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -1088,7 +1043,8 @@ H__0=hash_create(17);
          [ "Ground" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('outputs')= []
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -1097,8 +1053,7 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')= []
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -1133,14 +1088,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   454.0853;
-         441.6951 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   322.5951;
          323.0347 ]
+     H__2('yy')=
+     [   454.0853;
+         441.6951 ]
     L__1(10)=H__2;
    
    H__2=hash_create(23);
@@ -1153,12 +1108,7 @@ H__0=hash_create(17);
        [ "1e4" ]
        L__4=list();
         L__4(1)=
-        [ "xx=[0,1,1,7,7,8,7,7,1,1]/8;";
-          "yy=[1,1,0,0,1,1,1,2,2,1]/2;";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); ";
-          "txt=''R= ''+R;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -1214,8 +1164,8 @@ H__0=hash_create(17);
          [ "Resistor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -1227,8 +1177,8 @@ H__0=hash_create(17);
            [   10000 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -1264,12 +1214,7 @@ H__0=hash_create(17);
        [ "1e4" ]
        L__4=list();
         L__4(1)=
-        [ "xx=[0,1,1,7,7,8,7,7,1,1]/8;";
-          "yy=[1,1,0,0,1,1,1,2,2,1]/2;";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); ";
-          "txt=''R= ''+R;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -1325,8 +1270,8 @@ H__0=hash_create(17);
          [ "Resistor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -1338,8 +1283,8 @@ H__0=hash_create(17);
            [   10000 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -1378,16 +1323,16 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   309.3220;
-         309.3220;
-         324.0221 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   287.0695;
          297.2839;
          297.2839 ]
+     H__2('yy')=
+     [   309.3220;
+         309.3220;
+         324.0221 ]
     L__1(13)=H__2;
    
    H__2=hash_create(23);
@@ -1403,14 +1348,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   381.1649;
-         381.1649 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   297.2839;
          323.0363 ]
+     H__2('yy')=
+     [   381.1649;
+         381.1649 ]
     L__1(14)=H__2;
    
    H__2=hash_create(23);
@@ -1483,9 +1428,8 @@ H__0=hash_create(17);
          [ "limpsplit" ]
          H__4('inputs')=
          [ "n" ]
-         H__4('outputs')=
-         [ "n";
-           "n" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -1494,8 +1438,9 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n";
+           "n" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -1530,14 +1475,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   381.1649;
-         381.1649 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   323.0363;
          349.8650 ]
+     H__2('yy')=
+     [   381.1649;
+         381.1649 ]
     L__1(16)=H__2;
    
    H__2=hash_create(23);
@@ -1553,14 +1498,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   381.1649;
-         394.5522 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   323.0363;
          323.0347 ]
+     H__2('yy')=
+     [   381.1649;
+         394.5522 ]
     L__1(17)=H__2;
    
    H__2=hash_create(23);
@@ -1573,13 +1518,7 @@ H__0=hash_create(17);
        [ "10" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',2)";
-          "xx=[0 5 5 5]/12;";
-          "if orient then yy=[1 1 2 0]/2;else yy=[2,2,3,1]/4,end";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2));";
-          "xx=[2 2 2 3]/3;";
-          "if orient then yy=[1,3,2,2]/4;else yy=[0 2 1 1]/2;end";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2));" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -1635,8 +1574,8 @@ H__0=hash_create(17);
          [ "ConstantVoltage" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -1648,8 +1587,8 @@ H__0=hash_create(17);
            [   10 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -1685,11 +1624,7 @@ H__0=hash_create(17);
        [ "" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',3)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],style=0);";
-          "xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],style=0);" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -1746,7 +1681,8 @@ H__0=hash_create(17);
          [ "Ground" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('outputs')= []
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -1755,8 +1691,7 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')= []
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -1791,14 +1726,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   198.8603;
-         197.0057 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   322.3250;
          322.6776 ]
+     H__2('yy')=
+     [   198.8603;
+         197.0057 ]
     L__1(20)=H__2;
    
    H__2=hash_create(23);
@@ -1814,14 +1749,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   149.8629;
-         138.6708 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   322.6776;
          323.1710 ]
+     H__2('yy')=
+     [   149.8629;
+         138.6708 ]
     L__1(21)=H__2;
    
    H__2=hash_create(23);
@@ -1838,12 +1773,7 @@ H__0=hash_create(17);
          "0" ]
        L__4=list();
         L__4(1)=
-        [ "xarc(orig(1)+sz(1)*1/8,orig(2)+sz(2)*4.3/5,sz(1)*3/4,sz(2)*3/4,0,360*64);";
-          "xsegs(orig(1)+sz(1)*[0 1/8],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[7/8 1],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "V=string(model.rpar(1));";
-          "xstringb(orig(1),orig(2)+sz(2)*0.2,''~'',sz(1),sz(2)*0.3,''fill'')";
-          "xstringb(orig(1),orig(2)+sz(2)*0.5,V,sz(1),sz(2)*0.3,''fill'')" ]
+        [ "SineVoltage_draw(orig,sz,orient);" ]
         
         L__4(2)=
         [   8 ]
@@ -1900,8 +1830,8 @@ H__0=hash_create(17);
          [ "SineVoltage" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -1929,8 +1859,8 @@ H__0=hash_create(17);
            [   0 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -1973,14 +1903,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   299.3173;
-         299.4440 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   174.7992;
          153.9414 ]
+     H__2('yy')=
+     [   299.3173;
+         299.4440 ]
     L__1(23)=H__2;
    
    H__2=hash_create(23);
@@ -1997,12 +1927,7 @@ H__0=hash_create(17);
          "0" ]
        L__4=list();
         L__4(1)=
-        [ "xarc(orig(1)+sz(1)*1/8,orig(2)+sz(2)*4.3/5,sz(1)*3/4,sz(2)*3/4,0,360*64);";
-          "xsegs(orig(1)+sz(1)*[0 1/8],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[7/8 1],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "V=string(model.rpar(1));";
-          "xstringb(orig(1),orig(2)+sz(2)*0.2,''~'',sz(1),sz(2)*0.3,''fill'')";
-          "xstringb(orig(1),orig(2)+sz(2)*0.5,V,sz(1),sz(2)*0.3,''fill'')" ]
+        [ "SineVoltage_draw(orig,sz,orient);" ]
         
         L__4(2)=
         [   8 ]
@@ -2059,8 +1984,8 @@ H__0=hash_create(17);
          [ "SineVoltage" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -2088,8 +2013,8 @@ H__0=hash_create(17);
            [   0 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -2129,11 +2054,7 @@ H__0=hash_create(17);
        [ "" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',3)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],style=0);";
-          "xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],style=0);" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -2190,7 +2111,8 @@ H__0=hash_create(17);
          [ "Ground" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('outputs')= []
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -2199,8 +2121,7 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')= []
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -2235,14 +2156,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   242.3606;
-         233.9494 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   144.1510;
          144.1510 ]
+     H__2('yy')=
+     [   242.3606;
+         233.9494 ]
     L__1(26)=H__2;
    
    H__2=hash_create(23);
@@ -2258,14 +2179,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   167.1518;
-         155.7842 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   144.1510;
          143.8815 ]
+     H__2('yy')=
+     [   167.1518;
+         155.7842 ]
     L__1(27)=H__2;
    
    H__2=hash_create(23);
@@ -2339,9 +2260,8 @@ H__0=hash_create(17);
          [ "limpsplit" ]
          H__4('inputs')=
          [ "n" ]
-         H__4('outputs')=
-         [ "n";
-           "n" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -2350,8 +2270,9 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n";
+           "n" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -2386,14 +2307,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   233.9494;
-         224.2946 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   144.1510;
          144.1510 ]
+     H__2('yy')=
+     [   233.9494;
+         224.2946 ]
     L__1(29)=H__2;
    
    H__2=hash_create(23);
@@ -2409,16 +2330,16 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   233.9494;
-         233.9494;
-         299.3173 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   144.1510;
          471.7421;
          471.7421 ]
+     H__2('yy')=
+     [   233.9494;
+         233.9494;
+         299.3173 ]
     L__1(30)=H__2;
    
    H__2=hash_create(23);
@@ -2430,21 +2351,7 @@ H__0=hash_create(17);
        H__3('exprs')= []
        L__4=list();
         L__4(1)=
-        [ "xarc(orig(1)+sz(1)*1/8,orig(2)+sz(2)*4.3/5,sz(1)*3/4,sz(2)*3/4,0,360*64);";
-          "xsegs(orig(1)+sz(1)*[0 1/8],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[7/8 1],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1.5/8 2.5/8],orig(2)+sz(2)*[1.3/2 1.2/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[2.5/8 3.2/8],orig(2)+sz(2)*[1.62/2 1.3/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[4.25/5 1.3/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[4.9/8 5.5/8],orig(2)+sz(2)*[1.3/2 1.65/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[5.5/8 6.5/8],orig(2)+sz(2)*[1.2/2 1.32/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1/2 4.5/8],orig(2)+sz(2)*[1/2 1.32/2],style=0) ";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[0.9/8 -1/8],style=0)";
-          "xfarc(orig(1)+sz(1)*0.93/2,orig(2)+sz(2)*1/2,sz(1)*0.2/4,sz(2)*0.2/4,0,360*64);";
-          " xx=orig(1)+sz(1)*4.2/8+[.9 1 0 .9]*sz(1)/12;";
-          "yy=orig(2)+sz(2)*1.27/2+[0.1 1 0.3 0.1]*sz(2)/7;";
-          "xfpoly(xx,yy);";
-          "xstring(orig(1)+sz(1)/2,orig(2)+sz(2)/5,''V'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -2506,9 +2413,8 @@ H__0=hash_create(17);
          [ "VoltageSensor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('outputs')=
-         [ "n";
-           "v" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -2517,8 +2423,9 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n";
+           "v" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -2550,11 +2457,7 @@ H__0=hash_create(17);
        [ "" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',3)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],style=0);";
-          "xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],style=0);" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -2611,7 +2514,8 @@ H__0=hash_create(17);
          [ "Ground" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('outputs')= []
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -2620,8 +2524,7 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')= []
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -2656,14 +2559,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   207.4587;
-         190.2299 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   538.6924;
          538.3835 ]
+     H__2('yy')=
+     [   207.4587;
+         190.2299 ]
     L__1(33)=H__2;
    
    H__2=hash_create(23);
@@ -2675,21 +2578,7 @@ H__0=hash_create(17);
        H__3('exprs')= []
        L__4=list();
         L__4(1)=
-        [ "xarc(orig(1)+sz(1)*1/8,orig(2)+sz(2)*4.3/5,sz(1)*3/4,sz(2)*3/4,0,360*64);";
-          "xsegs(orig(1)+sz(1)*[0 1/8],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[7/8 1],orig(2)+sz(2)*[1/2 1/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1.5/8 2.5/8],orig(2)+sz(2)*[1.3/2 1.2/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[2.5/8 3.2/8],orig(2)+sz(2)*[1.62/2 1.3/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[4.25/5 1.3/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[4.9/8 5.5/8],orig(2)+sz(2)*[1.3/2 1.65/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[5.5/8 6.5/8],orig(2)+sz(2)*[1.2/2 1.32/2],style=0)";
-          "xsegs(orig(1)+sz(1)*[1/2 4.5/8],orig(2)+sz(2)*[1/2 1.32/2],style=0) ";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[0.9/8 -1/8],style=0)";
-          "xfarc(orig(1)+sz(1)*0.93/2,orig(2)+sz(2)*1/2,sz(1)*0.2/4,sz(2)*0.2/4,0,360*64);";
-          " xx=orig(1)+sz(1)*4.2/8+[.9 1 0 .9]*sz(1)/12;";
-          "yy=orig(2)+sz(2)*1.27/2+[0.1 1 0.3 0.1]*sz(2)/7;";
-          "xfpoly(xx,yy);";
-          "xstring(orig(1)+sz(1)/2,orig(2)+sz(2)/5,''V'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -2751,9 +2640,8 @@ H__0=hash_create(17);
          [ "VoltageSensor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('outputs')=
-         [ "n";
-           "v" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -2762,8 +2650,9 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n";
+           "v" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -2795,11 +2684,7 @@ H__0=hash_create(17);
        [ "" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',3)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],style=0);";
-          "xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],style=0);" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -2856,7 +2741,8 @@ H__0=hash_create(17);
          [ "Ground" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('outputs')= []
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -2865,8 +2751,7 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')= []
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -2901,14 +2786,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   242.4758;
-         232.2971 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   68.9075;
          68.6745 ]
+     H__2('yy')=
+     [   242.4758;
+         232.2971 ]
     L__1(36)=H__2;
    
    H__2=hash_create(23);
@@ -2982,9 +2867,8 @@ H__0=hash_create(17);
          [ "limpsplit" ]
          H__4('inputs')=
          [ "n" ]
-         H__4('outputs')=
-         [ "n";
-           "n" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -2993,8 +2877,9 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n";
+           "n" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -3029,14 +2914,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   299.4440;
-         299.5034 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   153.9414;
          144.1510 ]
+     H__2('yy')=
+     [   299.4440;
+         299.5034 ]
     L__1(38)=H__2;
    
    H__2=hash_create(23);
@@ -3052,11 +2937,6 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   299.4440;
-         318.1481;
-         318.1481;
-         299.6186 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
@@ -3064,6 +2944,11 @@ H__0=hash_create(17);
          153.9414;
           68.9075;
           68.9075 ]
+     H__2('yy')=
+     [   299.4440;
+         318.1481;
+         318.1481;
+         299.6186 ]
     L__1(39)=H__2;
    
    H__2=hash_create(23);
@@ -3077,23 +2962,7 @@ H__0=hash_create(17);
          "0" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',2)";
-          "xx=orig(1)+[0 1/3 1/3 1/3 ]*sz(1);";
-          "yy=orig(2)+[1/2 1/2 1 0]*sz(2);";
-          "xpoly(xx,yy);";
-          "xsegs(orig(1)+ sz(1)*2/3*[1 1 1 3/2],orig(2)+(sz(2)*1/2)*[2 0 1 1],style=0);";
-          "if orient then";
-          "  xrects([orig(1)+sz(1)*1/2;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));";
-          "  xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,''+'');";
-          "  xstring(orig(1)+sz(1)*7/8,orig(2)+sz(2)*3/4,''-'');";
-          "else";
-          "  xrects([orig(1)+sz(1)*1/3;orig(2)+sz(2);sz(1)*1/6;sz(2)],scs_color(33));";
-          "  xstring(orig(1)+sz(1)*1/12,orig(2)+sz(2)*3/4,''-'');";
-          "  xstring(orig(1)+sz(1)*7/8,orig(2)+sz(2)*3/4,''+'');";
-          "end";
-          "txt=''C= ''+C;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -3149,8 +3018,8 @@ H__0=hash_create(17);
          [ "Capacitor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -3168,8 +3037,8 @@ H__0=hash_create(17);
           L__5(3)=
           [   0,   1 ]
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -3205,12 +3074,7 @@ H__0=hash_create(17);
        [ "1e5" ]
        L__4=list();
         L__4(1)=
-        [ "xx=[0,1,1,7,7,8,7,7,1,1]/8;";
-          "yy=[1,1,0,0,1,1,1,2,2,1]/2;";
-          "xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); ";
-          "txt=''R= ''+R;";
-          "style=2;";
-          "xstringb(orig(1),orig(2)-3*sz(2),txt,sz(1),2*sz(2),''fill'')" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -3266,8 +3130,8 @@ H__0=hash_create(17);
          [ "Resistor" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n" ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -3279,8 +3143,8 @@ H__0=hash_create(17);
            [   100000 ]
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('outputs')=
-         [ "n" ]
+         H__4('tlist')=
+         [  %t ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -3316,11 +3180,7 @@ H__0=hash_create(17);
        [ "" ]
        L__4=list();
         L__4(1)=
-        [ "xset(''thickness'',3)";
-          "xsegs(orig(1)+sz(1)*[1/2 1/2],orig(2)+sz(2)*[1 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[0 1],orig(2)+sz(2)*[1/2 1/2],style=0);";
-          "xsegs(orig(1)+sz(1)*[2/8 6/8],orig(2)+sz(2)*[1/4 1/4],style=0);";
-          "xsegs(orig(1)+sz(1)*[3/8 5/8],orig(2)+sz(2)*[0 0],style=0);" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)= []
         H__3('gr_i')=L__4;
@@ -3377,7 +3237,8 @@ H__0=hash_create(17);
          [ "Ground" ]
          H__4('inputs')=
          [ "p" ]
-         H__4('outputs')= []
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -3386,8 +3247,7 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')= []
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -3422,14 +3282,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   196.7887;
-         187.0242 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   505.9926;
          506.4955 ]
+     H__2('yy')=
+     [   196.7887;
+         187.0242 ]
     L__1(43)=H__2;
    
    H__2=hash_create(23);
@@ -3518,8 +3378,7 @@ H__0=hash_create(17);
        H__4=hash_create(17);
          H__5=hash_create(23);
            H__5('tol')=
-           [   1.000e-04,   1.000e-06,   1.000e-10,   1.000e+05,           0 ,...
-            0 ]
+           [   1.000e-04,   1.000e-06,   1.000e-10,   1.000e+05,           0,           0 ]
            H__5('title')=
            [ "Untitled" ]
            H__6=hash_create(17);
@@ -3589,27 +3448,28 @@ H__0=hash_create(17);
               H__7('pein')=
               [   5 ]
               H__7('in_implicit')= []
-              H__7('id')=
-              [ "" ]
               H__7('orig')=
               [   399,   162 ]
               H__7('pin')= []
               H__7('mlist')=
               [  %t ]
-              H__7('peout')= []
               H__7('out_implicit')= []
+              H__7('peout')= []
+              H__7('id')=
+              [ "" ]
              H__6('graphics')=H__7;
             H__7=hash_create(47);
               H__7('out')= []
+              L__8=list();
+               H__7('opar')=L__8;
               H__7('out2')= []
               H__7('evtout')= []
-              H__7('sim')=
-              [ "output" ]
+              H__7('intyp')=
+              [   1 ]
               H__7('type')=
               [ "model" ]
               H__7('state')= []
               H__7('in2')= []
-              H__7('firing')= []
               H__7('evtin')=
               [   1 ]
               H__7('dstate')= []
@@ -3617,6 +3477,8 @@ H__0=hash_create(17);
               [   1 ]
               H__7('mlist')=
               [  %t ]
+              H__7('nzcross')=
+              [   0 ]
               H__7('blocktype')=
               [ "d" ]
               H__7('label')=
@@ -3626,19 +3488,16 @@ H__0=hash_create(17);
               L__8=list();
                H__7('equations')=L__8;
               H__7('in')= []
-              H__7('intyp')=
-              [   1 ]
+              H__7('sim')=
+              [ "output" ]
               L__8=list();
                H__7('odstate')=L__8;
               H__7('ipar')=
               [   1 ]
-              H__7('rpar')= []
               H__7('nmode')=
               [   0 ]
-              L__8=list();
-               H__7('opar')=L__8;
-              H__7('nzcross')=
-              [   0 ]
+              H__7('rpar')= []
+              H__7('firing')= []
              H__6('model')=H__7;
             H__6('mlist')=
             [  %t ]
@@ -3849,10 +3708,10 @@ H__0=hash_create(17);
             [  %t ]
             H__6('gui')=
             [ "CLKSPLIT_f" ]
-            H__6('type')=
-            [ "Block" ]
             L__7=list();
              H__6('doc')=L__7;
+            H__6('type')=
+            [ "Block" ]
            L__5(4)=H__6;
           
           H__6=hash_create(23);
@@ -3916,10 +3775,10 @@ H__0=hash_create(17);
            H__5('opt')=
            [   1 ]
            H__5('replace')= []
-           H__5('mlist')=
-           [  %t ]
            H__5('cblock')=
            [   0 ]
+           H__5('mlist')=
+           [  %t ]
            H__5('rpat')= []
            H__5('libs')= []
            H__5('scopes')= []
@@ -3929,10 +3788,10 @@ H__0=hash_create(17);
            [   0 ]
            H__5('remove')= []
           H__4('codegen')=H__5;
-         H__4('version')=
-         [ "scicos4.4" ]
          L__5=list();
           H__4('contrib')=L__5;
+         H__4('version')=
+         [ "scicos4.4" ]
         H__3('rpar')=H__4;
        H__3('nmode')=
        [   0 ]
@@ -4088,16 +3947,16 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   467.6550;
-         455.2165;
-         455.2165 ]
      H__2('ct')=
      [    5,   -1 ]
      H__2('xx')=
      [   610.0940;
          610.0940;
          610.9019 ]
+     H__2('yy')=
+     [   467.6550;
+         455.2165;
+         455.2165 ]
     L__1(46)=H__2;
    
    H__2=hash_create(23);
@@ -4113,11 +3972,6 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   253.9315;
-         263.9086;
-         264.0085;
-         264.0453 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
@@ -4125,6 +3979,11 @@ H__0=hash_create(17);
          505.9926;
          529.9910;
          538.8191 ]
+     H__2('yy')=
+     [   253.9315;
+         263.9086;
+         264.0085;
+         264.0453 ]
     L__1(47)=H__2;
    
    H__2=hash_create(23);
@@ -4198,9 +4057,8 @@ H__0=hash_create(17);
          [ "limpsplit" ]
          H__4('inputs')=
          [ "n" ]
-         H__4('outputs')=
-         [ "n";
-           "n" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -4209,8 +4067,9 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n";
+           "n" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -4245,14 +4104,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   264.0453;
-         261.7444 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   538.8191;
          538.6924 ]
+     H__2('yy')=
+     [   264.0453;
+         261.7444 ]
     L__1(49)=H__2;
    
    H__2=hash_create(23);
@@ -4268,16 +4127,16 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   264.0453;
-         315.2419;
-         315.2419 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   538.8191;
          538.8191;
          531.4635 ]
+     H__2('yy')=
+     [   264.0453;
+         315.2419;
+         315.2419 ]
     L__1(50)=H__2;
    
    H__2=hash_create(23);
@@ -4293,12 +4152,6 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   271.0472;
-         498.2306;
-         498.2306;
-         436.1689;
-         436.1689 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -4307,6 +4160,12 @@ H__0=hash_create(17);
          483.6391;
          483.6391;
          582.3305 ]
+     H__2('yy')=
+     [   271.0472;
+         498.2306;
+         498.2306;
+         436.1689;
+         436.1689 ]
     L__1(51)=H__2;
    
    H__2=hash_create(23);
@@ -4322,16 +4181,16 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   236.0301;
-         422.8355;
-         422.8355 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   568.6924;
          568.6924;
          582.3305 ]
+     H__2('yy')=
+     [   236.0301;
+         422.8355;
+         422.8355 ]
     L__1(52)=H__2;
    
    H__2=hash_create(23);
@@ -4747,16 +4606,16 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   309.3220;
-         308.5385;
-         317.4144 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   358.6879;
          349.8650;
          349.8650 ]
+     H__2('yy')=
+     [   309.3220;
+         308.5385;
+         317.4144 ]
     L__1(58)=H__2;
    
    H__2=hash_create(23);
@@ -4830,9 +4689,8 @@ H__0=hash_create(17);
          [ "limpsplit" ]
          H__4('inputs')=
          [ "n" ]
-         H__4('outputs')=
-         [ "n";
-           "n" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -4841,8 +4699,9 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n";
+           "n" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -4877,14 +4736,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   317.4144;
-         324.0221 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   349.8650;
          349.8650 ]
+     H__2('yy')=
+     [   317.4144;
+         324.0221 ]
     L__1(60)=H__2;
    
    H__2=hash_create(23);
@@ -4900,16 +4759,16 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   317.4144;
-         317.4144;
-         315.2419 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   349.8650;
          474.3206;
          474.3206 ]
+     H__2('yy')=
+     [   317.4144;
+         317.4144;
+         315.2419 ]
     L__1(61)=H__2;
    
    H__2=hash_create(23);
@@ -4925,14 +4784,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   290.1220;
-         290.1220 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   287.0695;
          322.1199 ]
+     H__2('yy')=
+     [   290.1220;
+         290.1220 ]
     L__1(62)=H__2;
    
    H__2=hash_create(23);
@@ -5005,9 +4864,8 @@ H__0=hash_create(17);
          [ "limpsplit" ]
          H__4('inputs')=
          [ "n" ]
-         H__4('outputs')=
-         [ "n";
-           "n" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('type')=
          [ "modelica" ]
          L__5=list();
@@ -5016,8 +4874,9 @@ H__0=hash_create(17);
           L__6=list();
            L__5(2)=L__6;
           H__4('parameters')=L__5;
-         H__4('tlist')=
-         [  %t ]
+         H__4('outputs')=
+         [ "n";
+           "n" ]
         H__3('equations')=H__4;
        H__3('in')=
        [   1 ]
@@ -5052,14 +4911,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   290.1220;
-         290.1220 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   322.1199;
          358.6879 ]
+     H__2('yy')=
+     [   290.1220;
+         290.1220 ]
     L__1(64)=H__2;
    
    H__2=hash_create(23);
@@ -5075,14 +4934,14 @@ H__0=hash_create(17);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
-     H__2('yy')=
-     [   290.1220;
-         256.0032 ]
      H__2('ct')=
      [   1,   2 ]
      H__2('xx')=
      [   322.1199;
          322.3250 ]
+     H__2('yy')=
+     [   290.1220;
+         256.0032 ]
     L__1(65)=H__2;
    H__0('objs')=L__1;
   H__0('type')=
@@ -5109,8 +4968,8 @@ H__0=hash_create(17);
     [   0 ]
     H__1('remove')= []
    H__0('codegen')=H__1;
-  H__0('version')=
-  [ "scicos4.4" ]
   L__1=list();
    H__0('contrib')=L__1;
+  H__0('version')=
+  [ "scicos4.4" ]
  scs_m=H__0;
