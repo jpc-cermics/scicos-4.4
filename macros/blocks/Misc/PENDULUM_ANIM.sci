@@ -67,7 +67,8 @@ function [x,y,typ]=PENDULUM_ANIM(job,arg1,arg2)
     model.blocktype='d'
     model.dep_ut=[%f %f]
     
-    exprs=string(model.rpar)
+    exprs=string(model.rpar);
+    gr_i="blk_draw(sz,orig,orient,model.label)";
     x=standard_define([3 3],model,exprs,gr_i,'PENDULUM_ANIM');
   end
 endfunction

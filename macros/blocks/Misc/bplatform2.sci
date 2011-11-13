@@ -1,7 +1,7 @@
 function [blocks] = bplatform2(blocks,flag)
 // this function is used in the Modelica demo
 // Ball_Platform.
-
+// 
   win=20000+curblock();
   xold=blocks.z;
   rpar=blocks.rpar;

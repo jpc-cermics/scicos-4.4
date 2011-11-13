@@ -62,10 +62,11 @@ H__0=hash_create(17);
       "B=[0;m*l*l/3/delta;0;-m*l/2/delta];";
       "C= [1. 0. 0.  0.;0. 0. 1. 0];";
       "D=zeros(2,1);";
-      "sys=syslin(''c'',A,B,C ,D ) ;";
+      "//sys=syslin(''c'',A,B,C ,D ) ;";
       "Kc=-ppol(A,B,[-1,-1,-1,-1]);";
       "Kf=-ppol(A'',C'',[-2,-2,-2,-2]);Kf=Kf'';";
-      "Contr=obscont(sys,Kc,Kf);";
+      "//Contr=obscont(sys,Kc,Kf);";
+      "Contr=hash(4);Contr.A=A+B*Kc+Kf*C+Kf*D*Kc;Contr.B=-Kf;Contr.C=Kc";
       "u0=(M+m)*g*sin(ph);" ]
    H__0('props')=H__1;
   L__1=list();

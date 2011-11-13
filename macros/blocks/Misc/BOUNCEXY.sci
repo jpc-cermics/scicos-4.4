@@ -7,7 +7,6 @@ function [x,y,typ]=BOUNCEXY(job,arg1,arg2)
     xx=orig(1)+(1/5+(cos(2.2*t)+1)*3/10)*sz(1);
     yy=orig(2)+(1/4.3+(sin(t)+1)*3/10)*sz(2);
     xpoly(xx,yy,type='lines',thickness=2);
-
   endfunction 
 
   x=[];y=[];typ=[]
