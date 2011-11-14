@@ -1,6 +1,26 @@
 function [x,y,typ]=CLOCK_c(job,arg1,arg2)
 // Copyright INRIA
-
+  
+  function blk_draw(sz,orig,orient,label)
+    wd=xget("wdim").*[1.016,1.12];
+    thick=xget("thickness");xset("thickness",2);
+    p=wd(2)/wd(1);p=1;
+    rx=sz(1)*p/2;ry=sz(2)/2;
+    xarcs([orig(1)+0.05*sz(1);
+	   orig(2)+0.95*sz(2);
+	   0.9*sz(1)*p;
+	   0.9*sz(2);
+	   0;
+	   360*64],scs_color(5));
+    xset("thickness",1);
+    xx=[orig(1)+rx    orig(1)+rx;
+	orig(1)+rx    orig(1)+rx+0.6*rx*cos(%pi/6)];
+    yy=[orig(2)+ry    orig(2)+ry ;
+	orig(2)+1.8*ry  orig(2)+ry+0.6*ry*sin(%pi/6)];
+    xsegs(xx,yy,style=scs_color(10));
+    xset("thickness",thick);
+  endfunction
+    
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -71,23 +91,6 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
     split.graphics.pein=3,
     split.graphics.peout=[5;6]
     
-    gr_i=list(['wd=xget(''wdim'').*[1.016,1.12];';
-	       'thick=xget(''thickness'');xset(''thickness'',2);';
-	       'p=wd(2)/wd(1);p=1;';
-	       'rx=sz(1)*p/2;ry=sz(2)/2;';
-	       'xarcs([orig(1)+0.05*sz(1);';
-	       'orig(2)+0.95*sz(2);';
-	       '   0.9*sz(1)*p;';
-	       '   0.9*sz(2);';
-	       '   0;';
-	       '   360*64],scs_color(5));';
-	       'xset(''thickness'',1);';
-	       'xx=[orig(1)+rx    orig(1)+rx;';
-	       '    orig(1)+rx    orig(1)+rx+0.6*rx*cos(%pi/6)];';
-	       'yy=[orig(2)+ry    orig(2)+ry ;';
-	       '  orig(2)+1.8*ry  orig(2)+ry+0.6*ry*sin(%pi/6)];';
-	       'xsegs(xx,yy,style=scs_color(10));';
-	       'xset(''thickness'',thick);'],8)
     diagram=scicos_diagram();
     diagram.objs(1)=output_port   
     diagram.objs(2)=evtdly
@@ -103,7 +106,7 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
     x=scicos_block()
     x.gui='CLOCK_c'
     x.graphics.sz=[2,2]
-    x.graphics.gr_i=gr_i
+    x.graphics.gr_i=list("blk_draw(sz,orig,orient,model.label)",8);
     x.graphics.peout=0
     x.model.sim='csuper'
     x.model.evtout=1

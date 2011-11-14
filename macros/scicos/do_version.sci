@@ -19,7 +19,7 @@ function scs_m=do_version(scs_m,version)
 	     'cevscpe','cfscope','cscopexy','cscopxy','cscopexy3d',...
 	     'cscopxy3d','cmatview','cmat3d','affich','affich2',...
 	     'writec','writef','writeau','tows_c','bplatform2'];
-
+    
     for j=1:length(scs_m.objs)
       o=scs_m.objs(j);
       if typeof(o)=='Block' then
@@ -378,6 +378,7 @@ function scs_m=do_version(scs_m,version)
     
     if scs_m.type =='diagram' then 
       scs_m_new=scs_m;
+      scs_m_new.version="scicos2.7";
       for k=1:length(scs_m_new.objs)
 	if scs_m_new.objs(k).type =='Link' then
 	  o=scs_m_new.objs(k)
@@ -389,6 +390,7 @@ function scs_m=do_version(scs_m,version)
       return;
     end
     scs_m_new=scicos_diagram()
+    scs_m_new.version="scicos2.7";
     tf=scs_m(1)(4)
     if isempty(tf) then tf=100;end
     tol=scs_m(1)(3)
@@ -1488,7 +1490,7 @@ function scs_m=do_version(scs_m,version)
     scs_m=do_version273(scs_m),
   end
   // now we are at least scicos2.7.3
-  if or(isempty(version==['scicos2.7.3','scicos4','scicos4.0.1','scicos4.0.2'])) then
+  if or(version==['scicos2.7.3','scicos4','scicos4.0.1','scicos4.0.2']) then
     version='scicos4.2';
     printf('updates version to %s\n',version);
     scs_m=update_scs_m(scs_m);

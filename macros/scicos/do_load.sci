@@ -10,7 +10,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   if alreadyran & typ=="diagram" then
     do_terminate(); //end current simulation
   end
-
+  
   scicos_debug(0); //set debug level to 0 for new diagram loaded
 
   current_version = get_scicos_version()
