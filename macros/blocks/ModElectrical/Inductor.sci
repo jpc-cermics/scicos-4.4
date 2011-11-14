@@ -1,17 +1,28 @@
 function [x,y,typ]=Inductor(job,arg1,arg2)
 // Copyright INRIA
-
-  function blk_draw(sz,orig,orient,label)  
-    tt=linspace(0.04,0.96,100);
-    xpoly(tt*sz(1)+orig(1),+orig(2)+abs(sin(18*(tt-0.04)))*sz(2),type="lines");
-    xx=orig(1)+[0 0.04 0.04 0.04 0]*sz(1);
-    yy=orig(2)+[1/2 1/2 0  1/2 1/2]*sz(2);
-    xpoly(xx,yy) ;
-    xx=orig(1)+[0.96 0.96 1   0.96 0.96 ]*sz(1);
-    yy=orig(2)+[abs(sin(18*0.92))   1/2   1/2 1/2 abs(sin(18*0.92))]*sz(2);
-    xpoly(xx,yy) ;
+  
+  function blk_draw(sz,orig,orient,label) 
+    if %t then 
+      n=100;
+      xx=linspace(0,10*%pi,n);
+      xx=xx(5:$-4);
+      a=0.4;b=1.0;
+      x=a*xx -b*sin(xx);
+      y=a -b*cos(xx);
+      x=orig(1)+sz(1)*(x-min(x))/(max(x)-min(x));
+      y=orig(2)+sz(2)*(y-min(y))/(max(y)-min(y));
+      xpoly(x,y);
+    else
+      tt=linspace(0.04,0.96,100);
+      xpoly(tt*sz(1)+orig(1),+orig(2)+abs(sin(18*(tt-0.04)))*sz(2),type="lines");
+      xx=orig(1)+[0 0.04 0.04 0.04 0]*sz(1);
+      yy=orig(2)+[1/2 1/2 0  1/2 1/2]*sz(2);
+      xpoly(xx,yy) ;
+      xx=orig(1)+[0.96 0.96 1   0.96 0.96 ]*sz(1);
+      yy=orig(2)+[abs(sin(18*0.92))   1/2   1/2 1/2 abs(sin(18*0.92))]*sz(2);
+      xpoly(xx,yy) ;
+    end
     txt='L= '+L;
-    style=2;
     xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),'fill');
   endfunction
   
