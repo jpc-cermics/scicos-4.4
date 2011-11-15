@@ -35,6 +35,11 @@ function [x,y,typ]=CVS(job,arg1,arg2)
   endfunction
 
   function [x,y,typ]=CVS_inputs(o)
+  // The inputs are to be defined here 
+  // x and y are the translated input positions 
+  // (x,y) is to be translated by (+-dx,0) or (0,+-dy) 
+  // depending on the port position (west, 
+  // NORTH->(0,dy) SOUTH=(0,-dy), SLD_EAST=(-dx,0), WEST=(0,dx)
   // two inputs one explicit one implicit 
     xf=60; yf=40; dx=xf/7; dy=yf/7;
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
@@ -51,8 +56,12 @@ function [x,y,typ]=CVS(job,arg1,arg2)
   endfunction
   
   function [x,y,typ]=CVS_outputs(o)
+  // The outputs are to be defined here 
+  // x and y are the translated input positions 
+  // (x,y) is to be translated by (+-dx,0) or (0,+-dy) 
+  // depending on the port position (west, 
+  // NORTH->(0,dy) SOUTH=(0,-dy), SLD_EAST=(-dx,0), WEST=(0,dx)
   // one output implicit 
-  // Copyright INRIA
     xf=60;yf=40;  dx=xf/7; dy=yf/7;
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
     if orient then
@@ -66,58 +75,20 @@ function [x,y,typ]=CVS(job,arg1,arg2)
   endfunction
 
   function CVS_draw_ports(o)
+  // function used to draw ports with non standard location 
+  // the port translated positions are given by calling the 
+  // block input/output functions 
     xf=60;yf=40;dx=xf/7; dy=yf/7;
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    nin=size(o.model.in,1);
-    inporttype=o.graphics.in_implicit
-    nout=size(o.model.out,1);
-    outporttype=o.graphics.out_implicit
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    // port orientation 2 in and one out 
-    if orient then 
-      select_face_out=[1]; select_face_in=[3,0];
-      xdelta_out=-[0];ydelta_out=[+dy]; xdelta_in=[dx,0];ydelta_in=[0,-dy];
+    if o.graphics.flip then 
+      face_out=[1]; face_in=[3,0];
+      dx_out=-[0];dy_out=[+dy]; dx_in=[dx,0];dy_in=[0,-dy];
     else 
-      select_face_out=[1]; select_face_in=[2,0];
-      xdelta_out=[0];ydelta_out=[+dy]; xdelta_in=[-dx,0];ydelta_in=[0,-dy];
+      face_out=[1]; face_in=[2,0];
+      dx_out=[0];dy_out=[+dy]; dx_in=[-dx,0];dy_in=[0,-dy];
     end
-    [x,y,typ]=CVS_outputs(o)
-    // standard orientation or tilded orientation
-    // select the shape to use square or triangle.
-    port_type=4;// implicit out 
-    for k=1:nout
-      scicos_lock_draw([x(k)+xdelta_out(k),y(k)+ydelta_out(k)],xf,yf,select_face_out(k),port_type);
-    end
-    [x,y,typ]=CVS_inputs(o);
-    port_type=[0,5]// one implicit and one standard 
-    for k=1:nin
-      scicos_lock_draw([x(k)+xdelta_in(k),y(k)+ydelta_in(k)],xf,yf,select_face_in(k),port_type(k));
-    end
-  endfunction 
-
-
-  function xblk_draw(sz,orig,orient,label)
-    if orient then  
-      xpolys(orig(1)+[0.7142857,0.7142857,0.3714286,0.0571429,0.3714286; ...
-		      0.7142857,0.7142857,0.4285714,0.4142857,0.4285714]*sz(1),...
-	     orig(2)+[0.7,0,0.54,0.5,0.46;0.98,0.3,0.5,0.5,0.5]*sz(2),[2,2,6,6,6])  
-      xstring(orig(1)+0.1428571*sz(1),orig(2)+0.75*sz(2),"CVS") 
-      xrects([orig(1)+0.4285714*sz(1); orig(2)+0.7*sz(2);0.5714286*sz(1);0.4*sz(2)],0);
-      xstring(orig(1)+0.7*sz(1),orig(2)+0.55*sz(2),"+")
-      xstring(orig(1)+0.7*sz(1),orig(2)+0.35*sz(2),"-")
-    else  
-      xpolys(orig(1)+[0.2857143,0.2857143,0.6285714,0.9428571,0.6285714; ...
-		      0.2857143,0.2857143,0.5714286,0.5857143,0.5714286]*sz(1),...
-	     orig(2)+[0.7,0,0.54,0.5,0.46;0.98,0.3,0.5,0.5,0.5]*sz(2),[2,2, ...
-		    6,6,6])
-      xstring(orig(1)+0.6*sz(1),orig(2)+0.75*sz(2),"CVS") 
-      xrects([orig(1)+0*sz(1); orig(2)+0.7*sz(2);0.5714286*sz(1);0.4* ...
-	      sz(2)],0)
-      xstring(orig(1)+sz(1)-(0.7*sz(1)),orig(2)+0.55*sz(2),"+")
-      xstring(orig(1)+sz(1)-(0.7*sz(1)),orig(2)+0.35*sz(2),"-")
-    end
+    scicos_draw_ports(o,CVS_inputs,face_in,dx_in,dy_in,CVS_outputs,face_out,dx_out,dy_out);
   endfunction
-  
+    
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -140,7 +111,7 @@ function [x,y,typ]=CVS(job,arg1,arg2)
     model=scicos_model()                  
     Typein=[];Typeout=[];MI=[];MO=[]       
     P=[2,50,1,0; 70,98,2,0;70,2,-2,0]
-
+    
     PortName=["vin";"p";"n"]
     for i=1:size(P,'r')                                             
       if P(i,3)==1  then  Typein= [Typein; 'E'];MI=[MI;PortName(i)];end
@@ -168,3 +139,44 @@ function [x,y,typ]=CVS(job,arg1,arg2)
     x.graphics.out_implicit=Typeout;                   
   end
 endfunction
+
+
+
+function scicos_draw_ports(o,finputs,face_in,dx_in,dy_in,foutputs,face_out,dx_out,dy_out)
+// function used to draw ports with non standard location 
+// the port translated positions are given by calling the 
+// block input/output functions 
+// 
+    // this part is copied verbatim 
+    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+    nin=size(o.model.in,1);
+    inporttype=o.graphics.in_implicit
+    nout=size(o.model.out,1);
+    outporttype=o.graphics.out_implicit
+    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+    // Outputs 
+    [x,y,typ]=foutputs(o)
+    // port_type: the shape to use triangle(in:0, out:1) or square(in: 5,out:4 )
+    port_type= ones_new(1,nout);
+    if ~isempty(inporttype) then  port_type(outporttype <> 'E')=4;end 
+    // colors to be used 
+    colors= 0*ones_new(1,nin);
+    if ~isempty(outporttype) then colors(outporttype=='B')=default_color(3);end;
+    for k=1:nout
+      scicos_lock_draw([x(k)+dx_out(k),y(k)+dy_out(k)],xf,yf,...
+		       face_out(k),port_type(k),color=colors(k));
+    end
+    // Inputs 
+    [x,y,typ]=finputs(o);
+    port_type=[0,5]
+    // detect between implicit and standard ports i.e rectangles or triangles 
+    port_type= 0*ones_new(1,nin);
+    if ~isempty(inporttype) then  port_type( inporttype <> 'E')=5;end 
+    // colors to be used 
+    colors= 0*ones_new(1,nin);
+    if ~isempty(inporttype) then colors(inporttype=='B')=default_color(3);end;
+    for k=1:nin
+      scicos_lock_draw([x(k)+dx_in(k),y(k)+dy_in(k)],xf,yf,...
+		       face_in(k),port_type(k),color=colors(k));
+    end
+endfunction 

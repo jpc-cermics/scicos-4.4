@@ -62,36 +62,21 @@ function [x,y,typ]=CCS(job,arg1,arg2)
     x=[x2]
     typ=[2]
   endfunction
-  
+
   function CCS_draw_ports(o)
+  // function used to draw ports with non standard location 
+  // the port translated positions are given by calling the 
+  // block input/output functions 
     xf=60;yf=40;dx=xf/7; dy=yf/7;
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    nin=size(o.model.in,1);
-    inporttype=o.graphics.in_implicit
-    nout=size(o.model.out,1);
-    outporttype=o.graphics.out_implicit
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    // port orientation 2 in and one out 
-    if orient then 
-      select_face_out=[1]; select_face_in=[3,0];
-      xdelta_out=-[0];ydelta_out=[+dy]; xdelta_in=[dx,0];ydelta_in=[0,-dy];
+    if o.graphics.flip then 
+      face_out=[1]; face_in=[3,0];
+      dx_out=-[0];dy_out=[+dy]; dx_in=[dx,0];dy_in=[0,-dy];
     else 
-      select_face_out=[1]; select_face_in=[2,0];
-      xdelta_out=[0];ydelta_out=[+dy]; xdelta_in=[-dx,0];ydelta_in=[0,-dy];
+      face_out=[1]; face_in=[2,0];
+      dx_out=[0];dy_out=[+dy]; dx_in=[-dx,0];dy_in=[0,-dy];
     end
-    [x,y,typ]=CCS_outputs(o)
-    // standard orientation or tilded orientation
-    // select the shape to use square or triangle.
-    port_type=4;// implicit out 
-    for k=1:nout
-      scicos_lock_draw([x(k)+xdelta_out(k),y(k)+ydelta_out(k)],xf,yf,select_face_out(k),port_type);
-    end
-    [x,y,typ]=CCS_inputs(o);
-    port_type=[0,5]// one implicit and one standard 
-    for k=1:nin
-      scicos_lock_draw([x(k)+xdelta_in(k),y(k)+ydelta_in(k)],xf,yf,select_face_in(k),port_type(k));
-    end
-  endfunction 
+    scicos_draw_ports(o,CCS_inputs,face_in,dx_in,dy_in,CCS_outputs,face_out,dx_out,dy_out);
+  endfunction
   
   x=[];y=[];typ=[];
   select job

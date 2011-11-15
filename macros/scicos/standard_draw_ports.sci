@@ -44,4 +44,6 @@ function standard_draw_ports(o)
   for k=1:clkin
     scicos_lock_draw([orig(1)+k*dx,orig(2)+sz(2)],xf,yf,0,2,color=red)
   end
-endfunction 
+endfunction
+
+
