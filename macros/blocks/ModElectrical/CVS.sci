@@ -148,36 +148,36 @@ function scicos_draw_ports(o,finputs,face_in,dx_in,dy_in,foutputs,face_out,dx_ou
 // block input/output functions 
 // 
   xxx=0;
-    // this part is copied verbatim 
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    nin=size(o.model.in,1);
-    inporttype=o.graphics.in_implicit
-    nout=size(o.model.out,1);
-    outporttype=o.graphics.out_implicit
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    // Outputs 
-    [x,y,typ]=foutputs(o)
-    // port_type: the shape to use triangle(in:0, out:1) or square(in: 5,out:4 )
-    port_type= ones_new(1,nout);
-    if ~isempty(inporttype) then  port_type(outporttype == 'I')=4;end 
-    // colors to be used 
-    colors= 0*ones_new(1,nout);
-    if ~isempty(outporttype) then colors(outporttype=='B')=default_color(3);end;
-    for k=1:nout
-      scicos_lock_draw([x(k)+dx_out(k),y(k)+dy_out(k)],xf,yf,...
-		       face_out(k),port_type(k),color=colors(k)+xxx);
-    end
-    // Inputs 
-    [x,y,typ]=finputs(o);
-    port_type=[0,5]
-    // detect between implicit and standard ports i.e rectangles or triangles 
-    port_type= 0*ones_new(1,nin);
-    if ~isempty(inporttype) then  port_type( inporttype == 'I')=5;end 
-    // colors to be used 
-    colors= 0*ones_new(1,nin);
-    if ~isempty(inporttype) then colors(inporttype=='B')=default_color(3);end;
-    for k=1:nin
-      scicos_lock_draw([x(k)+dx_in(k),y(k)+dy_in(k)],xf,yf,...
-		       face_in(k),port_type(k),color=colors(k)+xxx);
-    end
+  // this part is copied verbatim 
+  [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+  nin=size(o.model.in,1);
+  inporttype=o.graphics.in_implicit
+  nout=size(o.model.out,1);
+  outporttype=o.graphics.out_implicit
+  [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+  // Outputs 
+  [x,y,typ]=foutputs(o)
+  // port_type: the shape to use triangle(in:0, out:1) or square(in: 5,out:4 )
+  port_type= ones_new(1,nout);
+  if ~isempty(outporttype) then  port_type(outporttype == 'I')=4;end 
+  // colors to be used 
+  colors= 0*ones_new(1,nout);
+  if ~isempty(outporttype) then colors(outporttype=='B')=default_color(3);end;
+  for k=1:nout
+    scicos_lock_draw([x(k)+dx_out(k),y(k)+dy_out(k)],xf,yf,...
+		     face_out(k),port_type(k),color=colors(k)+xxx);
+  end
+  // Inputs 
+  [x,y,typ]=finputs(o);
+  port_type=[0,5]
+  // detect between implicit and standard ports i.e rectangles or triangles 
+  port_type= 0*ones_new(1,nin);
+  if ~isempty(inporttype) then  port_type( inporttype == 'I')=5;end 
+  // colors to be used 
+  colors= 0*ones_new(1,nin);
+  if ~isempty(inporttype) then colors(inporttype=='B')=default_color(3);end;
+  for k=1:nin
+    scicos_lock_draw([x(k)+dx_in(k),y(k)+dy_in(k)],xf,yf,...
+		     face_in(k),port_type(k),color=colors(k)+xxx);
+  end
 endfunction 

@@ -26,186 +26,51 @@ function [x,y,typ]=Gyrator(job,arg1,arg2)
     xstring(orig(1)+0.35*sz(1),orig(2)+0.5*sz(2),"G1")  
     xstring(orig(1)+0.35*sz(1),orig(2)+0.0833333*sz(2),"G2");
   endfunction 
-  
-  //=========================
-  function Gyrator_draw_ports(o)
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    xset('pattern',default_color(0))
-    // draw input/output ports
-    //------------------------
-    // [x_in_Icon,y_in_Icon,type(2=imp_in/-2:imp_out/1=exp_input/-1_exp_output),orientation(degree)]
-    P=[2.5,90,2,0;2.5,10,2,0;97.5,90,2,0;97.5,10,2,0]
-
-    //============================
-    // setting the input/ outputs and direction
-    // implicit port: if it's located in the right it's output and while,
-    // else black
-    // explicit ports:
     
-    in=  [-1 -1; 1  0;-1  1; -1 -1; -1 0]*diag([xf/28,yf/28]) ;// left_triangle  
-    out= [-1 -1; 1  0;-1  1; -1 -1;  1 0]*diag([xf/28,yf/28]) ;// downward_triangle  
-    in2= [-1 -1; 1 -1; 1  1; -1  1; -1 -1; 0 0]*diag([xf/28,yf/28])
-    out2=[ 1  1;-1  1;-1 -1;  1 -1;  1  1; 0 0]*diag([xf/28,yf/28])
-    
-    //xset('pattern',default_color(1))           
-    //xset('thickness',1)   
-    
-    if orient then
-      for i=1:size(P,'r')      
-	theta=P(i,4)*%pi/180;
-	R=[cos(theta),sin(theta);sin(-theta),cos(theta)];
-	
-	if P(i,3)==1 then // explicit
-	  inR=in*R;
-	  xfpoly(orig(1)+inR(:,1)+P(i,1)*sz(1)/100,orig(2)+inR(:,2)+P(i,2)*sz(2)/100,1)      
-	end
-	
-	if  P(i,3)==-1 then
-	  outR=out*R;
-	  xfpoly(orig(1)+outR(:,1)+P(i,1)*sz(1)/100,orig(2)+outR(:,2)+P(i,2)*sz(2)/100,1)      	  
-	end  
-	
-	if P(i,3)==2 then  // deciding the port's color: black, if x<sz(1)/2 else white.
-	  in2R=in2*R; 			
-	  xfpoly(orig(1)+in2R(:,1)+P(i,1)*sz(1)/100,orig(2)+  in2R(:,2)+P(i,2)*sz(2)/100,1)	
-	end
-	
-	if P(i,3)==-2 then  // deciding the port's color: black, if x<sz(1)/2 else white.
-	  out2R=out2*R;
-	  xpoly(orig(1)+out2R(:,1)+P(i,1)*sz(1)/100,orig(2)+  out2R(:,2)+P(i,2)*sz(2)/100,type='lines',close=%t)	
-	end
-      end  
-    else
-      for i=1:size(P,'r')     
-	theta=P(i,4)*%pi/180;
-	R=[cos(theta),sin(theta);sin(-theta),cos(theta)];
-	
-	if P(i,3)==1 then // explicit
-	  inR=in*R;
-	  xfpoly(orig(1)+sz(1)-inR(:,1)-P(i,1)*sz(1)/100,orig(2)+inR(:,2)+P(i,2)*sz(2)/100,1)      
-	end
-	if P(i,3)==-1 then // explicit
-	  outR=out*R;
-	  xfpoly(orig(1)+sz(1)-outR(:,1)-P(i,1)*sz(1)/100,orig(2)+outR(:,2)+P(i,2)*sz(2)/100,1)      
-	end
-	
-	if P(i,3)==2 then  // deciding the port's color: black, if x<sz(1)/2 else white.
-	  in2R=in2*R; 			
-          xfpoly(orig(1)+sz(1)-in2R(:,1)-P(i,1)*sz(1)/100,orig(2)+  in2R(:,2)+P(i,2)*sz(2)/100,1)	
-	end
-	if P(i,3)==-2 then  // deciding the port's color: black, if x<sz(1)/2 else white.
-	  out2R=out2*R;
-	  xpoly(orig(1)+sz(1)-out2R(:,1)-P(i,1)*sz(1)/100,orig(2)+  out2R(:,2)+P(i,2)*sz(2)/100, type='lines',close=%t)
-	end
-      end          
-    end
-  endfunction 
-
-  //=========================
   function [x,y,typ]=Gyrator_inputs(o)
-  // Copyright INRIA
-    xf=60
-    yf=40
+  // The inputs are to be defined here 
+  // x and y are the translated input positions 
+  // (x,y) is to be translated by (+-dx,0) or (0,+-dy) 
+  // depending on the port position (west, 
+  // NORTH->(0,dy) SOUTH=(0,-dy), SLD_EAST=(-dx,0), WEST=(0,dx)
+  // 4 inputs impicit 
+    xf=60; yf=40; dx=xf/7; dy=yf/7;
     [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    //[orig,sz,orient]=o(2)(1:3);
-    inp=size(o.model.in,1);clkinp=size(o.model.evtin,1);
-    
-    // [x_in_Icon,y_in_Icon,type(2=imp/1=exp_input/-1_exp_output),orientation(degree)]
-    P=[2.5,90,2,0;2.5,10,2,0;97.5,90,2,0;97.5,10,2,0]
-    in=  [-1 -1; 1  0;-1  1; -1 -1; -1 0]*diag([xf/28,yf/28]) ;// left_triangle  
-    out= [-1 -1; 1  0;-1  1; -1 -1;  1 0]*diag([xf/28,yf/28]) ;// downward_triangle  
-    in2= [-1 -1; 1 -1; 1  1; -1  1; -1 -1; 0 0]*diag([xf/28,yf/28])
-    out2=[ 1  1;-1  1;-1 -1;  1 -1;  1  1; 0 0]*diag([xf/28,yf/28])
-    
-    x=[];y=[];typ=[]
     if orient then
-      for i=1:size(P,'r')   
-	theta=P(i,4)*%pi/180;
-	R=[cos(theta),sin(theta);sin(-theta),cos(theta)];
-	if (P(i,3))==1 then // explicit_input
-	  inR=in($,:)*R;
-	  x=[x,orig(1)+inR(:,1)+P(i,1)*sz(1)/100];
-	  y=[y,orig(2)+inR(:,2)+P(i,2)*sz(2)/100];
-	  typ=[typ,1];
-	end
-	if(P(i,3)==2) then  // implicit
-	  in2R=in2($,:)*R; 
-	  x=[x,orig(1)+in2R(:,1)+P(i,1)*sz(1)/100];// Black
-	  y=[y,orig(2)+in2R(:,2)+P(i,2)*sz(2)/100];
-	  typ=[typ,2];
-	end
-      end      
+      x1=orig(1)-dx;
+      x2=orig(1)+sz(1)+dx;
     else
-      for i=1:size(P,'r')     
-	theta=P(i,4)*%pi/180;
-	R=[cos(theta),sin(theta);sin(-theta),cos(theta)];
-	if (P(i,3))==1 then // explicit_input
-	  inR=in($,:)*R;
-	  x=[x,orig(1)+sz(1)-inR(:,1)-P(i,1)*sz(1)/100];
-	  y=[y,orig(2)+inR(:,2)+P(i,2)*sz(2)/100];
-	  typ=[typ,1];
-	end
-	if(P(i,3)==2) then  // implicit
-	  in2R=in2($,:)*R; 
-	  x=[x,orig(1)+sz(1)-in2R(:,1)-P(i,1)*sz(1)/100];
-	  y=[y,orig(2)+in2R(:,2)+P(i,2)*sz(2)/100];
-	  typ=[typ,2];
-	end
-      end            
+      x2=orig(1)-dx;
+      x1=orig(1)+sz(1)+dx;
     end
-    
-    
+    y=[orig(2)+sz(2)-dy/2,orig(2)+dy/2,orig(2)+sz(2)-dy/2,orig(2)+dy/2]
+    x=[x1,x1,x2,x2];
+    typ=[2 2 2 2];
   endfunction
-  //=========================
+  
   function [x,y,typ]=Gyrator_outputs(o)
-  // Copyright INRIA
-    xf=60
-    yf=40
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    out=size(o.model.out,1);clkout=size(o.model.evtout,1);
-    P=[2.5,90,2,0;2.5,10,2,0;97.5,90,2,0;97.5,10,2,0]
-    
-    in=  [-1 -1; 1  0;-1  1; -1 -1; -1 0]*diag([xf/28,yf/28]) ;// left_triangle  
-    out= [-1 -1; 1  0;-1  1; -1 -1;  1 0]*diag([xf/28,yf/28]) ;// downward_triangle  
-    in2= [-1 -1; 1 -1; 1  1; -1  1; -1 -1; 0 0]*diag([xf/28,yf/28])
-    out2=[ 1  1;-1  1;-1 -1;  1 -1;  1  1; 0 0]*diag([xf/28,yf/28])
-    
-    x=[];y=[];typ=[];
-    if orient then
-      for i=1:size(P,'r')     
-	theta=P(i,4)*%pi/180;
-	R=[cos(theta),sin(theta);sin(-theta),cos(theta)];
-	if (P(i,3))==-1 then // explicit_output
-	  outR=out($,:)*R;
-	  x=[x,orig(1)+outR(:,1)+P(i,1)*sz(1)/100];
-	  y=[y,orig(2)+outR(:,2)+P(i,2)*sz(2)/100];
-	  typ=[typ,1];
-	end 
-	if(P(i,3)==-2) then  // implicit
-	  out2R=out2($,:)*R;
-	  x=[x,orig(1)+out2R(:,1)+P(i,1)*sz(1)/100];
-	  y=[y,orig(2)+out2R(:,2)+P(i,2)*sz(2)/100];
-	  typ=[typ,2];		
-	end	      
-      end      
-    else
-      for i=1:size(P,'r')     
-	theta=P(i,4)*%pi/180;
-	R=[cos(theta),sin(theta);sin(-theta),cos(theta)];
-	if (P(i,3))==-1 then // explicit_output
-	  outR=out($,:)*R;
-	  x=[x,orig(1)+sz(1)-outR(:,1)-P(i,1)*sz(1)/100];
-	  y=[y,orig(2)+outR(:,2)+P(i,2)*sz(2)/100];
-	  typ=[typ,1];
-	end
-	if(P(i,3)==-2) then  // implicit
-	  out2R=out2($,:)*R;
-	  x=[x,orig(1)+sz(1)-out2R(:,1)-P(i,1)*sz(1)/100];
-	  y=[y,orig(2)+out2R(:,2)+P(i,2)*sz(2)/100];
-	  typ=[typ,2];
-	end
-      end            
+  // The outputs are to be defined here 
+  // x and y are the translated input positions 
+  // (x,y) is to be translated by (+-dx,0) or (0,+-dy) 
+  // depending on the port position (west, 
+  // NORTH->(0,dy) SOUTH=(0,-dy), SLD_EAST=(-dx,0), WEST=(0,dx)
+  // one output implicit 
+    x=[],y=[],typ=[];
+  endfunction
+  
+  function Gyrator_draw_ports(o)
+  // function used to draw ports with non standard location 
+  // the port translated positions are given by calling the 
+  // block input/output functions 
+    xf=60;yf=40;dx=xf/7; dy=yf/7;
+    if o.graphics.flip then 
+      face_out=[]; face_in=[3,3,2,2];
+      dx_out=[];dy_out=[]; dx_in=[dx,dx,-dx,-dx];dy_in=[0,0,0,0];
+    else 
+      face_out=[1]; face_in=[2,2,3,3];
+      dx_out=[];dy_out=[]; dx_in=[-dx,-dx,dx,dx];dy_in=[0,0,0,0];
     end
+    scicos_draw_ports(o,Gyrator_inputs,face_in,dx_in,dy_in,Gyrator_outputs,face_out,dx_out,dy_out);
   endfunction
   
   x=[];y=[];typ=[];

@@ -2,14 +2,35 @@ function [x,y,typ]=Diode(job,arg1,arg2)
 // Copyright INRIA
 
   function blk_draw(sz,orig,orient,label)
-    if orient then
-      xx=orig(1)+[0,1,1,2,2,2,2,3,2,1,1,2]*(sz(1)/3);
-      yy=orig(2)+[2,2,3,2,3,1,2,2,2,1,2,2]*(sz(2)/4);
-    else     
-      xx=orig(1)+[0,1,1,1,1,2,2,3.06,2,2,1,2]*(sz(1)/3);
-      yy=orig(2)+[2,2,3,1,2,3,2,2,2,1,2,2]*(sz(2)/4);
+    if orient then 
+      x=[orig(1),orig(1)+sz(1)*(1/4+1/8)];
+      y=[orig(2)+sz(2)/2,orig(2)+sz(2)/2];
+      xpoly(x,y,thickness=2);
+      x=orig(1)+sz(1)*(1/4+1/8) + [0,0,sz(1)/4];
+      dy=sz(2)/5;
+      y=orig(1)+sz(2)/2 + [-dy,dy,0];
+      xfpoly(x,y,thickness=1,color=0,fill_color=xget('color','gray'));
+      x=[orig(1)+sz(1)*(1/2+1/8),orig(1)+sz(1)];
+      y=[orig(2)+sz(2)/2,orig(2)+sz(2)/2];
+      xpoly(x,y,thickness=2);
+      x=[orig(1)+sz(1)*(1/2+1/8),orig(1)+sz(1)*(1/2+1/8)];
+      y=[orig(2)+sz(2)/2-dy,orig(2)+sz(2)/2+dy];
+      xpoly(x,y,thickness=2);
+    else
+      x=[orig(1)+sz(1),orig(1)+sz(1)-sz(1)*(1/4+1/8)];
+      y=[orig(2)+sz(2)/2,orig(2)+sz(2)/2];
+      xpoly(x,y,thickness=2);
+      x=orig(1)+sz(1)-sz(1)*(1/4+1/8) + [0,0,-sz(1)/4];
+      dy=sz(2)/5;
+      y=orig(1)+sz(2)/2 + [-dy,dy,0];
+      xfpoly(x,y,thickness=1,color=0,fill_color=xget('color','gray'));
+      x=[orig(1)+sz(1)- sz(1)*(1/2+1/8),orig(1)];
+      y=[orig(2)+sz(2)/2,orig(2)+sz(2)/2];
+      xpoly(x,y,thickness=2);
+      x=[orig(1)+sz(1)-sz(1)*(1/2+1/8),orig(1)+sz(1)-sz(1)*(1/2+1/8)];
+      y=[orig(2)+sz(2)/2-dy,orig(2)+sz(2)/2+dy];
+      xpoly(x,y,thickness=2);
     end
-    xpoly(xx,yy,thickness=2);
   endfunction
   
   x=[];y=[];typ=[];

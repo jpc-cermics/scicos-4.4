@@ -9,90 +9,65 @@ function [x,y,typ]=VVsourceAC(job,arg1,arg2)
     xarc(orig(1)+sz(1)*1/8,orig(2)+sz(2)*4.3/5,sz(1)*3/4,sz(2)*3/4,0,360*64);
     xsegs(orig(1)+sz(1)*[0 1/8],orig(2)+sz(2)*[1/2 1/2],style=0);
     xsegs(orig(1)+sz(1)*[7/8 1],orig(2)+sz(2)*[1/2 1/2],style=0);
+    xsegs(orig(1)+(sz(1)/2)*[1 1],orig(2)+sz(2)*[7/8, 1],style=0);
     V=string(model.rpar(1));
     xstringb(orig(1),orig(2)+sz(2)*0.2,"~",sz(1),sz(2)*0.3,"fill")
     xstringb(orig(1),orig(2)+sz(2)*0.5,V,sz(1),sz(2)*0.3,"fill");
   endfunction 
-
-
   
-  function VVac_draw_ports(o)
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    xset('pattern',default_color(0))
-    dy=sz(2)/2
-    // draw input/output ports
-    //------------------------
-    xset('pattern',default_color(1))
-    if orient then  //standard orientation
-      // set port shape
-      out2=[ 0  -1
-	     1  -1
-	     1   1
-	     0   1]*diag([xf/7,yf/14])
-      
-      in2= [-1  -1
-	    0  -1
-	    0   1
-	    -1   1]*diag([xf/7,yf/14])
-
-
-      xpoly(out2(:,1)+(orig(1)+sz(1)),..
-	    out2(:,2)+(orig(2)+sz(2)-dy),type="lines",close=%t)
-
-      xfpoly(in2(:,1)+orig(1),..
-	     in2(:,2)+(orig(2)+sz(2)-dy),1)	
-    else //tilded orientation
-      out2=[0  -1
-	    -1  -1
-	    -1   1
-	    0   1]*diag([xf/7,yf/14])
-      
-      in2= [1  -1
-	    0  -1
-	    0   1
-	    1   1]*diag([xf/7,yf/14])
-
-      
-      xset('pattern',default_color(1))
-      xpoly(out2(:,1)+ones(4,1)*orig(1)-1,..
-	    out2(:,2)+ones(4,1)*(orig(2)+sz(2)-dy),type="lines",close=%t)  
-
-      xfpoly(in2(:,1)+ones(4,1)*(orig(1)+sz(1))+1,..
-	     in2(:,2)+ones(4,1)*(orig(2)+sz(2)-dy),1) 
-    end
-
-    // set port shape
-
-    in= [-1/14  1/7
-	 0      0
-	 1/14   1/7
-	 -1/14  1/7]*diag([xf,yf])
-
-
-    dx=sz(1)/2
-    xfpoly(in(:,1)+ones(4,1)*(orig(1)+dx),..
-	   in(:,2)+ones(4,1)*(orig(2)+sz(2)),1)
-
-
-  endfunction 
-
   function [x,y,typ]=VVac_inputs(o)
-    xf=60;yf=40
+  // The inputs are to be defined here 
+  // x and y are the translated input positions 
+  // (x,y) is to be translated by (+-dx,0) or (0,+-dy) 
+  // depending on the port position (west, 
+  // NORTH->(0,dy) SOUTH=(0,-dy), SLD_EAST=(-dx,0), WEST=(0,dx)
+  // two inputs one implicit and one explicit
+    xf=60; yf=40; dx=xf/7; dy=yf/7;
     graphics=o.graphics
     orig=graphics.orig;sz=graphics.sz;
     if graphics.flip then
-      xo=orig(1);dx=-xf/7
+      xo=orig(1)-dx;
     else
-      xo=orig(1)+sz(1);dx=yf/7
+      xo=orig(1)+sz(1)+dx;
     end
-    y=orig(2)+sz(2)/2
-    x=(xo+dx)*ones_deprecated(y)
-    
-    x=[x,orig(1)+(sz(1)/2)]
-    y=[y,orig(2)+yf/7+sz(2)]
+    x=[xo,orig(1)+(sz(1)/2)]
+    y=[orig(2)+sz(2)/2,orig(2)+sz(2)+dy]
     typ=[2 1]
   endfunction
 
+  function [x,y,typ]=VVac_outputs(o)
+  // The outputs are to be defined here 
+  // x and y are the translated input positions 
+  // (x,y) is to be translated by (+-dx,0) or (0,+-dy) 
+  // depending on the port position (west, 
+  // NORTH->(0,dy) SOUTH=(0,-dy), SLD_EAST=(-dx,0), WEST=(0,dx)
+  // one output implicit 
+    xf=60; yf=40; dx=xf/7; dy=yf/7;
+    graphics=o.graphics
+    orig=graphics.orig;sz=graphics.sz;
+    if graphics.flip then
+      x=orig(1)+sz(1)+dx;
+    else
+      x=orig(1)-dx;
+    end
+    y=orig(2)+sz(2)/2;
+    typ=[2]
+  endfunction
+  
+  function VVac_draw_ports(o)
+  // function used to draw ports with non standard location 
+  // the port translated positions are given by calling the 
+  // block input/output functions 
+    xf=60;yf=40;dx=xf/7; dy=yf/7;
+    if o.graphics.flip then 
+      face_out=[2]; face_in=[3,0];
+      dx_out=-[dx];dy_out=[0]; dx_in=[dx,0];dy_in=[0,-dy];
+    else 
+      face_out=[3]; face_in=[2,0];
+      dx_out=[dx];dy_out=[0]; dx_in=[-dx,0];dy_in=[0,-dy];
+    end
+    scicos_draw_ports(o,VVac_inputs,face_in,dx_in,dy_in,VVac_outputs,face_out,dx_out,dy_out);
+  endfunction
   
   x=[];y=[];typ=[];
   select job
@@ -101,7 +76,7 @@ function [x,y,typ]=VVsourceAC(job,arg1,arg2)
    case 'getinputs' then
     [x,y,typ]=VVac_inputs(arg1)
    case 'getoutputs' then
-    [x,y,typ]=standard_outputs(arg1)
+    [x,y,typ]=VVac_outputs(arg1)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
