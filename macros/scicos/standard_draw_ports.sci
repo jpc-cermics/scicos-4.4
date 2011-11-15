@@ -1,5 +1,6 @@
 function standard_draw_ports(o)
 // function used to draw ports 
+  xxx=0;
   nin=size(o.model.in,1);
   nout=size(o.model.out,1);
   inporttype=o.graphics.in_implicit
@@ -23,7 +24,7 @@ function standard_draw_ports(o)
   colors=ones(1,nout);
   if ~isempty(outporttype) then  colors( outporttype == 'B')=default_color(3);end 
   for k=1:nout
-    scicos_lock_draw([xpos_out,orig(2)+sz(2)-dy*k],xf,yf,select_face_out,outtype(k),color=colors(k));
+    scicos_lock_draw([xpos_out,orig(2)+sz(2)-dy*k],xf,yf,select_face_out,outtype(k),color=colors(k)+xxx);
   end
   dy=sz(2)/(nin+1)
   outtype= 0*ones_new(1,nin);
@@ -32,7 +33,7 @@ function standard_draw_ports(o)
   colors=ones(1,nin);
   if ~isempty(inporttype) then  colors( inporttype == 'B')=default_color(3);end 
   for k=1:nin
-    scicos_lock_draw([xpos_in,orig(2)+sz(2)-dy*k],xf,yf,select_face_in,outtype(k),color=colors(k));
+    scicos_lock_draw([xpos_in,orig(2)+sz(2)-dy*k],xf,yf,select_face_in,outtype(k),color=colors(k)+xxx);
   end
   // draw input/output clock ports
   dx=sz(1)/(clkout+1)
