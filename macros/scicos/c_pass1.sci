@@ -76,13 +76,13 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       ind(kb)=-km;
       [modelx,okx]=build_block(o); // compile modelica block type 30004
       if ~okx then 
-	cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
+	cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
 	return
       end
     else
       [model,ok]=build_block(o);
       if ~ok then 
-	cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
+	cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
 	return,
       end
       if or(model.sim(1).equal['plusblk']) then
@@ -96,6 +96,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       end
     end
   end
+  printf('step 1\n');
   if ~isempty(find(sco_mat(:,5)==string(4))) then
     if flgcdgen ==-1 then
       //    [links_table,blklst,corinvt,cor,ind,sco_mat,ok]=sample_clk(sco_mat,links_table,blklst,corinvt,cor,scs_m,ind,flgcdgen)
@@ -103,7 +104,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       //    [links_table,blklst,corinvt,cor,ind,sco_mat,ok,flgcdgen,freof]=sample_clk(sco_mat,links_table,blklst,corinvt,cor,scs_m,ind,flgcdgen)
     end
     if ~ok then
-      cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
+      cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
       return,
     end
     smplk=find(ind==0);
@@ -226,12 +227,12 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   if size(busmat,1)>0
     [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,ccmat,busmat,cor,corinv,reg,MaxBlock,sco_mat,scs_m);
     if ~ok then 
-      blklst=[];cmat=[],ccmat==zeros(0,4),cor=[],corinv=[]
+      blklst=[];cmat=[],ccmat=zeros(0,4),cor=[],corinv=[]
       return;
     end
   end
   cor=update_cor(cor,reg)
-
+  
   // Taking care of the clk 0; 
   //*** this part has been taken from c_pass2 modified and placed here it must be tested ***
   //Fady 08/11/2007

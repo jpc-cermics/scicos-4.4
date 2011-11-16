@@ -1,6 +1,5 @@
 function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cflags,silent)
 //Copyright (c) 1989-2011 Metalau project INRIA
-
 //** buildnewblock : generates Makefiles for
 //                   the generated C code of a scicos block,
 //                   compile and link it in ScicosLab
@@ -21,7 +20,6 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 //
 // Output :  ok : a flag to say if build is ok
 //
-
   //** check rhs paramaters
 
   if nargin <= 1 then files    = blknam, end
@@ -49,7 +47,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   else
     lasterror()
   end
-
+  
   //## define a variable to know if we use
   //## a ScicosLab interfacing function for the standalone
   if filesint<>'' then
@@ -60,14 +58,14 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 
   //** adjust path and name of object files
   //   to include in the building process
-
+  
   //** adjust cflags
   if ~isempty(cflags) then
     if (cflags ~= emptystr()) then
       cflags=strcat(cflags,' ')
     end
   end
-
+  
   //** otherlibs treatment
   [ok,libs,for_link]=link_olibs(libs,rpat)
   if ~ok then
@@ -83,7 +81,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   //** write text of the loader in file
   ierr=execstr('scicos_mputl(txt,rpat+''/''+blknam+''_loader.sce'')',errcatch=%t)
   if ~ierr then
-    x_message(['Can''t write '+blknam+'_loader.sce';lasterror()])
+    x_message(['Can''t write '+blknam+'_loader.sce';catenate(lasterror())])
     ok=%f
     return
   end
@@ -99,7 +97,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
       Makename2 = Makename+'.mak'
       ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
       if ~ierr then
-	x_message(['Can''t write '+Makename2;lasterror()]);
+	x_message(['Can''t write '+Makename2;catenate(lasterror())]);
 	ok=%f;
 	return;
       end
@@ -109,7 +107,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
       Makename2 = Makename+'.lcc'
       ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
       if ~ierr then
-	x_message(['Can''t write '+Makename2;lasterror()]);
+	x_message(['Can''t write '+Makename2;catenate(lasterror())]);
 	ok=%f;
 	return;
       end
@@ -121,7 +119,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
     txt=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags);
     ierr=execstr('scicos_mputl(txt,Makename)',errcatch=%t)
     if ~ierr then
-      x_message(['Can''t write '+Makename;lasterror()]);
+      x_message(['Can''t write '+Makename;catenate(lasterror())]);
       ok=%f;
       return;
     end
@@ -135,11 +133,11 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   //** write text of the Makefile in the file called Makename
   ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
   if ~ierr then
-    x_message(['Can''t write '+Makename2;lasterror()])
+    x_message(['Can''t write '+Makename2;catenate(lasterror())])
     ok=%f
     return
   end
-
+  
   //@@ compile and link if needed
   if ~silent then
 
@@ -152,16 +150,17 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 
     //** save path in case of error in ilib_compile
     oldpath=getcwd();
-
-    //** compile Makefile
-    ierr=execstr('libn=ilib_compile(''lib''+blknam,Makename)',errcatch=%t)
-    if ~ierr then
-      ok=%f;
+    
+    //** compile Makefile (the dirname of Makename is used as 
+    //   compilation destination directory.
+    [libn,ok]=ilib_compile('lib'+blknam,Makename);
+    if ~ok then
       chdir(oldpath);
-      x_message(['sorry compiling problem';lasterror()]);
+      x_message([sprintf('Error: compilation failed for block %s',blknam);
+		 catenate(lasterror())]);
       return;
     end
-
+    
     //** link scicos generated code in ScicosLab
     //libn=pathconvert(libn,%f,%t)
     //## ierr=execstr('libnumber=link(libn)','errcatch')
@@ -171,12 +170,12 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 
     if ~ierr then
       ok=%f;
-      x_message(['sorry link problem';lasterror()]);
+      x_message(['sorry link problem';catenate(lasterror())]);
       return;
     end
 
   end
-
+  
   //## generate makefile for interfacing function of the standalone
   if filesint<>'' then
      //## def name of interf func and
@@ -193,7 +192,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
          Makename2 = Makename+'.mak';
          ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
          if ~ierr then
-           x_message(['Can''t write '+Makename2;lasterror()]);
+           x_message(['Can''t write '+Makename2;catenate(lasterror())]);
            ok=%f;
            return;
          end
@@ -203,7 +202,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 	 Makename2 = Makename+'.lcc';
          ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
          if ~ierr then
-           x_message(['Can''t write '+Makename2;lasterror()]);
+           x_message(['Can''t write '+Makename2;catenate(lasterror())]);
            ok=%f;
            return;
          end
@@ -214,7 +213,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
        txt=gen_make_unix(blknamint,filesint,'',libs,ldflags,cflags);
        ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
        if ~ierr then
-         x_message(['Can''t write '+Makename;lasterror()]);
+         x_message(['Can''t write '+Makename;catenate(lasterror())]);
          ok=%f;
          return;
        end
@@ -226,7 +225,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
      //## write text of the Makefile in the file called Makename
      ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
      if ~ierr then
-       x_message(['Can''t write '+Makename2;lasterror()])
+       x_message(['Can''t write '+Makename2;catenate(lasterror())])
        ok=%f
        return
      end
@@ -248,7 +247,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
        if ~ierr then
          ok=%f;
          chdir(oldpath);
-         x_message(['sorry compiling problem';lasterror()]);
+         x_message(['sorry compiling problem';catenate(lasterror())]);
          return;
        end
 
@@ -257,7 +256,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
        ierr=execstr(txt,errcatch=%t)
        if ~ierr then
          ok=%f;
-         x_message(['sorry link problem';lasterror()]);
+         x_message(['sorry link problem';catenate(lasterror())]);
          return;
        end
      end
@@ -956,7 +955,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
       elseif ~file('exists',x) then
         x_message(['Can''t include '+x;
                    'That file doesn''t exist';
-                   lasterror()])
+                   catenate(lasterror())])
         ok=%f
         return
       //** extension assume that user know what he does
@@ -1068,7 +1067,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
       elseif ~file('exists',x) then
         x_message(['Can''t include '+x;
                    'That file doesn''t exist';
-                   lasterror()])
+                   catenate(lasterror())])
         ok=%f
         return
       //** extension assume that user know what he does
@@ -1159,7 +1158,7 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
       elseif ~file('exists',x) then
         x_message(['Can''t include '+x;
                    'That file doesn''t exist';
-                   lasterror()])
+                   catenate(lasterror())])
         ok=%f
         return
       //** extension assume that user know what he does
