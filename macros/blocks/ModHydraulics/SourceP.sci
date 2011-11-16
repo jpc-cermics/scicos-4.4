@@ -6,6 +6,13 @@ function [x,y,typ]=SourceP(job,arg1,arg2)
 //   - avec un dialogue de saisie de parametre
 
   function blk_draw(sz,orig,orient,label)
+    if orient then
+      x1=0
+      x2=4*arg1.graphics.sz(1)/7
+    else
+      x1=3*arg1.graphics.sz(1)/7
+      x2=3*arg1.graphics.sz(1)/7
+    end
     xfpolys(orig(1)+x1+[0;4;4;0]*sz(1)/7,orig(2)+[0;0;4;4]*sz(2)/4,scs_color(15))
     xsegs(orig(1)+x2+(2*orient-1)*[0;3;2;3;2;3]*sz(1)/7,orig(2)+[2;2;1.5;2;2.5;2]*sz(2)/4)
     xstringb(orig(1)+x1,orig(2),'S',4*sz(1)/7,sz(2),'fill');
@@ -15,15 +22,7 @@ function [x,y,typ]=SourceP(job,arg1,arg2)
 
   select job
    case 'plot' then
-    if arg1.graphics.flip then
-      x1=0
-      x2=4*arg1.graphics.sz(1)/7
-    else
-      x1=3*arg1.graphics.sz(1)/7
-      x2=3*arg1.graphics.sz(1)/7
-    end
     standard_draw(arg1,%f)
-
    case 'getinputs' then
     //[x,y,typ]=source_inputs(arg1)
     [x,y,typ]=standard_inputs(arg1)

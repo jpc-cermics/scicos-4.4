@@ -6,6 +6,11 @@ function [x,y,typ]=PuitsP(job,arg1,arg2)
 //   - avec un dialogue de saisie de parametre
 
   function blk_draw(sz,orig,orient,label)
+    if orient then
+      x1=3*arg1.graphics.sz(1)/7;x2=0
+    else
+      x1=0;x2=arg1.graphics.sz(1)
+    end
     xfpolys(orig(1)+x1+[0;4;4;0]*sz(1)/7,orig(2)+[0;0;4;4]*sz(2)/4,scs_color(15))
     xsegs(orig(1)+x2-(1-2*orient)*[0;3;2;3;2;3]*sz(1)/7,orig(2)+[2;2;1.5;2;2.5;2]*sz(2)/4)
     xstringb(orig(1)+x1,orig(2),'P',4*sz(1)/7,sz(2),'fill');
@@ -15,13 +20,6 @@ function [x,y,typ]=PuitsP(job,arg1,arg2)
 
   select job
    case 'plot' then
-    if arg1.graphics.flip then
-      x1=3*arg1.graphics.sz(1)/7;x2=0
-    else
-      x1=0;x2=arg1.graphics.sz(1)
-    end
-    //  standard_draw(arg1,%f,puit_draw_ports)
-    //  standard_etiquette(arg1, ['T';'P';'H'], 'in')
     standard_draw(arg1,%f)
    case 'getinputs' then
     // [x,y,typ]=puit_inputs(arg1)

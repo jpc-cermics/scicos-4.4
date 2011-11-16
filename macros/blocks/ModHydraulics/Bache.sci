@@ -34,39 +34,22 @@ function [x,y,typ]=Bache(job,arg1,arg2)
     x=[x2,x2,x2];
     typ=[2 2 1]
   endfunction
-  
+
   function bache_draw_ports(o)
-  // draw the ports 
-    nin=size(o.model.in,1);
-    inporttype=o.graphics.in_implicit
-    nout=size(o.model.out,1);
-    outporttype=o.graphics.out_implicit
-    [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
-    // drawing the ports 
-    select_face=[3,2];
-    select_face_out=select_face(orient+1);
-    select_face_in=select_face((~orient)+1);
-    [x,y,typ]=bache_outputs(o)
-    //standard orientation or tilded orientation
-    // select the shape to use. 
-    outtype=ones_new(1,nout);
-    if ~isempty(outporttype) then  outtype( outporttype == 'I')=4;end
-    delta = [xf/7,-xf/7];
-    delta = delta(b2m(orient)+1);
-    for k=1:nout
-      if ~isempty(outporttype) && outporttype(k)=='B' then xset('pattern',default_color(3));end;
-      scicos_lock_draw([x(k)+delta,y(k)],xf,yf,select_face_out,outtype(k));
-      xset('pattern',default_color(1));
+  // function used to draw ports with non standard location 
+  // the port translated positions are given by calling the 
+  // block input/output functions 
+  // NORTH->(0,dy) SOUTH=(0,-dy), SLD_EAST=(-dx,0), WEST=(0,dx)
+    xf=60;yf=40;dx=xf/7; dy=yf/7;
+    if o.graphics.flip then 
+      face_out=[2,2,2]; face_in=[3,3];
+      dx_out=[-dx,-dx,-dx];dy_out=[0,0,0]; dx_in=[dx,dx];dy_in=[0,0];
+    else 
+      face_out=[3,3,3]; face_in=[2,2];
+      dx_out=[dx,dx,dx];dy_out=[0,0,0]; dx_in=[-dx,-dx];dy_in=[0,0];
     end
-    [x,y,typ]=bache_inputs(o)
-    outtype= 0*ones_new(1,nin);
-    if ~isempty(inporttype) then  outtype( inporttype == 'I')=5;end 
-    for k=1:nin
-      if ~isempty(inporttype) && inporttype(k)=='B' then xset('pattern',default_color(3));end;
-      scicos_lock_draw([x(k)-delta,y(k)],xf,yf,select_face_in,outtype(k));
-      xset('pattern',default_color(1))
-    end
-  endfunction 
+    scicos_draw_ports(o,bache_inputs,face_in,dx_in,dy_in,bache_outputs,face_out,dx_out,dy_out);
+  endfunction
   
   x=[];y=[];typ=[];
 
