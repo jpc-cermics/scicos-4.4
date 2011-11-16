@@ -47,7 +47,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       end
       if ~ierr then
         printf('Error in GUI of block %s\n',o.gui);
-        printf("%s\",lasterror());
+        printf("%s\n",lasterror());
         return
       end
       if ~%exit then
@@ -75,7 +75,8 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       ierr=execstr('[o_n,needcompile,newparameters]='+o.gui+'(''set'',o)',errcatch=%t)
       if ~ierr then
         printf('Error in GUI of block %s\n',o.gui);
-        return
+	printf("%s\n",lasterror());
+	return
       end
       modified=prod(size(newparameters))>0
       edited=~and(o==o_n);
@@ -89,6 +90,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       ierr=execstr('[o_n,needcompile,newparameters]='+o.gui+'(''set'',o)',errcatch=%t)
       if ~ierr then
         printf('Error in GUI of block %s\n',o.gui);
+	printf("%s\n",lasterror());
         return
       end
       modified=prod(size(newparameters))>0
@@ -102,13 +104,16 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
                'To edite it, you must first remove the atomicity']);
 
     else
+      // standard block
       %scs_help=o.gui
       ierr=execstr('o_n='+o.gui+'(''set'',o)',errcatch=%t)
       if ~ierr then
         printf('Error in GUI of block %s\n',o.gui);
+	printf("%s\n",lasterror());
         return
       end
       edited=or(o<>o_n)
+
       if edited then
         model=o.model
         model_n=o_n.model
@@ -160,7 +165,6 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
 		~eq.outputs.equal[eqn.outputs] then
             needcompile=4
           end
-
           //## if a parameters have change in a modelica block then force
           //## the recompilation
           if ~isequal(eq.parameters,eqn.parameters) then
@@ -168,7 +172,6 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
             param_name_n = eqn.parameters(1);
             if ~isequal(param_name,param_name_n) then
               needcompile=4
-	      return;
             elseif ~eq.parameters(2).equal[eqn.parameters(2)] then
 	      needcompile=0 // BIZARRE !!!!
 	      TMPDIR=getenv('NSP_TMPDIR')
@@ -177,14 +180,15 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
 	      if ~isok then
 		x_message(['Unable to delete the XML file'])
 		lasterror();
+		return;
 	      end
 	      XMLTMP=file('join',[TMPDIR,stripblanks(scs_m.props.title(1))+'_imSim.xml']);
 	      isok=execstr("file(""delete"",XMLTMP)",errcatch=%t)
 	      if ~isok then
 		x_message(['Unable to delete the XML file'])
 		lasterror();
+		return;
 	      end
-	      return;
 	    end
 	  end
           if size(o.model.sim,'*')>1 then
@@ -196,9 +200,9 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
             end
           end
         end
-        o=o_n
       end
     end
+    o=o_n;
   elseif o.type  =='Link' then
     // 
     resume(Cmenu='Link');
@@ -207,7 +211,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
     eok=execstr('o_n='+o.gui+'(''set'',o)',errcatch=%t)
     if ~eok then
       message('Error in GUI of block %s\n',o.gui);
-      lasterror();
+      printf("%s\n",lasterror());
       return;
     end
     edited=~o.equal[o_n];

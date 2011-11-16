@@ -8,7 +8,7 @@ function [x,y,typ]=Diode(job,arg1,arg2)
       xpoly(x,y,thickness=2);
       x=orig(1)+sz(1)*(1/4+1/8) + [0,0,sz(1)/4];
       dy=sz(2)/5;
-      y=orig(1)+sz(2)/2 + [-dy,dy,0];
+      y=orig(2)+sz(2)/2 + [-dy,dy,0];
       xfpoly(x,y,thickness=1,color=0,fill_color=xget('color','gray'));
       x=[orig(1)+sz(1)*(1/2+1/8),orig(1)+sz(1)];
       y=[orig(2)+sz(2)/2,orig(2)+sz(2)/2];
@@ -22,7 +22,7 @@ function [x,y,typ]=Diode(job,arg1,arg2)
       xpoly(x,y,thickness=2);
       x=orig(1)+sz(1)-sz(1)*(1/4+1/8) + [0,0,-sz(1)/4];
       dy=sz(2)/5;
-      y=orig(1)+sz(2)/2 + [-dy,dy,0];
+      y=orig(2)+sz(2)/2 + [-dy,dy,0];
       xfpoly(x,y,thickness=1,color=0,fill_color=xget('color','gray'));
       x=[orig(1)+sz(1)- sz(1)*(1/2+1/8),orig(1)];
       y=[orig(2)+sz(2)/2,orig(2)+sz(2)/2];

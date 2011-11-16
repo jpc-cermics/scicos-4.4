@@ -5,11 +5,7 @@ function [x,y,typ]=Resistor(job,arg1,arg2)
 //   -  avec une entree et une sortie de type implicit et de dimension 1
 //   - avec un dialogue de saisie de parametre
 
-// xstring works badly when we rotate the block 
-// 'xstring(orig(1)+sz(1)/2,orig(2)-3*sz(2),txt,posx=''center'',posy=''up'',size=sf);'
-
   function blk_draw(sz,orig,orient,label)
-
     xx=[0,1,1,7,7,8,7,7,1,1]/8;
     yy=[1,1,0,0,1,1,1,2,2,1]/2;
     xpoly(orig(1)+xx*sz(1),orig(2)+yy*sz(2)); 
@@ -31,17 +27,14 @@ function [x,y,typ]=Resistor(job,arg1,arg2)
     [x,y]=standard_origin(arg1)
    case 'set' then
     x=arg1;
-    graphics=arg1.graphics;exprs=graphics.exprs
-    model=arg1.model;
     while %t do
       [ok,R,exprs]=getvalue('Set Resistor block parameter',..
-			    'R (ohm)',list('vec',1),exprs)
-      if ~ok then break,end
-      model.rpar=R
-      model.equations.parameters(2)=list(R)
-      graphics.exprs=exprs
-      x.graphics=graphics;x.model=model
-      break
+			    'R (ohm)',list('vec',1),x.graphics.exprs);
+      if ~ok then break,end // cancel 
+      x.model.rpar=R
+      x.model.equations.parameters(2)=list(R)
+      x.graphics.exprs=exprs
+      break;
     end
    case 'define' then
     model=scicos_model()
