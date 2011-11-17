@@ -98,6 +98,9 @@ function cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,flag)
     chdir(pw)
     return
   end
+  // on win32 the xpause(0,%t) is needed 
+  // if not mlcos.sci won't already exists on next instructions.
+  xpause(0,%t)
   exec('mlcos.sci');
   chdir(pw)
   [ordptr,ordclk,critical,ztyp_blocks,dup,cord,oord,zord,iord,err_blks,err_msg,ok]=test_comp()

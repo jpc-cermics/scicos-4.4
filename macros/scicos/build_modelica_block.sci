@@ -519,7 +519,8 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       // reported in sp_o
       if ~ok | sp_e <> "" | sum(strstr(sp_o,'ERROR'))<>0 then 
 	commandok=%f;
-      end 
+      end
+      xpause(0,%t);
     end
     if ~commandok then
       // spawn command failed, report and return.
@@ -580,6 +581,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       ok=%f,dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;      
       return
     end
+    xpause(0,%t);
     // printf("%s\n",sp_o);
     I=strstr(sp_e,"Trying to reduce state... Failed");
     if sum(I)<>0 then
