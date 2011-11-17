@@ -1,10 +1,31 @@
 function [%state0,state,sim,ok]=modipar(newparameters,%state0,state,sim,scs_m,cor,job)
-ok=%t
-if nargin<7 then job="default",end
-// store modified parameters in compiled structure state,sim
-// newparameters gives modified blocks numbers in original structure scs_m
-// cor is the correspondance table from original structure to compiled one
-// Copyright INRIA
+
+  function [ot,typ]=do_get_type(x)
+  // returns types used internally in scicos 
+  // for matrix and imatrix 
+  // this function is used in some blocks definition 
+  // 
+    if (type(x,'string')=='Mat') then
+      ot = 1 + b2m(~isreal(x,%t));
+      typ='scalar';
+    elseif (type(x,'string')=='IMat') then
+      // take care that we have more int types in nsp
+      typ= x.itype[];
+      str=["","","int32","int16","int8","uint32","uint16","uint8"];
+      ot= find(typ==str);
+      if isempty(ot) then ot=9;end 
+    else 
+      typ=type(x,'string');
+      ot=9
+    end
+  endfunction
+  
+  ok=%t
+  if nargin<7 then job="default",end
+  // store modified parameters in compiled structure state,sim
+  // newparameters gives modified blocks numbers in original structure scs_m
+  // cor is the correspondance table from original structure to compiled one
+  // Copyright INRIA
   xptr=sim.xptr
   zptr=sim.zptr
   ozptr=sim.ozptr
@@ -52,7 +73,7 @@ if nargin<7 then job="default",end
         Parjv=parameters(2)(jop)
         Parjv_plat=Parjv(:);
         for jjop=1:size(Parjv_plat,'*')
-         opark($+1)=Parjv_plat(jjop)
+	  opark($+1)=Parjv_plat(jjop)
         end
       end
       ipark=ipar(ipptr(kc):ipptr(kc+1)-1)
@@ -107,7 +128,7 @@ if nargin<7 then job="default",end
 	  statek=statek(1:$/2)
 	end
       end
-    
+      
       if kc>0 then
         //Change continuous state
         nek=prod(size(statek))-(xptr(kc+1)-xptr(kc))
@@ -122,8 +143,8 @@ if nargin<7 then job="default",end
         end
 
         if nek<0 then
-            st($+nek+1:$)=[],st0($+nek+1:$)=[],
-            if Impl then std($+nek+1:$)=[],std0($+nek+1:$)=[],end
+	  st($+nek+1:$)=[],st0($+nek+1:$)=[],
+	  if Impl then std($+nek+1:$)=[],std0($+nek+1:$)=[],end
         end
 
         xptr(kc+1:$)=xptr(kc+1:$)+nek
@@ -144,7 +165,7 @@ if nargin<7 then job="default",end
         end
 
         if nek<0 then 
-            dst($+nek+1:$)=[],dst0($+nek+1:$)=[],
+	  dst($+nek+1:$)=[],dst0($+nek+1:$)=[],
         end    
 
         zptr(kc+1:$)=zptr(kc+1:$)+nek
@@ -153,7 +174,7 @@ if nargin<7 then job="default",end
 
         //Change objects discrete state
         if ((type(odstatek,'short')<>'l') | ...
-           (type(fun,'short')<>'l')) then //old sci blocks or odstatek not a list
+	    (type(fun,'short')<>'l')) then //old sci blocks or odstatek not a list
           nek=-(ozptr(kc+1)-ozptr(kc))
         elseif ((fun(2)==5) | (fun(2)==10005)) then // sciblocks type 5 | 10005
           if size(odstatek)>0 then
@@ -212,7 +233,7 @@ if nargin<7 then job="default",end
         end
 
         if nek<0 then 
-            rpar($+nek+1:$)=[]
+	  rpar($+nek+1:$)=[]
         end
 
         rpptr(kc+1:$)=rpptr(kc+1:$)+nek
@@ -227,7 +248,7 @@ if nargin<7 then job="default",end
 	  end
 
           if nek<0 then 
-              ipar($+nek+1:$)=[]
+	    ipar($+nek+1:$)=[]
           end
 
 	  ipptr(kc+1:$)=ipptr(kc+1:$)+nek
@@ -235,7 +256,7 @@ if nargin<7 then job="default",end
         end
         //Change objects parameters
         if ((type(opark,'short')<>'l') | ...
-           (type(fun,'short')<>'l')) then //old sci blocks or odstatek not a list
+	    (type(fun,'short')<>'l')) then //old sci blocks or odstatek not a list
           nek=-(opptr(kc+1)-opptr(kc))
         elseif ((fun(2)==5) | (fun(2)==10005)) then // sciblocks
           if size(opark)>0 then
@@ -251,15 +272,15 @@ if nargin<7 then job="default",end
         sel=opptr(kc+1):opptr($)-1
         if nek<>0 & ~isempty(sel) then
           while size(opar)<max(nek+sel), opar($+1)=[], end
-        if nek>0 then sel=gsort(sel), end
+	  if nek>0 then sel=gsort(sel), end
           for j=sel, opar(j+nek)=opar(j); end
         end
         opptr(kc+1:$)=opptr(kc+1:$)+nek;
         if ((type(opark,'short')=='l') & (type(fun,'short')=='l')) then
           if ((fun(2)==5) | (fun(2)==10005)) then // sciblocks
-           if size(opark)>0 then
-             opar(opptr(kc))=opark;
-           end
+	    if size(opark)>0 then
+	      opar(opptr(kc))=opark;
+	    end
           elseif ((fun(2)==4) | (fun(2)==10004) | (fun(2)==2004)) then //C blocks
             for j=1:size(opark), opar(opptr(kc)+j-1)=opark(j), end
           end
@@ -320,22 +341,3 @@ if nargin<7 then job="default",end
 
 endfunction
 
-function [ot,typ]=do_get_type(x)
-// returns types used internally in scicos 
-// for matrix and imatrix 
-// this function is used in some blocks definition 
-// 
-  if (type(x,'string')=='Mat') then
-    ot = 1 + b2m(~isreal(x,%t));
-    typ='scalar';
-  elseif (type(x,'string')=='IMat') then
-    // take care that we have more int types in nsp
-    typ= x.itype[];
-    str=["","","int32","int16","int8","uint32","uint16","uint8"];
-    ot= find(typ==str);
-    if isempty(ot) then ot=9;end 
-  else 
-    typ=type(x,'string');
-    ot=9
- end
-endfunction
