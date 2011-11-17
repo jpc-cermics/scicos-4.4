@@ -41,10 +41,11 @@ if nargin<7 then job="default",end
       kc=get_tree_elt(cor,k); 
       o=scs_m(get_subobj_path(k))
     end
+    // o can be a deleted block which is strange ?
+    if o.type == 'Deleted' then continue;end 
     if is_modelica_block(o) then
       parameters=o.model.equations.parameters
-
-//      rpark=[];for p=parameters(2),rpark=[rpark;p(:)];end
+      //      rpark=[];for p=parameters(2),rpark=[rpark;p(:)];end
       opark=list();
       np=size(parameters(1),'*');
       for jop=1:np
@@ -54,8 +55,6 @@ if nargin<7 then job="default",end
          opark($+1)=Parjv_plat(jjop)
         end
       end
-
-
       ipark=ipar(ipptr(kc):ipptr(kc+1)-1)
       corinvm=%cpr.corinv(kc);
       J=[];
@@ -67,16 +66,14 @@ if nargin<7 then job="default",end
       if nek<>0 then
 	warning('variying number of parameter for modelica block is not yet implemented')
       end
-
-//      rpar(rpptr(kc)+ipark(J)-1:rpptr(kc)+ipark(J+1)-2)=rpark
+      //      rpar(rpptr(kc)+ipark(J)-1:rpptr(kc)+ipark(J+1)-2)=rpark
       for jop=1:ipark(J+1)-ipark(J)   
         opar(opptr(kc)+ipark(J)-2+jop)=opark(jop)
       end
-
     else
+      // not a modelica block
       statekd=[]
       om=o.model
-
       if job=="compile" then
         omin=min(size(om.in,'*'),sim.inpptr(kc+1)-sim.inpptr(kc))
         // in case of sum size of om.in may be 3 but only 2 used

@@ -18,7 +18,7 @@ function [nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=reading_inc
   endfunction
   
   xmlformat=scicos_mgetl(incidence);
-  typ=m2s([]);input_name=[];order=[];depend=[];
+  typ=m2s([]);input_name=[];order=[];depend=m2s([]);
   global txtline;
   txtline=0;
   corresp_table=['<number_of_integer_parameters','nipar';

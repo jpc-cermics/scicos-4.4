@@ -4,8 +4,6 @@ function  value=get_tree_elt(tree,path)
 // value : new value for the pointed tree element
 // Copyright INRIA
   n=prod(size(path))
-
-
   for k=1:n
     tree=tree(path(k))
   end
