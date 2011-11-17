@@ -48,6 +48,10 @@ CFLAGS = $(CC_OPTIONS)
 FFLAGS = $(FC_OPTIONS)
 OBJS = $(OBJSC)
 
+# extra libraries needed for linking 
+# it is mandatory on win32 to give this extra argument.
+OTHERLIBS=-llapack -lblas `pkg-config gtk+-2.0 --libs`
+
 include $(SCIDIR)/config/Makeso.incl
 
 all:: Makefile.mak
