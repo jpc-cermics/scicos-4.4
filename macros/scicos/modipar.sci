@@ -1,24 +1,4 @@
 function [%state0,state,sim,ok]=modipar(newparameters,%state0,state,sim,scs_m,cor,job)
-
-  function [ot,typ]=do_get_type(x)
-  // returns types used internally in scicos 
-  // for matrix and imatrix 
-  // this function is used in some blocks definition 
-  // 
-    if (type(x,'string')=='Mat') then
-      ot = 1 + b2m(~isreal(x,%t));
-      typ='scalar';
-    elseif (type(x,'string')=='IMat') then
-      // take care that we have more int types in nsp
-      typ= x.itype[];
-      str=["","","int32","int16","int8","uint32","uint16","uint8"];
-      ot= find(typ==str);
-      if isempty(ot) then ot=9;end 
-    else 
-      typ=type(x,'string');
-      ot=9
-    end
-  endfunction
   
   ok=%t
   if nargin<7 then job="default",end
@@ -341,3 +321,25 @@ function [%state0,state,sim,ok]=modipar(newparameters,%state0,state,sim,scs_m,co
 
 endfunction
 
+
+
+
+function [ot,typ]=do_get_type(x)
+// returns types used internally in scicos 
+// for matrix and imatrix 
+// this function is used in some blocks definition 
+// 
+  if (type(x,'string')=='Mat') then
+    ot = 1 + b2m(~isreal(x,%t));
+    typ='scalar';
+  elseif (type(x,'string')=='IMat') then
+    // take care that we have more int types in nsp
+    typ= x.itype[];
+    str=["","","int32","int16","int8","uint32","uint16","uint8"];
+    ot= find(typ==str);
+    if isempty(ot) then ot=9;end 
+  else 
+    typ=type(x,'string');
+    ot=9
+  end
+endfunction
