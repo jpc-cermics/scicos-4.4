@@ -19,7 +19,7 @@ function [%scicos_short, %scicos_help, ...
   %scicos_lhb_list = list();
 
   //** state_var = 1 : right click inside the CURRENT Scicos Window
-  %scicos_lhb_list(1) = list('Cut',..
+  %scicos_lhb_list(1) = list('Cut|||gtk-cut',..
                              'Copy|||gtk-copy',..
                              'Delete|||gtk-delete',..
                              'Move',..
@@ -85,7 +85,7 @@ function [%scicos_short, %scicos_help, ...
 
   //** state_var = 4 : right click over a block that is not a super block
   %scicos_lhb_list(4) = list('Open/Set',..
-                             'Cut',..
+                             'Cut|||gtk-cut',..
                              'Copy|||gtk-copy',..
                              'Delete|||gtk-delete',..
                              'Move',..
@@ -126,7 +126,7 @@ function [%scicos_short, %scicos_help, ...
 
   //** state_var = 6 : right click over a text inside the CURRENT Scicos Window
   %scicos_lhb_list(6) = list('Open/Set',..
-                             'Cut',..
+                             'Cut|||gtk-cut',..
                              'Copy|||gtk-copy',..
                              'Delete|||gtk-delete',..
                              'Move',..
@@ -145,7 +145,7 @@ function [%scicos_short, %scicos_help, ...
                              list('Super Block Properties',..
                                   'Rename',..
                                   'Set Code Gen Properties'),..
-                             'Cut',..
+                             'Cut|||gtk-cut',..
                              'Copy|||gtk-copy',..
                              'Delete|||gtk-delete',..
                              'Move',..
