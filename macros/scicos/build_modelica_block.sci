@@ -433,8 +433,11 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       end
     end
     mlibs=modelica_libs;
-    mlibsM=file('join',[tmpdir;'Modelica']);
-    mlib1=[modelica_libs(:);mlibsM];
+    for k=1:size(modelica_libs,'*')
+      mlibs(k)=file('native',mlibs(k))
+    end
+    mlibsM=file('native',file('join',[tmpdir;'Modelica']));
+    mlib1=[mlibs(:);mlibsM];
     translator_libs=[smat_create(size(mlib1,'*'),1,'-lib'),mlib1]';
     translator_libs.redim[-1,1]
     translator_libs=translator_libs(:);
@@ -482,10 +485,17 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     // instruction to be executed 
     instr=[file('native',translator);
 	   translator_libs;
-	   '-lib';filemo;
-	   '-o';  Flat;
-	   with_ixml;
-	   '-command'; name+' '+namef+';'];
+	   '-lib';file('native',filemo);
+	   '-o';file('native',Flat);
+	   with_ixml];
+    //win32 case
+    if %win32 then
+      instr=[instr
+             '-command';'""'+name+' '+namef+'"";'];
+    else
+      instr=[instr
+             '-command';name+' '+namef+';'];
+    end
     if %f && %win32 then
       instrc = file('join',[tmpdir;'gent.bat']);
       scicos_mputl(instr,instrc);
@@ -509,7 +519,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     end
     commandok=%t;
     if ~(overwrite==2) then 
-      // run translator 
+      // run translator
       [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
       // FIXME: translator should report errors in sp_e !
       // take care that ok just means that 
@@ -517,7 +527,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       // Then it is necessary to check sp_e 
       // and in the case of translator ERROR is 
       // reported in sp_o
-      if ~ok | sp_e <> "" | sum(strstr(sp_o,'ERROR'))<>0 then 
+      if ~ok | (~isequal(sp_e,"") & ~isempty(sp_e)) | sum(strstr(sp_o,'ERROR'))<>0 then
 	commandok=%f;
       end
       xpause(0,%t);
@@ -576,7 +586,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       instr=instrc;
     end
     [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
-    if ~ok | sp_e <> "" then
+    if ~ok | (~isequal(sp_e,"") & ~isempty(sp_e)) then
       x_message(['Error:';'Modelica compilation failed ';sp_e;sp_m]);	    
       ok=%f,dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;      
       return
