@@ -269,7 +269,7 @@ function scicos_activate_action(action,args)
     name=scicos_action_name_to_fname(name)
   end
   typename=type(action,'string');
-  printf("Action %s (type=%s) win=%d activated\n", name, typename,win);
+  //printf("Action %s (type=%s) win=%d activated\n", name, typename,win);
   if part(name,1)=='$' then 
     // predefined command 
     nsp_enqueue_command(win,name);
@@ -318,7 +318,7 @@ function scicos_action_set_sensitivity(win,name,sensitive)
 // win can be a number of a window widget.
 // 
   // return; // temporarily not activated XXXX
-  printf("Setting %s sensitivity to %d\n',name,sensitive);
+  //printf("Setting %s sensitivity to %d\n',name,sensitive);
   if type(win,'short')== 'm' then 
     window=nsp_graphic_widget(win);
   else
@@ -502,7 +502,7 @@ function scicos_menus_select_set_sensitivity(selection,win)
   else  
     sel= scs_m.objs(selection).type 
   end
-  printf('selection is ==>%s \n",sel);
+  //printf('selection is ==>%s \n",sel);
   if sel== 'None' then 
     scicos_action_set_sensitivity(win,"scmenu_cut",%f);
     scicos_action_set_sensitivity(win,"scmenu_copy",%f);
