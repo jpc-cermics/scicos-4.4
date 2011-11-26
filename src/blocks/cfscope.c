@@ -10,7 +10,7 @@
 
 #include "blocks.h"
 
-void cfcope (scicos_block * block, int flag)
+void cfscope (scicos_block * block, int flag)
 {
   Sciprintf ("cfscope is to be done for nsp \n");
 }
