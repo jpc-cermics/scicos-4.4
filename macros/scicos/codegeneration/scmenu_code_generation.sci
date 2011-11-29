@@ -3648,7 +3648,6 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
     else
       if ALL then cflags=[cflags,'-I""./solver""'], end
     end
-
     if ok then
       ok=buildnewblock(rdnom,files,filestan,filesint,libs,rpat,'',cflags)
     end
@@ -9503,7 +9502,7 @@ function [Code]=make_standalone42()
       ind=find(kf==capt(:,1))
       //Code_insz = 'typin['+string(ind-1)+']'
     //## other blocks ##//
-    elseif ~isempty(nin) then
+    elseif ~isequal(nin,0) then
       //** 1st dim **//
       for kk=1:nin
          lprt=inplnk(inpptr(kf)-1+kk);
@@ -9543,7 +9542,7 @@ function [Code]=make_standalone42()
       Code_inptr=[Code_inptr;
                   'void *inptr_'+string(kf)+'[]={0};']
     //## other blocks ##//
-    elseif ~isempty(nin) then
+    elseif ~isequal(nin,0) then
       Code_toinptr=cformatline(strcat(string(zeros(1,nin)),','),70);
       Code_toinptr(1)='void *inptr_'+string(kf)+'[]={'+Code_toinptr(1);
       for j=2:size(Code_toinptr,1)
@@ -9566,7 +9565,7 @@ function [Code]=make_standalone42()
       ind=find(kf==actt(:,1))
       //Code_outsz = 'typout['+string(ind-1)+']'
     //## other blocks ##//
-    elseif ~isempty(nout) then
+    elseif ~isequal(nout,0) then
       //** 1st dim **//
       for kk=1:nout
          lprt=outlnk(outptr(kf)-1+kk);
@@ -9606,7 +9605,7 @@ function [Code]=make_standalone42()
       Code_outptr=[Code_outptr;
                    'void *outptr_'+string(kf)+'[]={0};']
     //## other blocks ##//
-    elseif ~isempty(nout) then
+    elseif ~isequal(nout,0) then
       Code_tooutptr=cformatline(strcat(string(zeros(1,nout)),','),70);
       Code_tooutptr(1)='void *outptr_'+string(kf)+'[]={'+Code_tooutptr(1);
       for j=2:size(Code_tooutptr,1)
@@ -10309,7 +10308,11 @@ function [Code]=make_standalone42()
         '#ifdef __STDC__'
         'void Coserror (char *fmt,...)'
         '#else'
+        '#ifdef __MSC__'
+        'void Coserror (char *fmt,...)'
+        '#else'
         'void Coserror(va_alist) va_dcl'
+        '#endif'
         '#endif'
         '{'
         ' int retval;'
@@ -10318,11 +10321,15 @@ function [Code]=make_standalone42()
         '#ifdef __STDC__'
         ' va_start(ap,fmt);'
         '#else'
+        '#ifdef __MSC__'
+        ' va_start(ap,fmt);'
+        '#else'
         ''
         ' char *fmt;'
         ' va_start(ap);'
         ''
         ' fmt = va_arg(ap, char *);'
+        '#endif'
         '#endif'
         ''
         '#if defined (vsnprintf) || defined (linux)'
