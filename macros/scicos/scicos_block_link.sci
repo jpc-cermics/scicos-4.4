@@ -15,12 +15,21 @@ function ok=scicos_block_link(funam,txt,flag,libs,cflags)
   F=fopen(funam+'.'+flag,mode="w");
   F.put_smatrix[txt];
   F.close[];
-  if %t then 
+  if %t then
+    // use of libscicos in ldflags in nsp because library of scicos
+    // isn't in libnsp.
+    if %win32 then
+      ext='.lib'
+    else
+      ext='.a'
+    end
+    ldflags = '""'+file('join',[get_scicospath();'src';'libscicos'+ext])+'""';
+
     // use ilib_for_link 
     if flag=='f' then 
-      [libn,ok]=ilib_for_link(funam,funam+'.o',libs,flag,fflags=cflags);
+      [libn,ok]=ilib_for_link(funam,funam+'.o',libs,flag,fflags=cflags,ldflags=ldflags);
     else
-      [libn,ok]=ilib_for_link(funam,funam+'.o',libs,flag,cflags=cflags);
+      [libn,ok]=ilib_for_link(funam,funam+'.o',libs,flag,cflags=cflags,ldflags=ldflags);
     end
     if ~ok then 
       chdir(cur_wd)

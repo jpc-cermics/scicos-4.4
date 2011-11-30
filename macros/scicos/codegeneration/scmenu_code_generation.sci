@@ -5317,6 +5317,10 @@ function [Code]=make_computational42()
         ' * Copyright (c) 1989-2011 Metalau project INRIA';
         ' */'
         '#include <scicos/scicos_block4.h>'
+        '#include <string.h>'
+        '#include <stdio.h>'
+        '#include <stdlib.h>'
+        '#include <math.h>'
         '']
   
   Code=[Code;
@@ -8514,6 +8518,9 @@ function [Code]=make_standalone42()
         ''
 	'#include <scicos/scicos_block4.h>'
 	'#include <string.h>'
+        '#include <stdio.h>'
+        '#include <stdlib.h>'
+        '#include <math.h>'
 	''
         '/* ---- Internals functions and global variables declaration ---- */'
         Protostalone
@@ -16686,7 +16693,11 @@ function [scs_m]=draw_sampleclock(scs_m,XX,k,flgcdgen,szclkINTemp,freof)
     //XX.graphics.pein($)=size(scs_m.objs)+2
     //XX.graphics.pein = [XX.graphics.pein ; size(scs_m.objs)+2]
     //scs_m.objs(k) = XX
-    scs_m.objs(k).graphics.pein($) = size(scs_m.objs)+2
+    if isempty(scs_m.objs(k).graphics.pein) then
+      scs_m.objs(k).graphics.pein = size(scs_m.objs)+2
+    else
+      scs_m.objs(k).graphics.pein($) = size(scs_m.objs)+2
+    end
     bk = SampleCLK('define');
     [posx,posy] = getinputports(XX)
     posx = posx($); posy = posy($);
