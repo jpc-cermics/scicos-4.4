@@ -65,7 +65,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
       cflags=strcat(cflags,' ')
     end
   end
-  
+
   //** otherlibs treatment
   [ok,libs,for_link]=link_olibs(libs,rpat)
   if ~ok then
@@ -792,7 +792,6 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
      "CC           = cl"
      "LINKER       = link"]
 
-
   if ~isempty(libs) then
     T=[T;
        "OTHERLIBS    = "+libs]
@@ -1089,9 +1088,9 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           for_link=[for_link;x]
           link(for_link($));
           if file('exists',file('join',[path;fname+'.ilib'])) then
-            xlibs=[xlibs;path+fname+'.ilib']
+            xlibs=[xlibs;file('join',[path;fname+'.ilib'])]
           elseif file('exists',file('join',[path;fname+'.lib'])) then
-            xlibs=[xlibs;path+fname+'.lib']
+            xlibs=[xlibs;file('join',[path;fname+'.lib'])]
           else
             //link(x);
             x_message(['I don''t know what to do !';
@@ -1103,15 +1102,15 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
         //** library (.lib)
         elseif extension=='.lib' | extension=='.ilib' then
           if file('exists',file('join',[path;fname+'.dll'])) then
-            for_link=[for_link;path+fname+'.dll']
+            for_link=[for_link;file('join',[path;fname+'.dll'])]
             link(for_link($));
           elseif file('exists',file('join',[path;fname+'.DLL'])) then
-            for_link=[for_link;path+fname+'.DLL']
+            for_link=[for_link;file('join',[path;fname+'.DLL'])]
             link(for_link($));
           else
             //link(x);
             x_message(['I don''t know what to do !';
-		       'Line 1192 of buildnewblock.sci';
+		       'Line 1113 of buildnewblock.sci';
                        'Please report to scicos@inria.fr'])
             ok=%f
             //pause
@@ -1180,13 +1179,13 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
           for_link=[for_link;x]
           link(for_link($));
           if file('exists',file('join',[path;fname+'.a'])) then
-            xlibs=[xlibs;path+fname+'.a']
+            xlibs=[xlibs;file('join',[path;fname+'.a'])]
           elseif file('exists',file('join',[path;fname+'.A'])) then
-            xlibs=[xlibs;path+fname+'.A']
+            xlibs=[xlibs;file('join',[path;fname+'.A'])]
           else
             //link(x);
             x_message(['I don''t know what to do !';
-		       'Line 1267 of buildnewblock.sci';
+		       'Line 1188 of buildnewblock.sci';
                        'Please report to scicos@inria.fr'])
             ok=%f
             //pause
@@ -1194,15 +1193,15 @@ function [ok,libs,for_link]=link_olibs(libs,rpat)
         //** library (.a)
         elseif extension=='.a' | extension=='.A' then
           if file('exists',file('join',[path;fname+'.so'])) then
-            for_link=[for_link;path+fname+'.so']
+            for_link=[for_link;file('join',[path;fname+'.so'])]
             link(for_link($));
           elseif file('exists',file('join',[path;fname+'.SO'])) then
-            for_link=[for_link;path+fname+'.SO']
+            for_link=[for_link;file('join',[path;fname+'.SO'])]
             link(for_link($));
           else
             //link(x);
             x_message(['I don''t know what to do !';
-		       'Line 1283 of buildnewblock.sci';
+		       'Line 1204 of buildnewblock.sci';
                        'Please report to scicos@inria.fr'])
             ok=%f
             //pause

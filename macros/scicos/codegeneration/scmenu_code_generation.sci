@@ -3456,7 +3456,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
             end
           else
             //@@ add a test for %scicos_libs
-	    target_lib =file('join',[rpat;'lib';rdnom+%shext]);
+	    target_lib =file('join',[rpat;'lib'+rdnom+%shext]);
 	    ind = find(libs==target_lib)
             if ~isempty(ind) then
               mess=[' Warning. You want to link an external library';
@@ -3687,7 +3687,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       XX=update_block_doc(XX)
 
       //## update %scicos_libs if needed
-      libnam =file('join',[rpat;'lib';rdnom+%shext]);
+      libnam =file('join',[rpat;'lib'+rdnom+%shext]);
       if exists('%scicos_libs') then
         if isempty(find(libnam==%scicos_libs)) then
           %scicos_libs=[%scicos_libs,libnam];
