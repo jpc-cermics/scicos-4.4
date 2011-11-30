@@ -22,7 +22,7 @@ function [libss,cflags,ok,cancel]=get_dynamic_lib_dir(txt,funam,flag,libss,cflag
     //@@ check libss
     if ~isempty(strindex(libss,'''')) || ~isempty(strindex(libss,'""')) then
       ierr=execstr('libss=evstr(libss)',errcatch=%t)
-      if ierr<>0  then
+      if ~ierr  then
         message(['cannot evaluate strings given for external libraries'])
         chdir(cur_wd);
         ok=%f;
@@ -35,7 +35,7 @@ function [libss,cflags,ok,cancel]=get_dynamic_lib_dir(txt,funam,flag,libss,cflag
     //@@ check cflags
     if strindex(cflags,'''')<>[] | strindex(cflags,'""')<>[] then
       ierr=execstr('cflags=evstr(cflags)','errcatch')
-      if ierr<>0  then
+      if ~ierr then
         message(['Error(s) in Additionnal compiler flag(s)'])
         chdir(cur_wd);
         ok=%f;
@@ -50,7 +50,7 @@ function [libss,cflags,ok,cancel]=get_dynamic_lib_dir(txt,funam,flag,libss,cflag
     for i=1:size(libss,'*')
       lib_dll=libss(i)+%shext;
       ifexst=file('exists',lib_dll);
-      if ifexst==[] then message ('the library '+lib_dll+' doesn''t exists');ok=%f;end
+      if ~ifexst then message ('the library '+lib_dll+' doesn''t exists');ok=%f;end
     end
   end
   chdir(cur_wd);

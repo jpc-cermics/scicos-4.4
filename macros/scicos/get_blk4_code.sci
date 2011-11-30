@@ -12616,7 +12616,7 @@ function [txt]=get_solver_file_code(name)
                "#endif"]
 
       case 'cvode.h' then
-        txt = ["/*"
+       txt1 = ["/*"
                " * -----------------------------------------------------------------"
                " * ----------------------------------------------------------------- "
                " * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban"
@@ -13179,8 +13179,8 @@ function [txt]=get_solver_file_code(name)
                "   * In case of an error return, an error message is also printed."
                "   * -----------------------------------------------------------------"
                "   */"
-               ""
-               "  int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *g_data);"
+               ""]
+        txt2=[ "  int CVodeRootInit(void *cvode_mem, int nrtfn, CVRootFn g, void *g_data);"
                ""
                "  /*"
                "   * -----------------------------------------------------------------"
@@ -13452,7 +13452,7 @@ function [txt]=get_solver_file_code(name)
                "#endif"
                ""
                "#endif"]
-
+        txt=[txt1;txt2];
       case 'cvode_impl.h' then
         txt = ["/*"
                " * -----------------------------------------------------------------"
