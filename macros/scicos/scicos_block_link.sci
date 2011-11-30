@@ -24,7 +24,7 @@ function ok=scicos_block_link(funam,txt,flag,libs,cflags)
       ext='.a'
     end
     ldflags = '""'+file('join',[get_scicospath();'src';'libscicos'+ext])+'""';
-
+    [a,b]=c_link(funam); while a;  ulink(b);[a,b]=c_link(funam);end
     // use ilib_for_link 
     if flag=='f' then 
       [libn,ok]=ilib_for_link(funam,funam+'.o',libs,flag,fflags=cflags,ldflags=ldflags);
