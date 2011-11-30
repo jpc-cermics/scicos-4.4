@@ -13,6 +13,10 @@ function scmenu_open()
   if ok then 
     %scicos_context=context;
     scs_m=sc; %cpr=cpr; edited=ed;
+    options=scs_m.props.options;
+    if size(scs_m.props.wpar,'*')>12 then
+      %zoom=scs_m.props.wpar(13)
+    end
     alreadyran=%f;
     if size(%cpr)==0 then
       needcompile=4;
@@ -90,7 +94,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   else
     // If we already have a window it's maybe not usefull to change it
     // Alan : si de temps en temps
-    // pwindow_set_size()
+    pwindow_set_size()
     window_set_size()
   end
   // be sure that colormap is updated adding diagram colors
