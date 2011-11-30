@@ -56,8 +56,8 @@ function YY=gencblk4(XX,gui_path)
   else
     YY.graphics.exprs(1)(19) = 'n'
   end
-  ext=''
-  YY.graphics.exprs(1)(20) = """"+file('join',[get_scicospath();'src';'libScicos'+ext])+"""";
+  //ext=''
+  //YY.graphics.exprs(1)(20) = """"+file('join',[get_scicospath();'src';'libscicos'+ext])+"""";
   YY.graphics.exprs(2)=toto
 
   //@@ run 'set' job of the CBLOCK4

@@ -155,7 +155,7 @@ function code=generate_iter_ccode(funname,init_output,nbre_iter,step,iter_var_da
   code=['/* This Code is Generated Automatically for the iterator block '
 	' * Date: '+str
 	''
-	'#include <scicos/blockdef.h>'
+	'#include <scicos/scicos_block4.h>'
 	'#include <string.h>'
 	''
 	'void '+funname+'(scicos_block *,int );'

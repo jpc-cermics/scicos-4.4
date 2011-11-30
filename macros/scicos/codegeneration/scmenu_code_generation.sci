@@ -5316,7 +5316,7 @@ function [Code]=make_computational42()
         ' * date : '+str;
         ' * Copyright (c) 1989-2011 Metalau project INRIA';
         ' */'
-        '#include <scicos/blockdef.h>'
+        '#include <scicos/scicos_block4.h>'
         '']
   
   Code=[Code;
@@ -8512,7 +8512,7 @@ function [Code]=make_standalone42()
         ' */'
         '/* To learn how to use the standalone code, type '"./standalone -h'" */'
         ''
-	'#include <scicos/blockdef.h>'
+	'#include <scicos/scicos_block4.h>'
 	'#include <string.h>'
 	''
         '/* ---- Internals functions and global variables declaration ---- */'
@@ -16683,10 +16683,10 @@ function [scs_m]=draw_sampleclock(scs_m,XX,k,flgcdgen,szclkINTemp,freof)
 //                      scicos block
 //
   if ~isequal(flgcdgen,szclkINTemp) then
-    // XX.graphics.pein($)=size(scs_m.objs)+2
+    //XX.graphics.pein($)=size(scs_m.objs)+2
     //XX.graphics.pein = [XX.graphics.pein ; size(scs_m.objs)+2]
     //scs_m.objs(k) = XX
-    scs_m.objs(k).graphics.pein = [XX.graphics.pein ; size(scs_m.objs)+2]
+    scs_m.objs(k).graphics.pein($) = size(scs_m.objs)+2
     bk = SampleCLK('define');
     [posx,posy] = getinputports(XX)
     posx = posx($); posy = posy($);
