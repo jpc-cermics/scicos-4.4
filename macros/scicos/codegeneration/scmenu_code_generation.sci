@@ -3046,13 +3046,13 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       if silent_mode <> 1 then
         okk=message(mess,['Ok';'Go Back'])
       else
-        printf(mess);
+        printf("%s\n",mess);
         okk=1
       end
       if okk==1 then
         bllst(i).sim(1)='bidon'
 	// XXXXX a compiled function 
-        if type(bllst(i).sim(1),'short')=='13' then
+        if type(bllst(i).sim(1),'short')=='pl' then
           bllst(i).sim(2)=0
         end
       else
