@@ -26,5 +26,6 @@ function result=scicos_editsmat(title,txt,comment='Enter code:')
   else
     result=editsmat(title,txt,comment=comment);
   end
+  nsp_clear_queue();
 endfunction
 
