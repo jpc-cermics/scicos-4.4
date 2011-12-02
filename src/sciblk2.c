@@ -281,7 +281,7 @@ static int scicos_scitod(double *x, int mx, int nx, const NspObject * Ob)
   NspMatrix *M = ((NspMatrix *) Ob);
   if (mx * nx == 0 || M->mn == 0)
     return OK;
-  if (M->m != mx || M->n != nx || M->rc_type != 'r' || M->rc_type != 'c') {
+  if (M->m != mx || M->n != nx || (M->rc_type != 'r' && M->rc_type != 'c')) {
     Sciprintf("Expecting a (%d,%d) matrix and (%d,%d) returned\n", mx, nx,
               M->m, M->n);
   }
