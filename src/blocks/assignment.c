@@ -27,12 +27,13 @@ void assignment (scicos_block * block, int flag)
 
   else if (flag == 1)
     {
-      double *otsz, *indxopt, *indxb, *indx1, *indx2;
+      double *indxopt, *indxb, *indx1, *indx2;
+      /*double *otsz;*/
       int typ, i, j, nev;
       int *tempind1, *tempind2;
       tempind1 = (int *) *(_work);
       tempind2 = tempind1 + (my + 1);
-      otsz = GetRealOparPtrs (block, 5);
+      /*otsz = GetRealOparPtrs (block, 5);*/
       indx2 = GetRealOparPtrs (block, 4);
       indx1 = GetRealOparPtrs (block, 3);
       indxopt = GetRealOparPtrs (block, 2);

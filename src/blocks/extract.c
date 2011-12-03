@@ -5,10 +5,11 @@ void extract (scicos_block * block, int flag)
   double *u;
   double *y;
   int *r;
-  int nu, mu, nr, i, j, ij, k, nc, nl;
-
+  int mu, nr, i, j, ij, k, nc, nl;
+  /*int nu;*/
+  
   mu = GetInPortRows (block, 1);
-  nu = GetInPortCols (block, 1);
+  /*nu = GetInPortCols (block, 1);*/
   nr = GetNipar (block);
   r = GetIparPtrs (block);
   u = GetRealInPortPtrs (block, 1);

@@ -1853,14 +1853,15 @@ static void cossimdaskr (double *told)
   static int ierr1;
   static int j, k;
   static double t;
-  static int kk, jj, jt;
+  static int kk, jj;
+  /*static int jt;*/
   static int ntimer;
   static double rhotmp, tstop, hmax_auto;
   int inxsci;
   static int kpo, kev;
 
   int *jroot = NULL, *zcros = NULL;
-  int maxord;
+  /*int maxord;*/
   int *Mode_save;
   int Mode_change = 0;
   double *tmpneq = NULL;
@@ -1886,7 +1887,7 @@ static void cossimdaskr (double *told)
   int zcrossing_unhandeled = 0, *jroottmp = NULL;
   int X_contain_xn = 1;
 
-  maxord = 5;
+  /*maxord = 5;*/
   Sfcallerid = 99;
 
   CI = 1.0;
@@ -1989,7 +1990,7 @@ static void cossimdaskr (double *told)
   Scicos->params.phase = 1;
   Scicos->params.hot = 0;
 
-  jt = 2;
+  /*jt = 2;*/
   /*      stuck=.false. */
   inxsci = nsp_check_events_activated ();
   /*     initialization */
@@ -5405,7 +5406,8 @@ int Jacobians (long int Neq, double tt, N_Vector yy, N_Vector yp,
   double ttx;
   double *xc, *xcdot, *residual;
   /*  char chr; */
-  int i, j, n, nx, ni, no, nb, m, flag;
+  int i, j, n, nx, ni, no, m, flag;
+  /* int nb; */
   double *RX, *Fx, *Fu, *Gx, *Gu, *ERR1, *ERR2;
   double *Hx, *Hu, *Kx, *Ku, *HuGx, *FuKx, *FuKuGx, *HuGuKx;
   double ysave;
@@ -5419,14 +5421,14 @@ int Jacobians (long int Neq, double tt, N_Vector yy, N_Vector yp,
   double hh;
   N_Vector ewt;
   double *ewt_data;
-  void *ida_mem;
+  /*void *ida_mem;*/
   User_IDA_data ida_data;
 
   *ierr = 0;
 
   ida_data = (User_IDA_data) jdata;
   ewt = ida_data->ewt;
-  ida_mem = ida_data->ida_mem;
+  /*ida_mem = ida_data->ida_mem;*/
 
   flag = IDAGetCurrentStep (ida_data->ida_mem, &hh);
   if (flag < 0)
@@ -5471,7 +5473,7 @@ int Jacobians (long int Neq, double tt, N_Vector yy, N_Vector yp,
       ni = 0;
     }
   n = Neq;
-  nb = Scicos->sim.nblk;
+  /*nb = Scicos->sim.nblk;*/
   m = n - nx;
 
   residual = (double *) ida_data->rwork;
@@ -5978,9 +5980,9 @@ static int simblkKinsol (N_Vector yy, N_Vector resval, void *rdata)
   double t = 0;
   double *xc = (double *) NV_DATA_S (yy);
   double *residual = (double *) NV_DATA_S (resval);
-  User_IDA_data kin_data;
+  /*User_IDA_data kin_data;*/
   double *xcdot = xc;
-  kin_data = (User_IDA_data) rdata;
+  /*kin_data = (User_IDA_data) rdata;*/
 
   if (Scicos->params.phase == 1)
     if (Scicos->sim.ng > 0 && nmod > 0)
@@ -6023,7 +6025,8 @@ static int CallKinsol (double *told)
   int N, strategy, i, j, k, status;
   void *kin_mem = NULL;
   int Jn, Jnx, Jno, Jni, Jactaille;
-  double reltol, abstol;
+  double reltol;
+  /*double abstol;*/
   int *Mode_save;
   int Mode_change;
   int N_iters;
@@ -6035,7 +6038,7 @@ static int CallKinsol (double *told)
 
   inxsci = nsp_check_events_activated ();
   reltol = (double) Scicos->params.rtol;
-  abstol = (double) Scicos->params.Atol;
+  /*abstol = (double) Scicos->params.Atol;*/
 
   Mode_save = NULL;
   if (nmod > 0)
@@ -6307,7 +6310,8 @@ int KinJacobians1 (long int Neq, DenseMat Jacque, N_Vector yy,
 {
   double ttx;
   double *xc, *xcdot = NULL, *residual, *uscale_data, sign;
-  int i, j, n, nx, ni, no, nb, m;
+  int i, j, n, nx, ni, no, m;
+  /*int nb;*/
   double *RX, *Fx, *Fu, *Gx, *Gu, *ERR1, *ERR2;
   double *Hx, *Hu, *Kx, *Ku, *HuGx, *FuKx, *FuKuGx, *HuGuKx;
   double ysave;
@@ -6352,7 +6356,7 @@ int KinJacobians1 (long int Neq, DenseMat Jacque, N_Vector yy,
       ni = 0;
     }
   n = Neq;
-  nb = Scicos->sim.nblk;
+  /*nb = Scicos->sim.nblk;*/
   m = n - nx;
 
   residual = (double *) kin_data->rwork;

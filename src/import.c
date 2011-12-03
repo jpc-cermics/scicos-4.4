@@ -184,18 +184,18 @@ void scicos_getouttb (int nsize, int *nvec, double *outtc)
   SCSUINT32_COP *outtbulptr;	/*to store unsigned int32 of outtb */
   int outtb_nelem;		/*to store maximum number of element */
   int outtbtyp;			/*to store type of data */
-  int *outtbsz;			/*to store size of data */
+  /*int *outtbsz;*/			/*to store size of data */
   outtb_el *outtb_elem;		/*to store ptr of outtb_elem structure */
 
   /*auxiliary variable */
-  int j, sz, lnk, pos;
+  int j, lnk, pos;
 
   /*get outtbptr from import struct. */
   outtbptr = Scicos->sim.outtbptr;
   /*get outtb_elem from import struct. */
   outtb_elem = Scicos->sim.elems;
   /*get outtbsz from import struct. */
-  outtbsz = Scicos->sim.outtbsz;
+  /*outtbsz = Scicos->sim.outtbsz;*/
   /*get max number of elem in outtb */
   outtb_nelem = Scicos->sim.nelem;
 
@@ -225,7 +225,7 @@ void scicos_getouttb (int nsize, int *nvec, double *outtc)
       /*complex data type */
       else if (outtbtyp == SCSCOMPLEX_N)
 	{
-	  sz = outtbsz[2 * lnk] + outtbsz[(2 * lnk) + 1];
+	  /*sz = outtbsz[2 * lnk] + outtbsz[(2 * lnk) + 1];*/
 	  outtbdptr = (SCSCOMPLEX_COP *) outtbptr[lnk];
 	  outtc[j] = (double) outtbdptr[pos];
 	  /*outtc[j+1] =  (double)outtbdptr[pos+sz]; */

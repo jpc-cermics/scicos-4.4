@@ -129,7 +129,7 @@ void scicos_dlradp_block (scicos_args_F0)
   static int c__1 = 1;
   /* static int c_n1 = -1; */
   int i__1;
-  int m, n, iflag;
+  int m, n;
   double yy[201], num[51], den[51], ww[51];
   int npt, mpn;
   double yyp;
@@ -179,7 +179,8 @@ void scicos_dlradp_block (scicos_args_F0)
       n = ipar[2];
       if (m > 50 || n > 50)
 	{
-	  iflag = -1;
+	  scicos_set_block_error(-2);
+	  /*iflag = -1;*/
 	  return;
 	}
     }

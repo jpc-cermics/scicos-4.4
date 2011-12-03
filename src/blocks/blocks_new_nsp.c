@@ -2663,7 +2663,7 @@ void scicos_cmscope_block (scicos_block * block, int flag)
   cmscope_ipar *csi = (cmscope_ipar *) GetIparPtrs (block);
   cmscope_rpar *csr = (cmscope_rpar *) GetRparPtrs (block);
   /* int nipar = GetNipar (block); */
-  int cur = 0, k;
+  int cur = 0;
   /* number of curves in each subwin */
   int *nswin = ((int *) csi) +7 ;
   /* colors */
@@ -2682,7 +2682,7 @@ void scicos_cmscope_block (scicos_block * block, int flag)
       cmscope_data *D = (cmscope_data *) (*block->work);
       NspList *L =NULL;
       t = GetScicosTime (block);
-      k = D->count;
+      /*k = D->count;*/
       D->count++;
       D->tlast = t;
       if ( D->F->obj->ref_count <= 1 ) 
@@ -3515,7 +3515,7 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
   double *rpar = GetRparPtrs (block);
   double period = rpar[0];
   double t;
-  int cur = 0, k;
+  int cur = 0;
   int wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
   t = scicos_get_scicos_time ();
   
@@ -3529,7 +3529,7 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
 	  /* Axes was destroyed during simulation */
 	  return;
 	}
-      k = D->count;
+      /*k = D->count;*/
       D->count++;
       D->tlast = t;
       /* A revoir */
