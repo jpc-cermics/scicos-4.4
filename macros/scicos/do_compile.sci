@@ -1,6 +1,6 @@
 function  [%cpr,ok]=do_compile(scs_m)
 // Copyright INRIA
-  show_trace=%t
+  show_trace=%f
   if show_trace then printf('c_pass0: %s\n',string(timer())),end
   if ~exists('%scicos_solver') then %scicos_solver=0,end
   if ~exists('alreadyran') then alreadyran=%f; end

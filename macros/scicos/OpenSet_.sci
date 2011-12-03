@@ -47,7 +47,6 @@ function OpenSet_()
     return
   end
   
-  printf('in standard open set\n");
   %xc=%pt(1);%yc=%pt(2);
   %kk=getobj(scs_m,[%xc;%yc]);
   %Path=list('objs',%kk);

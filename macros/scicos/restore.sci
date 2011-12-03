@@ -3,7 +3,6 @@ function %zoom=restore(curwin,%zoom)
 // curwin graphic window. 
 // If the window already exists its graphic contents are 
 // cleared.
-  printf('in restore\n');
   if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end

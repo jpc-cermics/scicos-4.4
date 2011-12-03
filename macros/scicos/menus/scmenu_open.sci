@@ -76,7 +76,6 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
     xselect()
   end;
   if size(scs_m.props.wpar,'*')>12 then
-    printf('open: wpar contains the window size and position\n');
     //Alan : seems to be not needed
     // get screen size (do not suppose that we have a graphic window)
     screensz=[gdk_screen_width(), gdk_screen_height()];

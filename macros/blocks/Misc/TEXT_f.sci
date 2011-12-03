@@ -21,7 +21,6 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
     //w=rect(3) * %zoom;
     //h=rect(4) * %zoom/1.4 * 1.2;
     sf = model.ipar(2)*%zoom*10;
-    printf("Using size %f\n",sf);    
     xstring(graphics.orig(1), graphics.orig(2),model.rpar,size=sf);
     // xrect(graphics.orig(1), graphics.orig(2),w*100,h*100);
    case 'getinputs' then

@@ -96,7 +96,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       end
     end
   end
-  printf('step 1\n');
+  //printf('step 1\n');
   if ~isempty(find(sco_mat(:,5)==string(4))) then
     if flgcdgen ==-1 then
       //    [links_table,blklst,corinvt,cor,ind,sco_mat,ok]=sample_clk(sco_mat,links_table,blklst,corinvt,cor,scs_m,ind,flgcdgen)

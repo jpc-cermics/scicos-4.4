@@ -336,7 +336,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         if size(%koko,'*')==1 then
           Select_back=Select
           %cor_item_fun=%cor_item_exec(%koko,2)
-	  printf('Entering function ' + %cor_item_fun+'\n');
+	  // printf('Entering function ' + %cor_item_fun+'\n');
           // execstr('exec('+%cor_item_fun+');');ierr=%t
 	  ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
           if ierr==%f then 
@@ -355,7 +355,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
               %diagram_path_objective=[]
             end
           end
-          printf('Quit function ' + %cor_item_fun+'\n');
+          // printf('Quit function ' + %cor_item_fun+'\n');
         else
           Cmenu="";%pt=[]
         end

@@ -318,9 +318,11 @@ int scicos_get_scsptr(NspObject *obj, scicos_funflag *funflag, void **funptr)
 {
   if (IsString(obj)) {
     void *fptr=scicos_get_function (((NspSMatrix *) obj)->S[0]);
-    Sciprintf("Info: Searching block simulation fn %s: %s\n",
-             ((NspSMatrix *) obj)->S[0],
-             (fptr != NULL) ? "found": "not found, assuming macro");
+    if (fptr == NULL) {
+      Sciprintf("Info: Searching block simulation fn %s: %s\n",
+               ((NspSMatrix *) obj)->S[0],
+               (fptr != NULL) ? "found": "not found, assuming macro");
+    }
     if (fptr!=NULL) {
       /* a hard code function given by its adress */
       *funflag = fun_pointer;
@@ -605,9 +607,9 @@ NspHash *scicos_get_sim_copy (scicos_sim * scsim)
 int scicos_update_scsptr(scicos_block *Block, int funtyp, scicos_funflag funflag, void * funptr)
 {
   int b_type = funtyp;
-  Sciprintf("Info: simulation type %d:\n",b_type);
+  /*Sciprintf("Info: simulation type %d:\n",b_type);*/
   Block->type = (b_type < 10000) ? (b_type % 1000) : b_type % 1000 + 10000;
-  Sciprintf("Info: after modif: %d\n",Block->type);
+  /*Sciprintf("Info: after modif: %d\n",Block->type);*/
 
   if (funflag == fun_pointer) {
     Block->scsptr = NULL;

@@ -41,16 +41,16 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       str1=part(str,9:length(str)-1);
       win=sscanf(str1,"%*[^_]_%d");
       mcmd='Cmenu='+str1+';execstr(''Cmenu=''+Cmenu)';
-      printf('cosclick: using menu cmd [%s]\n",mcmd);
+      // printf('cosclick: using menu cmd [%s]\n",mcmd);
     elseif part(str,1:9)=='scicos_tb' then 
       // A toolbar item was activated 
       // str='scicos_tb(name,win)';
       [str1,win]=sscanf(str,'scicos_tb(%[^,],%d)');
       mcmd='Cmenu=""'+str1+'""';
-      printf('cosclick: using toolbar cmd [%s]\n",mcmd);
+      // printf('cosclick: using toolbar cmd [%s]\n",mcmd);
     elseif part(str,1:9)=='scicos_br' then 
       // A browser row was activated 
-      printf('cosclick: A browser row was activated');
+      // printf('cosclick: A browser row was activated');
       [str1,pathh]=sscanf(str,'scicos_br(%[^,],%[^)])');
       Scicos_commands=['%diagram_path_objective='+pathh+';%scicos_navig=1';
 		       'Cmenu='''';%win=curwin;xselect();%scicos_navig=[]'];
@@ -96,7 +96,7 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
 
     Scicos_commands=['%diagram_path_objective='+sci2exp(pathh)+';%scicos_navig=1';
                      cmd+';%win=curwin;%pt='+sci2exp(%pt)+';xselect();%scicos_navig=[]']
-    printf('cosclick: navigation and Cmenu=%s\n",cmd);
+    // printf('cosclick: navigation and Cmenu=%s\n",cmd);
     return
 
   elseif btn==0 then
@@ -177,5 +177,5 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   else
     strb=string(btn);
   end
-  printf("cosclick: btn=%s, pt=%s, Cmenu=''%s'', win=%d, curwin=%d\n",strb,str_pt,Cmenu,win,curwin);
+  //printf("cosclick: btn=%s, pt=%s, Cmenu=''%s'', win=%d, curwin=%d\n",strb,str_pt,Cmenu,win,curwin);
 endfunction

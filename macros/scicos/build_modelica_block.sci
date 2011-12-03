@@ -566,7 +566,6 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       //	end
     end
     //
-    printf('Modelica: translation end\n');
     //---------------------------------------------------------------------
     if ~file("exists",Flat_functions) then,
       Flat_functions=m2s([]); 
@@ -604,8 +603,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     end
     //---------------------------------------------------------------------
   end // if update
-    
-  printf('Modelica: compilation end\n');
+
   [nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=reading_incidence(incidence)
   printf(' Modelica blocks are reduced to a block with:\n');
   printf(' Number of differential states: %d\n',nx_der);
