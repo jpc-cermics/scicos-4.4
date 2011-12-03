@@ -143,7 +143,6 @@ function [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0,needcom
       end
     end
    case 4 then  // full compilation
-    printf("needcompile=4\n");
     alreadyran=do_terminate()
     [%cpr,ok]=do_compile(scs_m)
     if ok then

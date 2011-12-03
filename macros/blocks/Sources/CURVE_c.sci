@@ -44,11 +44,9 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
       if or(exprs(5)==['y','Y']) then exprs(5)='yes';end 
       if or(exprs(5)==['n','N']) then exprs(5)='no';end 
       if or(exprs(4)==['y','Y']) then exprs(4)='yes';end 
-      if or(exprs(4)==['n','N']) then exprs(4)='no';end 
-      printf('\n before getvalue\n");
+      if or(exprs(4)==['n','N']) then exprs(4)='no';end
       [ok,Method,xx,yy,spo,graf,exprs]=getvalue('Spline data', ...
 						values, typ,exprs);
-      printf('\n after getvalue\n");
       if ~ok then  break; end 
       if spo=='yes' then PO=1;exprs(4)='yes'; else,PO=0; exprs(4)='no';end
       mtd=max(min(int(Method),9),0);
