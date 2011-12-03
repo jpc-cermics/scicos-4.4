@@ -94,7 +94,6 @@ function OpenSet_()
       newparameters = mark_newpars(%kk,newparametersb,newparameters);
     end
   end
-  printf('quit standard open set\n");
   Cmenu='';%pt=[];
 endfunction
 

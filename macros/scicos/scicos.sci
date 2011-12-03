@@ -18,8 +18,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if ~exists('slevel') then slevel=0;end 
   slevel = slevel +1;
   super_block = slevel > 1;
-
-  printf('scicos: enter slevel=%d\n",slevel);
   
   if ~super_block then
     // print the banner on first call 

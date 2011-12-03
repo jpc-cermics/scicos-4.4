@@ -4,8 +4,7 @@ function [Cmenu,args]=mpopup(ll)
   
   function menuitem_response(w,args) 
   // right button menu activation 
-  // 
-    printf("menuitem selected %s\n",args(2));
+  //
     args(1).user_data=list(args(2),args(3));
     gtk_main_quit();
   endfunction
