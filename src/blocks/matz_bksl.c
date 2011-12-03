@@ -23,7 +23,8 @@ void matz_bksl (scicos_block * block, int flag)
   int nu1;
   int nu2;
   int info;
-  int i, j, l, lw, lu, rw, ij, k;
+  int i, j, l, lw, lu, ij, k;
+  /*int rw;*/
   mat_bksl_struct *ptr;
   double rcond, ANORM, EPS;
   vu = GetOutPortRows (block, 1);
@@ -41,7 +42,7 @@ void matz_bksl (scicos_block * block, int flag)
   lw = max (2 * min (mu, nu1), nu1 + 1);
   lu = max (lw, min (mu, nu1) + nu2);
   lw = max (2 * nu1, min (mu, nu1) + lu);
-  rw = 2 * nu1;
+  /*rw = 2 * nu1;*/
   /*init : initialization */
   if (flag == 4)
     {

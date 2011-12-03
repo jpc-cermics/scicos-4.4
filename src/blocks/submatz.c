@@ -7,10 +7,11 @@ void submatz (scicos_block * block, int flag)
   double *yr;
   double *yi;
   int *r;
-  int nu, mu, i, j, ij, k;
+  int mu, i, j, ij, k;
+  /*int nu;*/
 
   mu = GetInPortRows (block, 1);
-  nu = GetInPortCols (block, 1);
+  /*nu = GetInPortCols (block, 1);*/
   r = GetIparPtrs (block);
   ur = GetRealInPortPtrs (block, 1);
   ui = GetImagInPortPtrs (block, 1);

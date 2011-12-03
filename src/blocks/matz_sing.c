@@ -17,7 +17,7 @@ void matz_sing (scicos_block * block, int flag)
   double *ur;
   double *ui;
   double *yr;
-  double *yi;
+  /*double *yi;*/
   int nu, mu;
   int info;
   int i, rw, lwork;
@@ -27,7 +27,7 @@ void matz_sing (scicos_block * block, int flag)
   ur = GetRealInPortPtrs (block, 1);
   ui = GetImagInPortPtrs (block, 1);
   yr = GetRealOutPortPtrs (block, 1);
-  yi = GetImagOutPortPtrs (block, 1);
+  /*yi = GetImagOutPortPtrs (block, 1);*/
   lwork = max (3 * min (mu, nu) + max (mu, nu), 5 * min (mu, nu) - 4);
   rw = 5 * min (mu, nu);
   /*init : initialization */

@@ -5,10 +5,11 @@ void submat (scicos_block * block, int flag)
   double *u;
   double *y;
   int *r;
-  int nu, mu, i, j, ij, k;
+  int mu, i, j, ij, k;
+  /*int nu;*/
 
   mu = GetInPortRows (block, 1);
-  nu = GetInPortCols (block, 1);
+  /* nu = GetInPortCols (block, 1);*/
   r = GetIparPtrs (block);
   u = GetRealInPortPtrs (block, 1);
   y = GetRealOutPortPtrs (block, 1);

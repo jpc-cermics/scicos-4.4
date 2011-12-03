@@ -9,14 +9,14 @@ void summation_ui8e (scicos_block * block, int flag)
       SCSUINT8_COP *y;
       int *ipar;
       double v, l;
-      double *rpar;
+      /*double *rpar;*/
       SCSUINT8_COP *u;
 
       y = Getuint8OutPortPtrs (block, 1);
       nu = GetInPortRows (block, 1);
       mu = GetInPortCols (block, 1);
       ipar = GetIparPtrs (block);
-      rpar = GetRparPtrs (block);
+      /*rpar = GetRparPtrs (block);*/
       nin = GetNin (block);
       l = pow (2, 8);
       if (nin == 1)

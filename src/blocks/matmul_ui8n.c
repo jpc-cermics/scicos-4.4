@@ -7,7 +7,7 @@ void matmul_ui8n (scicos_block * block, int flag)
       SCSUINT8_COP *u1, *u2, *y;
       double C, D;
       int mu1, nu1, nu2, i, j, l, ji, jl, il;
-      int *ipar;
+      /*int *ipar;*/
 
       mu1 = GetInPortRows (block, 1);
       nu1 = GetInPortCols (block, 1);
@@ -15,7 +15,7 @@ void matmul_ui8n (scicos_block * block, int flag)
       u1 = Getuint8InPortPtrs (block, 1);
       u2 = Getuint8InPortPtrs (block, 2);
       y = Getuint8OutPortPtrs (block, 1);
-      ipar = GetIparPtrs (block);
+      /*ipar = GetIparPtrs (block);*/
 
       for (l = 0; l < nu2; l++)
 	{

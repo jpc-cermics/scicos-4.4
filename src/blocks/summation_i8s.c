@@ -9,14 +9,14 @@ void summation_i8s (scicos_block * block, int flag)
       char *y;
       int *ipar;
       double v, l;
-      double *rpar;
+      /*double *rpar;*/
       char *u;
 
       y = Getint8OutPortPtrs (block, 1);
       nu = GetInPortRows (block, 1);
       mu = GetInPortCols (block, 1);
       ipar = GetIparPtrs (block);
-      rpar = GetRparPtrs (block);
+      /*rpar = GetRparPtrs (block);*/
       nin = GetNin (block);
       l = pow (2, 8) / 2;
       if (nin == 1)

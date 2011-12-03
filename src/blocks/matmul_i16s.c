@@ -7,7 +7,7 @@ void matmul_i16s (scicos_block * block, int flag)
       SCSINT16_COP *u1, *u2, *y;
       double k, C, D;
       int mu1, nu1, nu2, i, j, l, ji, jl, il;
-      int *ipar;
+      /*int *ipar;*/
 
       mu1 = GetInPortRows (block, 1);
       nu1 = GetInPortCols (block, 1);
@@ -15,7 +15,7 @@ void matmul_i16s (scicos_block * block, int flag)
       u1 = Getint16InPortPtrs (block, 1);
       u2 = Getint16InPortPtrs (block, 2);
       y = Getint16OutPortPtrs (block, 1);
-      ipar = GetIparPtrs (block);
+      /*ipar = GetIparPtrs (block);*/
 
       k = pow (2, 16);
       for (l = 0; l < nu2; l++)

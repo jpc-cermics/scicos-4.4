@@ -3,7 +3,7 @@
 void extract_bit_32_RB0 (scicos_block * block, int flag)
 {
   int i, numb;
-  int maxim;
+  /*int maxim;*/
   SCSINT32_COP *y, *u, ref, n;
   int *ipar;
   y = Getint32OutPortPtrs (block, 1);

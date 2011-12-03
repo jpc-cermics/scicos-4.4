@@ -19,7 +19,8 @@ void mat_div (scicos_block * block, int flag)
   double *u2;
   double *y;
   int mu1, mu2;
-  int nu, nu2;
+  int nu;
+  /*int nu2;*/
   int info;
   int i, j, l, lw, lu, ij, ji;
   mat_div_struct *ptr;
@@ -28,7 +29,7 @@ void mat_div (scicos_block * block, int flag)
   mu2 = GetInPortRows (block, 1);
   nu = GetInPortCols (block, 1);
   mu1 = GetInPortRows (block, 2);
-  nu2 = GetInPortCols (block, 2);
+  /*nu2 = GetInPortCols (block, 2);*/
   u2 = GetRealInPortPtrs (block, 1);
   u1 = GetRealInPortPtrs (block, 2);
   y = GetRealOutPortPtrs (block, 1);

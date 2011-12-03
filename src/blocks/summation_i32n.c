@@ -8,14 +8,14 @@ void summation_i32n (scicos_block * block, int flag)
       int nu, mu, nin;
       SCSINT32_COP *y;
       int *ipar;
-      double *rpar;
+      /*double *rpar;*/
       SCSINT32_COP *u;
 
       y = Getint32OutPortPtrs (block, 1);
       nu = GetInPortRows (block, 1);
       mu = GetInPortCols (block, 1);
       ipar = GetIparPtrs (block);
-      rpar = GetRparPtrs (block);
+      /*rpar = GetRparPtrs (block);*/
       nin = GetNin (block);
 
       if (nin == 1)

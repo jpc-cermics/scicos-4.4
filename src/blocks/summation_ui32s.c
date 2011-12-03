@@ -9,14 +9,14 @@ void summation_ui32s (scicos_block * block, int flag)
       SCSUINT32_COP *y;
       int *ipar;
       double v, l;
-      double *rpar;
+      /*double *rpar;*/
       SCSUINT32_COP *u;
 
       y = Getuint32OutPortPtrs (block, 1);
       nu = GetInPortRows (block, 1);
       mu = GetInPortCols (block, 1);
       ipar = GetIparPtrs (block);
-      rpar = GetRparPtrs (block);
+      /*rpar = GetRparPtrs (block);*/
       nin = GetNin (block);
       l = pow (2, 32);
       if (nin == 1)

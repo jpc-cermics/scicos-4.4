@@ -9,14 +9,14 @@ void summation_i16s (scicos_block * block, int flag)
       SCSINT16_COP *y;
       int *ipar;
       double v, l;
-      double *rpar;
+      /*double *rpar;*/
       SCSINT16_COP *u;
 
       y = Getint16OutPortPtrs (block, 1);
       nu = GetInPortRows (block, 1);
       mu = GetInPortCols (block, 1);
       ipar = GetIparPtrs (block);
-      rpar = GetRparPtrs (block);
+      /*rpar = GetRparPtrs (block);*/
       nin = GetNin (block);
       l = pow (2, 16) / 2;
       if (nin == 1)
