@@ -586,7 +586,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       instr=instrc;
     end
     [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
-    if ~ok | (~isequal(sp_e,"") & ~isempty(sp_e)) then
+    if ~ok then
       x_message(['Error:';'Modelica compilation failed ';sp_e;sp_m]);	    
       ok=%f,dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;      
       return
