@@ -23,7 +23,9 @@ function [x,y,typ]=Inductor(job,arg1,arg2)
       xpoly(xx,yy) ;
     end
     txt='L= '+L;
-    xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),'fill');
+//     xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),'fill');
+    style=2;
+    xstringb(orig(1),orig(2)-0.5*sz(2),txt,sz(1),0.5*sz(2),"fill");
   endfunction
   
   x=[];y=[];typ=[];

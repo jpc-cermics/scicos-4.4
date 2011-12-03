@@ -21,7 +21,7 @@ function [x,y,typ]=Capacitor(job,arg1,arg2)
     end
     txt="C= "+C;
     style=2;
-    xstringb(orig(1),orig(2)-sz(2),txt,sz(1),sz(2),"fill");
+    xstringb(orig(1),orig(2)-0.5*sz(2),txt,sz(1),0.5*sz(2),"fill");
   endfunction
   
   x=[];y=[];typ=[];
