@@ -287,7 +287,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
             end
           elseif Cmenu=="Quit" then
             do_exit()
-	    printf('scicos: quit slevel=%d\n",slevel);
 	    return
           end
         else
