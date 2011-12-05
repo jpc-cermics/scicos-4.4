@@ -3,7 +3,6 @@ function OpenSet_()
   if or(curwin==winsid()) then xset('window',curwin); end
   
   if ~%diagram_open then
-    printf('in open set with diagram_open==T \n");
     // we can arrive here if we click on an opened super block 
     %kk=Select(1);
     // test if %kk is valid i.e the selection is 
@@ -43,7 +42,6 @@ function OpenSet_()
     if modified then
       newparameters = mark_newpars(%kk,newparametersb,newparameters)
     end
-    printf('quit open set with diagram_open==T \n");
     return
   end
   
@@ -67,7 +65,6 @@ function OpenSet_()
     if Cmenu=="Link" then
       %pt=[%xc, %yc]
       super_path($)=[]
-      printf('in standard open set quit for link\n");
       return;
     end
 

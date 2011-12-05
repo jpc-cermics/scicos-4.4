@@ -30,7 +30,6 @@ function [%pt,scs_m,needcompile]=do_place_dropped_new(scs_m,blk)
   needcompile=%t;
   o=disconnect_ports(blk);
   xc=%pt(1);yc=%pt(2);%pt=[];
-  printf("Start at position [%f,%f]\n",xc,yc);
   sz=o.graphics.sz;
   o.graphics.orig=[xc-sz(1)/2,yc-sz(2)/2];
   xset('window',curwin);
