@@ -1869,7 +1869,7 @@ static int IDAStopTest1(IDAMem IDA_mem, realtype tout, realtype *tret,
 static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret, 
                         N_Vector yret, N_Vector ypret, int itask)
 {
-  int ier;
+  /* int ier; */
   realtype troundoff;
 
   switch (itask) {
@@ -1877,7 +1877,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
     case IDA_NORMAL:  
       /* Test for tn past tout. */
       if ((tn - tout)*hh >= ZERO) {
-        ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
+        /* ier =*/ IDAGetSolution(IDA_mem, tout, yret, ypret);
         *tret = tretlast = tout;
         return(IDA_SUCCESS);
       }
@@ -1890,13 +1890,13 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
     case IDA_NORMAL_TSTOP:
       /* Test for tn past tout, for tn at tstop, and for tn near tstop. */
       if ((tn - tout)*hh >= ZERO) {
-        ier = IDAGetSolution(IDA_mem, tout, yret, ypret);
+        /* ier =*/ IDAGetSolution(IDA_mem, tout, yret, ypret);
         *tret = tretlast = tout;
         return(IDA_SUCCESS);
       }
       troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
       if (ABS(tn - tstop) <= troundoff) {
-        ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
+        /* ier =*/ IDAGetSolution(IDA_mem, tstop, yret, ypret);
         *tret = tretlast = tstop;
         return(IDA_TSTOP_RETURN);
       }
@@ -1908,7 +1908,7 @@ static int IDAStopTest2(IDAMem IDA_mem, realtype tout, realtype *tret,
       /* Test for tn at tstop. */
       troundoff = HUNDRED*uround*(ABS(tn) + ABS(hh));
       if (ABS(tn - tstop) <= troundoff) {
-        ier = IDAGetSolution(IDA_mem, tstop, yret, ypret);
+        /* ier =*/ IDAGetSolution(IDA_mem, tstop, yret, ypret);
         *tret = tretlast = tstop;
         return(IDA_TSTOP_RETURN);
       }
@@ -2860,7 +2860,7 @@ static int IDARcheck1_orig(IDAMem IDA_mem)
 static int IDARcheck1(IDAMem IDA_mem)
 {
   int i, retval;
-  booleantype zroot;
+  /* booleantype zroot; */
 
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   tlo = tn;
@@ -2871,7 +2871,7 @@ static int IDARcheck1(IDAMem IDA_mem)
   nge = 1;
   if (retval != 0) return(IDA_RTFUNC_FAIL);
 
-  zroot = FALSE;
+  /* zroot = FALSE; */
 
   for (i = 0; i < nrtfn; i++) {
     if (ABS(glo[i]) == ZERO) 

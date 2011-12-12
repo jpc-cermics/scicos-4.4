@@ -40,10 +40,8 @@ void cscopxy3d (scicos_block * block, int flag)
   SCSINT_COP *ipar = (SCSINT_COP *) GetIparPtrs(block);
   BCG *Xgc=NULL;
   int cur=0;
-  int nclr = (int) ipar[1];
   int buffer_size= (int) ipar[2];
   int *color= (int *) &ipar[3];
-  int *line_size = (int *) &ipar[3+nclr];
   
   switch (flag) 
   {
@@ -52,10 +50,9 @@ void cscopxy3d (scicos_block * block, int flag)
 	cscope_data *D=NULL;
 	cscopxy3D_rpar *csr = (cscopxy3D_rpar *) GetRparPtrs(block);
 	int wid=(int) ipar[0];
-	int nclr=(int) ipar[1];;
-	int *color=(int *) &ipar[3];;
-	int *line_size=(int *) &ipar[3+nclr];;
-	int animed=(int) ipar[3+2*nclr];;
+	int nclr=(int) ipar[1];
+	/* int *line_size=(int *) &ipar[3+nclr]; */
+	/* int animed=(int) ipar[3+2*nclr]; */
 	int wpos[2],wdim[2];
 	int i,l;
 	/* wid */
@@ -65,8 +62,6 @@ void cscopxy3d (scicos_block * block, int flag)
 	 *  when animated==1 it is the number of past points to keep for drawing.
 	 */
 	buffer_size = (int) ipar[2];
-	/* line_size */
-	line_size = (int *) &ipar[3+nclr];
 	/* wpos, wdim */
 	wpos[0] = ipar[3+2*nclr+1];
 	wpos[1] = ipar[3+2*nclr+2];

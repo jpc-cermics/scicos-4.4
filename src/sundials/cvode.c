@@ -3968,7 +3968,7 @@ static int CVRootfind_orig(CVodeMem cv_mem)
 static int CVRcheck1(CVodeMem cv_mem)
 {
   int i, retval;
-  booleantype zroot;
+  /* booleantype zroot; */
 
   for (i = 0; i < nrtfn; i++) iroots[i] = 0;
   tlo = tn;
@@ -3979,7 +3979,7 @@ static int CVRcheck1(CVodeMem cv_mem)
   nge = 1;
   if (retval != 0) return(CV_RTFUNC_FAIL);
 
-  zroot = FALSE;
+  /* zroot = FALSE; */
   for (i = 0; i < nrtfn; i++) {
     if (ABS(glo[i]) == ZERO) 
       iroots[i] =MASKED; /* arbitrary choice*/

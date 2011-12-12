@@ -184,9 +184,8 @@ static int scicos_sliderm_initialize_rects(NspCompound *C,int n)
     {
       for (i=0; i < ln -n ; i++ ) 
 	{
-	  int ln1;
 	  nsp_list_delete_elt(L,ln-i);
-	  ln1 = nsp_list_length(L);
+	  nsp_list_length(L);
 	}
       ln = nsp_list_length(L);
     }

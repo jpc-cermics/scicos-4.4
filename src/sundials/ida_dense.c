@@ -110,7 +110,7 @@ int IDADense(void *ida_mem, long int Neq)
 {
   IDAMem IDA_mem;
   IDADenseMem idadense_mem;
-  int flag;
+  /* int flag; */
 
   /* Return immediately if ida_mem is NULL. */
   if (ida_mem == NULL) {
@@ -126,7 +126,7 @@ int IDADense(void *ida_mem, long int Neq)
     return(IDADENSE_ILL_INPUT);
   }
 
-  if (lfree != NULL) flag = lfree(IDA_mem);
+  if (lfree != NULL) /* flag =*/ lfree(IDA_mem);
 
   /* Set five main function fields in IDA_mem. */
   linit  = IDADenseInit;

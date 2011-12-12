@@ -22,9 +22,9 @@ nsp_ctrlpack_dclmat (int *ia, int *n, double *a, double *b, int *ib,
   int a_dim1, a_offset, b_dim1, b_offset, i__1, i__2, i__3;
 
   /* Local variables */
-  int ndng1, ndng2, i__, j;
+  int ndng1,/* ndng2,*/ i__, j;
   int i1;
-  double w1, rc, wd;
+  double w1,/* rc,*/ wd;
   int im1;
 
   /* 
@@ -72,8 +72,8 @@ nsp_ctrlpack_dclmat (int *ia, int *n, double *a, double *b, int *ib,
   /* 
    */
   ndng1 = *ndng + 2;
-  ndng2 = *ndng - 1;
-  rc = c__[ndng1 - 1];
+  /* ndng2 = *ndng - 1; */
+  /* rc = c__[ndng1 - 1]; */
   wd = c__[1];
   i__1 = *n;
   for (j = 1; j <= i__1; ++j)

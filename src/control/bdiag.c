@@ -44,7 +44,7 @@ nsp_ctrlpack_bdiag (int *lda, int *n, double *a, double *epsshr, double *rmax,
   int da11, da22;
   int igh;
   double cav;
-  int ino;
+  /* int ino; */
   double eps, rav;
   int low, l22m1;
 
@@ -155,7 +155,7 @@ nsp_ctrlpack_bdiag (int *lda, int *n, double *a, double *epsshr, double *rmax,
    */
   *fail = FALSE;
   fails = TRUE;
-  ino = -1;
+  /* ino = -1;*/
   /* 
    *    compute eps the l1 norm of the a matrix 
    * 

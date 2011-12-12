@@ -18,17 +18,17 @@ void lookup_c (scicos_block * block, int flag)
   double *_rpar = GetRparPtrs (block);
   int *_ipar = GetIparPtrs (block);
   /* double *_evout= GetNevOutPtrs(block); */
-  double a, b, c, y1, y2, t1, t2, *RPAR, T;
-  int *ind, inow, i, ip1, nPoints, Order, Periodic, Extrapo;
+  double a, b, c, y1, y2, t1, t2, *RPAR; /* T;*/
+  int *ind, inow, i, ip1, nPoints, Order, /* Periodic,*/ Extrapo;
   double *y, *u, u0;
   double d1, d2, h, dh, ddh, dddh;
 
   RPAR = _rpar;
   nPoints = _ipar[0];
   Order = _ipar[1];
-  Periodic = _ipar[2];
+  /* Periodic = _ipar[2]; */
   Extrapo = _ipar[3];
-  T = RPAR[nPoints - 1] - RPAR[0];
+  /* T = RPAR[nPoints - 1] - RPAR[0]; */
 
   switch (flag)
     {

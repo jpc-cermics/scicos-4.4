@@ -401,8 +401,8 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
   int i;
   NSP_ITYPE_NAMES(names);
   char *st=NULL;
-  char type_ref; 
-  int ism_ref,itype_ref;
+  /* char type_ref;  */
+  /* int ism_ref,itype_ref; */
   fromws_data *D;
   NspObject *Obj,*Time,*Values;
   *hD = NULL;
@@ -450,8 +450,8 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
 	    }
 	  /* be sure that matrix is coded with double */
 	  Mat2double((NspMatrix *) Loc);
-	  ism_ref=1;
-	  type_ref='r';
+	  /* ism_ref=1; */
+	  /* type_ref='r'; */
 	  break;
 	case SCSCOMPLEX_N :
 	  if ( ! IsMat(Loc) ||  ((NspMatrix *) Loc)->rc_type != 'r') 
@@ -459,8 +459,8 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
 	      Coserror("%s.values{%d} should be a complex matrix",name,i+1);
 	      return FAIL;
 	    }
-	  ism_ref=1;
-	  type_ref='c';
+	  /* ism_ref=1; */
+	  /* type_ref='c'; */
 	  break;
 	default:
 	  if ( ! IsIMat(Loc) )
@@ -468,8 +468,8 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
 	      Coserror("%s.values{%d} should be an int matrix",name,i+1);
 	      return FAIL;
 	    }
-	  ism_ref = 0;
-	  itype_ref = type;
+	  /* ism_ref = 0; */
+	  /* itype_ref = type; */
 	  st = NSP_ITYPE_NAME(names,((NspIMatrix *)Loc)->itype);
 	  switch ( type ) 
 	    {

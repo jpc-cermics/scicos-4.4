@@ -278,7 +278,7 @@ double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double
 {
   int  retval;
   unsigned i;
-  booleantype zroot;
+  /* booleantype zroot; */
   for (i = 0; i < dopri5_mem->ng; i++) dopri5_mem->iroots[i] = 0;
 
   dopri5_mem->tlo = dopri5_mem->x;
@@ -288,7 +288,7 @@ double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double
   retval = dopri5_mem->gcn(dopri5_mem->ng, dopri5_mem->tlo, dopri5_mem->y, dopri5_mem->glo,dopri5_mem->udata);
   if (retval != 0) return(DP5_RTFUNC_FAIL);
 
-  zroot = FALSE;
+  /* zroot = FALSE; */
   for (i = 0; i < dopri5_mem->ng; i++) {
     if (abs(dopri5_mem->glo[i]) == ZERO)
       dopri5_mem->iroots[i] =MASKED; /* arbitrary choice*/
@@ -1168,7 +1168,7 @@ int mainx (void)
 
   int   N=4;
   double   *yio;
-  int      res, iout, itoler;
+  int      res,/* iout,*/ itoler;
   double   xio, xstart, xend, atoler, rtoler,xout,hmax;
   DOPRI5_mem *dopri5_mem=NULL;
   int hot=0;
@@ -1184,7 +1184,7 @@ int mainx (void)
   rtoler = 1.0E-7;
   itoler=0;
   atoler = 1e-7;
-  iout=2;
+  /* iout=2; */
   xout=0;
   hmax=0.0;
   xstart=0.0;

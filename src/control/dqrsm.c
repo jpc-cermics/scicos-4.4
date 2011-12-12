@@ -24,7 +24,7 @@ nsp_ctrlpack_dqrsm (double *x, int *ldx, int *n, int *p, double *y, int *ldy,
   double t;
   int kk;
   double tt[1];
-  int np1;
+  int np1=0;
 
   /* 
    *!purpose 
