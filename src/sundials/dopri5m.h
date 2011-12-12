@@ -242,18 +242,23 @@ typedef struct {
 
 #endif
 
-
-
+/* 
 long nfcnRead   (DOPRI5_mem *dopri5_mem);
 long nstepRead  (DOPRI5_mem *dopri5_mem);
 long naccptRead (DOPRI5_mem *dopri5_mem);
 long nrejctRead (DOPRI5_mem *dopri5_mem);
 double hRead  (DOPRI5_mem *dopri5_mem);
 double xRead  (DOPRI5_mem *dopri5_mem);
-int set_tstop (DOPRI5_mem *dopri5_mem, double xstop);
+*/
 
+int DP5_set_tstop (DOPRI5_mem *dopri5_mem, double xstop);
+int DP5_Get_RootInfo (DOPRI5_mem *dopri5_mem, int *jroot);
+int DP5_Get_fcallerid(DOPRI5_mem *dopri5_mem,  int *fcallerid);
+
+/* 
 double hinit (DOPRI5_mem *dopri5_mem, int iord);
 double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double h);
+*/
 int dopri5_solve (DOPRI5_mem *dopri5_mem,double *xio, double xout, double* yio, int hot_start);
 
 int  Setup_dopri5(DOPRI5_mem **dopri5_mem, unsigned n, FcnEqDiff fcn, double xstart,double xend,
@@ -261,6 +266,5 @@ int  Setup_dopri5(DOPRI5_mem **dopri5_mem, unsigned n, FcnEqDiff fcn, double xst
 		  User_DP5_data **dopri5_udata);
 
 int dopri5_free (DOPRI5_mem *dopri5_mem);
-int DP5_Get_RootInfo (DOPRI5_mem *dopri5_mem, int *jroot);
-int DP5_Get_fcallerid(DOPRI5_mem *dopri5_mem,  int *fcallerid);
+
 

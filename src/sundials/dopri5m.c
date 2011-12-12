@@ -1,37 +1,37 @@
 /*
-Copyright (c) 2004, Ernst Hairer
-
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are 
-met:
-
-- Redistributions of source code must retain the above copyright 
-notice, this list of conditions and the following disclaimer.
-
-- Redistributions in binary form must reproduce the above copyright 
-notice, this list of conditions and the following disclaimer in the 
-documentation and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS 
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
-PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The DOPRI5 code was modified by Masoud NAAJFI Mars 2009
-Copyright INRIA
-New options in the code:
- a modular structured  code
- ZERO_Crossing
- TSTOP setting and dense output
- 
-*/
+ * Copyright (c) 2004, Ernst Hairer
+ * 
+ * Redistribution and use in source and binary forms, with or without 
+ * modification, are permitted provided that the following conditions are 
+ * met:
+ * 
+ * - Redistributions of source code must retain the above copyright 
+ * notice, this list of conditions and the following disclaimer.
+ * 
+ * - Redistributions in binary form must reproduce the above copyright 
+ * notice, this list of conditions and the following disclaimer in the 
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS 
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED 
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A 
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR 
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR 
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * The DOPRI5 code was modified by Masoud NAAJFI Mars 2009
+ * Copyright INRIA
+ * New options in the code:
+ *  a modular structured  code
+ *  ZERO_Crossing
+ *  TSTOP setting and dense output
+ * 
+ */
 
 #include <math.h>
 #include <stdio.h>
@@ -67,9 +67,9 @@ New options in the code:
 #define booleantype int
 #define abs(x) ((x) >= 0 ? (x) : -(x))
 
-double sign (double a, double b){ return (b > 0.0) ? fabs(a) : -fabs(a);} 
-double min_d (double a, double b){  return (a < b)?a:b;}
-double max_d (double a, double b){  return (a > b)?a:b;} 
+static double sign (double a, double b){ return (b > 0.0) ? fabs(a) : -fabs(a);} 
+static double min_d (double a, double b){  return (a < b)?a:b;}
+static double max_d (double a, double b){  return (a > b)?a:b;} 
 
 /*
   #define rcont1 dopri5_mem->rcont1
@@ -113,61 +113,57 @@ double max_d (double a, double b){  return (a > b)?a:b;}
   #define fac1   dopri5_mem->fac1 
 */
 
-int DP5Rootfind(DOPRI5_mem *dopri5_mem);
+static int DP5Rootfind(DOPRI5_mem *dopri5_mem);
 
-
-long nfcnRead (DOPRI5_mem *dopri5_mem)
+static long nfcnRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->nfcn;
 
 } /* nfcnRead */
 
 
-long nstepRead (DOPRI5_mem *dopri5_mem)
+static long nstepRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->nstep;
 
 } /* stepRead */
 
 
-long naccptRead (DOPRI5_mem *dopri5_mem)
+static long naccptRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->naccpt;
 
 } /* naccptRead */
 
 
-long nrejctRead (DOPRI5_mem *dopri5_mem)
+static long nrejctRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->nrejct;
 
 } /* nrejct */
 
 
-double hRead (DOPRI5_mem *dopri5_mem)
+static double hRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->h;
 
 } /* hRead */
 
 
-double xRead (DOPRI5_mem *dopri5_mem)
+static double xRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->x;
-
 } /* xRead */
 
 
-
-int set_tstop (DOPRI5_mem *dopri5_mem, double xstop)
+int DP5_set_tstop (DOPRI5_mem *dopri5_mem, double xstop)
 {
   if (dopri5_mem==NULL) return -1;
   else {
     dopri5_mem->xstop=xstop;
     return 0;
   }
-
-} /* max_d */
+} 
 
 int DP5_Get_RootInfo (DOPRI5_mem *dopri5_mem, int *jroot)
 {
@@ -183,10 +179,11 @@ int DP5_Get_fcallerid(DOPRI5_mem *dopri5_mem,  int *fcallerid)
     return 0;
   }
 }
+
 /********************************************************
 **********************************************************/
 
-double hinit (DOPRI5_mem *dopri5_mem, int iord)
+static double hinit (DOPRI5_mem *dopri5_mem, int iord)
 {
   double   dnf, dny, atoli, rtoli, sk, h, h1, der2, der12, sqr;
   unsigned i;
@@ -260,8 +257,9 @@ double hinit (DOPRI5_mem *dopri5_mem, int iord)
 
 /********************************************************
 **********************************************************/
+
 /* dense output function */
-double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double h_old)
+static double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double h_old)
 {
   double   theta, theta1;
 
@@ -273,8 +271,7 @@ double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double
 } /* contd5 */
 
 
-
- int DP5Rcheck1(DOPRI5_mem *dopri5_mem)
+static int DP5Rcheck1(DOPRI5_mem *dopri5_mem)
 {
   int  retval;
   unsigned i;
@@ -300,7 +297,7 @@ double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double
 } 
 
 
- int DP5Rcheck2(DOPRI5_mem *dopri5_mem)
+static int DP5Rcheck2(DOPRI5_mem *dopri5_mem)
 {
   int  retval;
   unsigned i;
@@ -324,7 +321,7 @@ double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double
 
 }
 
- int DP5Rcheck3(DOPRI5_mem *dopri5_mem, double toutc)
+static  int DP5Rcheck3(DOPRI5_mem *dopri5_mem, double toutc)
 {
   int  retval;
   unsigned i;
@@ -362,7 +359,7 @@ double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold, double
     return(ZERODETACHING);
 }
 
- int DP5Rootfind(DOPRI5_mem *dopri5_mem)
+static int DP5Rootfind(DOPRI5_mem *dopri5_mem)
 {
   double alpha, tmid, gfrac, maxfrac, fracint, fracsub;
   int  retval, imax, side, sideprev;
@@ -1131,7 +1128,7 @@ int dopri5_free (DOPRI5_mem *dopri5_mem) {
 /********************************************************
 **********************************************************/
 
-void faren (unsigned n, double x, double *y, double *f, void *udata)
+static void faren (unsigned n, double x, double *y, double *f, void *udata)
 {
   double amu, amup, r1, r2, sqr;
 
@@ -1150,22 +1147,19 @@ void faren (unsigned n, double x, double *y, double *f, void *udata)
 
   // f[0]=f[1]=f[2]=f[3]=1;
 
-} /* faren */
-/****************************/
-int garen(unsigned n, double x, double *y, double *g, void *udata)
+} 
+
+static int garen(unsigned n, double x, double *y, double *g, void *udata)
 {  
   //g[0]=x-16.91;
   g[0]=y[0];
   return 0;
 }
 
-/********************************************************
-**********************************************************/
 
+#if 0 
 int mainx (void)
 {
-
-
   int   N=4;
   double   *yio;
   int      res,/* iout,*/ itoler;
@@ -1190,7 +1184,7 @@ int mainx (void)
   xstart=0.0;
 
   res=Setup_dopri5(&dopri5_mem, N, faren, xstart, xend, rtoler, &atoler,itoler,hmax, 1,garen,NULL);
-  set_tstop(dopri5_mem, xend);
+  DP5_set_tstop(dopri5_mem, xend);
   xio=0.0;
   xout=2.0;
   hot=0;
@@ -1211,3 +1205,4 @@ int mainx (void)
   return 0;
 
 } /* main */
+#endif 
