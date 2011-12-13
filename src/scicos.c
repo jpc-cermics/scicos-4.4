@@ -1128,7 +1128,7 @@ static void cossim (double *told)
 		case 5:	/* DOPRI5 */
 		  if (Scicos->params.hot == 0)
 		    {		/* hot==0 : cold restart */
-		      set_tstop (dopri5_mem, tstop);
+		      DP5_set_tstop (dopri5_mem, tstop);
 		    }
 		  break;
 		}
