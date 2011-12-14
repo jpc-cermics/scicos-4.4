@@ -231,7 +231,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       return;
     end
   end
-  cor=update_cor(cor,reg)
+  cor=update_cor_cpass1(cor,reg)
   
   // Taking care of the clk 0; 
   //*** this part has been taken from c_pass2 modified and placed here it must be tested ***
@@ -381,12 +381,12 @@ function Ts=remove_fictitious(Ts,K)
   if isempty(Ts) then Ts=zeros(0,4),end
 endfunction
 
-function cor=update_cor(cor,reg)
+function cor=update_cor_cpass1(cor,reg)
 // 
   n=size(cor)
   for k=1:n
     if type(cor(k),'short')=='l' then
-      cor(k)=update_cor(cor(k),reg)
+      cor(k)=update_cor_cpass1(cor(k),reg)
     else
       p=find(cor(k)==reg)
       if ~isempty(p) then 

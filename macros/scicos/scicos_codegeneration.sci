@@ -180,27 +180,15 @@ function [ok,scs_m,%cpr] = scicos_codegeneration(scs_m,Params)
       [%cpr,ok]=do_compile(nscs_m)
     else
       [%cpr,ok]=do_compile(nscs_m)
-       %cpr.cor=update_cor(cpr.cor)
-       corinv=list()
-       for i =1:lstsize(cpr.corinv)
-         if cpr.corinv(i)<>0 then
-           corinv($+1)=cpr.corinv(i)
-         end
-       end
-       %cpr.corinv(1)=corinv
-       %cpr.sim.critev=0
-    end
-  end
-endfunction
-
-function cor=update_cor(cor)
-  for k=1:lstsize(cor)
-    if type(cor(k))==15 then
-      cor(k)=update_cor(cor(k))
-    else
-      if cor(k)<>0 then
-        cor(k)=1
+      %cpr.cor=update_cor_cdgen(cpr.cor)
+      corinv=list()
+      for i =1:lstsize(cpr.corinv)
+        if cpr.corinv(i)<>0 then
+          corinv($+1)=cpr.corinv(i)
+        end
       end
+      %cpr.corinv(1)=corinv
+      %cpr.sim.critev=0
     end
   end
 endfunction
