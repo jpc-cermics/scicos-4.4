@@ -386,7 +386,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     // -------------------------------------------------------
     scs_m=scicos_leave(scs_m)
   end
-  printf('scicos: quit slevel=%d\n",slevel);
 endfunction
 
 function scs_m=scicos_leave(scs_m)
