@@ -81,7 +81,7 @@ if ~isempty(IN) then
   end
 end
 OUT=-sort(-OUT);
-if ~isempty(IN) then
+if ~isempty(OUT) then
   if or(OUT<>[1:size(OUT,'*')]) then 
     error('Output ports are not numbered properly.')
   end

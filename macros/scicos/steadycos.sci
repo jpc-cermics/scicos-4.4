@@ -22,11 +22,11 @@ function [X,U,Y,XP]=steadycos(scs_m,X,U,Y,Indx,Indu,Indy,Indxp,param)
 //   param(2): scalar. Time t.
 //
 
-[lhs,rhs]=argn(0)
+// [lhs,rhs]=argn(0)
 IN=[];OUT=[];
 
 [ierr,scicos_ver,scs_m]=update_version(scs_m)
-if ierr<>0 then
+if ~ierr then
   message("Can''t convert old diagram (problem in version)")
   return
 end
@@ -44,17 +44,17 @@ end
 //   end
 // end
 
-if rhs==7 then
+if nargin==7 then
   Indxp=[ ];param=list(1.d-6,0)
-elseif rhs==8 then
+elseif nargin==8 then
   param=list(1.d-6,0)
-elseif rhs==9 then
+elseif nargin==9 then
 else
   error('wrong number of arguments. 7, 8 or 9 expected.')
 end
 
 for i=1:length(scs_m.objs)
-  if typeof(scs_m.objs(i))=='Block' then  
+  if scs_m.objs(i).type=='Block' then  
     if scs_m.objs(i).gui=='IN_f' then
       scs_m.objs(i).gui='INPUTPORT';
       IN=[IN scs_m.objs(i).model.ipar]
@@ -65,22 +65,26 @@ for i=1:length(scs_m.objs)
   end
 end
 IN=-sort(-IN);
-if or(IN<>[1:size(IN,'*')]) then 
-  error('Input ports are not numbered properly.')
+if ~isempty(IN) then
+  if or(IN<>[1:size(IN,'*')]) then 
+    error('Input ports are not numbered properly.')
+  end
 end
 OUT=-sort(-OUT);
-if or(OUT<>[1:size(OUT,'*')]) then 
-  error('Output ports are not numbered properly.')
+if ~isempty(OUT) then
+  if or(OUT<>[1:size(OUT,'*')]) then 
+    error('Output ports are not numbered properly.')
+  end
 end
 //load scicos lib
-load('SCI/macros/scicos/lib')
+//load('SCI/macros/scicos/lib')
 //compile scs_m
 [bllst,connectmat,clkconnect,cor,corinv,ok]=c_pass1(scs_m);
 if ~ok then
   error('Diagram does not compile in pass 1');
 end
 %cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,'silent');
-if %cpr==list() then 
+if isequal(%cpr,list()) then 
   ok=%f,
 end
 if ~ok then
@@ -103,8 +107,12 @@ for kfun=1:length(sim.funs)
     
   end
 end
-[junk,ind]=sort(-ko(:,2));ko=ko(ind,1);
-[junk,ind]=sort(-ki(:,2));ki=ki(ind,1);
+if ~isempty(ko) then
+  [junk,ind]=sort(-ko(:,2));ko=ko(ind,1);
+end
+if ~isempty(ki) then
+  [junk,ind]=sort(-ki(:,2));ki=ki(ind,1);
+end
 
 pointo=[];
 for k=ko' 
@@ -118,9 +126,9 @@ nx=size(state.x,'*');
 nu=0; for k=pointi', nu=nu+size(state.outtb(k),'*'), end
 ny=0; for k=pointo', ny=ny+size(state.outtb(k),'*'), end
 
-if X==[] then X=zeros(nx,1);end
-if Y==[] then Y=zeros(ny,1);end
-if U==[] then U=zeros(nu,1);end
+if isempty(X) then X=zeros(nx,1);end
+if isempty(Y) then Y=zeros(ny,1);end
+if isempty(U) then U=zeros(nu,1);end
 if param(1)==0 then param(1)=1.d-6;end
 t=param(2)
 
