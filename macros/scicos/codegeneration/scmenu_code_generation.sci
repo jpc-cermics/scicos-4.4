@@ -1822,7 +1822,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
                   ' */'
                   CCode(i+1)]
       fname = file('join',[rpat_blocks;CCode(i)+'.c']);
-      ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
+      ierr=execstr('scicos_mputl(CCode(i+1),fname);',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
         ok=%f
@@ -12273,7 +12273,11 @@ function [Code,Code_xml_param]=make_standalone43()
       if type(corinv(i),'short')=='l' then
         //## we can extract here all informations
         //## from original scicos blocks with corinv : TODO
-        Code_opar($+1)='  /* Modelica Block */';
+        if isempty(Code_opar) then
+          Code_opar='  /* Modelica Block */';
+        else
+          Code_opar($+1)='  /* Modelica Block */';
+        end
       else
         //@@ 04/11/08, disable generation of comment for opar
         //@@ for m_frequ because of sample clock
