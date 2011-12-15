@@ -35,11 +35,11 @@ function sys=lincos(scs_m,x0,u0,param)
 //             load('mysystem.cos')
 // which creates by default a variable called scs_m.
 
-[lhs,rhs]=argn(0)
+//[lhs,rhs]=argn(0)
 IN=[];OUT=[];
 
 [ierr,scicos_ver,scs_m]=update_version(scs_m)
-if ierr<>0 then
+if ~ierr then
   message("Can''t convert old diagram (problem in version)")
   return
 end
@@ -58,7 +58,7 @@ end
 // end
 
 for i=1:size(scs_m.objs)
-  if typeof(scs_m.objs(i))=='Block' then  
+  if scs_m.objs(i).type=='Block' then  
     if scs_m.objs(i).gui=='IN_f' then
       scs_m.objs(i).gui='INPUTPORT';
       IN=[IN scs_m.objs(i).model.ipar]
@@ -75,15 +75,19 @@ for i=1:size(scs_m.objs)
   end
 end
 IN=-sort(-IN);
-if or(IN<>[1:size(IN,'*')]) then 
-  error('Input ports are not numbered properly.')
+if ~isempty(IN) then
+  if or(IN<>[1:size(IN,'*')]) then 
+    error('Input ports are not numbered properly.')
+  end
 end
 OUT=-sort(-OUT);
-if or(OUT<>[1:size(OUT,'*')]) then 
-  error('Output ports are not numbered properly.')
+if ~isempty(IN) then
+  if or(OUT<>[1:size(OUT,'*')]) then 
+    error('Output ports are not numbered properly.')
+  end
 end
 //load scicos lib
-load('SCI/macros/scicos/lib')
+//load('SCI/macros/scicos/lib')
 //compile scs_m
 [bllst,connectmat,clkconnect,cor,corinv,ok]=c_pass1(scs_m);
 if ~ok then
@@ -91,7 +95,7 @@ if ~ok then
 end
 %cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv,'silent');
 
-if %cpr==list() then 
+if isequal(%cpr,list()) then 
   ok=%f,
 end
 if ~ok then
@@ -114,8 +118,12 @@ for kfun=1:length(sim.funs)
     
   end
 end
-[junk,ind]=sort(-ko(:,2));ko=ko(ind,1);
-[junk,ind]=sort(-ki(:,2));ki=ki(ind,1);
+if ~isempty(ko) then
+  [junk,ind]=sort(-ko(:,2));ko=ko(ind,1);
+end
+if ~isempty(ki) then
+  [junk,ind]=sort(-ki(:,2));ki=ki(ind,1);
+end
 
 pointo=[];
 for k=ko' 
@@ -131,14 +139,14 @@ nx=size(state.x,'*');
 nu=0; for k=pointi', nu=nu+size(state.outtb(k),'*'), end
 ny=0; for k=pointo', ny=ny+size(state.outtb(k),'*'), end
 
-if rhs<3 then 
+if nargin<3 then 
   x0=zeros(nx,1);u0=zeros(nu,1);
 else
   if size(x0,'*')<>nx | size(u0,'*')<>nu then
     error('u0 or x0 does not have the correct size')
   end
 end
-if rhs==4 then 
+if nargin==4 then 
   del = param(1)+param(1)*1d-4*abs([x0;u0])
   t=param(2)
 else
@@ -192,4 +200,119 @@ for i=1:nx+nu
   F(:,i)=(zo-zo0)/del(i);
 end
 sys=syslin('c',F(1:nx,1:nx),F(1:nx,nx+1:nx+nu),F(nx+1:nx+ny,1:nx),F(nx+1:nx+ny,nx+1:nx+nu));
+endfunction
+
+function [sl]=syslin(domain,a,b,c,d,x0)
+// check domain 
+select type(domain,'short')
+case 'm' then  //sampled system
+  if size(domain,'*')<=2 then
+    tp=domain
+  else
+    error('domain (1rst argument of syslin) must be a scalar')
+  end
+  z='z'
+case 's' //continuous or discrete
+  if size(domain,'*')<>1 then
+    error('domain (1rst argument of syslin) must be a single string')
+  end
+  domain=part(domain,1)
+  select domain
+  case 'c' then 
+    z='s'
+  case 'd' then 
+    z='z'
+  else 
+    error(domain+' : unknown time domain')
+  end;
+else 
+  error('1rst argument of syslin should be a string, a scalar or a [] matrix')
+end;
+//============================================================================
+if nargin==2 then //syslin(domaine,sys)
+
+  if type(a,'short')<>'h' then 
+    error()
+  else
+    if a.type=='r'|a.type=='lss' then
+      sl=a;
+      sl.dt=domain
+    else
+      error('syslin : H must be a linear state space or a transfer function')
+    end
+  end
+//============================================================================
+elseif nargin==3 then // syslin(domaine,num,den)
+  num=a;den=b
+  if (type(num,'short')<>'p' & type(num,'short')<>'m') |...
+     (type(den,'short')<>'p' & type(den,'short')<>'m') then
+    error('syslin : N and D must be matrix of numbers or of polynomials')
+  end
+  if or(size(num)<>size(den)) then
+    error('syslin : N and D have inconsistent dimensions')
+  end
+
+  if type(num,'short')=='p' & type(den,'short')=='p' then
+    if varn(num)<>varn(den) then 
+      error('syslin : N and D have inconsistent formal variable names')
+     end
+  end
+  if type(num,'short')=='m' then
+    num=num*poly(1,z,name='c')
+  end
+   if type(den,'short')=='m' then
+    den=den*poly(1,z,name='c')
+  end
+  
+  sl=rlist(varn(num,z),varn(den,z),domain)
+//============================================================================
+elseif nargin>3 then // syslin(domaine,A,B,C [,D [X0]])
+  if type(a,'short')<>'m' then
+    error('syslin : A must be a square matrix of numbers')
+  end
+  [ma,na]=size(a);
+  if ma<>na then 
+    error('syslin : A must be a square matrix of numbers')
+  end
+  if type(b,'short')<>'m' then
+    error('syslin : B must be a  matrix of numbers')
+  end
+  [mb,nb]=size(b);
+  if na<>mb&mb<>0 then 
+    error('syslin : row dimension of B do not agree dimensions of A')
+  end
+  if type(c,'short')<>'m' then
+    error('syslin : C must be a  matrix of numbers')
+  end
+  [mc,nc]=size(c);
+  if na<>nc&nc<>0 then 
+    error('syslin : column dimension of C do not agree dimensions of A')
+  end
+  if nargin<6 then
+    x0=0*ones(na,1)
+  else
+    if type(x0,'short')<>'m' then
+      error('syslin : X0 must be a vector of numbers')
+    end
+    [mx,nx]=size(x0);
+    if mx<>na|nx<>min(na,1) then 
+      error('syslin : dimensions of X0 do not agree')
+    end
+  end
+  if nargin<5  then
+    d=0*ones(mc,nb)
+  else
+    if (type(d,'short')<>'p' & type(d,'short')<>'m') then
+      error('syslin : D must be a  matrix of numbers or polynomials')
+    end
+    [md,nd]=size(d);
+    if ~isempty(c*b) then
+      if mc<>md|nb<>nd then 
+        error('syslin : column dimension of D do not agree dimensions of B or C')
+      end
+    end
+  end
+  sl=hash(A=a,B=b,C=c,D=d,X0=x0,dt=domain,type='lss')
+end
+ 
 endfunction
