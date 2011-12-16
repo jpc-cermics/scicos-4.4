@@ -1833,7 +1833,84 @@ static int int_callblk(Stack stack, int rhs, int opt, int lhs)
   return 0;
 }
 
+extern int scicos_is_split(NspObject *obj);
+extern int scicos_is_block(NspObject *obj);
+extern int scicos_is_link(NspObject *obj);
+extern int scicos_is_text(NspObject *obj);
+extern int scicos_is_modelica_block(NspObject *obj);
+
+typedef int (isfun)(NspObject *obj);
+
+static int int_scicos_is(Stack stack, int rhs, int opt, int lhs, isfun F)
+{
+  NspObject *obj;
+  CheckRhs (1,1);
+  CheckLhs (0,1);
+  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG; 
+  if ( nsp_move_boolean(stack,1,F(obj)) == FAIL )  return RET_BUG; 
+  return 1;
+}
+
+static int int_scicos_is_split(Stack stack, int rhs, int opt, int lhs)
+{
+  return int_scicos_is(stack,rhs,opt,lhs,scicos_is_split);
+}
+static int int_scicos_is_block(Stack stack, int rhs, int opt, int lhs)
+{
+  return int_scicos_is(stack,rhs,opt,lhs,scicos_is_block);
+}
+
+static int int_scicos_is_text(Stack stack, int rhs, int opt, int lhs)
+{
+  return int_scicos_is(stack,rhs,opt,lhs,scicos_is_text);
+}
+
+static int int_scicos_is_link(Stack stack, int rhs, int opt, int lhs)
+{
+  return int_scicos_is(stack,rhs,opt,lhs,scicos_is_link);
+}
+
+static int int_scicos_is_modelica_block(Stack stack, int rhs, int opt, int lhs)
+{
+  return int_scicos_is(stack,rhs,opt,lhs,scicos_is_modelica_block);
+}
+
+extern const char *scicos_get_sim(NspObject *obj) ;
+
+static int int_scicos_is_super(Stack stack, int rhs, int opt, int lhs)
+{
+  NspSMatrix *S;
+  int rep=FALSE,i;
+  const char *sim1;
+  NspObject *obj;
+  CheckRhs (2,2);
+  CheckLhs (0,1);
+  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG; 
+  if ((S = GetSMat(stack,2))== NULL) return RET_BUG; 
+  if (( sim1 = scicos_get_sim(obj))== NULL) 
+    {
+      if ( nsp_move_boolean(stack,1,FALSE) == FAIL )  return RET_BUG; 
+      return 1;
+    }
+  for ( i= 0 ; i < S->mn; i++)
+    {
+      if ( strcmp(S->S[i],sim1)==0) 
+	{
+	  rep=TRUE;
+	  break;
+	}
+    }
+  if ( nsp_move_boolean(stack,1,rep) == FAIL )  return RET_BUG; 
+  return 1;
+}
+
 static OpTab Scicos_func[] = {
+  {"scicos_is_split", int_scicos_is_split},
+  {"scicos_is_block", int_scicos_is_block},
+  {"scicos_is_text", int_scicos_is_text},
+  {"scicos_is_link", int_scicos_is_link},
+  {"scicos_is_modelica_block", int_scicos_is_modelica_block},
+  {"scicos_is_super", int_scicos_is_super},
   {"sci_tree4", int_scicos_ftree4},
   {"sci_sctree", int_sctree},
   {"sci_tree2", int_tree2},

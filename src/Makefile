@@ -37,7 +37,7 @@ SUNDIALS=cvode.o cvode_io.o cvode_dense.o nvector_serial.o ida.o ida_dense.o \
 	kinsol.o kinsol_dense.o kinsol_io.o dopri5m.o
 
 OBJSC=  import.o scicos.o intcos.o simul.o sciblk2.o trees.o ezxml.o \
-	scicos_utils.o evaluate_expr.o about.o $(BLOCKS) \
+	scicos_utils.o evaluate_expr.o about.o types.o $(BLOCKS) \
 	$(addprefix sundials/,$(SUNDIALS)) \
 	$(addprefix control/,$(CONTROL)) \
 	$(addprefix calelm/,$(CALELM)) \
