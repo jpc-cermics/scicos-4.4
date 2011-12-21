@@ -31,21 +31,57 @@ static int scicos_is(NspObject *obj,const char *type)
   return TRUE;
 }
 
+/**
+ * scicos_is_block:
+ * @obj: a #NspObject 
+ * 
+ * checks if @obj is a scicos block.
+ * 
+ * Returns: %TRUE or %FALSE
+ **/
 int scicos_is_block(NspObject *obj)
 {
   return scicos_is(obj,"Block");
 }
 
+/**
+ * scicos_is_link:
+ * @obj: a #NspObject 
+ * 
+ * checks if @obj is a scicos link
+ * 
+ * 
+ * Returns: %TRUE or %FALSE
+ **/
 int scicos_is_link(NspObject *obj)
 {
   return scicos_is(obj,"Link");
 }
+
+/**
+ * scicos_is_text:
+ * @obj: a #NspObject 
+ * 
+ * 
+ * checks if @obj is a scicos text block.
+ * 
+ * Returns: %TRUE or %FALSE
+ **/
 
 int scicos_is_text(NspObject *obj)
 {
   return scicos_is(obj,"Text");
 }
 
+/**
+ * scicos_get_sim:
+ * @obj: a #NspObject 
+ * 
+ * returns the sim(1) field of a block or %NULL if 
+ * this field does not exists.
+ * 
+ * Returns: a string or %NULL
+ **/
 const char *scicos_get_sim(NspObject *obj) 
 {
   char *sim1=NULL;
@@ -69,7 +105,14 @@ const char *scicos_get_sim(NspObject *obj)
   return sim1;
 }
 
-
+/**
+ * scicos_is_split:
+ * @obj: a #NspObject 
+ * 
+ * checks if @obj is a scicos split block.
+ * 
+ * Returns: %TRUE or %FALSE
+ **/
 int scicos_is_split(NspObject *obj)
 {
   const char *sim1= scicos_get_sim(obj);
@@ -78,6 +121,16 @@ int scicos_is_split(NspObject *obj)
     return FALSE;
   return TRUE;
 }
+
+/**
+ * scicos_is_modelica_block:
+ * @obj: a #NspObject 
+ * 
+ * checks if @obj is a scicos modelica block.
+ * 
+ * 
+ * Returns: %TRUE or %FALSE
+ **/
 
 int scicos_is_modelica_block(NspObject *obj)
 {
