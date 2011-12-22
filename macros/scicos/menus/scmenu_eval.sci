@@ -46,7 +46,8 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
   endfunction
 
   function [scs_m,cpr,needcompile,ok,msg]=do_eval_rec(scs_m,cpr,context,flag)
-  // This function (re)-evaluates blocks in the scicos data structure scs_m 
+  // This function (re)-evaluates blocks in the scicos data structure
+  // scs_m. The evaluation is made in a non-interactive way.
   // Copyright INRIA
     
     if ~exists('needcompile') then needcompile=0;
