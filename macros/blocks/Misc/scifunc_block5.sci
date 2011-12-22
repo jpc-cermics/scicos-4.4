@@ -200,12 +200,8 @@ function [ok,txt_out]=genfunc5(name,txt_in,ni,no,nie,noe,nx,nz,nzcr)
   head = ['Function definition in scilab language.';
 	  'Here is a skeleton of the function which';
 	  ' you should edit.'];
-  ptxtedit=scicos_txtedit(clos = 0,...
-			  typ  = "Scifunc5",...
-			  head = head);
   comment = catenate(head,sep='\n');
   while %t 
-    //[txt,Quit] = scstxtedit(textmp,ptxtedit);
     txt = scicos_editsmat('Nsp code',textmp,comment=comment);
     if isempty(txt) then
       ok = %f;
