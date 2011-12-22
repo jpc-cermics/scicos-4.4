@@ -11,17 +11,15 @@ function ok=scicos_block_link(funam,txt,flag,libs,cflags)
   end
   cur_wd = getcwd();
   chdir(getenv('NSP_TMPDIR'));
-  //  mputl(txt,funam+'.'+flag);
-  F=fopen(funam+'.'+flag,mode="w");
-  F.put_smatrix[txt];
-  F.close[];
+  scicos_mputl(txt,funam+'.'+flag);
   if %t then
-    // use of libscicos in ldflags in nsp because library of scicos
-    // isn't in libnsp.
+    // libscicos must be added in ldflags because scicos library 
+    // is dynamically loaded in nsp 
+    // This should be changed to -L.... -lscicos 
     if %win32 then
-      ext='.lib'
+      ext='.lib';
     else
-      ext='.a'
+      ext=%shext;
     end
     ldflags = '""'+file('join',[get_scicospath();'src';'libscicos'+ext])+'""';
     [a,b]=c_link(funam); while a;  ulink(b);[a,b]=c_link(funam);end
