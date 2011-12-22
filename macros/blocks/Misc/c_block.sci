@@ -1,6 +1,6 @@
 function [x,y,typ]=c_block(job,arg1,arg2)
-//
 // Copyright INRIA
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -48,37 +48,64 @@ function [x,y,typ]=c_block(job,arg1,arg2)
       end
     end
    case 'define' then
-    in=1
-    out=1
-    clkin=[]
-    clkout=[]
-    x0=[]
-    z0=[]
-    typ='c'
-    auto=[]
-    rpar=[]
-    funam='toto'
-    //chek
-    //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$  
-    //model=list(list(' ',2001),in,out,clkin,clkout,x0,z0,rpar,0,typ,auto,[%t %f],
-    //      ' ',list());
-    model=scicos_model()
-    model.sim=list(' ',2001)
-    model.in=in
-    model.out=out
-    model.evtin=clkin
-    model.evtout=clkout
-    model.state=x0
-    model.dstate=z0
-    model.rpar=rpar
-    model.ipar=0
-    model.blocktype=typ
-    model.firing=auto
-    model.dep_ut=[%t %f]
-    //**********************************************************************************
-    label=list([sci2exp(in);sci2exp(out);	strcat(sci2exp(rpar));funam],
-    list([]))
+    funam='toto';
+    model=scicos_model(sim=list(' ',2001),in=1,out=1,evtin=[],evtout=[],...
+		       state=[],dstate=[], rpar=[], ipar=0,blocktype='c',...
+		       firing=[],    dep_ut=[%t %f]);
+    label=list([sci2exp(model.in);sci2exp(model.out);strcat(sci2exp(model.rpar));funam],...
+	       list([]))
     gr_i=['xstringb(orig(1),orig(2),''C block'',sz(1),sz(2),''fill'');']
     x=standard_define([2 2],model,label,gr_i,'c_block')
+  end
+endfunction
+
+function [ok,tt]=CFORTR(funam,tt,inp,out)
+//
+  ni=size(inp,'*')
+  no=size(out,'*')
+  if isempty(tt) then
+    tt=['#include <nsp/nsp.h>';
+	'#include <scicos/scicos4.h>';
+	'';
+	'void '+funam+'(int *flag,int *nevprt,double *t,double *xd,double *x,';
+	"     int *nx,double *z,int *nz,double *tvec,';
+	'     int *ntvec,double *rpar,int *nrpar,int *ipar,int *nipar']
+    if ni<>0 then 
+      tt.concatd['     ,'+catenate(sprintf('double *u%d,int *nu%d',(1:ni)',(1:ni)'),sep=',')];
+    end
+    if no<>0 then 
+      tt.concatd['     ,'+catenate(sprintf('double *y%d,int *ny%d',(1:no)',(1:no)'),sep=',')];
+    end
+    tt($)=tt($)+')';
+    tt.concatd[['{';'   /* modify below this line */'; '}']];
+  end
+  textmp=tt;
+  head = ['Function definition in C';
+	  'Here is a skeleton of the functions which you should edit'];
+  comment = catenate(head,sep='\n');
+  non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+  while %t
+    txt = scicos_editsmat('Nsp code',textmp,comment=comment);
+    if isempty(txt) then
+      // abort in edition.
+      ok = %f;
+      break;
+    end
+    // no use to recompile if already linked and text was not changed.
+    recomp= ~txt.equal[textmp] || ~c_link(funam);
+    textmp=txt;
+    ok=%t;
+    if recomp then 
+      [ok]=scicos_block_link(funam,txt,'c');
+    end
+    if ok then
+      tt=textmp;
+      break;
+    elseif non_interactive then 
+      // do not loop when non interactive 
+      message(['Error: set failed for c_block but we are in a non ";
+	       '  interactive function and thus we abort the set !']);
+      break;
+    end
   end
 endfunction
