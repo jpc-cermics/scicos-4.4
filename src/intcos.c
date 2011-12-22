@@ -1904,7 +1904,25 @@ static int int_scicos_is_super(Stack stack, int rhs, int opt, int lhs)
   return 1;
 }
 
+
+extern int scicos_count_blocks(NspObject *obj);
+
+static int int_scicos_count_blocks(Stack stack, int rhs, int opt, int lhs)
+{
+  int n;
+  NspObject *obj;
+  CheckRhs (1,1);
+  CheckLhs (0,1);
+  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG; 
+  n = scicos_count_blocks(obj);
+  if ( nsp_move_double(stack,1,n) == FAIL )  return RET_BUG; 
+  return 1;
+}
+
+
+
 static OpTab Scicos_func[] = {
+  {"scicos_count_blocks", int_scicos_count_blocks},
   {"scicos_is_split", int_scicos_is_split},
   {"scicos_is_block", int_scicos_is_block},
   {"scicos_is_text", int_scicos_is_text},

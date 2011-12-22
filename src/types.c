@@ -82,20 +82,21 @@ int scicos_is_text(NspObject *obj)
  * 
  * Returns: a string or %NULL
  **/
+
 const char *scicos_get_sim(NspObject *obj) 
 {
   char *sim1=NULL;
   NspObject *M,*S;
   if (scicos_is_block(obj) == FALSE ) return sim1;
   if (nsp_hash_find((NspHash *)obj ,"model",&M) == FAIL) return sim1;
-  if (!IsHash(M)) return sim1;
+  if ( !IsHash(M)) return sim1;
   if (nsp_hash_find((NspHash *) M,"sim",&S) == FAIL) return sim1;
   /* sim = list(string | ,number) | string */
   if (IsList(S)) 
     {
       /* first element */
-      NspObject *S1=nsp_list_get_element((NspList *)S,0);
-      if ( !IsString(S1) ) return sim1;
+      NspObject *S1=nsp_list_get_element((NspList *)S,1);
+      if ( S1 == NULL ||  !IsString(S1) ) return sim1;
       sim1 = ((NspSMatrix *) S1)->S[0];
     }
   else if ( IsString(S)) 
@@ -103,6 +104,26 @@ const char *scicos_get_sim(NspObject *obj)
       sim1 = ((NspSMatrix *) S)->S[0];
     }
   return sim1;
+}
+
+/**
+ * scicos_get_rpar:
+ * @obj: a #NspObject 
+ * 
+ * returns the rpar field of a block or %NULL if 
+ * this field does not exists.
+ * 
+ * Returns: a #NspObject or %NULL
+ **/
+
+NspObject *scicos_get_rpar(NspObject *obj) 
+{
+  NspObject *M,*R=NULL;
+  if (scicos_is_block(obj) == FALSE ) return R;
+  if (nsp_hash_find((NspHash *)obj ,"model",&M) == FAIL) return R;
+  if ( !IsHash(M)) return R;
+  if (nsp_hash_find((NspHash *) M,"rpar",&R) == FAIL) return R;
+  return R;
 }
 
 /**
@@ -146,4 +167,35 @@ int scicos_is_modelica_block(NspObject *obj)
 }
 
 
-
+int scicos_count_blocks(NspObject *obj)
+{
+  int n=0;
+  NspHash *Block = (NspHash*) obj;
+  NspObject *T;
+  Cell *cloc;
+  if ( !IsHash(obj)) return 0;
+  if ( nsp_hash_find(Block,"objs",&T) == FAIL) return 0;
+  if ( !IsList(T) ) return 0;
+  /* loop on list elements */
+  cloc = ((NspList *) T)->first ;
+  while ( cloc != NULLCELL ) 
+    {
+      if ( cloc->O != NULLOBJ ) 
+	{
+	  NspObject *R;
+	  const char *sim=scicos_get_sim( cloc->O );
+	  if ( sim != NULL
+	       && (strcmp("super",sim)==0 ||  strcmp("csuper",sim)==0 ) 
+	       && ((R = scicos_get_rpar( cloc->O)) != NULL)) 
+	    {
+	      n += scicos_count_blocks(R);
+	    }
+	  else
+	    {
+	      n++;
+	    }
+	}
+      cloc = cloc->next;
+    }
+  return n;
+}  
