@@ -7,7 +7,7 @@
 
 /* Common Block Declarations */
 
-struct
+extern struct
 {
   double b[41];
   int n;

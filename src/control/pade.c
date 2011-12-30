@@ -8,7 +8,7 @@
 
 /* Common Block Declarations */
 
-struct
+extern struct
 {
   double c__[41];
   int ndng;
