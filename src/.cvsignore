@@ -5,6 +5,7 @@
 *.lo 
 *.la
 *.so
+*.dylib
 .libs
 
 
