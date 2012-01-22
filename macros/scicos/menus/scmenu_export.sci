@@ -41,10 +41,17 @@ function do_export(scs_m,fname)
   // file extensions. This only works if scs_m 
   // is displayed on the current window.
   // jpc 2011 
+    created=%f;
+    if isempty( winsid()) then 
+      created=%t;
+      do_export_gwin(scs_m);
+    end
     cwin=xget('window');
     xexport(cwin,fname);
+    if created then xdel(winsid());end
   endfunction
-
+  
+  num=1;
   if nargin==1 then
     num=x_choose(['Graphic file';'Graphics window'],'How do you want to export?');
     if num==0 then return;end
@@ -53,8 +60,8 @@ function do_export(scs_m,fname)
 	fname= xgetfile(save=%t);
 	if fname == "" then return;end;
 	ext= file('extension',fname);
-	if ~or(ext==['.svg', '.pdf', '.eps', '.ps', '.fig', '.png']) then
-	  message(['File extension should be .eps, .ps, .png, .pdf,or .svg"]);
+	if ~or(ext==['.svg','.pdf','.eps','.ps','.fig','.png']) then
+	  message(['File extension should be .eps, .ps, .png, .pdf or .svg"]);
 	else
 	  break;
 	end
@@ -103,7 +110,7 @@ function do_export_all()
   path=xgetfile(dir="/tmp",title=title,folder=%t)
   if path.equal[''] then return;end 
   // choose a graphic file type 
-  extensions=['.eps','.png','.pdf','.gif','.gif'];
+  extensions=['.eps','.png','.pdf','.gif','.svg'];
   names=['postcript','png','pdf','gif','svg'];
   l1=list('combo','Graphic File',1,names);
   [Lres,L]=x_choices('Graphic export',list(l1),%t); 

@@ -2,7 +2,7 @@ function [paths]=findinlist(L,v)
 // Copyright INRIA
 // search all occurences of v in List. 
 // The search is recursive and found objects 
-// are given byt their pathes in L.
+// are given by their pathes in L.
 // 
 // Note that: Lr=findinlist(list(4,8,67,list(5,67)),list(5,67))
 // will return list()
