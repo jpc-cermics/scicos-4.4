@@ -71,14 +71,26 @@ function [ok,scs_m,%cpr,edited]=do_scicoslab_import(fname,typ)
     return
   end
   // check if version is inside scs_m;
-  if scs_m.iskey['version'] then 
+  if type(scs_m,'short')== 'h' && scs_m.iskey['version'] then 
     scicos_ver = scs_m.version
+  else
+    if ~exists('scicos_ver') then 
+      scicos_ver='scicos2.2';
+    end
   end
   if scicos_ver=='scicos2.2' then
     if isempty(scs_m) then scs_m=x,end //for compatibility
   end
-
+  
   if scicos_ver<>current_version then 
+    ok=execstr('scs_m=do_version(scs_m,scicos_ver)',errcatch=%t);
+    if ~ok then 
+      message(['Error: cannot update the diagram:';
+	       catenate(lasterror())]);
+      %cpr=list();
+      edited=%t;
+      return; 
+    end
     scs_m=do_version(scs_m,scicos_ver),
     %cpr=list()
     edited=%t
@@ -135,11 +147,16 @@ function scs_m=do_update_scilab_schema(scs_m)
   for i=1:n
     if scs_m.objs(i).iskey['gui'] then 
       gui=scs_m.objs(i).gui;
-      execstr( 'obj='+gui+'(''define'')');
-      if type(scs_m.objs(i).graphics.gr_i,'short')=='l' then 
-	scs_m.objs(i).graphics.gr_i(1) = obj.graphics.gr_i(1);
-      else 
-	scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
+      ok=execstr( 'obj='+gui+'(''define'')',errcatch=%t);
+      if ok then 
+	if type(scs_m.objs(i).graphics.gr_i,'short')=='l' then 
+	  scs_m.objs(i).graphics.gr_i(1) = obj.graphics.gr_i(1);
+	else 
+	  scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
+	end
+      else
+	message([sprintf('Update of %s cannot be done, we ignore the update',gui);
+		 catenate(lasterror())]);
       end
       //scs_m.objs(i).graphics.out_implicit = obj.graphics.out_implicit;
       //scs_m.objs(i).graphics.in_implicit = obj.graphics.in_implicit;
