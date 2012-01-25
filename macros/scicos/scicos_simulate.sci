@@ -210,7 +210,7 @@ function Info=scicos_simulate(scs_m,Info,%scicos_context,flag,Ignb)
     if needcompile<>4&size(%cpr)>0 then %state0=%cpr.state,end
     alreadyran=%f
   else
-      error(['Incorrect context definition, '+lasterror()] )
+      error(['Incorrect context definition'+catenate(lasterror())] )
   end
 
   if isempty(%cpr)|needcompile>1 then need_suppress=%t, else need_suppress=%f,end
