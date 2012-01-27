@@ -97,7 +97,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       if ~ok then return, end
       // make a first eval 
       [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr)
-      if ~ok then pause %cpr=list();end 
+      if ~ok then %cpr=list();end 
       // -------------------
       if size(%cpr)==0 then
 	needcompile=4
