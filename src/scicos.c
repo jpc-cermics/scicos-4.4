@@ -476,10 +476,41 @@ static int check_flag (void *flagvalue, char *funcname, int opt)
   return (0);
 }
 
-/* expand X expression in a swith 
- * #define X(name) for ( i=0 ; i < A->mn ; i++) {if ( A->name[i] ) count++;} break;
- * NSP_ITYPE_SWITCH(s,itype,X);
- */
+/* utilities for scicos_costype */
+
+static int scicos_costype_size(int costype)
+{
+  switch (costype )
+    {
+    default:
+    case SCSREAL_N: return sizeof(SCSREAL_COP);
+    case SCSCOMPLEX_N : return sizeof(SCSCOMPLEX_COP);
+    case SCSINT8_N    : return sizeof(SCSINT8_COP);
+    case SCSINT16_N   : return sizeof(SCSINT16_COP);
+    case SCSINT32_N   : return sizeof(SCSINT32_COP );
+    case SCSUINT8_N   : return sizeof(SCSUINT8_COP );
+    case SCSUINT16_N  : return sizeof(SCSUINT16_COP );
+    case SCSUINT32_N  : return sizeof(SCSUINT32_COP );
+      break;						
+    }
+}
+  
+static size_t scicos_costype_to_int(int costype)
+{
+  switch (costype )
+    {
+    default:
+    case SCSREAL_N    : return 0;
+    case SCSCOMPLEX_N : return 1;
+    case SCSINT8_N    : return 2;
+    case SCSINT16_N   : return 3;
+    case SCSINT32_N   : return 4;
+    case SCSUINT8_N   : return 5;
+    case SCSUINT16_N  : return 6;
+    case SCSUINT32_N  : return 7;
+      break;						
+    }
+}
 
 #define NSP_COSTYPE_SWITCH(itype,X,arg)			\
   switch (itype ) {					\
@@ -497,31 +528,34 @@ static int check_flag (void *flagvalue, char *funcname, int opt)
 
 /* Subroutine cosini */
 
+#define NTYPES 8
+
 static void cosini (double *told)
 {
   double c_b14 = 0.;
-  int jj, ii, kk;		/*local counters */
-  int sszz;			/*local size of element of outtb */
+  int jj, ii, kk, sszz, pos;
   int c1 = 1, flag__, i, kfune = 0;
-  int sz_outtb[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-  void *outtb[8] = { NULL };
-  int cur_outtb[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
-  /* first pass to compute the sizes */
+  int sz_outtb[NTYPES] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  int szt_outtb[NTYPES]= { 0, 0, 0, 0, 0, 0, 0, 0 };
+  void *outtb[NTYPES]  = { NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL };
+  int cur_outtb[NTYPES] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  int tag[NTYPES]= {1,2,1,1,1,1,1,1};
+  /* first pass to compute the sizes requested for each data type */
   for (ii = 0; ii < Scicos->sim.nlnk; ii++)
     {
-#define X(name,pos,tag,arg) sz_outtb[pos] +=tag*outtbsz[ii]*outtbsz[ii+Scicos->sim.nlnk]; break;
-      NSP_COSTYPE_SWITCH (outtbtyp[ii], X, "void");
-#undef X
+      pos=scicos_costype_to_int(outtbtyp[ii]);
+      szt_outtb[pos] = scicos_costype_size(outtbtyp[ii]);
+      sz_outtb[pos] += tag[pos]*outtbsz[ii]*outtbsz[ii+Scicos->sim.nlnk];
     }
-  /* second pass to allocate and set to zero */
-  for (ii = 0; ii < Scicos->sim.nlnk; ii++)
+  /* second pass to allocate size for each type and set to zero */
+  for (pos = 0; pos < NTYPES ; pos++)
     {
-#define X(name,pos,tag,arg) outtb[pos]= calloc(sz_outtb[pos],sizeof(name));break;
-      NSP_COSTYPE_SWITCH (outtbtyp[ii], X, "void");
-#undef X
+      if ( sz_outtb[pos] != 0 )
+	{
+	  outtb[pos]= calloc(sz_outtb[pos],szt_outtb[pos]);
+	}
     }
-
+  
   /* Jacobian */
   AJacobian_block = 0;
 
@@ -531,7 +565,7 @@ static void cosini (double *told)
   /*     initialization (flag 4) */
   /*     loop on blocks */
   nsp_dset (&Scicos->sim.ng, &c_b14, Scicos->sim.g, &c1);
-
+  
   for (Scicos->params.curblk = 1; Scicos->params.curblk <= Scicos->sim.nblk;
        ++Scicos->params.curblk)
     {
@@ -582,8 +616,9 @@ static void cosini (double *told)
     }
   /*     point-fix iterations */
   flag__ = 6;
+  /* fro each block */
   for (i = 1; i <= Scicos->sim.nblk + 1; ++i)
-    {				/*for each block */
+    {				
       /*     loop on blocks */
       for (jj = 1; jj <= Scicos->sim.nblk; ++jj)
 	{
@@ -599,10 +634,11 @@ static void cosini (double *told)
 		}
 	    }
 	}
-
+      
       flag__ = 6;
       for (jj = 1; jj <= Scicos->sim.ncord; ++jj)
-	{			/*for each continous block */
+	{
+	  /*for each continous block */
 	  Scicos->params.curblk = Scicos->sim.cord[jj - 1];
 	  if (Scicos->sim.funtyp[Scicos->params.curblk - 1] >= 0)
 	    {
@@ -614,10 +650,9 @@ static void cosini (double *told)
 		}
 	    }
 	}
-
+      
       /*comparison between outtb and arrays */
-      for (kk = 0; kk < 7; kk++)
-	cur_outtb[kk] = 0;
+      for (pos = 0; pos < NTYPES ; pos++) cur_outtb[pos] = 0;
       for (jj = 0; jj < Scicos->sim.nlnk; jj++)
 	{
 #define X(name,pos,tag,arg)						\
@@ -635,8 +670,7 @@ static void cosini (double *told)
 
     L30:
       /* Save data of outtb in arrays */
-      for (kk = 0; kk < 7; kk++)
-	cur_outtb[kk] = 0;
+      for (pos = 0; pos < NTYPES ; pos++) cur_outtb[pos] = 0;
       for (ii = 0; ii < Scicos->sim.nlnk; ii++)	/*for each link */
 	{
 #define X(name,pos,tag,arg)						\
@@ -655,8 +689,7 @@ static void cosini (double *told)
  err:
   for (kk = 0; kk < 7; kk++)
     FREE (outtb[kk]);
-}				/* cosini_ */
-
+}
 
 
 int Setup_Cvode (void **cvode_mem, int solver, int N, N_Vector * y,
@@ -664,11 +697,7 @@ int Setup_Cvode (void **cvode_mem, int solver, int N, N_Vector * y,
 		 double t0, double *x, int ng1, double hmax)
 {
   int flag;
-  //CVodeMem cv_mem;
-  //cv_mem = (CVodeMem) (*cvode_mem);
-
-  if (N <= 0)
-    return 0;
+  if (N <= 0)  return 0;
 
   *y = N_VNewEmpty_Serial (N);
   if (check_flag ((void *) (*y), "N_VNewEmpty_Serial", 0))
