@@ -17,9 +17,6 @@
  * Boston, MA 02111-1307, USA.
  *
  * Display a matrix using a NspGMatrix object 
- * XXX the fact that we should use rpar to change the colormap 
- *     remains to be done 
- * XXX verify that the matrix is properly drawn (transpose or not ?).
  *
  *--------------------------------------------------------------------------*/
 
@@ -35,7 +32,7 @@
 
 #include "blocks.h"
 
-static NspAxes *nsp_cmatview(int win,char *label,int zmin,int zmax, int dim_i, int dim_j,NspGMatrix **gm);
+static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, int dim_j,NspGMatrix **gm,double *rpar,int cmapsize);
 
 typedef struct _cmatview_data cmatview_data;
 
@@ -74,14 +71,14 @@ void cmatview (scicos_block * block, int flag)
 	    return;
 	  }
 	D = (cmatview_data *) (*block->work);
-
+	
 	mat = (double *) scicos_malloc(size_mat * sizeof (double));
 	for (i = 0; i < size_mat; i++)
 	  {
 	    mat[i] = rpar[i + 2];
 	  }
 	wid = 20000 + scicos_get_block_number();
-	D->Axes = nsp_cmatview(wid,label, ipar[0],ipar[1],dim_i,dim_j,&gm);
+	D->Axes = nsp_cmatview(wid,label, ipar[0],ipar[1],dim_i,dim_j,&gm,rpar,size_mat);
 	/* keep a copy in case Axes is destroyed during simulation 
 	 * axe is a by reference object 
 	 */
@@ -127,7 +124,7 @@ void cmatview (scicos_block * block, int flag)
     }
 }
 
-static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, int dim_j,NspGMatrix **gm)
+static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, int dim_j,NspGMatrix **gm,double *rpar,int cmapsize)
 {
   NspAxes *axe;
   BCG *Xgc;
@@ -136,7 +133,8 @@ static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, 
   int i,j,l, remap=TRUE;
   NspMatrix *Mrect=NULL,*Mzminmax=NULL,*Mcolminmax=NULL;
   char *strf="181";
-  
+  NspFigure *F;
+  NspMatrix *Cmap=NULL;
   /*
    * set current window
    */
@@ -150,6 +148,7 @@ static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, 
    */
   if ((Xgc = window_list_get_first())== NULL) return NULL;
   if ((axe=  nsp_check_for_axes(Xgc,NULL)) == NULL) return NULL;
+  if ((F = nsp_check_for_figure(Xgc,TRUE)) == NULL) return NULL;
 
   if (label != NULL && strlen(label) != 0 && strcmp(label," ") != 0)
     Xgc->graphic_engine->setpopupname (Xgc, label);
@@ -165,10 +164,28 @@ static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, 
   for ( i = 0 ; i < z->m ; i++) 
     for ( j = 0 ; j < z->n ; j++) 
       z->R[i+z->m*j]= (i+j)/10.0;
+
+  /* colormap */
+  if ( cmapsize != 0 )
+    {
+      if ((Cmap  = nsp_matrix_create("cmap",'r',cmapsize/3,3)) != NULLMAT)
+	{
+	  memcpy(Cmap->R, rpar, cmapsize*sizeof(double));
+	  nsp_figure_data_set_colormap(F,Cmap);
+	}
+    }
   
   if ( (Mcolminmax = nsp_matrix_create("z",'r',1,2)) == NULLMAT) return NULL;
-  Mcolminmax->R[0]=0;  /* XX to be updated */
-  Mcolminmax->R[1]=32; /* XX to be updated */
+  if ( Cmap != NULLMAT ) 
+    {
+      Mcolminmax->R[0]=0;
+      Mcolminmax->R[1]=Cmap->m; 
+    }
+  else
+    {
+      Mcolminmax->R[0]=0;  
+      Mcolminmax->R[1]=32; 
+    }
   if ( (Mzminmax = nsp_matrix_create("z",'r',1,2)) == NULLMAT) return NULL;
   Mzminmax->R[0]=zmin;
   Mzminmax->R[1]=zmax;
@@ -186,4 +203,6 @@ static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, 
   nsp_axes_invalidate(((NspGraphic *) axe));
   return axe;
 }
+
+
 
