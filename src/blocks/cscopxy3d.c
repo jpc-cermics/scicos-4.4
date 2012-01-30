@@ -85,6 +85,14 @@ void cscopxy3d (scicos_block * block, int flag)
 	if((D->objs3d=nsp_check_for_objs3d(Xgc,NULL)) == NULL) goto err;
 	D->objs3d->obj->alpha=csr->alpha;
 	D->objs3d->obj->theta=csr->theta;
+	D->objs3d->obj->ebox->R[0]=csr->xmin;
+	D->objs3d->obj->ebox->R[1]=csr->xmax;
+	D->objs3d->obj->ebox->R[2]=csr->ymin;
+	D->objs3d->obj->ebox->R[3]=csr->ymax;
+	D->objs3d->obj->ebox->R[4]=csr->zmin;
+	D->objs3d->obj->ebox->R[5]=csr->zmax;
+        D->objs3d->obj->fixed=TRUE;
+        D->objs3d->obj->box_style=SCILAB;
 	if ((D->Mcol = nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
 	/* clean previous plots in case objs3d was in use.  */ 
         l=nsp_list_length(D->objs3d->obj->children);
