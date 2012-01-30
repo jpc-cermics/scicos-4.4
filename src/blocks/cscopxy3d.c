@@ -85,6 +85,8 @@ void cscopxy3d (scicos_block * block, int flag)
 	if((D->objs3d=nsp_check_for_objs3d(Xgc,NULL)) == NULL) goto err;
 	D->objs3d->obj->alpha=csr->alpha;
 	D->objs3d->obj->theta=csr->theta;
+	Xgc->scales->alpha=csr->alpha;
+	Xgc->scales->theta=csr->theta;
 	D->objs3d->obj->ebox->R[0]=csr->xmin;
 	D->objs3d->obj->ebox->R[1]=csr->xmax;
 	D->objs3d->obj->ebox->R[2]=csr->ymin;
