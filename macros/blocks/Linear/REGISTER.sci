@@ -22,7 +22,7 @@ function [x,y,typ]=REGISTER(job,arg1,arg2)
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
-    if size(exprs,1)==1 then exprs=[exprs,sci2exp(1)];end
+    if size(exprs,1)==1 then exprs=[exprs;sci2exp(1)];end
     while %t do
       [ok,z0,it,exprs]=getvalue('Set delay parameters',..
 				['Register initial condition';..
