@@ -5,7 +5,6 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
   x=[]; y=[]; typ=[];
   select job
    case 'plot' then //normal  position
-    // pause xxx 
     // C=arg1.graphics.exprs;
     //standard_draw(arg1)
     graphics = arg1.graphics; 
@@ -34,17 +33,22 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
     exprs = graphics.exprs ;
     model = arg1.model ;
     if size(exprs,'*')==1 then
+      // compatibility
       exprs = [exprs;'3';'1']
-    end // compatibility
+    end 
+
+    non_interactive = exists('getvalue') && getvalue.get_fname[]=='setvalue';
+    
     while %t do
-      [ok,txt,font,siz,exprs] = getvalue('Set Text block parameters',..
-					 ['Text';'Font number';'Font size'], list('str',-1,'vec',1,'vec',1),exprs)
-      if ~ok then break,end //** 
+      [ok,txt,font,siz,exprs] = getvalue('Set Text block parameters',...
+					 ['Text';'Font number';'Font size'],...
+					 list('str',-1,'vec',1,'vec',1),exprs)
+      if ~ok then break,end 
       if font<=0|font>6 then
 	message('Font number must be greater than 0 and less than 7')
 	ok=%f
       end
-      if siz<0 then
+      if siz < 0 then
 	message('Font size must be positive')
 	ok=%f
       end
@@ -58,9 +62,11 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
 	// here xstringl will be correct 
 	// or sz could be obtained by getting the 
 	// bounds of the compound. 
-	r = xstringl(0,0,exprs(1))// evstr(exprs(2)),evstr(exprs(3)));
-	sz = r(3:4) ; 
-	graphics.sz = sz        ;
+	if ~non_interactive  then 
+	  r = xstringl(0,0,exprs(1))// evstr(exprs(2)),evstr(exprs(3)));
+	  sz = r(3:4); 
+	  graphics.sz = sz;
+	end
 	x.graphics  = graphics  ;
 	ipar        = [font;siz]
 	model.rpar  = txt   ;
