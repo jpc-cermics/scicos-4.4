@@ -21,9 +21,9 @@
  * 
  *--------------------------------------------------------------------------*/
 
-#include "nsp/machine.h"
-#include "nsp/math.h"
-#include "nsp/gsort-p.h"
+#include <nsp/nsp.h>
+#include <nsp/gsort-p.h>
+
 
 /* 
  * 

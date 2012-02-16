@@ -21,14 +21,10 @@
  * 
  *--------------------------------------------------------------------------*/
 
-
 #include <string.h>
-#include "nsp/math.h"
-#include "nsp/machine.h"
+#include <nsp/nsp.h>
 #include <nsp/object.h>
-#include <nsp/graphics-new/Graphics.h>
-
-#include "scicos/scicos4.h"
+#include <scicos/scicos.h>
 
 /* 
  * data structure selection 

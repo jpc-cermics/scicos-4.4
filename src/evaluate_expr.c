@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2007-2010 Ramine Nikoukhah (Inria) 
+ * Copyright (C) 2007-2012 Ramine Nikoukhah (Inria) 
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -17,19 +17,13 @@
  * Boston, MA 02111-1307, USA.
  *
  * Scicos blocks copyrighted GPL in this version by Ramine Nikoukhah
- * adapted to nsp by Jean-Philippe Chancelier 2006-2007
+ * adapted to nsp by Jean-Philippe Chancelier 2006-2012
  * 
  *--------------------------------------------------------------------------*/
 
-#include <math.h>
-#include <nsp/machine.h>
-
-#include <nsp/graphics-new/Graphics.h>
 #include <nsp/nsp.h>
-#include <nsp/plist.h>
 #include <nsp/scalexp.h>
-#include "scicos/scicos4.h"
-#include "scicos/blocks.h"
+#include <scicos/scicos.h>
 
 /* import data from libsnp.dll */
 IMPORT expr_func expr_functions[];

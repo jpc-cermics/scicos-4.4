@@ -1,8 +1,4 @@
-#include "../machine.h"
-#include <math.h>
-#include "../graphics/Math.h"
-#include "../graphics/Graphics.h"
-#include "../graphics/PloEch.h"
+#include <nsp/nsp.h>
 
 void C2F (scicosclip) (int *n)
 {

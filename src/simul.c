@@ -19,22 +19,10 @@
  * scicos objects used for simulation 
  *--------------------------------------------------------------------------*/
 
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
-
 #include <nsp/nsp.h>
-#include <nsp/graphics-new/Graphics.h>
-#include <nsp/object.h>
-#include <nsp/matrix.h>
-#include <nsp/smatrix.h>
-#include <nsp/imatrix.h>
-#include <nsp/hash.h>
-#include <nsp/list.h>
+#include <nsp/objects.h>
 #include <nsp/plist.h>
-#include <nsp/interf.h>
-
-#include "scicos/scicos4.h"
+#include <scicos/scicos.h>
 
 static void scicos_clear_state (scicos_sim * scst);
 static void scicos_clear_sim (scicos_sim * scsim);

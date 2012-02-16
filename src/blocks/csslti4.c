@@ -1,6 +1,6 @@
 #include "blocks.h"
 
-void csslti4 (scicos_block * block, int flag)
+void deprectaed_csslti4 (scicos_block * block, int flag)
 {
   /*  Copyright INRIA
 
