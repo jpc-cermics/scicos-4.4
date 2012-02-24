@@ -2488,7 +2488,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cscope_data *D = (cscope_data *) (*block->work);
-      if ( D->Axes->obj->ref_count <= 1 ) 
+      if ( D->Axes->obj->ref_count >= 1 ) 
 	{
 	  /* Axes was destroyed during simulation 
 	   * we finish detruction 
@@ -2629,7 +2629,7 @@ static NspFigure *nsp_mscope_obj(int win,int nswin,const int *ncs,const int *sty
    */
   if ((Xgc = window_list_get_first())== NULL) return NULL;
   if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return NULL;
-
+  
   /* clean the figure */
   l =  nsp_list_length(F->obj->children);
   for ( i = 0 ; i < l  ; i++)
@@ -2778,15 +2778,15 @@ void scicos_cmscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cmscope_data *D = (cmscope_data *) (*block->work);
-      if ( D->F->obj->ref_count <= 1 ) 
+      /* we have locally incremented the count of figure: thus 
+       * we can destroy figure here. It will only decrement the ref 
+       * counter
+       */
+      if ( D->F->obj->ref_count >= 1 ) 
 	{
-	  /* Figure was destroyed during simulation 
-	   * we finish detruction 
-	   */
 	  nsp_figure_destroy(D->F);
 	}
       scicos_free (D);
-      /* Xgc = scicos_set_win(wid,&cur); */
     }
 }
 
@@ -2931,15 +2931,15 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cscope_data *D = (cscope_data *) (*block->work);
-      if ( D->Axes->obj->ref_count <= 1 ) 
+      /* we have locally incremented the count of Axes: thus 
+       * we can destroy it here. It will only decrement the ref 
+       * counter
+       */
+      if ( D->Axes->obj->ref_count >= 1 ) 
 	{
-	  /* Axes was destroyed during simulation 
-	   * we finish detruction 
-	   */
 	  nsp_axes_destroy(D->Axes);
 	}
       scicos_free (D);
-      /* Xgc = scicos_set_win(wid,&cur); */
     }
 }
 
@@ -3462,15 +3462,15 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       bouncexy_data *D = (bouncexy_data *) (*block->work);
-      if ( D->F->obj->ref_count <= 1 ) 
+      /* we have locally incremented the count of figure: thus 
+       * we can destroy figure here. It will only decrement the ref 
+       * counter
+       */
+      if ( D->F->obj->ref_count >= 1 ) 
 	{
-	  /* Figure was destroyed during simulation 
-	   * we finish detruction 
-	   */
 	  nsp_figure_destroy(D->F);
 	}
       scicos_free (D);
-      /* Xgc = scicos_set_win(wid,&cur); */
     }
 }
 
@@ -3602,15 +3602,15 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cevscpe_data *D = (cevscpe_data *) (*block->work);
-      scicos_free (D);
-      if ( D->Axes->obj->ref_count <= 1 ) 
+      /* we have locally incremented the count of Axes: thus 
+       * we can destroy it here. It will only decrement the ref 
+       * counter
+       */
+      if ( D->Axes->obj->ref_count >= 1 ) 
 	{
-	  /* Axes was destroyed during simulation 
-	   * we finish detruction 
-	   */
 	  nsp_axes_destroy(D->Axes);
 	}
-      /* Xgc = scicos_set_win(wid,&cur); */
+      scicos_free (D);
     }
 }
 

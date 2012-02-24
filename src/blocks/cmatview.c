@@ -32,7 +32,8 @@
 
 #include "blocks.h"
 
-static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, int dim_j,NspGMatrix **gm,double *rpar,int cmapsize);
+static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, int dim_j,
+			     NspGMatrix **gm,double *rpar,int cmapsize);
 
 typedef struct _cmatview_data cmatview_data;
 
@@ -111,11 +112,12 @@ void cmatview (scicos_block * block, int flag)
     case Ending:
       {
 	cmatview_data *D = (cmatview_data *) (*block->work);
-	if ( D->Axes->obj->ref_count <= 1 ) 
+	/* we have locally incremented the count of figure: thus 
+	 * we can destroy figure here. It will only decrement the ref 
+	 * counter
+	 */
+	if ( D->Axes->obj->ref_count >= 1 ) 
 	  {
-	    /* Axes was destroyed during simulation 
-	     * we finish detruction 
-	     */
 	    nsp_axes_destroy(D->Axes);
 	  }
 	scicos_free (D);
