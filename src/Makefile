@@ -50,7 +50,7 @@ OBJS = $(OBJSC)
 
 # extra libraries needed for linking 
 # it is mandatory on win32 to give this extra argument.
-OTHERLIBS=-llapack -lblas `$(PKG_CONFIG) gtk+-2.0 --libs`
+OTHERLIBS=$(LAPACK_LIBS) $(BLAS_LIBS) `$(PKG_CONFIG) gtk+-2.0 --libs`
 
 include $(SCIDIR)/config/Makeso.incl
 
