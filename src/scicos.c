@@ -219,7 +219,7 @@ int scicos_main (scicos_run * sr, double *t0_in, double *tf_in,
       else if (Scicos->sim.funtyp[-1 + i] == 2
 	       || Scicos->sim.funtyp[-1 + i] == 3)
 	{
-	  /*     hard coded maxsize in scicos.h */
+	  /*     hard coded maxsize in scicos4.h */
 	  if (ni + no > SZ_SIZE)
 	    {
 	      Scierror ("Too many input/output ports for hilited block\n");

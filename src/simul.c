@@ -22,7 +22,7 @@
 #include <nsp/nsp.h>
 #include <nsp/objects.h>
 #include <nsp/plist.h>
-#include <scicos/scicos.h>
+#include <scicos/scicos4.h>
 
 static void scicos_clear_state (scicos_sim * scst);
 static void scicos_clear_sim (scicos_sim * scsim);

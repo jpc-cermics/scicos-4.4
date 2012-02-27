@@ -92,7 +92,7 @@ function [o,needcompile,ok]=do_create_atomic(o,k,scs_m)
   o.model.intyp=XX.model.intyp
   o.model.outtyp=XX.model.outtyp
   XX.model.sim(2)=funtyp;
-  //c_atomic_code=strsubst(c_atomic_code,'scicos_block.h','scicos.h')
+  //c_atomic_code=strsubst(c_atomic_code,'scicos_block.h','scicos4.h')
   o.graphics.exprs=list(XX.graphics.exprs,c_atomic_code,XX.model);
 
   [a,b]=c_link(XX.model.sim(1))

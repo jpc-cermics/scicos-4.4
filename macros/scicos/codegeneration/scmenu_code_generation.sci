@@ -1793,7 +1793,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
       return
     end
 
-    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block.h');
+    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
     txt=['/* Scicos computational function header '
@@ -1802,7 +1802,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
          ' * Copyright (c) 1989-2011 Metalau project INRIA '
          ' */'
          txt]
-    ffname = file('join',[rpat_blocks;'scicos_block.h']);
+    ffname = file('join',[rpat_blocks;'scicos_block4.h']);
     ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
@@ -1910,7 +1910,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
       return
     end
     
-    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block.h');
+    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
     txt=['/* Scicos computational function header '
@@ -1919,7 +1919,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
          ' * Copyright (c) 1989-2011 Metalau project INRIA '
          ' */'
          txt]
-    ffname = file('join',[rpat;'scicos_block.h']);
+    ffname = file('join',[rpat;'scicos_block4.h']);
     ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
@@ -15589,7 +15589,7 @@ function [Code]=make_void_io()
 	'#include <nsp/nsp.h>'
 	'#include <nsp/matrix.h> '
 	'#include <nsp/interf.h>'
-	'#include <scicos/scicos.h>']
+	'#include <scicos/scicos4.h>']
 
   //## type of in/out structure definition
   Code=[Code;
