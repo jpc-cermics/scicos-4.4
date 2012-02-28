@@ -1774,7 +1774,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     end
 
     //@@include scicos_block/scicos_block4.h
-    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
+    txt=scicos_mgetl('NSP/include/scicos/scicos_block4.h');
 
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
@@ -1793,7 +1793,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
       return
     end
 
-    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
+    txt=scicos_mgetl('NSP/include/scicos/scicos_block4.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
     txt=['/* Scicos computational function header '
@@ -1883,7 +1883,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     //** copy source code of machine.h and scicos_block4.h
     //   in target path
     // XXXXX use file('copy',...)
-    txt=scicos_mgetl('NSP/src/include/nsp/machine.h');
+    txt=scicos_mgetl('NSP/include/nsp/machine.h');
     ffname=file('join',[rpat;'machine.h']);
     ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
@@ -1892,7 +1892,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
       return
     end
     
-    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
+    txt=scicos_mgetl('NSP/include/scicos/scicos_block4.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
 
@@ -1910,7 +1910,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
       return
     end
     
-    txt=scicos_mgetl('NSP/src/include/scicos/scicos_block4.h');
+    txt=scicos_mgetl('NSP/include/scicos/scicos_block4.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
     txt=['/* Scicos computational function header '
