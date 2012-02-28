@@ -807,13 +807,13 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
      "CC_OPTIONS   = $(CC_COMMON) -Od -Gd -W3"]
   if ~isempty(cflags) then
     T=[T;
-       "CFLAGS       = $(CC_OPTIONS) -DFORDLL -I""$(NSPDIR)/src/include"" "+cflags]
+       "CFLAGS       = $(CC_OPTIONS) -DFORDLL -I""$(NSPDIR)/include"" "+cflags]
   else
     T=[T;
-       "CFLAGS       = $(CC_OPTIONS) -DFORDLL -I""$(NSPDIR)/src/include"""]
+       "CFLAGS       = $(CC_OPTIONS) -DFORDLL -I""$(NSPDIR)/include"""]
   end
   T=[T;
-     "FFLAGS       = $(FC_OPTIONS) -DFORDLL -I""$(NSPDIR)/routines"""
+     "FFLAGS       = $(FC_OPTIONS) -DFORDLL -I""$(NSPDIR)/include"""
      ""
      "OBJS         = "+strcat(files+'.obj',' ')]
 
