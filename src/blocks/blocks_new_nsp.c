@@ -3637,6 +3637,7 @@ static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
 {
   double frect[4];
   char strflag[]="151";
+  NspFigure *F;
   NspAxes *axe;
   BCG *Xgc;
   char *curve_l=NULL;
@@ -3653,14 +3654,15 @@ static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
    * Gc of new window 
    */
   if ((Xgc = window_list_get_first())== NULL) return NULL;
-  if ((axe=  nsp_check_for_axes(Xgc,NULL)) == NULL) return NULL;
+  if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return NULL;
   
-  /* clean previous plots 
-   */ 
-
-  l =  nsp_list_length(axe->obj->children);
+  /* clean the figure */
+  l =  nsp_list_length(F->obj->children);
   for ( i = 0 ; i < l  ; i++)
-    nsp_list_remove_first(axe->obj->children);
+    nsp_list_remove_first(F->obj->children);
+  
+  /* create a new axe */
+  if ((axe=  nsp_check_for_axes(Xgc,NULL)) == NULL) return NULL;
   frect[0]=0;frect[1]=ymin;frect[2]=100;frect[3]=ymax;
   
   /* create a set of qcurves and insert them in axe */
