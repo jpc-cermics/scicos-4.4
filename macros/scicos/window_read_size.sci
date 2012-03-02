@@ -37,11 +37,24 @@ function window_read_size(win)
   ScrolledWindow=ScrolledWindow($)
   hscrollbar=ScrolledWindow.get_hadjustment[]
   vscrollbar=ScrolledWindow.get_vadjustment[]
+  //brutal approach : loop until the gtk scrollbar have good size
+  while hscrollbar.upper>axsize(1) then
+    xflush()
+    xpause(1)
+  end
+
+  while vscrollbar.upper>axsize(2) then
+    xflush()
+    xpause(1)
+  end
+
   if size(scs_m.props.wpar,'*')>13 then
     hscrollbar.page_size=scs_m.props.wpar(14)
     vscrollbar.page_size=scs_m.props.wpar(15)
+    //printf("in window_read_size : hscrollbar.page_size=%d, vscrollbar.page_size=%d\n",hscrollbar.page_size,vscrollbar.page_size);
   end
   hscrollbar.value=scs_m.props.wpar(7)
   vscrollbar.value=scs_m.props.wpar(8)
+  //printf("in window_read_size : hscrollbar.value=%d, vscrollbar.value=%d\n",hscrollbar.value,vscrollbar.value);
   xflush()
 endfunction

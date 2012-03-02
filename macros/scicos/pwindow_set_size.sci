@@ -9,6 +9,24 @@ function pwindow_set_size()
   %wdd=min(933, %zoom*%wsiz(1))+30;
   %hdd=min(700, %zoom*%wsiz(2))+30
   %hdd=%hdd+50
-  xset('wpdim',max(400,%wdd),max(300,%hdd))
-  xflush()
+  //printf("zoom=%d, wdd=%d, hdd=%d\n",%zoom,%wdd,%hdd);
+
+  //brutal approach : loop until the window have good size
+  xset("wresize",0);
+  xset('wdim',int(max(400,%wdd)),int(max(300,%hdd)))
+  wdim=xget('wdim');
+  while not(and(wdim==[int(max(400,%wdd)),int(max(300,%hdd))]))
+    xset('wdim',int(max(400,%wdd)),int(max(300,%hdd)))
+    wdim=xget('wdim');
+    xflush()
+    xpause(1);
+  end
+  xset('wpdim',int(max(400,%wdd)),int(max(300,%hdd)))
+  wpdim=xget('wpdim');
+  while not(and(wpdim==[int(max(400,%wdd)),int(max(300,%hdd))])) then
+    xset('wpdim',int(max(400,%wdd)),int(max(300,%hdd)))
+    wpdim=xget('wpdim');
+    xflush();
+    xpause(1);
+  end
 endfunction

@@ -37,19 +37,31 @@ function window_set_size(win,viewport)
   end
   // center the graphic viewport inside the graphic window
   if isequal(viewport,%f) then
+    wdim=xget('wdim');
     Vbox=gh.get_children[]
     Vbox=Vbox(1);
     ScrolledWindow=Vbox.get_children[];
-    // scrolled window is the mast one 
+    // scrolled window is the last one 
     ScrolledWindow=ScrolledWindow($);
     hscrollbar=ScrolledWindow.get_hadjustment[];
     vscrollbar=ScrolledWindow.get_vadjustment[];
+
+    //brutal approach : loop until the gtk scrollbar have good size
+    while hscrollbar.upper>wdim(1) then
+      xflush()
+      xpause(1)
+    end
+
+    while vscrollbar.upper>wdim(2) then
+      xflush()
+      xpause(1)
+    end
+
     %XSHIFT=(int(wdim(1))-hscrollbar.page_size)/2
     %YSHIFT=(int(wdim(2))-vscrollbar.page_size)/2
 
     //printf("wdim(1)=%f, XSHIFT=%f\n",wdim(1),%XSHIFT);
     //printf("hscroll : upper=%f, page_size=%f, XSHIFT=%f\n",hscrollbar.upper,hscrollbar.page_size,(hscrollbar.upper-hscrollbar.page_size)/2);
-
     //printf("wdim(2)=%f, YSHIFT=%f\n",wdim(2),%YSHIFT);
     //printf("vscroll : upper=%f, page_size=%f, YSHIFT=%f\n",vscrollbar.upper,vscrollbar.page_size,(vscrollbar.upper-vscrollbar.page_size)/2);
 
@@ -60,13 +72,12 @@ function window_set_size(win,viewport)
     %YSHIFT=viewport(2)
     xset('viewport',%XSHIFT,%YSHIFT)
   end
-  F.invalidate[]
-  F.process_updates[]
-  xflush()
   if with_axe_obj then
     A.show=%t;
-    A.invalidate[];
   end
+  xflush()
+  F.invalidate[]
+  F.process_updates[]
 endfunction
 
 function [frect,wdim]=windows_compute_size()

@@ -12,6 +12,7 @@ function scs_m=drawobjs(scs_m,win)
     options=scs_m.props.options;
   end
   drawtitle(scs_m.props,win)
+  set_background()
   F=get_figure(win);
   if length(scs_m.objs) == 0 then
     F.invalidate[];
