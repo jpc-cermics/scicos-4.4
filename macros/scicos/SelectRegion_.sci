@@ -102,7 +102,7 @@ function [rect,btn]=rubberbox(rect,edit_mode)
   yc=rect(2);
   F=get_current_figure();
   F.start_compound[];
-  xrect(xc,yc,1,1,color=default_color(0),thickness=0);
+  xrect(xc,yc,1,1,color=default_color(1),thickness=0);
   C=F.end_compound[];
   R=C.children(1);
   R.invalidate[];

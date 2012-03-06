@@ -16,7 +16,7 @@ function [x,y,typ]=GOTOMO(job,arg1,arg2)
       yy=orig(2)+[0 1/2 1;1 1 1;1 3/4 1/2;1/2 1/4 0;0 0 0]'*sz(2);
       x1=0
     end
-    xpolys(xx,yy,color=default_color(0),thickness=2);
+    xpolys(xx,yy,color=default_color(1),thickness=2);
     xstringb(orig(1)+x1*sz(1),orig(2),tg,(1-x1)*sz(1),sz(2));
   endfunction
   
