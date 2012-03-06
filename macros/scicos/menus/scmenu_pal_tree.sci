@@ -1,6 +1,7 @@
 function scmenu_pal_tree()
   Cmenu=''
-  scicos_palette_treeview();
+//   ww=scicos_palette_treeview();
+  scicos_widgets($+1)=scicos_palette_treeview();
 endfunction
 
 
@@ -8,7 +9,7 @@ endfunction
 // the treestore model have two levels 
 // and is build with append.
 
-function scicos_palette_treeview(L)
+function window=scicos_palette_treeview(L)
   if nargin <= 0 then 
     H=scicos_default_palettes();
   end

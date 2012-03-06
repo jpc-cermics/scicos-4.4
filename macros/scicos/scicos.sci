@@ -27,6 +27,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     super_path=[]; // path to the currently opened superblock
     %scicos_navig=[]; // do we have to navigate 
     inactive_windows=list(list(),[]);
+    scicos_widgets=list();
     Scicos_commands=[];
     //set current version of scicos
     scicos_ver=get_scicos_version(); 
@@ -373,7 +374,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       clearglobal %tableau
       clearglobal %scicos_navig
       clearglobal %diagram_path_objective
-      close_inactive_windows(inactive_windows,[])
+      close_inactive_windows(inactive_windows,[],scicos_widgets=scicos_widgets)
       clearglobal inactive_windows
     end
     // remove the gr graphics from scs_m 
@@ -447,7 +448,7 @@ function [x,k]=gunique(x)
   k(keq)=[]
 endfunction
 
-function inactive_windows=close_inactive_windows(inactive_windows,path)
+function inactive_windows=close_inactive_windows(inactive_windows,path,scicos_widgets=list())
 // -------------------------------------------------------------------
   DELL=[]  // inactive windows to kill
   if size(inactive_windows(2),'*')>0 then
@@ -479,6 +480,9 @@ function inactive_windows=close_inactive_windows(inactive_windows,path)
   for kk=DELL($:-1:1)  // backward to keep indices valid
     inactive_windows(1)(kk)=null()
     inactive_windows(2)(kk)=[]
+  end
+  for kk=1:length(scicos_widgets)
+    scicos_widgets(kk).destroy[]
   end
 endfunction
 

@@ -21,7 +21,7 @@
 // Boston, MA 02111-1307, USA.
 ///
 
-function scicos_palette_icon_view(H)
+function window=scicos_palette_icon_view(H)
 // Open a window with selectable palettes 
 // in icon views.
 //

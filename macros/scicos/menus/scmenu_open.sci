@@ -16,6 +16,8 @@ function scmenu_open()
     options=scs_m.props.options;
     if size(scs_m.props.wpar,'*')>12 then
       %zoom=scs_m.props.wpar(13)
+    else
+      %zoom=1.4
     end
     alreadyran=%f;
     if size(%cpr)==0 then
@@ -67,7 +69,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   // draw the new diagram 
   if ~exists('curwin')
     // we want this function to work outside main scicos
-    curwin=1000; %zoom=1.4;
+    curwin=1000;
   end
   if isempty(winsid()==curwin) then 
     xset('window',curwin);
@@ -92,7 +94,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
     window_read_size();
   else
     // If we already have a window it's maybe not usefull to change it
-    // Alan : si de temps en temps
+    %zoom=1.4
     pwindow_set_size()
     window_set_size()
   end

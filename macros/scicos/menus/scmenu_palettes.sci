@@ -2,7 +2,7 @@ function scmenu_palettes()
   Cmenu=''
   //[palettes,windows]=do_palettes(palettes,windows)
   //[palettes,windows]=do_all_palettes(windows)
-  scicos_palette_icon_view();
+  scicos_widgets($+1)=scicos_palette_icon_view();
 endfunction
 
 function [palettes,windows]=do_palettes(palettes,windows)
