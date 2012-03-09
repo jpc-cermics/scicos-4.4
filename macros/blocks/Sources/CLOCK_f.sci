@@ -63,7 +63,7 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
 	break
       end
     end
-    if ~and([t0_old dt_old]==[t0 dt])|~and(exprs0==exprs) then 
+    if ~and([t0_old dt_old]==[t0 dt])|~isequal(exprs0,exprs) then 
       // parameter  changed
       newpar(size(newpar)+1)=path// Notify modification
     end
