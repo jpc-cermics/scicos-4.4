@@ -13,6 +13,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   global %scicos_navig
   global %diagram_path_objective
   global inactive_windows
+  global scicos_widgets
   global Scicos_commands
   
   if ~exists('slevel') then slevel=0;end 
