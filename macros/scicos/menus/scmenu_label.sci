@@ -28,8 +28,10 @@ function [%pt,mod,scs_m]=do_label(%pt,scs_m)
   o=scs_m.objs(K)
   model=o.model
   lab=model.label
-  lab=dialog('Give block label',lab)
-  if size(lab,'*')<>0 then
+  //lab=dialog('Give block label',lab)
+  %scs_help='Label_block'
+  [ok,lab] = getvalue('Give block label','label',list('str',1),lab)
+  if ok then
     lab=stripblanks(lab)
     if length(lab)==0 then lab=' ',end
     model.label=lab

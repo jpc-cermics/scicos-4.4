@@ -39,7 +39,7 @@ function [ok,codegeneration,edited]=do_set_codegen(codegeneration)
   opt_in          = sci2exp(codegeneration.opt)
   enable_debug_in = sci2exp(codegeneration.enable_debug)
 
-  %scs_help='scmenu_setupCodeGen'
+  %scs_help='Setup_CodeGen'
 
   while %t do
     [ok,...

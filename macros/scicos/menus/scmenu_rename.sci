@@ -27,6 +27,7 @@ function [scs_m,edited]=do_rename(scs_m,pal_mode,dtitle)
   else
     mess='Enter the new diagram name'
   end
+  %scs_help='Rename'
   [ok,new]=getvalue(mess,"Name",list("str",[1,1]),scs_m.props.title(1))
   if ~ok then return;end
   if ~isempty(new) then

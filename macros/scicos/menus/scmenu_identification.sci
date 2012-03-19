@@ -33,6 +33,7 @@ function [scs_m,changed]=do_identification(scs_m)
     end
     //
     texte_1 = 'Set Block identification';
+    %scs_help='Ident_block'
     [ok,newid] = getvalue(texte_1,'ID',list('str',1),identification)
     if ok then
       newid = stripblanks(newid);
@@ -50,6 +51,7 @@ function [scs_m,changed]=do_identification(scs_m)
       identification = emptystr()
     end
     texte_1 = 'Set link Identification'
+    %scs_help='Ident_link'
     [ok, newid] = getvalue(texte_1,'ID',list('str',1), identification);
     //
     if ok then

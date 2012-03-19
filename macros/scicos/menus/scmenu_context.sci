@@ -47,6 +47,7 @@ function [ok,new_context]=do_context(scs_m)
   while %t do
     // edit context 
     new_context=editsmat('Context Edition',context,comment=catenate(comment,sep='\n'));
+    nsp_clear_queue();
     if isempty(new_context) then
       // cancel context edition.
       ok=%f;

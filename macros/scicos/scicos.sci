@@ -140,12 +140,13 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   
   if ~super_block then
     xset('window',Main_Scicos_window)
-    curwin=xget('window');
-    palettes=list();
+    curwin=xget('window')
+    palettes=list()
     noldwin=0
     windows=[1 curwin]
     pixmap=%scicos_display_mode
-    %scicos_gui_mode=1;
+    %scicos_gui_mode=1
+    //x_choices=gtk_scicos_x_choices
   else
     noldwin=size(windows,1)
     windows=[windows;slevel,curwin]
