@@ -146,7 +146,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     windows=[1 curwin]
     pixmap=%scicos_display_mode
     %scicos_gui_mode=1
-    //x_choices=gtk_scicos_x_choices
+    getvalue=gtk_getvalue
   else
     noldwin=size(windows,1)
     windows=[windows;slevel,curwin]
