@@ -68,11 +68,11 @@ function L=gtk_scicos_x_choices(desc,Li)
     n=length(Li)
     width_entry=35 //nb chars
     width_labels=[] //pixels
-    font_desc = pangofontdescription_new("Arial 10");
+    //font_desc = pangofontdescription_new("Arial 10");
 
     for i=1:n
       label = gtklabel_new(str=Li(i)(2));
-      label.modify_font[font_desc]
+      //label.modify_font[font_desc]
       label.set_justify[GTK.JUSTIFY_LEFT]
       label.set_alignment[0,0]
       labels(i)=label
@@ -83,7 +83,7 @@ function L=gtk_scicos_x_choices(desc,Li)
         entry = gtkentry_new();
         entry.set_width_chars[width_entry]
         entry.set_text[Li(i)(4)]
-        entry.modify_font[font_desc]
+        //entry.modify_font[font_desc]
         adjustment=gtkadjustment_new(value=0,lower=0,upper=0,step_incr=1,page_incr=1,page_size=30)
         scrollbar=gtkhscrollbar_new(adjustment=adjustment)
         scrollbar.set_update_policy[GTK.UPDATE_CONTINUOUS]
@@ -99,7 +99,7 @@ function L=gtk_scicos_x_choices(desc,Li)
       elseif Li(i)(1)=='combo' then
         combo=gtkcombobox_new(text=Li(i)(4))
         combo.set_active[Li(i)(3)-1]
-        combo.modify_font[font_desc]
+        //combo.modify_font[font_desc]
         table_entry=gtktable_new(rows=1,columns=2,homogeneous=%f)
         table_entry.attach[label, 0, 1, 0, 1,xoptions=0]
         table_entry.attach[combo, 1, 2, 0, 1]
@@ -158,8 +158,8 @@ function L=gtk_scicos_x_choices(desc,Li)
   //title widget
   event_box=gtkeventbox_new ();
   label = gtklabel_new(str=strcat(desc,"\n"));
-  font_desc=pangofontdescription_new("Arial 10");
-  label.modify_font[font_desc]
+  //font_desc=pangofontdescription_new("Arial 10");
+  //label.modify_font[font_desc]
   event_box.modify_bg[GTK.STATE_NORMAL,gdk_color_parse("white")]
   event_box.add[label]
   vbox.pack_start[event_box]
@@ -214,7 +214,7 @@ function L=gtk_scicos_x_choices(desc,Li)
   else
     label = gtklabel_new(str="Getvalue");
   end
-  label.modify_font[font_desc]
+  //label.modify_font[font_desc]
   notebook.append_page[vbox2,label];
 
   //Buttons bar
