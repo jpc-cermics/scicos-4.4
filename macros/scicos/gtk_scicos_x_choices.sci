@@ -74,7 +74,7 @@ function L=gtk_scicos_x_choices(desc,Li)
       label = gtklabel_new(str=Li(i)(2));
       //label.modify_font[font_desc]
       label.set_justify[GTK.JUSTIFY_LEFT]
-      label.set_alignment[0,0]
+      label.set_alignment[0,0.5]
       labels(i)=label
       width_labels(i)=label.size_request[](1)
       //label.set_size_request[260,-1]
