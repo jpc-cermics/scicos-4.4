@@ -305,7 +305,6 @@ function L=gtk_scicos_x_choices(desc,Li)
   hbox.set_border_width[0]
   set_focus(entries(1))
 
-
   //main loop
   ok=%f
 
@@ -356,4 +355,3 @@ function L=gtk_scicos_x_choices(desc,Li)
   window.destroy[];
   nsp_clear_queue();
 endfunction
-
