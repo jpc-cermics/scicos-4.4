@@ -507,11 +507,25 @@ function [texte,L_out] = standard_document(objet, k)
 	for kp=1:size(super_path,'*'),path(kp)=super_path(kp);end
 	path($+1)=from(1)
 	ind=cor(path)
-	if type(ind)==1 then
-	  kl=%cpr.sim('outlnk')(%cpr.sim('outptr')(ind)+(from(2)-1))
-	  beg=%cpr.sim('lnkptr')(kl)
-	  fin=%cpr.sim('lnkptr')(kl+1)-1
-	  txt = ['Compiled link memory zone  ','['+ string(beg)+','+string(fin)+']']
+	if type(ind,'short')=='m'& ~isequal(ind,0) then
+          kl=%cpr.sim('outlnk')(%cpr.sim('outptr')(ind)+(from(2)-1));
+          kmin=[];kmax=[];count=1;
+          for j=1:size(%cpr.state('outtb'))
+            if j==kl then
+              kmin=count;
+              kmax=count+size(%cpr.state.outtb(j),'*')-1;
+              break
+            else
+              count=count+size(%cpr.state.outtb(j),'*');
+            end
+          end
+          txt = ['Compiled link memory zone  ','outtb('+string(kl)+')']
+          txt = [txt;
+                 'Area                       ','['+string(kmin)+':'+string(kmax)+']']
+          txt = [txt;
+                 'Type                       ',typeof(%cpr.state.outtb(kl))']
+          txt = [txt;
+                 'Size                       ',sci2exp(size(%cpr.state.outtb(kl)))']
 	else
 	  txt = ['Compiled link memory zone  ','Not available']
 	end

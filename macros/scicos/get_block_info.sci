@@ -1,8 +1,13 @@
-function [txt,L]=get_block_info(scs_m,k)
+function [txt,L]=get_block_info(scs_m,k,ksave)
 // Copyright INRIA
+  if nargin>2 then
+    super_path;
+    super_path($+1) = ksave
+  end
   txt=[];
   L=list();
   o=scs_m.objs(k)
+  ksave = k // pour creer super_path
   //select o(1)
   select o.type 
    case 'Block' then
@@ -51,12 +56,11 @@ function [txt,L]=get_block_info(scs_m,k)
 	    ok=filtre(1)|
 	    filtre(5)&(o1.model.sim(1)=='super'|o1.model.sim(1)=='csuper')|
 	    filtre(4)&is_split(o1)
-	    
 	  else  
 	    ok=((o1.type =='Link')&filtre(2))|((o1.type =='Text')&filtre(4))
 	  end
 	  if ok then
-	    [txt_k,L_k]=get_block_info(objet,k);
+	    [txt_k,L_k]=get_block_info(objet,k,ksave);
 	    if length(L_k)<> 0 then scicos_show_info_notebook(L_k);end;
 	    txt=[txt;' '+txt_k];
 	  end

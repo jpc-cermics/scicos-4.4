@@ -1,38 +1,48 @@
 function scmenu_get_info()
+  do_block_info(%pt,scs_m)
   Cmenu=''
-  xinfo('Click on object  to get information on it')
-  %pt=do_block_info(%pt,scs_m)
-  xinfo(' ')
+  %pt=[]
 endfunction
 
 function %pt=do_block_info(%pt,scs_m)
 // Copyright INRIA
   L=list();
-  while %t
-    if isempty(%pt) then
-      [btn,%pt,win,Cmenu]=cosclick()
-      if Cmenu<>"" then
-	resume(%win=win,Cmenu=Cmenu,btn=btn);
-	return;
-      end
-    else
-      win=%win;
-    end
-    xc=%pt(1);yc=%pt(2);%pt=[]
-    kc=find(win==windows(:,2))
+  if isempty(Select) then
+    win = %win;
+    xc = %pt(1); yc = %pt(2); %pt = []
+    kc = find(win==windows(:,2))
     if isempty(kc) then
-      message('This window is not an active palette')
-      k=[];break
-    elseif windows(kc,1)<0 then //click dans une palette
-      kpal=-windows(kc,1)
-      palette=palettes(kpal)
-      k=getobj(palette,[xc;yc])
-      if ~isempty(k) then [txt,L]=get_block_info(palette,k),break,end
-    elseif win==curwin then //click dans la fenetre courante
+      message("This window is not an active palette")
+      return
+    elseif windows(kc,1)<0 then // click in a palette  
+      kpal = -windows(kc,1)
+      palette = palettes(kpal)
+      k = getobj(palette,[xc;yc])
+      if ~isempty(k) then [txt,L]=get_block_info(palette,k), end
+    elseif win==curwin then   // click in the current window 
       k=getobj(scs_m,[xc;yc])
-      if ~isempty(k) then [txt,L]=get_block_info(scs_m,k),break,end
+      if ~isempty(k) then [txt,L]=get_block_info(scs_m,k), end
+    end
+  else
+    //** Object selected  
+    if size(Select,1)>1 then
+      message("Only one block can be selected for this operation.")
+      return
+    end
+    win=Select(1,2);
+    kc=find(win==windows(:,2))
+    k=Select(1,1)
+    if isempty(kc) then
+      message("This window is not an active palette")
+    elseif windows(kc,1)<0 then // click in a palette  
+      kpal = -windows(kc,1)
+      palette = palettes(kpal)
+      [txt,L]=get_block_info(palette,k)
+    elseif win==curwin then // click in the current window 
+      [txt,L]=get_block_info(scs_m,k)
     end
   end
+
   if length(L)<> 0 then scicos_show_info_notebook(L);end 
   //x_message_modeless(txt)
 endfunction
