@@ -2528,6 +2528,133 @@ static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
 }
 
 /**
+ * scicos_cfscope_block:
+ * @block: 
+ * @flag: 
+ * 
+ * a floating scope
+ * new nsp graphics
+ **/
+
+void scicos_cfscope_block (scicos_block * block, int flag)
+{
+  char *str;
+  BCG *Xgc;
+  /* used to decode parameters by name */
+  cscope_ipar *csi = (cscope_ipar *) block->ipar;
+  cscope_rpar *csr = (cscope_rpar *) block->rpar;
+  double t;
+  int nu, cur = 0, k, wid;
+
+  /*nu = Min (block->insz[0], 8);* /* number of curves */
+  nu = 0;
+  t = scicos_get_scicos_time ();
+
+  wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
+  
+  if (flag == 2)
+    {
+      cscope_data *D = (cscope_data *) (*block->work);
+      if ( D->Axes->obj->ref_count <= 1 ) 
+	{
+	  /* Axes was destroyed during simulation */
+	  return;
+	}
+      k = D->count;
+      if (k > 0)
+	{
+	  if (csr->dt > 0.)
+	    {
+	      t = D->tlast + csr->dt;
+	    }
+	}
+      D->count++;
+      D->tlast = t;
+      /* add nu points for time t, nu is the number of curves */
+      /* nsp_oscillo_add_point (D->L, t, block->inptr[0], nu); */
+      fprintf(stderr,"toto\n");
+      if (  D->count % csi->n == 0 ) 
+	{
+	  /* redraw each csi->n accumulated points 
+	   * first check if we need to change the xscale 
+	   */
+	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
+	  nsp_axes_invalidate((NspGraphic *) D->Axes);
+	}
+    }
+  else if (flag == 4)
+    {
+      /* initialize a scope window */
+      cscope_data *D;
+      NspList *L;
+      /* XXX :
+       * buffer size for scope 
+       * this should be set to the number of points to keep 
+       * in order to cover a csr->per horizon. Unfortunately 
+       * this number is not known a-priori.
+       */
+      int scopebs = 10000;
+      /* create a graphic window filled with an axe 
+       * (with predefined limits) and curves.
+       * The axe is returned and the curves are accessible through the L list.
+       */
+      NspAxes *Axes1,*Axes =
+	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE, -1, 1,qcurve_std, &L);
+      if (Axes == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      /* keep a copy in case Axes is destroyed during simulation 
+       * axe is a by reference object 
+       */
+      Axes1 = nsp_axes_copy(Axes);
+      if ( Axes1 == NULL ) 
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      if ((*block->work = scicos_malloc (sizeof (cscope_data))) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      /* store created data in work area of block */
+      D = (cscope_data *) (*block->work);
+      D->Axes = Axes1;
+      D->L = L;
+      D->count = 0;
+      D->tlast = t;
+      Xgc = scicos_set_win (wid, &cur);
+      if (csi->wpos[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowpos (Xgc, csi->wpos[0],
+					       csi->wpos[1]);
+	}
+      if (csi->wdim[0] >= 0)
+	{
+	  Xgc->graphic_engine->xset_windowdim (Xgc, csi->wdim[0],
+					       csi->wdim[1]);
+	}
+      str = block->label;
+      if (str != NULL && strlen (str) != 0 && strcmp (str, " ") != 0)
+	Xgc->graphic_engine->setpopupname (Xgc, str);
+    }
+  else if (flag == 5)
+    {
+      cscope_data *D = (cscope_data *) (*block->work);
+      if ( D->Axes->obj->ref_count >= 1 ) 
+	{
+	  /* Axes was destroyed during simulation 
+	   * we finish detruction 
+	   */
+	  nsp_axes_destroy(D->Axes);
+	}
+      scicos_free (D);
+    }
+}
+
+/**
  * scicos_cmscope_block:
  * @block: 
  * @flag: 
