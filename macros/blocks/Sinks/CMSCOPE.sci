@@ -41,14 +41,14 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
 	mess=[mess;'Block must have at least one input port';' ']
 	ok=%f
       end
-      if min(in)<=0 then
-	mess=[mess;'Port sizes must be positive';' ']
-	ok=%f
-      end
-      if size(clrs,'*')<sum(in) then 
-	mess=[mess;'Not enough colors defined (at least '+string(sum(in))+')';' ']
-	ok=%f
-      end
+//       if min(in)<=0 then
+// 	mess=[mess;'Port sizes must be positive';' ']
+// 	ok=%f
+//       end
+//       if size(clrs,'*')<sum(in) then 
+// 	mess=[mess;'Not enough colors defined (at least '+string(sum(in))+')';' ']
+// 	ok=%f
+//       end
       if size(wpos,'*')<>0 &size(wpos,'*')<>2 then
 	mess=[mess;'Window position must be [] or a 2 vector';' ']
 	ok=%f
@@ -100,7 +100,7 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
 	  period=per(:)';
 	  yy=[ymin(:)';ymax(:)']
 	  rpar=[0;period(:);yy(:)]
-	  clrs=clrs(1:sum(in))
+// 	  clrs=clrs(1:sum(in))
 	  ipar=[win;size(in,'*');N;wpos(:);wdim(:);in(:);clrs(:);heritance]
 	  //if prod(size(dstate))<>(sum(in)+1)*N+1 then 
 	  //dstate=-eye((sum(in)+1)*N+1,1),
@@ -123,6 +123,23 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
 	end
       end
     end
+
+  case 'compile' then
+   model=arg1
+   in=model.in
+   ipar=model.ipar
+   nu=size(in,'*')
+   nc=sum(in)
+   clrs=ipar(7+nu+1:$-1)
+   nclrs=size(clrs,'*')
+   if nclrs>=nc then
+    clrs=clrs(1:nc)
+   else
+    clrs=[clrs;ones(nc-nclrs,1)*clrs($)]
+   end
+   model.ipar=[ipar(1:7);in;clrs;ipar($)]
+   x=model
+
    case 'define' then
     win=-1;
     in=[1;1]
