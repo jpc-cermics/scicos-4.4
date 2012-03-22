@@ -2536,25 +2536,42 @@ static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
  * new nsp graphics
  **/
 
+typedef struct _cfscope_ipar cfscope_ipar;
+struct _cfscope_ipar
+{
+  /* n is the number of data to accumulate before redrawing */
+  int wid, color_flag, n, type[8], wpos[2], wdim[2], nu, wu[];
+};
+
+typedef struct _cfscope_data cfscope_data;
+
+struct _cfscope_data
+{
+  int count;    /* number of points inserted in the scope buffer */
+  double tlast; /* last time inserted in csope data */
+  NspAxes *Axes;
+  NspList *L;
+  double *outtc;
+};
+
 void scicos_cfscope_block (scicos_block * block, int flag)
 {
   char *str;
   BCG *Xgc;
   /* used to decode parameters by name */
-  cscope_ipar *csi = (cscope_ipar *) block->ipar;
+  cfscope_ipar *csi = (cfscope_ipar *) block->ipar;
   cscope_rpar *csr = (cscope_rpar *) block->rpar;
   double t;
   int nu, cur = 0, k, wid;
 
-  /*nu = Min (block->insz[0], 8);* /* number of curves */
-  nu = 0;
+  nu = csi->nu;
   t = scicos_get_scicos_time ();
 
   wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
   
   if (flag == 2)
     {
-      cscope_data *D = (cscope_data *) (*block->work);
+      cfscope_data *D = (cfscope_data *) (*block->work);
       if ( D->Axes->obj->ref_count <= 1 ) 
 	{
 	  /* Axes was destroyed during simulation */
@@ -2571,8 +2588,8 @@ void scicos_cfscope_block (scicos_block * block, int flag)
       D->count++;
       D->tlast = t;
       /* add nu points for time t, nu is the number of curves */
-      /* nsp_oscillo_add_point (D->L, t, block->inptr[0], nu); */
-      fprintf(stderr,"toto\n");
+      scicos_getouttb (nu, csi->wu, D->outtc);
+      nsp_oscillo_add_point (D->L, t, D->outtc, nu);
       if (  D->count % csi->n == 0 ) 
 	{
 	  /* redraw each csi->n accumulated points 
@@ -2585,7 +2602,7 @@ void scicos_cfscope_block (scicos_block * block, int flag)
   else if (flag == 4)
     {
       /* initialize a scope window */
-      cscope_data *D;
+      cfscope_data *D;
       NspList *L;
       /* XXX :
        * buffer size for scope 
@@ -2614,17 +2631,21 @@ void scicos_cfscope_block (scicos_block * block, int flag)
 	  scicos_set_block_error (-16);
 	  return;
 	}
-      if ((*block->work = scicos_malloc (sizeof (cscope_data))) == NULL)
+      if ((*block->work = scicos_malloc (sizeof (cfscope_data))) == NULL)
 	{
 	  scicos_set_block_error (-16);
 	  return;
 	}
       /* store created data in work area of block */
-      D = (cscope_data *) (*block->work);
+      D = (cfscope_data *) (*block->work);
       D->Axes = Axes1;
       D->L = L;
       D->count = 0;
       D->tlast = t;
+      if ( (D->outtc = scicos_malloc(nu*sizeof(double))) == NULL) {
+        scicos_set_block_error (-16);
+        return;
+      }
       Xgc = scicos_set_win (wid, &cur);
       if (csi->wpos[0] >= 0)
 	{
@@ -2642,7 +2663,7 @@ void scicos_cfscope_block (scicos_block * block, int flag)
     }
   else if (flag == 5)
     {
-      cscope_data *D = (cscope_data *) (*block->work);
+      cfscope_data *D = (cfscope_data *) (*block->work);
       if ( D->Axes->obj->ref_count >= 1 ) 
 	{
 	  /* Axes was destroyed during simulation 
