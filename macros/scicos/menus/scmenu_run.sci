@@ -195,14 +195,14 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       needstart=%t;
       alreadyran=%f
       eok=execstr('[state,t]=scicosim(%cpr.state,tf,tf,%cpr.sim,'+..
-                   '''finish'',tolerances)','errcatch')
+                   '''finish'',tolerances,grs)',errcatch=%t)
       %cpr.state=state;
       if ~eok then
 	// finish failed
 	str_err=lasterror();
         kfun=curblock()
         corinv=%cpr.corinv
-
+        pause
         if kfun<>0 then //** block error
           path=corinv(kfun)
           //** get error cmd for the block
