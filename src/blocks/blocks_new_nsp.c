@@ -40,7 +40,7 @@
 #include <nsp/matutil.h>
 #include "blocks.h"
 
-static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
+static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int width[],int bufsize,
 				int yfree,double ymin,double ymax,
 				nsp_qcurve_mode mode,NspList **Lc);
 
@@ -2432,6 +2432,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
       /* initialize a scope window */
       cscope_data *D;
       NspList *L;
+      int *width=NULL;
       /* XXX :
        * buffer size for scope 
        * this should be set to the number of points to keep 
@@ -2439,12 +2440,19 @@ void scicos_cscope_block (scicos_block * block, int flag)
        * this number is not known a-priori.
        */
       int scopebs = 10000;
+      if ((width = scicos_malloc(sizeof(int)*8)) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      for(k=0;k<8;k++) width[k]=0;
       /* create a graphic window filled with an axe 
        * (with predefined limits) and curves.
        * The axe is returned and the curves are accessible through the L list.
        */
       NspAxes *Axes1,*Axes =
-	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE, -1, 1,qcurve_std, &L);
+	nsp_oscillo_obj (wid, nu , csi->type, width, scopebs, TRUE, -1, 1,qcurve_std, &L);
+      scicos_free(width);
       if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -2604,6 +2612,7 @@ void scicos_cfscope_block (scicos_block * block, int flag)
       /* initialize a scope window */
       cfscope_data *D;
       NspList *L;
+      int *width=NULL;
       /* XXX :
        * buffer size for scope 
        * this should be set to the number of points to keep 
@@ -2611,12 +2620,19 @@ void scicos_cfscope_block (scicos_block * block, int flag)
        * this number is not known a-priori.
        */
       int scopebs = 10000;
+      if ((width = scicos_malloc (sizeof (int)*8)) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      for(k=0;k<8;k++) width[k]=0;
       /* create a graphic window filled with an axe 
        * (with predefined limits) and curves.
        * The axe is returned and the curves are accessible through the L list.
        */
       NspAxes *Axes1,*Axes =
-	nsp_oscillo_obj (wid, nu , csi->type, scopebs, TRUE, -1, 1,qcurve_std, &L);
+	nsp_oscillo_obj (wid, nu , csi->type, width, scopebs, TRUE, -1, 1,qcurve_std, &L);
+      scicos_free(width);
       if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -3018,6 +3034,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       /* initialize a scope window */
       cscope_data *D;
       NspList *L;
+      int *width=NULL;
 #define MAXXY 10
       int colors[MAXXY]; /* max number of curves ? */
       /* buffer size for scope 
@@ -3035,7 +3052,14 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       NspAxes *Axes,*Axes1;
       nu = Min(nu,MAXXY);
       for ( k= 0 ; k < MAXXY ; k++) colors[k]=csi->color+k;
-      Axes=nsp_oscillo_obj (wid, nu, colors, scopebs, TRUE, -1, 1,qcurve_std, &L);
+      if ((width = scicos_malloc (sizeof (int)*nu)) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      for(k=0;k<nu;k++) width[k]=csi->line_size;
+      Axes=nsp_oscillo_obj (wid, nu, colors, width, scopebs, TRUE, -1, 1,qcurve_std, &L);
+      scicos_free(width);
       if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -3663,7 +3687,7 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
   double *rpar = GetRparPtrs (block);
   double period = rpar[0];
   double t;
-  int cur = 0;
+  int cur = 0,k;
   int wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
   t = scicos_get_scicos_time ();
   
@@ -3698,6 +3722,7 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
       /* initialize a scope window */
       cevscpe_data *D;
       NspList *L;
+      int *width=NULL;
       /* XXX :
        * buffer size for scope 
        * this should be set to the number of points to keep 
@@ -3705,10 +3730,17 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
        * this number is not known a-priori.
        */
       int scopebs = 10000;
+      if ((width = scicos_malloc (sizeof (int)*8)) == NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      for(k=0;k<8;k++) width[k]=0;
       /* create an axe with predefined limits */
       NspAxes *Axes1;
       NspAxes *Axes =
-	nsp_oscillo_obj (wid, nbc , csi->colors, scopebs, TRUE, -1, 1,qcurve_stem, &L);
+	nsp_oscillo_obj (wid, nbc , csi->colors, width, scopebs, TRUE, -1, 1,qcurve_stem, &L);
+      scicos_free(width);
       if (Axes == NULL)
 	{
 	  scicos_set_block_error (-16);
@@ -3779,7 +3811,7 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
  * Returns: a #NspAxes or %NULL
  **/
 
-static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
+static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int width[],int bufsize,
 				int yfree,double ymin,double ymax,
 				nsp_qcurve_mode mode,NspList **Lc)
 {
@@ -3821,7 +3853,7 @@ static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int bufsize,
       NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2); 
       if ( Pts == NULL) return NULL;
       if ( style[i] <= 0 ) mark = -style[i];
-      curve= nsp_qcurve_create("curve",mark,0,0,( style[i] > 0 ) ?  style[i] : -1,
+      curve= nsp_qcurve_create("curve",mark,width[i],0,( style[i] > 0 ) ?  style[i] : -1,
 			       mode,Pts,curve_l,-1,-1,NULL);
       if ( curve == NULL) return NULL;
       /* insert the new curve */
