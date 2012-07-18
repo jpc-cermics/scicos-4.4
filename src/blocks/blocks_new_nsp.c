@@ -3478,10 +3478,10 @@ static NspAxes *nsp_bouncexy_new_axe(int nb,const int *colors,const double *xmin
   nsp_strf_axes( axe , frect, strflag[1]);
   memcpy(axe->obj->frect->R,frect,4*sizeof(double));
   memcpy(axe->obj->rect->R,frect,4*sizeof(double));
-  axe->obj->axes = 1;
+  axe->obj->axes = 2;
   axe->obj->xlog = FALSE;
   axe->obj->ylog=  FALSE;
-  axe->obj->iso = FALSE;
+  axe->obj->iso = TRUE;
   axe->obj->fixed = TRUE;
   return axe;
 }
@@ -3583,7 +3583,7 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
     }
   else if (flag == 4)
     {
-      int wdim[]={400,400};
+      int wdim[]={-1,-1};
       int wpos[]={-1,-1};
       int nballs = GetInPortRows (block, 1);
       /* balls radius in z[6 * i + 2] */

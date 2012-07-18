@@ -99,6 +99,10 @@ function y=double(x)
   end
 endfunction
 
+function y=int64(x)
+  y=m2i(double(x),"int64")
+endfunction
+
 function y=int32(x)
   y=m2i(double(x),"int32")
 endfunction
@@ -109,6 +113,10 @@ endfunction
 
 function y=int8(x)
   y=m2i(double(x),"int8")
+endfunction
+
+function y=uint64(x)
+  y=m2i(double(x),"uint64")
 endfunction
 
 function y=uint32(x)
