@@ -55,10 +55,12 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
       end
     end
     needcompile=0
-    if init_old<>init then 
-      // parameter  changed
-      newpar(size(newpar)+1)=1// Notify modification
-      needcompile=2      
+    if ok then
+      if init_old<>init then 
+        // parameter  changed
+        newpar(size(newpar)+1)=1// Notify modification
+        needcompile=2      
+      end
     end
     x=arg1
     y=needcompile
