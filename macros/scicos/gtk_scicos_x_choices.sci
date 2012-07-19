@@ -87,6 +87,7 @@ function L=gtk_scicos_x_choices(desc,Li)
         adjustment=gtkadjustment_new(value=0,lower=0,upper=0,step_incr=1,page_incr=1,page_size=30)
         scrollbar=gtkhscrollbar_new(adjustment=adjustment)
         scrollbar.set_update_policy[GTK.UPDATE_CONTINUOUS]
+        scrollbar.set_no_show_all[%t]
         //store width and scrollbar widget in entry user_data
         entry.user_data=list(width_entry,scrollbar)
         table_entry=gtktable_new(rows=2,columns=2,homogeneous=%f)
@@ -94,6 +95,7 @@ function L=gtk_scicos_x_choices(desc,Li)
         table_entry.attach[entry, 1, 2, 0, 1]
         table_entry.attach[scrollbar, 1, 2, 1, 2]
         table_entry.set_col_spacings[2]
+        table_entry.queue_resize[]
         vbox.pack_start[table_entry,expand=%t,fill=%f,padding=0]
         entries(i)=entry
       elseif Li(i)(1)=='combo' then
@@ -287,22 +289,15 @@ function L=gtk_scicos_x_choices(desc,Li)
       entries(i).connect["key-release-event",entrykeymouse,list(entries,button_ok)]
       entries(i).connect["key-press-event",entrykeymouse,list(entries,button_ok)]
     end
-  end
-
-  window.connect["delete-event",DestroyFunc,list(hbox)];
-  window.show_all[];
-
-  for i=1:length(entries)
     if type(entries(i),'string')=='GtkEntry' then
       entrykeymouse(entries(i),'toto')
     end
     entries(i).connect["changed",ChangedFunc,list(entries,Li,window)]
   end
-  window.set_transient_for[gh]
-  //window.set_modal[%t]
-  window.reshow_with_initial_size[]
-
   hbox.set_border_width[0]
+  window.connect["delete-event",DestroyFunc,list(hbox)];
+  window.set_transient_for[gh]
+  window.show_all[];
   set_focus(entries(1))
 
   //main loop

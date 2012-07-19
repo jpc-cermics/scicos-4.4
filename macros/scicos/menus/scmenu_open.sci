@@ -130,5 +130,5 @@ endfunction
 
 function scicos_destroy(win, event) 
 // called when window is destroyed 
-  printf("in destroy \n");
+//   printf("in destroy \n");
 endfunction

@@ -183,6 +183,7 @@ static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
 
   D->objs3d->obj->alpha= D->alpha;
   D->objs3d->obj->theta= D->theta;
+  D->objs3d->obj->box_style=SCILAB;
 
   if (cmap != NULL ) 
     {
