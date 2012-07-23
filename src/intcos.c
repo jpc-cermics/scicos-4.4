@@ -1473,6 +1473,7 @@ void scicos_unalloc_block(scicos_block *Block)
     FREE(Block->x);
     FREE(Block->xd);
     FREE(Block->res);
+    FREE(Block->xprop);
   }
   
   if (Block->nz!=0) {
@@ -1777,7 +1778,8 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
 }
 
 extern NspHash *createblklist(double time, scicos_block *Block);
-
+extern int scicos_list_to_vars(void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
+                               NspObject *Ob);
 /* 
  * int_model2blk : Build a scicos_block structure from
  * a scicos model.
@@ -1810,9 +1812,389 @@ static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
   return Max(lhs,1);
 }
 
+/* extractblklist : create a scicos_block C structure from
+ * a scicos_block nsp structure.
+ *
+ * Input : NspHash : the nsp scicos_block structure
+ *
+ * Output : Block : C scicos_block structure
+ * 
+ * return FAIL if error, OK else
+ *
+ * initial rev 13/11/07, Alan
+ */
+
+static int extractblklist(NspHash *Hi,scicos_block *Block)
+{
+  
+  NspObject *obj;
+  NspMatrix *M;
+  NspSMatrix *SMat;
+  int i;
+  
+  char *fields[]={"nevprt","type","scsptr","scsptr_flag","funpt",
+                  "z","oz","x","xd","res","xprop",
+                  "nin","insz","inptr","nout","outsz","outptr",
+                  "nevout","evout",
+                  "rpar","ipar","opar","g","ztyp","jroot","label","work","mode"};
+                  
+  const int nfields=28;
+  
+  for (i =0;i<nfields;i++) {
+    if (nsp_hash_find(Hi,fields[i],&obj)==FAIL) return FAIL;
+  }
+
+  /* minimal block list structure allocation */
+  Block->type=0;
+  Block->nin=0;
+  Block->nout=0;
+  Block->nevout=0;
+  Block->nx=0;
+  Block->nz=0;
+  Block->noz=0;
+  Block->nrpar=0;
+  Block->nipar=0;
+  Block->nopar=0;
+  Block->label="";
+  Block->ng=0;
+  Block->ztyp=0;
+  Block->nmode=0;
+  Block->work=NULL;
+  
+  /************* time */
+  /* 1 - nevprt */
+  nsp_hash_find(Hi,fields[0],&obj);
+  M=(NspMatrix *)obj;
+  Block->nevprt = (int) M->R[0];
+  
+  /* 2 - type */
+  nsp_hash_find(Hi,fields[1],&obj);
+  M=(NspMatrix *)obj;
+  Block->type = (int) M->R[0];
+  
+  /* 3 - scsptr */
+  nsp_hash_find(Hi,fields[2],&obj);
+  M=(NspMatrix *)obj;
+  i=(int) M->R[0];
+  Block->scsptr = (void *) i;
+  
+  /* 4 - scsptr_flag */
+  nsp_hash_find(Hi,fields[3],&obj);
+  M=(NspMatrix *)obj;
+  i=(int) M->R[0];
+  Block->scsptr_flag = (scicos_funflag) i;
+  
+  /* 5 - funpt */
+  nsp_hash_find(Hi,fields[4],&obj);
+  M=(NspMatrix *)obj;
+  i=(int) M->R[0];
+  Block->funpt = (void *) i;
+  
+  /************* nz */
+  /* 6 - z */
+  nsp_hash_find(Hi,fields[5],&obj);
+  if ((scicos_modvectoblkvec(obj,
+                             &Block->nz,
+                             &Block->z,
+                             Block->scsptr_flag,
+                             "z")) == FAIL)
+    goto err;
+    
+  /************** noz */
+  /************** ozsz */
+  /************** oztyp */
+  /* 7 - oz */
+  nsp_hash_find(Hi,fields[6],&obj);
+  if ((scicos_modobjtoblkobj(obj,
+                             &Block->noz,
+                             &Block->ozsz,
+                             &Block->oztyp,
+                             &Block->ozptr,
+                             Block->scsptr_flag,
+                             "odstate")) == FAIL)
+    goto err;
+  
+  /************** nx */
+  /* 8 - x */
+  nsp_hash_find(Hi,fields[7],&obj);
+  if ((scicos_modvectoblkvec(obj,
+                             &Block->nx,
+                             &Block->x,
+                             fun_pointer,
+                             "x")) == FAIL)
+    goto err;
+  
+  /* 9 - xd */
+  nsp_hash_find(Hi,fields[8],&obj);
+  if ((scicos_modvectoblkvec(obj,
+                             &Block->nx,
+                             &Block->xd,
+                             fun_pointer,
+                             "xd")) == FAIL)
+    goto err;
+    
+  /* 10 - res */
+  nsp_hash_find(Hi,fields[9],&obj);
+  if ((scicos_modvectoblkvec(obj,
+                             &Block->nx,
+                             &Block->res,
+                             fun_pointer,
+                             "res")) == FAIL)
+    goto err;
+  
+  /* 11 - xprop */
+  nsp_hash_find(Hi,fields[10],&obj);
+  M=(NspMatrix *)obj;
+  Block->xprop=NULL;
+  if (M->mn!=0) {
+    if ((Block->xprop=(int *) malloc(Block->nx*sizeof(int)))==NULL)
+      goto err;
+    for(i=0;i<Block->nx;i++) Block->xprop[i]=(int)M->R[i];
+  }
+  
+  /* 12 - nin */
+  nsp_hash_find(Hi,fields[11],&obj);
+  M=(NspMatrix *)obj;
+  Block->nin = (int) M->R[0];
+  
+  /* 13 - insz */
+  nsp_hash_find(Hi,fields[12],&obj);
+  M=(NspMatrix *)obj;
+  Block->insz=NULL;
+  if (M->mn!=0) {
+    if ((Block->insz=(int *) malloc(3*Block->nin*sizeof(int)))==NULL)
+      goto err;
+    for(i=0;i<3*Block->nin;i++) Block->insz[i]=(int)M->R[i];
+  }
+  
+  /* 14 - inptr */
+  nsp_hash_find(Hi,fields[13],&obj);
+  if (Block->nin != 0) {
+    if ((Block->inptr=(void **) malloc(Block->nin*sizeof(void *))) == NULL)
+      goto err;
+    for (i=0;i<Block->nin;i++) {
+      switch (Block->insz[2*Block->nin+i])
+      {
+        case SCSREAL_N    :
+          if ((Block->inptr[i]=(SCSREAL_COP *) malloc((Block->insz[i]*Block->insz[Block->nin+i])*sizeof(SCSREAL_COP))) == NULL)
+            goto err;
+          break;
+        case SCSCOMPLEX_N :
+          if ((Block->inptr[i]=(SCSCOMPLEX_COP *) malloc((2*Block->insz[i]*Block->insz[Block->nin+i])*sizeof(SCSCOMPLEX_COP))) == NULL)
+            goto err;
+          break;
+        case SCSINT32_N   :
+          if ((Block->inptr[i]=(SCSINT32_COP *) malloc((Block->insz[i]*Block->insz[Block->nin+i])*sizeof(SCSINT32_COP))) == NULL)
+            goto err;
+          break;
+        case SCSINT16_N   :
+          if ((Block->inptr[i]=(SCSINT16_COP *) malloc((Block->insz[i]*Block->insz[Block->nin+i])*sizeof(SCSINT16_COP))) == NULL)
+            goto err;
+          break;
+        case SCSINT8_N    :
+          if ((Block->inptr[i]=(SCSINT8_COP *) malloc((Block->insz[i]*Block->insz[Block->nin+i])*sizeof(SCSINT8_COP))) == NULL)
+            goto err;
+          break;
+        case SCSUINT32_N  :
+          if ((Block->inptr[i]=(SCSUINT32_COP *) malloc((Block->insz[i]*Block->insz[Block->nin+i])*sizeof(SCSUINT32_COP))) == NULL)
+            goto err;
+          break;
+        case SCSUINT16_N  :
+          if ((Block->inptr[i]=(SCSUINT16_COP *) malloc((Block->insz[i]*Block->insz[Block->nin+i])*sizeof(SCSUINT16_COP))) == NULL)
+            goto err;
+          break;
+        case SCSUINT8_N   :
+          if ((Block->inptr[i]=(SCSUINT8_COP *) malloc((Block->insz[i]*Block->insz[Block->nin+i])*sizeof(SCSUINT8_COP))) == NULL)
+            goto err;
+          break;
+/*        case SCSBOOL_N    :
+ *         TODO
+ *         break;
+ */
+      }
+    }
+    if (scicos_list_to_vars((void **) Block->inptr, Block->nin,
+        Block->insz, &(Block->insz[Block->nin]), &(Block->insz[2*Block->nin]), obj) == FAIL)
+      goto err;
+  }
+  
+  /* 15 - nout */
+  nsp_hash_find(Hi,fields[14],&obj);
+  M=(NspMatrix *)obj;
+  Block->nout = (int) M->R[0];
+  
+  /* 16 - outsz */
+  nsp_hash_find(Hi,fields[15],&obj);
+  M=(NspMatrix *)obj;
+  Block->outsz=NULL;
+  if (M->mn!=0) {
+    if ((Block->outsz=(int *) malloc(3*Block->nout*sizeof(int)))==NULL)
+      goto err;
+    for(i=0;i<3*Block->nout;i++) Block->outsz[i]=(int)M->R[i];
+  }
+  
+  /* 17 - outptr */
+  nsp_hash_find(Hi,fields[16],&obj);
+  if (Block->nout != 0) {
+    if ((Block->outptr=(void **) malloc(Block->nout*sizeof(void *))) == NULL)
+      goto err;
+    for (i=0;i<Block->nout;i++) {
+      switch (Block->outsz[2*Block->nout+i])
+      {
+        case SCSREAL_N    :
+          if ((Block->outptr[i]=(SCSREAL_COP *) malloc((Block->outsz[i]*Block->outsz[Block->nout+i])*sizeof(SCSREAL_COP))) == NULL)
+            goto err;
+          break;
+        case SCSCOMPLEX_N :
+          if ((Block->outptr[i]=(SCSCOMPLEX_COP *) malloc((2*Block->outsz[i]*Block->outsz[Block->nout+i])*sizeof(SCSCOMPLEX_COP))) == NULL)
+            goto err;
+          break;
+        case SCSINT32_N   :
+          if ((Block->outptr[i]=(SCSINT32_COP *) malloc((Block->outsz[i]*Block->outsz[Block->nout+i])*sizeof(SCSINT32_COP))) == NULL)
+            goto err;
+          break;
+        case SCSINT16_N   :
+          if ((Block->outptr[i]=(SCSINT16_COP *) malloc((Block->outsz[i]*Block->outsz[Block->nout+i])*sizeof(SCSINT16_COP))) == NULL)
+            goto err;
+          break;
+        case SCSINT8_N    :
+          if ((Block->outptr[i]=(SCSINT8_COP *) malloc((Block->outsz[i]*Block->outsz[Block->nout+i])*sizeof(SCSINT8_COP))) == NULL)
+            goto err;
+          break;
+        case SCSUINT32_N  :
+          if ((Block->outptr[i]=(SCSUINT32_COP *) malloc((Block->outsz[i]*Block->outsz[Block->nout+i])*sizeof(SCSUINT32_COP))) == NULL)
+            goto err;
+          break;
+        case SCSUINT16_N  :
+          if ((Block->outptr[i]=(SCSUINT16_COP *) malloc((Block->outsz[i]*Block->outsz[Block->nout+i])*sizeof(SCSUINT16_COP))) == NULL)
+            goto err;
+          break;
+        case SCSUINT8_N   :
+          if ((Block->outptr[i]=(SCSUINT8_COP *) malloc((Block->outsz[i]*Block->outsz[Block->nout+i])*sizeof(SCSUINT8_COP))) == NULL)
+            goto err;
+          break;
+/*        case SCSBOOL_N    :
+ *         TODO
+ *         break;
+ */
+      }
+    }
+    if (scicos_list_to_vars((void **) Block->outptr, Block->nout,
+        Block->outsz, &(Block->outsz[Block->nout]), &(Block->outsz[2*Block->nout]), obj) == FAIL)
+      goto err;
+  }
+  
+  /* 18 - nevout */
+  /* 19 - evout */
+  nsp_hash_find(Hi,fields[18],&obj);
+  if ((scicos_modvectoblkvec(obj,
+                             &Block->nevout,
+                             &Block->evout,
+                             fun_pointer,
+                             "evout")) == FAIL)
+    goto err;
+  
+  /************** nrpar */
+  /* 20 - rpar */
+  nsp_hash_find(Hi,fields[19],&obj);
+  if ((scicos_modvectoblkvec(obj,
+                             &Block->nrpar,
+                             &Block->rpar,
+                             Block->scsptr_flag,
+                             "rpar")) == FAIL)
+    goto err;
+  
+  /************** nipar */
+  /* 21 - ipar */
+  nsp_hash_find(Hi,fields[20],&obj);
+  M=(NspMatrix *)obj;
+  Block->ipar=NULL;
+  Block->nipar=M->mn;
+  if (M->mn!=0) {
+    if ((Block->ipar=(int *) malloc(Block->nipar*sizeof(int)))==NULL)
+      goto err;
+    for(i=0;i<Block->nipar;i++) Block->ipar[i]=(int)M->R[i];
+  }
+  
+  /************** nopar */
+  /************** oparsz */
+  /************** opartyp */
+  /* 22 - opar */
+  nsp_hash_find(Hi,fields[21],&obj);
+  if ((scicos_modobjtoblkobj(obj,
+                             &Block->nopar,
+                             &Block->oparsz,
+                             &Block->opartyp,
+                             &Block->oparptr,
+                             Block->scsptr_flag,
+                             "opar")) == FAIL)
+    goto err;
+  
+  /************** ng */
+  /* 23 - g */
+  nsp_hash_find(Hi,fields[22],&obj);
+  if ((scicos_modvectoblkvec(obj,
+                             &Block->ng,
+                             &Block->g,
+                             fun_pointer,
+                             "g")) == FAIL)
+    goto err;
+  
+  /* 24 - ztyp */
+  nsp_hash_find(Hi,fields[23],&obj);
+  M=(NspMatrix *)obj;
+  Block->ztyp = (int) M->R[0];
+  
+  /* 25 - jroot */
+  nsp_hash_find(Hi,fields[24],&obj);
+  M=(NspMatrix *)obj;
+  Block->jroot=NULL;
+  if (M->mn!=0) {
+    if ((Block->jroot=(int *) malloc(Block->ng*sizeof(int)))==NULL)
+      goto err;
+    for(i=0;i<Block->ng;i++) Block->jroot[i]=(int)M->R[i];
+  }
+  
+  /* 26 - label */
+  nsp_hash_find(Hi,fields[25],&obj);
+  SMat=(NspSMatrix *)obj;
+  if (SMat->mn!=0) {
+    int len_str=strlen(SMat->S[0]);
+    if (len_str!=0) {
+      if ((Block->label=(char *) malloc((len_str+1)*sizeof(char)))==NULL)
+        goto err; 
+      strcpy(Block->label,SMat->S[0]);
+    }
+  }
+  
+  /* 27 - work*/
+  nsp_hash_find(Hi,fields[26],&obj);
+  M=(NspMatrix *)obj;
+  i=(int) M->R[0];
+  Block->work = (void **) i;
+  
+  /************** nmode*/
+  /* 28 - mode */
+  nsp_hash_find(Hi,fields[27],&obj);
+  M=(NspMatrix *)obj;
+  Block->mode=NULL;
+  Block->nmode=M->mn;
+  if (M->mn!=0) {
+    if ((Block->mode=(int *) malloc(Block->nmode*sizeof(int)))==NULL)
+      goto err;
+    for(i=0;i<Block->nmode;i++) Block->mode[i]=(int)M->R[i];
+  }
+  
+  return OK;
+  
+  err :
+    scicos_unalloc_block(Block);
+    return FAIL;
+}
+
 /*
  * int_callblk  : Call a scicos block defined by
- * a scicos_block structure.
+ * a nsp scicos_block structure.
  *
  * [Block]=callblk(Block,flag,t)
  *
@@ -1820,17 +2202,27 @@ static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
 
 static int int_callblk(Stack stack, int rhs, int opt, int lhs)
 {
-  NspHash *BlkHash;
+  NspHash *BlkHash_IN,*BlkHash_OUT;
+  scicos_block Block;
   int flag;
   double tcur;
 
   CheckRhs (3,3);
 
-  if ((BlkHash=GetHashCopy(stack,1))==NULLHASH) return RET_BUG;
+  if ((BlkHash_IN=GetHashCopy(stack,1))==NULLHASH) return RET_BUG;
   if (GetScalarInt(stack,2,&flag)==FAIL) return RET_BUG;
   if (GetScalarDouble(stack,3,&tcur)==FAIL) return RET_BUG;
-
-  return 0;
+  
+  if (extractblklist(BlkHash_IN, &Block)==FAIL) return RET_BUG;
+  
+  if ((BlkHash_OUT = createblklist(tcur, &Block))==NULL) {
+    scicos_unalloc_block(&Block);
+    return RET_BUG;
+  }
+  
+  scicos_unalloc_block(&Block);
+  MoveObj(stack,1,NSP_OBJECT(BlkHash_OUT));
+  return Max(lhs,1);
 }
 
 extern int scicos_is_split(NspObject *obj);

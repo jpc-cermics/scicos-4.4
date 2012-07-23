@@ -455,7 +455,7 @@ static int scicos_nsp_list_to_list(void *outptr[], int nout, int outsz[], int ou
  * Return value: 
  **/
 
-static int scicos_list_to_vars(void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
+int scicos_list_to_vars(void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
                                NspObject * Ob)
 {
   int k;
@@ -688,15 +688,15 @@ NspHash *createblklist(double time, scicos_block *Block)
     goto err;
   if ((Hel[p++] = scicos_itosci("nin", &Block->nin, 1, 1)) == NULL)
     goto err;
-  if ((Hel[p++] = scicos_itosci("insz", Block->insz, Block->nin, 1)) == NULL)
+  if ((Hel[p++] = scicos_itosci("insz", Block->insz, 3*Block->nin, 1)) == NULL)
     goto err;
   if ((Hel[p++] = scicos_vars_to_list("inptr", Block->inptr, Block->nin,
 				      Block->insz,&(Block->insz[Block->nin]),&(Block->insz[2*Block->nin]))) == NULLOBJ)
     goto err;
-  if ((Hel[p++] =
-       scicos_itosci("outsz", Block->outsz, Block->nout, 1)) == NULL)
-    goto err;
   if ((Hel[p++] = scicos_itosci("nout", &Block->nout, 1, 1)) == NULL)
+    goto err;
+  if ((Hel[p++] =
+       scicos_itosci("outsz", Block->outsz, 3*Block->nout, 1)) == NULL)
     goto err;
   if ((Hel[p++] = scicos_vars_to_list("outptr",(void **) Block->outptr, Block->nout,
                            Block->outsz,&(Block->outsz[Block->nout]),&(Block->outsz[2*Block->nout]))) == NULLOBJ)
