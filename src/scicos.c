@@ -74,7 +74,7 @@ static void cosini (double *told);
 static void cosend (double *told);
 static void cossimdaskr (double *told);
 static void cossim (double *told);
-static void callf (const double *t, scicos_block * block, int *flag);
+extern void callf (const double *t, scicos_block * block, int *flag);
 static int lsodar2_simblk (const int *neq1, const double *t, double *xc,
 			   double *xcdot, void *param);
 static int lsodar2_grblk (const int *neq1, const double *t, double *xc,
@@ -2895,7 +2895,7 @@ static void cosend (double *told)
     }
 }				/* cosend_ */
 
-static void callf (const double *t, scicos_block * block, int *flag)
+void callf (const double *t, scicos_block * block, int *flag)
 {
   double *args[SZ_SIZE];
   int sz[SZ_SIZE];

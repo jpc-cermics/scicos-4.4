@@ -1780,6 +1780,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
 extern NspHash *createblklist(double time, scicos_block *Block);
 extern int scicos_list_to_vars(void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
                                NspObject *Ob);
+extern void callf(const double *t, scicos_block * block, int *flag);
 /* 
  * int_model2blk : Build a scicos_block structure from
  * a scicos model.
@@ -2206,6 +2207,7 @@ static int int_callblk(Stack stack, int rhs, int opt, int lhs)
   scicos_block Block;
   int flag;
   double tcur;
+  scicos_run r_scicos;
 
   CheckRhs (3,3);
 
@@ -2214,6 +2216,15 @@ static int int_callblk(Stack stack, int rhs, int opt, int lhs)
   if (GetScalarDouble(stack,3,&tcur)==FAIL) return RET_BUG;
   
   if (extractblklist(BlkHash_IN, &Block)==FAIL) return RET_BUG;
+  
+  //TOBEREVIEWED
+  Scicos = &r_scicos;
+  Scicos->params.solver=0;
+  Scicos->params.debug=0;
+  Scicos->params.curblk=1;
+  Scicos->params.phase=1;
+  
+  callf(&tcur, &Block, &flag);
   
   if ((BlkHash_OUT = createblklist(tcur, &Block))==NULL) {
     scicos_unalloc_block(&Block);
