@@ -438,7 +438,11 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     end
     mlibsM=file('native',file('join',[tmpdir;'Modelica']));
     mlib1=[mlibs(:);mlibsM];
-    translator_libs=[smat_create(size(mlib1,'*'),1,'-lib'),mlib1]';
+    if %win32 then
+      translator_libs=[smat_create(size(mlib1,'*'),1,'-lib'),""""+mlib1+""""]';
+    else
+      translator_libs=[smat_create(size(mlib1,'*'),1,'-lib'),mlib1]';
+    end
     translator_libs.redim[-1,1]
     translator_libs=translator_libs(:);
     //-----------------------just for OS limitation-------
@@ -483,17 +487,20 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     //---------------------------------------------------------------------
     if %Modelica_Init then with_ixml="-with-init";else with_ixml=m2s([]);end    
     // instruction to be executed 
-    instr=[file('native',translator);
-	   translator_libs;
-	   '-lib';file('native',filemo);
-	   '-o';file('native',Flat);
-	   with_ixml];
     //win32 case
     if %win32 then
-      instr=[instr
+      instr=[""""+file('native',translator)+"""";
+	     translator_libs;
+	     '-lib';""""+file('native',filemo)+"""";
+	     '-o';""""+file('native',Flat)+"""";
+	     with_ixml;
              '-command';'""'+name+' '+namef+'"";'];
     else
-      instr=[instr
+      instr=[file('native',translator);
+	     translator_libs;
+	     '-lib';file('native',filemo);
+	     '-o';file('native',Flat);
+	     with_ixml;
              '-command';name+' '+namef+';'];
     end
     if %f && %win32 then
@@ -569,16 +576,23 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     //---------------------------------------------------------------------
     if ~file("exists",Flat_functions) then,
       Flat_functions=m2s([]); 
-      //else
-      // Flat_functions='""'+Flat_functions+'""';
+    else
+      if %win32 then
+        Flat_functions='""'+Flat_functions+'""';
+      end
     end
     XMLfiles=m2s([]);
     if ((running=="1" )& (file("exists",xmlfile))) then // if GUI is running
       XMLfiles=' -with-init-in ""'+xmlfileTMP+'"" -with-init-out ""'+xmlfileTMP+'""';
     end      
     // run modelicac 
-    instr=[file('native',modelicac); Flat;  Flat_functions;
-	   XMLfiles; '-o'; Cfile; JAC];
+    if %win32 then
+      instr=[""""+file('native',modelicac)+""""; """"+file('native',Flat)+""""; Flat_functions;
+	     XMLfiles; '-o'; """"+Cfile+""""; JAC];
+    else
+      instr=[file('native',modelicac);file('native',Flat); Flat_functions;
+	     XMLfiles; '-o'; Cfile; JAC];
+    end
     if %f && %win32 then
       instrc = file('join',[tmpdir;'genm2.bat']);
       scicos_mputl(instr,instrc);
