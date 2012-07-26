@@ -8,8 +8,8 @@ function [x,y,typ]=GAIN_f(job,arg1,arg2)
     xx=orig(1)+      [1 4 1 1]*dx;
     yy=orig(2)+sz(2)-[1 5 9 1]*dy;
     xpoly(xx,yy,type="lines");
-    w=sz(1)-2*dx;h=sz(2)-2*dy;
-    xstringb(orig(1)+dx,orig(2)+dy,gain,w,h,"fill");
+    w=sz(1)-4*dx;h=sz(2)-4*dy;
+    xstringb(orig(1)+1.5*dx,orig(2)+1.7*dy,gain,w,h,"fill");
   endfunction
 
   x=[];y=[];typ=[];
