@@ -95,7 +95,7 @@ void tows_c (scicos_block * block, int flag)
 	}
       /* get old time */
       told = (D->start == 0 ) ? D->time->R[D->time->mn -1] : D->time->R[D->start -1];
-      Sciprintf("name=%s told = %f, t=%f\n",D->name,told,t);
+      /*Sciprintf("name=%s told = %f, t=%f\n",D->name,told,t);*/
       if ( nsp_store_tows_data(D,ut, nu,nu2,  data,t) == FAIL) 
 	{
 	  Coserror ("Unable to store data!\n");
