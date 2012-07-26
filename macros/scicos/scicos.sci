@@ -19,7 +19,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if ~exists('slevel') then slevel=0;end 
   slevel = slevel +1;
   super_block = slevel > 1;
-  
+
   if ~super_block then
     // print the banner on first call 
     global next_scicos_call
@@ -67,7 +67,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %tableau(-31+ascii(%scicos_short(%Y,1)))=%scicos_short(%Y,2);
     end
   end
-  
+
   %diagram_open=%t   //default choice
   if ~isempty(super_path) then
     if isequal(%diagram_path_objective,super_path) then
@@ -142,7 +142,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   options=scs_m.props.options
   %scicos_solver=scs_m.props.tol(6);
   %browsehelp_sav=[]
-  
+
   if ~super_block then
     xset('window',Main_Scicos_window)
     curwin=xget('window')
@@ -550,6 +550,7 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
       xset('window',curwin)
       %zoom=restore(curwin,%zoom)
       %wdm=scs_m.props.wpar
+      options=scs_m.props.options
       window_set_size()
       scs_m=do_replot(scs_m)
       o.model.rpar=scs_m
