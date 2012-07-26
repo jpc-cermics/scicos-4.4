@@ -11,7 +11,7 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
     ry = sz(2)/2
     gr_i = arg1.graphics.gr_i
     if type(gr_i,'short')=='l' then 
-      xfarcs([orig(1);orig(2)+sz(2);sz(1)*p;sz(2);0;360*64],gr_i(2))
+      xfarcs([orig(1);orig(2)+sz(2);sz(1)*p;sz(2);0;360*64],color=default_color(1),thickness=2)
     end
     xarc(orig(1),orig(2)+sz(2),sz(1)*p,sz(2),0,360*64)
     xsegs(orig(1)+rx*[1/2.3 1;2-1/2.3 1],orig(2)+ry*[1 2-1/2.3;1,1/2.3],style=0)
