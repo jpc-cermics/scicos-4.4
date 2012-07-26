@@ -33,8 +33,8 @@ function [libss,cflags,ok,cancel]=get_dynamic_lib_dir(txt,funam,flag,libss,cflag
     end
 
     //@@ check cflags
-    if strindex(cflags,'''')<>[] | strindex(cflags,'""')<>[] then
-      ierr=execstr('cflags=evstr(cflags)','errcatch')
+    if ~isempty(strindex(cflags,'''')) | ~isempty(strindex(cflags,'""')) then
+      ierr=execstr('cflags=evstr(cflags)',errcatch=%t)
       if ~ierr then
         message(['Error(s) in Additionnal compiler flag(s)'])
         chdir(cur_wd);
