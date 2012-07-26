@@ -74,6 +74,8 @@ BCG *scicos_set_win (int wid, int *oldwid)
     {
       Xgc = set_graphic_window (Max (wid, 0));
     }
+  Xgc->graphic_engine->xselgraphic(Xgc);
+  
   return Xgc;
 }
 

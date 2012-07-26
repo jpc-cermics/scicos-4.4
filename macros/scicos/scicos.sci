@@ -205,6 +205,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       nc_save=user_data(5)
       xselect()
     end
+    F=get_current_figure()
+    gh_current_window=nsp_graphic_widget(F.id);
+    gh_current_window.present[]
   else
     // ~diagram_open
     if or(curwin==winsid()) then
