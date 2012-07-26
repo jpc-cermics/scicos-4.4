@@ -22,7 +22,11 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   
   if ~super_block then
     // print the banner on first call 
-    scicos_banner() 
+    global next_scicos_call
+    if isempty(next_scicos_call) then
+      next_scicos_call=1
+      scicos_banner() 
+    end
     Main_Scicos_window=1000
     // initialize variables used for navigation
     super_path=[]; // path to the currently opened superblock
