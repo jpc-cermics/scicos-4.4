@@ -7,6 +7,8 @@ function scs_m=scs_show(scs_m,win)
   xclear();
   xselect();  
   options=scs_m.props.options
+  pwindow_set_size()
+  window_set_size(win)
   set_background();
   scs_m=scs_m_remove_gr(scs_m);
   scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);
