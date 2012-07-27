@@ -22,6 +22,7 @@ function scmenu_create_atomic()
     [o,needcompile,ok]=do_create_atomic(o,i,scs_m)
     if ~ok then return ;end
     scs_m = update_redraw_obj(scs_m,list('objs',i),o)
+    Cmenu='Replot'
   else
     message('Create Atomic can only be applied to unmasked Super Blocks.');
   end

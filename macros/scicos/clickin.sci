@@ -200,9 +200,9 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
             end
           end
         end
+        o=o_n;
       end
     end
-    o=o_n;
   elseif o.type  =='Link' then
     // 
     resume(Cmenu='Link');
