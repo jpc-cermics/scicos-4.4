@@ -7,9 +7,14 @@ function [x,y,typ]=TOWS_c(job,arg1,arg2)
     style=5;
     rectstr=stringbox(txt,orig(1),orig(2),0,style,1);
     if ~exists("%zoom") then %zoom=1, end;
-    w=(rectstr(1,3)-rectstr(1,2))*%zoom;
-    h=(rectstr(2,2)-rectstr(2,4))*%zoom;
-    xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,"fill");
+    fz=2*%zoom*4;
+    h=(rectstr(2,2)-rectstr(2,4))*fz;
+    fnt=xget('font');
+    xset('font', options.ID(1)(1), options.ID(1)(2));
+    xstring(orig(1)+sz(1)/2, orig(2)-h-4,txt,posx='center',posy='up', size=fz);
+    xset('font', fnt(1), fnt(2));
+//     w=(rectstr(1,3)-rectstr(1,2))*%zoom;
+//     xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,"fill");
   endfunction
   
   x=[];y=[];typ=[]
