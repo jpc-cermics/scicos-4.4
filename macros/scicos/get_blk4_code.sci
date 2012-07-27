@@ -14519,7 +14519,8 @@ function [txt]=get_solver_file_code(name)
                "#endif"]
 
       case 'ida.h' then
-        txt = ["/*"
+
+       txt1 = ["/*"
                " * -----------------------------------------------------------------"
                " * ----------------------------------------------------------------- "
                " * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,"
@@ -15203,8 +15204,9 @@ function [txt]=get_solver_file_code(name)
                "   *                                                                "
                "   * ----------------------------------------------------------------"
                "   */"
-               ""
-               "  int IDACalcIC(void *ida_mem, int icopt, realtype tout1); "
+               ""]
+
+       txt2 = ["  int IDACalcIC(void *ida_mem, int icopt, realtype tout1); "
                ""
                "  /*"
                "   * ----------------------------------------------------------------"
@@ -15494,6 +15496,7 @@ function [txt]=get_solver_file_code(name)
                "#endif"
                ""
                "#endif"]
+        txt=[txt1;txt2];
 
       case 'ida_impl.h' then
         txt = ["/*"
