@@ -181,7 +181,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
      //## def name of interf func and
      //## name of interf librabry derived from name of superblock
      l_blknam=length(blknam)
-     l_blknam=(l_blknam>17)*17 + (l_blknam<=17)*l_blknam
+     //l_blknam=(l_blknam>17)*17 + (l_blknam<=17)*l_blknam
      blknamint='int'+part(blknam,1:l_blknam)
      Makename=file('join',[rpat;'Makefile_'+blknamint]);
      //@@ generation of Makefiles
@@ -473,13 +473,13 @@ function [SCode]=gen_loader(blknam,for_link,with_int)
 
     //## define name of interf lib
     l_blknam=length(blknam);
-    l_blknam=(l_blknam>17)*17 + (l_blknam<=17)*l_blknam;
+    //l_blknam=(l_blknam>17)*17 + (l_blknam<=17)*l_blknam;
     blknamint='int'+part(blknam,1:l_blknam);
 
     SCode=[SCode
            '//## Define name of interf lib"
            'l_blknam=length(blknam);'
-           'l_blknam=(l_blknam>17)*17 + (l_blknam<=17)*l_blknam;'
+           '//l_blknam=(l_blknam>17)*17 + (l_blknam<=17)*l_blknam;'
            'blknamint=''int''+part(blknam,1:l_blknam);'
            'Makename=DIR+''Makefile_''+blknamint;'
            ''

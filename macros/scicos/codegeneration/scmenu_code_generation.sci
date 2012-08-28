@@ -7329,7 +7329,7 @@ function [Code]=make_sci_interf43()
 
  //@@ get the length of the name of the interfacing scilab function
  l_rdnom=length(rdnom)
- l_rdnom=(l_rdnom>17)*17 + (l_rdnom<=17)*l_rdnom
+ //l_rdnom=(l_rdnom>17)*17 + (l_rdnom<=17)*l_rdnom
 
  Date=gdate_new();
  str= Date.strftime["%d %B %Y"];
@@ -7747,7 +7747,7 @@ function [Code]=make_sci_interf()
 
  //@@ get the length of the name of the interfacing scilab function
  l_rdnom=length(rdnom)
- l_rdnom=(l_rdnom>17)*17 + (l_rdnom<=17)*l_rdnom
+ //l_rdnom=(l_rdnom>17)*17 + (l_rdnom<=17)*l_rdnom
 
  //## header
  Date=gdate_new();
@@ -9034,9 +9034,11 @@ function [Code]=make_standalone42()
             Code=[Code;
                   '  '+cformatline(' * Label: '+strcat(string(OO.model.label)),70)];
           end
-          if stripblanks(OO.graphics.exprs(1))~=emptystr() then
-            Code=[Code;
-                  '  '+cformatline(' * Exprs: '+strcat(OO.graphics.exprs(1),","),70)];
+          if ~isempty(OO.graphics.exprs) then
+            if stripblanks(OO.graphics.exprs(1))~=emptystr() then
+              Code=[Code;
+                    '  '+cformatline(' * Exprs: '+strcat(OO.graphics.exprs(1),","),70)];
+            end
           end
           if stripblanks(OO.graphics.id)~=emptystr() then
             Code=[Code;
@@ -16494,10 +16496,12 @@ function [t1]=cformatline(t ,l)
     end
 
     k=strindex(t,sep)
+
     if isempty(k) then t1=[t1;bl+t]
       return
     end
 
+    k=sort(k,dir='i')
     k($+1)=length(t)+1 //positions of the commas
     i=find(k(1:$-1)<=l&k(2:$)>l) //nearest left comma (reltively to l)
 
