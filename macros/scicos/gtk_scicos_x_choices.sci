@@ -321,7 +321,7 @@ function L=gtk_scicos_x_choices(desc,Li)
       end
     elseif response==2 then
       if modified then
-        printf("Warning modified. TODOCHECK\n");
+        //printf("Warning modified. TODOCHECK\n");
         ok=%t
       else
         ok=%t
