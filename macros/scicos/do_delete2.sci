@@ -3,6 +3,7 @@ function [scs_m,DEL]=do_delete2(scs_m,K,gr)
 //K and all connected links. splits which are not given in K are not deleted
 //!
 // Copyright INRIA
+scs_m=scs_m
 DEL=[] //table of deleted objects
 K0=K
 while ~isempty(K) do
@@ -38,15 +39,25 @@ while ~isempty(K) do
     //ask for connected links deletion
     K=[K connected]
   elseif typ=='Text' then
-    // Alan  : Not used in nsp for scicos 2.7
   elseif typ=='Deleted' then
   else
     message('This object can''t be deleted')
   end
 end
-// Alan  : Not used in nsp for scicos 2.7
-//if gr==%t then
-//  if pixmap then xset('wshow'),end,
-//end
-for k=DEL,scs_m.objs(k)=mlist('Deleted'),end
+
+if gr then
+  F=get_current_figure();
+  F.draw_latter[];
+  for k=DEL
+    if scs_m.objs(k).iskey['gr'] then
+      F.remove[scs_m.objs(k).gr];
+    end
+    scs_m.objs(k)=mlist('Deleted')
+  end
+else
+  for k=DEL
+    scs_m.objs(k)=mlist('Deleted')
+  end
+end
+
 endfunction

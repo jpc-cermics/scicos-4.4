@@ -215,10 +215,10 @@ function [%scicos_short, %scicos_help, ...
   //** "%CmenuTypeOneVector" store the list of the commands/function to be called that require both 'Cmenu' AND '%pt'
   //** menus of type 1 (require %pt)
   %CmenuTypeOneVector =..
-     ['Region to Super Block', "Press lef mouse button, drag region and release (right button to cancel)";
-      'scmenu_region_to_super_block', "Press lef mouse button, drag region and release (right button to cancel)";
-      'Region to Palette',     "Press lef mouse button, drag region and"+...
-      " release (right button to cancel)";
+     ['Region to Super Block', "Press left mouse button, drag region and release (right button to cancel)";
+      'scmenu_region_to_super_block', "Press left mouse button, drag region and release (right button to cancel)";
+      'Region to Palette',     "Press left mouse button, drag region and release (right button to cancel)";
+      'scmenu_region_to_palette',     "Press left mouse button, drag region and release (right button to cancel)";
       'Load as Palette',       '';
       'scmenu_load_as_palette',       '';
       'Smart Move',            "Click object to move, drag and click (left to fix, right to cancel)";
