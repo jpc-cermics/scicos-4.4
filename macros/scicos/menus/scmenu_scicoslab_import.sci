@@ -15,6 +15,12 @@ function scmenu_scicoslab_import()
   if ok then 
     %scicos_context=context;
     scs_m=sc; %cpr=cpr; edited=ed;
+    options=scs_m.props.options;
+    if size(scs_m.props.wpar,'*')>12 then
+      %zoom=scs_m.props.wpar(13)
+    else
+      %zoom=1.4
+    end
     alreadyran=%f;
     if size(%cpr)==0 then
       needcompile=4;
