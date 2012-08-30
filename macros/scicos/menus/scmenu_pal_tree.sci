@@ -1,7 +1,6 @@
 function scmenu_pal_tree()
   Cmenu=''
-//   ww=scicos_palette_treeview();
-  scicos_widgets($+1)=scicos_palette_treeview();
+  scicos_widgets($+1)=hash(id=scicos_palette_treeview(),open=%t,what='PalTree');
 endfunction
 
 
@@ -47,6 +46,14 @@ function window=scicos_palette_treeview(L)
     end
   endfunction
 
+  function remove_scicos_widget(wingtkid)
+    global scicos_widgets
+    for i=1:length(scicos_widgets)
+      if wingtkid.equal[scicos_widgets(i).id] then
+        scicos_widgets(i).open=%f;break
+      end
+    end
+  endfunction
   
   // a tree store with pixbufs from L 
   // which describes the palettes.
@@ -102,6 +109,7 @@ function window=scicos_palette_treeview(L)
   sw.add[treeview]
   align = gtkalignment_new(xalign=0.5,yalign=0.0,xscale=0.0,yscale=0.0);
   hbox.pack_end[align,expand=%f,fill=%f,padding=0]
+  window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
 endfunction
 

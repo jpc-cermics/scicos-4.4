@@ -87,6 +87,15 @@ function window=scicos_palette_icon_view(H)
     sw.add[icon_list];
   endfunction
   
+  function remove_scicos_widget(wingtkid)
+    global scicos_widgets
+    for i=1:length(scicos_widgets)
+      if wingtkid.equal[scicos_widgets(i).id] then
+        scicos_widgets(i).open=%f;break
+      end
+    end
+  endfunction
+
   // Icon list 
   
   icon_list=scicos_build_iconlist(H.contents('Sources'))
@@ -97,6 +106,7 @@ function window=scicos_palette_icon_view(H)
   // 
   combobox2.connect["changed", combo2_changed,list(scrolled_window,H) ];
   vbox.pack_start[scrolled_window, expand=%t,fill= %t,padding=0];
+  window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
 endfunction
 

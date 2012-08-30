@@ -383,8 +383,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       clearglobal %tableau
       clearglobal %scicos_navig
       clearglobal %diagram_path_objective
-      close_inactive_windows(inactive_windows,[],scicos_widgets=scicos_widgets)
+      close_inactive_windows(inactive_windows,[],widgets=scicos_widgets)
       clearglobal inactive_windows
+      clearglobal scicos_widgets
     end
     // remove the gr graphics from scs_m 
     for k=1:length(scs_m.objs)
@@ -457,7 +458,7 @@ function [x,k]=gunique(x)
   k(keq)=[]
 endfunction
 
-function inactive_windows=close_inactive_windows(inactive_windows,path,scicos_widgets=list())
+function inactive_windows=close_inactive_windows(inactive_windows,path,widgets=list())
 // -------------------------------------------------------------------
   DELL=[]  // inactive windows to kill
   if size(inactive_windows(2),'*')>0 then
@@ -490,8 +491,10 @@ function inactive_windows=close_inactive_windows(inactive_windows,path,scicos_wi
     inactive_windows(1)(kk)=null()
     inactive_windows(2)(kk)=[]
   end
-  for kk=1:length(scicos_widgets)
-    scicos_widgets(kk).destroy[]
+  for kk=1:length(widgets)
+    if widgets(kk).open then
+      widgets(kk).id.destroy[]
+    end
   end
 endfunction
 
