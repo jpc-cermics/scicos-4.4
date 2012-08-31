@@ -34,7 +34,7 @@ function [%state0,state,sim,ok]=modipar(newparameters,%state0,state,sim,scs_m,co
   end
 
   nb=prod(size(rpptr))-1
-  for k=newparameters
+  for k=aplat(newparameters)
     if prod(size(k))==1 then //parameter of a sImple block
       kc=cor(k) //index of modified block in compiled structure
       o=scs_m.objs(k)
@@ -48,12 +48,14 @@ function [%state0,state,sim,ok]=modipar(newparameters,%state0,state,sim,scs_m,co
       parameters=o.model.equations.parameters
       //      rpark=[];for p=parameters(2),rpark=[rpark;p(:)];end
       opark=list();
-      np=size(parameters(1),'*');
-      for jop=1:np
-        Parjv=parameters(2)(jop)
-        Parjv_plat=Parjv(:);
-        for jjop=1:size(Parjv_plat,'*')
-	  opark($+1)=Parjv_plat(jjop)
+      if ~isempty(parameters) then
+        np=size(parameters(1),'*');
+        for jop=1:np
+          Parjv=parameters(2)(jop)
+          Parjv_plat=Parjv(:);
+          for jjop=1:size(Parjv_plat,'*')
+	    opark($+1)=Parjv_plat(jjop)
+          end
         end
       end
       ipark=ipar(ipptr(kc):ipptr(kc+1)-1)
@@ -321,9 +323,6 @@ function [%state0,state,sim,ok]=modipar(newparameters,%state0,state,sim,scs_m,co
 
 endfunction
 
-
-
-
 function [ot,typ]=do_get_type(x)
 // returns types used internally in scicos 
 // for matrix and imatrix 
@@ -342,4 +341,30 @@ function [ot,typ]=do_get_type(x)
     typ=type(x,'string');
     ot=9
   end
+endfunction
+
+function [r,ind]=aplat(l,r)
+//flattens a list. If l is constant it puts it in a list
+//ind contains the list structure
+
+ if type(l,'string')=='Mat'|type(l,'string')=='SpColMat' then r=list(l);ind=-1;return;end
+ n=size(l)
+ if nargin==1 then r=list(),nr=0,end
+ ind=list()
+ i=0
+ nind=0
+ for li=l
+   i=i+1
+   if type(li,'string')=='List' then 
+     [r,ind1]=aplat(li,r)
+     ni=size(ind1)
+     for j=1:ni,nind=nind+1;ind(nind)=[i,ind1(j)];end
+     nr=size(r)
+   else
+     nr=nr+1
+     r(nr)=li
+     nind=nind+1
+     ind(nind)=i
+   end
+ end
 endfunction
