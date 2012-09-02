@@ -73,6 +73,7 @@ void cmat3d (scicos_block * block, int flag)
 	int size_mat= ipar[2] ;	
 	double *rpar=GetRparPtrs (block);
 	char *label= GetLabelPtrs (block);
+	
 	if ((*block->work = scicos_malloc (sizeof (cmat3d_data))) == NULL)
 	  {
 	    scicos_set_block_error (-16);
@@ -161,10 +162,12 @@ void cmat3d (scicos_block * block, int flag)
 static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
 		       double rect[],int dim_i, int dim_j)
 {
-  NspSPolyhedron *pol;  
+  NspSPolyhedron *pol;
+  NspFigure *F;
   BCG *Xgc;
   NspMatrix *z,*x,*y;
   int i,l,cur=0;
+  char buf[64];
 
   D->objs3d= NULL;
   
@@ -173,15 +176,12 @@ static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
    */
   Xgc = scicos_set_win(win,&cur);
     
-//   if ((Xgc = window_list_get_first()) != NULL) 
-//     Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
-//   else 
-//     Xgc= set_graphic_window_new(Max(win,0));
-// 
-//   /*
-//    * Gc of new window 
-//    */
-//   if ((Xgc = window_list_get_first())== NULL) return;
+  if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return;
+  
+  /* clean the figure */
+  l =  nsp_list_length(F->obj->children);
+  for ( i = 0 ; i < l  ; i++)
+    nsp_list_remove_first(F->obj->children);
   
   if ((D->objs3d = nsp_check_for_objs3d(Xgc,NULL)) == NULL) return;
 
@@ -196,14 +196,12 @@ static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
       D->objs3d->obj->colormap=cmap; 
     }
   
-  if (label != NULL && strlen(label) != 0 && strcmp(label," ") != 0)
-    Xgc->graphic_engine->setpopupname (Xgc, label);
-  
-  /* clean previous plots in case objs3d is in use.  */ 
-
-  l =  nsp_list_length(D->objs3d->obj->children);
-  for ( i = 0 ; i < l  ; i++)
-    nsp_list_remove_first(D->objs3d->obj->children);
+  if ( (label != NULL) && (strlen(label) != 0) && (strcmp(label," ") != 0)) {
+    Xgc->graphic_engine->setpopupname(Xgc, label);
+  } else {
+    sprintf(buf,"Graphic Window %d",win);
+    Xgc->graphic_engine->setpopupname(Xgc,buf);
+  }
   
   /* create a polyhedron and insert it in objs3d */
   if (( x = nsp_matrix_create("x",'r',1,dim_i)) == NULL) return;

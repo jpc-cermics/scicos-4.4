@@ -139,33 +139,29 @@ static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, 
   char *strf="181";
   NspFigure *F;
   NspMatrix *Cmap=NULL;
+  char buf[64];
   
   /*
    * set current window/Gc of new window 
    */
   Xgc = scicos_set_win(win,&cur);
   
-//   if ((Xgc = window_list_get_first()) != NULL) 
-//     Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
-//   else 
-//     Xgc= set_graphic_window_new(Max(win,0));
-// 
-//   /*
-//    * Gc of new window 
-//    */
-//   if ((Xgc = window_list_get_first())== NULL) return NULL;
+  
+  if ((F = nsp_check_for_figure(Xgc,TRUE)) == NULL) return NULL;
+  
+  /* clean the figure */
+  l =  nsp_list_length(F->obj->children);
+  for ( i = 0 ; i < l  ; i++)
+    nsp_list_remove_first(F->obj->children);
   
   if ((axe=  nsp_check_for_axes(Xgc,NULL)) == NULL) return NULL;
-  if ((F = nsp_check_for_figure(Xgc,TRUE)) == NULL) return NULL;
 
-  if (label != NULL && strlen(label) != 0 && strcmp(label," ") != 0)
-    Xgc->graphic_engine->setpopupname (Xgc, label);
-  
-  /* clean previous plots in case axe is in use.  */ 
-
-  l =  nsp_list_length(axe->obj->children);
-  for ( i = 0 ; i < l  ; i++)
-    nsp_list_remove_first(axe->obj->children);
+  if ( (label != NULL) && (strlen(label) != 0) && (strcmp(label," ") != 0)) {
+    Xgc->graphic_engine->setpopupname(Xgc, label);
+  } else {
+    sprintf(buf,"Graphic Window %d",win);
+    Xgc->graphic_engine->setpopupname(Xgc,buf);
+  }
   
   /* create a gmatrix and insert-it in axes */
   if ( ( z = nsp_matrix_create("z",'r',dim_i,dim_j)) == NULLMAT) return NULL;
