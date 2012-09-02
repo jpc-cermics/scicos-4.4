@@ -1,18 +1,25 @@
 function [x,y,typ]=AFFICH_f(job,arg1,arg2)
 // Copyright INRIA
 
+  function str = affich_str(m,n,f)
+    str = sprintf("%*.*f" , f(1),f(2),0.0);
+    str = strcat(smat_create(1,n,str),' ');
+    str  = smat_create(m,1,str);
+  endfunction
+
   function blk_draw(sz,orig,orient,label)
+    gin1=max(1,model.in);gin2=1;
     fnt=xget("font");
     xset("font",ipar(1),ipar(2));
-    str=" "+part("0",ones(1,ipar(5)-ipar(6)-2))+"."+part("0",ones(1,ipar(6)))
-    rr=xstringl(orig(1),orig(2),str)
-    xstring(orig(1)+max(0,(sz(1)-rr(3))/2),orig(2)+max(0,(sz(2)-rr(4))/2),str);
+    str = affich_str(gin1,gin2,ipar(5:6)); 
+    xstringb(orig(1),orig(2),str,sz(1),sz(2));
     xset("font",fnt(1),fnt(2));
   endfunction
-  
+
   x=[];y=[];typ=[]
   select job
    case 'plot' then
+    arg1.graphics.gr_i(1)="blk_draw(sz,orig,orient,model.label)"
     ipar = arg1.model.ipar
     standard_draw(arg1)
    case 'getinputs' then
@@ -38,7 +45,6 @@ function [x,y,typ]=AFFICH_f(job,arg1,arg2)
 		    'Number of rational part digits';
 		    'Block inherits (1) or not (0)'],..
 						  list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1),exprs)
-
       if ~ok then break,end //user cancel modification
       //** ------------------------ Error checking ----------------------------------
       mess = [] ; //** no message
