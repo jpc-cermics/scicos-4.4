@@ -240,14 +240,17 @@ function model= demo_xml_model_from_markup(G)
 	  // elts here are supposed to be struct or terminal 
 	  name=get_node_str(elt,'name')
 	  node= get_node(elt,'subnodes');
-	  // pause demo_xml_store
+// 	  pause demo_xml_store
 	  if type(node,'short')=='gmn' then 
 	    Ls=collect_terminal_list(node);
 	    // convert Ls(11) to booleans 
 	    Ls(11) = Ls(11) =='y';
 	    // convert Ls(4) to booleans 
 	    Ls(4) = Ls(4) <> 'false';
-	    Gls = gtkliststore_new(Ls);
+// 	  pause ALAN:AVERIFIERICI/CORRECTION POUR LinearModelica
+            if ~isempty(Ls(2)) then
+	      Gls = gtkliststore_new(Ls);
+            end
 	  end
 	  iter1 = model.append[iter,list(name,%t,list(Gls))];
 	  if type(node,'short')=='gmn' then 
