@@ -1,34 +1,34 @@
 connector PortPHQ1 
 //  extends ThermoLib.Connecteurs.PortPHQ;
   Real P "Pression du fluide";
-  Real H "Enthalpie spécifique du fluide";
-  Real Q "Débit massique du fluide";
-  Real Hm "Enthalpie spécifique de mélange";
+  Real H "Enthalpie spÃ©cifique du fluide";
+  Real Q "DÃ©bit massique du fluide";
+  Real Hm "Enthalpie spÃ©cifique de mÃ©lange";
 
-//  input Boolean a=true "Pseudo-variable pour la vérification du sens des connexions";
-//  output Boolean b "Pseudo-variable pour la vérification du sens des connexions";
+//  input Boolean a=true "Pseudo-variable pour la vÃ©rification du sens des connexions";
+//  output Boolean b "Pseudo-variable pour la vÃ©rification du sens des connexions";
 end PortPHQ1;
 connector PortPHQ2 
 //  extends ThermoLib.Connecteurs.PortPHQ;
   Real P "Pression du fluide";
-  Real H "Enthalpie spécifique du fluide";
-  Real Q "Débit massique du fluide";
-  Real Hm "Enthalpie spécifique de mélange";
+  Real H "Enthalpie spÃ©cifique du fluide";
+  Real Q "DÃ©bit massique du fluide";
+  Real Hm "Enthalpie spÃ©cifique de mÃ©lange";
 
-//  input Boolean a "Pseudo-variable pour la vérification du sens des connexions";
-//  output Boolean b=true "Pseudo-variable pour la vérification du sens des connexions";
+//  input Boolean a "Pseudo-variable pour la vÃ©rification du sens des connexions";
+//  output Boolean b=true "Pseudo-variable pour la vÃ©rification du sens des connexions";
 
 end PortPHQ2;
 model Source
   parameter Real P0=300000 "Pression de la source";
-  parameter Real T0=290 "Température de la source";
-  parameter Real H0=100000 "Enthalpie spécifique de la source";
-  parameter Real option_temperature=1 "1:température fixée - 2:enthalpie fixée";
+  parameter Real T0=290 "TempÃ©rature de la source";
+  parameter Real H0=100000 "Enthalpie spÃ©cifique de la source";
+  parameter Real option_temperature=1 "1:tempÃ©rature fixÃ©e - 2:enthalpie fixÃ©e";
    
   Real Pm "Pression moyenne";
-  Real Q "Débit";
-  Real Tm "Température moyenne";
-  Real Hm "Enthalpie spécifique moyenne";
+  Real Q "DÃ©bit";
+  Real Tm "TempÃ©rature moyenne";
+  Real Hm "Enthalpie spÃ©cifique moyenne";
 
 public 
   PortPHQ2 C ;
@@ -47,14 +47,14 @@ equation
 end Source;
 model Puits
   parameter Real P0=100000 "Pression du puits";
-  parameter Real T0=290"Température du puits";
-  parameter Real H0=100000 "Enthalpie spécifique du puits";
-  parameter Real option_temperature=1 "1:température fixée - 2:enthalpie fixée";
+  parameter Real T0=290"TempÃ©rature du puits";
+  parameter Real H0=100000 "Enthalpie spÃ©cifique du puits";
+  parameter Real option_temperature=1 "1:tempÃ©rature fixÃ©e - 2:enthalpie fixÃ©e";
 
   Real Pm "Pression moyenne";
-  Real Q "Débit";
-  Real Tm "Température moyenne";
-  Real Hm "Enthalpie spécifique moyenne";
+  Real Q "DÃ©bit";
+  Real Tm "TempÃ©rature moyenne";
+  Real Hm "Enthalpie spÃ©cifique moyenne";
 
 public 
   PortPHQ1 C ;
@@ -77,21 +77,21 @@ model PerteDP
   parameter Real lambda "Coefficient de perte de charge-frottement (s.u.)";
   parameter Real z1 "Altitude entree tuyauterie";
   parameter Real z2 "Altitude sortie tuyauterie";
-  parameter Real p_rho "Si > 0, masse volumique imposée du fluide";
-//  parameter Integer mode "Région IF97. 1:liquide - 2:vapeur - 4:saturation - 0:calcul automatique";
+  parameter Real p_rho "Si > 0, masse volumique imposÃ©e du fluide";
+//  parameter Integer mode "RÃ©gion IF97. 1:liquide - 2:vapeur - 4:saturation - 0:calcul automatique";
   
-  parameter Real g = 9.80665 "Accélération de la pesanteur";
+  parameter Real g = 9.80665 "AccÃ©lÃ©ration de la pesanteur";
   parameter Real pi = 3.1415927;
-  parameter Real eps = 1.e-0 "Limite inf. de la fonction carrée";
+  parameter Real eps = 1.e-0 "Limite inf. de la fonction carrÃ©e";
   Real khi "Coefficient de perte de charge hydraulique";
   Real deltaPf "Perte de charge par frottement";
   Real deltaP "Perte de charge totale";
-  Real Q (start=500) "Débit massique";
+  Real Q (start=500) "DÃ©bit massique";
   Real rho (start=998) "Masse volumique";
-  Real Tm (start=290) "Température moyenne";
+  Real Tm (start=290) "TempÃ©rature moyenne";
   Real Pm (start=1.e5) "Pression moyenne";
-  Real Hm (start=100000) "Enthalpie spécifique moyenne";
-  Real region (start=1) "Numéro de région IF97";
+  Real Hm (start=100000) "Enthalpie spÃ©cifique moyenne";
+  Real region (start=1) "NumÃ©ro de rÃ©gion IF97";
   Real ThermoCar;
 
 public 
@@ -106,7 +106,7 @@ equation
   
   Q = C1.Q;
 
-  /* Inversions de débit */
+  /* Inversions de dÃ©bit */
   0 = if (Q > 0.0) then (C1.H - C1.Hm) else (C2.H - C2.Hm);
   
   /* Calcul des pertes de charges */
@@ -116,10 +116,10 @@ equation
   deltaPf = 8*khi*ThermoCar/(pi^2.0*D^4.0*rho);
   
   
-    /* Formule de Darcy-Weisbach (Idel'cik p. 55). On suppose qu'on est en régime quadratique. */
+    /* Formule de Darcy-Weisbach (Idel'cik p. 55). On suppose qu'on est en rÃ©gime quadratique. */
   khi = lambda*L/D;
   
-  /* Calcul des propriétés thermodynamiques */
+  /* Calcul des propriÃ©tÃ©s thermodynamiques */
   Pm = (C1.P + C2.P)/2;
   Hm = (C1.H + C2.H)/2;
   
@@ -133,32 +133,32 @@ end PerteDP;
 model Bache 
   parameter Real Patm "Pression dans le ciel de la bache";
   parameter Real A "Section de la bache";
-  parameter Real ze1 "Altitude du piquage d'entrée 1";
-  parameter Real ze2 "Altitude du piquage d'entrée 2";
+  parameter Real ze1 "Altitude du piquage d'entrÃ©e 1";
+  parameter Real ze2 "Altitude du piquage d'entrÃ©e 2";
   parameter Real zs1 "Altitude du piquage de sortie 1";
   parameter Real zs2 "Altitude du piquage de sortie 2";
   parameter Real z0 "Altitude initiale du fluide";
   parameter Real T0 "Temperature initiale du fluide";
-  parameter Real p_rho     "Si > 0, masse volumique imposée du fluide";
-  //  parameter Integer mode "Région IF97. 1:liquide - 2:vapeur - 4:saturation - 0:calcul automatique";  
-  parameter Real g=9.80665 "Accélération de la pesanteur";
+  parameter Real p_rho     "Si > 0, masse volumique imposÃ©e du fluide";
+  //  parameter Integer mode "RÃ©gion IF97. 1:liquide - 2:vapeur - 4:saturation - 0:calcul automatique";  
+  parameter Real g=9.80665 "AccÃ©lÃ©ration de la pesanteur";
   parameter Real e=0.25 "Ouverture des piquages";
   parameter Real k=1   "Coefficient de perte de charge des piquages";
-  parameter Real eps=1.e-0 "Limite inf. de la fonction carrée";
-  parameter Real zmin=1.e-6     "Hauteur minimum d'eau pour l'équation  de l'énergie";
+  parameter Real eps=1.e-0 "Limite inf. de la fonction carrÃ©e";
+  parameter Real zmin=1.e-6     "Hauteur minimum d'eau pour l'Ã©quation  de l'Ã©nergie";
 
   Real z(start=z0) "Hauteur du fluide";
-  Real Tm(start=T0) "Température moyenne";
+  Real Tm(start=T0) "TempÃ©rature moyenne";
   Real Pm(start=1.e5) "Pression moyenne";
-  Real Hm(start=100000) "Enthalpie spécifique moyenne";
+  Real Hm(start=100000) "Enthalpie spÃ©cifique moyenne";
   Real rho(start=998) "Masse volumique";
   Real BQ "Bilan de masse";
-  Real BH "Bilan d'énergie";
+  Real BH "Bilan d'Ã©nergie";
   Real Oe1;
   Real Oe2;
   Real Os1;
   Real Os2;
-  Real region(start=1) "Numéro de région IF97";
+  Real region(start=1) "NumÃ©ro de rÃ©gion IF97";
   Real Max_e1;
   Real Max_e2;
   Real Max_s1;
@@ -172,7 +172,7 @@ public
 //  SortieReelle yNiveau ;
   PortPHQ1 Ce1 ;
   PortPHQ2 Cs2 ;
-//  PortTher Cth ; /* Port non utilisé dans le modèle désiré, non implanté sur le bloc SCICOS */
+//  PortTher Cth ; /* Port non utilisÃ© dans le modÃ¨le dÃ©sirÃ©, non implantÃ© sur le bloc SCICOS */
   PortPHQ1 Ce2 ;
   PortPHQ2 Cs1 ;
 
@@ -221,8 +221,8 @@ equation
   BQ = Ce1.Q + Ce2.Q - Cs1.Q - Cs2.Q;
   rho*A*der(z) = BQ;
   
-  /* Bilan d'énergie */
-  /* le port thermique n'est pas utilisé ici  "+ Cth.W" (on a W=0)*/
+  /* Bilan d'Ã©nergie */
+  /* le port thermique n'est pas utilisÃ© ici  "+ Cth.W" (on a W=0)*/
   BH = Ce1.Q*(Ce1.H - Hm) + Ce2.Q*(Ce2.H - Hm) - Cs1.Q*(Cs1.H - Hm) - Cs2.Q*(Cs2.H - Hm);
 
   der(Hm) = if (z > zmin) then BH/(rho*A*z) else 0.0;
@@ -232,12 +232,12 @@ equation
   Cs1.Hm = Hm;
   Cs2.Hm = Hm;
   
-//  Cth.T = Tm; /* le port thermique n'est pas utilisé ici*/
+//  Cth.T = Tm; /* le port thermique n'est pas utilisÃ© ici*/
   
   /* Capteur de niveau */
   yNiveau = z;
   
-  /* Calcul des propriétés thermodynamiques */
+  /* Calcul des propriÃ©tÃ©s thermodynamiques */
   Pm = Patm + rho*g*z/2;
   
   Tm = Hm/4187 + 273.15;
@@ -248,18 +248,18 @@ equation
 end Bache;
 model VanneReglante 
   parameter Real Cvmax "CV max";
-  parameter Real p_rho "Si > 0, masse volumique imposée du fluide";
-//  parameter Integer mode=0 "Région IF97. 1:liquide - 2:vapeur - 4:saturation - 0:calcul automatique";
+  parameter Real p_rho "Si > 0, masse volumique imposÃ©e du fluide";
+//  parameter Integer mode=0 "RÃ©gion IF97. 1:liquide - 2:vapeur - 4:saturation - 0:calcul automatique";
 
-  parameter Real eps=1.e-0 "Limite inf. de la fonction carrée";
+  parameter Real eps=1.e-0 "Limite inf. de la fonction carrÃ©e";
   Real Cv "Cv";
-  Real Q(start=500) "Débit massique";
-  Real deltaP "Perte de charge singulière";
+  Real Q(start=500) "DÃ©bit massique";
+  Real deltaP "Perte de charge singuliÃ¨re";
   Real rho(start=998) "Masse volumique";
-  Real Tm(start=290) "Température moyenne";
+  Real Tm(start=290) "TempÃ©rature moyenne";
   Real Pm(start=1.e5) "Pression moyenne";
-  Real Hm(start=100000) "Enthalpie spécifique moyenne";
-  Real region(start=1) "Numéro de région IF97";
+  Real Hm(start=100000) "Enthalpie spÃ©cifique moyenne";
+  Real region(start=1) "NumÃ©ro de rÃ©gion IF97";
   Real ThermoCar;
 
   Real Ouv ;
@@ -277,7 +277,7 @@ equation
   Q = C1.Q;
   deltaP = C1.P - C2.P;
   
-  /* Inversions de débit */
+  /* Inversions de dÃ©bit */
   0 = if (Q > 0.0) then C1.H - C1.Hm else C2.H - C2.Hm;
   
   /* Calcul de la perte de charge */
@@ -288,7 +288,7 @@ equation
   /* Calcul du Cv en fonction de l'ouverture */
   Cv = Ouv*Cvmax;
   
-  /* Calcul des propriétés thermodynamiques */
+  /* Calcul des propriÃ©tÃ©s thermodynamiques */
   Pm = (C1.P + C2.P)/2;
   Hm = (C1.H + C2.H)/2;
   
@@ -299,10 +299,10 @@ equation
 
 end VanneReglante;
 
-model Flowmeter "Capteur de débit"
+model Flowmeter "Capteur de dÃ©bit"
   parameter Real Qini=1 ;
 
-  Real Q (start=10) "Débit massique";
+  Real Q (start=10) "DÃ©bit massique";
   Real Mesure;
 
   PortPHQ1 C1;
