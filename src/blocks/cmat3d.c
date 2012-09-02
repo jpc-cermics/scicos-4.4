@@ -46,6 +46,8 @@ struct _cmat3d_data
   double alpha,theta;
 };
 
+extern BCG* scicos_set_win (int wid, int *oldwid);
+
 static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
 		       double rect[],int dim_i, int dim_j);
 
@@ -162,23 +164,25 @@ static void nsp_cmat3d(cmat3d_data *D,int win, char *label,NspMatrix *cmap,
   NspSPolyhedron *pol;  
   BCG *Xgc;
   NspMatrix *z,*x,*y;
-  int i,l;
+  int i,l,cur=0;
 
   D->objs3d= NULL;
   
   /*
-   * set current window
+   * set current window/Gc of new window 
    */
+  Xgc = scicos_set_win(win,&cur);
+    
+//   if ((Xgc = window_list_get_first()) != NULL) 
+//     Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
+//   else 
+//     Xgc= set_graphic_window_new(Max(win,0));
+// 
+//   /*
+//    * Gc of new window 
+//    */
+//   if ((Xgc = window_list_get_first())== NULL) return;
   
-  if ((Xgc = window_list_get_first()) != NULL) 
-    Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
-  else 
-    Xgc= set_graphic_window_new(Max(win,0));
-
-  /*
-   * Gc of new window 
-   */
-  if ((Xgc = window_list_get_first())== NULL) return;
   if ((D->objs3d = nsp_check_for_objs3d(Xgc,NULL)) == NULL) return;
 
   D->objs3d->obj->alpha= D->alpha;

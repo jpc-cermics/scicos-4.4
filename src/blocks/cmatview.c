@@ -32,6 +32,8 @@
 
 #include "blocks.h"
 
+extern BCG* scicos_set_win (int wid, int *oldwid);
+
 static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, int dim_j,
 			     NspGMatrix **gm,double *rpar,int cmapsize);
 
@@ -132,23 +134,27 @@ static NspAxes *nsp_cmatview(int win, char *label,int zmin,int zmax, int dim_i, 
   BCG *Xgc;
   NspMatrix *z; 
   double rect[]={0,0,dim_j,dim_i} ; /* verifier */
-  int i,j,l, remap=TRUE;
+  int i,j,l, remap=TRUE,cur=0;
   NspMatrix *Mrect=NULL,*Mzminmax=NULL,*Mcolminmax=NULL;
   char *strf="181";
   NspFigure *F;
   NspMatrix *Cmap=NULL;
+  
   /*
-   * set current window
+   * set current window/Gc of new window 
    */
-  if ((Xgc = window_list_get_first()) != NULL) 
-    Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
-  else 
-    Xgc= set_graphic_window_new(Max(win,0));
-
-  /*
-   * Gc of new window 
-   */
-  if ((Xgc = window_list_get_first())== NULL) return NULL;
+  Xgc = scicos_set_win(win,&cur);
+  
+//   if ((Xgc = window_list_get_first()) != NULL) 
+//     Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
+//   else 
+//     Xgc= set_graphic_window_new(Max(win,0));
+// 
+//   /*
+//    * Gc of new window 
+//    */
+//   if ((Xgc = window_list_get_first())== NULL) return NULL;
+  
   if ((axe=  nsp_check_for_axes(Xgc,NULL)) == NULL) return NULL;
   if ((F = nsp_check_for_figure(Xgc,TRUE)) == NULL) return NULL;
 
