@@ -41,7 +41,16 @@ function scmenu_modelica_initialize()
       %Modelica_Init=%f
       if ok then
 	if file("exists",xmlfile) then
-	  demo_xml(xmlfile)
+          //remove oldest modelica initialize window
+          for i=1:length(scicos_widgets)
+            if scicos_widgets(i).what.equal['ModelicaInitialize'] then
+              if scicos_widgets(i).open==%t then
+                scicos_widgets(i).id.destroy[]
+                break 
+              end
+            end
+          end
+	  scicos_widgets($+1)=hash(id=demo_xml(xmlfile),open=%t,what='ModelicaInitialize')
 	end  
       end
     end

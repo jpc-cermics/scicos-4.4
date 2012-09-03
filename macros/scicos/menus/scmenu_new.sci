@@ -7,6 +7,16 @@ function scmenu_new()
   end
   if %r==2 then
     inactive_windows=close_inactive_windows(inactive_windows,super_path)
+    //closing the initialization GUI before opening another diagram
+    global scicos_widgets
+    for i=1:length(scicos_widgets)
+      if scicos_widgets(i).what.equal['ModelicaInitialize'] then
+        if scicos_widgets(i).open==%t then
+          scicos_widgets(i).id.destroy[]
+          break 
+        end
+      end
+    end
     if alreadyran then do_terminate(),end  //terminate current simulation
     clear('%scicos_solver')
     alreadyran=%f

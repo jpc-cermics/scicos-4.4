@@ -18,7 +18,7 @@
 // and set up a widget for edition. 
 // 
 
-function demo_xml(fname)
+function window=demo_xml(fname)
 
   function selection_cb(selection,args)
   // handler activated when a row is selected 
@@ -121,6 +121,15 @@ function demo_xml(fname)
     end
   endfunction 
 
+  function remove_scicos_widget(wingtkid)
+    global scicos_widgets
+    for i=1:length(scicos_widgets)
+      if wingtkid.equal[scicos_widgets(i).id] then
+        scicos_widgets(i).open=%f;break
+      end
+    end
+  endfunction
+  
   // build the toplevel widget 
   
   if nargin < 1 then 
@@ -161,6 +170,7 @@ function demo_xml(fname)
   model = treeview.get_model[];
   selection.connect["changed", selection_cb,list(model,hbox)]
   
+  window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
 endfunction
 

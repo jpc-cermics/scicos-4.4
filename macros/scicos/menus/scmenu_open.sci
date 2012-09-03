@@ -40,10 +40,21 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
     [ok,scs_m,%cpr,edited]=do_load();
   end
   if ~ok then return;end 
-  if ok && exists('inactive_windows','global') then
+  if ok then
+    if exists('inactive_windows','global') then
+      global inactive_windows;
+      inactive_windows=close_inactive_windows(inactive_windows,super_path)
+    end
     //closing the initialization GUI before opening another diagram
-    global inactive_windows;
-    inactive_windows=close_inactive_windows(inactive_windows,super_path)
+    global scicos_widgets
+    for i=1:length(scicos_widgets)
+      if scicos_widgets(i).what.equal['ModelicaInitialize'] then
+        if scicos_widgets(i).open==%t then
+          scicos_widgets(i).id.destroy[]
+          break 
+        end
+      end
+    end
   end
   if exists('super_block') && super_block then edited=%t;end
   if type(scs_m.props.context,'short')<>'s' then 
