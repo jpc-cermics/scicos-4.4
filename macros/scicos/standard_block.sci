@@ -557,7 +557,7 @@ function [texte,L_out] = standard_document(objet, k)
 endfunction
 
 
-function scicos_show_info_notebook(L)
+function win=scicos_show_info_notebook(L)
 // Copyright Chancelier/Enpc 
 // show L values in a notebook 
   win = gtkwindow_new()
@@ -582,7 +582,19 @@ function scicos_show_info_notebook(L)
     label = gtklabel_new(str=page(1));
     notebook.append_page[vbox,label];
   end
+
+  function remove_scicos_widget(wingtkid)
+    global scicos_widgets
+    for i=1:length(scicos_widgets)
+      if wingtkid.equal[scicos_widgets(i).id] then
+        scicos_widgets(i).open=%f;break
+      end
+    end
+  endfunction
+  win.connect["destroy", remove_scicos_widget, list(win)];
+  win.set_type_hint[GDK.WINDOW_TYPE_HINT_MENU]
   win.show[]
+  win.present[]
 endfunction
 
 function  vbox=scicos_show_table(cols,table)

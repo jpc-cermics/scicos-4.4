@@ -51,7 +51,10 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
       if scicos_widgets(i).what.equal['ModelicaInitialize'] then
         if scicos_widgets(i).open==%t then
           scicos_widgets(i).id.destroy[]
-          break 
+        end
+      elseif scicos_widgets(i).what.equal['GetInfo'] then
+        if scicos_widgets(i).open==%t then
+          scicos_widgets(i).id.destroy[]
         end
       end
     end
