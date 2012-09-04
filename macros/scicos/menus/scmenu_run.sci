@@ -250,14 +250,18 @@ function grs=scicos_graphic_array(%cpr,scs_m)
 // to perform graphics in their icons. 
 // We first limit the usage to main window 
 // jpc: 2011
-  if ~exists('slevel') then slevel=0;end 
+// Updated for blocks in superblocks,
+// Modelica blks/sampleclk blks & etc not yet allowed.
+// Alan 09/2012
   grs={};
   for i=1:size(%cpr.corinv,'*')
-    path=%cpr.corinv(i)
-    if exists('windows')==%f || slevel<>1 || size(path,'*')<>1 then 
-      grs{i}=%f ;
-    else
-      grs{i}= scs_m.objs(path).gr;
+    grs{i}=%f
+    if type(%cpr.corinv(i),'string')=='Mat' then
+      path=scs_full_path(%cpr.corinv(i))
+      o=scs_m(path)
+      if o.iskey['gr'] then
+        grs{i}=o.gr
+      end
     end
   end
 endfunction
