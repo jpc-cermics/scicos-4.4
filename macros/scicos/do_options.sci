@@ -74,13 +74,19 @@ function [edited,options]=do_options(opt,flag)
   elseif flag=='ID' then  
     lfid_l=list('combo','Link ID fontId',options('ID')(2)(1)+1,fontsIds);
     lfiz_l=list('combo','Link ID fontsize',options('ID')(2)(2)+1,fontsSiz);
+    lfic_l=list('combo','Link ID color',options('ID')(2)(3),string(1:10));
+    show_l=list('combo','Show Link ID',options('ID')(2)(4)+1,['No' 'Yes']);
     lfid_b=list('combo','Block ID fontId',options('ID')(1)(1)+1,fontsIds);
     lfiz_b=list('combo','Block ID fontsize',options('ID')(1)(2)+1,fontsSiz);
-    [lrep,lres,rep]=x_choices('ID font definitions',list(lfid_l,lfiz_l,lfid_b,lfiz_b))
+    lfic_b=list('combo','Block ID color',options('ID')(1)(3),string(1:10));
+    show_b=list('combo','Show Block ID',options('ID')(1)(4)+1,['No' 'Yes']);
+
+    [lrep,lres,rep]=x_choices('ID font definitions',list(lfid_l,lfiz_l,lfic_l,show_l,...
+                                                         lfid_b,lfiz_b,lfic_b,show_b))
     if ~isempty(rep) then
       ok=%t
-      options('ID')(1)=rep(1:2)-1
-      options('ID')(2)=rep(3:4)-1
+      options('ID')(1)=[(rep(5:6)(:))'-1,rep(7),rep(8)-1]
+      options('ID')(2)=[(rep(1:2)(:))'-1,rep(3),rep(4)-1]
     end
   elseif flag=='Cmap' then
     // add a color to colormap.

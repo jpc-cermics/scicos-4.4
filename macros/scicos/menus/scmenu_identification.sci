@@ -60,12 +60,12 @@ function [scs_m,changed]=do_identification(scs_m)
       c_links = connected_links(scs_m,numero_objet)
       //- set identification to all connected links
       for numero = c_links
-	objet = scs_m.objs(numero)
-	objet.id = identification
-	objet=drawobj(objet);
-	objet.gr.invalidate[];
-	changed=%t;
-	scs_m.objs(numero_objet) = objet;
+        objet = scs_m.objs(numero)
+        objet.id = newid
+        objet=drawobj(objet,F);
+        objet.gr.invalidate[];
+        changed=%t;
+        scs_m.objs(numero) = objet;
       end
     end				
   else
