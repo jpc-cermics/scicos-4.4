@@ -1,14 +1,14 @@
 function scmenu_help()
   xinfo('Click on object or menu to get help')
   xcursor(93)
-  do_help()
+  Select=do_help(Select)
   xcursor()
   xinfo(' ')
   Cmenu=''
   %pt=[]
 endfunction
 
-function do_help()
+function Select=do_help(Select)
   cwin=%win
   sel_items=size(Select)
   obj_selected=sel_items(1)
@@ -28,6 +28,7 @@ function do_help()
           if o.type=="Block" then 
             name=o.gui
             nm=0
+            Select=[k %win];
           else
             return
           end
