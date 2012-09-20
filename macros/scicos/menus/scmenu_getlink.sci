@@ -3,15 +3,15 @@ function scmenu_getlink()
 // standard method 
   Cmenu=''
   xinfo('Click link origin, drag, click left for final or intermediate points or right to cancel')
-  [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile);
+  [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,%t);
   %pt=[];Select=[];
   xinfo(' ')
 endfunction
-
+//alan reversed link and smartlink sept/2012
 function scmenu_smart_getlink()
 // interactively acquire a link 
-// smart method 
-  [scs_m, needcompile]=do_getlink(%pt,scs_m,needcompile,%t);
+// smart method
+  [scs_m, needcompile]=do_getlink(%pt,scs_m,needcompile,%f);
   Cmenu='';%pt=[];Select=[];
 endfunction
 
@@ -162,7 +162,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 
   //----------- get link path ----------------------------------------
   //------------------------------------------------------------------
-  // Make a nex polyline
+  // Make a new polyline
   xcursor(GDK.PENCIL);
   F=get_current_figure();
   F.start_compound[];
@@ -171,10 +171,12 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   C.children(1).color=clr
   P=C.children(1);
   pt=[];
+  first=%t;nb=0;
   while %t do ; //loop on link segments
     rep(3)=-1
     n=size(P.x,'*');
     while rep(3)==-1 do 
+      nb=nb+1
       // since the previously acquired point can have been 
       // changed to fit projection we have to check that next 
       // acquisition initial draw is correct. 
@@ -185,7 +187,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	end
       end
       // get a new point waiting for click
-      rep=xgetmouse(clearq=%t,getrelease=%f,cursor=%f)
+      rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f)
       F.draw_latter[];
       if rep(3)==2 then 
 	xset('color',dash)
@@ -194,8 +196,12 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	F.draw_now[];
 	return
       elseif rep(3)==-5 then
-         kto=getblock(scs_m,[rep(1);rep(2)])
-         if isempty(kto) then rep(3)=-1, end
+         if ~first || nb>5 then
+           kto=getblock(scs_m,[rep(1);rep(2)])
+           if isempty(kto) then rep(3)=-1, end
+         else
+           first=%f,rep(3)=-1
+         end
       end
       //plot new position of last link segment
       xe=rep(1);ye=rep(2)
@@ -409,7 +415,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       end
     end
   end ; //loop on link segments
-  
+  selecthilite(Select, %f)
   // now we try to improve the path-link 
   //xl=P.x';
   //yl=P.y';
