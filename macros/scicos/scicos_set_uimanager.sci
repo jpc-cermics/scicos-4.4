@@ -524,8 +524,8 @@ function S=scicos_actions()
 	    'scmenu_view_menu','View',"","";
 	    'scmenu_file_menu','File',"",""];
   
-  S.scicos_stop= ["$scicos_stop","Stop","", "gtk-media-stop"];
-  
+  //S.scicos_stop= ["$scicos_stop","Stop","", "gtk-media-stop"];
+  S.scicos_stop= ["$scicos_stop","Stop","", "gtk-cancel"];
 endfunction
 
 function scicos_menus_select_set_sensitivity(selection,win) 

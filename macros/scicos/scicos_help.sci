@@ -546,6 +546,9 @@ function H=scicos_help_menu()
        "current version of Scicos and";
        "gives some useful informations."];
 
+  H('$scicos_stop')=...
+      ["Stop simulation"];
+
   //****** Old items ******/
   //   H=('Display mode')=
   //                ["Display mode can be 0 or 1. In mode 1, scicos editor uses the";
