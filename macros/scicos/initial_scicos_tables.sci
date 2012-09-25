@@ -1,6 +1,6 @@
 function [%scicos_short, %scicos_help, ...
           %scicos_display_mode, modelica_libs, ...
-          %scicos_lhb_list, %CmenuTypeOneVector,%scicos_gif, ...
+          %scicos_lhb_list, %CmenuTypeOneVector, %DmenuTypeOneVector, %scicos_gif, ...
           %scicos_contrib,%scicos_libs,%scicos_cflags] = initial_scicos_tables()
 
   // build a set of scicos global data 
@@ -248,6 +248,24 @@ function [%scicos_short, %scicos_help, ...
       'scmenu_code_generation',"Click on a Super Block (without activation output) to obtain a coded block!" ;
       'Block Documentation',   "Click on a block to set or get it''s documentation"]
   
+  //** "%DmenuTypeOneVector" store the list of the commands/function to be called that don't require to
+  //** disable menus in the editor. Should be carrefully updated
+  %DmenuTypeOneVector =..
+     ['CheckMove';
+      'Move';
+      'Delete';
+      'Undo';
+      'CheckSmartMove';
+      'Smart Move';
+      'SelectRegion';
+      'scmenu_paste';
+      'Fit diagram to figure';
+      'scmenu_fit_diagram_to_figure';
+      'Zoom in';
+      'scmenu_zoom_in';
+      'Zoom out';
+      'scmenu_zoom_out']
+
   // Hash table for help strings ==============================
   %scicos_help=scicos_help();
 endfunction

@@ -320,7 +320,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
       scicos_menu_update_sensitivity(Clipboard,Select)
 
-      [CmenuType, mess]=CmType(Cmenu);
+      [CmenuType, DmenuType, mess]=CmType(Cmenu);
       xinfo(mess);
       if (Cmenu=="" & ~isempty(%pt)) then %pt=[]; end
       if (Cmenu<>"" & CmenuType==0) then %pt=[]; end
@@ -339,7 +339,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         end
         %win = win_n
       else
-        disablemenus();
+        if DmenuType then disablemenus(), end
         %koko=find(Cmenu==%cor_item_exec(:,1))
         if size(%koko,'*')==1 then
           Select_back=Select
@@ -436,7 +436,8 @@ function scs_m=scicos_leave(scs_m)
   end
 endfunction 
 
-function [itype, mess] = CmType(Cmenu)
+function [itype, dtype, mess] = CmType(Cmenu)
+  dtype=isempty(find(Cmenu==%DmenuTypeOneVector(:,1)));
   k=find(Cmenu==%CmenuTypeOneVector(:,1)); 
   if isempty(k) then
     itype=0
@@ -586,8 +587,8 @@ function scicos_library_initialize()
 
   names = ['%scicos_short';'%scicos_help';
 	   '%scicos_display_mode';'modelica_libs';
-	   '%scicos_lhb_list';' %CmenuTypeOneVector';' %scicos_gif';
-	   '%scicos_contrib';'%scicos_libs';'%scicos_cflags'];
+	   '%scicos_lhb_list';'%CmenuTypeOneVector';'%DmenuTypeOneVector';
+           '%scicos_gif';'%scicos_contrib';'%scicos_libs';'%scicos_cflags'];
   Enames = exists(names);
   if ~and(Enames) then 
     // at least one of names is not defined 
