@@ -196,12 +196,14 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	F.draw_now[];
 	return
       elseif rep(3)==-5 then
-         if ~first || nb>5 then
+         if ~first || nb>10 then
            kto=getblock(scs_m,[rep(1);rep(2)])
            if isempty(kto) then rep(3)=-1, end
          else
            first=%f,rep(3)=-1
          end
+      else
+        rep(3)=-1
       end
       //plot new position of last link segment
       xe=rep(1);ye=rep(2)

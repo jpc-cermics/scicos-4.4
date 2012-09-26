@@ -114,7 +114,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
     o.gr.children(1).x=[X_start;x1;X_end]
     o.gr.children(1).y=[Y_start;y1;Y_end]
 
-    rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f);
     F.draw_latter[]
     xc1=rep(1)
     yc1=rep(2)
@@ -433,7 +433,8 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   moved_dist=0
   cursor_changed=%f;
   while 1 do //** interactive move loop
-    rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f);
+    F.draw_latter[];
     //** left button release, right button (press, click)
     if rep(3)==3 then
       global scicos_dblclk
@@ -526,8 +527,10 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
 	gh_link_mod.invalidate[]
       end
     end
+    F.draw_now[];
   end //** ... of while Interactive move LOOP --------------------------------------------------------------
   xcursor();
+  F.draw_now[];
 
   //**-----------------------------------------------
   //gh_figure = gcf();

@@ -84,6 +84,7 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
     // move loop
     // get new position
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    F.draw_latter[];
     if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
@@ -145,7 +146,9 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
       oi.gr.invalidate[];
     end
     pto=pt;
+    F.draw_now[];
   end
+  F.draw_now[];
   // update the block structure and connected links
   if rep(3)<>2 then
     // updates
