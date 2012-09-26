@@ -75,6 +75,7 @@ function window_set_size(win,viewport)
   if with_axe_obj then
     A.show=%t;
   end
+  gh.set_geometry_hints[]
   xflush()
   F.invalidate[]
   F.process_updates[]

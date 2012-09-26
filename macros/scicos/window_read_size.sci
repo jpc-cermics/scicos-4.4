@@ -55,6 +55,7 @@ function window_read_size(win)
   end
   hscrollbar.value=scs_m.props.wpar(7)
   vscrollbar.value=scs_m.props.wpar(8)
+  gh.set_geometry_hints[]
   //printf("in window_read_size : hscrollbar.value=%d, vscrollbar.value=%d\n",hscrollbar.value,vscrollbar.value);
   xflush()
 endfunction

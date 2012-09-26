@@ -29,4 +29,7 @@ function pwindow_set_size()
     xflush();
     xpause(1);
   end
+  F=get_current_figure();
+  gh=nsp_graphic_widget(F.id)
+  gh.set_geometry_hints[]
 endfunction
