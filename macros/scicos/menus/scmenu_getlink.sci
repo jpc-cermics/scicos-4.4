@@ -202,7 +202,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
          else
            first=%f,rep(3)=-1
          end
-      else
+      elseif rep(3)~=0 then
         rep(3)=-1
       end
       //plot new position of last link segment
