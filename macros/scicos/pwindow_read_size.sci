@@ -6,7 +6,7 @@ function pwindow_read_size(win)
   winsize=scs_m.props.wpar(9:10)
   winpos=scs_m.props.wpar(11:12)
   gh.move[winpos(1),winpos(2)]
-  xset("wresize",0);
+  xset("wresize",2);
   xset('wdim',int(winsize(1)),int(winsize(2)))
   wdim=xget('wdim');
   while not(and(wdim==[int(winsize(1)),int(winsize(2))]))
@@ -23,7 +23,4 @@ function pwindow_read_size(win)
     xflush();
     xpause(1);
   end
-  F=get_current_figure();
-  gh=nsp_graphic_widget(F.id)
-  gh.set_geometry_hints[]
 endfunction

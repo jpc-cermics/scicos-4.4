@@ -20,7 +20,7 @@ function window_set_size(win,viewport)
   end
 
   [mrect,wdim]=windows_compute_size();
-  xset("wresize",0);
+  xset("wresize",2);
   xset('wdim',wdim(1),wdim(2));
   arect=[0 0 0 0]
   wrect=[0,0,1,1];
@@ -75,7 +75,6 @@ function window_set_size(win,viewport)
   if with_axe_obj then
     A.show=%t;
   end
-  gh.set_geometry_hints[]
   xflush()
   F.invalidate[]
   F.process_updates[]

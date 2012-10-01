@@ -12,7 +12,7 @@ function pwindow_set_size()
   //printf("zoom=%d, wdd=%d, hdd=%d\n",%zoom,%wdd,%hdd);
 
   //brutal approach : loop until the window have good size
-  xset("wresize",0);
+  xset("wresize",2);
   xset('wdim',int(max(400,%wdd)),int(max(300,%hdd)))
   wdim=xget('wdim');
   while not(and(wdim==[int(max(400,%wdd)),int(max(300,%hdd))]))
@@ -29,7 +29,4 @@ function pwindow_set_size()
     xflush();
     xpause(1);
   end
-  F=get_current_figure();
-  gh=nsp_graphic_widget(F.id)
-  gh.set_geometry_hints[]
 endfunction

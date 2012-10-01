@@ -4,7 +4,7 @@ function window_read_size(win)
   end
   F=get_current_figure()
   gh=nsp_graphic_widget(win)
-  xset("wresize",0);
+  xset("wresize",2);
   xflush()
   axsize=scs_m.props.wpar(5:6)
   xset("wdim",axsize(1),axsize(2))
@@ -55,7 +55,6 @@ function window_read_size(win)
   end
   hscrollbar.value=scs_m.props.wpar(7)
   vscrollbar.value=scs_m.props.wpar(8)
-  gh.set_geometry_hints[]
   //printf("in window_read_size : hscrollbar.value=%d, vscrollbar.value=%d\n",hscrollbar.value,vscrollbar.value);
   xflush()
 endfunction
