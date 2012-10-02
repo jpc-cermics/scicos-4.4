@@ -38,15 +38,15 @@ function window_read_size(win)
   hscrollbar=ScrolledWindow.get_hadjustment[]
   vscrollbar=ScrolledWindow.get_vadjustment[]
   //brutal approach : loop until the gtk scrollbar have good size
-  while hscrollbar.upper>axsize(1) then
-    xflush()
-    xpause(1)
-  end
-
-  while vscrollbar.upper>axsize(2) then
-    xflush()
-    xpause(1)
-  end
+//   while hscrollbar.upper>axsize(1) then
+//     xflush()
+//     xpause(1)
+//   end
+// 
+//   while vscrollbar.upper>axsize(2) then
+//     xflush()
+//     xpause(1)
+//   end
 
   if size(scs_m.props.wpar,'*')>13 then
     hscrollbar.page_size=scs_m.props.wpar(14)

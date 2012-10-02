@@ -48,15 +48,15 @@ function window_set_size(win,viewport)
     vscrollbar=ScrolledWindow.get_vadjustment[];
 
     //brutal approach : loop until the gtk scrollbar have good size
-    while hscrollbar.upper>wdim(1) then
-      xflush()
-      xpause(1)
-    end
-
-    while vscrollbar.upper>wdim(2) then
-      xflush()
-      xpause(1)
-    end
+//     while hscrollbar.upper>wdim(1) then
+//       xflush()
+//       xpause(1)
+//     end
+// 
+//     while vscrollbar.upper>wdim(2) then
+//       xflush()
+//       xpause(1)
+//     end
 
     %XSHIFT=(int(wdim(1))-hscrollbar.page_size)/2
     %YSHIFT=(int(wdim(2))-vscrollbar.page_size)/2
