@@ -11,7 +11,7 @@ function scmenu_region_to_super_block()
     end
     [%pt,scs_m]=do_select2block(%pt,scs_m,SUPER_f);
   end
-  Cmenu='Replot';%pt=[];
+  Cmenu='';%pt=[];
 endfunction
 
 function [%pt,scs_m,Select]=do_region2block(%pt,scs_m,fun)

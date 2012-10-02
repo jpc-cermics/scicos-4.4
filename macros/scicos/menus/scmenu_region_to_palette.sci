@@ -11,5 +11,5 @@ function scmenu_region_to_palette()
     end
     [%pt,scs_m]=do_select2block(%pt,scs_m,PAL_f);
   end
-  Cmenu='Replot';%pt=[];
+  Cmenu='';%pt=[];
 endfunction
