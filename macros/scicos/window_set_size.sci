@@ -18,10 +18,11 @@ function window_set_size(win,viewport)
     A=F.children(1)
     A.show=%f
   end
-
   [mrect,wdim]=windows_compute_size();
   xset("wresize",2);
+  r=xget('wpdim');
   xset('wdim',wdim(1),wdim(2));
+  xset('wpdim',r(1),r(2))
   arect=[0 0 0 0]
   wrect=[0,0,1,1];
   
@@ -94,8 +95,10 @@ function [frect,wdim]=windows_compute_size()
   ay = (max(r(2)/(%zoom*h),j));
   bx = (1-1/ax)/2; 
   by = (1-1/ay)/2; 
+
   // window dim 
   wdim = %zoom*[ w * ax, h * ay];
+
   // 
   margins=[0.02 0.02 0.02 0.02]
   wp=w*(ax+margins(1)+margins(2))
