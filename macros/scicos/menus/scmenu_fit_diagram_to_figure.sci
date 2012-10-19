@@ -50,6 +50,7 @@ function scmenu_fit_diagram_to_figure()
      end
 
      F.invalidate[]
+     edited=%t
    end
 
    xinfo(' ');

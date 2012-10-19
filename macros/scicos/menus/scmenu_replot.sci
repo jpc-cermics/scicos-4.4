@@ -12,6 +12,7 @@ function scmenu_replot()
 
   window_set_size();
   scs_m=do_replot(scs_m);
+  edited=%t
 endfunction
 
 function scs_m=do_replot(scs_m)

@@ -29,5 +29,6 @@ function scmenu_zoom_in()
   end
 
   F.invalidate[]
+  edited=%t
   xinfo(' ')
 endfunction
