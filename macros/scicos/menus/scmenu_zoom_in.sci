@@ -10,18 +10,12 @@ function scmenu_zoom_in()
   viewport=xget("viewport");
   viewport=viewport*zoomfactor-0.5*winsize*(1-zoomfactor)
   viewport=max([0,0],min(viewport,-winsize+axsize))
-  //window_set_size(curwin,viewport)
+  F.draw_latter[];
   window_set_size(curwin,%f)
-  //scs_m=do_replot(scs_m);
-
-  //we need redraw text
-  for i=1:length(scs_m.objs)
-    if scs_m.objs(i).type=="Text" then
-      o=scs_m.objs(i)
-      [o,ok]=drawobj(o,F)
-      scs_m.objs(i)=o;
-    end
-  end
+  //we need redraw text and some blocks
+  //with not filled text
+  [scs_m]=redrawifnecessary(scs_m,F)
   F.invalidate[]
+  F.draw_now[];
   xinfo(' ')
 endfunction
