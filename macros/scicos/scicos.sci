@@ -196,6 +196,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       window_set_size();
       scs_m=drawobjs(scs_m,curwin);
     else
+      //needed here ?
+      //maybe because we don't store gr in rpar of sblock
+      //isequal to be checked for gr object
+      scs_m=user_data(1)
       if size(user_data(1).props.wpar,'*')>12 then
         %zoom=scs_m.props.wpar(13)
       end
