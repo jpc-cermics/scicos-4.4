@@ -26,7 +26,7 @@ function [x,y,typ]=CLKOUTV_f(job,arg1,arg2)
 	 -1/14,  1/7]*diag([xf,yf]);
     xfpoly(in(:,1)+ones(4,1)*(orig(1)+sz(1)/2),..
 	   in(:,2)+ones(4,1)*(orig(2)+sz(2)),..
-	   thickness=2,color=color,fill_color=1)
+	   thickness=2,color=color,fill_color=color)
     // Identification 
     ident = arg1.graphics.id
     //identification
