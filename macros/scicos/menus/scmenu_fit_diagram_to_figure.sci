@@ -24,17 +24,33 @@ function scmenu_fit_diagram_to_figure()
 
    r=[hrect.width vrect.height]
 
-   %zoom_w=r(1)/(w*(1+margins(1)+margins(2)))
+   newzoom_w=r(1)/(w*(1+margins(1)+margins(2)))
    //suppose for that time that menu bar & status bar have the same height
    //like the scroolbar
-   %zoom_h=r(2)/(h*(1+margins(3)+margins(4)))
-   %zoom=min(%zoom_w,%zoom_h);
-   F.draw_latter[];
-   window_set_size(curwin,%f);
-   //we need redraw text and some blocks
-   //with not filled text
-   [scs_m]=redrawifnecessary(scs_m,F)
-   F.invalidate[]
-   F.draw_now[];
+   newzoom_h=r(2)/(h*(1+margins(3)+margins(4)))
+   newzoom=min(newzoom_w,newzoom_h);
+
+   if newzoom~=%zoom then
+     %zoom=newzoom
+     for i=1:length(scs_m.objs)
+       if scs_m.objs(i).iskey['gr'] then
+         scs_m.objs(i).gr.show=%f
+       end
+     end
+
+     window_set_size(curwin,%f);
+     //we need redraw text and some blocks
+     //with not filled text
+     [scs_m]=redrawifnecessary(scs_m,F)
+  
+     for i=1:length(scs_m.objs)
+       if scs_m.objs(i).iskey['gr'] then
+         scs_m.objs(i).gr.show=%t
+       end
+     end
+
+     F.invalidate[]
+   end
+
    xinfo(' ');
 endfunction

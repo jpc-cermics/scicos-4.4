@@ -1,5 +1,5 @@
 function window_set_size(win,viewport)
-  
+
   if ~exists('scs_m') then scs_m=hash();end 
   if ~exists('curwin') then curwin=0;end
   if ~exists('%zoom') then %zoom=1;end 
@@ -16,16 +16,19 @@ function window_set_size(win,viewport)
   else
     with_axe_obj=%t
     A=F.children(1)
-    A.show=%f
   end
   [mrect,wdim]=windows_compute_size();
-  xset("wresize",2);
-  r=xget('wpdim');
+
+  xset("wresize",0);
   xset('wdim',wdim(1),wdim(2));
-  xset('wpdim',r(1),r(2))
+
+  xset("wresize",2);
+  gh.set_geometry_hints[];
+
+  xflush()
+
   arect=[0 0 0 0]
   wrect=[0,0,1,1];
-  
   if ~with_axe_obj then
     xsetech(arect=arect,frect=mrect,fixed=%t,clip=%f,axesflag=0,iso=%t)
   else
@@ -36,6 +39,9 @@ function window_set_size(win,viewport)
     // rect is hidden but can be accessed through set and get
     A.set[rect=mrect];
   end
+
+  xflush()
+
   // center the graphic viewport inside the graphic window
   if isequal(viewport,%f) then
     wdim=xget('wdim');
@@ -46,26 +52,8 @@ function window_set_size(win,viewport)
     ScrolledWindow=ScrolledWindow($);
     hscrollbar=ScrolledWindow.get_hadjustment[];
     vscrollbar=ScrolledWindow.get_vadjustment[];
-
-    //brutal approach : loop until the gtk scrollbar have good size
-//     while hscrollbar.upper>wdim(1) then
-//       xflush()
-//       xpause(1)
-//     end
-// 
-//     while vscrollbar.upper>wdim(2) then
-//       xflush()
-//       xpause(1)
-//     end
-
     %XSHIFT=(int(wdim(1))-hscrollbar.page_size)/2
     %YSHIFT=(int(wdim(2))-vscrollbar.page_size)/2
-
-    //printf("wdim(1)=%f, XSHIFT=%f\n",wdim(1),%XSHIFT);
-    //printf("hscroll : upper=%f, page_size=%f, XSHIFT=%f\n",hscrollbar.upper,hscrollbar.page_size,(hscrollbar.upper-hscrollbar.page_size)/2);
-    //printf("wdim(2)=%f, YSHIFT=%f\n",wdim(2),%YSHIFT);
-    //printf("vscroll : upper=%f, page_size=%f, YSHIFT=%f\n",vscrollbar.upper,vscrollbar.page_size,(vscrollbar.upper-vscrollbar.page_size)/2);
-
     hscrollbar.set_value[%XSHIFT]
     vscrollbar.set_value[%YSHIFT]
   else
@@ -73,10 +61,7 @@ function window_set_size(win,viewport)
     %YSHIFT=viewport(2)
     xset('viewport',%XSHIFT,%YSHIFT)
   end
-  if with_axe_obj then
-    A.show=%t;
-  end
-  xflush()
+
   F.invalidate[]
   F.process_updates[]
 endfunction

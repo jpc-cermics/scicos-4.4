@@ -1,14 +1,23 @@
 function window_read_size(win)
+
   if nargin<1 then
     win=curwin
   end
+
+  xset('window',win)
   F=get_current_figure()
   gh=nsp_graphic_widget(win)
-  xset("wresize",2);
-  xflush()
+
   axsize=scs_m.props.wpar(5:6)
+
+  xset("wresize",0);
   xset("wdim",axsize(1),axsize(2))
+
+  xset("wresize",2);
+  gh.set_geometry_hints[];
+
   xflush()
+
   arect=[0 0 0 0];
   // (xmin,ymin,xmax,ymax)
   mrect=scs_m.props.wpar(1:4);
@@ -30,31 +39,23 @@ function window_read_size(win)
     // rect is hidden but can be accessed through set and get
     A.set[rect=mrect];
   end
+
   xflush()
+
   Vbox=gh.get_children[]
   Vbox=Vbox(1)
   ScrolledWindow=Vbox.get_children[]
   ScrolledWindow=ScrolledWindow($)
   hscrollbar=ScrolledWindow.get_hadjustment[]
   vscrollbar=ScrolledWindow.get_vadjustment[]
-  //brutal approach : loop until the gtk scrollbar have good size
-//   while hscrollbar.upper>axsize(1) then
-//     xflush()
-//     xpause(1)
-//   end
-// 
-//   while vscrollbar.upper>axsize(2) then
-//     xflush()
-//     xpause(1)
-//   end
 
   if size(scs_m.props.wpar,'*')>13 then
     hscrollbar.page_size=scs_m.props.wpar(14)
     vscrollbar.page_size=scs_m.props.wpar(15)
-    //printf("in window_read_size : hscrollbar.page_size=%d, vscrollbar.page_size=%d\n",hscrollbar.page_size,vscrollbar.page_size);
   end
   hscrollbar.value=scs_m.props.wpar(7)
   vscrollbar.value=scs_m.props.wpar(8)
-  //printf("in window_read_size : hscrollbar.value=%d, vscrollbar.value=%d\n",hscrollbar.value,vscrollbar.value);
-  xflush()
+
+  F.invalidate[]
+  F.process_updates[]
 endfunction
