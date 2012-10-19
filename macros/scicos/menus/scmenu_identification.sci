@@ -4,7 +4,7 @@ function scmenu_identification()
   [scs_m,changed]= do_identification(scs_m);
   if changed then 
     edited=%t;
-    scs_m_save=sc;enable_undo=%t;
+    scs_m_save=sc;enable_undo=%t;nc_save=needcompile;
   end
 endfunction
 
@@ -39,7 +39,10 @@ function [scs_m,changed]=do_identification(scs_m)
       newid = stripblanks(newid);
       if newid==identification;return;end 
       objet.graphics.id = newid;
+      hilited=objet.gr.hilited
+      if hilited then unhilite_obj(objet,draw=%t), end
       objet=drawobj(objet,F);
+      if hilited then hilite_obj(objet,draw=%t), end
       objet.gr.invalidate[];
       //pause xxx
       changed=%t;

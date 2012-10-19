@@ -144,46 +144,62 @@ function standard_etiquette(bloc, legende, job)
 //GRAPHIQUE = 2;ORIGINE = 1;TAILLE = 2
 //macro = bloc(5)
   macro = bloc.gui
+  if ~exists("%zoom") then %zoom=1, end;
+  fz= 2*%zoom*4;
+  fnt=xget('font');
+  is_flip=bloc.graphics.flip
 
   select job
+
    case 'in' then //= Ports d'entree ==
     execstr('[x, y, typ] = '+macro+'(''getinputs'', bloc)')
     x = x(find(typ == 1))
     y = y(find(typ == 1))
+    xset('font', options.ID(1)(1), options.ID(1)(2));
+    if is_flip then posx='right' else posx='left', end
     for i = 1:size(legende,'*')
-      rect = xstringl(0, 0, legende(i))
-      xstring(x(i)-rect(3),y(i),legende(i))
+      xstring(x(i),y(i),legende(i),posx=posx,posy='bottom',size=fz)
     end
+    xset('font', fnt(1), fnt(2));
 
    case 'out' then //= Ports de sortie ==
     execstr('[x, y, typ] = '+macro+'(''getoutputs'', bloc)')
     x = x(find(typ == 1))
     y = y(find(typ == 1))
-    for i = 1:size(legende,'*'),
-      xstring(x(i),y(i),legende(i))
+    xset('font', options.ID(1)(1), options.ID(1)(2));
+    if is_flip then posx='left' else posx='right', end
+    for i = 1:size(legende,'*')
+      xstring(x(i),y(i),legende(i),posx=posx,posy='bottom',size=fz)
     end
+    xset('font', fnt(1), fnt(2));
+
    case 'clkin' then //= Port d'entree evenement ==
     execstr('[x, y, typ] = '+macro+'(''getinputs'', bloc)')
     x = x(find(typ == -1))
     y = y(find(typ == -1))
+    xset('font', options.ID(1)(1), options.ID(1)(2));
     for i = 1:size(legende,'*')
-      rect = xstringl(0, 0, legende(i))
-      xstring(x(i)-rect(3),y(i)+(i-1)*rect(4),legende(i))
+      xstring(x(i),y(i),legende(i),posx='left',posy='bottom',size=fz)
     end
+    xset('font', fnt(1), fnt(2));
+
    case 'clkout' then //= Ports de sortie evenement ==
     execstr('[x, y, typ] = '+macro+'(''getoutputs'', bloc)')
     x = x(find(typ == -1))
     y = y(find(typ == -1))
+    xset('font', options.ID(1)(1), options.ID(1)(2));
     for i = 1:size(legende,'*')
-      rect = xstringl(0, 0, legende(i))
-      xstring(x(i)-rect(3), y(i)-i*rect(4)*1.2,legende(i))
+      xstring(x(i),y(i),legende(i),posx='left',posy='up',size=fz)
     end
+    xset('font', fnt(1), fnt(2));
+
    case 'centre' then //= Centre du bloc ==
 		      //origine = bloc(GRAPHIQUE)(ORIGINE)
 		      // taille = bloc(GRAPHIQUE)(TAILLE)
 		      origine = bloc.graphics.orig
 		      taille = bloc.graphics.sz
 		      xstringb(origine(1), origine(2), legende, taille(1), taille(2), 'fill')
+
    case 'croix' then //= Identification des bases de donnees ==
 		     // origine = bloc(GRAPHIQUE)(ORIGINE)
 		     //taille = bloc(GRAPHIQUE)(TAILLE)
