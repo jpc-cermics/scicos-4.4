@@ -12,7 +12,7 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
     fnt=xget("font");
     xset("font",ipar(1),ipar(2));
     str = affich_str(gin1,gin2,ipar(5:6)); 
-    xstringb(orig(1),orig(2),str,sz(1),sz(2));
+    xstringb(orig(1),orig(2),str,sz(1),sz(2),'fill');
     xset("font",fnt(1),fnt(2));
   endfunction
   
