@@ -33,13 +33,24 @@ function scmenu_fit_diagram_to_figure()
    if newzoom~=%zoom then
      %zoom=newzoom
 
-     F.draw_latter[]; // to block the redraw in window_set_size
+     for i=1:length(scs_m.objs)
+       if scs_m.objs(i).iskey['gr'] then
+        scs_m.objs(i).gr.show=%f
+       end
+     end
+
      window_set_size(curwin,%f,invalidate=%f);
      // see scmenu_zoom_in 
      //  need redraw text and some blocks
      //  with not filled text.
      [scs_m]=scmenu_redraw_zoomed_text(scs_m,F);
-     F.draw_now[];
+
+     for i=1:length(scs_m.objs)
+       if scs_m.objs(i).iskey['gr'] then
+        scs_m.objs(i).gr.show=%t
+       end
+     end
+
      F.invalidate[];
      edited=%t;
    end

@@ -36,6 +36,7 @@ function window_set_size(win,viewport,invalidate=%t)
     A.frect=mrect
     A.fixed=%t
     A.clip=%f
+    A.axes=0
     // rect is hidden but can be accessed through set and get
     A.set[rect=mrect];
   end
