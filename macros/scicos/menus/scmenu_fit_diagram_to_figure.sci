@@ -2,11 +2,11 @@ function scmenu_fit_diagram_to_figure()
    Cmenu='';
    xinfo('Fit diagram to figure');
    F=get_current_figure()
-   gh=nsp_graphic_widget(curwin) //** get the handle of the current graphics window
-   r=gh.get_size[];              //** acquire the current figure physical size
-   rect=dig_bound(scs_m);        //** Scicos diagram size
-   if isempty(rect) then         //** if the schematics is not defined
-     return;                     //**   then return
+   gh=nsp_graphic_widget(curwin) // get widget associated to the current graphics window
+   r=gh.get_size[];              // get widget size 
+   rect=dig_bound(scs_m);        // Scicos diagram size
+   if isempty(rect) then         // if the schematics is not defined we return;
+     return;                    
    end
    w=(rect(3)-rect(1));
    h=(rect(4)-rect(2));
@@ -32,26 +32,16 @@ function scmenu_fit_diagram_to_figure()
 
    if newzoom~=%zoom then
      %zoom=newzoom
-     for i=1:length(scs_m.objs)
-       if scs_m.objs(i).iskey['gr'] then
-         scs_m.objs(i).gr.show=%f
-       end
-     end
 
-     window_set_size(curwin,%f);
-     //we need redraw text and some blocks
-     //with not filled text
-     [scs_m]=redrawifnecessary(scs_m,F)
-  
-     for i=1:length(scs_m.objs)
-       if scs_m.objs(i).iskey['gr'] then
-         scs_m.objs(i).gr.show=%t
-       end
-     end
-
-     F.invalidate[]
-     edited=%t
+     F.draw_latter[]; // to block the redraw in window_set_size
+     window_set_size(curwin,%f,invalidate=%f);
+     // see scmenu_zoom_in 
+     //  need redraw text and some blocks
+     //  with not filled text.
+     [scs_m]=scmenu_redraw_zoomed_text(scs_m,F);
+     F.draw_now[];
+     F.invalidate[];
+     edited=%t;
    end
-
    xinfo(' ');
 endfunction

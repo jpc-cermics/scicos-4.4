@@ -1,4 +1,4 @@
-function window_set_size(win,viewport)
+function window_set_size(win,viewport,invalidate=%t)
 
   if ~exists('scs_m') then scs_m=hash();end 
   if ~exists('curwin') then curwin=0;end
@@ -61,9 +61,10 @@ function window_set_size(win,viewport)
     %YSHIFT=viewport(2)
     xset('viewport',%XSHIFT,%YSHIFT)
   end
-
-  F.invalidate[]
-  F.process_updates[]
+  if invalidate then 
+    F.invalidate[]
+    F.process_updates[]
+  end;
 endfunction
 
 function [frect,wdim]=windows_compute_size()
