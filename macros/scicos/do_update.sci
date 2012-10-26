@@ -116,6 +116,7 @@ function [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0,needcom
     alreadyran=do_terminate()
     [%cpr,ok]=c_pass3(scs_m,%cpr)
     if ok then
+      corinv=%cpr.corinv
       [%state0,state,sim,ok]=...
          modipar(%cpr.corinv,%state0,%cpr.state,%cpr.sim,scs_m,%cpr.cor,"compile")
       if ~ok then 
