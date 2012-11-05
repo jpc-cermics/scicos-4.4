@@ -24,7 +24,7 @@
 #include <string.h>
 #include <nsp/nsp.h>
 #include <nsp/object.h>
-#include <scicos/scicos4.h>
+#include <scicos/simul4.h>
 
 /* 
  * data structure selection 

@@ -23,7 +23,7 @@
 
 #include <nsp/nsp.h>
 #include <nsp/scalexp.h>
-#include <scicos/scicos4.h>
+#include <scicos/simul4.h>
 
 /* import data from libsnp.dll */
 IMPORT expr_func expr_functions[];

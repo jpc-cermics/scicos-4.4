@@ -32,7 +32,7 @@
 #include <nsp/cells.h>
 #include <nsp/graphic.h>
 #include <nsp/interf.h>
-#include <scicos/scicos4.h>
+#include <scicos/simul4.h>
 #include <scicos/blocks.h>
 #include "control/ctrlpack.h"
 

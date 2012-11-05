@@ -6,7 +6,7 @@
 #include <nsp/matutil.h>
 #include "../librand/grand.h" /* rand_ranf() */
 #include "../system/files.h" /*  FSIZE */
-#include "scicos/scicos4.h"
+#include "scicos/simul4.h"
 #include "scicos/blocks.h"
 #include "../calelm/calpack.h" 
 #include "../control/ctrlpack.h" 

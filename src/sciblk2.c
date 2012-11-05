@@ -31,7 +31,7 @@
 #include <nsp/list.h>
 #include <nsp/eval.h>
 #include <nsp/interf.h>
-#include <scicos/scicos4.h> 
+#include <scicos/simul4.h> 
 
 extern NspHash *createblklist(double time, scicos_block *Block);
 

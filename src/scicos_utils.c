@@ -1,6 +1,6 @@
 
 #include <nsp/nsp.h> 
-#include <scicos/scicos4.h>
+#include <scicos/simul4.h>
 #include <scicos/blocks.h>
 
 void *scicos_malloc (size_t size)
