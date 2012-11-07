@@ -321,7 +321,7 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
   while %t then
     N=size(xy,'r');
     [btn,xc,yc,win,Cmenu]=get_click();
-    printf("Lookup_c : Cmenu =%s, btn=%d\n",Cmenu,btn);
+    //printf("Lookup_c : Cmenu =%s, btn=%d\n",Cmenu,btn);
     if ((win>0) & (win<>curwin)) then
       Cmenu='Mouse click is Offside!';
     end
@@ -332,7 +332,7 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
     
     NOrder = find(Cmenu== methods);
     if ~isempty(NOrder) then 
-      printf("Lookup_c : Norder =%d\n",NOrder);
+      //printf("Lookup_c : Norder =%d\n",NOrder);
       ipar(2)= NOrder -1;
       [rpar,ipar]=lookup_autoscale(a,xy,ipar,rpar)  
     end
@@ -587,7 +587,7 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
 	end
       end
       
-      printf("Edit case : HIT=%d, btn=%d\n",HIT,btn);
+      //printf("Edit case : HIT=%d, btn=%d\n",HIT,btn);
       //_________________________
       //  if ~((NOrder==-1|NOrder==-2|NOrder==-3|NOrder==-4)) then
       if ~HIT && (btn==2 | btn==5) then    // add point
