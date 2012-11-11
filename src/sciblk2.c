@@ -84,6 +84,44 @@ static NspObject *scicos_itosci (const char *name, const int *x, int mx,int nx)
 }
 
 /**
+ * scicos_ptrtosci:
+ * @name: 
+ * @x: 
+ * @mx: 
+ * @nx: 
+ * 
+ * code a pointer in a double matrix element 
+ * 
+ * Return value: 
+ **/
+
+typedef union _doubleptr doubleptr;
+union _doubleptr
+{
+  void *p;
+  double d;
+};
+
+static NspObject *scicos_ptrtosci (const char *name, void *ptr)
+{
+  doubleptr z;
+  NspMatrix *M;
+  if ((M = nsp_matrix_create (name, 'r', 1,1)) == NULLMAT) return NULLOBJ;
+  z.p = ptr;
+  M->R[0] = z.d;
+  return NSP_OBJECT (M);
+}
+
+void *scicos_scid2ptr (double x)
+{
+  doubleptr z;
+  z.d = x;
+  return z.p;
+}
+
+
+
+/**
  * scicos_inttosci:
  * @name: 
  * @x: 
@@ -654,11 +692,11 @@ NspHash *createblklist(double time, scicos_block *Block)
     goto err;
   if ((Hel[p++] = scicos_itosci("type", &Block->type, 1, 1)) == NULL)
     goto err;
-  if ((Hel[p++]=   scicos_itosci("scsptr",(int *)&Block->scsptr,1,1))== NULL)
+  if ((Hel[p++]=  scicos_ptrtosci("scsptr",Block->scsptr))== NULL)
     goto err;
   if ((Hel[p++]=   scicos_itosci("scsptr_flag", (int *)&Block->scsptr_flag,1,1))== NULL)
     goto err;
-  if ((Hel[p++]=   scicos_itosci("funpt",(int *)&Block->funpt,1,1))== NULL)
+  if ((Hel[p++]=   scicos_ptrtosci("funpt",Block->funpt)) == NULL)
     goto err;
   /* if ((Hel[p++]=   scicos_itosci("nz",&Block->nz,1,1))== NULL) goto err; */
   if (Block->scsptr_flag == fun_pointer) {
@@ -734,7 +772,7 @@ NspHash *createblklist(double time, scicos_block *Block)
     goto err;
   if ((Hel[p++] = scicos_str2sci("label", Block->label)) == NULL)
     goto err;
-  if ((Hel[p++]=  scicos_itosci("work",(int *)&Block->work,1,1))== NULL)
+  if ((Hel[p++]=  scicos_ptrtosci("work",Block->work))== NULL)
     goto err;
   /* if ((Hel[p++]=  scicos_itosci("nmode",&Block->nmode,1,1))== NULL) goto err; */
   if ((Hel[p++] = scicos_itosci("mode", Block->mode, Block->nmode, 1)) == NULL)
