@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2005-2011 Jean-Philippe Chancelier Enpc/Cermics, Alan
+ * Copyright (C) 2005-2012 Jean-Philippe Chancelier Enpc/Cermics, Alan
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -36,6 +36,7 @@
 #include <scicos/blocks.h>
 #include "control/ctrlpack.h"
 
+extern void *scicos_scid2ptr (double x);
 extern void create_scicos_about(void);
 static int scicos_fill_gr(scicos_run *r_scicos, NspCells *Gr);
 static void nsp_simul_error_msg(int err_code,int *curblk);
@@ -84,7 +85,7 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
   scicos_run r_scicos;
   double tcur, tf;
   int i, rep, flag, ierr = 0;
-  static char *action_name[] = { "finish", "linear", "run", "start", NULL };
+  const char *action_name[] = { "finish", "linear", "run", "start", NULL };
   NspHash *State, *Sim;
   NspMatrix *Msimpar;
   NspCells *Gr=NULL;
@@ -405,7 +406,7 @@ static int int_curblock (Stack stack, int rhs, int opt, int lhs)
   return 1;
 }
 
-static char *var_names[] =
+static const char *var_names[] =
   { "inplnk", "inpptr", "ipar", "ipptr", "lnkptr", "outlnk",
     "outptr", "outtb", "rpar", "rpptr",
     "x", "xptr", "z", "zptr", NULL
@@ -1876,8 +1877,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
   /* 3 - scsptr */
   nsp_hash_find(Hi,fields[2],&obj);
   M=(NspMatrix *)obj;
-  i=(int) M->R[0];
-  Block->scsptr = (void *) i;
+  Block->scsptr = scicos_scid2ptr(M->R[0]);
   
   /* 4 - scsptr_flag */
   nsp_hash_find(Hi,fields[3],&obj);
@@ -1887,9 +1887,8 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
   
   /* 5 - funpt */
   nsp_hash_find(Hi,fields[4],&obj);
-  M=(NspMatrix *)obj;
-  i=(int) M->R[0];
-  Block->funpt = (void *) i;
+  M=(NspMatrix *) obj;
+  Block->funpt = scicos_scid2ptr (M->R[0]);
   
   /************* nz */
   /* 6 - z */
@@ -2171,9 +2170,8 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
   /* 27 - work*/
   nsp_hash_find(Hi,fields[26],&obj);
   M=(NspMatrix *)obj;
-  i=(int) M->R[0];
-  Block->work = (void **) i;
-  
+  Block->work = (void **) scicos_scid2ptr(M->R[0]);
+
   /************** nmode*/
   /* 28 - mode */
   nsp_hash_find(Hi,fields[27],&obj);
