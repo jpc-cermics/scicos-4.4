@@ -400,7 +400,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
 {
   int i;
   NSP_ITYPE_NAMES(names);
-  char *st=NULL;
+  const char *st=NULL;
   /* char type_ref;  */
   /* int ism_ref,itype_ref; */
   fromws_data *D;

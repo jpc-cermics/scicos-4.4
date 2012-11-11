@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2007-2010 Alan Layec Inria/Metalau and 
+ * Copyright (C) 2007-2012 Alan Layec Inria/Metalau and 
  *                         Jean-Philippe Chancelier Enpc/Cermics
  *
  * This library is free software; you can redistribute it and/or
@@ -82,7 +82,7 @@ void tows_c (scicos_block * block, int flag)
     }
   else if ((flag == 2) || (flag == 0))
     {
-      double t = GetScicosTime (block), told ;
+      double t = GetScicosTime (block) ;
       /* update state */
       tows_data *D = (tows_data *) (*block->work);
       void *data = GetInPortPtrs (block, 1);
@@ -93,9 +93,12 @@ void tows_c (scicos_block * block, int flag)
 	  /*set_block_error(-1); */
 	  return;
 	}
-      /* get old time */
-      told = (D->start == 0 ) ? D->time->R[D->time->mn -1] : D->time->R[D->start -1];
-      /*Sciprintf("name=%s told = %f, t=%f\n",D->name,told,t);*/
+      /* get old time 
+	 {
+	 int told = (D->start == 0 ) ? D->time->R[D->time->mn -1] : D->time->R[D->start -1];
+	 Sciprintf("name=%s told = %f, t=%f\n",D->name,told,t);
+	 }
+      */
       if ( nsp_store_tows_data(D,ut, nu,nu2,  data,t) == FAIL) 
 	{
 	  Coserror ("Unable to store data!\n");
