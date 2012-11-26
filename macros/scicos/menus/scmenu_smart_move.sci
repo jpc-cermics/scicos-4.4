@@ -124,7 +124,8 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
 	  oi.gr.children(1).x(1)= xl(1)+ tr(1);
 	  oi.gr.children(1).y(1)= yl(1)+ tr(2);
 	end
-      elseif oi.to(1)==k then
+      end
+      if oi.to(1)==k then
 	xl= oi.gr.children(1).x($-1:$);
 	yl= oi.gr.children(1).y($-1:$);
 	if nl > 2 then
