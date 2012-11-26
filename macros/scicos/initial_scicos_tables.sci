@@ -172,6 +172,7 @@ function [%scicos_short, %scicos_help, ...
                              list('Mask',..
                                   'Create Mask',..
                                   'Remove Mask',..
+                                  'Restore Mask',..
                                   'Customize Mask',..
                                   'Save Block GUI'),..
                              'Create Atomic',..

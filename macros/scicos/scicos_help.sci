@@ -450,6 +450,11 @@ function H=scicos_help_menu()
        " and the Super Block within it can be recovered. Note that the icon of the";
        " Super Block remains the same as that of the masked block."];
 
+  H('scmenu_restore_mask')=..
+      [" This menu should only be applied to previously masked blocks. It restores the";
+       " previous mask. It should be used with precaution if the content of the Super";
+       " Block has been modified since the mask has been removed."]
+
   H('scmenu_customize_mask')=...
       [" Creating a mask leads to a block with parameters that can be set by the";
        " block''s dialog box. The title and the description of the parameters in the";

@@ -178,6 +178,7 @@ function scicos_set_uimanager(is_top)
 	   "      <separator name=""sep0"" />";
 	   "      <menuitem name=""Create Mask"" action=""scmenu_create_mask"" />";
 	   "      <menuitem name=""Remove Mask"" action=""scmenu_remove_mask"" />";
+	   "      <menuitem name=""Restore Mask"" action=""scmenu_restore_mask"" />";
 	   "      <menuitem name=""Customize Mask"" action=""scmenu_customize_mask"" />";
 	   "      <menuitem name=""Save Block GUI"" action=""scmenu_save_block_gui"" />";
 	   "      <separator name=""sep1"" />";
@@ -287,6 +288,7 @@ function scicos_set_uimanager(is_top)
   // 
   scicos_action_set_sensitivity(win,"scmenu_create_mask",%f);
   scicos_action_set_sensitivity(win,"scmenu_remove_mask",%f);
+  scicos_action_set_sensitivity(win,"scmenu_restore_mask",%f);
   scicos_action_set_sensitivity(win,"scmenu_customize_mask",%f);
   scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
   //
@@ -487,6 +489,7 @@ function S=scicos_actions()
 	      'scmenu_remove_atomic','Remove Atomic',"","";
 	      'scmenu_force_open','Force Open',"","";
 	      'scmenu_remove_mask','Remove Mask',"","";
+	      'scmenu_restore_mask','Restore Mask',"","";
 	      'scmenu_rename','Rename',"","";
 	      'scmenu_replot','Replot',"","";
 	      'scmenu_resize','Resize',"","";
@@ -548,6 +551,7 @@ function scicos_menus_select_set_sensitivity(selection,win)
     // 
     scicos_action_set_sensitivity(win,"scmenu_create_mask",%f);
     scicos_action_set_sensitivity(win,"scmenu_remove_mask",%f);
+    scicos_action_set_sensitivity(win,"scmenu_restore_mask",%f);
     scicos_action_set_sensitivity(win,"scmenu_customize_mask",%f);
     scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
     scicos_action_set_sensitivity(win,"scmenu_create_atomic",%f);
@@ -561,6 +565,7 @@ function scicos_menus_select_set_sensitivity(selection,win)
     // 
     scicos_action_set_sensitivity(win,"scmenu_create_mask",%f);
     scicos_action_set_sensitivity(win,"scmenu_remove_mask",%f);
+    scicos_action_set_sensitivity(win,"scmenu_restore_mask",%f);
     scicos_action_set_sensitivity(win,"scmenu_customize_mask",%f);
     scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
     scicos_action_set_sensitivity(win,"scmenu_create_atomic",%f);
@@ -579,6 +584,7 @@ function scicos_menus_select_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_create_mask",tag);
     tag=scicos_is_masked(o);
     scicos_action_set_sensitivity(win,"scmenu_remove_mask",tag);
+    scicos_action_set_sensitivity(win,"scmenu_restore_mask",tag);
     scicos_action_set_sensitivity(win,"scmenu_customize_mask",tag);
     scicos_action_set_sensitivity(win,"scmenu_save_block_gui",tag);
     tag= scicos_is_atomicable(o);
