@@ -13,7 +13,7 @@ function xstringb_fix_font(x,y,s,wo,ho,o)
 
 
   fsz=max(0,-1+max(find(%zoom>%Scicos_Font_cor)))
-  printf("***** fsz=%d\n",fsz);
+  //printf("***** fsz=%d\n",fsz);
   xset("font size",fsz)
   rect=xstringl(x,y,s)
   w=rect(3),h=rect(4)
