@@ -75,7 +75,7 @@ function scs_m=delete_unconnected(scs_m)
     // DELL
     F=get_current_figure()
     for k=DEL
-      if isempty(find(k==DELL)) then hilite_obj(scs_m_s.objs(k)),end
+      if isempty(find(k==DELL)) then hilite_obj(scs_m_s.objs(k),warn=%t),end
     end
     message(['Hilited blocks or links are ignored because of'
 	     'undefined input(s)'])
@@ -87,7 +87,7 @@ function scs_m=delete_unconnected(scs_m)
     if isempty(path) then 
       F=get_current_figure()
       for k=DEL
-	if isempty(find(k==DELL)) then unhilite_obj(scs_m_s.objs(k)),end
+	if isempty(find(k==DELL)) then unhilite_obj(scs_m_s.objs(k),warn=%t),end
       end
     end
   end
