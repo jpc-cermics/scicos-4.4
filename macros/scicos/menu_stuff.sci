@@ -95,6 +95,7 @@ function [menus]=scicos_menu_prepare()
 	  'Activate ScicosLab Window';
 	  'Create Mask';
 	  'Remove Mask';
+	  'Restore Mask';
 	  'Customize Mask';
 	  'Save Block GUI';
 	  'Create Atomic';

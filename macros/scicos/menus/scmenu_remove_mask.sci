@@ -16,6 +16,7 @@ function scmenu_remove_mask()
     message('This block is not masked.')
     return;
   end
+
   //test if there is not a parameter that is not defined
   [%scicos_context1,ierr]=script2var(o.model.rpar.props.context)
   if ierr==0 then
@@ -24,13 +25,20 @@ function scmenu_remove_mask()
     message(["Error evaluating context:";lasterror()])
     ok=%f
   end
+  
+  if ~ok then
+    okk=x_choose(['Proceed';'Abandon'],..
+          ['Removing the mask under these conditions';'is not recommended.'])   
+    if okk==1 then ok=1,end
+  end
+  
   if ok then
     // we should here change the graphic of the 
     // masked block.
     o.model.sim='super'
     o.model.ipar=[] 
     o.gui='SUPER_f'
-    o.graphics.exprs=[]      
+//    o.graphics.exprs=[]      
     scs_m_save = scs_m    ;
     scs_m.objs(i)=o;
     nc_save = needcompile ;

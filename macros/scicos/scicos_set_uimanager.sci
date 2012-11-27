@@ -582,9 +582,9 @@ function scicos_menus_select_set_sensitivity(selection,win)
     end
     tag=scicos_is_maskable(o);
     scicos_action_set_sensitivity(win,"scmenu_create_mask",tag);
+    scicos_action_set_sensitivity(win,"scmenu_restore_mask",tag);
     tag=scicos_is_masked(o);
     scicos_action_set_sensitivity(win,"scmenu_remove_mask",tag);
-    scicos_action_set_sensitivity(win,"scmenu_restore_mask",tag);
     scicos_action_set_sensitivity(win,"scmenu_customize_mask",tag);
     scicos_action_set_sensitivity(win,"scmenu_save_block_gui",tag);
     tag= scicos_is_atomicable(o);

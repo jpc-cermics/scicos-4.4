@@ -453,7 +453,7 @@ function H=scicos_help_menu()
   H('scmenu_restore_mask')=..
       [" This menu should only be applied to previously masked blocks. It restores the";
        " previous mask. It should be used with precaution if the content of the Super";
-       " Block has been modified since the mask has been removed."]
+       " Block has been modified since the mask has been removed."];
 
   H('scmenu_customize_mask')=...
       [" Creating a mask leads to a block with parameters that can be set by the";
