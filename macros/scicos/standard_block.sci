@@ -234,7 +234,7 @@ function [x,y,typ]=standard_inputs(o)
     dx=-xf/7
   else
     xo=orig(1)+sz(1)
-    dx=yf/7
+    dx=xf/7
   end
   if inp==0 then
     x=[];y=[],typ=[]
