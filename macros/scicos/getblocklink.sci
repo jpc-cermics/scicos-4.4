@@ -1,10 +1,10 @@
-function [k,wh]=getblocklink(scs_m,pt)
+function [k,wh]=getblocklink(scs_m,pt,eps=6)
 // Copyright INRIA
   n=length(scs_m.objs)
   wh=[];
   data=[]
   k=[]
-  eps=6
+//   eps=10
   for i=1:n ; //loop on objects
     x=pt(1);y=pt(2)
     o=scs_m.objs(i)

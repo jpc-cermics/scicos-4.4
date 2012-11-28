@@ -26,13 +26,12 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   //------------------------------------------------------------------
   win=%win;
   xc1=%pt(1);yc1=%pt(2);
-  [kfrom,wh]=getblocklink(scs_m,[xc1;yc1])
+  [kfrom,wh]=getblocklink(scs_m,[xc1;yc1],eps=10)
   if ~isempty(kfrom) then
     o1=scs_m.objs(kfrom)
   else
     return
   end
-
   scs_m_save=scs_m; nc_save=needcompile; 
   if o1.type =='Link' then  //add a split block
     pt=[xc1;yc1]
@@ -98,8 +97,11 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
                [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
     xout=xxx(1,:);
     yout=xxx(2,:);
+
     [m,kp1]=min((yc1-yout).^2+(xc1-xout).^2)
     k=kp1
+
+
     xo=xout(k);yo=yout(k);typo=typout(k)
     if typo==1|typo==3 then //regular and buses output port
       port_number=k

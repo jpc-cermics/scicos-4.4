@@ -1,5 +1,5 @@
-function [k,wh]=getobj(scs_m,pt)
- eps=6
+function [k,wh]=getobj(scs_m,pt,eps=6)
+//  eps=6
  k=[]
  wh=[]
  data=[]
@@ -9,8 +9,6 @@ function [k,wh]=getobj(scs_m,pt)
    o=scs_m.objs(i)
    if o.type=="Block" then
      [orig,sz]=(o.graphics.orig, o.graphics.sz);
-     sz=sz+2*eps;
-     orig=orig-eps;
      if ~isempty(pt) then
        xxx=rotate([pt(1);pt(2)],..
                   -o.graphics.theta * %pi/180,...
@@ -18,6 +16,8 @@ function [k,wh]=getobj(scs_m,pt)
          x=xxx(1);
          y=xxx(2);
      end
+     sz=sz+2*eps;
+     orig=orig-eps;
      data=[(orig(1)-x)*(orig(1)+sz(1)-x),..
            (orig(2)-y)*(orig(2)+sz(2)-y)]
      if data(1)<0 & data(2)<0 then
