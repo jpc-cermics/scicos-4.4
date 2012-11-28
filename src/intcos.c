@@ -737,6 +737,8 @@ static int int_buildouttb (Stack stack, int rhs, int opt, int lhs)
 	  nsp_guint16, nsp_guint8 };
       switch (type)
 	{
+	default:
+	  /* double */
 	case 1:
 	  /* Mat(nr,nc) initialized to zero */
 	  if ((Obj =
@@ -765,9 +767,6 @@ static int int_buildouttb (Stack stack, int rhs, int opt, int lhs)
 	       (NspObject *) nsp_imatrix_zeros (nr, nc,
 						itype[type])) == NULLOBJ)
 	    goto err;
-	  break;
-	default:
-	  /* double */
 	  break;
 	}
       if (nsp_object_set_name (Obj, "lel") == FAIL)
