@@ -112,12 +112,25 @@ function [o,ok]=drawobj(o,F)
     if ~o.graphics.iskey['theta'] then o.graphics.theta=0; end 
     if o.graphics.theta<>0 then
       // rotate the objects contained in the compound C
-      [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+      if otype.equal['Text'] then
+        rect = o.gr.get_bounds[];
+        orig = [rect(1) rect(2)];
+        sz   = [rect(3)-rect(1) rect(4)-rect(2)];
+        o.graphics.sz = sz;
+      else
+        [orig,sz,orient]=(o.graphics.orig,o.graphics.sz,o.graphics.flip)
+      end
       tr=[orig(1)+sz(1)/2,orig(2)+sz(2)/2];
       theta= -o.graphics.theta;
       o.gr.translate[-tr];
       o.gr.rotate[[cos(theta*%pi/180),sin(theta*%pi/180)]];
       o.gr.translate[tr];
+    else
+      if otype.equal['Text'] then 
+        rect = o.gr.get_bounds[];
+        sz   = [rect(3)-rect(1) rect(4)-rect(2)];
+        o.graphics.sz = sz;
+      end
     end
   end
 endfunction

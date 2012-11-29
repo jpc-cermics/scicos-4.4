@@ -4,24 +4,15 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
 //**                 inside the new graphics datastructure  
   x=[]; y=[]; typ=[];
   select job
-   case 'plot' then //normal  position
-    // C=arg1.graphics.exprs;
-    //standard_draw(arg1)
+   case 'plot' then
     graphics = arg1.graphics; 
     model    = arg1.model;
+    //compatibility
     if isempty(model.rpar) then
-      //compatibility
       model.rpar=graphics.exprs(1)
-    end 
-    // Note that here xstringl can be wrong 
-    // rect = stringbox(model.rpar, graphics.orig(1), graphics.orig(2));
-    // rect=xstringl(graphics.orig(1), graphics.orig(2),model.rpar);
-    // compute the requested rectangle
-    //w=rect(3) * %zoom;
-    //h=rect(4) * %zoom/1.4 * 1.2;
+    end
     sf = model.ipar(2)*%zoom*10;
     xstring(graphics.orig(1), graphics.orig(2),model.rpar,size=sf);
-    // xrect(graphics.orig(1), graphics.orig(2),w*100,h*100);
    case 'getinputs' then
    case 'getoutputs' then
    case 'getorigin' then
@@ -32,8 +23,8 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
     orig  = graphics.orig  ;
     exprs = graphics.exprs ;
     model = arg1.model ;
+    // compatibility
     if size(exprs,'*')==1 then
-      // compatibility
       exprs = [exprs;'3';'1']
     end 
 
@@ -54,24 +45,11 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
       end
       if ok then
 	graphics.exprs = exprs
-	// 	if o.iskey['gr'] then 
-	// 	  T=o.gr.children(1);
-	// 	  T.text=exprs(1);
-	// 	  o.gr.invalidate[];
-	// 	end
-	// here xstringl will be correct 
-	// or sz could be obtained by getting the 
-	// bounds of the compound. 
-	if ~non_interactive  then 
-	  r = xstringl(0,0,exprs(1))// evstr(exprs(2)),evstr(exprs(3)));
-	  sz = r(3:4); 
-	  graphics.sz = sz;
-	end
-	x.graphics  = graphics  ;
-	ipar        = [font;siz]
-	model.rpar  = txt   ;
-	model.ipar  = ipar  ;
-	x.model     = model ;
+	x.graphics     = graphics
+	ipar           = [font;siz]
+	model.rpar     = txt
+	model.ipar     = ipar
+	x.model        = model
 	break
       end
     end // of while 

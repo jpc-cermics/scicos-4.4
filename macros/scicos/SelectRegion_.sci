@@ -44,33 +44,6 @@ function Select=do_select_region(win);
   end
 endfunction
 
-
-function [in,out] = get_objs_in_rect(scs_m,ox,oy,w,h)
-  in=[];out=[];ok=%f;
-  for k=1:size(scs_m.objs)
-    ok = %f;
-    o=scs_m.objs(k)
-    if o.type=='Block'|o.type=='Text' then
-      if (ox <= o.graphics.orig(1)) & ...
-         (oy >= o.graphics.orig(2)+o.graphics.sz(2)) & ...
-         ((ox+w) >= (o.graphics.orig(1)+o.graphics.sz(1))) & ...
-         ((oy-h) <= o.graphics.orig(2)) then
-           ok=%t
-           in=[in k]
-      end
-    elseif o.type=='Link' then
-      if (ox <= max(o.xx)) & ...
-         (oy >= max(o.yy)) & ...
-         ((ox+w) >= max(o.xx)) & ...
-         ((oy-h) <= min(o.yy)) then
-           ok=%t
-           in=[in k]
-      end
-    end
-    if ~ok then out=[out k],end
-  end
-endfunction
-
 function [rect,btn]=rubberbox(rect,edit_mode)
   select nargin
     case 0 then
