@@ -69,6 +69,14 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     from=[kfrom,port_number,0]
     xo=d(1);yo=d(2)
     xl=d(1);yl=d(2)
+
+    //new feature, alan xx/11/2012
+    //hilite split
+    F=get_current_figure();
+    w=7;h=7;
+    xrect(xo-w/2,yo+h/2,w,h,color=10);
+    gr_out=F.children(1).children($);
+
   else //connection comes from a block
     graphics1=o1.graphics
     orig  = graphics1.orig
@@ -92,6 +100,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       xset('color',dash)
       return
     end
+    xxout=xout;yyout=yout;
     xxx=rotate([xout;yout],...
                theta*%pi/180,...
                [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
@@ -101,14 +110,20 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     [m,kp1]=min((yc1-yout).^2+(xc1-xout).^2)
     k=kp1
 
-
     xo=xout(k);yo=yout(k);typo=typout(k)
+    xout=xxout(k);yout=yyout(k)
+    //new feature, alan xx/11/2012
+    //hilite port
+    F=get_current_figure();
+    gr_out=hilite_port(xout,yout,o1)
+
     if typo==1|typo==3 then //regular and buses output port
       port_number=k
       if isempty(port_number) || op(port_number)<>0 then
         //hilite_obj(kfrom)
 	// message('selected port is already connected')
         //unhilite_obj(kfrom)
+        F.remove[gr_out];
 	xset('color',dash)
 	return
       end
@@ -119,6 +134,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         //hilite_obj(kfrom)
 	//message('selected port is already connected')
         //unhilite_obj(kfrom)
+        F.remove[gr_out];
 	xset('color',dash)
 	return
       end
@@ -136,6 +152,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         //hilite_obj(kfrom)
 	//message('selected port is already connected'),
         //unhilite_obj(kfrom)
+        F.remove[gr_out];
 	xset('color',dash)
 	return
       end
@@ -146,6 +163,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         //hilite_obj(kfrom)
 	//message('selected port is already connected'),
         //unhilite_obj(kfrom)
+        F.remove[gr_out];
 	xset('color',dash)
 	return
       end
@@ -166,7 +184,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   //------------------------------------------------------------------
   // Make a new polyline
   xcursor(GDK.PENCIL);
-  F=get_current_figure();
   F.start_compound[];
   xpoly(xo,yo);
   C=F.end_compound[];
@@ -194,17 +211,22 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       if rep(3)==2 then 
 	xset('color',dash)
 	// abort 
+        F.remove[gr_out];
 	F.remove[C];
 	F.draw_now[];
 	return
       elseif rep(3)==-5 then
-         if ~first || nb>10 then
+         if nb<=4 then
+           rep(3)=-1
+         elseif ~first || nb>10 then
            kto=getblock(scs_m,[rep(1);rep(2)])
            if isempty(kto) then rep(3)=-1, end
          else
            first=%f,rep(3)=-1
          end
       elseif rep(3)~=0 then
+        rep(3)=-1
+      elseif rep(3)==0 && nb <= 3 then
         rep(3)=-1
       end
       //plot new position of last link segment
@@ -238,6 +260,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	message('This block has no input port'),
         unhilite_obj(kto)
         F.draw_latter[];
+        F.remove[gr_out];
 	F.remove[C];
 	F.draw_now[];
 	xset('color',dash)
@@ -251,6 +274,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       [m,kp2]=min((ye-yin).^2+(xe-xin).^2)
       k=kp2
       xc2=xin(k);yc2=yin(k);typi=typin(k)
+      //gr_in=hilite_port(xc2,yc2,o2)
       if typo<>typi
         hilite_obj(kto)
 	message(['selected ports don''t have the same type'
@@ -258,6 +282,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 		 'the port at the end has type '+string(typin(k))])
         unhilite_obj(kto)
         F.draw_latter[];
+        F.remove[gr_out];
 	F.remove[C];
 	F.draw_now[];
 	xset('color',dash)
@@ -270,6 +295,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	  //message('selected port is already connected'),
           unhilite_obj(kto)
           F.draw_latter[];
+          F.remove[gr_out];
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -333,6 +359,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	  //message('selected port is already connected')
           unhilite_obj(kto)
           F.draw_latter[];
+          F.remove[gr_out];
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -360,6 +387,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	  //message('selected port is already connected')
           unhilite_obj(kto)
           F.draw_latter[];
+          F.remove[gr_out];
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -380,6 +408,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	  //message('selected port is already connected'),
           unhilite_obj(kto)
           F.draw_latter[];
+          F.remove[gr_out];
 	  F.remove[C];
 	  F.draw_now[];
 	  xset('color',dash)
@@ -395,10 +424,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	end
       end
       F.draw_latter[];
-      //P.x(n+1)=xc2;
-      //P.y(n+1)=yc2;
-      // F.draw_now[];
-      //xo=xc2;yo=yc2;
       break;
     else
       // -- new point ends current line segment
@@ -457,6 +482,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   end  
   // remove temporary path 
   F.draw_latter[]
+  F.remove[gr_out];
   F.remove[C]
     
   // prepare new link 
@@ -566,4 +592,27 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   xset('color',dash)
   needcompile=4
   resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
+endfunction
+
+// hilite port, compute area where
+// we can click to link a port
+// of a blk and draw a rectangle
+// xport,yport port location
+// o blk st
+function gr=hilite_port(xport,yport,o)
+  [x1,y1,sz_x,sz_y]=get_port_bounds(xport,yport,o)
+
+  orig  = o.graphics.orig(:)
+  sz    = o.graphics.sz(:)
+  theta = o.graphics.theta
+
+  xxx = rotate([x1,x1,x1+sz_x,x1+sz_x;...
+                y1,y1-sz_y,y1-sz_y,y1],...
+                theta*%pi/180,...
+                [orig(1)+sz(1)/2;orig(2)+sz(2)/2])
+
+   xpoly(xxx(1,:),xxx(2,:),type="lines",close=%t,color=10);
+
+   F=get_current_figure();
+   gr=F.children(1).children($);
 endfunction

@@ -9,7 +9,8 @@ function k=getblock(scs_m,pt)
     k=i
     o=scs_m.objs(i)
     if o.type =='Block' then
-      [orig,sz]=(o.graphics.orig,o.graphics.sz);dx=xf/7;dy=yf/7
+      [orig,sz]=(o.graphics.orig,o.graphics.sz);
+      dx=xf/7;dy=yf/7
       if ~isempty(%pt) then
         xxx=rotate([pt(1);pt(2)],...
                    -o.graphics.theta*%pi/180,...
