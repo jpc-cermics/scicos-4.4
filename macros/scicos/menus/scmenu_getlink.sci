@@ -194,6 +194,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   while %t do ; //loop on link segments
     rep(3)=-1
     n=size(P.x,'*');
+    kto=[]
     while rep(3)==-1 do 
       nb=nb+1
       // since the previously acquired point can have been 
@@ -230,7 +231,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         rep(3)=-1
       end
       //plot new position of last link segment
-      xe=rep(1);ye=rep(2)
       P.x(n+1)=rep(1);
       P.y(n+1)=rep(2);
       pt=[rep(1),rep(2)];
@@ -238,7 +238,8 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     end
     // here the last point of P or [xe,ye] is the point 
     // at which a click has occured
-    kto=getblock(scs_m,[xe;ye])
+    xe=rep(1);ye=rep(2)
+    //kto=getblock(scs_m,[xe;ye])
     if ~isempty(kto) then 
       //-- new point designs the "to block"
       o2=scs_m.objs(kto);
@@ -425,6 +426,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       end
       F.draw_latter[];
       break;
+
     else
       // -- new point ends current line segment
       if xe<>xo | ye<>yo then //to avoid null length segments
@@ -444,6 +446,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       end
     end
   end ; //loop on link segments
+
   selecthilite(Select, %f)
   // now we try to improve the path-link 
   //xl=P.x';
