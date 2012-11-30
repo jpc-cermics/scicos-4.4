@@ -432,6 +432,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
 
   moved_dist=0
   cursor_changed=%f;
+  nb=0
   while 1 do //** interactive move loop
     rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f);
     F.draw_latter[];
@@ -443,91 +444,93 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
     if or(rep(3)==[-5, 2, 3, 5]) then
       break
     end
-    
+    nb=nb+1
+
     //** Window change and window closure protection
     //TODO
 
-    [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,%scicos_snap,%scs_wgrid(1),%scs_wgrid(2))
+    if nb>2 then   
+      [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,%scicos_snap,%scs_wgrid(1),%scs_wgrid(2))
 
-    //** Integrate the movements
-    move_x = move_x +  delta_x ;
-    move_y = move_y +  delta_y ;
+      //** Integrate the movements
+      move_x = move_x +  delta_x ;
+      move_y = move_y +  delta_y ;
 
-    moved_dist=moved_dist+abs(delta_x)+abs(delta_y)
-    // under window clicking on a block in a different window causes a move
-    if ~cursor_changed then
-      if moved_dist>.001 then
-        have_moved=%t
+      moved_dist=moved_dist+abs(delta_x)+abs(delta_y)
+      // under window clicking on a block in a different window causes a move
+      if ~cursor_changed then
+        if moved_dist>.001 then
+          have_moved=%t
+        end
+        cursor_changed=%t
+        xcursor(52)
+      end 
+      //** Move the SuperCompound
+      for k = SuperCompound_id
+        o=scs_m.objs(k)
+        o.gr.translate[[delta_x , delta_y]];
       end
-      cursor_changed=%t
-      xcursor(52)
-    end
 
-    //** Move the SuperCompound
-    for k = SuperCompound_id
-      o=scs_m.objs(k)
-      o.gr.translate[[delta_x , delta_y]];
-    end
+      if ~isempty(connected) then  //** Move the links
+        xmt(2,:) = xm(2,:) + move_x ;
+        ymt(2,:) = ym(2,:) + move_y ;
+        j = 0 ;
+        for l=1:length(connected)
+          i  = connected(l)
+          oi = scs_m.objs(i)
+          [xl,from,to] = (oi.xx,oi.from,oi.to);
+          gh_link_mod = gh_link_i(l);
 
-    if ~isempty(connected) then  //** Move the links
-      xmt(2,:) = xm(2,:) + move_x ;
-      ymt(2,:) = ym(2,:) + move_y ;
-      j = 0 ;
-      for l=1:length(connected)
-	i  = connected(l)
-	oi = scs_m.objs(i)
-	[xl,from,to] = (oi.xx,oi.from,oi.to);
-	gh_link_mod = gh_link_i(l);
+          if from(1)==ext_block(l) then
+            xx = gh_link_mod.children(1).x(:);
+            yy = gh_link_mod.children(1).y(:);
+            tmp_data = [xx,yy]
 
-	if from(1)==ext_block(l) then
-	  xx = gh_link_mod.children(1).x(:);
-	  yy = gh_link_mod.children(1).y(:);
-	  tmp_data = [xx,yy]
+            rect=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
+            j = j + 1 ;
+            t_xmt = xmt([2,1],j)
+            t_ymt = ymt([2,1],j)
+            data = [ [t_xmt(1) , t_ymt(1)] ; tmp_data(2:$ , 1:$) ]
+            gh_link_mod.children(1).x=data(:,1)
+            gh_link_mod.children(1).y=data(:,2)
 
-	  rect=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-	  j = j + 1 ;
-	  t_xmt = xmt([2,1],j)
-	  t_ymt = ymt([2,1],j)
-	  data = [ [t_xmt(1) , t_ymt(1)] ; tmp_data(2:$ , 1:$) ]
-	  gh_link_mod.children(1).x=data(:,1)
-	  gh_link_mod.children(1).y=data(:,2)
+            if size(gh_link_mod.children)>1 then
+              xx = gh_link_mod.children(1).x(:);
+              yy = gh_link_mod.children(1).y(:);
+              rect_now=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
+              xx = gh_link_mod.children(2).x(:);
+              yy = gh_link_mod.children(2).y(:);
+              gh_link_mod.children(2).x=xx-(rect(1)-rect_now(1))
+              gh_link_mod.children(2).y=yy-(rect(2)-rect_now(2))
+            end
+          end
 
-	  if size(gh_link_mod.children)>1 then
-	    xx = gh_link_mod.children(1).x(:);
-	    yy = gh_link_mod.children(1).y(:);
-	    rect_now=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-	    xx = gh_link_mod.children(2).x(:);
-	    yy = gh_link_mod.children(2).y(:);
-	    gh_link_mod.children(2).x=xx-(rect(1)-rect_now(1))
-	    gh_link_mod.children(2).y=yy-(rect(2)-rect_now(2))
-	  end
-	end
+          if to(1)==ext_block(l) then
+            xx = gh_link_mod.children(1).x(:)
+            yy = gh_link_mod.children(1).y(:)
+            tmp_data = [xx,yy]
 
-	if to(1)==ext_block(l) then
-	  xx = gh_link_mod.children(1).x(:)
-	  yy = gh_link_mod.children(1).y(:)
-	  tmp_data = [xx,yy]
+            rect=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
+            j = j + 1 ;
+            data = [ tmp_data(1:$-2 , 1:$) ; [xmt(:,j) , ymt(:,j)] ]
+            gh_link_mod.children(1).x=data(:,1)
+            gh_link_mod.children(1).y=data(:,2)
 
-	  rect=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-	  j = j + 1 ;
-	  data = [ tmp_data(1:$-2 , 1:$) ; [xmt(:,j) , ymt(:,j)] ]
-	  gh_link_mod.children(1).x=data(:,1)
-	  gh_link_mod.children(1).y=data(:,2)
-
-	  if size(gh_link_mod.children)>1 then
-	    xx = gh_link_mod.children(1).x(:);
-	    yy = gh_link_mod.children(1).y(:);
-	    rect_now=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-	    xx = gh_link_mod.children(2).x(:);
-	    yy = gh_link_mod.children(2).y(:);
-	    gh_link_mod.children(2).x=xx-(rect(1)-rect_now(1))
-	    gh_link_mod.children(2).y=yy-(rect(2)-rect_now(2))
-	  end
-	end
-	gh_link_mod.invalidate[]
+            if size(gh_link_mod.children)>1 then
+              xx = gh_link_mod.children(1).x(:);
+              yy = gh_link_mod.children(1).y(:);
+              rect_now=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
+              xx = gh_link_mod.children(2).x(:);
+              yy = gh_link_mod.children(2).y(:);
+              gh_link_mod.children(2).x=xx-(rect(1)-rect_now(1))
+              gh_link_mod.children(2).y=yy-(rect(2)-rect_now(2))
+            end
+          end
+          gh_link_mod.invalidate[]
+        end
       end
+      F.draw_now[];
     end
-    F.draw_now[];
   end //** ... of while Interactive move LOOP --------------------------------------------------------------
   xcursor();
   F.draw_now[];
