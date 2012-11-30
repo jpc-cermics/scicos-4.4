@@ -275,7 +275,7 @@ function [reg,rect,prt,is_flip,Select]=get_region2(xc,yc,win,fun)
     return
   end
   ox=rect(1),oy=rect(2),w=rect(3),h=rect(4);
-  [in,out]=get_objs_in_rect(scs_m,ox,oy,w,h)
+  [in,out]=getobjs_in_rect(scs_m,ox,oy,w,h)
   if ~isempty(in) then
     Select=[in',win*ones(size(in,2),1)]
   end

@@ -104,10 +104,12 @@ function [k,wh]=getblocklink(scs_m,pt)
   printf("getblocklink in void : %f\n",toc()-a);
 endfunction
 
-function [in,out] = get_objs_in_rect(scs_m,ox,oy,w,h)
+function [in,out] = getobjs_in_rect(scs_m,ox,oy,w,h)
   in  = []
   out = []
   ok  = %f
+
+  a=tic();
 
   for i=1:size(scs_m.objs)
     ok = %f;
@@ -134,6 +136,7 @@ function [in,out] = get_objs_in_rect(scs_m,ox,oy,w,h)
     end
     if ~ok then out=[out i],end
   end
+  printf("getobjs_in_rect : %f\n",toc()-a);
 endfunction
 
 function [data]=get_data_block(o,pt)

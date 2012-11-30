@@ -29,13 +29,13 @@ function Select=do_select_region(win);
   elseif windows(kc,1)<0 then 
     //click inside a palette window
     kpal=-windows(kc,1)
-    [in,out]=get_objs_in_rect(palettes(kpal),ox,oy,w,h)
+    [in,out]=getobjs_in_rect(palettes(kpal),ox,oy,w,h)
   elseif win==curwin then 
     //click inside the current window
-    [in,out]=get_objs_in_rect(scs_m,ox,oy,w,h)
+    [in,out]=getobjs_in_rect(scs_m,ox,oy,w,h)
   elseif slevel>1 then
     //CESTFAUXICI
-    execstr('[in,out]=get_objs_in_rect(scs_m_'+string(windows(kc,1))',ox,oy,w,h)
+    execstr('[in,out]=getobjs_in_rect(scs_m_'+string(windows(kc,1))',ox,oy,w,h)
   else
     return;
   end
@@ -91,7 +91,7 @@ function [rect,btn]=rubberbox(rect,edit_mode)
     R.h=abs(yc-yc1)
     //Alan : Next lignes toberemoved if too slow
     //####
-    [in_n,out] = get_objs_in_rect(scs_m,R.x,R.y,R.w,R.h)
+    [in_n,out] = getobjs_in_rect(scs_m,R.x,R.y,R.w,R.h)
     if ~isempty(in_n) then
       if ~isempty(in) then
         unhilite_obj(in)
