@@ -29,14 +29,25 @@ function [Cmenu,Select]=do_check_smart_move(Select)
       if Cmenu=="Link" then
 	Cmenu="Smart Link"
 	Select=[]
-      else
+      elseif Cmenu=="Smart Move" then
 	Select=[k, %win]
+      else
+        Cmenu="SelectRegion";
+        Select=[];
+        resume(%ppt=%pt);
       end
     else
       // more than one object are selected 
       if isempty(find(k==Select(:,1))) then
 	// restrict selection to moving object 
-	Select=[k,%win];
+        Cmenu=check_edge(scs_m.objs(k),Cmenu,%pt);
+        if Cmenu=="Smart Move" then
+	  Select=[k,%win];
+        else
+          Cmenu="SelectRegion";
+          resume(%ppt=%pt);
+          Select=[];
+        end
       else
 	Select=Select
       end

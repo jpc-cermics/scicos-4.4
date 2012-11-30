@@ -12,6 +12,7 @@ function Cmenu=check_edge(o,Cmenu,%pt)
   %yc=%pt(2);
   orig=o.graphics.orig(:)
   sz=o.graphics.sz(:)
+
   if ~isempty(%pt) then
     xxx = rotate([%pt(1);%pt(2)],...
 		 -o.graphics.theta*%pi/180,...
@@ -19,17 +20,8 @@ function Cmenu=check_edge(o,Cmenu,%pt)
     %xc=xxx(1)
     %yc=xxx(2)
   end
-  eps=sz/5
-  orig=orig+eps
-  sz=sz-2*eps
-  data=[(orig(1)-%xc)*(orig(1)+sz(1)-%xc),..
-        (orig(2)-%yc)*(orig(2)+sz(2)-%yc)]
 
-  if data(1)<0 && data(2)<0 then 
-    // we have cliked inside the block so it is probably not a link
-    return;
-  end
-
+  // Link detection in first
   [%xout,%yout,typout]=getoutputports(o)
 
   if ~isempty(%xout) &&...
@@ -45,8 +37,22 @@ function Cmenu=check_edge(o,Cmenu,%pt)
 
     if data(1)<0 && data(2)<0 then
       Cmenu='Link';
+      return
     end
+  end
 
+  // blk detection
+  eps_blk=3
+  orig=orig-eps_blk
+  sz=sz+2*eps_blk
+  data=[(orig(1)-%xc)*(orig(1)+sz(1)-%xc),..
+        (orig(2)-%yc)*(orig(2)+sz(2)-%yc)]
+
+  if data(1)<0 && data(2)<0 then 
+    // we have cliked inside the block so it is probably not a link
+    return;
+  else
+    Cmenu=''
   end
 endfunction
 

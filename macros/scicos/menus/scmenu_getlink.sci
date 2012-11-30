@@ -26,7 +26,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   //------------------------------------------------------------------
   win=%win;
   xc1=%pt(1);yc1=%pt(2);
-  [kfrom,wh]=getblocklink(scs_m,[xc1;yc1],eps=10)
+  [kfrom,wh]=getblocklink(scs_m,[xc1;yc1])
   if ~isempty(kfrom) then
     o1=scs_m.objs(kfrom)
   else
@@ -239,7 +239,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     // here the last point of P or [xe,ye] is the point 
     // at which a click has occured
     xe=rep(1);ye=rep(2)
-    //kto=getblock(scs_m,[xe;ye])
+    kto=getblock(scs_m,[xe;ye])
     if ~isempty(kto) then 
       //-- new point designs the "to block"
       o2=scs_m.objs(kto);
@@ -457,6 +457,18 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   to=[kto,port_number,b2m(typpto=='in'|typpto=='evtin')]
   nx=prod(size(xl))
   
+  if from==to then
+    //message(['Selected port is already connected.';..
+    //         'To start a link off another link, place the cursor';..
+    //         'on the split point and double click, or type l.']),
+    F.draw_latter[];
+    F.remove[gr_out];
+    F.remove[C];
+    F.draw_now[];
+    xset('color',dash)
+    return
+  end
+
   if nx==1 then
     if fromsplit&(xl<>xc2|yl<>yc2) then
       if xx(wh)==xx(wh+1) then
@@ -555,7 +567,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   
   //add new link in objects structure
   nx=length(scs_m.objs)+1
-  //pause
+
   movedblock=[];moving=0
   if size(lk.xx,'*')==2 then
    //if scs_m.objs(kfrom).graphics.theta==0&scs_m.objs(kto).graphics.theta==0 then

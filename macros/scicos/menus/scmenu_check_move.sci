@@ -29,14 +29,25 @@ function [Cmenu,Select]=do_check_move(Select)
       Cmenu=check_edge(scs_m.objs(k),Cmenu,%pt);
       if Cmenu=="Link" then
 	Select=[];
-      else
+      elseif Cmenu=="Move" then
 	Select=[k,%win];
+      else
+        Cmenu="SelectRegion";
+        Select=[];
+        resume(%ppt=%pt);
       end 
     else 
       // more than one object are selected 
       if isempty(find(k==Select(:,1))) then 
 	// restrict selection to moving object 
-	Select=[k,%win];
+        Cmenu=check_edge(scs_m.objs(k),Cmenu,%pt);
+        if Cmenu=="Move" then
+          Select=[k,%win];
+        else
+          Cmenu="SelectRegion";
+          resume(%ppt=%pt);
+          Select=[];
+        end 
       else
 	Select=Select;
       end
