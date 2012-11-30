@@ -25,7 +25,8 @@ function Cmenu=check_edge(o,Cmenu,%pt)
   [%xout,%yout,typout]=getoutputports(o)
 
   if ~isempty(%xout) &&...
-     ~(o.gui=="SPLIT_f" || o.gui=="CLKSPLIT_f") then
+     ~(o.gui=="IMPSPLIT_f" || o.gui=="SPLIT_f" ||...
+       o.gui=="BUSSPLIT"   || o.gui=="CLKSPLIT_f") then
 
     [m,kp1]=min((%yc-%yout).^2+(%xc-%xout).^2)
     %xout=%xout(kp1);%yout=%yout(kp1);typout=typout(kp1);
