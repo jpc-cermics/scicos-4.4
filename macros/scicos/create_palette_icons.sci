@@ -26,14 +26,16 @@ endfunction
 function scicos_create_icon(blockname)
 // create an icon for block named name 
 // used in Makefile 
-  path=file('join',[get_scicospath();'macros';'blocks';'*';blockname+'.sci']);
-  files=glob(path);
-  if isempty(files) then 
-    message(['Error: block '+blockname+' not found!']);
-    return;
+  if %f then 
+    path=file('join',[get_scicospath();'macros';'blocks';'*';blockname+'.sci']);
+    files=glob(path);
+    if isempty(files) then 
+      message(['Error: block '+blockname+' not found!']);
+      return;
+    end
   end
   // here we could decide to create a .cos or a .cosf 
-  scicos_create_icons(list(path));
+  scicos_create_icons(list(blockname));
 endfunction
 
 function scicos_create_icons(lisf)
