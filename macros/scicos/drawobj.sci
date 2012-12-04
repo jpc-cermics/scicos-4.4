@@ -94,7 +94,7 @@ function [o,ok]=drawobj(o,F)
   end
   
   C=F.end_compound[];
-  C.mark=0;C.mark_size=0;
+  C.hilite_type=0;C.hilite_size=0;
   if o.iskey['gr'] then 
     // remove previous graphic object 
     // o.gr.invalidate[];

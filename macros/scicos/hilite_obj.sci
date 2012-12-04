@@ -11,8 +11,8 @@ function hilite_obj(o,draw=%t,warn=%f)
   if ~o.iskey['gr'] then return;end 
   if o.type =='Block'|o.type=='Text' then
     if warn then
-      o.gr.mark_color=7;
-      o.gr.mark_size=1;
+      o.gr.hilite_color=7;
+      o.gr.hilite_size=1;
     end
     o.gr.hilited = %t;
   elseif o.type =='Link' then

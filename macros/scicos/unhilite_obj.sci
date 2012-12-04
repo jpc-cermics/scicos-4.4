@@ -9,8 +9,8 @@ function unhilite_obj(o,draw=%t,warn=%f)
   if ~o.iskey['gr'] then return;end 
   if o.type =='Block'|o.type=='Text' then
     if warn then
-      o.gr.mark_color=10;
-      o.gr.mark_size=0;
+      o.gr.hilite_color=10;
+      o.gr.hilite_size=0;
     end
     o.gr.hilited = %f;
   elseif o.type =='Link' then
