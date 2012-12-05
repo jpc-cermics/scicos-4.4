@@ -20,7 +20,7 @@ function [k,wh]=getobj(scs_m,pt)
               [data,wh]=get_data_link(o,pt)
               if data<0 then 
                 k=j;
-                printf("getobj in blk %s (find a lnk) : %f\n",scs_m.objs(i).gui,toc()-a);
+                printf("getobj in blk %s (found a lnk) : %f\n",scs_m.objs(i).gui,toc()-a);
                 return 
               end
             end
@@ -67,7 +67,7 @@ function [k]=getblock(scs_m,pt)
       [data]=get_data_block(o,pt)
       if data(1)<0 & data(2)<0 then
         k=i;
-        printf("getblock : %f\n",toc()-a);
+        printf("getblock in blk %s : %f\n",scs_m.objs(i).gui,toc()-a);
         return
       end
     end
@@ -88,7 +88,7 @@ function [k,wh]=getblocklink(scs_m,pt)
       [data]=get_data_block(o,pt)
       if data(1)<0 & data(2)<0 then
         k=i;
-        printf("getblocklink in blk : %f\n",toc()-a);
+        printf("getblocklink in blk %s : %f\n",scs_m.objs(i).gui,toc()-a);
         return
       end
 
@@ -169,10 +169,7 @@ endfunction
 function [data,ind]=get_data_link(o,pt)
   eps_lnk = 4;
 
-  xx = o.xx;
-  yy = o.yy;
-
-  [data,ptp,ind] = dist2polyline(xx,yy,pt);
+  [data,ptp,ind] = dist2polyline(o.xx,o.yy,pt);
 
   data = data-eps_lnk;
 endfunction
