@@ -96,7 +96,6 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
   end
 
   F=get_current_figure()
-  F.draw_latter[]
   rep(3)=-1;
   cursor_changed=%f;
   while 1 do
@@ -110,12 +109,12 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
     rect=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
           min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
     
-    F.draw_now[]
     o.gr.children(1).x=[X_start;x1;X_end]
     o.gr.children(1).y=[Y_start;y1;Y_end]
 
+    o.gr.invalidate[]
+    F.process_updates[];
     rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f);
-    F.draw_latter[]
     xc1=rep(1)
     yc1=rep(2)
     x1(2)=X1(2)-(xc-xc1);
@@ -134,8 +133,9 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       o.gr.children(2).x=data(1,1)
       o.gr.children(2).y=data(1,2)
     end
+    o.gr.invalidate[]
   end
-  F.draw_latter[]
+
   if and(rep(3)<>[2 5]) then //** if the link manipulation is OK 
     have_moved=%t
     rect=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
@@ -172,6 +172,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       o.gr.children(2).x=data(1,1)
       o.gr.children(2).y=data(1,2)
     end
+    o.gr.invalidate[]
     scs_m.objs(k)=o
   else
     o.gr.children(1).x=ini_data(:,1)
@@ -180,6 +181,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       o.gr.children(2).x=ini_data_id(:,1)
       o.gr.children(2).y=ini_data_id(:,2)
     end
+    o.gr.invalidate[]
   end
   F.draw_now[]
 endfunction
@@ -434,8 +436,8 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   cursor_changed=%f;
   nb=0
   while 1 do //** interactive move loop
+    F.process_updates[];
     rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f);
-    F.draw_latter[];
     //** left button release, right button (press, click)
     if rep(3)==3 then
       global scicos_dblclk
@@ -469,6 +471,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
       for k = SuperCompound_id
         o=scs_m.objs(k)
         o.gr.translate[[delta_x , delta_y]];
+        o.gr.invalidate[]
       end
 
       if ~isempty(connected) then  //** Move the links
@@ -529,7 +532,6 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
           gh_link_mod.invalidate[]
         end
       end
-      F.draw_now[];
     end
   end //** ... of while Interactive move LOOP --------------------------------------------------------------
   xcursor();

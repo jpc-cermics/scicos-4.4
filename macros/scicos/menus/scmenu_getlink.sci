@@ -124,6 +124,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	// message('selected port is already connected')
         //unhilite_obj(kfrom)
         F.remove[gr_out];
+        F.invalidate[];
 	xset('color',dash)
 	return
       end
@@ -135,6 +136,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	//message('selected port is already connected')
         //unhilite_obj(kfrom)
         F.remove[gr_out];
+        F.invalidate[];
 	xset('color',dash)
 	return
       end
@@ -153,6 +155,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	//message('selected port is already connected'),
         //unhilite_obj(kfrom)
         F.remove[gr_out];
+        F.invalidate[];
 	xset('color',dash)
 	return
       end
@@ -164,6 +167,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	//message('selected port is already connected'),
         //unhilite_obj(kfrom)
         F.remove[gr_out];
+        F.invalidate[];
 	xset('color',dash)
 	return
       end
@@ -191,6 +195,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   P=C.children(1);
   pt=[];
   first=%t;nb=0;
+
   while %t do ; //loop on link segments
     rep(3)=-1
     n=size(P.x,'*');
@@ -206,15 +211,16 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	  P.y(n+1)=pt(2);
 	end
       end
+      P.invalidate[];
+      F.process_updates[];
       // get a new point waiting for click
       rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f)
-      F.draw_latter[];
-      if rep(3)==2 then 
-	xset('color',dash)
-	// abort 
+      P.invalidate[];
+      if rep(3)==2 then
         F.remove[gr_out];
 	F.remove[C];
-	F.draw_now[];
+        F.invalidate[];
+        xset('color',dash)
 	return
       elseif rep(3)==-5 then
          if nb<=4 then
@@ -230,11 +236,16 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       elseif rep(3)==0 && nb <= 3 then
         rep(3)=-1
       end
+
+      a=tic();
+      kto=getblock(scs_m,[rep(1);rep(2)]);
+      printf("getblock : %f\n",toc()-a);
+
       //plot new position of last link segment
       P.x(n+1)=rep(1);
       P.y(n+1)=rep(2);
       pt=[rep(1),rep(2)];
-      F.draw_now[];
+      P.invalidate[];
     end
     // here the last point of P or [xe,ye] is the point 
     // at which a click has occured
@@ -260,10 +271,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         hilite_obj(kto)
 	message('This block has no input port'),
         unhilite_obj(kto)
-        F.draw_latter[];
         F.remove[gr_out];
 	F.remove[C];
-	F.draw_now[];
+	F.invalidate[];
 	xset('color',dash)
 	return
       end
@@ -282,10 +292,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 		 'The port at the origin of the link has type '+string(typo);
 		 'the port at the end has type '+string(typin(k))])
         unhilite_obj(kto)
-        F.draw_latter[];
         F.remove[gr_out];
 	F.remove[C];
-	F.draw_now[];
+	F.invalidate[];
 	xset('color',dash)
 	return
       end
@@ -295,10 +304,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
           hilite_obj(kto)
 	  //message('selected port is already connected'),
           unhilite_obj(kto)
-          F.draw_latter[];
           F.remove[gr_out];
 	  F.remove[C];
-	  F.draw_now[];
+	  F.invalidate[];
 	  xset('color',dash)
 	  return
 	end
@@ -359,10 +367,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
           hilite_obj(kto)
 	  //message('selected port is already connected')
           unhilite_obj(kto)
-          F.draw_latter[];
           F.remove[gr_out];
 	  F.remove[C];
-	  F.draw_now[];
+	  F.invalidate[];
 	  xset('color',dash)
 	  return
 	end
@@ -387,10 +394,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
           hilite_obj(kto)
 	  //message('selected port is already connected')
           unhilite_obj(kto)
-          F.draw_latter[];
           F.remove[gr_out];
 	  F.remove[C];
-	  F.draw_now[];
+          F.invalidate[];
 	  xset('color',dash)
 	  return
 	end
@@ -408,10 +414,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
           hilite_obj(kto)
 	  //message('selected port is already connected'),
           unhilite_obj(kto)
-          F.draw_latter[];
           F.remove[gr_out];
 	  F.remove[C];
-	  F.draw_now[];
+	  F.invalidate[];
 	  xset('color',dash)
 	  return
 	end
@@ -424,7 +429,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 		   'the port at the end has size '+string(szin)])
 	end
       end
-      F.draw_latter[];
+      //F.draw_latter[];
       break;
 
     else
@@ -436,10 +441,10 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 	else
 	  yc2=yo
 	end
-	F.draw_latter[];
 	P.x(n+1)=xc2;
 	P.y(n+1)=yc2;
-	F.draw_now[];
+        P.invalidate[]
+	F.process_updates[]
         xl=[xl;xc2]
         yl=[yl;yc2]
 	xo=xc2;yo=yc2;
@@ -461,10 +466,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     //message(['Selected port is already connected.';..
     //         'To start a link off another link, place the cursor';..
     //         'on the split point and double click, or type l.']),
-    F.draw_latter[];
     F.remove[gr_out];
     F.remove[C];
-    F.draw_now[];
+    F.invalidate[];
     xset('color',dash)
     return
   end
@@ -494,11 +498,13 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     else 
       xl=[xl;xc2];yl=[yl;yc2]
     end
-  end  
+  end
+
   // remove temporary path 
-  F.draw_latter[]
+  //F.draw_latter[]
   F.remove[gr_out];
   F.remove[C]
+  F.invalidate[];
     
   // prepare new link 
   lk=scicos_link(xx=xl,yy=yl,ct=[clr,typ],from=from,to=to)
@@ -553,6 +559,8 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     // update the graphic parts 
     // 1 remove the o1 graphics 
     F.remove[o1.gr];
+    F.invalidate[];
+
     // register the 3 new graphic objects 
     link1=drawobj(link1,F);
     scs_m.objs(ks)=link1;
@@ -603,7 +611,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   //update connected blocks
   scs_m.objs(kfrom)=mark_prt(scs_m.objs(kfrom),from(2),outin(from(3)+1),typ,nx)
   scs_m.objs(kto)=mark_prt(scs_m.objs(kto),to(2),outin(to(3)+1),typ,nx)
-  F.draw_now[];
+  F.invalidate[];
   xset('color',dash)
   needcompile=4
   resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
@@ -630,4 +638,5 @@ function gr=hilite_port(xport,yport,o)
 
    F=get_current_figure();
    gr=F.children(1).children($);
+   gr.invalidate[]
 endfunction

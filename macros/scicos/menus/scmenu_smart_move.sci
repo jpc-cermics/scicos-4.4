@@ -83,8 +83,8 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
   while %t 
     // move loop
     // get new position
+    F.process_updates[];
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-    F.draw_latter[];
     if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
@@ -98,6 +98,7 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
     //tr= pt - pto;
     // draw block shape
     o.gr.translate[tr];
+    o.gr.invalidate[];
     // draw moving links
     for ii=1:length(connected)
       i=connected(ii);	
@@ -147,7 +148,6 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
       oi.gr.invalidate[];
     end
     pto=pt;
-    F.draw_now[];
   end
   F.draw_now[];
   // update the block structure and connected links
@@ -207,6 +207,7 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 	// 	rep(3)=-1
 	// 	while rep(3)==-1 ,
         while 1
+          F.process_updates[];
 	  rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
           if rep(3)==10 then
             global scicos_dblclk
@@ -217,10 +218,9 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
           end
 	  pt = rep(1:2);
 	  tr= pt - pto;
-	  F.draw_latter[];
 	  o.gr.children(1).x(2) = o.gr.children(1).x(2) + tr(1);
 	  o.gr.children(1).y(2) = o.gr.children(1).y(2) + tr(2);
-	  F.draw_now[];
+          o.gr.invalidate[]
 	  pto=pt;
 	end
 	if rep(3)<>2 then 
@@ -306,13 +306,13 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
     pto=[xc,yc];
     rep(3)=-1
     while rep(3)==-1 ,
+      F.process_updates[]
       rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
       pt = rep(1:2);
       tr= pt - pto;
-      F.draw_latter[];
       o.gr.children(1).x(wh+1) = o.gr.children(1).x(wh+1) + tr(1);
       o.gr.children(1).y(wh+1) = o.gr.children(1).y(wh+1) + tr(2);
-      F.draw_now[];
+      o.gr.invalidate[]
       pto=pt;
     end
     if rep(3)<>2 then 
@@ -340,6 +340,7 @@ function o=do_smart_move_link4(o)
   F=get_current_figure()
   pto=[xc,yc];
   while 1
+    F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
     if rep(3)==10 then
       global scicos_dblclk
@@ -350,10 +351,9 @@ function o=do_smart_move_link4(o)
     end
     pt = rep(1:2);
     tr= pt - pto;
-    F.draw_latter[];
     o.gr.children(1).x(wh:wh+1) = o.gr.children(1).x(wh:wh+1) - e(1)*tr(1);
     o.gr.children(1).y(wh:wh+1) = o.gr.children(1).y(wh:wh+1) - e(2)*tr(2);
-    F.draw_now[];
+    o.gr.invalidate[]
     pto=pt;
   end
   if rep(3)<>2 then 
@@ -377,6 +377,7 @@ function scs_m=do_smart_move_link1(scs_m)
   F=get_current_figure()
   pto=[xc,yc];
   while 1
+    F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
     if rep(3)==10 then
       global scicos_dblclk
@@ -387,10 +388,9 @@ function scs_m=do_smart_move_link1(scs_m)
     end
     pt = rep(1:2);
     tr= pt - pto;
-    F.draw_latter[];
     o.gr.children(1).x = o.gr.children(1).x + e(1)*tr(1);
     o.gr.children(1).y = o.gr.children(1).y + e(2)*tr(2);
-    F.draw_now[];
+    o.gr.invalidate[]
     pto=pt;
   end
   if rep(3)==2 then 
@@ -479,6 +479,7 @@ function scs_m=do_smart_move_link2(scs_m,o)
   F=get_current_figure()
   pto=[xc,yc];
   while 1
+    F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
     if rep(3)==10 then
       global scicos_dblclk
@@ -489,10 +490,9 @@ function scs_m=do_smart_move_link2(scs_m,o)
     end
     pt = rep(1:2);
     tr= pt - pto;
-    F.draw_latter[];
     o.gr.children(1).x(1:2) = o.gr.children(1).x(1:2) + e(1)*tr(1);
     o.gr.children(1).y(1:2) = o.gr.children(1).y(1:2) + e(2)*tr(2);
-    F.draw_now[];
+    o.gr.invalidate[]
     pto=pt;
   end
   if rep(3)==2 then 
@@ -580,6 +580,7 @@ function scs_m=do_smart_move_link3(scs_m,o)
   F=get_current_figure()
   pto=[xc,yc];
   while 1
+    F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
     if rep(3)==10 then
       global scicos_dblclk
@@ -590,10 +591,9 @@ function scs_m=do_smart_move_link3(scs_m,o)
     end
     pt = rep(1:2);
     tr= pt - pto;
-    F.draw_latter[];
     o.gr.children(1).x($-1:$) = o.gr.children(1).x($-1:$) + e(1)*tr(1);
     o.gr.children(1).y($-1:$) = o.gr.children(1).y($-1:$) + e(2)*tr(2);
-    F.draw_now[];
+    o.gr.invalidate[]
     pto=pt;
   end
   if rep(3)==2 then 
@@ -659,6 +659,7 @@ function scs_m=do_smart_move_corner(scs_m,k,xc,yc,wh)
   F=get_current_figure()
   pto=[xc,yc];
   while 1
+    F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
     if rep(3)==10 then
       global scicos_dblclk
@@ -669,10 +670,9 @@ function scs_m=do_smart_move_corner(scs_m,k,xc,yc,wh)
     end
     pt = rep(1:2);
     tr= pt - pto;
-    F.draw_latter[];
     o.gr.children(1).x(wh) = o.gr.children(1).x(wh) +tr(1);
     o.gr.children(1).y(wh) = o.gr.children(1).y(wh) +tr(2);
-    F.draw_now[];
+    o.gr.invalidate[]
     pto=pt;
   end
   if rep(3)<>2 then 
