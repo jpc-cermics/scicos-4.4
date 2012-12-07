@@ -202,6 +202,17 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         return
       end
 
+      if isempty(xyi) then
+        hilite_obj(kto)
+        message('This block has no input port')
+        unhilite_obj(kto)
+        F.remove[gr_out];
+        F.remove[C];
+        F.invalidate[];
+        xset('color',dash)
+        return
+      end
+
       xin=xyi(1);yin=xyi(2);
       szin=getportsiz(o2,port_number,typpto)
       if typpto=='out'|typpto=='in' then
