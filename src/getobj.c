@@ -73,7 +73,7 @@ int scicos_dist2polyline(double *xp,double *yp,int np,double *pt,double *d,doubl
     int k=0;
 
     if (( xpp=malloc(sizeof(double)* npp) ) == NULL) goto err1;
-    if (( ypp=malloc(sizeof(double)* npp) ) == NULL) goto err1;
+    if (( ypp=malloc(sizeof(double)* npp) ) == NULL) goto err1bis;
 
     for (i=0;i<np;i++) {
       xpp[i]=xp[i];
@@ -139,6 +139,11 @@ int scicos_dist2polyline(double *xp,double *yp,int np,double *pt,double *d,doubl
 
 err1:
   free(cr);
+  return FALSE;
+
+err1bis:
+  free(cr);
+  free(xpp);
   return FALSE;
 
 err2:
@@ -314,7 +319,11 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
 
   n = ((NspList *) objs)->nel;
 
-  /* loop on list elements */
+  /* loop on list elements
+   * one assume that user "most of time"
+   * do operation on lastest handled
+   * block in the diagram
+   */
   cloc = ((NspList *) objs)->last;
   for (i=n;i>0;i--) {
     o=cloc->O;
@@ -349,6 +358,9 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
     cloc = cloc->prev;
   }
 
+  /* loop on list elements
+   * one checks link and text
+   */
   cloc = ((NspList *) objs)->last;
   for (i=n;i>0;i--) {
     o=cloc->O;
