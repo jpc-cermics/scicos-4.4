@@ -3,15 +3,13 @@ function [k,wh]=getobj(scs_m,pt)
   // we use C version of getobj.
   // For debugging and improvement
   // use the macro version below
-  a=tic();
+
   [k,wh]=scicos_getobj(scs_m,pt)
-  printf("%f\n",toc()-a);
   return
 
   k  = []
   wh = []
   n  = length(scs_m.objs)
-  a=tic();
 
   for i=n:-1:1
     o=scs_m.objs(i)
@@ -28,13 +26,11 @@ function [k,wh]=getobj(scs_m,pt)
               [data,wh]=get_data_link(o,pt)
               if data<0 then 
                 k=j;
-                printf("getobj in blk %s (found a lnk) : %f\n",scs_m.objs(i).gui,toc()-a);
                 return 
               end
             end
           end
         end
-        printf("getobj in blk %s : %f\n",scs_m.objs(i).gui,toc()-a);
         return;
       end
     end
@@ -47,7 +43,6 @@ function [k,wh]=getobj(scs_m,pt)
         [data]=get_data_text(o,pt)
         if data(1)<0 & data(2)<0 then
           k=i;
-          printf("getobj in txt : %f\n",toc()-a);
           return;
         end
 
@@ -55,12 +50,10 @@ function [k,wh]=getobj(scs_m,pt)
         [data,wh]=get_data_link(o,pt)
         if data<0 then
           k=i;
-          printf("getobj in lnk : %f\n",toc()-a);
           return 
         end
     end
   end
-  printf("getobj in void : %f\n",toc()-a);
 endfunction
 
 function [k]=getblock(scs_m,pt)
@@ -68,15 +61,12 @@ function [k]=getblock(scs_m,pt)
   // we use C version of getblock.
   // For debugging and improvement
   // use the macro version below
-  a=tic();
+
   [k]=scicos_getblock(scs_m,pt)
-  printf("%f\n",toc()-a);
   return
 
   k = []
   n = length(scs_m.objs)
-
-  a=tic();
 
   for i=n:-1:1
     o=scs_m.objs(i)
@@ -84,12 +74,10 @@ function [k]=getblock(scs_m,pt)
       [data]=get_data_block(o,pt)
       if data(1)<0 & data(2)<0 then
         k=i;
-        printf("getblock in blk %s : %f\n",scs_m.objs(i).gui,toc()-a);
         return
       end
     end
   end
-  printf("getblock in void : %f\n",toc()-a);
 endfunction
 
 function [k,wh]=getblocklink(scs_m,pt)
@@ -97,16 +85,13 @@ function [k,wh]=getblocklink(scs_m,pt)
   // we use C version of getblocklink.
   // For debugging and improvement
   // use the macro version below
-  a=tic();
+
   [k,wh]=scicos_getblocklink(scs_m,pt)
-  printf("%f\n",toc()-a);
   return
 
   k  = []
   wh = []
   n  = length(scs_m.objs)
-
-  a=tic();
 
   for i=n:-1:1
     o=scs_m.objs(i)
@@ -114,7 +99,6 @@ function [k,wh]=getblocklink(scs_m,pt)
       [data]=get_data_block(o,pt)
       if data(1)<0 & data(2)<0 then
         k=i;
-        printf("getblocklink in blk %s : %f\n",scs_m.objs(i).gui,toc()-a);
         return
       end
 
@@ -122,12 +106,10 @@ function [k,wh]=getblocklink(scs_m,pt)
       [data,wh]=get_data_link(o,pt)
       if data<0 then
         k=i;
-        printf("getblocklink in lnk : %f\n",toc()-a);
         return
       end
     end
   end
-  printf("getblocklink in void : %f\n",toc()-a);
 endfunction
 
 function [in,out] = getobjs_in_rect(scs_m,ox,oy,w,h)
@@ -135,16 +117,13 @@ function [in,out] = getobjs_in_rect(scs_m,ox,oy,w,h)
   // we use C version of getobjs_in_rect.
   // For debugging and improvement
   // use the macro version below
-  a=tic();
+
   [in,out]=scicos_getobjs_in_rect(scs_m,ox,oy,w,h)
-  printf("%f\n",toc()-a);
   return
 
   in  = []
   out = []
   ok  = %f
-
-  a=tic();
 
   for i=1:size(scs_m.objs)
     ok = %f;
@@ -171,7 +150,6 @@ function [in,out] = getobjs_in_rect(scs_m,ox,oy,w,h)
     end
     if ~ok then out=[out i],end
   end
-  printf("getobjs_in_rect : %f\n",toc()-a);
 endfunction
 
 function [data]=get_data_block(o,pt)
@@ -208,38 +186,3 @@ function [data,ind]=get_data_link(o,pt)
 
   data = data-eps_lnk;
 endfunction
-
-// function rect=get_gr_bounds(o)
-//   rect=o.gr.get_bounds[];
-//   if o.graphics.theta<>0 then
-//     if o.type.equal['Text'] then
-//       orig = [rect(1) rect(2)];
-//       sz   = [rect(3)-rect(1) rect(4)-rect(2)];
-//     else
-//       [orig,sz]=(o.graphics.orig,o.graphics.sz);
-//     end
-// 
-//     F=get_current_figure();
-//     drawnow=F.draw_status[]
-//     if drawnow then F.draw_latter[], end
-// 
-//     //replace block at rotation 0
-//     tr=[orig(1)+sz(1)/2,orig(2)+sz(2)/2];
-//     theta=o.graphics.theta;
-//     o.gr.translate[-tr];
-//     o.gr.rotate[[cos(theta*%pi/180),sin(theta*%pi/180)]];
-//     o.gr.translate[tr];
-//   
-//     //get gr bounds wihtout rotation
-//     rect=o.gr.get_bounds[];
-// 
-//     //restore block rotation
-//     tr=[orig(1)+sz(1)/2,orig(2)+sz(2)/2];
-//     theta=-o.graphics.theta;
-//     o.gr.translate[-tr];
-//     o.gr.rotate[[cos(theta*%pi/180),sin(theta*%pi/180)]];
-//     o.gr.translate[tr];
-// 
-//     if drawnow then F.draw_now[], end
-//   end
-// endfunction

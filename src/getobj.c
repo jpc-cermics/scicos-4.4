@@ -302,7 +302,7 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
   NspHash *scs_m = (NspHash*) obj;
   NspObject *objs;
   NspObject *T;
-  NspObject *o,*o2;
+  NspObject *o;
   Cell *cloc;
 
   double data[2];
@@ -322,7 +322,6 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
     if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
       scicos_get_data_block(o,pt,data);
       if ((data[0]<0) && (data[1]<0)) {
-        o2=o;/*avirer*/
         (*k)=i;
         nsp_hash_find((NspHash*) o,"gui",&T);
         /* second pass to detect crossing link */
@@ -338,16 +337,12 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
               scicos_get_data_link(o,pt,data,wh);
               if ((*data)<0) {
                 (*k)=j;
-                nsp_hash_find((NspHash*) o2,"gui",&T);
-                fprintf(stderr,"scicos_getobj in blk %s (found a lnk) : ",((NspSMatrix *)T)->S[0]);
                 return TRUE;
               }
             }
             cloc = cloc->next;
           }
         }
-        nsp_hash_find((NspHash*) o2,"gui",&T);
-        fprintf(stderr,"scicos_getobj in blk %s : ",((NspSMatrix *)T)->S[0]);
         return TRUE;
       }
     }
@@ -362,7 +357,6 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
       scicos_get_data_text(o,pt,data);
       if ((data[0]<0) && (data[1]<0)) {
         (*k)=i;
-        fprintf(stderr,"scicos_getobj in txt : ");
         return TRUE;
       }
     }
@@ -370,14 +364,12 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
       scicos_get_data_link(o,pt,data,wh);
       if ((*data)<0) {
         (*k)=i;
-        fprintf(stderr,"scicos_getobj in lnk : ");
         return TRUE;
       }
     }
     cloc = cloc->prev;
   }
 
-  fprintf(stderr,"scicos_getobj in void : ");
   return TRUE;
 }
 
@@ -416,14 +408,12 @@ int scicos_getblock(NspObject *obj,double *pt,int *k)
       if ((data[0]<0) && (data[1]<0)) {
         (*k)=i;
         nsp_hash_find((NspHash*) o,"gui",&T);
-        fprintf(stderr,"scicos_getblock in blk %s : ",((NspSMatrix *)T)->S[0]);
         return TRUE;
       }
     }
     cloc = cloc->prev;
   }
 
-  fprintf(stderr,"scicos_getblock in void : ");
   return TRUE;
 }
 
@@ -462,7 +452,6 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
       if ((data[0]<0) && (data[1]<0)) {
         (*k)=i;
         nsp_hash_find((NspHash*) o,"gui",&T);
-        fprintf(stderr,"scicos_getblocklink in blk %s : ",((NspSMatrix *)T)->S[0]);
         return TRUE;
       }
     }
@@ -470,14 +459,12 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
       scicos_get_data_link(o,pt,data,wh);
       if ((*data)<0) {
         (*k)=i;
-        fprintf(stderr,"scicos_getblocklink in lnk : ");
         return TRUE;
       }
     }
     cloc = cloc->prev;
   }
 
-  fprintf(stderr,"scicos_getblocklink in void : ");
   return TRUE;
 }
 
@@ -602,6 +589,5 @@ int scicos_getobjs_in_rect(NspObject *obj,double ox,double oy,double w,double h,
     cloc = cloc->next;
   }
 
-  fprintf(stderr,"scicos_getobjs_in_rect : ");
   return TRUE;
 }

@@ -89,8 +89,6 @@ function [rect,btn]=rubberbox(rect,edit_mode)
     R.y=max(yc,yc1)
     R.w=abs(xc-xc1)
     R.h=abs(yc-yc1)
-    //Alan : Next lignes toberemoved if too slow
-    //####
     [in_n,out] = getobjs_in_rect(scs_m,R.x,R.y,R.w,R.h)
     if ~isempty(in_n) then
       if ~isempty(in) then
