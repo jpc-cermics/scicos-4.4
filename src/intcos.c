@@ -2319,7 +2319,235 @@ static int int_scicos_count_blocks(Stack stack, int rhs, int opt, int lhs)
   return 1;
 }
 
+extern int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh);
 
+/* int_scicos_getobj
+ * 
+ * [k,wh]=scicos_getobj(scs_m,pt)
+ * 
+ */
+static int int_scicos_getobj(Stack stack, int rhs, int opt, int lhs)
+{
+  NspObject *obj;
+  NspMatrix *pt;
+  
+  int k=0;
+  int wh=0;
+  
+  NspMatrix *y1;
+  NspMatrix *y2;
+  
+  CheckRhs(2,2);
+  CheckLhs(1,2);
+  
+  if ((obj = nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
+  if ((pt = GetMat(stack,2))== NULL) return RET_BUG;
+  if (pt->mn != 2) {
+    Scierror ("pt must have a size 2.\n");
+    return RET_BUG;
+  }
+  
+  if (scicos_getobj(obj,pt->R,&k,&wh)==FALSE) return RET_BUG;
+  
+  if (k==0) {
+    if ((y1 = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) {
+      return RET_BUG;
+    }
+  } else {
+    if ((y1 = nsp_matrix_create(NVOID,'r',1,1)) == NULLMAT) {
+      return RET_BUG;
+    }
+    y1->R[0]=(double)k;
+  }
+  
+  MoveObj(stack,1, NSP_OBJECT(y1));
+  
+  if (lhs==2) {
+    if (wh==0) {
+      if ((y2 = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) return RET_BUG;
+    } else {
+      if ((y2 = nsp_matrix_create(NVOID,'r',1,1)) == NULLMAT) return RET_BUG;
+      y2->R[0]=(double)wh;
+    }
+    MoveObj(stack,2, NSP_OBJECT(y2));
+  }
+  
+  return Max(lhs,1);
+}
+
+extern int scicos_getblock(NspObject *obj,double *pt,int *k);
+
+/* int_scicos_getblock
+ *
+ * [k]=scicos_getblock(scs_m,pt)
+ *
+ */
+static int int_scicos_getblock(Stack stack, int rhs, int opt, int lhs)
+{
+  NspObject *obj;
+  NspMatrix *pt;
+
+  int k=0;
+
+  NspMatrix *y1;
+
+  CheckRhs(2,2);
+  CheckLhs(1,1);
+
+  if ((obj = nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
+  if ((pt = GetMat(stack,2))== NULL) return RET_BUG;
+  if (pt->mn != 2) {
+    Scierror ("pt must have a size 2.\n");
+    return RET_BUG;
+  }
+
+  if (scicos_getblock(obj,pt->R,&k)==FALSE) return RET_BUG;
+
+  if (k==0) {
+    if ((y1 = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) {
+      return RET_BUG;
+    }
+  } else {
+    if ((y1 = nsp_matrix_create(NVOID,'r',1,1)) == NULLMAT) {
+      return RET_BUG;
+    }
+    y1->R[0]=(double)k;
+  }
+
+  MoveObj(stack,1, NSP_OBJECT(y1));
+  
+  return 1;
+}
+
+extern int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh);
+
+/* int_scicos_getblocklink
+ *
+ * [k,wh]=scicos_getblocklink(scs_m,pt)
+ *
+ */
+static int int_scicos_getblocklink(Stack stack, int rhs, int opt, int lhs)
+{
+  NspObject *obj;
+  NspMatrix *pt;
+
+  int k=0;
+  int wh=0;
+
+  NspMatrix *y1;
+  NspMatrix *y2;
+
+  CheckRhs(2,2);
+  CheckLhs(1,2);
+
+  if ((obj = nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
+  if ((pt = GetMat(stack,2))== NULL) return RET_BUG;
+  if (pt->mn != 2) {
+    Scierror ("pt must have a size 2.\n");
+    return RET_BUG;
+  }
+
+  if (scicos_getblocklink(obj,pt->R,&k,&wh)==FALSE) return RET_BUG;
+
+  if (k==0) {
+    if ((y1 = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) {
+      return RET_BUG;
+    }
+  } else {
+    if ((y1 = nsp_matrix_create(NVOID,'r',1,1)) == NULLMAT) {
+      return RET_BUG;
+    }
+    y1->R[0]=(double)k;
+  }
+
+  MoveObj(stack,1, NSP_OBJECT(y1));
+
+  if (lhs==2) {
+    if (wh==0) {
+      if ((y2 = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) return RET_BUG;
+    } else {
+      if ((y2 = nsp_matrix_create(NVOID,'r',1,1)) == NULLMAT) return RET_BUG;
+      y2->R[0]=(double)wh;
+    }
+    MoveObj(stack,2, NSP_OBJECT(y2));
+  }
+
+  return Max(lhs,1);
+}
+
+extern int scicos_getobjs_in_rect(NspObject *obj,double ox,double oy,double w,double h, \
+                                  int *nin,int **in,int *nout,int **out);
+
+/* int_scicos_getobj
+ *
+ * [yin,yout]=scicos_getobjs_in_rect(scs_m,ox,oy,w,h)
+ *
+ */
+static int int_scicos_getobjs_in_rect(Stack stack, int rhs, int opt, int lhs)
+{
+  NspObject *obj;
+  NspMatrix *ox,*oy,*w,*h;
+  NspMatrix *yin,*yout;
+
+  int *in=NULL;
+  int *out=NULL;
+  int nin=0;
+  int nout=0;
+  
+  int i;
+  
+  CheckRhs(5,5);
+  CheckLhs(2,2);
+
+  if ((obj = nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
+  
+  if ((ox = GetMat(stack,2))== NULL) return RET_BUG;
+  if (ox->mn != 1) {
+    Scierror ("ox must be scalar.\n");
+    return RET_BUG;
+  }
+  
+  if ((oy = GetMat(stack,3))== NULL) return RET_BUG;
+  if (oy->mn != 1) {
+    Scierror ("oy must be scalar.\n");
+    return RET_BUG;
+  }
+
+  if ((w = GetMat(stack,4))== NULL) return RET_BUG;
+  if (w->mn != 1) {
+    Scierror ("w must be scalar.\n");
+    return RET_BUG;
+  }
+
+  if ((h = GetMat(stack,5))== NULL) return RET_BUG;
+  if (h->mn != 1) {
+    Scierror ("h must be scalar.\n");
+    return RET_BUG;
+  }
+  
+  if (scicos_getobjs_in_rect(obj,ox->R[0],oy->R[0],w->R[0],h->R[0],&nin,&in,&nout,&out)==FALSE) return RET_BUG;
+  
+  if (nin==0) {
+    if ((yin = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) return RET_BUG;
+  } else {
+    if ((yin = nsp_matrix_create(NVOID,'r',1,nin)) == NULLMAT) return RET_BUG;
+    for(i=0;i<nin;i++) yin->R[i]=(double)in[i];
+    free(in);
+  }
+
+  if (nout==0) {
+    if ((yout = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) return RET_BUG;
+  } else {
+    if ((yout = nsp_matrix_create(NVOID,'r',1,nout)) == NULLMAT) return RET_BUG;
+    for(i=0;i<nout;i++) yout->R[i]=(double)out[i];
+    free(out);
+  }
+
+  MoveObj(stack,1, NSP_OBJECT(yin));
+  MoveObj(stack,2, NSP_OBJECT(yout));
+  
+  return lhs;
+}
 
 static OpTab Scicos_func[] = {
   {"scicos_count_blocks", int_scicos_count_blocks},
@@ -2329,6 +2557,10 @@ static OpTab Scicos_func[] = {
   {"scicos_is_link", int_scicos_is_link},
   {"scicos_is_modelica_block", int_scicos_is_modelica_block},
   {"scicos_is_super", int_scicos_is_super},
+  {"scicos_getobj", int_scicos_getobj},
+  {"scicos_getobjs_in_rect", int_scicos_getobjs_in_rect},
+  {"scicos_getblock", int_scicos_getblock},
+  {"scicos_getblocklink", int_scicos_getblocklink},
   {"sci_tree4", int_scicos_ftree4},
   {"sci_sctree", int_sctree},
   {"sci_tree2", int_tree2},
@@ -2346,7 +2578,7 @@ static OpTab Scicos_func[] = {
   {"scicos_debug_count", int_scicos_debug_count},
   {"buildouttb", int_buildouttb},
   {"scicos_about", int_scicos_about},
-  {"scicos_get_internal_name", int_scicos_get_internal_name },
+  {"scicos_get_internal_name", int_scicos_get_internal_name},
   {"coserror", int_coserror},
 
   {"model2blk", int_model2blk},

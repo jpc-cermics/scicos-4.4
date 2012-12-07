@@ -40,7 +40,7 @@ SUNDIALS=cvode.obj cvode_io.obj cvode_dense.obj nvector_serial.obj ida.obj ida_d
 	kinsol.obj kinsol_dense.obj kinsol_io.obj dopri5m.obj
 
 OBJSC=  import.obj scicos.obj intcos.obj simul.obj sciblk2.obj trees.obj ezxml.obj \
-	scicos_utils.obj evaluate_expr.obj about.obj types.obj $(BLOCKS) \
+	scicos_utils.obj evaluate_expr.obj about.obj types.obj getobj.obj $(BLOCKS) \
 	$(addprefix sundials/,$(SUNDIALS)) \
 	$(addprefix control/,$(CONTROL)) \
 	$(addprefix calelm/,$(CALELM)) \

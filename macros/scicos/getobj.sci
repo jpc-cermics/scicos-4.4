@@ -1,8 +1,16 @@
 function [k,wh]=getobj(scs_m,pt)
+
+  // we use C version of getobj.
+  // For debugging and improvement
+  // use the macro version below
+  a=tic();
+  [k,wh]=scicos_getobj(scs_m,pt)
+  printf("%f\n",toc()-a);
+  return
+
   k  = []
   wh = []
   n  = length(scs_m.objs)
-
   a=tic();
 
   for i=n:-1:1
@@ -14,7 +22,7 @@ function [k,wh]=getobj(scs_m,pt)
         //second pass to detect crossing link
         if ~(o.gui=="IMPSPLIT_f" || o.gui=="SPLIT_f" ||...
              o.gui=="BUSSPLIT"   || o.gui=="CLKSPLIT_f") then
-          for j=i:n
+          for j=(i+1):n
             o=scs_m.objs(j);
             if o.type=="Link" then
               [data,wh]=get_data_link(o,pt)
@@ -56,6 +64,15 @@ function [k,wh]=getobj(scs_m,pt)
 endfunction
 
 function [k]=getblock(scs_m,pt)
+
+  // we use C version of getblock.
+  // For debugging and improvement
+  // use the macro version below
+  a=tic();
+  [k]=scicos_getblock(scs_m,pt)
+  printf("%f\n",toc()-a);
+  return
+
   k = []
   n = length(scs_m.objs)
 
@@ -76,6 +93,15 @@ function [k]=getblock(scs_m,pt)
 endfunction
 
 function [k,wh]=getblocklink(scs_m,pt)
+
+  // we use C version of getblocklink.
+  // For debugging and improvement
+  // use the macro version below
+  a=tic();
+  [k,wh]=scicos_getblocklink(scs_m,pt)
+  printf("%f\n",toc()-a);
+  return
+
   k  = []
   wh = []
   n  = length(scs_m.objs)
@@ -105,6 +131,15 @@ function [k,wh]=getblocklink(scs_m,pt)
 endfunction
 
 function [in,out] = getobjs_in_rect(scs_m,ox,oy,w,h)
+
+  // we use C version of getobjs_in_rect.
+  // For debugging and improvement
+  // use the macro version below
+  a=tic();
+  [in,out]=scicos_getobjs_in_rect(scs_m,ox,oy,w,h)
+  printf("%f\n",toc()-a);
+  return
+
   in  = []
   out = []
   ok  = %f
