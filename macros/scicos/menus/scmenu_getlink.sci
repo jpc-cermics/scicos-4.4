@@ -80,7 +80,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     gr_out=F.children(1).children($);
 
   else //connection comes from a block
-//    [connected,port_number,xyo,typo,typpfrom]=get_port(o1,'from',%pt)
     [connected,xyo,typo,szout,szouttyp,from]=get_port(o1,kfrom,'from',%pt)
 
     if connected then return, end
@@ -94,12 +93,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     end
 
     xo=xyo(1);yo=xyo(2);
-//     szout=getportsiz(o1,port_number,typpfrom)
-//     if typpfrom=='out'|typpfrom=='in' then
-//       szouttyp=getporttyp(o1,port_number,typpfrom)
-//     end
-//     from=[kfrom,port_number,b2m(typpfrom=='in'|typpfrom=='evtin')]
-
     fromsplit=%f
     clr=default_color(typo)
 
@@ -107,14 +100,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     F=get_current_figure();
     gr_out=hilite_port(xo,yo,o1)
 
-//     orig  = o1.graphics.orig
-//     sz    = o1.graphics.sz
-//     theta = o1.graphics.theta
-//     xxx=rotate([xo;yo],...
-//                theta*%pi/180,...
-//                [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-//     xo=xxx(1,:);
-//     yo=xxx(2,:);
     xl=xo
     yl=yo
 
@@ -192,7 +177,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       //-- new point designs the "to block"
       o2=scs_m.objs(kto);
       [connected,xyi,typi,szin,szintyp,to]=get_port(o2,kto,'to',[xe;ye])
-//      [connected,port_number,xyi,typi,typpto]=get_port(o2,'to',[xe;ye])
 
       if connected then
         F.remove[gr_out];
@@ -215,22 +199,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 
       xc2=xyi(1);
       yc2=xyi(2);
-
-//       xin=xyi(1);yin=xyi(2);
-//       szin=getportsiz(o2,port_number,typpto)
-//       if typpto=='out'|typpto=='in' then
-//         szintyp=getporttyp(o2,port_number,typpto)
-//       end
-//       to=[kto,port_number,b2m(typpto=='in'|typpto=='evtin')]
-// 
-//       orig  = o2.graphics.orig
-//       sz    = o2.graphics.sz
-//       theta = o2.graphics.theta
-//       xxx=rotate([xin;yin],...
-//                  theta*%pi/180,...
-//                  [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-//       xc2=xxx(1,:);
-//       yc2=xxx(2,:);
 
       //remove link connected from/to the same port
       if from==to then
@@ -355,8 +323,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     end
   end
 
-  // remove temporary path 
-  //F.draw_latter[]
+  // remove temporary path
   F.remove[gr_out];
   F.remove[C]
   F.invalidate[];
@@ -474,8 +441,7 @@ endfunction
 
 // hilite port
 // compute area where one can click to link a port
-// of a blk and draw a rectangle
-//
+// of a blk and draw a rectangle.
 // xport,yport : port location
 // o           : blk st
 // gr          : output gr obj
@@ -515,7 +481,6 @@ function [connected,xyio,typio,szio,sziotyp,tofrom]=get_port(o,ktofrom,typ,pt)
   szio        = []
   sziotyp     = []
   tofrom      = []
-  //typtofrom   = ''
 
   graphics  = o.graphics
   orig      = graphics.orig
@@ -543,22 +508,16 @@ function [connected,xyio,typio,szio,sziotyp,tofrom]=get_port(o,ktofrom,typ,pt)
 
   if isempty(xinout) then return, end
 
-  xxx=rotate([pt(1);pt(2)],...
-             -theta*%pi/180,...
-             [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-  xc1=xxx(1,:);
-  yc1=xxx(2,:);
-
-  [m,k]=min((yc1-yinout).^2+(xc1-xinout).^2)
-
-  //xyio=[xinout(k) yinout(k)]//without rotation
-  xxx=rotate([xinout(k);yinout(k)],...
+  xxx=rotate([xinout;yinout],...
              theta*%pi/180,...
              [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-  xio=xxx(1,:);
-  yio=xxx(2,:);
 
-  xyio  = [xio yio];
+  xinout=xxx(1,:);
+  yinout=xxx(2,:);
+
+  [m,k] = min((pt(2)-yinout).^2+(pt(1)-xinout).^2)
+
+  xyio  = [xinout(k) yinout(k)];
   typio = typinout(k);
 
   if typio==1|typio==3 then //regular and buses input/output port
