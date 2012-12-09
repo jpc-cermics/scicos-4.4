@@ -80,7 +80,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     gr_out=F.children(1).children($);
 
   else //connection comes from a block
-    [connected,xyo,typo,szout,szouttyp,from]=get_port(o1,kfrom,'from',%pt)
+    [connected,xyo,typo,szout,szouttyp,from]=getportblk(o1,kfrom,'from',%pt)
 
     if connected then return, end
 
@@ -176,7 +176,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     if ~isempty(kto) then 
       //-- new point designs the "to block"
       o2=scs_m.objs(kto);
-      [connected,xyi,typi,szin,szintyp,to]=get_port(o2,kto,'to',[xe;ye])
+      [connected,xyi,typi,szin,szintyp,to]=getportblk(o2,kto,'to',[xe;ye])
 
       if connected then
         F.remove[gr_out];
@@ -197,8 +197,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         return
       end
 
-      xc2=xyi(1);
-      yc2=xyi(2);
+      xc2=xyi(1);yc2=xyi(2);
 
       //remove link connected from/to the same port
       if from==to then
@@ -212,7 +211,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       //cross size/type checking
       if typo<>typi
         hilite_obj(kto)
-        message(['selected ports don''t have the same type'
+        message(['Selected ports don''t have the same type'
                  'The port at the origin of the link has type '+string(typo);
                  'the port at the end has type '+string(typi)])
         unhilite_obj(kto)
@@ -253,7 +252,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         if or(szin<>szout && min([szin;szout],'r')>0) then
           hilite_obj(kto)
           message(['Warning';
-                   'selected ports don''t have the same  size';
+                   'Selected ports don''t have the same  size';
                    'The port at the origin of the link has size '+sci2exp(szout);
                    'the port at the end has size '+sci2exp(szin)])
           unhilite_obj(kto)
@@ -263,7 +262,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         if szin<>szout & min([szin szout])>0 then
           hilite_obj(kto)
           message(['Warning';
-                   'selected ports don''t have the same  size'
+                   'Selected ports don''t have the same  size'
                    'The port at the origin of the link has size '+string(szout);
                    'the port at the end has size '+string(szin)])
           unhilite_obj(kto)
@@ -471,7 +470,7 @@ function [gr]=hilite_port(xport,yport,o)
    gr.invalidate[]
 endfunction
 
-function [connected,xyio,typio,szio,sziotyp,tofrom]=get_port(o,ktofrom,typ,pt)
+function [connected,xyio,typio,szio,sziotyp,tofrom]=getportblk(o,ktofrom,typ,pt)
 
   connected   = %f
   port_number = []
