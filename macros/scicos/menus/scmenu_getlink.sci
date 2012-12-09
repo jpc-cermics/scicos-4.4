@@ -80,7 +80,8 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     gr_out=F.children(1).children($);
 
   else //connection comes from a block
-    [connected,port_number,xyo,typo,typpfrom]=get_port(o1,'from',%pt)
+//    [connected,port_number,xyo,typo,typpfrom]=get_port(o1,'from',%pt)
+    [connected,xyo,typo,szout,szouttyp,from]=get_port(o1,kfrom,'from',%pt)
 
     if connected then return, end
 
@@ -93,11 +94,11 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     end
 
     xo=xyo(1);yo=xyo(2);
-    szout=getportsiz(o1,port_number,typpfrom)
-    if typpfrom=='out'|typpfrom=='in' then
-      szouttyp=getporttyp(o1,port_number,typpfrom)
-    end
-    from=[kfrom,port_number,b2m(typpfrom=='in'|typpfrom=='evtin')]
+//     szout=getportsiz(o1,port_number,typpfrom)
+//     if typpfrom=='out'|typpfrom=='in' then
+//       szouttyp=getporttyp(o1,port_number,typpfrom)
+//     end
+//     from=[kfrom,port_number,b2m(typpfrom=='in'|typpfrom=='evtin')]
 
     fromsplit=%f
     clr=default_color(typo)
@@ -106,14 +107,14 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     F=get_current_figure();
     gr_out=hilite_port(xo,yo,o1)
 
-    orig  = o1.graphics.orig
-    sz    = o1.graphics.sz
-    theta = o1.graphics.theta
-    xxx=rotate([xo;yo],...
-               theta*%pi/180,...
-               [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-    xo=xxx(1,:);
-    yo=xxx(2,:);
+//     orig  = o1.graphics.orig
+//     sz    = o1.graphics.sz
+//     theta = o1.graphics.theta
+//     xxx=rotate([xo;yo],...
+//                theta*%pi/180,...
+//                [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+//     xo=xxx(1,:);
+//     yo=xxx(2,:);
     xl=xo
     yl=yo
 
@@ -141,16 +142,15 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       // changed to fit projection we have to check that next 
       // acquisition initial draw is correct. 
       if ~isempty(pt) then 
-	if ~pt.equal[[P.x(n),P.y(n)]]
-	  P.x(n+1)=pt(1);
-	  P.y(n+1)=pt(2);
-	end
+        if ~pt.equal[[P.x(n),P.y(n)]]
+          P.x(n+1)=pt(1);
+          P.y(n+1)=pt(2);
+        end
       end
       P.invalidate[];
       F.process_updates[];
       // get a new point waiting for click
       rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f)
-      P.invalidate[];
       if rep(3)==2 then
         F.remove[gr_out];
         F.remove[C];
@@ -158,21 +158,20 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         xset('color',dash)
         return
       elseif rep(3)==-5 then
-         if nb<=4 then
-           rep(3)=-1
-         elseif ~first || nb>10 then
-           kto=getblock(scs_m,[rep(1);rep(2)])
-           if isempty(kto) then rep(3)=-1, end
-         else
-           first=%f,rep(3)=-1
-         end
+        if nb<=4 then
+          rep(3)=-1
+        elseif ~first || nb>10 then
+          kto=getblock(scs_m,[rep(1);rep(2)])
+          if isempty(kto) then rep(3)=-1, end
+        else
+          first=%f,rep(3)=-1
+        end
       elseif rep(3)~=0 then
         rep(3)=-1
       elseif rep(3)==0 && nb <= 3 then
         rep(3)=-1
       end
 
-      //a=tic();
       kto=getblock(scs_m,[rep(1);rep(2)]);
       if ~isempty(kto) then
         printf("getblock : find a block (%s)\n",scs_m.objs(kto).gui);
@@ -192,7 +191,8 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     if ~isempty(kto) then 
       //-- new point designs the "to block"
       o2=scs_m.objs(kto);
-      [connected,port_number,xyi,typi,typpto]=get_port(o2,'to',[xe;ye])
+      [connected,xyi,typi,szin,szintyp,to]=get_port(o2,kto,'to',[xe;ye])
+//      [connected,port_number,xyi,typi,typpto]=get_port(o2,'to',[xe;ye])
 
       if connected then
         F.remove[gr_out];
@@ -213,21 +213,24 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         return
       end
 
-      xin=xyi(1);yin=xyi(2);
-      szin=getportsiz(o2,port_number,typpto)
-      if typpto=='out'|typpto=='in' then
-        szintyp=getporttyp(o2,port_number,typpto)
-      end
-      to=[kto,port_number,b2m(typpto=='in'|typpto=='evtin')]
+      xc2=xyi(1);
+      yc2=xyi(2);
 
-      orig  = o2.graphics.orig
-      sz    = o2.graphics.sz
-      theta = o2.graphics.theta
-      xxx=rotate([xin;yin],...
-                 theta*%pi/180,...
-                 [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-      xc2=xxx(1,:);
-      yc2=xxx(2,:);
+//       xin=xyi(1);yin=xyi(2);
+//       szin=getportsiz(o2,port_number,typpto)
+//       if typpto=='out'|typpto=='in' then
+//         szintyp=getporttyp(o2,port_number,typpto)
+//       end
+//       to=[kto,port_number,b2m(typpto=='in'|typpto=='evtin')]
+// 
+//       orig  = o2.graphics.orig
+//       sz    = o2.graphics.sz
+//       theta = o2.graphics.theta
+//       xxx=rotate([xin;yin],...
+//                  theta*%pi/180,...
+//                  [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+//       xc2=xxx(1,:);
+//       yc2=xxx(2,:);
 
       //remove link connected from/to the same port
       if from==to then
@@ -303,19 +306,19 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     else
       // -- new point ends current line segment
       if xe<>xo | ye<>yo then //to avoid null length segments
-	xc2=xe;yc2=ye
-	if abs(xo-xc2)<abs(yo-yc2) then
-	  xc2=xo
-	else
-	  yc2=yo
-	end
-	P.x(n+1)=xc2;
-	P.y(n+1)=yc2;
+        xc2=xe;yc2=ye
+        if abs(xo-xc2)<abs(yo-yc2) then
+          xc2=xo
+        else
+          yc2=yo
+        end
+        P.x(n+1)=xc2;
+        P.y(n+1)=yc2;
         P.invalidate[]
-	F.process_updates[]
+        F.process_updates[]
         xl=[xl;xc2]
         yl=[yl;yc2]
-	xo=xc2;yo=yc2;
+        xo=xc2;yo=yc2;
       end
     end
   end ; //loop on link segments
@@ -469,18 +472,26 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);
 endfunction
 
-// hilite port, compute area where
-// one can click to link a port
+// hilite port
+// compute area where one can click to link a port
 // of a blk and draw a rectangle
-// xport,yport port location
-// o blk st
-function gr=hilite_port(xport,yport,o)
-
-  [x1,y1,sz_x,sz_y]=get_port_bounds(xport,yport,o)
-
+//
+// xport,yport : port location
+// o           : blk st
+// gr          : output gr obj
+function [gr]=hilite_port(xport,yport,o)
   orig  = o.graphics.orig(:)
   sz    = o.graphics.sz(:)
   theta = o.graphics.theta
+
+  xxx = rotate([xport;yport],...
+               -theta*%pi/180,...
+               [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+  xport=xxx(1,:);
+  yport=xxx(2,:);
+
+  [x1,y1,sz_x,sz_y]=get_port_bounds(xport,yport,o)
+
 
   xxx = rotate([x1,x1,x1+sz_x,x1+sz_x;...
                 y1,y1-sz_y,y1-sz_y,y1],...
@@ -494,13 +505,17 @@ function gr=hilite_port(xport,yport,o)
    gr.invalidate[]
 endfunction
 
-function [connected,port_number,xyio,typio,typtofrom]=get_port(o,typ,pt)
+//function [connected,port_number,xyio,typio,typtofrom]=get_port(o,k,typ,pt)
+function [connected,xyio,typio,szio,sziotyp,tofrom]=get_port(o,ktofrom,typ,pt)
 
   connected   = %f
   port_number = []
   xyio        = []
   typio       = []
-  typtofrom   = ''
+  szio        = []
+  sziotyp     = []
+  tofrom      = []
+  //typtofrom   = ''
 
   graphics  = o.graphics
   orig      = graphics.orig
@@ -536,8 +551,15 @@ function [connected,port_number,xyio,typio,typtofrom]=get_port(o,typ,pt)
 
   [m,k]=min((yc1-yinout).^2+(xc1-xinout).^2)
 
-  xyio=[xinout(k) yinout(k)]//without rotation
-  typio=typinout(k);
+  //xyio=[xinout(k) yinout(k)]//without rotation
+  xxx=rotate([xinout(k);yinout(k)],...
+             theta*%pi/180,...
+             [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+  xio=xxx(1,:);
+  yio=xxx(2,:);
+
+  xyio  = [xio yio];
+  typio = typinout(k);
 
   if typio==1|typio==3 then //regular and buses input/output port
     port_number=k
@@ -611,5 +633,68 @@ function [connected,port_number,xyio,typio,typtofrom]=get_port(o,typ,pt)
       end
       typtofrom='evtout'
     end
+  end
+
+  szio=getportsiz(o,port_number,typtofrom)
+  if typtofrom=='out'|typtofrom=='in' then
+    sziotyp=getporttyp(o,port_number,typtofrom)
+  end
+  tofrom=[ktofrom,port_number,b2m(typtofrom=='in'|typtofrom=='evtin')]
+
+endfunction
+
+function [sz]=getportsiz(o,prt_number,typ)
+  sz   = []
+  typs = ['in','out','evtin','evtout']
+
+  k    = find(typ==typs)
+  if isempty(k) then return,end
+
+  select k
+   case 1 then
+     in=o.model.in(prt_number)
+     if size(o.model.in2,'*')>=size(o.model.in,'*') then
+       in2=o.model.in2(prt_number)
+     else
+       in2=1
+     end
+     sz=[in in2]
+   case 2 then
+     out=o.model.out(prt_number)
+     if size(o.model.out2,'*')>=size(o.model.out,'*') then
+       out2=o.model.out2(prt_number)
+     else
+       out2=1
+     end
+     sz=[out out2]
+   case 3 then
+     psiz=o.model(typs(k))
+     sz=psiz(prt_number)
+   case 4 then
+     psiz=o.model(typs(k))
+     sz=psiz(prt_number)
+  end
+endfunction
+
+function [sztyp]=getporttyp(o,prt_number,typ)
+  sztyp = []
+  typs  = ['in','out']
+
+  k     = find(typ==typs)
+  if isempty(k) then return,end
+
+  select k
+   case 1 then
+     if size(o.model.intyp,'*')<prt_number then //for compatibilty
+      sztyp=1;
+     else
+      sztyp=o.model.intyp(prt_number);
+     end
+   case 2 then
+     if size(o.model.outtyp,'*')<prt_number then //for compatibilty
+      sztyp=1;
+     else
+      sztyp=o.model.outtyp(prt_number)
+     end
   end
 endfunction
