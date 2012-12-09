@@ -114,6 +114,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   C=F.end_compound[];
   C.children(1).color=clr
   P=C.children(1);
+  D=[]
   pt=[];
   first=%t;nb=0;
 
@@ -136,9 +137,13 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       F.process_updates[];
       // get a new point waiting for click
       rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f)
+
       if rep(3)==2 then
         F.remove[gr_out];
         F.remove[C];
+        if ~isempty(D) then
+          F.remove[D];
+        end
         F.invalidate[];
         xset('color',dash)
         return
@@ -153,13 +158,69 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         end
       elseif rep(3)~=0 then
         rep(3)=-1
+        kto=getblock(scs_m,[rep(1);rep(2)]);
+        if ~isempty(kto) then
+          o2=scs_m.objs(kto);
+          [connected,xyi,typi,szin,szintyp,to]=getportblk(o2,kto,'to',[rep(1);rep(2)])
+          if ~connected then
+            if ~isempty(xyi) then
+              if or(from<>to) then
+                if typo==typi
+                  printf("getblock : find a block (%s)\n",scs_m.objs(kto).gui);
+
+                  if fromsplit then
+                    [dd,xxl,yyl]=get_xyl([xyi(1);xyi(2)],xl,yl,d,xx,yy,fromsplit,wh)
+                  else
+                    [dd,xxl,yyl]=get_xyl([xyi(1);xyi(2)],xl,yl,[],[],[],fromsplit,[])
+                  end
+
+                  // prepare new link
+                  llk=scicos_link(xx=xxl,yy=yyl,ct=[clr,typi],from=from,to=to)
+                  if typi==3 then
+                    lk.thick=[2 2]
+                  end
+
+                  if fromsplit then
+                    [n_scs_m]=add_split(scs_m,o1,typo,ks,xx,yy,d,wh,%f)
+                  else
+                    n_scs_m=scs_m
+                  end
+
+                  //improve link routing
+                  if smart then
+                    llk=scicos_route(llk,n_scs_m),
+                  end
+
+                  F.draw_latter[]                  
+                  if isempty(D) then
+                    //F.draw_latter[]
+                    F.start_compound[];
+                    xpoly(llk.xx,llk.yy);
+                    D=F.end_compound[];
+                    D.children(1).color=clr
+                  else
+                    D.children(1).x=llk.xx
+                    D.children(1).y=llk.yy
+                  end
+
+                  P.show=%f
+                  F.draw_now[]
+                end
+              end
+            end
+          end
+        else
+          if ~isempty(D) then
+            F.remove[D];
+            D=[]
+            P.show=%t
+            F.invalidate[];
+          else
+            P.invalidate[];
+          end
+        end
       elseif rep(3)==0 && nb <= 3 then
         rep(3)=-1
-      end
-
-      kto=getblock(scs_m,[rep(1);rep(2)]);
-      if ~isempty(kto) then
-        printf("getblock : find a block (%s)\n",scs_m.objs(kto).gui);
       end
 
       //plot new position of last link segment
@@ -167,6 +228,10 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       P.y(n+1)=rep(2);
       pt=[rep(1),rep(2)];
       P.invalidate[];
+    end
+
+    if ~isempty(D) then
+      F.remove[D];
     end
 
     // here the last point of P or [xe,ye] is the point 
@@ -200,7 +265,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       xc2=xyi(1);yc2=xyi(2);
 
       //remove link connected from/to the same port
-      if from==to then
+      if and(from==to) then
         F.remove[gr_out];
         F.remove[C];
         F.invalidate[];
@@ -294,32 +359,10 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 
   typ=typo;
 
-  nx=prod(size(xl))
-  if nx==1 then
-    if fromsplit&(xl<>xc2|yl<>yc2) then
-      if xx(wh)==xx(wh+1) then
-        if (yy(wh)-yc2)*(yy(wh+1)-yc2)<0 then yl=yc2, end
-      elseif yy(wh)==yy(wh+1) then
-        if (xx(wh)-xc2)*(xx(wh+1)-xc2)<0 then xl=xc2, end
-      end
-      d=[xl,yl]
-    elseif kto==kfrom then
-      // XXX here we should change the path to 
-      // avoid crossing the block 
-      xl=[xl;(xl+xc2)/2]
-      yl=[yl;(yl+yc2)/2]
-    end
-    xl=[xl;xc2];yl=[yl;yc2]
+  if fromsplit then
+    [d,xl,yl]=get_xyl([xc2;yc2],xl,yl,d,xx,yy,fromsplit,wh)
   else
-    if xl(nx)==xl(nx-1) then
-      nx=prod(size(xl))
-      xl=[xl;xc2];yl=[yl(1:nx-1);yc2;yc2]
-    elseif yl(nx)==yl(nx-1) then
-      nx=prod(size(xl))
-      xl=[xl(1:nx-1);xc2;xc2];yl=[yl;yc2]
-    else 
-      xl=[xl;xc2];yl=[yl;yc2]
-    end
+    [d,xl,yl]=get_xyl([xc2;yc2],xl,yl,[],[],[],fromsplit,[])
   end
 
   // remove temporary path
@@ -336,62 +379,11 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   //----------- update objects structure -----------------------------
   //------------------------------------------------------------------
   if fromsplit then //link comes from a split
-    nx=length(scs_m.objs)+1
-    //split old link
-    from1=o1.from
-    to1=o1.to
-    link1=o1;
-    link1.xx   = [xx(1:wh);d(1)];
-    link1.yy   = [yy(1:wh);d(2)];
-    link1.to   = [nx,1,1]
-    
-    link2=o1;
-    link2.xx   = [d(1);xx(wh+1:size(xx,1))];
-    link2.yy   = [d(2);yy(wh+1:size(yy,1))];
-    link2.from = [nx,1,0];
-    // create split block
-    if typo==1 then
-      sp=SPLIT_f('define')
-      sp.graphics.orig = d;
-      sp.graphics.pin  = ks;
-      sp.graphics.pout = [nx+1;nx+2];
-      //SPLIT_f('plot',sp)
-    elseif typo==2 then
-      sp=IMPSPLIT_f('define')
-      sp.graphics.orig = d;
-      sp.graphics.pin  = ks;
-      sp.graphics.pout = [nx+1;nx+2];
-      inoutfrom='out'
-      //IMPSPLIT_f('plot',sp)
-    elseif typo==3 then
-      sp=BUSSPLIT('define')
-      sp.graphics.orig = d;
-      sp.graphics.pin  = ks;
-      sp.graphics.pout = [nx+1;nx+2];
-      //BUSSPLIT('plot',sp)
-    else
-      sp=CLKSPLIT_f('define')
-      sp.graphics.orig  = d;
-      sp.graphics.pein  = ks;
-      sp.graphics.peout = [nx+1;nx+2];
-      // CLKSPLIT_f('plot',sp)
-    end
-
-    // update the graphic parts 
-    // 1 remove the o1 graphics 
+    // 1 remove the o1 graphics
     F.remove[o1.gr];
     F.invalidate[];
 
-    // register the 3 new graphic objects 
-    link1=drawobj(link1,F);
-    scs_m.objs(ks)=link1;
-
-    sp=drawobj(sp,F);
-    scs_m.objs(nx)=sp;
-    
-    link2=drawobj(link2,F);
-    scs_m.objs(nx+1)=link2;
-    scs_m.objs(to1(1))=mark_prt(scs_m.objs(to1(1)),to1(2),outin(to1(3)+1),typ,nx+1)
+    [scs_m]=add_split(scs_m,o1,typo,ks,xx,yy,d,wh,%t)
   end
   
   //add new link in objects structure
@@ -423,15 +415,19 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     o=scs_m.objs(movedblock)
     o.gr.translate[[dx dy]];
   end
+
   if smart then 
     //improve link routing
     lk=scicos_route(lk,scs_m),
   end
+
   lk=drawobj(lk,F)
   scs_m.objs($+1)=lk
+
   //update connected blocks
   scs_m.objs(kfrom)=mark_prt(scs_m.objs(kfrom),from(2),outin(from(3)+1),typ,nx)
   scs_m.objs(kto)=mark_prt(scs_m.objs(kto),to(2),outin(to(3)+1),typ,nx)
+
   F.invalidate[];
   xset('color',dash)
   needcompile=4
@@ -653,5 +649,160 @@ function [sztyp]=getporttyp(o,prt_number,typ)
      else
       sztyp=o.model.outtyp(prt_number)
      end
+  end
+endfunction
+
+function [d,xl,yl]=get_xyl(pt,xl,yl,d,xx,yy,fromsplit,wh)
+
+  xc2=pt(1)
+  yc2=pt(2)
+
+  nx=prod(size(xl))
+  if nx==1 then
+    if fromsplit&(xl<>xc2|yl<>yc2) then
+      if xx(wh)==xx(wh+1) then
+        if (yy(wh)-yc2)*(yy(wh+1)-yc2)<0 then yl=yc2, end
+      elseif yy(wh)==yy(wh+1) then
+        if (xx(wh)-xc2)*(xx(wh+1)-xc2)<0 then xl=xc2, end
+      end
+      d=[xl,yl]
+    elseif kto==kfrom then
+      // XXX here we should change the path to
+      // avoid crossing the block
+      xl=[xl;(xl+xc2)/2]
+      yl=[yl;(yl+yc2)/2]
+    end
+    xl=[xl;xc2];yl=[yl;yc2]
+  else
+    if xl(nx)==xl(nx-1) then
+      nx=prod(size(xl))
+      xl=[xl;xc2];yl=[yl(1:nx-1);yc2;yc2]
+    elseif yl(nx)==yl(nx-1) then
+      nx=prod(size(xl))
+      xl=[xl(1:nx-1);xc2;xc2];yl=[yl;yc2]
+    else
+      xl=[xl;xc2];yl=[yl;yc2]
+    end
+  end
+
+endfunction
+
+function [scs_m]=add_split(scs_m,o1,typo,ks,xx,yy,d,wh,draw)
+    outin=['out','in']
+    nx=length(scs_m.objs)+1
+
+    //split old link
+    from1=o1.from
+    to1=o1.to
+    link1=o1;
+    link1.xx   = [xx(1:wh);d(1)];
+    link1.yy   = [yy(1:wh);d(2)];
+    link1.to   = [nx,1,1]
+
+    link2=o1;
+    link2.xx   = [d(1);xx(wh+1:size(xx,1))];
+    link2.yy   = [d(2);yy(wh+1:size(yy,1))];
+    link2.from = [nx,1,0];
+
+    // create split block
+    if typo==1 then
+      sp=SPLIT_f('define')
+      sp.graphics.orig = d;
+      sp.graphics.pin  = ks;
+      sp.graphics.pout = [nx+1;nx+2];
+      //SPLIT_f('plot',sp)
+    elseif typo==2 then
+      sp=IMPSPLIT_f('define')
+      sp.graphics.orig = d;
+      sp.graphics.pin  = ks;
+      sp.graphics.pout = [nx+1;nx+2];
+      inoutfrom='out'
+      //IMPSPLIT_f('plot',sp)
+    elseif typo==3 then
+      sp=BUSSPLIT('define')
+      sp.graphics.orig = d;
+      sp.graphics.pin  = ks;
+      sp.graphics.pout = [nx+1;nx+2];
+      //BUSSPLIT('plot',sp)
+    else
+      sp=CLKSPLIT_f('define')
+      sp.graphics.orig  = d;
+      sp.graphics.pein  = ks;
+      sp.graphics.peout = [nx+1;nx+2];
+      // CLKSPLIT_f('plot',sp)
+    end
+
+    // register the 3 new graphic objects
+    if draw then
+      link1=drawobj(link1,F);
+      sp=drawobj(sp,F);
+      link2=drawobj(link2,F);
+    end
+
+    scs_m.objs(ks)=link1;
+    scs_m.objs(nx)=sp;
+    scs_m.objs(nx+1)=link2;
+
+    scs_m.objs(to1(1))=mark_prt(scs_m.objs(to1(1)),to1(2),outin(to1(3)+1),typo,nx+1)
+endfunction
+
+function lk=scicos_route(lk,scs_m)
+  From=lk.from(1);To=lk.to(1)
+  delF=scs_m.objs(From).graphics.sz/2
+  delT=scs_m.objs(To).graphics.sz/2
+  if lk.ct(2)==1 | lk.ct(2)==3 then
+    forig=scs_m.objs(From).graphics.orig(1)+delF(1)
+    torig=scs_m.objs(To).graphics.orig(1)+delT(1)
+    [lk.xx,lk.yy]=scicos_routage(lk.xx,lk.yy,forig,torig,delF(2),delT(2))
+  elseif lk.ct(2)==-1   then
+    forig=scs_m.objs(From).graphics.orig(2)+delF(2)
+    torig=scs_m.objs(To).graphics.orig(2)+delT(2)
+    [lk.yy,lk.xx]=scicos_routage(lk.yy,lk.xx,forig,torig,delF(1),delT(1))
+  else
+    return
+  end
+endfunction
+
+function [x,y]=scicos_routage(x,y,forig,torig,delF,delT)
+  xold=[];yold=[]
+  while ~(isequal(x,xold)&isequal(y,yold))
+    del=3+6*rand()
+    xold=x;yold=y
+    if size(x,1)>2 then
+      m=find(((x(1:$-2)==x(3:$))&(x(2:$-1)==x(3:$)))|..
+             ((y(1:$-2)==y(3:$))&(y(2:$-1)==y(3:$))))
+      if m<>[] then
+        x(m+1)=[];y(m+1)=[]
+      end
+    end
+    n=size(x,1);
+    dx=x(2:$)-x(1:$-1)
+    dy=y(2:$)-y(1:$-1)
+    ki=find(dx.*dy<>0)
+    if ~isempty(ki) then
+      I=ones(1,n);Z=zeros(2,n)
+      Z(:,ki)=1
+      I=[I;Z]
+
+      J=matrix(cumsum(I(:)),3,n)
+      xnew=[];ynew=[]
+      xnew(J(1,:),1)=x
+      ynew(J(1,:),1)=y
+
+      xn1=(x(ki)+x(ki+1))/2;
+      xn=[xn1';xn1'];xn=xn(:);
+      yn=[y(ki)';y(ki+1)'];yn=yn(:);
+      j=J([2,3],ki);j=j(:)
+      xnew(j,1)=xn
+      ynew(j,1)=yn
+      x=xnew;y=ynew
+    end
+    if size(x,1)>2 then
+      m=find(((x(1:$-2)==x(3:$))&(x(2:$-1)==x(3:$)))|..
+             ((y(1:$-2)==y(3:$))&(y(2:$-1)==y(3:$))))
+      if ~isempty(m) then
+        x(m+1)=[];y(m+1)=[]
+      end
+    end
   end
 endfunction
