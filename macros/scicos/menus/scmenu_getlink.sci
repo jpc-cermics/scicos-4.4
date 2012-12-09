@@ -471,7 +471,6 @@ function [gr]=hilite_port(xport,yport,o)
    gr.invalidate[]
 endfunction
 
-//function [connected,port_number,xyio,typio,typtofrom]=get_port(o,k,typ,pt)
 function [connected,xyio,typio,szio,sziotyp,tofrom]=get_port(o,ktofrom,typ,pt)
 
   connected   = %f
