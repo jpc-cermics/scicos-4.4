@@ -10,7 +10,7 @@ function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
   DEL=[] //table of deleted objects
   DELL=[] //table of redefined links
   outin=['out','in']
-  ng = new_graphics();
+
   while ~isempty(K) do
     k=K(1);K(1)=[]
     o=scs_m.objs(k);
@@ -85,7 +85,7 @@ function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
 	      o1.yy=[y1(1:$-1);o2.yy];
 	    end
 	    o1.to=o2.to;
-            if ng && o1.iskey['gr'] then
+            if o1.iskey['gr'] then
 	      o1.gr.children(1).x = o1.xx;
 	      o1.gr.children(1).y = o1.yy;
             end
@@ -134,7 +134,7 @@ function [scs_m,DEL,DELL]=do_delete1(scs_m,K,gr)
 	    o1.yy=[o1.yy($:-1:1);o2.yy]
 	    o1.from=o1.to
 	    o1.to=o2.to;
-            if ng  && o1.iskey['gr'] then
+            if o1.iskey['gr'] then
 	      o1.gr.children(1).x = o1.xx;
 	      o1.gr.children(1).y = o1.yy;
             end
