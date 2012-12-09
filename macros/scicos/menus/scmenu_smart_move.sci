@@ -203,6 +203,7 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 	p=projaff(xx(1:2),yy(1:2),[xc,yc])
 	o.gr.children(1).x = [xx(1);p(1); xx(2:$)];
 	o.gr.children(1).y = [yy(1);p(2); yy(2:$)];
+        o.gr.invalidate[]
 	pto=[xc,yc];
 	// 	rep(3)=-1
 	// 	while rep(3)==-1 ,
@@ -239,6 +240,7 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 	p=projaff(xx(1:2),yy(1:2),[xc,yc]);
 	o.gr.children(1).x = [xx(1);p(1);p(1); xx(2:$)];
 	o.gr.children(1).y = [yy(1);p(2);p(2); yy(2:$)];
+        o.gr.invalidate[]
 	o.xx = o.gr.children(1).x;
 	o.yy = o.gr.children(1).y;
 	// and force a move of 
@@ -259,16 +261,17 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 	p=projaff(xx($-1:$),yy($-1:$),[xc,yc])
 	o.gr.children(1).x = [xx(1:$-1);p(1); xx($)];
 	o.gr.children(1).y = [yy(1:$-1);p(2); yy($)];
+        o.gr.invalidate[]
 	pto=[xc,yc];
 	rep(3)=-1
-	while rep(3)==-1 ,
+	while rep(3)==-1
+          F.process_updates[];
 	  rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
 	  pt = rep(1:2);
 	  tr= pt - pto;
-	  F.draw_latter[];
 	  o.gr.children(1).x($-1) = o.gr.children(1).x($-1) + tr(1);
 	  o.gr.children(1).y($-1) = o.gr.children(1).y($-1) + tr(2);
-	  F.draw_now[];
+          o.gr.invalidate[]
 	  pto=pt;
 	end
 	if rep(3)<>2 then 
@@ -277,16 +280,16 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 	  scs_m.objs(k)=o
 	else
 	  // undo the move 
-	  F.draw_latter[];
 	  o.gr.children(1).x = o.xx;
 	  o.gr.children(1).y = o.yy;
-	  F.draw_now[];
+          o.gr.invalidate[]
 	end
       else
 	// add a corner 
 	p=projaff(xx($-1:$),yy($-1:$),[xc,yc]);
 	o.gr.children(1).x = [xx(1:$-1);p(1);p(1); xx($)];
 	o.gr.children(1).y = [yy(1:$-1);p(2);p(2); yy($)];
+        o.gr.invalidate[]
 	o.xx = o.gr.children(1).x;
 	o.yy = o.gr.children(1).y;
 	// and force a move of 
@@ -303,6 +306,7 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
     p=projaff(xx(wh:wh+1),yy(wh:wh+1),[xc,yc])
     o.gr.children(1).x = [xx(1:wh);p(1);xx(wh+1:$)];
     o.gr.children(1).y = [yy(1:wh);p(2);yy(wh+1:$)];
+    o.gr.invalidate[]
     pto=[xc,yc];
     rep(3)=-1
     while rep(3)==-1 ,
@@ -342,6 +346,7 @@ function o=do_smart_move_link4(o)
   while 1
     F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+    o.gr.invalidate[]
     if rep(3)==10 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
@@ -395,10 +400,9 @@ function scs_m=do_smart_move_link1(scs_m)
   end
   if rep(3)==2 then 
     // undo the move 
-    F.draw_latter[];
     o.gr.children(1).x = o.xx;
     o.gr.children(1).y = o.yy;
-    F.draw_now[];
+    o.gr.invalidate[]
     return;
   end
 
