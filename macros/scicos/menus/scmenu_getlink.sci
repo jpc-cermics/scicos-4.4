@@ -205,6 +205,16 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 
                   P.show=%f
                   F.draw_now[]
+                else
+                  if ~isempty(D) then
+                    F.remove[D];
+                    D=[]
+                    P.show=%t
+                    F.invalidate[];
+                  else
+                    P.invalidate[];
+                  end
+
                 end
               end
             end
