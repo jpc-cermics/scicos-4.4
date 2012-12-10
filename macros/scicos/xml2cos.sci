@@ -167,7 +167,6 @@ function scs_m=load_par(symbol,id1,id2)
         exprstxt=cos_subst(txt(txtline:indx_end-1))
         txtline=indx_end;
 	if size(exprstxt,'*')>1 then
-          pause
           pw=getcwd()
           TMPDIR=getenv('NSP_TMPDIR')
           chdir(TMPDIR)
