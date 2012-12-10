@@ -199,6 +199,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
                     xpoly(llk.xx,llk.yy);
                     D=F.end_compound[];
                     D.children(1).color=clr
+                    D.children(1).thickness=2
                   else
                     D.children(1).x=llk.xx
                     D.children(1).y=llk.yy
@@ -207,7 +208,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
                     F.remove[gr_in]
                   end
                   [gr_in]=hilite_port(xyi(1),xyi(2),o2)
-                  D.children(1).thickness=2
                   P.show=%f
                   F.draw_now[]
                 else
