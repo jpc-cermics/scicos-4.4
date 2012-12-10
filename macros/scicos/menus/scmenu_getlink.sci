@@ -114,7 +114,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   C=F.end_compound[];
   C.children(1).color=clr
   P=C.children(1);
-  D=[]
+  D=[];gr_in=[]
   pt=[];
   first=%t;nb=0;
 
@@ -143,6 +143,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
         F.remove[C];
         if ~isempty(D) then
           F.remove[D];
+          F.remove[gr_in];
         end
         F.invalidate[];
         xset('color',dash)
@@ -159,15 +160,14 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       elseif rep(3)~=0 then
         rep(3)=-1
         kto=getblock(scs_m,[rep(1);rep(2)]);
-        if ~isempty(kto) then
+        if ~isempty(kto) && nb>=10 then
           o2=scs_m.objs(kto);
           [connected,xyi,typi,szin,szintyp,to]=getportblk(o2,kto,'to',[rep(1);rep(2)])
           if ~connected then
             if ~isempty(xyi) then
               if or(from<>to) then
                 if typo==typi
-                  printf("getblock : find a block (%s)\n",scs_m.objs(kto).gui);
-
+                  //printf("getblock : find a block (%s)\n",scs_m.objs(kto).gui);
                   if fromsplit then
                     [dd,xxl,yyl]=get_xyl([xyi(1);xyi(2)],xl,yl,d,xx,yy,fromsplit,wh)
                   else
@@ -191,7 +191,8 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
                     llk=scicos_route(llk,n_scs_m),
                   end
 
-                  F.draw_latter[]                  
+                  F.draw_latter[]
+
                   if isempty(D) then
                     //F.draw_latter[]
                     F.start_compound[];
@@ -202,12 +203,17 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
                     D.children(1).x=llk.xx
                     D.children(1).y=llk.yy
                   end
-
+                  if ~isempty(gr_in) then
+                    F.remove[gr_in]
+                  end
+                  [gr_in]=hilite_port(xyi(1),xyi(2),o2)
+                  D.children(1).thickness=2
                   P.show=%f
                   F.draw_now[]
                 else
                   if ~isempty(D) then
                     F.remove[D];
+                    F.remove[gr_in];
                     D=[]
                     P.show=%t
                     F.invalidate[];
@@ -224,6 +230,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
             F.remove[D];
             D=[]
             P.show=%t
+            F.remove[gr_in];
             F.invalidate[];
           else
             P.invalidate[];
@@ -242,6 +249,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 
     if ~isempty(D) then
       F.remove[D];
+      F.remove[gr_in];
     end
 
     // here the last point of P or [xe,ye] is the point 
