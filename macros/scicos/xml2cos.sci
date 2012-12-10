@@ -167,11 +167,17 @@ function scs_m=load_par(symbol,id1,id2)
         exprstxt=cos_subst(txt(txtline:indx_end-1))
         txtline=indx_end;
 	if size(exprstxt,'*')>1 then
-	  unit=file('open',TMPDIR+'/exprstxt.sce','unknown');
-	  exprstxt=['scs_m.'+id2+'.'+id1+'('''+ttyp(2)+''')=..';exprstxt]
-	  write(unit,exprstxt);
-	  file('close',unit);
-	  execstr('exec(""'+strsubst(TMPDIR,'''','''''')+'/exprstxt.sce"",-1);');
+          pause
+          pw=getcwd()
+          TMPDIR=getenv('NSP_TMPDIR')
+          chdir(TMPDIR)
+          file('delete','exprstxt.sce');
+          fd = fopen('exprstxt.sce',mode='w');
+          exprstxt=['scs_m.'+id2+'.'+id1+'('''+ttyp(2)+''')=..';exprstxt]
+          fd.put_smatrix[exprstxt];
+          fd.close[];
+          exec("exprstxt.sce");
+          chdir(pw);
 	else
 	  execstr('scs_m.'+id2+'.'+id1+'('''+ttyp(2)+''')='+exprstxt);
 	end 
