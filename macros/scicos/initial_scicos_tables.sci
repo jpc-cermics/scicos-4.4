@@ -18,7 +18,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
   //**
   //** each item is defined as [name type action accel stockitem]
   
-  File =     list(["File"                "menu"      "scmenu_file_menu"           "" ""],
+  File =     list(["_File"               "menu"      "scmenu_file_menu"           "" ""],
                   ["New"                 "menuitem"  "scmenu_new"                 "" "gtk-new"],
                   ["sep0"                "separator" ""                           "" ""],
                   ["Open"                "menuitem"  "scmenu_open"                "" "gtk-open"],
@@ -35,7 +35,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["sep4"                "separator" ""                           "" ""],
                   ["Quit"                "menuitem"  "scmenu_quit"                "" "gtk-quit"]);
 
-  Diagram =  list(["Diagram"                 "menu"      "scmenu_diagram_menu"            "" ""],
+  Diagram =  list(["_Diagram"                "menu"      "scmenu_diagram_menu"            "" ""],
                   ["Context"                 "menuitem"  "scmenu_context"                 "" "gtk-edit"],
                   ["sep0"                    "separator" ""                               "" ""],
                   ["Purge"                   "menuitem"  "scmenu_purge"                   "" "gtk-clear"],
@@ -50,7 +50,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["Up To Parent"            "menuitem"  "scmenu_up"                      "" "gtk-go-up"],
                   ["Up To Main Diagram"      "menuitem"  "scmenu_up_to_main_diagram"      "" "gtk-goto-top"]);
 
-  Palette =  list(["Palette"           "menu"      "scmenu_palette_menu"      "" ""],
+  Palette =  list(["_Palette"          "menu"      "scmenu_palette_menu"      "" ""],
                   ["Pal Tree"          "menuitem"  "scmenu_pal_tree"          "" ""],
                   ["Palettes"          "menuitem"  "scmenu_palettes"          "" ""],
                   ["sep0"              "separator" ""                         "" ""],
@@ -61,7 +61,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["Load as Palette"   "menuitem"  "scmenu_load_as_palette"   "" ""],
                   ["Save as Palette"   "menuitem"  "scmenu_save_as_palette"   "" ""]);
 
-  Edit =     list(["Edit"          "menu"      "scmenu_edit_menu"  ""        ""],
+  Edit =     list(["_Edit"         "menu"      "scmenu_edit_menu"  ""        ""],
                   ["Undo"          "menuitem"  "scmenu_undo"       ""        "gtk-undo"],
                   ["sep0"          "separator" ""                  ""        ""],
                   ["Cut"           "menuitem"  "scmenu_cut"        "<control>X" "gtk-cut"],
@@ -92,7 +92,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["sep5"          "separator" ""                     ""     ""],
                   ["Add new block" "menuitem"  "scmenu_add_new_block" ""     "gtk-add"]);
 
-  View =     list(["View"                      "menu"      "scmenu_view_menu"                 "" ""],
+  View =     list(["_View"                     "menu"      "scmenu_view_menu"                 "" ""],
                   ["Zoom in"                   "menuitem"  "scmenu_zoom_in"                   "" "gtk-zoom-in"],
                   ["Zoom out"                  "menuitem"  "scmenu_zoom_out"                  "" "gtk-zoom-out"],
                   ["Fit diagram to figure"     "menuitem"  "scmenu_fit_diagram_to_figure"     "" "gtk-zoom-fit"],
@@ -105,7 +105,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["sep3"                      "separator" ""                                 "" ""],
                   ["Grid"                      "menuitem"  "scmenu_grid"                      "" ""]);
 
-  Simulate = list(["Simulate"            "menu"      "scmenu_simulate_menu"       "" ""],
+  Simulate = list(["_Simulate"           "menu"      "scmenu_simulate_menu"       "" ""],
                   ["Setup"               "menuitem"  "scmenu_setup"               "" "gtk-preferences"],
                   ["sep0"                "separator" ""                           "" ""],
                   ["Compile"             "menuitem"  "scmenu_compile"             "" "gtk-execute"],
@@ -119,7 +119,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["sep4"                "separator" ""                           "" ""],
                   ["Run"                 "menuitem"  "scmenu_run"                 "" "gtk-media-play"]);
 
-  Format =   list(["Format"              "menu"      "scmenu_format_menu"         "" ""],
+  Format =   list(["_Format"             "menu"      "scmenu_format_menu"         "" ""],
                   ["Set default action"  "menuitem"  "scmenu_set_default_action"  "" ""],
                   ["sep0"                "separator" ""                           "" ""],
                   ["Set grid"            "menuitem"  "scmenu_set_grid"            "" ""],
@@ -133,7 +133,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["sep3"                "separator" ""                           "" ""],
                   ["ID fonts"            "menuitem"  "scmenu_id_fonts"            "" "gtk-select-font"]);
 
-  Tools =    list(["Tools"                     "menu"      "scmenu_tools_menu"                "" ""],
+  Tools =    list(["_Tools"                    "menu"      "scmenu_tools_menu"                "" ""],
                   ["Activate ScicosLab Window" "menuitem"  "scmenu_activate_scicoslab_window" "" ""],
                   ["sep0"                      "separator" ""                                 "" ""],
                   ["Create Mask"               "menuitem"  "scmenu_create_mask"               "" ""],
@@ -155,7 +155,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
 
                   //["Force Open" "menuitem"     "menuitem"  "scmenu_force_open"               ],
 
-  Help =     list(["Help"                 "menu"      "scmenu_help_menu"            "" ""],
+  Help =     list(["_Help"                "menu"      "scmenu_help_menu"            "" ""],
                   ["Help"                 "menuitem"  "scmenu_help"                 "" "gtk-help"],
                   ["sep0"                 "separator" ""                            "" ""],
                   ["Scicos Documentation" "menuitem"  "scmenu_scicos_documentation" "" "gtk-dialog-info"],
