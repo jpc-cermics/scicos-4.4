@@ -119,7 +119,7 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["sep4"                "separator" ""                           "" ""],
                   ["Run"                 "menuitem"  "scmenu_run"                 "" "gtk-media-play"]);
 
-  Format =   list(["_Format"             "menu"      "scmenu_format_menu"         "" ""],
+  Format =   list(["Fo_rmat"             "menu"      "scmenu_format_menu"         "" ""],
                   ["Set default action"  "menuitem"  "scmenu_set_default_action"  "" ""],
                   ["sep0"                "separator" ""                           "" ""],
                   ["Set grid"            "menuitem"  "scmenu_set_grid"            "" ""],
