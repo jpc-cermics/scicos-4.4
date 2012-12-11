@@ -7,11 +7,11 @@ function [menus]=scicos_menu_prepare()
   menus=[names,actions];
    
   //adding here some hidden internal
-  //scicos items which are not in the menus
+  //scicos items which are not in the menus/toolbar
+  //and then do not need gtk action
   menus = [menus;
 	   'Link'            , 'scmenu_getlink'
 	   'Open/Set'        , 'OpenSet_'
-           'up'              , 'scmenu_up',
            'Force Open'      , 'scmenu_force_open',
            'Move'            , 'scmenu_move',
            'Smart Move'      , 'scmenu_smart_move',

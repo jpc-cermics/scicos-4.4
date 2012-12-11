@@ -34,8 +34,8 @@ function scicos_set_uimanager(is_top)
 	   "    <toolitem name=""Paste"" action=""scmenu_paste"" />"
 	   "    <separator name=""tsep3"" />"];
     if ~is_top then 
-      txt.concatd[[ "    <toolitem name=""up"" action=""scmenu_up"" />"
-		    "    <toolitem name=""uptop"" action=""scmenu_up_to_main_diagram"" />"
+      txt.concatd[[ "    <toolitem name=""Up To Parent"" action=""scmenu_up"" />"
+		    "    <toolitem name=""Up To Main Diagram"" action=""scmenu_up_to_main_diagram"" />"
 		    "    <separator name=""tsep4""/>"]];
     end
     txt.concatd[[ "    <toolitem name=""prefs"" action=""scmenu_setup"" />"
@@ -298,106 +298,32 @@ endfunction
 
 function S=scicos_actions()
 // A set of actions 
-// ['action','name-in-menu', accelerator|"" , icon-name| "" ] 
+// ['action','name-in-menu', accelerator|"" , icon-name|"" ]
   S=hash_create(10);
-  S.global =[ 'scmenu_about_scicos','About Scicos',"","gtk-about";
-	      'scmenu_activate_scicoslab_window','Activate ScicosLab Window',"","";
-	      'scmenu_add_color','Add Color',"","gtk-select-color";
-	      'scmenu_add_new_block','Add new block',"","";
-	      'scmenu_align','Align',"","";
-	      'scmenu_analyze_diagram','Analyze Diagram',"","";
-	      'scmenu_available_parameters','Available Parameters',"","";
-	      'scmenu_background_color','Background Color',"","gtk-select-color";
-	      'scmenu_block_documentation','Block Documentation',"","";..
-	      'scmenu_browser','Browser',"","";
-	      'scmenu_calc','Calc',"","";
-	      'scmenu_check_smart_move','Smart Move',"","";
-	      'scmenu_code_generation','Code Generation',"","";
-	      'scmenu_color','Color',"","gtk-select-color";
-	      'scmenu_compile','Compile',"","gtk-execute";
-	      'scmenu_context','Context',"","";
-	      'scmenu_copy','Copy',"<Ctrl>c","gtk-copy";
-	      'scmenu_create_atomic','Create Atomic',"","";
-	      'scmenu_create_mask','Create Mask',"","";
-	      'scmenu_customize_mask','Customize Mask',"","";
-	      'scmenu_cut','Cut',"<control>X","gtk-cut";
-	      'scmenu_debug_level','Debug Level',"","";
-	      'scmenu_default_link_colors','Default Link Colors',"","gtk-select-color";
-	      'scmenu_default_window_parameters','Default window parameters',"","gtk-zoom-100";
-	      'scmenu_delete','Delete',"Delete","gtk-delete";
-	      'scmenu_demos','Demos',"","";
-	      'scmenu_details','Details',"","";
-	      'scmenu_duplicate','Duplicate',"","";
-	      'scmenu_eval','Eval',"","";
-	      'scmenu_exit_scicos','Exit Scicos',"","";
-	      'scmenu_export','Export',"","";
-	      'scmenu_export_all','Export All',"","";
-	      'scmenu_fit_diagram_to_figure','Fit diagram to figure',"","gtk-zoom-fit";
-	      'scmenu_flip','Flip',"","";
-	      'scmenu_get_info','Get Info',"","";
-	      'scmenu_grid','Grid',"","";
-	      'scmenu_help','Help',"","gtk-help";
-	      'scmenu_icon','Icon',"","";
-	      'scmenu_icon_edit','Icon Editor',"","";
-	      'scmenu_icon_font_option','Icon Font Option',"","";
-	      'scmenu_id_fonts','ID fonts',"","";
-	      'scmenu_identification','Identification',"","";
-	      'scmenu_label','Label',"","";
-	      'scmenu_load_as_palette','Load as Palette',"","";
-	      'scmenu_modelica_initialize','Modelica initialize',"","";
-	      'scmenu_move','Move',"","";
-	      'scmenu_new','New',"","";
-	      'scmenu_open','Open',"","";
-	      'scmenu_pal_editor','Pal editor',"","";
-	      'scmenu_pal_tree','Pal Tree',"","";
-	      'scmenu_palettes','Palettes',"","";
-	      'scmenu_paste','Paste',"<Ctrl>v","gtk-paste";
-	      'scmenu_purge','Purge',"","";
-	      'scmenu_quit','Quit',"","gtk-quit";
-	      'scmenu_region_to_palette','Region to Palette',"","";
-	      'scmenu_region_to_super_block','Region to Super Block',"","";
-	      'scmenu_remove_atomic','Remove Atomic',"","";
-	      'scmenu_force_open','Force Open',"","";
-	      'scmenu_remove_mask','Remove Mask',"","";
-	      'scmenu_restore_mask','Restore Mask',"","";
-	      'scmenu_rename','Rename',"","";
-	      'scmenu_replot','Replot',"","";
-	      'scmenu_resize','Resize',"","";
-	      'scmenu_rotate_left','Rotate Left',"","";
-	      'scmenu_rotate_right','Rotate Right',"","";
-	      'scmenu_run','Run',"","gtk-media-play";
-	      'scmenu_save','Save',"","gtk-save";
-	      'scmenu_save_as','Save As',"","gtk-save-as";
-	      'scmenu_save_as_interf_func','Save as Interf Func',"","";
-	      'scmenu_save_as_palette','Save as Palette',"","";
-	      'scmenu_save_block_gui','Save Block GUI',"","";
-	      'scmenu_scicos_documentation','Scicos Documentation',"","";
-	      'scmenu_scicoslab_import','Scicoslab Import',"","";
-	      'scmenu_select_all','Select All',"<Ctrl>a","";
-	      'scmenu_set_code_gen_properties','Set Code Gen Properties',"","";
-	      'scmenu_set_default_action','Set Default Action',"","";
-	      'scmenu_set_diagram_info','Set Diagram Info',"","";
-	      'scmenu_set_grid','Set grid',"","";
-	      'scmenu_setup','Setup',"","gtk-preferences";
-	      'scmenu_shortcuts','Shortcuts',"","";
-	      'scmenu_show_block_shadow','Show Block Shadow',"","";
-	      'scmenu_undo','Undo',"","gtk-undo";
-	      'scmenu_up','Up to Parent',"","gtk-go-up";
-	      'scmenu_up_to_main_diagram','Up To Main Diagram',"","gtk-goto-top";
-	      'scmenu_zoom_in','Zoom in',"","gtk-zoom-in";
-	      'scmenu_zoom_out','Zoom out',"","gtk-zoom-out"];
-  S.menu= [ "scmenu_block_menu","Block","","";
-	    'scmenu_diagram_menu','Diagram',"","";
-	    'scmenu_edit_menu','Edit',"","";
-	    'scmenu_format_menu','Format',"","";
-	    'scmenu_help_menu','Help',"","";
-	    'scmenu_palette_menu','Palette',"","";
-	    'scmenu_simulate_menu','Simulate',"","";
-	    'scmenu_tools_menu','Tools',"","";
-	    'scmenu_view_menu','View',"","";
-	    'scmenu_file_menu','File',"",""];
-  
-  //S.scicos_stop= ["$scicos_stop","Stop","", "gtk-media-stop"];
+
+  function [tt,tt_menu]=get_scicos_actions(%scicos_menu,tt=[],tt_menu=[])
+
+    for i=1:length(%scicos_menu)
+      if type(%scicos_menu(i),'string')=='SMat' then
+
+        if %scicos_menu(i)(2)=="menuitem" then
+          tt=[tt;%scicos_menu(i)(3) %scicos_menu(i)(1) %scicos_menu(i)(4) %scicos_menu(i)(5)]
+        elseif %scicos_menu(i)(2)=="menu" then
+          tt_menu=[tt_menu;%scicos_menu(i)(3) %scicos_menu(i)(1) %scicos_menu(i)(4) %scicos_menu(i)(5)]
+        end
+
+      else
+        [tt,tt_menu]=get_scicos_actions(%scicos_menu(i),tt=tt,tt_menu=tt_menu);
+      end
+    end
+
+  endfunction
+
+  [txt,txt_menu]=get_scicos_actions(%scicos_menu);
+
+  S.global=txt;
+  S.menu=txt_menu;
+
   S.scicos_stop= ["$scicos_stop","Stop","", "gtk-cancel"];
 endfunction
 

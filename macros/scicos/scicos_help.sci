@@ -112,6 +112,9 @@ function H=scicos_help_menu()
        " ";
        " Region is replaced by a super block and links are redrawn."];
 
+  H('scmenu_up')=...
+      ["Opens, if closed, and puts the focus on the parent diagram."];
+
   H('scmenu_up_to_main_diagram')=...
       ["Opens, if closed, and puts the focus on the main diagram."];
 
