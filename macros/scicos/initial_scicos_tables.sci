@@ -1,4 +1,4 @@
-function [%scicos_short, %scicos_help, ...
+function [%scicos_menu, %scicos_short, %scicos_help, ...
           %scicos_display_mode, modelica_libs, ...
           %scicos_lhb_list, %CmenuTypeOneVector, %DmenuTypeOneVector, %scicos_gif, ...
           %scicos_contrib,%scicos_libs,%scicos_cflags] = initial_scicos_tables()
@@ -13,9 +13,162 @@ function [%scicos_short, %scicos_help, ...
   %scicos_contrib=[];
   %scicos_libs=m2s([]);// string matrix 
   %scicos_cflags=[];
-    
-  //Scicos Right Mouse Button Menu 
-  
+
+  //Scicos Menu definitions===================================================
+  //**
+  File =     list(["File"                "menu"      "scmenu_file_menu"          ],
+                  ["New"                 "menuitem"  "scmenu_new"                ],
+                  ["sep0"                "separator" ""                          ],
+                  ["Open"                "menuitem"  "scmenu_open"               ],
+                  ["Scicoslab Import"    "menuitem"  "scmenu_scicoslab_import"   ],
+                  ["sep1"                "separator" ""                          ],
+                  ["Save"                "menuitem"  "scmenu_save"               ],
+                  ["Save As"             "menuitem"  "scmenu_save_as"            ],
+                  ["Save as Interf Func" "menuitem"  "scmenu_save_as_interf_func"],
+                  ["sep2"                "separator" ""                          ],
+                  ["Export"              "menuitem"  "scmenu_export"             ],
+                  ["Export All"          "menuitem"  "scmenu_export_all"         ],
+                  ["sep3"                "separator" ""                          ],
+                  ["Exit Scicos"         "menuitem"  "scmenu_exit_scicos"        ],
+                  ["sep4"                "separator" ""                          ],
+                  ["Quit"                "menuitem"  "scmenu_quit"               ]);
+
+  Diagram =  list(["Diagram"                 "menu"      "scmenu_diagram_menu"           ],
+                  ["Context"                 "menuitem"  "scmenu_context"                ],
+                  ["sep0"                    "separator" ""                              ],
+                  ["Purge"                   "menuitem"  "scmenu_purge"                  ],
+                  ["Replot"                  "menuitem"  "scmenu_replot"                 ],
+                  ["sep1"                    "separator" ""                              ],
+                  ["Rename"                  "menuitem"  "scmenu_rename"                 ],
+                  ["Set Diagram Info"        "menuitem"  "scmenu_set_diagram_info"       ],
+                  ["Set Code Gen Properties" "menuitem"  "scmenu_set_code_gen_properties"],
+                  ["sep2"                    "separator" ""                              ],
+                  ["Region to Super Block"   "menuitem"  "scmenu_region_to_super_block"  ],
+                  ["sep3"                    "separator" ""                              ],
+                  ["Up To Main Diagram"      "menuitem"  "scmenu_up_to_main_diagram"     ]);
+
+  Palette =  list(["Palette"           "menu"      "scmenu_palette_menu"     ],
+                  ["Pal Tree"          "menuitem"  "scmenu_pal_tree"         ],
+                  ["Palettes"          "menuitem"  "scmenu_palettes"         ],
+                  ["sep0"              "separator" ""                        ],
+                  ["Pal editor"        "menuitem"  "scmenu_pal_editor"       ],
+                  ["sep1"              "separator" ""                        ],
+                  ["Region to Palette" "menuitem"  "scmenu_region_to_palette"],
+                  ["sep2"              "separator" ""                        ],
+                  ["Load as Palette"   "menuitem"  "scmenu_load_as_palette"  ],
+                  ["Save as Palette"   "menuitem"  "scmenu_save_as_palette"  ]);
+
+  Edit =     list(["Edit"          "menu"      "scmenu_edit_menu" ],
+                  ["Undo"          "menuitem"  "scmenu_undo"      ],
+                  ["sep0"          "separator" ""                 ],
+                  ["Cut"           "menuitem"  "scmenu_cut"       ],
+                  ["Copy"          "menuitem"  "scmenu_copy"      ],
+                  ["Paste"         "menuitem"  "scmenu_paste"     ],
+                  ["sep1"          "separator" ""                 ],
+                  ["Delete"        "menuitem"  "scmenu_delete"    ],
+                  ["sep2"          "separator" ""                 ],
+                  ["Select All"    "menuitem"  "scmenu_select_all"],
+                  ["sep3"          "separator" ""                 ],
+                  list(["Block Menu"          "menu"      "scmenu_block_menu"         ],
+                       ["Copy"                "menuitem"  "scmenu_copy"               ],
+                       ["Cut"                 "menuitem"  "scmenu_cut"                ],
+                       ["Delete"              "menuitem"  "scmenu_delete"             ],
+                       ["Duplicate"           "menuitem"  "scmenu_duplicate"          ],
+                       ["bsep1"               "separator" ""                          ],
+                       ["Color"               "menuitem"  "scmenu_color"              ],
+                       ["Flip"                "menuitem"  "scmenu_flip"               ],
+                       ["Resize"              "menuitem"  "scmenu_resize"             ],
+                       ["Rotate Left"         "menuitem"  "scmenu_rotate_left"        ],
+                       ["Rotate Right"        "menuitem"  "scmenu_rotate_right"       ],
+                       ["bsep2"               "separator" ""                          ],
+                       ["Block Documentation" "menuitem"  "scmenu_block_documentation"],
+                       ["Details"             "menuitem"  "scmenu_details"            ],
+                       ["Get Info"            "menuitem"  "scmenu_get_info"           ],
+                       ["Icon Editor"         "menuitem"  "scmenu_icon_edit"          ],
+                       ["Icon"                "menuitem"  "scmenu_icon"               ],
+                       ["Identification"      "menuitem"  "scmenu_identification"     ],
+                       ["Label"               "menuitem"  "scmenu_label"              ]),
+                  ["sep4"          "separator" ""                    ],
+                  ["Align"         "menuitem"  "scmenu_align"        ],
+                  ["sep5"          "separator" ""                    ],
+                  ["Add new block" "menuitem"  "scmenu_add_new_block"]);
+
+  View =     list(["View"                      "menu"      "scmenu_view_menu"                ],
+                  ["Zoom in"                   "menuitem"  "scmenu_zoom_in"                  ],
+                  ["Zoom out"                  "menuitem"  "scmenu_zoom_out"                 ],
+                  ["Fit diagram to figure"     "menuitem"  "scmenu_fit_diagram_to_figure"    ],
+                  ["sep0"                      "separator" ""                                ],
+                  ["Default window parameters" "menuitem"  "scmenu_default_window_parameters"],
+                  ["sep1"                      "separator" ""                                ],
+                  ["Available Parameters"      "menuitem"  "scmenu_available_parameters"     ],
+                  ["sep2"                      "separator" ""                                ],
+                  ["Icon Font Option"          "menuitem"  "scmenu_icon_font_option"         ],
+                  ["sep3"                      "separator" ""                                ],
+                  ["Grid"                      "menuitem"  "scmenu_grid"                     ]);
+
+  Simulate = list(["Simulate"            "menu"      "scmenu_simulate_menu"      ],
+                  ["Setup"               "menuitem"  "scmenu_setup"              ],
+                  ["sep0"                "separator" ""                          ],
+                  ["Compile"             "menuitem"  "scmenu_compile"            ],
+                  ["Eval"                "menuitem"  "scmenu_eval"               ],
+                  ["sep1"                "separator" ""                          ],
+                  ["Modelica initialize" "menuitem"  "scmenu_modelica_initialize"],
+                  ["sep2"                "separator" ""                          ],
+                  ["Analyze Diagram"     "menuitem"  "scmenu_analyze_diagram"    ],
+                  ["sep3"                "separator" ""                          ],
+                  ["Debug Level"         "menuitem"  "scmenu_debug_level"        ],
+                  ["sep4"                "separator" ""                          ],
+                  ["Run"                 "menuitem"  "scmenu_run"                ]);
+
+  Format =   list(["Format"              "menu"      "scmenu_format_menu"        ],
+                  ["Set default action"  "menuitem"  "scmenu_set_default_action" ],
+                  ["sep0"                "separator" ""                          ],
+                  ["Set grid"            "menuitem"  "scmenu_set_grid"           ],
+                  ["sep1"                "separator" ""                          ],
+                  ["Add Color"           "menuitem"  "scmenu_add_color"          ],
+                  ["Default link colors" "menuitem"  "scmenu_default_link_colors"],
+                  ["Color"               "menuitem"  "scmenu_color"              ],
+                  ["Background color"    "menuitem"  "scmenu_background_color"   ],
+                  ["sep2"                "separator" ""                          ],
+                  ["Show Block Shadow"   "menuitem"  "scmenu_show_block_shadow"  ],
+                  ["sep3"                "separator" ""                          ],
+                  ["ID fonts"            "menuitem"  "scmenu_id_fonts"           ]);
+
+  Tools =    list(["Tools"                     "menu"      "scmenu_tools_menu"               ],
+                  ["Activate ScicosLab Window" "menuitem"  "scmenu_activate_scicoslab_window"],
+                  ["sep0"                      "separator" ""                                ],
+                  ["Create Mask"               "menuitem"  "scmenu_create_mask"              ],
+                  ["Remove Mask"               "menuitem"  "scmenu_remove_mask"              ],
+                  ["Restore Mask"              "menuitem"  "scmenu_restore_mask"             ],
+                  ["Customize Mask"            "menuitem"  "scmenu_customize_mask"           ],
+                  ["Save Block GUI"            "menuitem"  "scmenu_save_block_gui"           ],
+                  ["sep1"                      "separator" ""                                ],
+                  ["Create Atomic"             "menuitem"  "scmenu_create_atomic"            ],
+                  ["Remove Atomic"             "menuitem"  "scmenu_remove_atomic"            ],
+                  ["sep2"                      "separator" ""                                ],
+                  ["Code Generation"           "menuitem"  "scmenu_code_generation"          ],
+                  ["sep3"                      "separator" ""                                ],
+                  ["Browser"                   "menuitem"  "scmenu_browser"                  ],
+                  ["sep4"                      "separator" ""                                ],
+                  ["Shortcuts"                 "menuitem"  "scmenu_shortcuts"                ],
+                  ["sep5"                      "separator" ""                                ],
+                  ["Calc"                      "menuitem"  "scmenu_calc"                     ]);
+
+                  //["Force Open" "menuitem"     "menuitem"  "scmenu_force_open"               ],
+
+  Help =     list(["Help"                 "menu"      "scmenu_help_menu"           ],
+                  ["Help"                 "menuitem"  "scmenu_help"                ],
+                  ["sep0"                 "separator" ""                           ],
+                  ["Scicos Documentation" "menuitem"  "scmenu_scicos_documentation"],
+                  ["sep1"                 "separator" ""                           ],
+                  ["Demos"                "menuitem"  "scmenu_demos"               ],
+                  ["sep2"                 "separator" ""                           ],
+                  ["About Scicos"         "menuitem"  "scmenu_about_scicos"        ]);
+
+  %scicos_menu = list(File,Diagram,Palette,Edit,View,Simulate,Format,Tools,Help);
+
+  //Scicos Right Mouse Button Menu ===========================================
+  //**
   %scicos_lhb_list = list();
 
   //** state_var = 1 : right click inside the CURRENT Scicos Window

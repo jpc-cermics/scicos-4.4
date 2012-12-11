@@ -51,160 +51,30 @@ function scicos_set_uimanager(is_top)
 
   function txt=scicos_menubar()
   // Scicos Menu definitions
-  // 
-  // 
-    txt= [ "  <menubar>";
-	   "    <menu name=""File"" action=""scmenu_file_menu"">";
-	   "      <menuitem name=""New"" action=""scmenu_new"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Open"" action=""scmenu_open"" />";
-	   "      <menuitem name=""Scicoslab Import"" action=""scmenu_scicoslab_import"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Save"" action=""scmenu_save"" />";
-	   "      <menuitem name=""Save As"" action=""scmenu_save_as"" />";
-	   "      <menuitem name=""Save as Interf Func"" action=""scmenu_save_as_interf_func"" />";
-	   "      <separator name=""sep2"" />";
-	   "      <menuitem name=""Export"" action=""scmenu_export"" />";
-	   "      <menuitem name=""Export All"" action=""scmenu_export_all"" />";
-	   "      <separator name=""sep3"" />";
-	   "      <menuitem name=""Exit Scicos"" action=""scmenu_exit_scicos"" />";
-	   "      <separator name=""sep4"" />";
-	   "      <menuitem name=""Quit"" action=""scmenu_quit"" />";
-	   "    </menu>";
-	   "    <menu name=""Diagram"" action=""scmenu_diagram_menu"">";
-	   "      <menuitem name=""Context"" action=""scmenu_context"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Purge"" action=""scmenu_purge"" />";
-	   "      <menuitem name=""Replot"" action=""scmenu_replot"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Rename"" action=""scmenu_rename"" />";
-	   "      <menuitem name=""Set Diagram Info"" action=""scmenu_set_diagram_info"" />";
-	   "      <menuitem name=""Set Code Gen Properties"" action=""scmenu_set_code_gen_properties"" />";
-	   "      <separator name=""sep2"" />";
-	   "      <menuitem name=""Region to Super Block"" action=""scmenu_region_to_super_block"" />";
-	   "      <separator name=""sep3"" />";
-	   "      <menuitem name=""Up To Main Diagram"" action=""scmenu_up_to_main_diagram"" />";
-	   "    </menu>";
-	   "    <menu name=""Palette"" action=""scmenu_palette_menu"">";
-	   "      <menuitem name=""Pal Tree"" action=""scmenu_pal_tree"" />";
-	   "      <menuitem name=""Palettes"" action=""scmenu_palettes"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Pal editor"" action=""scmenu_pal_editor"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Region to Palette"" action=""scmenu_region_to_palette"" />";
-	   "      <separator name=""sep2"" />";
-	   "      <menuitem name=""Load as Palette"" action=""scmenu_load_as_palette"" />";
-	   "      <menuitem name=""Save as Palette"" action=""scmenu_save_as_palette"" />";
-	   "    </menu>";
-	   "    <menu name=""Edit"" action=""scmenu_edit_menu"">";
-	   "      <menuitem name=""Undo"" action=""scmenu_undo"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Cut"" action=""scmenu_cut"" />";
-	   "      <menuitem name=""Copy"" action=""scmenu_copy"" />";
-	   "      <menuitem name=""Paste"" action=""scmenu_paste"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Delete"" action=""scmenu_delete"" />";
-	   "      <separator name=""sep2"" />";
-	   "      <menuitem name=""Select All"" action=""scmenu_select_all"" />";
-	   "      <separator name=""sep3"" />";
-	   "      <menu name=""Block Menu"" action=""scmenu_block_menu"">";
-	   "        <menuitem name=""Copy"" action=""scmenu_copy"" />";
-	   "        <menuitem name=""Cut"" action=""scmenu_cut"" />";
-	   "        <menuitem name=""Delete"" action=""scmenu_delete"" />";
-	   "        <menuitem name=""Duplicate"" action=""scmenu_duplicate"" />";
-	   "        <separator name=""bsep1"" />"
-	   "        <menuitem name=""Color"" action=""scmenu_color"" />";
-	   "        <menuitem name=""Flip"" action=""scmenu_flip"" />";
-	   "        <menuitem name=""Resize"" action=""scmenu_resize"" />";	   
-	   "        <menuitem name=""Rotate Left"" action=""scmenu_rotate_left"" />";
-	   "        <menuitem name=""Rotate Right"" action=""scmenu_rotate_right"" />";
-	   "        <separator name=""bsep2"" />"
-	   "        <menuitem name=""Block Documentation"" action=""scmenu_block_documentation"" />";
-	   "        <menuitem name=""Details"" action=""scmenu_details"" />";
-	   "        <menuitem name=""Get Info"" action=""scmenu_get_info"" />";
-	   "        <menuitem name=""Icon Editor"" action=""scmenu_icon_edit"" />";
-	   "        <menuitem name=""Icon"" action=""scmenu_icon"" />";
-	   "        <menuitem name=""Identification"" action=""scmenu_identification"" />";
-	   "        <menuitem name=""Label"" action=""scmenu_label"" />";
-	   "      </menu>"
-	   "      <separator name=""sep4"" />";
-	   "      <menuitem name=""Align"" action=""scmenu_align"" />";
-	   "      <separator name=""sep5"" />";
-	   "      <menuitem name=""Add new block"" action=""scmenu_add_new_block"" />";
-	   "    </menu>";
-	   "    <menu name=""View"" action=""scmenu_view_menu"">";
-	   "      <menuitem name=""Zoom in"" action=""scmenu_zoom_in"" />";
-	   "      <menuitem name=""Zoom out"" action=""scmenu_zoom_out"" />";
-	   "      <menuitem name=""Fit diagram to figure"" action=""scmenu_fit_diagram_to_figure"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Default window parameters"" action=""scmenu_default_window_parameters"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Available Parameters"" action=""scmenu_available_parameters"" />";
-	   "      <separator name=""sep2"" />";
-	   "      <menuitem name=""Icon Font Option"" action=""scmenu_icon_font_option"" />";
-	   "      <separator name=""sep3"" />";
-	   "      <menuitem name=""Grid"" action=""scmenu_grid"" />";
-	   "    </menu>";
-	   "    <menu name=""Simulate"" action=""scmenu_simulate_menu"">";
-	   "      <menuitem name=""Setup"" action=""scmenu_setup"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Compile"" action=""scmenu_compile"" />";
-	   "      <menuitem name=""Eval"" action=""scmenu_eval"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Modelica initialize"" action=""scmenu_modelica_initialize"" />";
-	   "      <separator name=""sep2"" />";
-	   "      <menuitem name=""Analyze Diagram"" action=""scmenu_analyze_diagram"" />";
-	   "      <separator name=""sep3"" />";
-	   "      <menuitem name=""Debug Level"" action=""scmenu_debug_level"" />";
-	   "      <separator name=""sep4"" />";
-	   "      <menuitem name=""Run"" action=""scmenu_run"" />";
-	   "    </menu>";
-	   "    <menu name=""Format"" action=""scmenu_format_menu"">";
-	   "      <menuitem name=""Set default action"" action=""scmenu_set_default_action"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Set grid"" action=""scmenu_set_grid"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Add Color"" action=""scmenu_add_color"" />";
-	   "      <menuitem name=""Default link colors"" action=""scmenu_default_link_colors"" />";
-	   "      <menuitem name=""Color"" action=""scmenu_color"" />";
-	   "      <menuitem name=""Background color"" action=""scmenu_background_color"" />";
-	   "      <separator name=""sep2"" />";
-	   "      <menuitem name=""Show Block Shadow"" action=""scmenu_show_block_shadow"" />";
-	   "      <separator name=""sep3"" />";
-	   "      <menuitem name=""ID fonts"" action=""scmenu_id_fonts"" />";
-	   "    </menu>";
-	   "    <menu name=""Tools"" action=""scmenu_tools_menu"">";
-	   "      <menuitem name=""Activate ScicosLab Window"" action=""scmenu_activate_scicoslab_window"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Create Mask"" action=""scmenu_create_mask"" />";
-	   "      <menuitem name=""Remove Mask"" action=""scmenu_remove_mask"" />";
-	   "      <menuitem name=""Restore Mask"" action=""scmenu_restore_mask"" />";
-	   "      <menuitem name=""Customize Mask"" action=""scmenu_customize_mask"" />";
-	   "      <menuitem name=""Save Block GUI"" action=""scmenu_save_block_gui"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Create Atomic"" action=""scmenu_create_atomic"" />";
-	   "      <menuitem name=""Remove Atomic"" action=""scmenu_remove_atomic"" />";
-	   "      <separator name=""sep2"" />";
-	   //"      <menuitem name=""Force Open"" action=""scmenu_force_open"" />";
-	   "      <menuitem name=""Code Generation"" action=""scmenu_code_generation"" />";
-	   "      <separator name=""sep3"" />";
-	   "      <menuitem name=""Browser"" action=""scmenu_browser"" />";
-	   "      <separator name=""sep4"" />";
-	   "      <menuitem name=""Shortcuts"" action=""scmenu_shortcuts"" />";
-	   "      <separator name=""sep5"" />";
-	   "      <menuitem name=""Calc"" action=""scmenu_calc"" />";
-	   "    </menu>";
-	   "    <menu name=""Help"" action=""scmenu_help_menu"">";
-	   "      <menuitem name=""Help"" action=""scmenu_help"" />";
-	   "      <separator name=""sep0"" />";
-	   "      <menuitem name=""Scicos Documentation"" action=""scmenu_scicos_documentation"" />";
-	   "      <separator name=""sep1"" />";
-	   "      <menuitem name=""Demos"" action=""scmenu_demos"" />";
-	   "      <separator name=""sep2"" />";
-	   "      <menuitem name=""About Scicos"" action=""scmenu_about_scicos"" />";
-	   "    </menu>";
-	   "  </menubar>" ];
-    // 
+
+    function [txt]=get_txt_scicos_menubar(%scicos_menu,txt=[])
+      for i=1:length(%scicos_menu)
+        if type(%scicos_menu(i),'string')=='SMat' then
+          tt="<"+%scicos_menu(i)(2)+" name="""+%scicos_menu(i)(1)+"""";
+          if %scicos_menu(i)(2)=="menuitem" then
+            tt=tt+" action="""+%scicos_menu(i)(3)+""" />";
+          elseif %scicos_menu(i)(2)=="menu" then
+            tt=tt+" action="""+%scicos_menu(i)(3)+""">";
+          elseif %scicos_menu(i)(2)=="separator" then
+            tt=tt+" />";
+          end
+          txt=[txt;tt]
+        else
+          txt=get_txt_scicos_menubar(%scicos_menu(i),txt=txt);
+          txt=[txt;"</menu>"];
+        end
+      end
+    endfunction
+
+    txt=["<menubar>";
+         get_txt_scicos_menubar(%scicos_menu);
+         "</menubar>" ];
+
     txt  = catenate(txt,sep='\n');    
   endfunction
   

@@ -344,11 +344,13 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         %win = win_n
       else
         if DmenuType then disablemenus(), end
+        //printf("Cmenu=%s\n",Cmenu);
         %koko=find(Cmenu==%cor_item_exec(:,1))
-        if size(%koko,'*')==1 then
+        if ~isempty(%koko) then
+          %koko=%koko(1)
           Select_back=Select
           %cor_item_fun=%cor_item_exec(%koko,2)
-	  // printf('Entering function ' + %cor_item_fun+'\n');
+	  //printf('Entering function ' + %cor_item_fun+'\n');
           // execstr('exec('+%cor_item_fun+');');ierr=%t
 	  ierr=execstr('exec('+%cor_item_fun+');',errcatch=%t);
           if ierr==%f then 
@@ -589,7 +591,7 @@ function scicos_library_initialize()
 // from names if they are not already set.
 // ----------------------------------------
 
-  names = ['%scicos_short';'%scicos_help';
+  names = ['%scicos_menu';'%scicos_short';'%scicos_help';
 	   '%scicos_display_mode';'modelica_libs';
 	   '%scicos_lhb_list';'%CmenuTypeOneVector';'%DmenuTypeOneVector';
            '%scicos_gif';'%scicos_contrib';'%scicos_libs';'%scicos_cflags'];
