@@ -50,18 +50,7 @@ function [x,y,typ]=OUT_f(job,arg1,arg2)
     end
     x=[];y=[]
    case 'getinputs' then
-    orig=arg1.graphics.orig;
-    sz=arg1.graphics.sz;
-    orient=arg1.graphics.flip;
-
-    if orient then
-      x=orig(1)
-      y=orig(2)+sz(2)/2
-    else
-      x=orig(1)+sz(1)
-      y=orig(2)+sz(2)/2
-    end
-    typ=ones_deprecated(x)
+    [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
     x=[];y=[];typ=[];
    case 'getorigin' then

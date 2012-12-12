@@ -72,7 +72,7 @@ function [x,y,w,h]=get_port_bounds(xport,yport,o)
 
   if xport<=orig(1) then
     x=xport
-  elseif xport>=orig(1)+sz(1) then
+  elseif xport>=(orig(1)+sz(1)) then
     x=orig(1)+sz(1)-x_eps
     w=w+x_eps
   else
@@ -82,8 +82,9 @@ function [x,y,w,h]=get_port_bounds(xport,yport,o)
   if yport<=orig(2) then
     y=orig(2)+y_eps
     h=h+y_eps
-  elseif yport>=orig(2)+sz(2) then
-    y=orig(2)+sz(2)+y_eps
+  elseif yport>=(orig(2)+sz(2)) then
+    //y=orig(2)+sz(2)+y_eps
+    y=yport+y_eps
     h=h+y_eps
   else
     y=yport+h/2
