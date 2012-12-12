@@ -3,15 +3,16 @@ function %zoom=restore(curwin,%zoom)
 // curwin graphic window. 
 // If the window already exists its graphic contents are 
 // cleared.
-  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-    scs_m.props.options('3D')(1)=%f //disable 3D block shape
-  end
   gr_on = length(scs_m.objs) > 0 && ~(scs_m.objs(1).iskey['gr']);
-  if ~or(curwin==winsid()) || gr_on then 
+  if ~or(curwin==winsid()) || gr_on then
     xclear(curwin,gc_reset=%f);
   end
   xset('window',curwin);
   xselect();
+
+  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
+    scs_m.props.options('3D')(1)=%f //disable 3D block shape
+  end
 
   if size(scs_m.props.wpar,'*')>12 then
     // we already have sizes recorded in scs_m

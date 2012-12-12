@@ -189,10 +189,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	// pause ici ici ici 
       end
       needsavetest=%f
-      xset('window',curwin);
+      %zoom=restore(curwin,%zoom)
       scicos_set_uimanager(slevel <=1 );
       scs_m=scs_m_remove_gr(scs_m,recursive=%f);
-      %zoom=restore(curwin,%zoom)
+      //%zoom=restore(curwin,%zoom,slevel)
       window_set_size();
       scs_m=drawobjs(scs_m,curwin);
     else
@@ -263,7 +263,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
     
     if Cmenu=='Quit' then break,end
-    
+
     if ~isempty(%scicos_navig) then 
       // navigation mode is active 
       while ~isempty(%scicos_navig) do
@@ -275,18 +275,21 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
             selecthilite(Select_back,%f)
             selecthilite(Select,%t)
           end
-          scicos_menu_update_sensitivity(Clipboard,Select)
+          if ~or(curwin==winsid()) then
+            scicos_menu_update_sensitivity(Clipboard,Select)
+          end
 
           if Cmenu=="OpenSet" then
             ierr=execstr('exec(OpenSet_);',errcatch=%t)
             if ierr==%f then message(catenate(lasterror())),end
             if isequal(%diagram_path_objective,super_path) then 
 	      // must add after testing &%scicos_navig<>[] 
-              if ~or(curwin==winsid()) then 
+              if ~or(curwin==winsid()) then
                 %zoom=restore(curwin,%zoom)
+                scicos_set_uimanager(slevel <=1 );
 		scs_m=scs_m_remove_gr(scs_m,recursive=%f);
 		window_set_size();
-		ok=execstr('drawobjs(scs_m,curwin)',errcatch=%t);
+		ok=execstr('scs_m=drawobjs(scs_m,curwin)',errcatch=%t);
 		if ~ok then 
 		  message(['Failed to draw diagram'])
 		  lasterror();
@@ -311,9 +314,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     else
       %diagram_open=%t
       if ~or(curwin==winsid()) then
-        xset('window',curwin)
-        xset('recording',0)
         %zoom=restore(curwin,%zoom)
+        scicos_set_uimanager(slevel <=1 );
+        scs_m=scs_m_remove_gr(scs_m,recursive=%f);
+        xset('recording',0)
         Cmenu='Replot'
         Select_back=[];Select=[]
       end
