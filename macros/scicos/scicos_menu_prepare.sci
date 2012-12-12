@@ -37,6 +37,9 @@ function [names,actions]=get_scicos_menu_names(%scicos_menu,names=[],actions=[])
 
   for i=1:length(%scicos_menu)
     if type(%scicos_menu(i),'string')=='SMat' then
+      if ~isempty(strindex(%scicos_menu(i)(1),'|||')) then
+        %scicos_menu(i)(1)=part(%scicos_menu(i)(1),1:strindex(%scicos_menu(i)(1),'|||')-1)
+      end
       if %scicos_menu(i)(2)=='menuitem' then
         names=[names;%scicos_menu(i)(1)];
         actions=[actions;%scicos_menu(i)(3)];

@@ -55,6 +55,9 @@ function scicos_set_uimanager(is_top)
     function [txt]=get_txt_scicos_menubar(%scicos_menu,txt=[])
       for i=1:length(%scicos_menu)
         if type(%scicos_menu(i),'string')=='SMat' then
+          if ~isempty(strindex(%scicos_menu(i)(1),'|||')) then
+             %scicos_menu(i)(1)=part(%scicos_menu(i)(1),1:strindex(%scicos_menu(i)(1),'|||')-1)
+          end
           tt="<"+%scicos_menu(i)(2)+" name="""+%scicos_menu(i)(1)+"""";
           if %scicos_menu(i)(2)=="menuitem" then
             tt=tt+" action="""+%scicos_menu(i)(3)+""" />";
@@ -90,6 +93,10 @@ function scicos_set_uimanager(is_top)
 	ttip=catenate(H(S(i,1)),sep='\n');
       else
 	ttip="";
+      end
+      if ~isempty(strindex(S(i,2),'|||')) then
+        S(i,4) = part(S(i,2),strindex(S(i,2),'|||')+3:length(S(i,2)))
+        S(i,2) = ""
       end
       action = gtkaction_new( S(i,1), S(i,2) , ttip , S(i,4) );
       if gname<>"menu" then 
