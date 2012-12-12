@@ -24,25 +24,30 @@ function scicos_set_uimanager(is_top)
   function txt=scicos_toolbar(is_top)
   // text for the toolbar 
     txt =[ "  <toolbar name=""toolbar"">"
+           "    <toolitem name=""New"" action=""scmenu_new"" />"
+           "    <toolitem name=""Open"" action=""scmenu_open"" />"
+           "    <toolitem name=""Save"" action=""scmenu_save"" />"
+           "    <separator name=""tsep1"" />"
 	   "    <toolitem name=""Zoom in"" action=""scmenu_zoom_in"" />"
 	   "    <toolitem name=""Zoom out"" action=""scmenu_zoom_out"" />"
+           "    <separator name=""tsep2"" />"
 	   "    <toolitem name=""Zoom fit"" action=""scmenu_fit_diagram_to_figure"" />"
 	   "    <toolitem name=""Zoom 100"" action=""scmenu_default_window_parameters"" />"
-	   "    <separator name=""tsep1"" />"
+	   "    <separator name=""tsep3"" />"
 	   "    <toolitem name=""Cut"" action=""scmenu_cut"" />"
 	   "    <toolitem name=""Copy"" action=""scmenu_copy"" />"
 	   "    <toolitem name=""Paste"" action=""scmenu_paste"" />"
-	   "    <separator name=""tsep3"" />"];
+	   "    <separator name=""tsep4"" />"];
     if ~is_top then 
       txt.concatd[[ "    <toolitem name=""Up To Parent"" action=""scmenu_up"" />"
 		    "    <toolitem name=""Up To Main Diagram"" action=""scmenu_up_to_main_diagram"" />"
-		    "    <separator name=""tsep4""/>"]];
+		    "    <separator name=""tsep5""/>"]];
     end
     txt.concatd[[ "    <toolitem name=""prefs"" action=""scmenu_setup"" />"
 		  "    <toolitem name=""compile"" action=""scmenu_compile"" />"
 		  "    <toolitem name=""run"" action=""scmenu_run"" />"
 		  "    <toolitem name=""stop"" action=""$scicos_stop"" />"
-		  "    <separator name=""tsep4""/>"
+		  "    <separator name=""tsep6""/>"
 		  "    <toolitem name=""Quit"" action=""scmenu_quit"" />"
 		  "  </toolbar>"]];
     // just return a string 
@@ -113,7 +118,6 @@ function scicos_set_uimanager(is_top)
   
   // main code 
   // ---------
-  
   win=xget('window');
   window=nsp_graphic_widget(win);
   // only one children which is a GtkVBox
@@ -428,6 +432,7 @@ function scicos_menus_paste_set_sensitivity(flag)
 endfunction
 
 function scicos_menu_update_sensitivity(Clipboard,Select)
+  if ~or(curwin==winsid()) then return, end
   if ~isempty(Clipboard) then
     scicos_menus_paste_set_sensitivity(%t)
   else
