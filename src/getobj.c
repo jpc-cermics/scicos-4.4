@@ -19,6 +19,7 @@
  * set of nsp macros rewriten as C functions.
  *
  * scicos_dist2polyline
+ * scicos_dist2polyline_jpc
  * scicos_rotate
  * scicos_get_data_block
  * scicos_get_data_text
@@ -152,6 +153,50 @@ err2:
   return FALSE;
 }
 
+/**************************************************
+ * utility function
+ * distance from a point to a polyline
+ * the point is on the segment [kmin,kmin+1] (note that
+ * kmin is < size(xp,'*'))
+ * and its projection is at point
+ * pt = [ xp(kmin)+ pmin*(xp(kmin+1)-xp(kmin)) ;
+ *        yp(kmin)+ pmin*(yp(kmin+1)-yp(kmin))
+ * the distance is dmin
+ * Copyright ENPC
+ **************************************************/
+
+static void scicos_dist2polyline_jpc(double *xp,double *yp,int np,const double pt[2],
+                                     double pt_proj[2],int *kmin,double *pmin,
+                                     double *dmin)
+{
+  double ux,uy,wx,wy,un,gx,gy;
+  int n= np;
+  double p,d;
+  int i;
+  *dmin = 1.0+10; /* XXXXX max_double */
+  for ( i = 0 ; i < n-1 ; i++)
+    {
+      ux = xp[i+1]-xp[i];
+      uy = yp[i+1]-yp[i];
+      wx = pt[0] - xp[i];
+      wy = pt[1] - yp[i];
+      un= Max(ux*ux + uy*uy,1.e-10); /* XXXX */
+      p = Max(Min((ux*wx+ uy*wy)/un,1),0);
+      /* the projection of pt on each segment */
+      gx= wx -  p * ux;
+      gy= wy -  p * uy;
+      d = Max(Abs(gx),Abs(gy));
+      if ( d < *dmin )
+        {
+          *dmin = d;
+          *pmin = p;
+          *kmin = i+1;
+          pt_proj[0]= xp[i]+ p*ux;
+          pt_proj[1]= yp[i]+ p*uy;
+        }
+    }
+}
+
 /* scicos_rotate
  *
  * [xy_out]=rotate(xy_in,nxy,teta,orig)
@@ -232,11 +277,13 @@ static int scicos_get_data_text(NspObject *o,const double *pt)
  * 
  */
 
-static void scicos_get_data_link(NspObject *o,const double *pt,double *data,int *wh)
+static int scicos_get_data_link(NspObject *o,const double *pt, int *wh)
 {
   NspObject *xx, *yy;
-  double *xp,*yp, pt_out[2], eps_lnk=4;
+  double *xp, *yp, pt_out[2], pmin, data, eps_lnk=4;
   int np;
+
+  *wh=-1;
   
   nsp_hash_find((NspHash*)o,"xx",&xx);
   nsp_hash_find((NspHash*)o,"yy",&yy);
@@ -245,9 +292,18 @@ static void scicos_get_data_link(NspObject *o,const double *pt,double *data,int 
   yp=((NspMatrix *)yy)->R;
   np=((NspMatrix *)xx)->mn;
 
-  scicos_dist2polyline(xp,yp,np,pt,data,pt_out,wh);
+  scicos_dist2polyline_jpc(xp,yp,np,pt,pt_out,wh,&pmin,&data);
+  data=data-eps_lnk;
+  
+  /* fprintf(stderr,"scicos_dist2polyline_jpc : data=%f, wh=%d\n",(*data),*wh);
+   *   
+   *   scicos_dist2polyline(xp,yp,np,pt,data,pt_out,wh);
+   *   (*data)=(*data)-eps_lnk;
+   *   
+   * fprintf(stderr,"scicos_dist2polyline : data=%f, wh=%d\n\n",(*data),*wh);
+   */
 
-  (*data)=(*data)-eps_lnk;
+   return (data<0) ;
 }
 
 /* scicos_getobj
@@ -267,7 +323,7 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
   NspObject *o;
   Cell *cloc;
 
-  double data[2];
+  /*double data[2];*/
   int i,j,n;
 
   if (!IsHash(obj)) return FALSE;
@@ -301,8 +357,7 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
 	      o=cloc->O;
 	      nsp_hash_find((NspHash*) o,"type",&T);
 	      if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
-		scicos_get_data_link(o,pt,data,wh);
-		if ((*data)<0) {
+		if (scicos_get_data_link(o,pt,wh)==TRUE) {
 		  (*k)=j;
 		  return TRUE;
 		}
@@ -336,8 +391,7 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
 	}
       else if (strcmp(str,"Link") == 0) 
 	{
-	  scicos_get_data_link(o,pt,data,wh);
-	  if ((*data)<0) {
+	  if (scicos_get_data_link(o,pt,wh)==TRUE) {
 	    (*k)=i;
 	    return TRUE;
 	  }
@@ -406,7 +460,7 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
   NspObject *o;
   Cell *cloc;
 
-  double data[2];
+  /*double data[2];*/
   int i,n;
 
   if (!IsHash(obj)) return FALSE;
@@ -429,8 +483,7 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
 	}
     }
     else if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
-      scicos_get_data_link(o,pt,data,wh);
-      if ((*data)<0) {
+      if (scicos_get_data_link(o,pt,wh)==TRUE) {
         (*k)=i;
         return TRUE;
       }
