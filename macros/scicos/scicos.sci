@@ -595,7 +595,7 @@ function scicos_library_initialize()
 // from names if they are not already set.
 // ----------------------------------------
 
-  names = ['%scicos_menu';'%scicos_short';'%scicos_help';
+  names = ['%scicos_menu';'%scicos_toolbar';'%scicos_short';'%scicos_help';
 	   '%scicos_display_mode';'modelica_libs';
 	   '%scicos_lhb_list';'%CmenuTypeOneVector';'%DmenuTypeOneVector';
            '%scicos_gif';'%scicos_contrib';'%scicos_libs';'%scicos_cflags'];

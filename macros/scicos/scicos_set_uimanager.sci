@@ -19,61 +19,62 @@ function scicos_set_uimanager(is_top)
 // Get the vbox which contains the default menubar 
 // and replace the menubar by a scicos menubar/toolbar 
 // using the gtkuimanager mechanism.
-//
-  
+
   function txt=scicos_toolbar(is_top)
-  // text for the toolbar 
-    txt =[ "  <toolbar name=""toolbar"">"
-           "    <toolitem name=""New"" action=""scmenu_new"" />"
-           "    <toolitem name=""Open"" action=""scmenu_open"" />"
-           "    <toolitem name=""Save"" action=""scmenu_save"" />"
-           "    <separator name=""tsep1"" />"
-	   "    <toolitem name=""Zoom in"" action=""scmenu_zoom_in"" />"
-	   "    <toolitem name=""Zoom out"" action=""scmenu_zoom_out"" />"
-           "    <separator name=""tsep2"" />"
-	   "    <toolitem name=""Zoom fit"" action=""scmenu_fit_diagram_to_figure"" />"
-	   "    <toolitem name=""Zoom 100"" action=""scmenu_default_window_parameters"" />"
-	   "    <separator name=""tsep3"" />"
-	   "    <toolitem name=""Cut"" action=""scmenu_cut"" />"
-	   "    <toolitem name=""Copy"" action=""scmenu_copy"" />"
-	   "    <toolitem name=""Paste"" action=""scmenu_paste"" />"
-	   "    <separator name=""tsep4"" />"];
-    if ~is_top then 
-      txt.concatd[[ "    <toolitem name=""Up To Parent"" action=""scmenu_up"" />"
-		    "    <toolitem name=""Up To Main Diagram"" action=""scmenu_up_to_main_diagram"" />"
-		    "    <separator name=""tsep5""/>"]];
-    end
-    txt.concatd[[ "    <toolitem name=""prefs"" action=""scmenu_setup"" />"
-		  "    <toolitem name=""compile"" action=""scmenu_compile"" />"
-		  "    <toolitem name=""run"" action=""scmenu_run"" />"
-		  "    <toolitem name=""stop"" action=""$scicos_stop"" />"
-		  "    <separator name=""tsep6""/>"
-		  "    <toolitem name=""Quit"" action=""scmenu_quit"" />"
-		  "  </toolbar>"]];
-    // just return a string 
-    txt  = catenate(txt,sep='\n');
-  endfunction
+  //text for the toolbar
 
-  function txt=scicos_menubar()
-  // Scicos Menu definitions
-
-    function [txt]=get_txt_scicos_menubar(%scicos_menu,txt=[])
-      for i=1:length(%scicos_menu)
-        if type(%scicos_menu(i),'string')=='SMat' then
-          if ~isempty(strindex(%scicos_menu(i)(1),'|||')) then
-             %scicos_menu(i)(1)=part(%scicos_menu(i)(1),1:strindex(%scicos_menu(i)(1),'|||')-1)
+    function [txt]=get_txt_scicos_toolbar(scs_toolbar,is_top)
+      txt=[]
+      for i=1:length(scs_toolbar)
+        if ~(is_top &&...
+             (~isempty(find(scs_toolbar(i)(3)=="scmenu_up")) ||...
+              ~isempty(find(scs_toolbar(i)(3)=="scmenu_up_to_main_diagram")) ||...
+              ~isempty(find(scs_toolbar(i)(1)=="tsep4")))) then
+          if ~isempty(strindex(scs_toolbar(i)(1),'|||')) then
+            scs_toolbar(i)(1)=part(scs_toolbar(i)(1),1:strindex(scs_toolbar(i)(1),'|||')-1)
           end
-          tt="<"+%scicos_menu(i)(2)+" name="""+%scicos_menu(i)(1)+"""";
-          if %scicos_menu(i)(2)=="menuitem" then
-            tt=tt+" action="""+%scicos_menu(i)(3)+""" />";
-          elseif %scicos_menu(i)(2)=="menu" then
-            tt=tt+" action="""+%scicos_menu(i)(3)+""">";
-          elseif %scicos_menu(i)(2)=="separator" then
+          tt="<"+scs_toolbar(i)(2)+" name="""+scs_toolbar(i)(1)+"""";
+          if scs_toolbar(i)(2)=="toolitem" then
+            tt=tt+" action="""+scs_toolbar(i)(3)+""" />";
+          elseif scs_toolbar(i)(2)=="separator" then
             tt=tt+" />";
           end
           txt=[txt;tt]
+        end
+      end
+    endfunction
+
+    txt=["<toolbar name=""toolbar"">";
+         get_txt_scicos_toolbar(%scicos_toolbar);
+         "</toolbar>" ];
+
+    txt  = catenate(txt,sep='\n');
+  endfunction
+
+  function txt=scicos_menubar(is_top)
+  //Scicos Menu definitions
+
+    function [txt]=get_txt_scicos_menubar(scs_menu,txt=[])
+      for i=1:length(scs_menu)
+        if type(scs_menu(i),'string')=='SMat' then
+          if ~(is_top &&...
+               (~isempty(find(scs_menu(i)(3)=="scmenu_up")) ||...
+                ~isempty(find(scs_menu(i)(3)=="scmenu_up_to_main_diagram")))) then
+            if ~isempty(strindex(scs_menu(i)(1),'|||')) then
+              scs_menu(i)(1)=part(scs_menu(i)(1),1:strindex(scs_menu(i)(1),'|||')-1)
+            end
+            tt="<"+scs_menu(i)(2)+" name="""+scs_menu(i)(1)+"""";
+            if scs_menu(i)(2)=="menuitem" then
+              tt=tt+" action="""+scs_menu(i)(3)+""" />";
+            elseif scs_menu(i)(2)=="menu" then
+              tt=tt+" action="""+scs_menu(i)(3)+""">";
+            elseif scs_menu(i)(2)=="separator" then
+              tt=tt+" />";
+            end
+            txt=[txt;tt]
+          end
         else
-          txt=get_txt_scicos_menubar(%scicos_menu(i),txt=txt);
+          txt=get_txt_scicos_menubar(scs_menu(i),txt=txt);
           txt=[txt;"</menu>"];
         end
       end
@@ -153,7 +154,7 @@ function scicos_set_uimanager(is_top)
   window.add_accel_group[merge.get_accel_group[]];
   // to access to actions through window id
   window.set_data[uimanager=merge];
-  mb_text=scicos_menubar();
+  mb_text=scicos_menubar(is_top);
   tb_text=scicos_toolbar(is_top);
   ui_text=catenate([mb_text,tb_text],sep='\n');
   // XXXX changer l'interface pour enlever length !!
@@ -312,30 +313,41 @@ function S=scicos_actions()
 // ['action','name-in-menu', accelerator|"" , icon-name|"" ]
   S=hash_create(10);
 
-  function [tt,tt_menu]=get_scicos_actions(%scicos_menu,tt=[],tt_menu=[])
-
-    for i=1:length(%scicos_menu)
-      if type(%scicos_menu(i),'string')=='SMat' then
-
-        if %scicos_menu(i)(2)=="menuitem" then
-          tt=[tt;%scicos_menu(i)(3) %scicos_menu(i)(1) %scicos_menu(i)(4) %scicos_menu(i)(5)]
-        elseif %scicos_menu(i)(2)=="menu" then
-          tt_menu=[tt_menu;%scicos_menu(i)(3) %scicos_menu(i)(1) %scicos_menu(i)(4) %scicos_menu(i)(5)]
+  function [tt,tt_menu]=get_scicos_menu_actions(scs_menu,tt=[],tt_menu=[])
+    for i=1:length(scs_menu)
+      if type(scs_menu(i),'string')=='SMat' then
+        if scs_menu(i)(2)=="menuitem" then
+          tt=[tt;scs_menu(i)(3) scs_menu(i)(1) scs_menu(i)(4) scs_menu(i)(5)]
+        elseif scs_menu(i)(2)=="menu" then
+          tt_menu=[tt_menu;scs_menu(i)(3) scs_menu(i)(1) scs_menu(i)(4) scs_menu(i)(5)]
         end
-
       else
-        [tt,tt_menu]=get_scicos_actions(%scicos_menu(i),tt=tt,tt_menu=tt_menu);
+        [tt,tt_menu]=get_scicos_menu_actions(scs_menu(i),tt=tt,tt_menu=tt_menu);
       end
     end
-
   endfunction
 
-  [txt,txt_menu]=get_scicos_actions(%scicos_menu);
+  function [tt]=get_scicos_toolbar_actions(scs_toolbar)
+    tt=[]
+    for i=1:length(scs_toolbar)
+      if scs_toolbar(i)(2)=="toolitem" then
+        tt=[tt;scs_toolbar(i)(3) scs_toolbar(i)(1) scs_toolbar(i)(4) scs_toolbar(i)(5)]
+      end
+    end
+  endfunction
 
-  S.global=txt;
-  S.menu=txt_menu;
+  [txt,txt_menu]=get_scicos_menu_actions(%scicos_menu);
+  txt=[txt;get_scicos_toolbar_actions(%scicos_toolbar)];
 
-  S.scicos_stop= ["$scicos_stop","Stop","", "gtk-cancel"];
+  [y,ind]=unique(txt(:,1));
+  txt=txt(ind,:)
+  S.global=txt(find(txt(:,1)<>"$scicos_stop"),:);
+  S.scicos_stop=txt(find(txt(:,1)=="$scicos_stop"),:);
+
+  [y,ind]=unique(txt_menu(:,1));
+  S.menu=txt_menu(ind,:);
+
+//   //S.scicos_stop= ["$scicos_stop","Stop","","gtk-cancel"];
 endfunction
 
 function scicos_menus_select_set_sensitivity(selection,win) 

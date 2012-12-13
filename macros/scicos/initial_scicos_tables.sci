@@ -1,4 +1,4 @@
-function [%scicos_menu, %scicos_short, %scicos_help, ...
+function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
           %scicos_display_mode, modelica_libs, ...
           %scicos_lhb_list, %CmenuTypeOneVector, %DmenuTypeOneVector, %scicos_gif, ...
           %scicos_contrib,%scicos_libs,%scicos_cflags] = initial_scicos_tables()
@@ -98,8 +98,8 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
   View =     list(["_View"                     "menu"      "scmenu_view_menu"                 "" ""],
                   ["Zoom in|||gtk-zoom-in"     "menuitem"  "scmenu_zoom_in"                   "<Ctrl>plus" ""],
                   ["Zoom out|||gtk-zoom-out"   "menuitem"  "scmenu_zoom_out"                  "<Ctrl>minus" ""],
-                  ["Fit diagram to figure"     "menuitem"  "scmenu_fit_diagram_to_figure"     "" "gtk-zoom-fit"],
                   ["sep0"                      "separator" ""                                 "" ""],
+                  ["Fit diagram to figure"     "menuitem"  "scmenu_fit_diagram_to_figure"     "" "gtk-zoom-fit"],
                   ["Default window parameters" "menuitem"  "scmenu_default_window_parameters" "" "gtk-zoom-100"],
                   ["sep1"                      "separator" ""                                 "" ""],
                   ["Available Parameters"      "menuitem"  "scmenu_available_parameters"      "" ""],
@@ -168,6 +168,33 @@ function [%scicos_menu, %scicos_short, %scicos_help, ...
                   ["About Scicos|||gtk-about" "menuitem"  "scmenu_about_scicos"         "" ""]);
 
   %scicos_menu = list(File,Diagram,Palette,Edit,View,Simulate,Format,Tools,Help);
+
+  //Scicos Toolbar definitions===================================================
+  //**
+
+  %scicos_toolbar = list(["New|||gtk-new"             "toolitem"  "scmenu_new"                       "<Ctrl>N" ""],
+                         ["Open|||gtk-open"           "toolitem"  "scmenu_open"                      "<Ctrl>O" ""],
+                         ["Save|||gtk-save"           "toolitem"  "scmenu_save"                      "<Ctrl>S" ""],
+                         ["tsep1"                     "separator" ""                                 "" ""],
+                         ["Zoom in|||gtk-zoom-in"     "toolitem"  "scmenu_zoom_in"                   "<Ctrl>plus" ""],
+                         ["Zoom out|||gtk-zoom-out"   "toolitem"  "scmenu_zoom_out"                  "<Ctrl>minus" ""],
+                         ["tsep2"                     "separator" ""                                 "" ""],
+                         ["Fit diagram to figure"     "toolitem"  "scmenu_fit_diagram_to_figure"     "" "gtk-zoom-fit"],
+                         ["Default window parameters" "toolitem"  "scmenu_default_window_parameters" "" "gtk-zoom-100"],
+                         ["tsep3"                     "separator" ""                                 "" ""],
+                         ["Cut|||gtk-cut"             "toolitem"  "scmenu_cut"                       "<control>X" ""],
+                         ["Copy|||gtk-copy"           "toolitem"  "scmenu_copy"                      "<Ctrl>c" ""],
+                         ["Paste|||gtk-paste"         "toolitem"  "scmenu_paste"                     "<Ctrl>v" ""],
+                         ["tsep4"                     "separator" ""                                 "" ""],
+                         ["Up To Parent"              "toolitem"  "scmenu_up"                        "" "gtk-go-up"],
+                         ["Up To Main Diagram"        "toolitem"  "scmenu_up_to_main_diagram"        "" "gtk-goto-top"],
+                         ["tsep5"                     "separator" ""                                 "" ""],
+                         ["Setup"                     "toolitem"  "scmenu_setup"                     "" "gtk-preferences"],
+                         ["Compile"                   "toolitem"  "scmenu_compile"                   "" "gtk-execute"],
+                         ["Run"                       "toolitem"  "scmenu_run"                       "" "gtk-media-play"],
+                         ["Stop"                      "toolitem"  "$scicos_stop"                     "" "gtk-cancel"],
+                         ["tsep6"                     "separator" ""                                 "" ""],
+                         ["Quit|||gtk-quit"           "toolitem"  "scmenu_quit"                      "<Ctrl>Q" ""]);
 
   //Scicos Right Mouse Button Menu ===========================================
   //**
