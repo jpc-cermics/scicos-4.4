@@ -244,6 +244,7 @@ static int scicos_get_data_block(NspObject *o,const double *pt)
  * compute the enclosing rectangle of the string
  * taking care of angles. data is negative when
  * pt is inside the bounds of the text
+ * return %TRUE or %FALSE if pt is inside object boundary or not 
  * 
  */
 
@@ -272,8 +273,7 @@ static int scicos_get_data_text(NspObject *o,const double *pt)
  *
  * [data,wh]=get_data_link(o,pt)
  *
- * data is negative when
- * pt is near a segment of a link.
+ * return %TRUE or %FALSE if pt is inside object boundary or not 
  * 
  */
 
