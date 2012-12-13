@@ -101,8 +101,8 @@ function scicos_set_uimanager(is_top)
 	ttip="";
       end
       if ~isempty(strindex(S(i,2),'|||')) then
-        S(i,4) = part(S(i,2),strindex(S(i,2),'|||')+3:length(S(i,2)))
-        S(i,2) = ""
+        S(i,4) = part(S(i,2),strindex(S(i,2),'|||')+3:length(S(i,2)));
+        S(i,2) = part(S(i,2),1:strindex(S(i,2),'|||')-1);
       end
       action = gtkaction_new( S(i,1), S(i,2) , ttip , S(i,4) );
       if gname<>"menu" then 
