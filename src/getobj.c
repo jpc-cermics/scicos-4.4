@@ -1,21 +1,31 @@
-/* getobj.c
- * 
- * rewritten set af nsp macros to improve
- * responsiveness of scicos editor for large diagram
+/* 
+ * Copyright (C) 2012-2012 Alan Layec (Enpc) 
  *
- * Alan Layec, 7/12/12.
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ *
+ * set of nsp macros rewriten as C functions.
  *
  * scicos_dist2polyline
  * scicos_rotate
- * 
  * scicos_get_data_block
  * scicos_get_data_text
  * scicos_get_data_link
- *
  * scicos_getobj
  * scicos_getblock
  * scicos_getblocklink
- *
  * scicos_getobjs_in_rect
  * 
  */
@@ -23,51 +33,38 @@
 #include <nsp/nsp.h>
 #include <nsp/objects.h>
 #include <nsp/compound.h>
-#include "./blocks/blocks.h"
+#include "blocks/blocks.h"
 
 /* scicos_dist2polyline
  *
  * [d,pt_out,ind]=dist2polyline(xp,yp,np,pt)
  *
  */
-int scicos_dist2polyline(double *xp,double *yp,int np,double *pt,double *d,double *pt_out,int *ind)
+
+static int scicos_dist2polyline(double *xp,double *yp,int np,const double *pt,double *d,double *pt_out,int *ind)
 {
-  int *cr=NULL;
-  double x,y,v;
-
-  double *xpp=NULL;
-  double *ypp=NULL;
-  double *spp=NULL;
-  int npp;
-
-  int i;
-
-  x=pt[0];
-  y=pt[1];
-
-  npp=np;
+  int *cr=NULL, npp=np , i;
+  double x=pt[0],y=pt[1],v;
+  double *xpp=NULL, *ypp=NULL, *spp=NULL;
 
   /* cr computation */
   if (( cr=malloc(sizeof(int)*(np-1)) ) == NULL) return FALSE;
-
-  for (i=0;i<(np-1);i++) {
-    cr[i] = 0;
-
-    v = (xp[i]-x) * (xp[i]-xp[i+1]) + (yp[i]-y) * (yp[i]-yp[i+1]);
-    if ( v > 0.0 )
-      cr[i] = 4;
-    else if (v < 0.0)
-      cr[i] = -4;
-
-    v = (xp[i+1]-x) * (xp[i+1]-xp[i]) + (yp[i+1]-y) * (yp[i+1]-yp[i]);
-    if ( v > 0.0 )
-      cr[i] += 1;
-    else if (v < 0.0)
-      cr[i] += -1;
-
-    if (cr[i]==5) npp++;
-  }
-
+  
+  for (i=0;i<(np-1);i++) 
+    {
+      cr[i] = 0;
+      v = (xp[i]-x) * (xp[i]-xp[i+1]) + (yp[i]-y) * (yp[i]-yp[i+1]);
+      if ( v > 0.0 )
+	cr[i] = 4;
+      else if (v < 0.0)
+	cr[i] = -4;
+      v = (xp[i+1]-x) * (xp[i+1]-xp[i]) + (yp[i+1]-y) * (yp[i+1]-yp[i]);
+      if ( v > 0.0 )
+	cr[i] += 1;
+      else if (v < 0.0)
+	cr[i] += -1;
+      if (cr[i]==5) npp++;
+    }
   if ((npp-np)>0) {
     double dx,dy,d_d,d_x,d_y;
     int k=0;
@@ -158,69 +155,42 @@ err2:
 /* scicos_rotate
  *
  * [xy_out]=rotate(xy_in,nxy,teta,orig)
- *
  */
-void scicos_rotate(double *xy_in,int nxy,double teta,double *orig,double *xy_out)
+
+static void scicos_rotate(const double *xy_in,int nxy,double teta,const double *orig,double *xy_out)
 {
-  int i;
-
-  int n=2;
-  double M[4];
-
-  M[0]=cos(teta);
-  M[1]=-sin(teta);
-  M[2]=-M[1];
-  M[3]=M[0];
-
-  for (i=0;i<nxy;i++) {
-    xy_in[i]     = xy_in[i]     - orig[0];
-    xy_in[i+nxy] = xy_in[i+nxy] - orig[1];
-  }
-
-  nsp_calpack_dmmul(M, &n, xy_in, &n, xy_out, &n, &n, &n, &nxy);
-
-  for (i=0;i<nxy;i++) {
-    xy_in[i]     = xy_in[i]     + orig[0];
-    xy_in[i+nxy] = xy_in[i+nxy] + orig[1];
-
-    xy_out[i]     = xy_out[i]     + orig[0];
-    xy_out[i+nxy] = xy_out[i+nxy] + orig[1];
-  }
+  int i; 
+  double cost=cos(teta), sint = sin(teta);
+  for (i=0 ; i < nxy ; i++) 
+    {
+      xy_out[i] = cost*(xy_in[i] -orig[0]) + sint*(xy_in[i+nxy] -orig[1]) + orig[0];
+      xy_out[i+nxy] = -sint*(xy_in[i] -orig[0]) + cost*(xy_in[i+nxy] -orig[1]) + orig[1];
+    }
 }
 
 /* scicos_get_data_block
  *
  * [data]=get_data_block(o,pt)
- *
- * data is negative when
- * pt is near a bounding box of a blk.
+ * return %TRUE or %FALSE if pt is inside object boundary or not 
  *
  */
-void scicos_get_data_block(NspObject *o,double *pt,double *data)
+
+static int scicos_get_data_block(NspObject *o,const double *pt)
 {
   NspObject *gr;
-
-  double orig[2];
-  double sz[2];
-  double rect[4];
-  double eps_blk=3;
-
+  double rect[4], eps_blk=3;
+  
   nsp_hash_find((NspHash*)o,"gr",&gr);
-
-  rect[0]=((NspCompound *)gr)->obj->bounds->R[0];
-  rect[1]=((NspCompound *)gr)->obj->bounds->R[1];
-  rect[2]=((NspCompound *)gr)->obj->bounds->R[2];
-  rect[3]=((NspCompound *)gr)->obj->bounds->R[3];
-
-  orig[0]=rect[0]-eps_blk;
-  orig[1]=rect[1]-eps_blk;
-
-  sz[0]=rect[2]-rect[0]+2*eps_blk;
-  sz[1]=rect[3]-rect[1]+2*eps_blk;
-
-  data[0]=(orig[0]-pt[0])*(orig[0]+sz[0]-pt[0]);
-  data[1]=(orig[1]-pt[1])*(orig[1]+sz[1]-pt[1]);
+  if ( gr == NULL) return FALSE;
+  
+  rect[0]=((NspCompound *)gr)->obj->bounds->R[0] - eps_blk;
+  rect[1]=((NspCompound *)gr)->obj->bounds->R[1] - eps_blk;
+  rect[2]=((NspCompound *)gr)->obj->bounds->R[2] + eps_blk;
+  rect[3]=((NspCompound *)gr)->obj->bounds->R[3] + eps_blk;
+  return ((rect[0]-pt[0])*(rect[2] -pt[0]) < 0) 
+    && ((rect[1]-pt[1])*(rect[3] -pt[1]) < 0 );
 }
+
 
 /* scicos_get_data_text
  *
@@ -231,37 +201,26 @@ void scicos_get_data_block(NspObject *o,double *pt,double *data)
  * pt is inside the bounds of the text
  * 
  */
-void scicos_get_data_text(NspObject *o,double *pt,double *data)
+
+static int scicos_get_data_text(NspObject *o,const double *pt)
 {
-  NspObject *graphics;
-  NspObject *T;
-
-  double *orig;
-  double *sz;
-  double theta;
-  double xy[2];
-  double center[2];
-
+  NspObject *graphics, *T;
+  double *orig, *sz, theta, xy[2], center[2];
   nsp_hash_find((NspHash*)o,"graphics",&graphics);
-
   nsp_hash_find((NspHash*)graphics,"orig",&T);
   orig=((NspMatrix *)T)->R;
-
   nsp_hash_find((NspHash*)graphics,"sz",&T);
   sz=((NspMatrix *)T)->R;
-
   nsp_hash_find((NspHash*)graphics,"theta",&T);
   theta=((NspMatrix *)T)->R[0];
-
   theta=-theta*M_PI/180;
-
   center[0]=orig[0]+sz[0]/2;
   center[1]=orig[1]+sz[1]/2;
-
+  
   scicos_rotate(pt,1,theta,center,xy);
 
-  data[0]=(orig[0]-xy[0])*(orig[0]+sz[0]-xy[0]);
-  data[1]=(orig[1]-xy[1])*(orig[1]+sz[1]-xy[1]);
+  return ((orig[0]-xy[0])*(orig[0]+sz[0]-xy[0]) < 0 )
+    && ( (orig[1]-xy[1])*(orig[1]+sz[1]-xy[1]) < 0);
 }
 
 /* scicos_get_data_link
@@ -272,19 +231,16 @@ void scicos_get_data_text(NspObject *o,double *pt,double *data)
  * pt is near a segment of a link.
  * 
  */
-void scicos_get_data_link(NspObject *o,double *pt,double *data,int *wh)
+
+static void scicos_get_data_link(NspObject *o,const double *pt,double *data,int *wh)
 {
-  NspObject *xx;
-  NspObject *yy;
-
-  double *xp,*yp;
-  double pt_out[2];
+  NspObject *xx, *yy;
+  double *xp,*yp, pt_out[2], eps_lnk=4;
   int np;
-  double eps_lnk=4;
-
+  
   nsp_hash_find((NspHash*)o,"xx",&xx);
   nsp_hash_find((NspHash*)o,"yy",&yy);
-
+  
   xp=((NspMatrix *)xx)->R;
   yp=((NspMatrix *)yy)->R;
   np=((NspMatrix *)xx)->mn;
@@ -302,7 +258,8 @@ void scicos_get_data_link(NspObject *o,double *pt,double *data,int *wh)
  *      loops on large diagram (remove supposed
  *      not needed test if...)
  */
-int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
+
+int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
 {
   NspHash *scs_m = (NspHash*) obj;
   NspObject *objs;
@@ -329,59 +286,64 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
     o=cloc->O;
     nsp_hash_find((NspHash*) o,"type",&T);
     if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-      scicos_get_data_block(o,pt,data);
-      if ((data[0]<0) && (data[1]<0)) {
-        (*k)=i;
-        nsp_hash_find((NspHash*) o,"gui",&T);
-        /* second pass to detect crossing link */
-        if (!((strcmp(((NspSMatrix *)T)->S[0],"IMPSPLIT_f") == 0) || \
-              (strcmp(((NspSMatrix *)T)->S[0],"SPLIT_f") == 0) || \
-              (strcmp(((NspSMatrix *)T)->S[0],"BUSSPLIT") == 0) || \
-              (strcmp(((NspSMatrix *)T)->S[0],"CLKSPLIT_f") == 0))) {
-          cloc = cloc->next;
-          for (j=i+1;j<=n;j++) {
-            o=cloc->O;
-            nsp_hash_find((NspHash*) o,"type",&T);
-            if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
-              scicos_get_data_link(o,pt,data,wh);
-              if ((*data)<0) {
-                (*k)=j;
-                return TRUE;
-              }
-            }
-            cloc = cloc->next;
-          }
-        }
-        return TRUE;
-      }
+
+      if ( scicos_get_data_block(o,pt) == TRUE ) 
+	{
+	  (*k)=i;
+	  nsp_hash_find((NspHash*) o,"gui",&T);
+	  /* second pass to detect crossing link */
+	  if (!((strcmp(((NspSMatrix *)T)->S[0],"IMPSPLIT_f") == 0) ||	\
+		(strcmp(((NspSMatrix *)T)->S[0],"SPLIT_f") == 0) ||	\
+		(strcmp(((NspSMatrix *)T)->S[0],"BUSSPLIT") == 0) ||	\
+		(strcmp(((NspSMatrix *)T)->S[0],"CLKSPLIT_f") == 0))) {
+	    cloc = cloc->next;
+	    for (j=i+1;j<=n;j++) {
+	      o=cloc->O;
+	      nsp_hash_find((NspHash*) o,"type",&T);
+	      if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
+		scicos_get_data_link(o,pt,data,wh);
+		if ((*data)<0) {
+		  (*k)=j;
+		  return TRUE;
+		}
+	      }
+	      cloc = cloc->next;
+	    }
+	  }
+	  return TRUE;
+	}
     }
     cloc = cloc->prev;
   }
-
+  
   /* loop on list elements
    * one checks link and text
    */
   cloc = ((NspList *) objs)->last;
-  for (i=n;i>0;i--) {
-    o=cloc->O;
-    nsp_hash_find((NspHash*) o,"type",&T);
-    if (strcmp(((NspSMatrix *)T)->S[0],"Text") == 0) {
-      scicos_get_data_text(o,pt,data);
-      if ((data[0]<0) && (data[1]<0)) {
-        (*k)=i;
-        return TRUE;
-      }
+  for (i=n;i>0;i--) 
+    {
+      const char *str;
+      o=cloc->O;
+      nsp_hash_find((NspHash*) o,"type",&T);
+      str = ((NspSMatrix *)T)->S[0];
+      if (strcmp(str,"Text") == 0) 
+	{
+	  if ( scicos_get_data_text(o,pt) == TRUE ) 
+	    {
+	      (*k)=i;
+	      return TRUE;
+	    }
+	}
+      else if (strcmp(str,"Link") == 0) 
+	{
+	  scicos_get_data_link(o,pt,data,wh);
+	  if ((*data)<0) {
+	    (*k)=i;
+	    return TRUE;
+	  }
+	}
+      cloc = cloc->prev;
     }
-    else if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
-      scicos_get_data_link(o,pt,data,wh);
-      if ((*data)<0) {
-        (*k)=i;
-        return TRUE;
-      }
-    }
-    cloc = cloc->prev;
-  }
-
   return TRUE;
 }
 
@@ -393,6 +355,7 @@ int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh)
  *      loops on large diagram (remove supposed
  *      not needed test if...)
  */
+
 int scicos_getblock(NspObject *obj,double *pt,int *k)
 {
   NspHash *scs_m = (NspHash*) obj;
@@ -400,8 +363,6 @@ int scicos_getblock(NspObject *obj,double *pt,int *k)
   NspObject *T;
   NspObject *o;
   Cell *cloc;
-
-  double data[2];
   int i,n;
 
   if (!IsHash(obj)) return FALSE;
@@ -416,16 +377,15 @@ int scicos_getblock(NspObject *obj,double *pt,int *k)
     o=cloc->O;
     nsp_hash_find((NspHash*) o,"type",&T);
     if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-      scicos_get_data_block(o,pt,data);
-      if ((data[0]<0) && (data[1]<0)) {
-        (*k)=i;
-        nsp_hash_find((NspHash*) o,"gui",&T);
-        return TRUE;
-      }
+      if ( scicos_get_data_block(o,pt) == TRUE )
+	{
+	  (*k)=i;
+	  nsp_hash_find((NspHash*) o,"gui",&T);
+	  return TRUE;
+	}
     }
     cloc = cloc->prev;
   }
-
   return TRUE;
 }
 
@@ -437,6 +397,7 @@ int scicos_getblock(NspObject *obj,double *pt,int *k)
  *      loops on large diagram (remove supposed
  *      not needed test if...)
  */
+
 int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
 {
   NspHash *scs_m = (NspHash*) obj;
@@ -460,12 +421,12 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
     o=cloc->O;
     nsp_hash_find((NspHash*) o,"type",&T);
     if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-      scicos_get_data_block(o,pt,data);
-      if ((data[0]<0) && (data[1]<0)) {
-        (*k)=i;
-        nsp_hash_find((NspHash*) o,"gui",&T);
-        return TRUE;
-      }
+      if ( scicos_get_data_block(o,pt) == TRUE )
+	{
+	  (*k)=i;
+	  nsp_hash_find((NspHash*) o,"gui",&T);
+	  return TRUE;
+	}
     }
     else if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
       scicos_get_data_link(o,pt,data,wh);
@@ -488,7 +449,8 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
  *      loops on large diagram (remove supposed
  *      not needed test if...)
  */
-int scicos_getobjs_in_rect(NspObject *obj,double ox,double oy,double w,double h, \
+
+int scicos_getobjs_in_rect(NspObject *obj,double ox,double oy,double w,double h, 
                            int *nin,int **in,int *nout,int **out)
 {
   NspHash *scs_m = (NspHash*) obj;
