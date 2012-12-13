@@ -20,6 +20,8 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
   //**
   //** if name|||stockid is used then the default stockid label
   //** and stockid item will be considered
+  //**
+  //** scmenu_up/scmenu_up_to_main_diagram are removed from top level diagram
   
   File =     list(["_File"                 "menu"      "scmenu_file_menu"           "" ""],
                   ["New|||gtk-new"         "menuitem"  "scmenu_new"                 "<Ctrl>N" ""],
@@ -171,6 +173,8 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
 
   //Scicos Toolbar definitions===================================================
   //**
+  //tspe4/scmenu_up/scmenu_up_to_main_diagram are removed from top level diagram
+  //$scicos_stop internally handled by scicos uimanager
 
   %scicos_toolbar = list(["New|||gtk-new"             "toolitem"  "scmenu_new"                       "<Ctrl>N" ""],
                          ["Open|||gtk-open"           "toolitem"  "scmenu_open"                      "<Ctrl>O" ""],
