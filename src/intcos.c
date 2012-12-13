@@ -38,6 +38,7 @@
 
 extern void *scicos_scid2ptr (double x);
 extern void create_scicos_about(void);
+
 static int scicos_fill_gr(scicos_run *r_scicos, NspCells *Gr);
 static void nsp_simul_error_msg(int err_code,int *curblk);
 
@@ -2319,8 +2320,6 @@ static int int_scicos_count_blocks(Stack stack, int rhs, int opt, int lhs)
   return 1;
 }
 
-extern int scicos_getobj(NspObject *obj,double *pt,int *k, int *wh);
-
 /* int_scicos_getobj
  * 
  * [k,wh]=scicos_getobj(scs_m,pt)
@@ -2375,7 +2374,6 @@ static int int_scicos_getobj(Stack stack, int rhs, int opt, int lhs)
   return Max(lhs,1);
 }
 
-extern int scicos_getblock(NspObject *obj,double *pt,int *k);
 
 /* int_scicos_getblock
  *
@@ -2419,7 +2417,7 @@ static int int_scicos_getblock(Stack stack, int rhs, int opt, int lhs)
   return 1;
 }
 
-extern int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh);
+
 
 /* int_scicos_getblocklink
  *
@@ -2475,78 +2473,46 @@ static int int_scicos_getblocklink(Stack stack, int rhs, int opt, int lhs)
   return Max(lhs,1);
 }
 
-extern int scicos_getobjs_in_rect(NspObject *obj,double ox,double oy,double w,double h, \
-                                  int *nin,int **in,int *nout,int **out);
 
 /* int_scicos_getobj
  *
  * [yin,yout]=scicos_getobjs_in_rect(scs_m,ox,oy,w,h)
  *
  */
+
 static int int_scicos_getobjs_in_rect(Stack stack, int rhs, int opt, int lhs)
 {
-  NspObject *obj;
-  NspMatrix *ox,*oy,*w,*h;
+  NspObject *obj, *objs;
   NspMatrix *yin,*yout;
-
-  int *in=NULL;
-  int *out=NULL;
-  int nin=0;
-  int nout=0;
-  
-  int i;
+  double x,y,w,h;
+  int nin=0, nout=0, nmax;
   
   CheckRhs(5,5);
   CheckLhs(2,2);
 
   if ((obj = nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
+  if (GetScalarDouble(stack,2,&x) == FAIL) return RET_BUG;
+  if (GetScalarDouble(stack,3,&y) == FAIL) return RET_BUG;
+  if (GetScalarDouble(stack,4,&w) == FAIL) return RET_BUG;
+  if (GetScalarDouble(stack,5,&h) == FAIL) return RET_BUG;
   
-  if ((ox = GetMat(stack,2))== NULL) return RET_BUG;
-  if (ox->mn != 1) {
-    Scierror ("ox must be scalar.\n");
-    return RET_BUG;
-  }
+  /* check that obj is of proper type */
+  if (!IsHash(obj)) goto err;
+  if (nsp_hash_find((NspHash *) obj,"objs",&objs) == FAIL) goto err;
+  if (!IsList(objs) ) goto err;
+  nmax = ((NspList *) objs)->nel;
+  if ((yin  = nsp_matrix_create(NVOID,'r',1,nmax)) == NULLMAT) return RET_BUG;
+  if ((yout = nsp_matrix_create(NVOID,'r',1,nmax)) == NULLMAT) return RET_BUG;
+  scicos_getobjs_in_rect((NspList *) objs,x,y,w,h,&nin,yin->R,&nout,yout->R);
   
-  if ((oy = GetMat(stack,3))== NULL) return RET_BUG;
-  if (oy->mn != 1) {
-    Scierror ("oy must be scalar.\n");
-    return RET_BUG;
-  }
-
-  if ((w = GetMat(stack,4))== NULL) return RET_BUG;
-  if (w->mn != 1) {
-    Scierror ("w must be scalar.\n");
-    return RET_BUG;
-  }
-
-  if ((h = GetMat(stack,5))== NULL) return RET_BUG;
-  if (h->mn != 1) {
-    Scierror ("h must be scalar.\n");
-    return RET_BUG;
-  }
-  
-  if (scicos_getobjs_in_rect(obj,ox->R[0],oy->R[0],w->R[0],h->R[0],&nin,&in,&nout,&out)==FALSE) return RET_BUG;
-  
-  if (nin==0) {
-    if ((yin = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) return RET_BUG;
-  } else {
-    if ((yin = nsp_matrix_create(NVOID,'r',1,nin)) == NULLMAT) return RET_BUG;
-    for(i=0;i<nin;i++) yin->R[i]=(double)in[i];
-    free(in);
-  }
-
-  if (nout==0) {
-    if ((yout = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) return RET_BUG;
-  } else {
-    if ((yout = nsp_matrix_create(NVOID,'r',1,nout)) == NULLMAT) return RET_BUG;
-    for(i=0;i<nout;i++) yout->R[i]=(double)out[i];
-    free(out);
-  }
-
+  if (nsp_matrix_resize(yin,1,nin) == FAIL) return RET_BUG;
+  if (nsp_matrix_resize(yout,1,nout) == FAIL) return RET_BUG;
   MoveObj(stack,1, NSP_OBJECT(yin));
   MoveObj(stack,2, NSP_OBJECT(yout));
-  
   return lhs;
+ err:
+  Scierror("Error: first argument is not a scicos scs_m\n");
+  return RET_BUG;
 }
 
 static OpTab Scicos_func[] = {

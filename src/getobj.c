@@ -407,16 +407,14 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
 int scicos_getblock(NspObject *obj,double *pt,int *k)
 {
   NspHash *scs_m = (NspHash*) obj;
-  NspObject *objs;
-  NspObject *T;
-  NspObject *o;
+  NspObject *objs, *T, *o;
   Cell *cloc;
   int i,n;
-
+  
   if (!IsHash(obj)) return FALSE;
   if (nsp_hash_find(scs_m,"objs",&objs) == FAIL) return FALSE;
   if (!IsList(objs) ) return FALSE;
-
+  
   n = ((NspList *) objs)->nel;
 
   /* loop on list elements */
@@ -491,118 +489,61 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
  *      not needed test if...)
  */
 
-int scicos_getobjs_in_rect(NspObject *obj,double ox,double oy,double w,double h, 
-                           int *nin,int **in,int *nout,int **out)
+void scicos_getobjs_in_rect(NspList *objs,double ox,double oy,double w,double h,
+			    int *nin,double *in,int *nout,double *out)
 {
-  NspHash *scs_m = (NspHash*) obj;
-  NspObject *objs;
-  NspObject *T;
-  NspObject *o;
-  Cell *cloc;
-
-  int i,n,ok;
-  int *tmp;
-
-  if (!IsHash(obj)) return FALSE;
-  if (nsp_hash_find(scs_m,"objs",&objs) == FAIL) return FALSE;
-  if (!IsList(objs) ) return FALSE;
-
-  n = ((NspList *) objs)->nel;
-
+  NspObject *T,*o;
+  int i,ok ;
+  Cell *cloc = objs->first;
+  int n = ((NspList *) objs)->nel, n_in=0, n_out=0;
   /* loop on list elements */
-  cloc = ((NspList *) objs)->first;
-  for (i=1;i<=n;i++) {
-    ok=0;
-    o=cloc->O;
-    nsp_hash_find((NspHash*) o,"type",&T);
-    if ((strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) || \
-        (strcmp(((NspSMatrix *)T)->S[0],"Text") == 0)) {
-      NspObject *gr;
+  for ( i=1 ; i <= n ; i++) 
+    {
+      const char *str;
+      ok=0;
+      o=cloc->O;
+      if ( o == NULL) continue;
+      nsp_hash_find((NspHash*) o,"type",&T);
+      str = ((NspSMatrix *)T)->S[0];
+      if (strcmp(str,"Block") == 0 || strcmp(str,"Text") == 0) 
+	{
+	  NspObject *gr;
+	  double *rect;
+	  nsp_hash_find((NspHash*)o,"gr",&gr);
+	  rect = ((NspCompound *)gr)->obj->bounds->R;
+	  if ( (ox <= rect[0]) && (oy >= rect[3]) &&	  
+	       ((ox+w) >= rect[2]) && ((oy-h) <= rect[1])) 
+	    {
+	      ok=1;  in[n_in]=i;n_in++;
+	    }
+	}
+      else if (strcmp(str,"Link") == 0) 
+	{
+	  NspObject *xx, *yy;
+	  double lx_min,lx_max, ly_min,ly_max;
 
-      double rect[4];
-      double orig[2];
-      double sz[2];
+	  nsp_hash_find((NspHash*)o,"xx",&xx);
+	  nsp_hash_find((NspHash*)o,"yy",&yy);
 
-      nsp_hash_find((NspHash*)o,"gr",&gr);
+	  nsp_array_mini(((NspMatrix *)xx)->mn, ((NspMatrix *)xx)->R, 1, &lx_min);
+	  nsp_array_maxi(((NspMatrix *)xx)->mn, ((NspMatrix *)xx)->R, 1, &lx_max);
+	  nsp_array_mini(((NspMatrix *)yy)->mn, ((NspMatrix *)yy)->R, 1, &ly_min);
+	  nsp_array_maxi(((NspMatrix *)yy)->mn, ((NspMatrix *)yy)->R, 1, &ly_max);
 
-      rect[0]=((NspCompound *)gr)->obj->bounds->R[0];
-      rect[1]=((NspCompound *)gr)->obj->bounds->R[1];
-      rect[2]=((NspCompound *)gr)->obj->bounds->R[2];
-      rect[3]=((NspCompound *)gr)->obj->bounds->R[3];
-
-      orig[0]=rect[0];
-      orig[1]=rect[1];
-
-      sz[0]=rect[2]-rect[0];
-      sz[1]=rect[3]-rect[1];
-
-      if ( (ox <= orig[0]) && \
-           (oy >= (orig[1]+sz[1])) && \
-           ((ox+w) >= (orig[0]+sz[0])) && \
-           ((oy-h) <= orig[1]) ) {
-        ok=1;
-        (*nin)++;
-
-        tmp = realloc((*in),(*nin)*sizeof(int));
-        if (tmp==NULL) {
-          if ((*in)!=NULL) free((*in));
-          if ((*out)!=NULL) free((*out));
-          return FALSE;
-        } else {
-          (*in)=tmp;
-        }
-        (*in)[(*nin)-1]=i;
-      }
+	  if ( (ox <= lx_min) && (oy >= ly_max) && 
+	       ((ox+w) >= lx_max) && ((oy-h) <= ly_min))
+	    {
+	      ok=1;  in[n_in]=i;n_in++;
+	    }
+	}
+      
+      if (!ok) 
+	{
+	  out[n_out]=i;n_out++;
+	}
+      cloc = cloc->next;
     }
-    else if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
-      NspObject *xx;
-      NspObject *yy;
-
-      double lx_min,lx_max;
-      double ly_min,ly_max;
-
-      nsp_hash_find((NspHash*)o,"xx",&xx);
-      nsp_hash_find((NspHash*)o,"yy",&yy);
-
-      nsp_array_mini(((NspMatrix *)xx)->mn, ((NspMatrix *)xx)->R, 1, &lx_min);
-      nsp_array_maxi(((NspMatrix *)xx)->mn, ((NspMatrix *)xx)->R, 1, &lx_max);
-      nsp_array_mini(((NspMatrix *)yy)->mn, ((NspMatrix *)yy)->R, 1, &ly_min);
-      nsp_array_maxi(((NspMatrix *)yy)->mn, ((NspMatrix *)yy)->R, 1, &ly_max);
-
-      if ( (ox <= lx_min) && \
-           (oy >= ly_max) && \
-           ((ox+w) >= lx_max) && \
-           ((oy-h) <= ly_min) ) {
-        ok=1;
-        (*nin)++;
-
-        tmp = realloc((*in),(*nin)*sizeof(int));
-        if (tmp==NULL) {
-          if ((*in)!=NULL) free((*in));
-          if ((*out)!=NULL) free((*out));
-          return FALSE;
-        } else {
-          (*in)=tmp;
-        }
-        (*in)[(*nin)-1]=i;
-      }
-    }
-
-    if (!ok) {
-      (*nout)++;
-
-      tmp = realloc((*out),(*nout)*sizeof(int));
-      if (tmp==NULL) {
-        if ((*in)!=NULL) free((*in));
-        if ((*out)!=NULL) free((*out));
-        return FALSE;
-      } else {
-        (*out)=tmp;
-      }
-      (*out)[(*nout)-1]=i;
-    }
-    cloc = cloc->next;
-  }
-
-  return TRUE;
+  *nin=n_in;
+  *nout= n_out;
 }
+
