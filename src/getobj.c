@@ -323,7 +323,6 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
   NspObject *o;
   Cell *cloc;
 
-  /*double data[2];*/
   int i,j,n;
 
   if (!IsHash(obj)) return FALSE;
@@ -342,31 +341,29 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
     o=cloc->O;
     nsp_hash_find((NspHash*) o,"type",&T);
     if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-
-      if ( scicos_get_data_block(o,pt) == TRUE ) 
-	{
-	  (*k)=i;
-	  nsp_hash_find((NspHash*) o,"gui",&T);
-	  /* second pass to detect crossing link */
-	  if (!((strcmp(((NspSMatrix *)T)->S[0],"IMPSPLIT_f") == 0) ||	\
-		(strcmp(((NspSMatrix *)T)->S[0],"SPLIT_f") == 0) ||	\
-		(strcmp(((NspSMatrix *)T)->S[0],"BUSSPLIT") == 0) ||	\
-		(strcmp(((NspSMatrix *)T)->S[0],"CLKSPLIT_f") == 0))) {
-	    cloc = cloc->next;
-	    for (j=i+1;j<=n;j++) {
-	      o=cloc->O;
-	      nsp_hash_find((NspHash*) o,"type",&T);
-	      if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
-		if (scicos_get_data_link(o,pt,wh)==TRUE) {
-		  (*k)=j;
-		  return TRUE;
-		}
-	      }
-	      cloc = cloc->next;
-	    }
-	  }
-	  return TRUE;
-	}
+      if (scicos_get_data_block(o,pt) == TRUE) {
+        (*k)=i;
+        nsp_hash_find((NspHash*) o,"gui",&T);
+        /* second pass to detect crossing link */
+        if (!((strcmp(((NspSMatrix *)T)->S[0],"IMPSPLIT_f") == 0) ||	\
+              (strcmp(((NspSMatrix *)T)->S[0],"SPLIT_f") == 0) ||	\
+              (strcmp(((NspSMatrix *)T)->S[0],"BUSSPLIT") == 0) ||	\
+              (strcmp(((NspSMatrix *)T)->S[0],"CLKSPLIT_f") == 0))) {
+          cloc = cloc->next;
+          for (j=i+1;j<=n;j++) {
+            o=cloc->O;
+            nsp_hash_find((NspHash*) o,"type",&T);
+            if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
+              if (scicos_get_data_link(o,pt,wh) == TRUE) {
+               (*k)=j;
+               return TRUE;
+              }
+            }
+            cloc = cloc->next;
+          }
+        }
+        return TRUE;
+       }
     }
     cloc = cloc->prev;
   }
@@ -381,21 +378,18 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
       o=cloc->O;
       nsp_hash_find((NspHash*) o,"type",&T);
       str = ((NspSMatrix *)T)->S[0];
-      if (strcmp(str,"Text") == 0) 
-	{
-	  if ( scicos_get_data_text(o,pt) == TRUE ) 
-	    {
-	      (*k)=i;
-	      return TRUE;
-	    }
-	}
-      else if (strcmp(str,"Link") == 0) 
-	{
-	  if (scicos_get_data_link(o,pt,wh)==TRUE) {
-	    (*k)=i;
-	    return TRUE;
-	  }
-	}
+      if (strcmp(str,"Text") == 0) {
+        if (scicos_get_data_text(o,pt) == TRUE) {
+          (*k)=i;
+          return TRUE;
+        }
+      }
+      else if (strcmp(str,"Link") == 0) {
+        if (scicos_get_data_link(o,pt,wh) == TRUE) {
+          (*k)=i;
+          return TRUE;
+        }
+      }
       cloc = cloc->prev;
     }
   return TRUE;
@@ -431,12 +425,10 @@ int scicos_getblock(NspObject *obj,double *pt,int *k)
     o=cloc->O;
     nsp_hash_find((NspHash*) o,"type",&T);
     if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-      if ( scicos_get_data_block(o,pt) == TRUE )
-	{
-	  (*k)=i;
-	  nsp_hash_find((NspHash*) o,"gui",&T);
-	  return TRUE;
-	}
+      if (scicos_get_data_block(o,pt) == TRUE) {
+        (*k)=i;
+        return TRUE;
+      }
     }
     cloc = cloc->prev;
   }
@@ -460,7 +452,6 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
   NspObject *o;
   Cell *cloc;
 
-  /*double data[2];*/
   int i,n;
 
   if (!IsHash(obj)) return FALSE;
@@ -475,12 +466,10 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
     o=cloc->O;
     nsp_hash_find((NspHash*) o,"type",&T);
     if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-      if ( scicos_get_data_block(o,pt) == TRUE )
-	{
-	  (*k)=i;
-	  nsp_hash_find((NspHash*) o,"gui",&T);
-	  return TRUE;
-	}
+      if (scicos_get_data_block(o,pt) == TRUE) {
+        (*k)=i;
+        return TRUE;
+      }
     }
     else if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
       if (scicos_get_data_link(o,pt,wh)==TRUE) {
@@ -490,7 +479,6 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
     }
     cloc = cloc->prev;
   }
-
   return TRUE;
 }
 
