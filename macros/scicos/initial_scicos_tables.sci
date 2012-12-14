@@ -57,15 +57,21 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
 
   Palette =  list(["_Palette"          "menu"      "scmenu_palette_menu"      "" ""],
                   ["Pal Tree"          "menuitem"  "scmenu_pal_tree"          "" ""],
-                  ["Palettes"          "menuitem"  "scmenu_palettes"          "" ""],
-                  ["sep0"              "separator" ""                         "" ""],
+                  ["Palettes"          "menuitem"  "scmenu_palettes"          "" ""]);
+
+  if exists('coselica_path') then 
+    Palette.add_last[["Coselica Palettes"          "menuitem"  "scmenu_coselica_palettes" "" ""]];
+  end
+		  
+  Palette.concat[list(...                  
+		  ["sep0"              "separator" ""                         "" ""],
                   ["Pal editor"        "menuitem"  "scmenu_pal_editor"        "" ""],
                   ["sep1"              "separator" ""                         "" ""],
                   ["Region to Palette" "menuitem"  "scmenu_region_to_palette" "" ""],
                   ["sep2"              "separator" ""                         "" ""],
                   ["Load as Palette"   "menuitem"  "scmenu_load_as_palette"   "" ""],
-                  ["Save as Palette"   "menuitem"  "scmenu_save_as_palette"   "" ""]);
-
+                  ["Save as Palette"   "menuitem"  "scmenu_save_as_palette"   "" ""])];
+		 
   Edit =     list(["_Edit"                       "menu"      "scmenu_edit_menu"  ""        ""],
                   ["Undo|||gtk-undo"             "menuitem"  "scmenu_undo"       "<Ctrl>Z" ""],
                   ["sep0"                        "separator" ""                  ""        ""],
