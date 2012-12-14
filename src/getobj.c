@@ -502,7 +502,6 @@ void scicos_getobjs_in_rect(NspList *objs,double ox,double oy,double w,double h,
       const char *str;
       ok=0;
       o=cloc->O;
-      if ( o == NULL) continue;
       nsp_hash_find((NspHash*) o,"type",&T);
       str = ((NspSMatrix *)T)->S[0];
       if (strcmp(str,"Block") == 0 || strcmp(str,"Text") == 0) 
