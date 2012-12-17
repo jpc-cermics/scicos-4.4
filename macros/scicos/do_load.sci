@@ -1,10 +1,11 @@
-function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
+function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
 // Copyright INRIA
 // Load a Scicos diagram
 
   global %scicos_demo_mode ; 
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
+  if nargin <=2 then import = %f;  end
   if ~exists('alreadyran') then alreadyran = %f;end 
   
   if alreadyran & typ=="diagram" then
@@ -18,7 +19,6 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     xpause(100)  // quick and dirty fix for windows bug on fast
     // computers
   end
-
   if ~isempty(%scicos_demo_mode) then
     //** open a demo file
     if isempty(fname) then
@@ -34,12 +34,16 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   else
     //** conventional Open
     if isempty(fname) then
-      if exists('%scicos_gui_mode') && %scicos_gui_mode==1 then
-        // fname = getfile(['*.cos*','*.xml'])
-        fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t);
+      if import then
+        fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos','*.xml'],open=%t);
       else
-        // fname = getfile('*.cos*')
-        fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t);
+        if (exists('%scicos_gui_mode') && %scicos_gui_mode==1) then
+          // fname = getfile(['*.cos*','*.xml'])
+          fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t);
+        else
+          // fname = getfile('*.cos*')
+          fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t);
+        end
       end
     end
   end 
@@ -60,28 +64,40 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
   scs_m=[]
   edited = %f
   [path,name,ext]=splitfilepath(fname);
-  //first pass
-  if or(ext==['cos','COS','cosf','COSF','','XML','xml']) then
-    if ext=='' then  
-      // to allow user not to enter necessarily the extension
-      fname=fname+'.cos'
-      ext='cos'
+  if import then
+    if ~or(ext==['cos','COS','XML','xml']) then
+      message(['Only *.cos (binary) and *.xml (xml) files allowed for import']);
+      ok=%f
+      return
     end
   else
-    message(['Only *.cos (binary), *.cosf (formatted) files and *.xml (xml)';
-	     'allowed'])
-    ok=%f
-    //scs_m=scicos_diagram(version=current_version)
-    scs_m = get_new_scs_m();
-    return
+    //first pass
+    if or(ext==['cos','COS','cosf','COSF','','XML','xml']) then
+      if ext=='' then  
+        // to allow user not to enter necessarily the extension
+        fname=fname+'.cos'
+        ext='cos'
+      end
+    else
+      message(['Only *.cos (binary), *.cosf (formatted) files and *.xml (xml)';
+	       'allowed'])
+      ok=%f
+      //scs_m=scicos_diagram(version=current_version)
+      scs_m = get_new_scs_m();
+      return
+    end
   end
   //second pass
   if ext=='cos'|ext=='COS' then
-    ok=execstr('load(fname)',errcatch=%t)
+    if import then
+      ok=execstr('sci_load(fname);',errcatch=%t)
+    else
+      ok=execstr('load(fname)',errcatch=%t)
+    end
   elseif ext=='cosf'|ext=='COSF' then
     ok=execstr('exec(fname)',errcatch=%t);
   elseif ext=='xml'|ext=='XML' then
-    printf('Opening an XML file. Please wait ...............')
+    printf('Opening an XML file. Please wait ...............\n')
     ok=execstr('scs_m=xml2cos(fname)',errcatch=%t)
   elseif ext=='new'
     ok=%t
@@ -128,7 +144,16 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ)
     %cpr=list()
     edited=%t
   end
-  scs_m.props.title=[scs_m.props.title(1),path]
+
+  if import then
+    // convert from scilab
+    scs_m=do_update_scilab_schema(scs_m);
+    // just in case we make a save
+    scs_m.props.title(1)=  scs_m.props.title(1)+'_nsp' ;
+  else
+    scs_m.props.title=[scs_m.props.title(1),path]
+  end
+
   if ext=='xml'|ext=='XML' then
     scs_m_sav=scs_m;
     [scs_m,ok]=generating_atomic_code(scs_m)
@@ -354,6 +379,121 @@ function [scs_m,ok]=generating_atomic_code(scs_m)
 	  //scs_m = update_redraw_obj(scs_m,list('objs',i),o);
 	end
       end
+    end
+  end
+endfunction
+
+// Update a schema from scilab to nsp
+// -- graphics.gr_i is regenerated since basic graphic calls
+//    are different in nsp (options are passed as option=val.
+// -- ipar is to be regenerated for block who hard code
+//    string into scilab code.
+// -- angle is to be changed since conventions are not the same.
+
+function scs_m=do_update_scilab_schema(scs_m)
+  n=size(scs_m.objs);
+  if scs_m.props.options.iskey['D3'];
+    scs_m.props.options('3D')=   scs_m.props.options('D3')
+    scs_m.props.options.delete['D3'];
+  end
+  for i=1:n
+    if scs_m.objs(i).iskey['gui'] then
+      gui=scs_m.objs(i).gui;
+      ok=execstr( 'obj='+gui+'(''define'')',errcatch=%t);
+      if ok then
+        if type(scs_m.objs(i).graphics.gr_i,'short')=='l' then
+          scs_m.objs(i).graphics.gr_i(1) = obj.graphics.gr_i(1);
+        else
+          scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
+        end
+      else
+        message([sprintf('Update of %s cannot be done, we ignore the update',gui);
+                 catenate(lasterror())]);
+      end
+      //scs_m.objs(i).graphics.out_implicit = obj.graphics.out_implicit;
+      //scs_m.objs(i).graphics.in_implicit = obj.graphics.in_implicit;
+      // This is not necessary since it can be done by Eval
+      //
+      select gui
+       case 'RFILE_f' then
+        // Uses C to read data
+        omodel = scs_m.objs(i).model
+        oipar = omodel.ipar;
+        imask=5+oipar(1)+oipar(2)
+        // new values;
+        exprs= scs_m.objs(i).graphics.exprs
+        fname=exprs(3)
+        frmt="%f"; // exprs(4)
+        // the new ipar.
+        ipar=[length(fname);length(frmt);oipar(3:4); str2code(fname);
+              str2code(frmt);oipar(imask:$)];
+        scs_m.objs(i).model.ipar = ipar;
+       case 'READC_f' then
+        omodel = scs_m.objs(i).model;
+        oipar = omodel.ipar;
+        imask=10+oipar(1);
+        // new values;
+        exprs= scs_m.objs(i).graphics.exprs;
+        fname=exprs(3);
+        frmt=exprs(4);
+        frmt=part(frmt,1:3);// be sure that we are three character long
+        ipar=[length(fname);
+              str2code(frmt);
+              oipar(5:9);
+              str2code(fname);
+              oipar(imask:$)];
+        scs_m.objs(i).model.ipar = ipar;
+       case 'READAU_f' then
+        omodel = scs_m.objs(i).model
+        oipar = omodel.ipar;
+        exprs= scs_m.objs(i).graphics.exprs
+        fname=exprs(1)
+        frmt='uc ';
+        imask=10+oipar(1)
+        ipar=[length(fname);
+              str2code(frmt);
+              oipar(5:9);
+              str2code(fname);
+              oipar(imask:$)];
+        scs_m.objs(i).model.ipar = ipar;
+       case 'WRITEAU_f' then
+        exprs= scs_m.objs(i).graphics.exprs
+        fname=exprs(2)
+        frmt='uc ';
+        ipar=[length(fname);str2code(frmt);2;0;str2code(fname)];
+        scs_m.objs(i).model.ipar = ipar;
+       case 'WRITEC_f' then
+        exprs= scs_m.objs(i).graphics.exprs
+        fname=exprs(2)
+        frmt=exprs(3);
+        frmt=part(frmt,1:3);
+        N=  evstr(exprs(4));
+        swap=evstr(exprs(5));
+        ipar=[length(fname);str2code(frmt);N;swap;str2code(fname)];
+        scs_m.objs(i).model.ipar = ipar;
+       case 'WFILE_f' then
+        exprs= scs_m.objs(i).graphics.exprs
+        fname=exprs(2)
+        frmt="%5.2f"// exprs(3)
+        N=  evstr(exprs(4));
+        ipar=[length(fname);length(frmt);0;N;str2code(fname); ...
+              str2code(frmt)];
+        scs_m.objs(i).model.ipar = ipar;
+      end
+    end
+    o=scs_m.objs(i);
+    if o.type =='Block' then
+      omod=o.model;
+      if o.model.sim.equal['super'] | o.model.sim.equal['csuper'] then
+        o.model.rpar=do_update_scilab_schema(o.model.rpar)
+      end
+      o.graphics.theta = - o.graphics.theta;
+      scs_m.objs(i)=o;
+    elseif o.type =='Text' then
+      sizes=[8,10,12,14,18,24];
+      o.model.ipar(2)=sizes(min(max(1,o.model.ipar(2)),6))/10;
+      o.graphics.exprs(3)= sci2exp(o.model.ipar(2));
+      scs_m.objs(i)=o;
     end
   end
 endfunction
