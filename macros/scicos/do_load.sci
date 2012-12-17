@@ -484,7 +484,7 @@ function scs_m=do_update_scilab_schema(scs_m)
     o=scs_m.objs(i);
     if o.type =='Block' then
       omod=o.model;
-      if o.model.sim.equal['super'] | o.model.sim.equal['csuper'] then
+      if or(o.model.sim(1)==['super','asuper','csuper']) then
         o.model.rpar=do_update_scilab_schema(o.model.rpar)
       end
       o.graphics.theta = - o.graphics.theta;

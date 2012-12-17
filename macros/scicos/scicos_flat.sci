@@ -122,15 +122,12 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(s
 	    if (ksup==0)|flgcdgen<>-1  then
 	      hilite_path([path,k],"There is another local GOTO in this diagram with the same tag ''"+loc_mat($,3)+"''",%t);
 	    else
-	      gh_wins = gcf();
-	      mxwin=maxi(winsid());
+	      mxwin=max(winsid());
 	      scs_show(scs_m,mxwin+1);
-	      hilite_obj(k);
+              hilite_obj(o);
 	      message("There is another local GOTO in this diagram with the same tag ''"+loc_mat($,3)+"''");
-	      gh_del = scf(mxwin+1);
-	      unhilite_obj(k);
-	      delete(gh_del);
-	      scf(gh_wins);
+	      unhilite_obj(o);
+              xdel(mxwin+1)
 	    end
 	    ok=%f;return
 	  end
@@ -170,15 +167,12 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(s
 	  if (ksup==0)|flgcdgen<>-1  then
 	    hilite_path([path,k],mess,%t);
 	  else
-	    gh_wins = gcf();
-	    mxwin=maxi(winsid());
+	    mxwin=max(winsid());
 	    scs_show(scs_m,mxwin+1);
-	    hilite_obj(k);
+	    hilite_obj(o);
 	    message(mess);
-	    gh_del = scf(mxwin+1);
-	    unhilite_obj(k);
-	    delete(gh_del);
-	    scf(gh_wins);
+	    unhilite_obj(o);
+            xdel(mxwin+1)
 	  end 
 	  ok=%f;return
 	else

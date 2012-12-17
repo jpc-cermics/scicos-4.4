@@ -11,8 +11,8 @@ function scmenu_remove_atomic()
     return
   end
   [o,needcompile,ok]=do_remove_atomic(scs_m.objs(Select(1)),needcompile);
-  if ok then 
-    scs_m = update_redraw_obj(scs_m,list('objs',i),o);
+  if ok then
+    scs_m = update_redraw_obj(scs_m,list('objs',Select(1)),o);
   end
 endfunction
 
