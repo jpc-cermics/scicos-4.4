@@ -112,7 +112,7 @@ function xml_txt=block2xml(o,flag,t1,atomic=%f)
       end
       // o(x(i)) is also a hash table 
       xx=o(x(i)).__keys;
-      for j=2:size(xx,'*')
+      for j=1:size(xx,'*')
 	if x(i)=='model' & xx(j)<>'rpar'	 
 	elseif xx(j)=='gr_i' then
 	  xml_txt=[xml_txt;
