@@ -109,8 +109,8 @@ function [o,needcompile,ok]=do_create_atomic(o,k,scs_m)
 	XX.model.dstate($+1:$+size(XX.model.dstate,'*'))=XX.model.dstate;end
       if size(XX.model.state,'*')<>0 then 
 	XX.model.state($+1:$+size(XX.model.dstate,'*'))=XX.model.state;end
-      if lstsize(XX.model.odstate)<>0 then 
-	XX.model.odstate=lstcat(XX.model.odstate,XX.model.odstate);end
+      if length(XX.model.odstate)<>0 then
+	XX.model.odstate=list_concat(XX.model.odstate,XX.model.odstate);end
     end
     code=generate_iter_ccode(XX.model.sim(1),init_output,nbre_iter,step,iter_var_datatype,ss_input_nbre,model,obj_nbre,exist_output,startingstate,XX.model,iter_op,cpr)
     old_funam=XX.model.sim(1);
@@ -129,9 +129,9 @@ function code=generate_iter_ccode(funname,init_output,nbre_iter,step,iter_var_da
 
   function scs_m=changeinout(scs_m)
     port_blocks=['IN_f','INIMPL_f','OUT_f','OUTIMPL_f','CLKIN_f','CLKINV_f','CLKOUT_f','CLKOUTV_f']
-    for i=1:lstsize(scs_m.objs)
+    for i=1:length(scs_m.objs)
       o=scs_m.objs(i)
-      if typeof(o)=='Block' then
+      if o.type=='Block' then
 	if or(o.gui==port_blocks) then
 	  o.gui='BIDON'
 	end
@@ -239,7 +239,7 @@ function code=generate_iter_ccode(funname,init_output,nbre_iter,step,iter_var_da
 	code=[code;
 	      '    memcpy(block->x,block->x+GetNstate(block)/2,GetNstate(block)/2*sizeof(double));']
       end
-      if lstsize(XXmdl.odstate)<>0 then
+      if length(XXmdl.odstate)<>0 then
 	code=[code;
 	      '    for (i=0;i<GetNoz(block)/2;i++) {'
 	      '      soz=(GetOzSize(block,i+1,1)*GetOzSize(block,i+1,2)*GetSizeOfOz(block,i+1));'
@@ -284,7 +284,7 @@ function code=generate_iter_ccode(funname,init_output,nbre_iter,step,iter_var_da
 	code=[code;
 	      '    memcpy(block->x,block->x+GetNstate(block)/2,GetNstate(block)/2*sizeof(double));']
       end
-      if lstsize(XXmdl.odstate)<>0 then
+      if length(XXmdl.odstate)<>0 then
 	code=[code;
 	      '    for (i=0;i<GetNoz(block)/2;i++) {'
 	      '      soz=(GetOzSize(block,i+1,1)*GetOzSize(block,i+1,2)*GetSizeOfOz(block,i+1));'
