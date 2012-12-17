@@ -7,16 +7,16 @@ for i=1:size(scs_m.objs)
     if o.gui=='ForIterator' then
       if ~for_iterator_flag then
 	for_iterator_flag=%t;
-	init_output=eval(o.graphics.exprs(1))
+	init_output=evstr(o.graphics.exprs(1))
 	if o.graphics.exprs(3)=='0' then
-	  nbre_iter=eval(o.graphics.exprs(2));
+	  nbre_iter=evstr(o.graphics.exprs(2));
 	else
 	  from_blk=scs_m.objs(scs_m.objs(o.graphics.pin(1)).from(1))
 	  while from_blk.gui=='SPLIT_f' then
 	    from_blk=scs_m.objs(scs_m.objs(from_blk.graphics.pin(1)).from(1));
 	  end
 	  if from_blk.gui=='IN_f' then
-	    ss_input_nbre=eval(from_blk.graphics.exprs(1))
+	    ss_input_nbre=evstr(from_blk.graphics.exprs(1))
 	  else
 	    message(['When the numbre of iterations is given as an external parameter';
 		'The first input of the block must be connected to the input port']);
@@ -27,7 +27,7 @@ for i=1:size(scs_m.objs)
 	if o.graphics.exprs(4)=='0'|o.graphics.exprs(5)=='0'
 	  step=1;
 	end
-	iter_var_datatype=eval(o.graphics.exprs(6));
+	iter_var_datatype=evstr(o.graphics.exprs(6));
 	obj_nbre=i;
 	exist_output=evstr(o.graphics.exprs(4));
 	startingstate=evstr(o.graphics.exprs(7));

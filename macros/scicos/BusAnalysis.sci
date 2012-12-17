@@ -1,41 +1,5 @@
 function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,ccmat,busmat,cor,corinv,reg,MaxBlock,sco_mat,scs_m)
 
-  
-  function [paths]=findinlistcmd(L,v,oper,path)
-  // Copyright INRIA
-  // search the elements of L trying to find elements 
-  // for which and(L(i)==v) (for oper equal to '==' ) 
-  // or or(L(i) oper v) (for oper equal to '>' or '<').
-  // when elements of L are list the recursion is performed.
-  // All the occurences for which the test is positive 
-  // are returned in paths by their path in L. 
-  // 
-    paths = list()
-    if nargin < 4 then ; path=[];end 
-    if nargin < 3 then oper = "==";end 
-    if type(L,'short')<>'l' then
-      error('First argument should be a list');
-    end
-    for k=1:length(L)
-      l=L(k)
-      if type(l,'short')=='l' then
-	paths.concat[findinlistcmd(l,v,oper,[path,k])];
-      elseif oper=='==' then
-	if and(l(:)==v) then
-	  paths($+1)=[path k];
-	end
-      elseif oper=='>' then
-	if or(l(:) > v) then 
-	  paths($+1)=[path k];
-	end
-      elseif oper=='<' then
-	if or(l(:) < v) then 
-	  paths($+1)=[path k];
-	end
-      end
-    end
-  endfunction
-  
   ok=%t;
   cc=string(cmat);
   blklst_temp=blklst;corinv_temp=corinv;
@@ -110,12 +74,12 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
     ind=find(cc(:,3)==cc(dstsrc(i),1)&cc(:,5)==cc(dstsrc(i),5));
     if isempty(ind) then
       msg='The Signal ""'+cc(dstsrc(i),5)+'"" is not defined! Please check the hilighted block.';
-      path=(findinlistcmd(cor,evstr(cc(dstsrc(i),1)),'='))(:);
+      path=(findinlistcmd(cor,evstr(cc(dstsrc(i),1)),'=='))(:);
       hilite_path(path,msg,%t);
       ok=%f;return;
     elseif size(ind,'*')>1 then
       msg='There are '+sci2exp(size(ind,'*'))+' signals with the same name ""'+cc(dstsrc(i),5)+'"" received by the hilighted block! Please check it.';
-      path=(findinlistcmd(cor,evstr(cc(dstsrc(i),1)),'='))(:);
+      path=(findinlistcmd(cor,evstr(cc(dstsrc(i),1)),'=='))(:);
       hilite_path(path,msg,%t);
       ok=%f;return;
     else     
@@ -186,3 +150,38 @@ function [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,c
   reg=1:size(corinv);
 endfunction
 
+function [paths]=findinlistcmd(L,v,oper,path)
+// Copyright INRIA
+// search the elements of L trying to find elements
+// for which and(L(i)==v) (for oper equal to '==' )
+// or or(L(i) oper v) (for oper equal to '>' or '<').
+// when elements of L are list the recursion is performed.
+// All the occurences for which the test is positive
+// are returned in paths by their path in L.
+//
+  paths = list()
+  if nargin < 4 then ; path=[];end
+  if nargin < 3 then oper = "==";end
+  if type(L,'short')<>'l' then
+    error('First argument should be a list');
+  end
+  for k=1:length(L)
+    l=L(k)
+    if type(l,'short')=='l' then
+      paths.concat[findinlistcmd(l,v,oper,[path,k])];
+    elseif oper=='==' then
+      if and(l(:)==v) then
+        paths($+1)=[path k];
+      end
+    elseif oper=='>' then
+      if or(l(:) > v) then
+        paths($+1)=[path k];
+      end
+    elseif oper=='<' then
+      if or(l(:) < v) then
+        paths($+1)=[path k];
+      end
+    end
+  end
+endfunction
+  

@@ -145,7 +145,8 @@ function code=generate_iter_ccode(funname,init_output,nbre_iter,step,iter_var_da
   else
     funnam='whileiterator'
   end
-  iter_pos=findinlistcmd(cpr.sim.funs,funnam,'=')
+  iter_pos=findinlistcmd(cpr.sim.funs,funnam,'==')
+pause
   noz=cpr.sim.ozptr(iter_pos(1)+1)-1
   blk_nbre=cpr.cor(obj_nbre)-1
   vvv=['Real','','int32','int16','int8'];
