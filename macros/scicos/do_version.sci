@@ -1467,7 +1467,7 @@ function scs_m=do_version(scs_m,version)
   endfunction
 
   // main code 
-  printf("do_version: version=%s\n",version);
+  //printf("do_version: version=%s\n",version);
   Versions_old='scicos'+['2.2','2.3','2.3.1','2.4','2.5.1'];
   if ~isempty(find(version==Versions_old)) then 
     error('Please use Scilab to first update your schema to versions >= 2.7');
