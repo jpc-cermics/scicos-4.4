@@ -155,6 +155,7 @@ function code=generate_iter_ccode(funname,init_output,nbre_iter,step,iter_var_da
   str= Date.strftime["%d %B %Y"];
   code=['/* This Code is Generated Automatically for the iterator block '
 	' * Date: '+str
+        ' */'
 	''
 	'#include <scicos/scicos_block4.h>'
 	'#include <string.h>'
