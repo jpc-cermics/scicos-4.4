@@ -36,12 +36,15 @@
 #include <nsp/compound.h>
 #include "blocks/blocks.h"
 
+static const char *scicos_get_type_string(NspObject *Obj);
+
 /* scicos_dist2polyline
  *
  * [d,pt_out,ind]=dist2polyline(xp,yp,np,pt)
  *
  */
 
+#if 0 
 static int scicos_dist2polyline(double *xp,double *yp,int np,const double *pt,double *d,double *pt_out,int *ind)
 {
   int *cr=NULL, npp=np , i;
@@ -152,6 +155,7 @@ err2:
   }
   return FALSE;
 }
+#endif 
 
 /**************************************************
  * utility function
@@ -220,14 +224,13 @@ static void scicos_rotate(const double *xy_in,int nxy,double teta,const double *
  *
  */
 
-static int scicos_get_data_block(NspObject *o,const double *pt)
+static int scicos_get_data_block(const char *stype,NspObject *o,const double *pt)
 {
   NspObject *gr;
   double rect[4], eps_blk=3;
-  
+  if ( strcmp(stype,"Block") != 0 ) return FALSE;
   nsp_hash_find((NspHash*)o,"gr",&gr);
   if ( gr == NULL) return FALSE;
-  
   rect[0]=((NspCompound *)gr)->obj->bounds->R[0] - eps_blk;
   rect[1]=((NspCompound *)gr)->obj->bounds->R[1] - eps_blk;
   rect[2]=((NspCompound *)gr)->obj->bounds->R[2] + eps_blk;
@@ -248,23 +251,27 @@ static int scicos_get_data_block(NspObject *o,const double *pt)
  * 
  */
 
-static int scicos_get_data_text(NspObject *o,const double *pt)
+static int scicos_get_data_text(const char *stype,NspObject *o,const double *pt)
 {
-  NspObject *graphics, *T;
+  NspObject *graphics,*T;
   double *orig, *sz, theta, xy[2], center[2];
+  if ( strcmp(stype,"Text") != 0 ) return FALSE;
   nsp_hash_find((NspHash*)o,"graphics",&graphics);
+  if ( graphics == NULL) return FALSE;
   nsp_hash_find((NspHash*)graphics,"orig",&T);
+  if ( T == NULL) return FALSE;
   orig=((NspMatrix *)T)->R;
   nsp_hash_find((NspHash*)graphics,"sz",&T);
+  if ( T == NULL) return FALSE;
   sz=((NspMatrix *)T)->R;
   nsp_hash_find((NspHash*)graphics,"theta",&T);
-  theta=((NspMatrix *)T)->R[0];
-  theta=-theta*M_PI/180;
+  if ( T == NULL) return FALSE;
+  theta= ((NspMatrix *)T)->R[0];
+  theta *= -M_PI/180.0;
   center[0]=orig[0]+sz[0]/2;
   center[1]=orig[1]+sz[1]/2;
   
   scicos_rotate(pt,1,theta,center,xy);
-
   return ((orig[0]-xy[0])*(orig[0]+sz[0]-xy[0]) < 0 )
     && ( (orig[1]-xy[1])*(orig[1]+sz[1]-xy[1]) < 0);
 }
@@ -277,17 +284,17 @@ static int scicos_get_data_text(NspObject *o,const double *pt)
  * 
  */
 
-static int scicos_get_data_link(NspObject *o,const double *pt, int *wh)
+static int scicos_get_data_link(const char *stype, NspObject *o,const double *pt, int *wh)
 {
   NspObject *xx, *yy;
   double *xp, *yp, pt_out[2], pmin, data, eps_lnk=4;
   int np;
-
   *wh=-1;
-  
+  if ( strcmp(stype,"Link") != 0) return FALSE;
   nsp_hash_find((NspHash*)o,"xx",&xx);
+  if (xx == NULL) return FALSE;
   nsp_hash_find((NspHash*)o,"yy",&yy);
-  
+  if (yy == NULL) return FALSE;
   xp=((NspMatrix *)xx)->R;
   yp=((NspMatrix *)yy)->R;
   np=((NspMatrix *)xx)->mn;
@@ -302,7 +309,6 @@ static int scicos_get_data_link(NspObject *o,const double *pt, int *wh)
    *   
    * fprintf(stderr,"scicos_dist2polyline : data=%f, wh=%d\n\n",(*data),*wh);
    */
-
    return (data<0) ;
 }
 
@@ -320,76 +326,70 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
   NspHash *scs_m = (NspHash*) obj;
   NspObject *objs;
   NspObject *T;
-  NspObject *o;
   Cell *cloc;
-
   int i,j,n;
-
+  
   if (!IsHash(obj)) return FALSE;
   if (nsp_hash_find(scs_m,"objs",&objs) == FAIL) return FALSE;
   if (!IsList(objs) ) return FALSE;
 
   n = ((NspList *) objs)->nel;
 
-  /* loop on list elements
-   * one assume that user "most of time"
-   * do operation on lastest handled
-   * block in the diagram
+  /* loop on list elements from end to start assuming that most of the time 
+   * the user perform operations on the most recently inserted blocks.
    */
   cloc = ((NspList *) objs)->last;
-  for (i=n;i>0;i--) {
-    o=cloc->O;
-    nsp_hash_find((NspHash*) o,"type",&T);
-    if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-      if (scicos_get_data_block(o,pt) == TRUE) {
-        (*k)=i;
-        nsp_hash_find((NspHash*) o,"gui",&T);
-        /* second pass to detect crossing link */
-        if (!((strcmp(((NspSMatrix *)T)->S[0],"IMPSPLIT_f") == 0) ||	\
-              (strcmp(((NspSMatrix *)T)->S[0],"SPLIT_f") == 0) ||	\
-              (strcmp(((NspSMatrix *)T)->S[0],"BUSSPLIT") == 0) ||	\
-              (strcmp(((NspSMatrix *)T)->S[0],"CLKSPLIT_f") == 0))) {
-          cloc = cloc->next;
-          for (j=i+1;j<=n;j++) {
-            o=cloc->O;
-            nsp_hash_find((NspHash*) o,"type",&T);
-            if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
-              if (scicos_get_data_link(o,pt,wh) == TRUE) {
-               (*k)=j;
-               return TRUE;
-              }
-            }
-            cloc = cloc->next;
-          }
-        }
-        return TRUE;
-       }
+  if ( cloc == NULL) return FALSE;
+
+  for ( i = n; i > 0 ; i--) 
+    {
+      const char *stype= scicos_get_type_string(cloc->O);
+      if (scicos_get_data_block(stype,cloc->O,pt) == TRUE) 
+	{
+	  (*k)=i;
+	  nsp_hash_find((NspHash*) cloc->O,"gui",&T);
+	  if ( T != NULL) 
+	    {
+	      /* check next objects to detect crossing link */
+	      if (!((strcmp(((NspSMatrix *)T)->S[0],"IMPSPLIT_f") == 0) ||
+		    (strcmp(((NspSMatrix *)T)->S[0],"SPLIT_f") == 0) || 
+		    (strcmp(((NspSMatrix *)T)->S[0],"BUSSPLIT") == 0) ||
+		    (strcmp(((NspSMatrix *)T)->S[0],"CLKSPLIT_f") == 0))) 
+		{
+		  cloc = cloc->next;
+		  for ( j=i+1 ; j <= n; j++) 
+		    {
+		      const char *stype1;
+		      stype1 =scicos_get_type_string(cloc->O);
+		      if ( scicos_get_data_link(stype1,cloc->O,pt,wh) == TRUE)
+			{
+			  (*k)=j;
+			  return TRUE;
+			}
+		      cloc = cloc->next;
+		    }
+		}
+	      return TRUE;
+	    }
+	}
+      cloc = cloc->prev;
     }
-    cloc = cloc->prev;
-  }
-  
-  /* loop on list elements
-   * one checks link and text
-   */
+  /* loop on list elements, checking for links or texts */
   cloc = ((NspList *) objs)->last;
   for (i=n;i>0;i--) 
     {
-      const char *str;
-      o=cloc->O;
-      nsp_hash_find((NspHash*) o,"type",&T);
-      str = ((NspSMatrix *)T)->S[0];
-      if (strcmp(str,"Text") == 0) {
-        if (scicos_get_data_text(o,pt) == TRUE) {
-          (*k)=i;
-          return TRUE;
-        }
-      }
-      else if (strcmp(str,"Link") == 0) {
-        if (scicos_get_data_link(o,pt,wh) == TRUE) {
-          (*k)=i;
-          return TRUE;
-        }
-      }
+      const char *stype;
+      stype =scicos_get_type_string(cloc->O);
+      if (scicos_get_data_text(stype,cloc->O,pt) == TRUE)
+	{
+	  (*k)=i;
+	  return TRUE;
+	}
+      else if ( scicos_get_data_link(stype,cloc->O,pt,wh) == TRUE)
+	{
+	  (*k)=i;
+	  return TRUE;
+	}
       cloc = cloc->prev;
     }
   return TRUE;
@@ -407,7 +407,7 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
 int scicos_getblock(NspObject *obj,double *pt,int *k)
 {
   NspHash *scs_m = (NspHash*) obj;
-  NspObject *objs, *T, *o;
+  NspObject *objs;
   Cell *cloc;
   int i,n;
   
@@ -418,18 +418,18 @@ int scicos_getblock(NspObject *obj,double *pt,int *k)
   n = ((NspList *) objs)->nel;
 
   /* loop on list elements */
-  cloc = ((NspList *) objs)->last;
-  for (i=n;i>0;i--) {
-    o=cloc->O;
-    nsp_hash_find((NspHash*) o,"type",&T);
-    if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-      if (scicos_get_data_block(o,pt) == TRUE) {
-        (*k)=i;
-        return TRUE;
-      }
+  if ((cloc = ((NspList *) objs)->last)== NULL) return FALSE;
+
+  for (i=n;i>0;i--) 
+    {
+      const char *stype = scicos_get_type_string(cloc->O);
+      if ( scicos_get_data_block(stype,cloc->O,pt) == TRUE)
+	{
+	  (*k)=i;
+	  return TRUE;
+	}
+      cloc = cloc->prev;
     }
-    cloc = cloc->prev;
-  }
   return TRUE;
 }
 
@@ -446,8 +446,6 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
 {
   NspHash *scs_m = (NspHash*) obj;
   NspObject *objs;
-  NspObject *T;
-  NspObject *o;
   Cell *cloc;
 
   int i,n;
@@ -459,24 +457,23 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
   n = ((NspList *) objs)->nel;
 
   /* loop on list elements */
-  cloc = ((NspList *) objs)->last;
-  for (i=n;i>0;i--) {
-    o=cloc->O;
-    nsp_hash_find((NspHash*) o,"type",&T);
-    if (strcmp(((NspSMatrix *)T)->S[0],"Block") == 0) {
-      if (scicos_get_data_block(o,pt) == TRUE) {
-        (*k)=i;
-        return TRUE;
-      }
+  if ((cloc = ((NspList *) objs)->last) == NULL) return FALSE;
+  
+  for (i=n;i>0;i--) 
+    {
+      const char *stype=  scicos_get_type_string(cloc->O);
+      if ( scicos_get_data_block(stype,cloc->O,pt) == TRUE) 
+	{
+	  (*k)=i;
+	  return TRUE;
+	}
+      else if ( scicos_get_data_link(stype,cloc->O,pt,wh)==TRUE)
+	{
+	  (*k)=i;
+	  return TRUE;
+	}
+      cloc = cloc->prev;
     }
-    else if (strcmp(((NspSMatrix *)T)->S[0],"Link") == 0) {
-      if (scicos_get_data_link(o,pt,wh)==TRUE) {
-        (*k)=i;
-        return TRUE;
-      }
-    }
-    cloc = cloc->prev;
-  }
   return TRUE;
 }
 
@@ -492,50 +489,49 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
 void scicos_getobjs_in_rect(NspList *objs,double ox,double oy,double w,double h,
 			    int *nin,double *in,int *nout,double *out)
 {
-  NspObject *T,*o;
   int i,ok ;
   Cell *cloc = objs->first;
   int n = ((NspList *) objs)->nel, n_in=0, n_out=0;
   /* loop on list elements */
   for ( i=1 ; i <= n ; i++) 
     {
-      const char *str;
+      const char *stype= scicos_get_type_string(cloc->O);
       ok=0;
-      o=cloc->O;
-      nsp_hash_find((NspHash*) o,"type",&T);
-      str = ((NspSMatrix *)T)->S[0];
-      if (strcmp(str,"Block") == 0 || strcmp(str,"Text") == 0) 
+      if (strcmp(stype,"Block") == 0 || strcmp(stype,"Text") == 0) 
 	{
 	  NspObject *gr;
 	  double *rect;
-	  nsp_hash_find((NspHash*)o,"gr",&gr);
-	  rect = ((NspCompound *)gr)->obj->bounds->R;
-	  if ( (ox <= rect[0]) && (oy >= rect[3]) &&	  
-	       ((ox+w) >= rect[2]) && ((oy-h) <= rect[1])) 
+	  nsp_hash_find((NspHash*) cloc->O,"gr",&gr);
+	  if ( gr != NULL) 
 	    {
-	      ok=1;  in[n_in]=i;n_in++;
+	      rect = ((NspCompound *)gr)->obj->bounds->R;
+	      if ( (ox <= rect[0]) && (oy >= rect[3]) &&	  
+		   ((ox+w) >= rect[2]) && ((oy-h) <= rect[1])) 
+		{
+		  ok=1;  in[n_in]=i;n_in++;
+		}
 	    }
 	}
-      else if (strcmp(str,"Link") == 0) 
+      else if (strcmp(stype,"Link") == 0) 
 	{
 	  NspObject *xx, *yy;
-	  double lx_min,lx_max, ly_min,ly_max;
-
-	  nsp_hash_find((NspHash*)o,"xx",&xx);
-	  nsp_hash_find((NspHash*)o,"yy",&yy);
-
-	  nsp_array_mini(((NspMatrix *)xx)->mn, ((NspMatrix *)xx)->R, 1, &lx_min);
-	  nsp_array_maxi(((NspMatrix *)xx)->mn, ((NspMatrix *)xx)->R, 1, &lx_max);
-	  nsp_array_mini(((NspMatrix *)yy)->mn, ((NspMatrix *)yy)->R, 1, &ly_min);
-	  nsp_array_maxi(((NspMatrix *)yy)->mn, ((NspMatrix *)yy)->R, 1, &ly_max);
-
-	  if ( (ox <= lx_min) && (oy >= ly_max) && 
-	       ((ox+w) >= lx_max) && ((oy-h) <= ly_min))
+	  double lx_min, lx_max, ly_min, ly_max;
+	  nsp_hash_find((NspHash*)cloc->O ,"xx",&xx);
+	  nsp_hash_find((NspHash*)cloc->O,"yy",&yy);
+	  if ( xx != NULL && yy != NULL ) 
 	    {
-	      ok=1;  in[n_in]=i;n_in++;
+	      nsp_array_mini(((NspMatrix *)xx)->mn, ((NspMatrix *)xx)->R, 1, &lx_min);
+	      nsp_array_maxi(((NspMatrix *)xx)->mn, ((NspMatrix *)xx)->R, 1, &lx_max);
+	      nsp_array_mini(((NspMatrix *)yy)->mn, ((NspMatrix *)yy)->R, 1, &ly_min);
+	      nsp_array_maxi(((NspMatrix *)yy)->mn, ((NspMatrix *)yy)->R, 1, &ly_max);
+	      
+	      if ( (ox <= lx_min) && (oy >= ly_max) && 
+		   ((ox+w) >= lx_max) && ((oy-h) <= ly_min))
+		{
+		  ok=1;  in[n_in]=i;n_in++;
+		}
 	    }
 	}
-      
       if (!ok) 
 	{
 	  out[n_out]=i;n_out++;
@@ -545,4 +541,17 @@ void scicos_getobjs_in_rect(NspList *objs,double ox,double oy,double w,double h,
   *nin=n_in;
   *nout= n_out;
 }
+
+
+static const char *scicos_get_type_string(NspObject *Obj)
+{
+  NspObject *T;
+  if ( Obj == NULL) return "";
+  if ( !IsHash(Obj)) return "";
+  nsp_hash_find((NspHash*) Obj,"type",&T);
+  if ( T == NULL) return "";
+  if ( !IsString(T)) return "";
+  return ((NspSMatrix *)T)->S[0];
+}
+
 
