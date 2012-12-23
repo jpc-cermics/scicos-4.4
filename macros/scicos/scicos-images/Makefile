@@ -287,6 +287,11 @@ PNGS= ABSBLK_f.png \
 	WRITEC_f.png \
 	ZCROSS_f.png
 
+PLUS= Atmosphere.png FluxSensor.png \
+       HGround.png Medias.png Pipe.png \
+       PressionSource.png PressureSensor.png Tank2.png \
+       Tank3.png Tank.png ValveContinuous.png ValveDiscrete.png VolumeFlow.png;
+
 # difficult here to use patsubst since blocks 
 # are defined in different directory ans directories can contain
 # code which are not block code.
@@ -294,7 +299,7 @@ PNGS= ABSBLK_f.png \
 BLOCKS=$(patsubst ../../blocks/%.sci,%.png,$(wildcard ../../blocks/*/*.sci))
 B1=$(subst Sources/,,$(BLOCKS))
 
-all	: $(PNGS)
+all	: $(PNGS) $(PLUS)
 
 %.zopng	: %.svg
 	inkscape $*.svg --export-area-drawing --export-png=$*.png  --export-dpi=48
@@ -308,5 +313,6 @@ svg	:
 %.png	: ../../blocks/*/%.sci
 	@$(SCIDIR)/bin/scilex -e "exec('../../../loader.sce');scicos_create_icon('$*');quit"
 	@inkscape $*.svg --export-area-drawing --export-png=$*.png  --export-dpi=48
-	@$(RM) -f $*.svg 
+
+#	@$(RM) -f $*.svg 
 
