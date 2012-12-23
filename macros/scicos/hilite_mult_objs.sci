@@ -44,7 +44,7 @@ function ok=hilite_mult_objs(path,objs,mess)
 		       'hilite_obj('+sci2exp(nbr_obj)+');');
       elseif type(temppath,'short')=='l' then
 	//modelica and sampleclk
-	for j=1:lstsize(temppath)
+	for j=1:length(temppath)
 	  nbr_obj=temppath(j)($)
 	  temppath2=temppath(j)(1:$-1);
 	  append_command('%diagram_path_objective='+sci2exp(temppath2)+';%scicos_navig=1',...
