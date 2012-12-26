@@ -36,14 +36,17 @@
 #include "blocks.h"
 
 static NspGrRect *scicos_slider_getrect(NspCompound *C);
-
+#if 0
+static int scicos_get_named_color(NspGraphic *G,const char *str);
+#endif 
 /*
  * follow an input value with a graphic slider 
  * 
  *  rpar = [min-range, max-range] 
- *  ipar = [type (1,2),color]
- *  z = size 3
+ *  ipar = [type,color,window]
+ *  z = size 6 
  */
+
 
 void scicos_slider_block (scicos_args_F0);
 void scicos_slider_block (int *flag, int *nevprt, const double *t, double *xd,
@@ -52,7 +55,8 @@ void scicos_slider_block (int *flag, int *nevprt, const double *t, double *xd,
 			  int *nrpar, int *ipar, int *nipar,
 			  double *u, int *nu, double *y, int *ny)
 {
-  double val,percent;
+  int red=5,green=3;
+  double val,percent,dx;
   NspGrRect **S= (NspGrRect **) &z[0] ;
   NspGraphic *Gr=Scicos->Blocks[Scicos->params.curblk -1].grobj;
   switch (*flag)
@@ -62,18 +66,38 @@ void scicos_slider_block (int *flag, int *nevprt, const double *t, double *xd,
       if ( *S == NULL) return;
       val = Min (rpar[1], Max (rpar[0], u[0]));
       percent = (val - rpar[0]) / (rpar[1] - rpar[0]);
-      if ( TRUE || Abs (z[1] - percent) > 0.01 ) 
+      if ( TRUE ) 
 	{
-	  z[1] = percent;
-	  (*S)->obj->w= z[2]*percent;
-	  nsp_graphic_invalidate(Gr);
-	  if (0) 
+	  switch ( ipar[0]) 
 	    {
-	      /* force redraw each time */
-	      nsp_figure *F = Gr->obj->Fig;
-	      BCG *Xgc;
-	      if ( F != NULL && (Xgc= F->Xgc) != NULL)
-		Xgc->graphic_engine->process_updates(Xgc);
+	    case 0 :
+	      if (percent >= 0.5 ) 
+		{
+		  (*S)->obj->fill_color= green;
+		}
+	      else 
+		{
+		  (*S)->obj->fill_color= red;
+		}
+	      nsp_graphic_invalidate(Gr);
+	      break;
+	    case 1 : 
+	      z[1] = percent;
+	      (*S)->obj->w= z[2]*percent;
+	      nsp_graphic_invalidate(Gr);
+	      break;
+	    case 2 : 
+	      (*S)->obj->x= z[3] + z[2]*percent - z[2]*0.05 ;
+	      dx = z[3] - (*S)->obj->x;
+	      if (dx >= 0) 
+		{ (*S)->obj->x = z[3]; (*S)->obj->w=Max(0,z[2]*0.1 - dx);}
+	      dx =((*S)->obj->x+z[2]*0.1)-(z[3] + z[2]);
+	      if (dx >= 0)
+		{
+		  (*S)->obj->w= z[2]*0.1 -dx ;
+		}
+	      nsp_graphic_invalidate(Gr);
+	      break;
 	    }
 	}
       break;
@@ -84,13 +108,32 @@ void scicos_slider_block (int *flag, int *nevprt, const double *t, double *xd,
       *S = NULL;
       if ( Gr != NULL && IsCompound((NspObject *) Gr))
 	{
+	  /* red = scicos_get_named_color(Gr,"red"); */
+	  /* green = scicos_get_named_color(Gr,"green"); */
 	  *S = scicos_slider_getrect((NspCompound *) Gr);
-	  if ( *S != NULL) z[2] = (*S)->obj->w;
+	  if ( *S != NULL) 
+	    {
+	      z[2] = (*S)->obj->w;
+	      z[3] = (*S)->obj->x;
+	      switch (ipar[0])
+		{
+		case 2:   (*S)->obj->w= z[2]*0.1; break;
+		default: break;
+		}
+	    }
 	}
       break;
     case 5:
       /* reset back default size */
-      if ( *S != NULL)  (*S)->obj->w= z[2];
+      if ( *S != NULL) 
+	{
+	  switch ( ipar[0]) 
+	    {
+	    case 0 : (*S)->obj->fill_color=ipar[1]; break;
+	    case 1 : (*S)->obj->w= z[2]; break;
+	    case 2 : (*S)->obj->x= z[3];(*S)->obj->w= z[2]; break;
+	    }
+	}
       break;
     }
 }
@@ -118,4 +161,21 @@ static NspGrRect *scicos_slider_getrect(NspCompound *C)
     }
   return NULL;
 }
+
+#if 0
+static int scicos_get_named_color(NspGraphic *G,const char *str)
+{
+  int rep,color;
+  BCG *Xgc;
+  const char *Table[] = {"black","white","gray","blue","green","lightblue",
+			 "red","purple","yellow",NULL};
+  nsp_figure *F = G->obj->Fig;
+  if ( F == NULL || (Xgc=F->Xgc) == NULL ) return 0;
+  rep = is_string_in_array(str,Table,TRUE);
+  if ( rep < 0 ) return 0;
+  color= Xgc->graphic_engine->xget_last(Xgc)+rep+1;
+  fprintf(stderr,"%s is %d %d\n",str,rep,color);
+  return color;
+}
+#endif 
 
