@@ -25,6 +25,7 @@
 #include <nsp/axes.h>
 #include <nsp/figuredata.h>
 #include <nsp/figure.h>
+#include <nsp/grrect.h>
 #include <nsp/qcurve.h>
 #include <nsp/grstring.h>
 #include <nsp/compound.h>
@@ -51,8 +52,8 @@ typedef struct _dmscope_ipar dmscope_ipar;
 
 struct _dmscope_ipar
 {
-  /* buffer_size is the number of data to accumulate before redrawing */
-  int wid, number_of_subwin, buffer_size , wpos[2], wdim[2];
+  /* ipar=[Npts;size(in,'*');in(:);clrs(:);heritance] */
+  int buffer_size, npts, grid, number_of_subwin, in; 
 };
 
 typedef struct _dmscope_rpar dmscope_rpar;
@@ -68,18 +69,19 @@ struct _dmscope_data
 {
   int count;    /* number of points inserted in the scope buffer */
   double tlast; /* last time inserted in csope data */
-  NspFigure *F;
+  NspCompound *C;
 };
 
 /* creates a new Axes object for the multiscope 
  *
  */
 
-static NspAxes *nsp_mscope_new_axe(double *bounds,int ncurves,const int *style, double ymin, double ymax)
+static NspAxes *nsp_dmscope_new_axe(NspGrRect *R,int ncurves,int iwin,int nswin,
+				    const int *style, double ymin, double ymax,int Npts,int grid)
 {
   char strflag[]="151";
   char *curve_l=NULL;
-  int bufsize= 10000, yfree=TRUE;
+  int yfree=TRUE;
   int i;
   double frect[4];
   /* create a new axes */
@@ -91,7 +93,7 @@ static NspAxes *nsp_mscope_new_axe(double *bounds,int ncurves,const int *style, 
     {
       int mark=-1;
       NspQcurve *curve;
-      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2); 
+      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(Npts,100),2); 
       if ( Pts == NULL) return NULL;
       if ( style[i] <= 0 ) mark = -style[i];
       curve= nsp_qcurve_create("curve",mark,0,0,( style[i] > 0 ) ?  style[i] : -1,
@@ -107,6 +109,7 @@ static NspAxes *nsp_mscope_new_axe(double *bounds,int ncurves,const int *style, 
   nsp_strf_axes( axe , frect, strflag[1]);
   memcpy(axe->obj->frect->R,frect,4*sizeof(double));
   memcpy(axe->obj->rect->R,frect,4*sizeof(double));
+  axe->obj->grid = grid;
   axe->obj->axes = 1;
   axe->obj->xlog = FALSE;
   axe->obj->ylog=  FALSE;
@@ -114,31 +117,36 @@ static NspAxes *nsp_mscope_new_axe(double *bounds,int ncurves,const int *style, 
   /* use free scales if requested  */
   axe->obj->fixed = ( yfree == TRUE ) ? FALSE: TRUE ;
   axe->obj->top = FALSE;
-  /* upper-left width height  */
-  axe->obj->wrect->R[0] = bounds[0];
-  axe->obj->wrect->R[1] = bounds[3];
-  axe->obj->wrect->R[2] = bounds[2]-bounds[0];
-  axe->obj->wrect->R[3] = bounds[3]-bounds[1];
+  /* the position of the axes in its container 
+   * upper-left width height  
+   */
+  axe->obj->wrect->R[0] = R->obj->x;
+  axe->obj->wrect->R[1] = R->obj->y - iwin*R->obj->h/nswin;
+  axe->obj->wrect->R[2] = R->obj->w;
+  axe->obj->wrect->R[3] = R->obj->h/nswin;
   return axe;
 }
 
 /* nswin : number of subwindows
- * ncs[i] : number of curves in subsin i
+ * ncs[i] : number of curves in subwin i
  * style[k]: style for curve k 
  */
 
-static int nsp_mscope_obj(NspCompound *Gr,int nswin,const int *ncs,const int *style,
-			  const double *period, int yfree,const double *yminmax)
+static int nsp_dmscope_obj(NspCompound *Gr,int nswin,const int *ncs,const int *style,
+			   const double *period, int yfree,const double *yminmax, int Npts,int grid)
 {
-  const int *cstyle = style;
+  const int *cstyle = style;  /* style or color to be used in each subwindow */
+  NspGrRect *R;
   NspAxes *axe;
   int i;
-  /* clean the compound */
+  /* clean the compound: from axes resulting from previous runs */
   nsp_list_delete_axes(Gr->obj->children);
+  /* get the last element which is a rect */
+  R = (NspGrRect *) Gr->obj->children->last->O;
   /* create nswin axes */
   for ( i = 0 ; i < nswin ; i++) 
     {
-      if ((axe = nsp_mscope_new_axe(Gr->obj->bounds->R,ncs[i],cstyle,-1,1))== NULL)
+      if ((axe = nsp_dmscope_new_axe(R,ncs[i],i,nswin,cstyle,-1,1,Npts,grid))== NULL)
 	return FAIL;
       /* store in Compound */
       if ( nsp_list_end_insert(Gr->obj->children,(NspObject *) axe)== FAIL) 
@@ -146,7 +154,6 @@ static int nsp_mscope_obj(NspCompound *Gr,int nswin,const int *ncs,const int *st
 	  nsp_axes_destroy(axe);
 	  return FAIL;
 	}
-      cstyle += ncs[i];
     }
   nsp_list_link_figure(Gr->obj->children, ((NspGraphic *) Gr)->obj->Fig,((NspGraphic *) Gr)->obj->Axe);
   nsp_graphic_invalidate((NspGraphic *) Gr);  
@@ -155,18 +162,19 @@ static int nsp_mscope_obj(NspCompound *Gr,int nswin,const int *ncs,const int *st
 
 static void nsp_list_delete_axes(NspList *L)
 {
-  Cell *Loc = L->first;
-  while ( Loc != NULLCELL ) 
+  NspObject *Obj;
+  while (1) 
     {
-      if ( Loc->O != NULLOBJ  &&  IsAxes(Loc->O)) 
-	{ 
-	  nsp_remove_cell_from_list(L, Loc);
-	  L->icurrent = 0;
-	  L->current = NULLCELL;
-	  nsp_cell_destroy(&Loc);
-	  return;
+      int n = nsp_list_length(L);
+      Obj= nsp_list_get_element(L,n);
+      if ( Obj != NULLOBJ  &&  IsAxes(Obj))
+	{
+	  nsp_list_delete_elt(L,n);
 	}
-      Loc = Loc->next;
+      else
+	{
+	  break;
+	}
     }
 }
 
@@ -177,9 +185,9 @@ void scicos_dmscope_block (scicos_block * block, int flag)
   dmscope_rpar *csr = (dmscope_rpar *) GetRparPtrs (block);
   /* int nipar = GetNipar (block); */
   /* number of curves in each subwin */
-  int *nswin = ((int *) csi) +7 ;
-  /* colors */
-  int *colors = ((int *) csi) + 7 + csi->number_of_subwin;
+  int *ncs = &(csi->in);
+  /* sequence of colors to be used in each subwin */
+  int *colors = &(csi->in) + csi->number_of_subwin;
   /* refresh period for each curve */
   double *period = ((double *) csr) + 1; 
   /* ymin,ymax for each curve */
@@ -197,6 +205,11 @@ void scicos_dmscope_block (scicos_block * block, int flag)
       /*k = D->count;*/
       D->count++;
       D->tlast = t;
+      if ( D->C->obj->ref_count <= 1 ) 
+	{
+	  /* Compound was destroyed during simulation */
+	  return;
+	}
       L= ((NspCompound *) Gr)->obj->children;
       /* insert the points */
       i=0;
@@ -208,7 +221,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 	      double *u1 = GetRealInPortPtrs (block, i + 1);
 	      NspAxes *axe = (NspAxes *) cloc->O;
 	      /* add nu points for time t, nu is the number of curves */
-	      nsp_oscillo_add_point (axe->obj->children, t, u1,nswin[i]);
+	      nsp_oscillo_add_point (axe->obj->children, t, u1,ncs[i]);
 	      i++;
 	    }
 	  cloc = cloc->next;
@@ -238,6 +251,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
     }
   else if (flag == 4)
     {
+      NspCompound *C;
       /* initialize a scope window */
       dmscope_data *D;
       Gr = Scicos->Blocks[Scicos->params.curblk -1].grobj;
@@ -246,7 +260,12 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 	  scicos_set_block_error (-16);
 	  return;
 	}
-      if ( nsp_mscope_obj((NspCompound *) Gr,csi->number_of_subwin,nswin,colors,period, TRUE,yminmax)== FAIL)
+      if ((C = nsp_compound_copy((NspCompound *) Gr))== NULL)
+	{
+	  scicos_set_block_error (-16);
+	  return;
+	}
+      if ( nsp_dmscope_obj((NspCompound *) Gr,csi->number_of_subwin,ncs,colors,period,TRUE,yminmax,csi->npts,csi->grid)== FAIL)
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -261,6 +280,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
       /* keep a copy in case Figure is destroyed during simulation 
        * note that is a by reference object 
        */
+      D->C = C;
       D->count = 0;
       D->tlast = t;
     }
@@ -270,11 +290,11 @@ void scicos_dmscope_block (scicos_block * block, int flag)
       /* we have locally incremented the count of figure: thus 
        * we can destroy figure here. It will only decrement the ref 
        * counter
-       if ( D->F->obj->ref_count >= 1 ) 
+       */
+      if ( D->C->obj->ref_count >= 1 ) 
 	{
-	  nsp_figure_destroy(D->F);
+	  nsp_compound_destroy(D->C);
 	}
-      */
       scicos_free (D);
     }
 }
