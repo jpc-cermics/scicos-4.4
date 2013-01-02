@@ -5,13 +5,6 @@ function scmenu_palettes()
   scicos_widgets($+1)=hash(id=scicos_palette_icon_view(),open=%t,what='IconView');
 endfunction
 
-function scmenu_coselica_palettes()
-  Cmenu=''
-  //[palettes,windows]=do_palettes(palettes,windows)
-  //[palettes,windows]=do_all_palettes(windows)
-  scicos_widgets($+1)=hash(id=scicos_palette_icon_view(coselica_default_palettes()),open=%t,what='IconView');
-endfunction
-
 function [palettes,windows]=do_palettes(palettes,windows)
 // Copyright INRIA
 // unused 

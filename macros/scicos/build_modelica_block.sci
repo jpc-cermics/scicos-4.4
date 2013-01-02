@@ -424,14 +424,12 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
   updateC=updateC | %Modelica_Init
 
   if updateC  then
-    if ~exists('modelica_libs','all') then 
+    // Alan ???
+//    if ~exists('modelica_libs','all') then 
       // to use do_compile outside of scicos
-      modelica_libs=get_scicospath()+'/macros/blocks/'+...
-	  ['ModElectrical','ModHydraulics','ModLinear'];
-      if exists('coselica_path') then
-	modelica_libs=[modelica_libs,file('join',[coselica_path,'macros'])];
-      end
-    end
+//       modelica_libs=get_scicospath()+'/macros/blocks/'+...
+//     ['ModElectrical','ModHydraulics','ModLinear'];
+//    end
     mlibs=modelica_libs;
     for k=1:size(modelica_libs,'*')
       mlibs(k)=file('native',mlibs(k))

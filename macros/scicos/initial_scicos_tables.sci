@@ -9,7 +9,7 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
   scicospath=get_scicospath()
   
   %scicos_display_mode=0  // =1 if pixmap to be used for display
-  %scicos_gif=scicospath+"/macros/scicos/scicos-images/";
+  %scicos_gif=file('join',[scicospath,'macros/scicos/scicos-images']);
   %scicos_contrib=[];
   %scicos_libs=m2s([]);// string matrix 
   %scicos_cflags=[];
@@ -59,10 +59,6 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
                   ["Pal Tree"          "menuitem"  "scmenu_pal_tree"          "" ""],
                   ["Palettes"          "menuitem"  "scmenu_palettes"          "" ""]);
 
-  if exists('coselica_path') then 
-    Palette.add_last[["Coselica Palettes"          "menuitem"  "scmenu_coselica_palettes" "" ""]];
-  end
-		  
   Palette.concat[list(...                  
 		  ["sep0"              "separator" ""                         "" ""],
                   ["Pal editor"        "menuitem"  "scmenu_pal_editor"        "" ""],
@@ -395,9 +391,6 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
   //Scicos Modelica librabry path definitions==============================
   
   modelica_libs=scicospath+'/macros/blocks/'+['ModElectrical','ModHydraulics','ModLinear'];
-  if exists('coselica_path') then
-    modelica_libs=[modelica_libs,file('join',[coselica_path,'macros'])];
-  end
 
   //add TMPDIR/Modelica for generic modelica blocks
   rpat=getenv('NSP_TMPDIR')+'/Modelica";
