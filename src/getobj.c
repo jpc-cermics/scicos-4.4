@@ -339,7 +339,7 @@ int scicos_getobj(NspObject *obj,const double *pt,int *k, int *wh)
    * the user perform operations on the most recently inserted blocks.
    */
   cloc = ((NspList *) objs)->last;
-  if ( cloc == NULL) return FALSE;
+  if ( cloc == NULL) return TRUE;
 
   for ( i = n; i > 0 ; i--) 
     {
@@ -418,7 +418,7 @@ int scicos_getblock(NspObject *obj,double *pt,int *k)
   n = ((NspList *) objs)->nel;
 
   /* loop on list elements */
-  if ((cloc = ((NspList *) objs)->last)== NULL) return FALSE;
+  if ((cloc = ((NspList *) objs)->last)== NULL) return TRUE;
 
   for (i=n;i>0;i--) 
     {
@@ -457,7 +457,7 @@ int scicos_getblocklink(NspObject *obj,double *pt,int *k, int *wh)
   n = ((NspList *) objs)->nel;
 
   /* loop on list elements */
-  if ((cloc = ((NspList *) objs)->last) == NULL) return FALSE;
+  if ((cloc = ((NspList *) objs)->last) == NULL) return TRUE;
   
   for (i=n;i>0;i--) 
     {
