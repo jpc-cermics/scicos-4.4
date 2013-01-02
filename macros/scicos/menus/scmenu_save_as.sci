@@ -21,14 +21,17 @@ endfunction
 function [scs_m,edited]=do_SaveAs()
 //
 // Copyright INRIA
+  global %scicos_saveas_path ;
+  if isempty(%scicos_saveas_path) then %scicos_saveas_path='', end
   edited=%f;
   scs_m=scs_m;
   tit=['For saving in binary file use .cos extension,';
        'for saving in ascii file use .cosf extension'];
   // FIXME: 
-  fname=xgetfile(masks=['Scicos';'*.cos*';'*.xml'],title='cos, cosf or xml',save=%t)
+  fname=xgetfile(masks=['Scicos';'*.cos*';'*.xml'],title='cos, cosf or xml',save=%t,dir=%scicos_saveas_path)
   if fname=="" then return,end
   [path,name,ext]=splitfilepath(fname)
+  %scicos_saveas_path=path
   select ext
    case 'cos' then
     ok=%t

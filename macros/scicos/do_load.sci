@@ -2,7 +2,9 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
 // Copyright INRIA
 // Load a Scicos diagram
 
-  global %scicos_demo_mode ; 
+  global %scicos_demo_mode ;
+  global %scicos_open_path ;
+  if isempty(%scicos_open_path) then %scicos_open_path='', end
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
   if nargin <=2 then import = %f;  end
@@ -35,14 +37,14 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
     //** conventional Open
     if isempty(fname) then
       if import then
-        fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos','*.xml'],open=%t);
+        fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos','*.xml'],open=%t,dir=%scicos_open_path);
       else
         if (exists('%scicos_gui_mode') && %scicos_gui_mode==1) then
           // fname = getfile(['*.cos*','*.xml'])
-          fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t);
+          fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=%scicos_open_path);
         else
           // fname = getfile('*.cos*')
-          fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t);
+          fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t,dir=%scicos_open_path);
         end
       end
     end
@@ -64,6 +66,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
   scs_m=[]
   edited = %f
   [path,name,ext]=splitfilepath(fname);
+  %scicos_open_path=path
   if import then
     if ~or(ext==['cos','COS','XML','xml']) then
       message(['Only *.cos (binary) and *.xml (xml) files allowed for import']);
