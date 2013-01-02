@@ -193,7 +193,6 @@ function icon_list=scicos_build_iconlist(S)
 
   // get data for palette j 
   for j=1:size(S,'*');
-    ok=%t
     for jj=1:size(%scicos_gif,1)
       icon = file('join',[%scicos_gif(jj),S(j)+'.png']) ;
       ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
