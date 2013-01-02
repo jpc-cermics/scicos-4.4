@@ -197,11 +197,12 @@ function icon_list=scicos_build_iconlist(S)
     for jj=1:size(%scicos_gif,1)
       icon = file('join',[%scicos_gif(jj),S(j)+'.png']) ;
       ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
-      if ok then break, end
-    end
-    if ~ok then 
-      pixbuf = pixbuf_def
-      lasterror();
+      if ok then
+        break
+      else
+        pixbuf = pixbuf_def
+        lasterror();
+      end
     end
     path=[1,1];// sub(j).path;
     // we assume that path is of length 2 (paletteid,blockid).
