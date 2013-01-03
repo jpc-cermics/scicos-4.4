@@ -54,7 +54,7 @@ function scicos_create_icons(lisf)
     if ~ok then
       message(['Error in '+name+'(''define'')';lasterror()] );
     else 
-      blk.graphics.sz=20*blk.graphics.sz;
+      blk.graphics.sz=35*blk.graphics.sz;
       blk.graphics.orig=[0,0];
       scs_m.objs(1)=blk
     end
@@ -85,7 +85,7 @@ function scicos_show_icon(name,zoom)
   if ~ok then
     message(['Error in '+name+'(''define'')';lasterror()] );
   else 
-    blk.graphics.sz=20*blk.graphics.sz;
+    blk.graphics.sz=35*blk.graphics.sz;
     blk.graphics.orig=[0,0];
     scs_m.objs(1)=blk
   end
@@ -99,8 +99,9 @@ function scicos_show_icon(name,zoom)
   xset('window',curwin);
   options=scs_m.props.options
   set_background();
-  scs_m=scs_m_remove_gr(scs_m);
+  scs_m=scs_m_remove_gr(scs_m); 
   %zoom=zoom*restore(curwin,1.0);
+  window_set_size();
   drawobjs(scs_m,curwin);
 endfunction
 
@@ -122,6 +123,9 @@ function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
   set_background();
   scs_m=scs_m_remove_gr(scs_m);
   %zoom=restore(curwin,1.0);
+  //for i=1:30
+  window_set_size();
+  //end
   drawobjs(scs_m,curwin);
   // reset the extension just in case 
   xexport(curwin,name,figure_background=figure_background);
