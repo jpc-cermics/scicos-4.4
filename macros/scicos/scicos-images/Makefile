@@ -285,7 +285,8 @@ PNGS= ABSBLK_f.png \
 	WhileIterator.png \
 	WRITEAU_f.png \
 	WRITEC_f.png \
-	ZCROSS_f.png
+	ZCROSS_f.png \
+	DMSCOPE.png
 
 PLUS= Atmosphere.png FluxSensor.png \
        HGround.png Medias.png Pipe.png \

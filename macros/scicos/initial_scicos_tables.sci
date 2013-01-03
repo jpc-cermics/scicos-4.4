@@ -498,7 +498,7 @@ function H1=scicos_default_palettes()
        'CSCOPXY3D';   'CANIMXY3D';
        'CMATVIEW';      'CMAT3D';
        'TOWS_c';'BUSOUT_f';'ACTUATOR_f';
-       'SLIDER_f'; 'SLIDER_m'];
+       'SLIDER_f'; 'SLIDER_m';'DMSCOPE'];
 
   H.Branching = ...
       ['DEMUX';
