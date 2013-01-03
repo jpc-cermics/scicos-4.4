@@ -23,6 +23,20 @@ function window=scicos_palette_treeview(L)
 	else
 	  iter1=model.append[list(list(pixbuf_dir),L(i))];
 	end
+        if H.contents.iskey[L(i)] then
+          sub=H.contents(L(i));
+          for j=1:size(sub,'*')
+            icon = scicos_icon_path + sub(j) + '.png' ;
+            ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
+            if ~ok then
+              lasterror();
+              pixbuf = pixbuf_def
+            end
+            // pb = pixbuf.scale_simple[ 64,64, GDK.INTERP_NEAREST];
+            // we assume that path is of length 2 (paletteid,blockid).
+            model.append[iter1,list(list(pixbuf),sub(j),1,2)];
+          end
+        end
 	scicos_palette_tv_model(iter1,model,L(i+1),H)
       elseif type(L(i),'short')=='s' then 
 	sub=H.contents(L(i));
