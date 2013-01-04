@@ -26,7 +26,7 @@ function window=scicos_palette_icon_view(H)
 // in icon views.
 //
   if nargin <= 0 then 
-    H=scicos_default_palettes();
+    H=%scicos_pal;
   end
   
   window = gtkwindow_new ()// GTK.WINDOW_TOPLEVEL);
@@ -36,26 +36,28 @@ function window=scicos_palette_icon_view(H)
   window.add[ vbox];
   
   // a combo with recursive structure.
-  function scicos_palette_tree_model_append(model,h,iter) 
-    for i=1:length(h)
-      t = type(h(i),'string');
-      // On first call to this recursive function iter is not 
-      // a GtkTreeIter
-      if t == 'SMat' then 
-	if is(iter,%types.GtkTreeIter) then 
-	  iter1=model.append[iter,list(h(i))];
-	else 
-	  iter1=model.append[list(h(i))];
-	end
-      else
-	scicos_palette_tree_model_append(model,h(i),iter1);
+  function scicos_palette_tree_model_append(model,H,iter)
+    L=H.structure;
+    for i=1:length(L)
+      //don't display single block in combobox
+      if type(H.contents(L(i)),'string')<>'SMat' then
+        if is(iter,%types.GtkTreeIter) then
+          iter1=model.append[iter,list(L(i))];
+        else
+          iter1=model.append[list(L(i))];
+        end
+      end
+      if type(H.contents(L(i)),'string')=='Hash' then
+        scicos_palette_tree_model_append(model,H.contents(L(i)),iter1);
       end
     end
   endfunction
   
   // a hierarchical model
   model = gtktreestore_new(list("name"),%f);
-  scicos_palette_tree_model_append(model,H.structure,0);
+  //scicos_palette_tree_model_append(model,H.structure,0);
+  scicos_palette_tree_model_append(model,H,0);
+
   // a combo defined by model
   combobox2 = gtkcombobox_new(model=model);
   combobox2.set_add_tearoffs[%t];
@@ -73,12 +75,34 @@ function window=scicos_palette_icon_view(H)
   // combobox.connect["changed", current_option ]
     M= combo.get_model[]
     iter=combo.get_active_iter[]
-    name = M.get_value[iter,0];
+    //name = M.get_value[iter,0];
     //printf('Value selected %s\n",name);
     H=args(2);
     sw=args(1);
-    if ~H.contents.iskey[name] then return;end
-    S= H.contents(name);
+
+    path=evstr(split(M.get_string_from_iter[iter],sep=':'))+1
+
+    function [kk]=get_ind_from_path(H,path)
+      k=0;kk=0;
+      for j=1:length(H.structure)
+        kk=kk+1
+        if type(H.contents(j),'string')<>'SMat' then k=k+1, end
+        if path==k then return, end
+      end
+    endfunction
+
+    function [contents]=get_contents_from_path(H,path)
+      contents=[]
+      for i=1:length(path)
+        k=get_ind_from_path(H,path(i))
+        contents=H.contents(H.structure(k))
+        H=contents
+      end
+    endfunction
+
+    S=get_contents_from_path(H,path)
+    if isempty(S) then return, end
+
     icon_list=scicos_build_iconlist(S);
     icon_list.show[];
     L=sw.get_children[];
@@ -99,7 +123,7 @@ function window=scicos_palette_icon_view(H)
 
   // Icon list 
   
-  icon_list=scicos_build_iconlist(H.contents(H.first));
+  icon_list=scicos_build_iconlist(H.contents(H.structure(1)));
   // icon list in scrolled window 
   scrolled_window = gtkscrolledwindow_new();
   scrolled_window.add[ icon_list];
@@ -185,27 +209,27 @@ function icon_list=scicos_build_iconlist(S)
   icon_list.connect["activate-cursor-item",item_activated_cursor];
 
   // create a model for icon view [pixbuf,name,paletteid,blockid];
-  // 
   model = gtkliststore_new(list(list(%types.GdkPixbuf),"",1,2), %f);
-  dir_logo = file('join',[%scicos_gif(1),'gtk-directory.png']);
-  pixbuf_dir = gdk_pixbuf_new_from_file(dir_logo);
-  pixbuf_def = gdk_pixbuf_new_from_file( file('join',[%scicos_gif(1),'VOID.png']));
 
-  // get data for palette j 
-  for j=1:size(S,'*');
-    for jj=1:size(%scicos_gif,1)
-      icon = file('join',[%scicos_gif(jj),S(j)+'.png']) ;
-      ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
-      if ok then
-        break
-      else
-        pixbuf = pixbuf_def
-        lasterror();
+  // get data for palette j
+  if type(S,'string')=='Hash' then
+    for j=1:size(S.structure,'*')
+      //single blk
+      if type(S.contents(S.structure(j)),'short')=='s' then
+        [pixbuf]=get_gdk_pixbuf(%scicos_gif,S.contents(S.structure(j)))
+        path=[1,1];// sub(j).path;
+        // we assume that path is of length 2 (paletteid,blockid).
+        model.append[list(list(pixbuf),S.contents(S.structure(j)),path(1),path(2))];
       end
     end
-    path=[1,1];// sub(j).path;
-    // we assume that path is of length 2 (paletteid,blockid).
-    model.append[list(list(pixbuf),S(j),path(1),path(2))];
+  else
+    //list case
+    for j=1:size(S,'*')
+      [pixbuf]=get_gdk_pixbuf(%scicos_gif,S(j))
+      path=[1,1];// sub(j).path;
+      // we assume that path is of length 2 (paletteid,blockid).
+      model.append[list(list(pixbuf),S(j),path(1),path(2))];
+    end
   end
   
   icon_list.set_model[model=model];
@@ -222,6 +246,21 @@ function icon_list=scicos_build_iconlist(S)
     // added Aug 2011 
     // use block name as tooltip 
     icon_list.set_tooltip_column[1];
+  end
+endfunction
+
+//also used in pal_tree
+function [pixbuf]=get_gdk_pixbuf(%scicos_gif,blk_name)
+  pixbuf_def = gdk_pixbuf_new_from_file( file('join',[%scicos_gif(1),'VOID.png']));
+  for jj=1:size(%scicos_gif,1)
+    icon = file('join',[%scicos_gif(jj),blk_name+'.png']) ;
+    ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
+    if ok then
+      break
+    else
+      pixbuf = pixbuf_def
+      lasterror();
+    end
   end
 endfunction
 

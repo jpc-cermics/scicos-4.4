@@ -1,4 +1,4 @@
-function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
+function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
           %scicos_display_mode, modelica_libs, ...
           %scicos_lhb_list, %CmenuTypeOneVector, %DmenuTypeOneVector, %scicos_gif, ...
           %scicos_contrib,%scicos_libs,%scicos_cflags] = initial_scicos_tables()
@@ -202,6 +202,10 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
                          ["tsep6"                     "separator" ""                                 "" ""],
                          ["Quit|||gtk-quit"           "toolitem"  "scmenu_quit"                      "<Ctrl>Q" ""]);
 
+
+  //Scicos palette ===========================================
+  %scicos_pal=scicos_default_palettes();
+
   //Scicos Right Mouse Button Menu ===========================================
   //**
   %scicos_lhb_list = list();
@@ -220,26 +224,44 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
   //Window
 
   function L1=scicos_rmenu_pal_tree()
-  // make a mpopup data list 
-  // for block insertion from right click menu
-  // the action activated is placeindiagram.
-  //
+    // make a mpopup data list 
+    // for block insertion from right click menu
+    // the action activated is placeindiagram.
+
     H=scicos_default_palettes();
     L=H.structure;
     L1=list('Pal Tree');
-    for i=1:length(L)
-      if type(L(i),'short')=='s' then 
-	l=list(L(i));
-	blocks=H.contents(L(i));
-	for j=1:size(blocks,'*');
-	  name = strsubst(blocks(j),'_','__');
-	  l.add_last[hash(name=name,rname=blocks(j),cmenu='PlaceinDiagram')];
-	end
-	L1.add_last[l];
+
+    function [L1]=foo_rec(L1,H)
+      L=H.structure;
+      for i=1:length(L)
+        //single blk
+        if type(H.contents(L(i)),'short')=='s' then
+          blk=H.contents(L(i));
+          name = strsubst(blk,'_','__');
+          l=hash(name=name,rname=blk,cmenu='PlaceinDiagram');
+        //palette of single blk
+        elseif type(H.contents(L(i)),'short')=='l' then
+          l=list(L(i));
+          blocks=H.contents(L(i));
+          for j=1:size(blocks,'*');
+            name = strsubst(blocks(j),'_','__');
+            l.add_last[hash(name=name,rname=blocks(j),cmenu='PlaceinDiagram')];
+          end
+        //palette
+        elseif type(H.contents(L(i)),'short')=='h' then
+          l=list(L(i));
+          pal=H.contents(L(i))
+          l=foo_rec(l,pal)
+        end
+        L1.add_last[l];
       end
-    end
+    endfunction
+
+    [L1]=foo_rec(L1,H)
+
   endfunction
-  
+
   L=scicos_rmenu_pal_tree();
   
   %scicos_lhb_list(2) = list('Undo|||gtk-undo',..
@@ -258,7 +280,6 @@ function [%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
                              list('Zoom',..
                                   'Zoom in|||gtk-zoom-in',..
                                   'Zoom out|||gtk-zoom-out'),..
-                             'Pal Tree',..
                              'Region to Super Block',..
                              'Region to Palette',..
                              'Code Generation',..
@@ -464,143 +485,143 @@ function H1=scicos_default_palettes()
 
   // describe the structure of the palette hierarchy.
 
+  // a palette is described by an hash table and gives the order
+  // of the displayed components in the 'structure' field.
+  // The 'contents' field enclose the contents.
+
+  // a component is describeb by :
+  // * a string, that means that the component is a block,
+  // * a list of single string, that means that the component is a palette only composed by blocks,
+  // * or an hash table, that means that the component is a palette that can contains single blocks and palettes.
+
   H1.structure= list('Sources','Sinks','Branching','Non_linear',...
                      'Lookup_Tables','Events','Threshold','Others',...
                      'Linear', 'OldBlocks' , 'DemoBlocks','Modelica',...
-                     list('Modelica Electrical',...
-                          'Modelica Hydraulics' , 'Foo', list('Sources')),...
                      'Matrix' , 'Integer',  'Iterators');
-
-  H1.first = 'Sources';
 
   // for each palette describe its contents
 
   H= hash(20);
 
-  H.Sources =...
-      ['CONST_m';'GENSQR_f';'RAMP';
-       'RAND_m';'RFILE_f';
-       'CLKINV_f'; 'CURV_f';  'INIMPL_f'; 'READAU_f';
-       'SAWTOOTH_f'; 'STEP_FUNCTION';
-       'CLOCK_c'; 'GENSIN_f'; 'IN_f';   'READC_f';
-       'TIME_f'; 'Modulo_Count';'Sigbuilder';'Counter';
-       'SampleCLK';'TKSCALE';'GTKRANGE';'FROMWSB';'Ground_g';
-       'PULSE_SC';'GEN_SQR';'BUSIN_f';'SENSOR_f'];
+  H.Sources = list('CONST_m','GENSQR_f','RAMP',
+       'RAND_m','RFILE_f',
+       'CLKINV_f', 'CURV_f',  'INIMPL_f', 'READAU_f',
+       'SAWTOOTH_f', 'STEP_FUNCTION',
+       'CLOCK_c', 'GENSIN_f', 'IN_f',   'READC_f',
+       'TIME_f', 'Modulo_Count','Sigbuilder','Counter',
+       'SampleCLK','TKSCALE','GTKRANGE','FROMWSB','Ground_g',
+       'PULSE_SC','GEN_SQR','BUSIN_f','SENSOR_f');
 
-  H.Sinks = ...
-      ['AFFICH_m';   'CMSCOPE';
-       'CSCOPXY';   'WRITEC_f';
-       'CANIMXY';   'CSCOPE';
-       'OUTIMPL_f';
-       'CLKOUTV_f';  'CEVENTSCOPE';
-       'OUT_f';      'WFILE_f';
-       'CFSCOPE';   'WRITEAU_f';
-       'CSCOPXY3D';   'CANIMXY3D';
-       'CMATVIEW';      'CMAT3D';
-       'TOWS_c';'BUSOUT_f';'ACTUATOR_f';
-       'SLIDER_f'; 'SLIDER_m';'DMSCOPE'];
+  H.Sinks = list('AFFICH_m',   'CMSCOPE',
+       'CSCOPXY',   'WRITEC_f',
+       'CANIMXY',   'CSCOPE',
+       'OUTIMPL_f',
+       'CLKOUTV_f',  'CEVENTSCOPE',
+       'OUT_f',      'WFILE_f',
+       'CFSCOPE',   'WRITEAU_f',
+       'CSCOPXY3D',   'CANIMXY3D',
+       'CMATVIEW',      'CMAT3D',
+       'TOWS_c','BUSOUT_f','ACTUATOR_f',
+       'SLIDER_f', 'SLIDER_m','DMSCOPE');
 
-  H.Branching = ...
-      ['DEMUX';
-       'MUX'; 'NRMSOM_f';  'EXTRACTOR';
-       'SELECT_m';'ISELECT_m';
-       'RELAY_f';'IFTHEL_f';
-       'ESELECT_f';'M_SWITCH';'SWITCH2_s';
-       'SCALAR2VECTOR';'SWITCH_f';'EDGE_TRIGGER';
-       'Extract_Activation';'GOTO';'FROM';
-       'GotoTagVisibility';'CLKGOTO';'CLKFROM';
-       'CLKGotoTagVisibility';'GOTOMO';'FROMMO';
-       'GotoTagVisibilityMO';'BUSCREATOR';'BUSSELECTOR';
-       'TRANSMIT';'M_VSWITCH']
+  H.Branching = list('DEMUX',
+       'MUX', 'NRMSOM_f',  'EXTRACTOR',
+       'SELECT_m','ISELECT_m',
+       'RELAY_f','IFTHEL_f',
+       'ESELECT_f','M_SWITCH','SWITCH2_s',
+       'SCALAR2VECTOR','SWITCH_f','EDGE_TRIGGER',
+       'Extract_Activation','GOTO','FROM',
+       'GotoTagVisibility','CLKGOTO','CLKFROM',
+       'CLKGotoTagVisibility','GOTOMO','FROMMO',
+       'GotoTagVisibilityMO','BUSCREATOR','BUSSELECTOR',
+       'TRANSMIT','M_VSWITCH');
 
-  H.Non_linear = ...
-      ['ABS_VALUEi'; 'TrigFun';
-       'EXPBLK_m';  'INVBLK';
-       'LOGBLK_f'; 'LOOKUP_f'; 'MAXMIN';
-       'POWBLK_f'; 'PROD_f';
-       'PRODUCT';  'QUANT_f';'EXPRESSION';
-       'SATURATION'; 'SIGNUM';'CONSTRAINT_c']
+  H.Non_linear = list('ABS_VALUEi', 'TrigFun',
+       'EXPBLK_m',  'INVBLK',
+       'LOGBLK_f', 'LOOKUP_f', 'MAXMIN',
+       'POWBLK_f', 'PROD_f',
+       'PRODUCT',  'QUANT_f','EXPRESSION',
+       'SATURATION', 'SIGNUM','CONSTRAINT_c');
 
-  H.Lookup_Tables = ...
-      ['LOOKUP_c';'LOOKUP2D' ; 'INTRPLBLK_f'; 'INTRP2BLK_f']
+  H.Lookup_Tables = list('LOOKUP_c','LOOKUP2D' , 'INTRPLBLK_f', 'INTRP2BLK_f');
 
-  H.Events = ...
-      ['ANDBLK';'HALT_f';'freq_div';
-       'ANDLOG_f';'EVTDLY';'IFTHEL_f';'ESELECT_f';
-       'CLKSOMV_f';'CLOCK_c';'EVTGEN_f';'EVTVARDLY';
-       'M_freq';'SampleCLK';'VirtualCLK0';'SyncTag']
+  H.Events = list('ANDBLK','HALT_f','freq_div',
+       'ANDLOG_f','EVTDLY','IFTHEL_f','ESELECT_f',
+       'CLKSOMV_f','CLOCK_c','EVTGEN_f','EVTVARDLY',
+       'M_freq','SampleCLK','VirtualCLK0','SyncTag');
 
-  H.Threshold=...
-      [  'NEGTOPOS_f';  'POSTONEG_f';  'ZCROSS_f'];
+  H.Threshold= list('NEGTOPOS_f',  'POSTONEG_f',  'ZCROSS_f');
 
-  H.Others = ...
-      ['fortran_block';
-       'SUPER_f';'scifunc_block_m';'scifunc_block5';
-       'TEXT_f';'CBLOCK4';'RATELIMITER';
-       'BACKLASH';'DEADBAND';'EXPRESSION';
-       'HYSTHERESIS';'DEBUG_SCICOS';
-       'LOGICAL_OP';'RELATIONALOP';'generic_block3';
-       'PDE';'ENDBLK';'AUTOMAT';'Loop_Breaker';
-       'PAL_f'];
-  H.Linear = ...
-      ['DLR';'TCLSS';'DOLLAR_m';
-       'CLINDUMMY_f';'DLSS';'REGISTER';'TIME_DELAY';
-       'CLR';'GAINBLK';'SAMPHOLD_m';'VARIABLE_DELAY';
-       'CLSS';'SUMMATION';'INTEGRAL_m';'SUM_f';
-       'DERIV';'PID2';'DIFF_c']
+  H.Others = list('fortran_block',
+       'SUPER_f','scifunc_block_m','scifunc_block5',
+       'TEXT_f','CBLOCK4','RATELIMITER',
+       'BACKLASH','DEADBAND','EXPRESSION',
+       'HYSTHERESIS','DEBUG_SCICOS',
+       'LOGICAL_OP','RELATIONALOP','generic_block3',
+       'PDE','ENDBLK','AUTOMAT','Loop_Breaker',
+       'PAL_f');
 
-  H.OldBlocks= ...
-      ['CLOCK_f';'ABSBLK_f';
-       'MAX_f'; 'MIN_f';'SAT_f'; 'MEMORY_f';
-       'CLKSOM_f';'TRASH_f';'GENERAL_f';'DIFF_f';
-       'BIGSOM_f';'INTEGRAL_f';'GAINBLK_f';
-       'DELAYV_f';'DELAY_f'; 'DEMUX_f';'MUX_f';
-       'MFCLCK_f';'MCLOCK_f';'COSBLK_f';   'DLRADAPT_f';
-       'SINBLK_f'; 'TANBLK_f';'generic_block';'RAND_f';
-       'DOLLAR_f';'CBLOCK';'c_block';'PID']
+  H.Linear = list('DLR','TCLSS','DOLLAR_m',
+       'CLINDUMMY_f','DLSS','REGISTER','TIME_DELAY',
+       'CLR','GAINBLK','SAMPHOLD_m','VARIABLE_DELAY',
+       'CLSS','SUMMATION','INTEGRAL_m','SUM_f',
+       'DERIV','PID2','DIFF_c');
 
-  H.DemoBlocks=...
-      ['BOUNCE';'BOUNCEXY';'BPLATFORM'; ...
-       'PENDULUM_ANIM'];
+  H.OldBlocks= list('CLOCK_f','ABSBLK_f',
+       'MAX_f', 'MIN_f','SAT_f', 'MEMORY_f',
+       'CLKSOM_f','TRASH_f','GENERAL_f','DIFF_f',
+       'BIGSOM_f','INTEGRAL_f','GAINBLK_f',
+       'DELAYV_f','DELAY_f', 'DEMUX_f','MUX_f',
+       'MFCLCK_f','MCLOCK_f','COSBLK_f',   'DLRADAPT_f',
+       'SINBLK_f', 'TANBLK_f','generic_block','RAND_f',
+       'DOLLAR_f','CBLOCK','c_block','PID');
 
-  H.Modelica=...
-      ['MBLOCK', 'MPBLOCK'];
+  H.DemoBlocks = list('BOUNCE','BOUNCEXY','BPLATFORM', ...
+       'PENDULUM_ANIM');
 
-  H('Modelica Electrical')= ...
-      ['Capacitor';'Ground';'VVsourceAC';
-       'ConstantVoltage';'Inductor';'PotentialSensor';
-       'VariableResistor';'CurrentSensor';'Resistor';
-       'VoltageSensor';'Diode';'VsourceAC';
-       'NPN';'PNP';'SineVoltage';'Switch';
-       'OpAmp';'PMOS';'NMOS';'CCS';'CVS';
-       'IdealTransformer';'Gyrator'];
+  //Modelica palette
+  H_Mod=hash(10)
 
-  H('Modelica Hydraulics') = ...
-      ['Bache';'VanneReglante';'PerteDP';
-       'PuitsP';'SourceP';'Flowmeter'];
+  H_Mod.structure=list('MBLOCK', 'Modelica Electrical', 'MPBLOCK', 'Modelica Hydraulics', 'Modelica Linear');
 
-  H('Modelica Linear')=...
-      ['Actuator';'Constant';'Feedback';
-       'Gain';'Limiter';'PI';'Sensor';'PT1';
-       'SecondOrder'; 'TanTF'; 'AtanTF'; 'FirstOrder';
-       'SineTF'; 'Sine'];
+  H2=hash(10);
 
-  H.Matrix = ...
-      ['MATMUL';'MATTRAN';'MATSING';'MATRESH';'MATDIAG';
-       'MATEIG';'MATMAGPHI';'EXTRACT';'MATEXPM';'MATDET';
-       'MATPINV';'EXTTRI';'RICC';'ROOTCOEF';'MATCATH';
-       'MATLU';'MATDIV';'MATZCONJ';'MATZREIM';'SUBMAT';
-       'MATBKSL';'MATINV';'MATCATV';'MATSUM'; ...
-       'CUMSUM';
-       'SQRT';'Assignment']
+  H2.MBLOCK='MBLOCK';
 
-  H.Integer = ...
-      ['BITCLEAR';'BITSET';'CONVERT';'EXTRACTBITS';'INTMUL';
-       'SHIFT';'LOGIC';'DLATCH';'DFLIPFLOP';'JKFLIPFLOP';
-       'SRFLIPFLOP']
+  H2.MPBLOCK='MPBLOCK';
 
-  H.Iterators= ...
-      ['ForIterator';'WhileIterator'];
+  H2('Modelica Electrical')= list('Capacitor','Ground','VVsourceAC',
+       'ConstantVoltage','Inductor','PotentialSensor',
+       'VariableResistor','CurrentSensor','Resistor',
+       'VoltageSensor','Diode','VsourceAC',
+       'NPN','PNP','SineVoltage','Switch',
+       'OpAmp','PMOS','NMOS','CCS','CVS',
+       'IdealTransformer','Gyrator');
+
+  H2('Modelica Hydraulics') = list('Bache','VanneReglante','PerteDP',
+       'PuitsP','SourceP','Flowmeter');
+
+  H2('Modelica Linear') = list('Actuator','Constant','Feedback',
+       'Gain','Limiter','PI','Sensor','PT1',
+       'SecondOrder', 'TanTF', 'AtanTF', 'FirstOrder',
+       'SineTF', 'Sine');
+
+  H_Mod.contents=H2;
+  H.Modelica = H_Mod;
+
+  H.Matrix = list('MATMUL','MATTRAN','MATSING','MATRESH','MATDIAG',
+       'MATEIG','MATMAGPHI','EXTRACT','MATEXPM','MATDET',
+       'MATPINV','EXTTRI','RICC','ROOTCOEF','MATCATH',
+       'MATLU','MATDIV','MATZCONJ','MATZREIM','SUBMAT',
+       'MATBKSL','MATINV','MATCATV','MATSUM', ...
+       'CUMSUM',
+       'SQRT','Assignment');
+
+  H.Integer = list('BITCLEAR','BITSET','CONVERT','EXTRACTBITS','INTMUL',
+       'SHIFT','LOGIC','DLATCH','DFLIPFLOP','JKFLIPFLOP',
+       'SRFLIPFLOP');
+
+  H.Iterators = list('ForIterator','WhileIterator');
 
   H1.contents = H;
 

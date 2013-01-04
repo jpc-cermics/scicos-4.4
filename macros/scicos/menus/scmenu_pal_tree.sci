@@ -3,59 +3,49 @@ function scmenu_pal_tree()
   scicos_widgets($+1)=hash(id=scicos_palette_treeview(),open=%t,what='PalTree');
 endfunction
 
-
 // simple demo of treestore with pixmap
 // the treestore model have two levels 
 // and is build with append.
 
 function window=scicos_palette_treeview(L)
   if nargin <= 0 then 
-    H=scicos_default_palettes();
+    H=%scicos_pal;
   end
   
-  function scicos_palette_tv_model(iter,model,L,H)
-    for i=1:length(L);
-      subtest = (i < length(L)) && type(L(i+1),'short')=='l';
-      if subtest then 
-	// insert L(i+1)
-	if type(iter,'short')<>'none' then 
-	  iter1=model.append[iter,list(list(pixbuf_dir),L(i))];
-	else
-	  iter1=model.append[list(list(pixbuf_dir),L(i))];
-	end
-        if H.contents.iskey[L(i)] then
-          sub=H.contents(L(i));
-          for j=1:size(sub,'*')
-            icon = scicos_icon_path + sub(j) + '.png' ;
-            ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
-            if ~ok then
-              lasterror();
-              pixbuf = pixbuf_def
-            end
-            // pb = pixbuf.scale_simple[ 64,64, GDK.INTERP_NEAREST];
-            // we assume that path is of length 2 (paletteid,blockid).
-            model.append[iter1,list(list(pixbuf),sub(j),1,2)];
-          end
+  function scicos_palette_tv_model(iter,model,H)
+    L=H.structure;
+    for i=1:length(L)
+      //single blk
+      if type(H.contents(L(i)),'short')=='s' then
+         blk=H.contents(L(i))
+         [pixbuf]=get_gdk_pixbuf(%scicos_gif,blk)
+         if type(iter,'short')<>'none' then
+           iter1=model.append[iter,list(list(pixbuf),L(i))];
+         else
+           iter1=model.append[list(list(pixbuf),L(i))];
+         end
+      //palette of single blk
+      elseif type(H.contents(L(i)),'short')=='l' then
+        if type(iter,'short')<>'none' then
+          iter1=model.append[iter,list(list(pixbuf_dir),L(i))];
+        else
+          iter1=model.append[list(list(pixbuf_dir),L(i))];
         end
-	scicos_palette_tv_model(iter1,model,L(i+1),H)
-      elseif type(L(i),'short')=='s' then 
-	sub=H.contents(L(i));
-	if type(iter,'short')<>'none' then 
-	  iter1=model.append[iter,list(list(pixbuf_dir),L(i))];
-	else
-	  iter1=model.append[list(list(pixbuf_dir),L(i))];
-	end
-	for j=1:size(sub,'*')
-	  icon = scicos_icon_path + sub(j) + '.png' ;
-	  ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
-	  if ~ok then 
-	    lasterror();
-	    pixbuf = pixbuf_def
-	  end
-	  // pb = pixbuf.scale_simple[ 64,64, GDK.INTERP_NEAREST];
-	  // we assume that path is of length 2 (paletteid,blockid).
-	  model.append[iter1,list(list(pixbuf),sub(j),1,2)];
-	end
+        sub=H.contents(L(i));
+        for j=1:size(sub,'*')
+          [pixbuf]=get_gdk_pixbuf(%scicos_gif,sub(j))
+          // pb = pixbuf.scale_simple[ 64,64, GDK.INTERP_NEAREST];
+          // we assume that path is of length 2 (paletteid,blockid).
+          model.append[iter1,list(list(pixbuf),sub(j),1,2)];
+        end
+      //palette
+      elseif type(H.contents(L(i)),'short')=='h' then
+        if type(iter,'short')<>'none' then
+          iter1=model.append[iter,list(list(pixbuf_dir),L(i))];
+        else
+          iter1=model.append[list(list(pixbuf_dir),L(i))];
+        end
+        scicos_palette_tv_model(iter1,model,H.contents(L(i)))
       end
     end
   endfunction
@@ -89,14 +79,9 @@ function window=scicos_palette_treeview(L)
   
   model = gtktreestore_new(list(list(%types.GdkPixbuf),"name",0,0),%f)
 
-  scicos_icon_path = scicos_path+'/macros/scicos/scicos-images/';
-  icons = glob(scicos_icon_path);
-  
-  dir_logo = scicos_icon_path + 'gtk-directory.png';
-  pixbuf_dir = gdk_pixbuf_new_from_file(dir_logo);
-  pixbuf_def = gdk_pixbuf_new_from_file(scicos_icon_path + 'VOID.png');
-  
-  scicos_palette_tv_model(none_create(),model,H.structure,H)
+  [pixbuf_dir]=get_gdk_pixbuf(%scicos_gif,'gtk-directory')
+
+  scicos_palette_tv_model(none_create(),model,H)
       
   treeview=gtktreeview_new();
   treeview.set_model[model=model];
