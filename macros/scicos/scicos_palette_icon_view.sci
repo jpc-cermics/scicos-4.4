@@ -82,11 +82,11 @@ function window=scicos_palette_icon_view(H)
 
     path=evstr(split(M.get_string_from_iter[iter],sep=':'))+1
 
-    function [kk]=get_ind_from_path(H,path)
-      k=0;kk=0;
+    function [j]=get_ind_from_path(H,path)
+      k=0;
       for j=1:length(H.structure)
-        kk=kk+1
-        if type(H.contents(j),'string')<>'SMat' then k=k+1, end
+        //we skip single blk in combobox entry
+        if type(H.contents(H.structure(j)),'string')<>'SMat' then k=k+1, end
         if path==k then return, end
       end
     endfunction
