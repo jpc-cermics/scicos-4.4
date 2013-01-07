@@ -103,7 +103,7 @@ function window=scicos_palette_icon_view(H)
     S=get_contents_from_path(H,path)
     if isempty(S) then return, end
 
-    icon_list=scicos_build_iconlist(S);
+    icon_list=scicos_build_iconlist(S,combo);
     icon_list.show[];
     L=sw.get_children[];
     if length(L)>=1  then 
@@ -123,7 +123,7 @@ function window=scicos_palette_icon_view(H)
 
   // Icon list 
   
-  icon_list=scicos_build_iconlist(H.contents(H.structure(1)));
+  icon_list=scicos_build_iconlist(H.contents(H.structure(1)),combobox2);
   // icon list in scrolled window 
   scrolled_window = gtkscrolledwindow_new();
   scrolled_window.add[ icon_list];
@@ -135,19 +135,40 @@ function window=scicos_palette_icon_view(H)
   window.show_all[];
 endfunction
 
-function icon_list=scicos_build_iconlist(S)
+function icon_list=scicos_build_iconlist(S,combo)
 // build a new iconlist for palette described 
 // by S
   
-  function item_activated (icon_view,path)
-  // double click on an item 
+  function item_activated (icon_view,path,args)
+  // double click on an item
+    combo=args(1)
+    S=args(2)
     model = icon_view.get_model[];
     L=icon_view.get_selected_items[];
     if ~isempty(L);
       iter = model.get_iter[L(1)];
       text= model.get_value[iter,1];
       //printf ("Item activated, text is %s\n", text);
-      help("http://www.scicos.org/HELP/eng/scicos/'+text+'.htm');
+      pixbuf=model.get_value[iter,0]
+      PAL=%f
+      if pixbuf.check_data['user_data'] then
+        if pixbuf.user_data(1)=='PAL_f' then
+          PAL=%t
+          M=combo.get_model[];
+          iter_combo=combo.get_active_iter[];
+          it_combo_children=M.iter_children[iter_combo];
+          for i=1:evstr(model.get_string_from_iter[iter])
+            //we skip single blk in combobox entry
+            if type(S.contents(S.structure(i)),'string')<>'SMat' then
+              M.iter_next[it_combo_children];
+            end
+          end
+          combo.set_active_iter[it_combo_children]
+        end
+      end
+      if ~PAL then
+        help("http://www.scicos.org/HELP/eng/scicos/'+text+'.htm');
+      end
     end
   endfunction
   
@@ -205,7 +226,7 @@ function icon_list=scicos_build_iconlist(S)
   icon_list.connect_after["button_press_event",press_event_handler];
   icon_list.connect["selection_changed",   selection_changed];
   //icon_list.connect["popup_menu",  popup_menu_handler];
-  icon_list.connect["item_activated", item_activated];// double click
+  icon_list.connect["item_activated", item_activated,list(combo,S)];// double click
   icon_list.connect["activate-cursor-item",item_activated_cursor];
 
   // create a model for icon view [pixbuf,name,paletteid,blockid];
@@ -220,6 +241,15 @@ function icon_list=scicos_build_iconlist(S)
         path=[1,1];// sub(j).path;
         // we assume that path is of length 2 (paletteid,blockid).
         model.append[list(list(pixbuf),S.contents(S.structure(j)),path(1),path(2))];
+      //palette
+      elseif type(S.contents(S.structure(j)),'short')=='l' || ...
+             type(S.contents(S.structure(j)),'short')=='h' then
+        [pixbuf]=get_gdk_pixbuf(%scicos_gif,'PAL_f')
+        pixbuf.user_data=list("PAL_f");
+        path=[1,1];// sub(j).path;
+        // we assume that path is of length 2 (paletteid,blockid).
+        model.append[list(list(pixbuf),S.structure(j),path(1),path(2))];
+        icon_list.set_text_column[1];
       end
     end
   else
@@ -234,7 +264,6 @@ function icon_list=scicos_build_iconlist(S)
   
   icon_list.set_model[model=model];
   icon_list.set_pixbuf_column[0];
-  
   // Allow DND between the icon view and nsp 
   targets = list( list("GTK_TREE_MODEL_ROW",GTK.TARGET_SAME_APP, 0)  );
   masks= ior(GDK.BUTTON1_MASK,GDK.BUTTON3_MASK);
