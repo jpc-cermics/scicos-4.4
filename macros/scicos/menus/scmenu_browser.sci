@@ -3,7 +3,8 @@ function scmenu_browser()
 //
   Cmenu='';
   if isempty(super_path) then 
-    do_browser(scs_m);
+    //do_browser(scs_m);
+    scicos_widgets($+1)=hash(id=do_browser(scs_m),open=%t,what='Browser');
   else    
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
 		     'Cmenu='"scmenu_browser'";%scicos_navig=[]';
@@ -15,7 +16,7 @@ endfunction
 // the treestore model have two levels 
 // and is build with append.
 
-function do_browser(scs_m)
+function window=do_browser(scs_m)
 
   function [H,SB]=scicos_scm_browse(scs_m,name='Main',H=hash(10),path='')
   // fills H and SB structure from a scs_m 
@@ -87,7 +88,16 @@ function do_browser(scs_m)
     bname= model.get_value[iter,1];
     path='['+ model.get_value[iter,2]+']';
     printf("selection cb {%s,%s} \n",bname,path);
-  endfunction 
+  endfunction
+
+  function remove_scicos_widget(wingtkid)
+    global scicos_widgets
+    for i=1:length(scicos_widgets)
+      if wingtkid.equal[scicos_widgets(i).id] then
+        scicos_widgets(i).open=%f;break
+      end
+    end
+  endfunction
   
   // a tree store with pixbufs from L 
   // which describes the browsers.
@@ -143,6 +153,7 @@ function do_browser(scs_m)
   sw.add[treeview]
   align = gtkalignment_new(xalign=0.5,yalign=0.0,xscale=0.0,yscale=0.0);
   hbox.pack_end[align,expand=%f,fill=%f,padding=0]
+  window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
 endfunction
 
