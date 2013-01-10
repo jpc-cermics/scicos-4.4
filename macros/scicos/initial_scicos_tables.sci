@@ -609,7 +609,7 @@ function H1=scicos_default_palettes()
   H2('Modelica Test') = list('Atmosphere', 'Pipe',           'Tank',
   'FluxSensor', 'PressureSensor', 'ValveContinuous',
   'HGround',    'Tank2',          'ValveDiscrete',
-  'Medias',     'Tank3',          'VolumeFlow');
+  'Medias',     'Tank3',          'VolumeFlow', 'PressionSource' );
 
        
   H_Mod.contents=H2;
