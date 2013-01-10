@@ -411,7 +411,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
 
   //Scicos Modelica librabry path definitions==============================
   
-  modelica_libs=scicospath+'/macros/blocks/'+['ModElectrical','ModHydraulics','ModLinear'];
+  modelica_libs=scicospath+'/macros/blocks/'+['ModElectrical','ModHydraulics','ModLinear','ModEni'];
 
   //add TMPDIR/Modelica for generic modelica blocks
   rpat=getenv('NSP_TMPDIR')+'/Modelica";
@@ -582,7 +582,7 @@ function H1=scicos_default_palettes()
   //Modelica palette
   H_Mod=hash(10)
 
-  H_Mod.structure=list('MBLOCK', 'Modelica Electrical', 'MPBLOCK', 'Modelica Hydraulics', 'Modelica Linear');
+  H_Mod.structure=list('MBLOCK', 'Modelica Electrical', 'MPBLOCK', 'Modelica Hydraulics', 'Modelica Linear', 'Modelica Test');
 
   H2=hash(10);
 
@@ -606,6 +606,12 @@ function H1=scicos_default_palettes()
        'SecondOrder', 'TanTF', 'AtanTF', 'FirstOrder',
        'SineTF', 'Sine');
 
+  H2('Modelica Test') = list('Atmosphere', 'Pipe',           'Tank',
+  'FluxSensor', 'PressureSensor', 'ValveContinuous',
+  'HGround',    'Tank2',          'ValveDiscrete',
+  'Medias',     'Tank3',          'VolumeFlow');
+
+       
   H_Mod.contents=H2;
   H.Modelica = H_Mod;
 
