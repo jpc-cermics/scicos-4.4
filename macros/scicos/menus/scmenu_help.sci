@@ -48,18 +48,7 @@ function Select=do_help(Select)
         nm=0
       else
         return
-      end      
-    elseif or(windows(find(windows(:,1)<0),2)==cwin) then
-      kwin=find(windows(:,2)==cwin)
-      pal=palettes(-windows(kwin,1))
-      k=Select(1,1)
-      o=pal.objs(k)
-      if o.type=="Block" then 
-        name=o.gui
-        nm=0
-      else
-        return
-      end 
+      end
     else
       return
     end
