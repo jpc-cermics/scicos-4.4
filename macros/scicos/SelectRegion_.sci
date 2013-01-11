@@ -24,12 +24,8 @@ function Select=do_select_region(win);
   // now region is selected 
   kc = find(win==windows(:,2))
   if isempty(kc) then
-    message('This window is not an active palette');
+    message("This window is not an active scicos window")
     return
-  elseif windows(kc,1)<0 then 
-    //click inside a palette window
-    kpal=-windows(kc,1)
-    [in,out]=getobjs_in_rect(palettes(kpal),ox,oy,w,h)
   elseif win==curwin then 
     //click inside the current window
     [in,out]=getobjs_in_rect(scs_m,ox,oy,w,h)

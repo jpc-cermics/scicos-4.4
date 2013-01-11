@@ -17,10 +17,6 @@ function Popup_()
       message("This window is not an active scicos window")
       Cmenu='';%pt=[];%ppt=[];Select=[];
       return
-    elseif windows(kc,1)<0 then
-      // Palette -----------------------------------
-      state_var=3
-      state_pal=1
     elseif isequal(%win,curwin) then
       k = getobj(scs_m,%pt)
       // popup in the CURRENT Scicos window : Main Scicos Window (not inside a superblock) ----------
@@ -70,21 +66,6 @@ function Popup_()
       message("This window is not an active scicos window")
       Cmenu='';%pt=[];%ppt=[];Select=[];
       return
-    elseif windows(kc,1)<0 then
-      //** Palette -----------------------------------
-      kpal=-windows(kc,1)
-      palette=palettes(kpal)
-      k=getobj(palette,%pt)
-      if ~isempty(k) then
-        state_var=3
-        state_pal=1 
-        Select=[k %win]
-        selecthilite(Select,%t)
-      else
-        //** in the void of a palette 
-        Cmenu='';%pt=[];%ppt=[];Select=[];
-        return
-      end
     elseif isequal(%win,curwin) then
       // popup in the CURRENT Scicos window : Main Scicos Window (not inside a superblock) ----------
       k = getobj(scs_m,%pt)

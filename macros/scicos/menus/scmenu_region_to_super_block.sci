@@ -253,11 +253,8 @@ function [reg,rect,prt,is_flip,Select]=get_region2(xc,yc,win,fun)
   Select=[]
   kc=find(win==windows(:,2))
   if isempty(kc) then
-    message('This window is not an active palette')
+    message('This window is not an active scicos window.')
     return
-  elseif windows(kc,1)<0 then //click dans une palette
-    kpal=-windows(kc,1)
-    scs_m=palettes(kpal)
   elseif win==curwin then //click dans la fenetre courante
     scs_m=scs_m
   elseif pal_mode&win==lastwin then 

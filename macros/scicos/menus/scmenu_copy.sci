@@ -30,8 +30,6 @@ function [%pt,%win,reg] = get_selection2(Select,%pt,%win)
   kc=find(win==windows(:,2))
   if isempty(kc) then
     reg=[];return // window no longer active
-  elseif windows(kc,1)<0 then //palette
-    scs_m=palettes(-windows(kc,1))
   elseif win==curwin then //selected object in current window
     // scs_m is fine
   elseif slevel>1 then

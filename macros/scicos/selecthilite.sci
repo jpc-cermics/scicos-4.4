@@ -21,8 +21,6 @@ function [%pt,%win,o] = get_selection(Select,%pt,%win)
   kc = find(win==windows(:,2))
   if isempty(kc) then
     o = []; return // window no longer active
-  elseif windows(kc,1)<0 then //palette
-    scs_m=palettes(-windows(kc,1))
   elseif win==curwin then //selected object in current window
     // scs_m is fine
   elseif slevel>1 then

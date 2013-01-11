@@ -13,13 +13,8 @@ function %pt=do_block_info(%pt,scs_m)
     xc = %pt(1); yc = %pt(2); %pt = []
     kc = find(win==windows(:,2))
     if isempty(kc) then
-      message("This window is not an active palette")
+      message("This window is not an active scicos window.")
       return
-    elseif windows(kc,1)<0 then // click in a palette  
-      kpal = -windows(kc,1)
-      palette = palettes(kpal)
-      k = getobj(palette,[xc;yc])
-      if ~isempty(k) then [txt,L]=get_block_info(palette,k), end
     elseif win==curwin then   // click in the current window 
       k=getobj(scs_m,[xc;yc])
       if ~isempty(k) then [txt,L]=get_block_info(scs_m,k), end
@@ -34,11 +29,7 @@ function %pt=do_block_info(%pt,scs_m)
     kc=find(win==windows(:,2))
     k=Select(1,1)
     if isempty(kc) then
-      message("This window is not an active palette")
-    elseif windows(kc,1)<0 then // click in a palette  
-      kpal = -windows(kc,1)
-      palette = palettes(kpal)
-      [txt,L]=get_block_info(palette,k)
+      message("This window is not an active scicos window.")
     elseif win==curwin then // click in the current window 
       [txt,L]=get_block_info(scs_m,k)
     end
