@@ -360,6 +360,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
           if ierr==%f then 
             message(['Error in '+%cor_item_fun;catenate(lasterror())]);
             Cmenu='Replot';%pt=[]
+            // unhilite objects
+            selecthilite(Select,%f)
             Select_back=[];Select=[]
           elseif or(curwin==winsid()) then
             if ~isequal(Select,Select_back) then
