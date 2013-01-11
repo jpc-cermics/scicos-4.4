@@ -768,7 +768,7 @@ function lk=scicos_route(lk,scs_m)
   From=lk.from(1);To=lk.to(1)
   delF=scs_m.objs(From).graphics.sz/2
   delT=scs_m.objs(To).graphics.sz/2
-  if lk.ct(2)==1 | lk.ct(2)==3 then
+  if lk.ct(2)==1 | lk.ct(2)==2 | lk.ct(2)==3 then
     forig=scs_m.objs(From).graphics.orig(1)+delF(1)
     torig=scs_m.objs(To).graphics.orig(1)+delT(1)
     [lk.xx,lk.yy]=scicos_routage(lk.xx,lk.yy,forig,torig,delF(2),delT(2))
