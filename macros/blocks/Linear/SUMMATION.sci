@@ -96,7 +96,7 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     satur=model.rpar
     model.rpar=[]
     Datatype=model.outtyp(1)
-    Dt=["","_z","i32n","i16","i8","ui32","ui16","ui8"];
+    Dt=["","_z","i32","i16","i8","ui32","ui16","ui8"];
     Tag=["n","s","e"];
     if Datatype==1 then 
       model.sim=list('summation',4)
@@ -105,7 +105,7 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     elseif Datatype>8 then
       error("Datatype is not supported");
     else
-      simstr=sprintf('summation%s%s',Dt(Datatype),Tag(satur+1))
+      simstr=sprintf('summation_%s%s',Dt(Datatype),Tag(satur+1))
       model.sim=list(simstr,4);
     end
     x=model

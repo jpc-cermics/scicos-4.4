@@ -115,6 +115,7 @@ function [a,b,c,d]=scicos_getabcd(num,den)
     d=zeros(size(dc));
     for i=1:size(dc,'*') 
       dci=dc{i}; // direct call dc{i}(1) => crash (XXX)
+      //alan confirms that direct call dc{i}(1) => crash again 25/01/13
       d(i)= dci(1);
     end
   end
@@ -126,12 +127,14 @@ function [a,b,c,d]=scicos_getabcd(num,den)
     a=[0*ones((nd-1)*ne,ne),eye(ne*(nd-1),ne*(nd-1));a];
     b=[0*ones((nd-1)*ne,ne);eye(ne,ne)]
     cc= num.coeffs;
-    c=zeros(size(num,'*'),1);
-    for i=1:size(num,'*');
-      cci=cc{i};ccn=min(nd,size(cci,'*'));
-      c(i,1:ccn)=cci(1:ccn);
-    end;
-    c.redim[1,-1];
+    //assume that one have only one polynom
+    c=zeros(1,nd);
+    cc=cc{1}
+    for i=1:nd
+      if i<=length(cc) then
+        c(i)=cc(i)
+      end
+    end
   else
     a=[];b=[];c=[];
   end;
