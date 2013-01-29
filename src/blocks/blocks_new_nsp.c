@@ -2991,7 +2991,7 @@ struct _cscopxy_rpar
   double xmin, xmax, ymin, ymax;
 };
 
-static void  scicos_cscopxy_add_point(NspList *L,const double *x,const double *y, int n);
+static void  scicos_cscopxy_add_point(NspList *L,int animed,const double *x,const double *y, int n);
 static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
 				       double ymin,double ymax);
 
@@ -3021,7 +3021,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       D->count++;
       D->tlast = t;
       /* add nu points for time t, nu is the number of curves */
-      scicos_cscopxy_add_point(D->L, u1, u2, nu);
+      scicos_cscopxy_add_point(D->L, csi->animed,u1, u2, nu);
       if (  D->count % csi->n == 0 ) 
 	{
 	  /* redraw each csi->n accumulated points 
@@ -3117,7 +3117,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
     }
 }
 
-static void  scicos_cscopxy_add_point(NspList *L,const double *x,const double *y, int n)
+static void  scicos_cscopxy_add_point(NspList *L,int animed, const double *x,const double *y, int n)
 {
   int count =0;
   Cell *Loc = L->first;
@@ -3127,6 +3127,11 @@ static void  scicos_cscopxy_add_point(NspList *L,const double *x,const double *y
 	{ 
 	  NspQcurve *curve =(NspQcurve *) Loc->O;
 	  if ( count >= n ) return;
+          NspMatrix *M = curve->obj->Pts;
+          /* enlarge qcurve to display all pts in the window if needed */
+          if ( (((curve->obj->last)+1) == M->m) && (animed==1) ) {
+            nsp_qcurve_enlarge(curve,M->m); /*alan : need a memory test!!*/
+          }
 	  nsp_qcurve_addpt(curve,&x[count],&y[count],1);
 	  count++;
 	}
@@ -3895,7 +3900,7 @@ static void  nsp_oscillo_add_point(NspList *L,double t,double period,const doubl
           /* enlarge qcurve to display all pts in the period if needed */
           /*fprintf(stderr,"curve(%d) : C->obj->last=%d,M->m=%d,t=%f,period=%f\n",count,curve->obj->last,M->m,t,period);*/
           if ( (((curve->obj->last)+1) == M->m) && (t<period) ) {
-            nsp_qcurve_enlarge(curve,M->m);
+            nsp_qcurve_enlarge(curve,M->m); /*alan : need a memory test!!*/
           }
 	  nsp_qcurve_addpt(curve,&t,&y[count],1);
 	  count++;
