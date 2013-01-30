@@ -1,5 +1,5 @@
 function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help, ...
-          %scicos_display_mode, modelica_libs, ...
+          %scicos_topics, %scicos_display_mode, modelica_libs, ...
           %scicos_lhb_list, %CmenuTypeOneVector, %DmenuTypeOneVector, %scicos_gif, ...
           %scicos_contrib,%scicos_libs,%scicos_cflags] = initial_scicos_tables()
 
@@ -13,6 +13,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
   %scicos_contrib=[];
   %scicos_libs=m2s([]);// string matrix 
   %scicos_cflags=[];
+  %scicos_topics=hash(10);// hasch table used for help topics
 
   //Scicos Menu definitions===================================================
   //**
@@ -475,6 +476,10 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
 
   // Hash table for help strings ==============================
   %scicos_help=scicos_help();
+
+  // Hash table for help topics ==============================
+  // that's just an example to be used with cos_help('scicos')
+  %scicos_topics('scicos')='http://www.scicos.org/HELP/eng/scicos/whatis_scicos.htm'
 endfunction
 
 //

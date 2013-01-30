@@ -598,7 +598,7 @@ function scicos_library_initialize()
 // ----------------------------------------
 
   names = ['%scicos_pal';'%scicos_menu';'%scicos_toolbar';'%scicos_short';
-	   '%scicos_help';'%scicos_display_mode';'modelica_libs';
+	   '%scicos_help';'%scicos_topics';'%scicos_display_mode';'modelica_libs';
 	   '%scicos_lhb_list';'%CmenuTypeOneVector';'%DmenuTypeOneVector';
            '%scicos_gif';'%scicos_contrib';'%scicos_libs';'%scicos_cflags'];
   Enames = exists(names);

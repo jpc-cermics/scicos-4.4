@@ -67,5 +67,9 @@ endfunction
 
 function [ok]=cos_help(topic)
   ok=%t
-  help("http://www.scicos.org/HELP/eng/scicos/'+topic+'.htm');
+  if %scicos_topics.iskey[topic] then
+    help(%scicos_topics(topic));
+  else
+    help("http://www.scicos.org/HELP/eng/scicos/'+topic+'.htm');
+  end
 endfunction
