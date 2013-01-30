@@ -58,7 +58,45 @@ function window=scicos_palette_treeview(L)
       end
     end
   endfunction
-  
+
+  function press_event_handler(tree_view,event)
+    if event.button== 3 && event.type == GDK.BUTTON_PRESS then
+      // a right press
+      path=tree_view.get_path_at_pos[event.x, event.y];
+
+      if type(path,'short')=='none' then
+        // here we could decide to do something if
+        // selection is non void
+        //printf ("right-press activated in the background\n");
+        L=tree_view.get_selection[];
+        if isempty(L);return;end
+        L=L.get_selected_rows[]
+        if isempty(L);return;end
+        path=L(1);
+      end
+
+       L=tree_view.get_selection[];
+       L.unselect_all[]
+       L.select_path[path]
+
+       model = tree_view.get_model[];
+       iter=model.get_iter[path];
+       text= model.get_value[iter,1];
+
+       ll = list('Help', 'Details');
+       [Cmenu,args]=mpopup(ll);
+       if Cmenu == 'Help' then
+         help("http://www.scicos.org/HELP/eng/scicos/'+text+'.htm');
+       elseif Cmenu == 'Details' then
+         ok=execstr('obj='+text+'(""define"");',errcatch=%t);
+         if ok then editvar('obj');
+         else
+           lasterror();
+         end
+       end
+    end
+  endfunction
+
   // a tree store with pixbufs from L 
   // which describes the palettes.
       
@@ -85,8 +123,11 @@ function window=scicos_palette_treeview(L)
       
   treeview=gtktreeview_new();
   treeview.set_model[model=model];
+
+  treeview.connect["button_press_event",press_event_handler];
   targets = list( list("GTK_TREE_MODEL_ROW",GTK.TARGET_SAME_APP, 0)  );
-  masks= ior(GDK.BUTTON1_MASK,GDK.BUTTON3_MASK);
+  //masks= ior(GDK.BUTTON1_MASK,GDK.BUTTON3_MASK);
+  masks= ior(GDK.BUTTON1_MASK);
   treeview.enable_model_drag_source[masks,targets, GDK.ACTION_COPY];
   //treeview.enable_model_drag_dest[targets, GDK.ACTION_COPY];
   // if this is true then we can re-order items by the 
@@ -104,6 +145,8 @@ function window=scicos_palette_treeview(L)
   col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 1));
   col.set_title["Texte"];
   treeview.append_column[col]
+
+  treeview.set_tooltip_column[1];
   
   sw.add[treeview]
   align = gtkalignment_new(xalign=0.5,yalign=0.0,xscale=0.0,yscale=0.0);
