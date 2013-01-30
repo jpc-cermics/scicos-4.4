@@ -55,6 +55,8 @@ void cscopxy3d (scicos_block * block, int flag)
 	/* int animed=(int) ipar[3+2*nclr]; */
 	int wpos[2],wdim[2];
 	int i,l;
+        NspFigure *F;
+        
 	/* wid */
 	wid = (wid == -1) ? 20000 + scicos_get_block_number () : wid;
 	/* buffer size: 
@@ -75,6 +77,11 @@ void cscopxy3d (scicos_block * block, int flag)
 	/* we allocate points by increment of alloc_size */
 	D->malloc_size = Max(buffer_size,1000);
 	Xgc=scicos_set_win(wid, &cur);
+        /* clean previous plots.  */
+        if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) goto err;
+        l=nsp_list_length(F->obj->children);
+        for ( i= 1; i <= l ; i++)
+          nsp_list_remove_first(F->obj->children);
 	if (wpos[0]>=0) {
 	  Xgc->graphic_engine->xset_windowpos (Xgc, wpos[0],wpos[1]);
 	}
@@ -96,14 +103,11 @@ void cscopxy3d (scicos_block * block, int flag)
         D->objs3d->obj->fixed=TRUE;
         D->objs3d->obj->box_style=SCILAB;
 	if ((D->Mcol = nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
-	/* clean previous plots in case objs3d was in use.  */ 
-        l=nsp_list_length(D->objs3d->obj->children);
-        for (i=0;i<l;i++) nsp_list_remove_first(D->objs3d->obj->children);
         for (i=0;i<nbcurv;i++) {
           NspObject *obj;
           NspMatrix *M;
           if ((M=nsp_matrix_create("coord",'r',D->malloc_size,3))== NULLMAT) goto err;
-          if (color[i]>=0) {
+          if (color[i]>0) {
             NspMatrix *Mc;
             if ((Mc=nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
             Mc->R[0]=color[i];
