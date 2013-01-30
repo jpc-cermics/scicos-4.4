@@ -36,7 +36,7 @@
 #include <nsp/matutil.h>
 #include "blocks.h"
 
-static void  nsp_oscillo_add_point(NspList *L,double t,const double *y, int n);
+static int nsp_oscillo_add_point(NspList *L,double t,double period,const double *y, int n);
 static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
 				      double ymin,double ymax);
 static void nsp_list_delete_axes(NspList *L);
@@ -198,6 +198,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
   if (flag == 2)
     {
       int i;
+      int ret;
       Cell *cloc;
       dmscope_data *D = (dmscope_data *) (*block->work);
       NspList *L =NULL;
@@ -221,7 +222,11 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 	      double *u1 = GetRealInPortPtrs (block, i + 1);
 	      NspAxes *axe = (NspAxes *) cloc->O;
 	      /* add nu points for time t, nu is the number of curves */
-	      nsp_oscillo_add_point (axe->obj->children, t, u1,ncs[i]);
+	      ret=nsp_oscillo_add_point (axe->obj->children, t,period[i], u1,ncs[i]);
+              if (ret==FALSE) {
+                scicos_set_block_error (-16);
+                return;
+              }
 	      i++;
 	    }
 	  cloc = cloc->next;
@@ -301,7 +306,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 
 /* add one point for each curve in qcurve data  */
 
-static void  nsp_oscillo_add_point(NspList *L,double t,const double *y, int n)
+static int nsp_oscillo_add_point(NspList *L,double t,double period,const double *y, int n)
 {
   int count =0;
   Cell *Loc = L->first;
@@ -310,12 +315,18 @@ static void  nsp_oscillo_add_point(NspList *L,double t,const double *y, int n)
       if ( Loc->O != NULLOBJ )
 	{ 
 	  NspQcurve *curve =(NspQcurve *) Loc->O;
-	  if ( count >= n ) return;
+	  if ( count >= n ) return TRUE;
+          NspMatrix *M = curve->obj->Pts;
+          /* enlarge qcurve to display all pts in the period if needed */
+          if ( (((curve->obj->last)+1) == M->m) && (t<period) ) {
+            if ((nsp_qcurve_enlarge(curve,M->m)) == FALSE) return FALSE;
+          }
 	  nsp_qcurve_addpt(curve,&t,&y[count],1);
 	  count++;
 	}
       Loc = Loc->next;
     }
+  return TRUE;
 }
 
 static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
