@@ -86,7 +86,7 @@ function window=scicos_palette_treeview(L)
        ll = list('Help', 'Details');
        [Cmenu,args]=mpopup(ll);
        if Cmenu == 'Help' then
-         help("http://www.scicos.org/HELP/eng/scicos/'+text+'.htm');
+         cos_help(text)
        elseif Cmenu == 'Details' then
          ok=execstr('obj='+text+'(""define"");',errcatch=%t);
          if ok then editvar('obj');

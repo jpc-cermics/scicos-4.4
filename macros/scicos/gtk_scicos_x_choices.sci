@@ -317,9 +317,9 @@ function L=gtk_scicos_x_choices(desc,Li)
 
     if response==1 then
       if exists('%scs_help') then
-        help("http://www.scicos.org/HELP/eng/scicos/'+%scs_help+'.htm');
+        cos_help(%scs_help)
       else
-        help("http://www.scicos.org/HELP/eng/scicos/whatis_scicos.htm');
+        cos_help('whatis_scicos')
       end
     elseif response==2 then
       if modified then

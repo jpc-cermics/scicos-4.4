@@ -54,7 +54,7 @@ function Select=do_help(Select)
     end
   end
   if nm==0 then
-    help("http://www.scicos.org/HELP/eng/scicos/'+name+'.htm');
+    cos_help(name)
   else
     if ~execstr('mess=%scicos_help.menu(name)',errcatch=%t) then
       if ~execstr('mess=%scicos_help(name)',errcatch=%t) then
@@ -63,4 +63,9 @@ function Select=do_help(Select)
     end
     message(mess);
   end
+endfunction
+
+function [ok]=cos_help(topic)
+  ok=%t
+  help("http://www.scicos.org/HELP/eng/scicos/'+topic+'.htm');
 endfunction

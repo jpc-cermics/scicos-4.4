@@ -128,7 +128,7 @@ function window=do_browser(scs_m)
        ll = list('Help', 'Details');
        [Cmenu,args]=mpopup(ll);
        if Cmenu == 'Help' then
-         help("http://www.scicos.org/HELP/eng/scicos/'+text+'.htm');
+         cos_help(text);
        elseif Cmenu == 'Details' then
          //alan doit etre revu ici : il faut afficher le détails
          //des blocs correspondant au diagramme
