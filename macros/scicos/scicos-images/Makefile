@@ -37,7 +37,9 @@ PNGS= ABSBLK_f.png \
 	CLKFROM.png \
 	CLKGOTO.png \
 	CLKGotoTagVisibility.png \
+	CLKIN_f.png \
 	CLKINV_f.png \
+	CLKOUT_f.png \
 	CLKOUTV_f.png \
 	CLKSOM_f.png \
 	CLKSOMV_f.png \
@@ -52,6 +54,7 @@ PNGS= ABSBLK_f.png \
 	CMSCOPE.png \
 	Constant.png \
 	ConstantVoltage.png \
+	CONST_f.png \
 	CONST_m.png \
 	CONST.png \
 	CONSTRAINT_c.png \
@@ -108,6 +111,7 @@ PNGS= ABSBLK_f.png \
 	FROMMO.png \
 	FROM.png \
 	FROMWSB.png \
+	GAIN_f.png \
 	GAINBLK_f.png \
 	GAINBLK.png \
 	Gain.png \
