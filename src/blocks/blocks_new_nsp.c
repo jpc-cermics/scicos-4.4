@@ -44,7 +44,7 @@ static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int width[],int 
 				int yfree,double ymin,double ymax,
 				nsp_qcurve_mode mode,NspList **Lc);
 
-static void  nsp_oscillo_add_point(NspList *L,double t,double period,const double *y, int n);
+static int nsp_oscillo_add_point(NspList *L,double t,double period,const double *y, int n);
 
 /* to be moved elsewhere XXXX  */
 #if WIN32
@@ -2402,6 +2402,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
   
   if (flag == 2)
     {
+      int ret;
       cscope_data *D = (cscope_data *) (*block->work);
       if ( D->Axes->obj->ref_count <= 1 ) 
 	{
@@ -2419,7 +2420,11 @@ void scicos_cscope_block (scicos_block * block, int flag)
       D->count++;
       D->tlast = t;
       /* add nu points for time t, nu is the number of curves */
-      nsp_oscillo_add_point (D->L, t,csr->per, block->inptr[0], nu);
+      ret=nsp_oscillo_add_point(D->L, t,csr->per, block->inptr[0], nu);
+      if (ret==FALSE) {
+        scicos_set_block_error (-16);
+        return;
+      }
       if (  D->count % csi->n == 0 ) 
 	{
 	  /* redraw each csi->n accumulated points 
@@ -2581,6 +2586,7 @@ void scicos_cfscope_block (scicos_block * block, int flag)
   
   if (flag == 2)
     {
+      int ret;
       cfscope_data *D = (cfscope_data *) (*block->work);
       if ( D->Axes->obj->ref_count <= 1 ) 
 	{
@@ -2599,7 +2605,11 @@ void scicos_cfscope_block (scicos_block * block, int flag)
       D->tlast = t;
       /* add nu points for time t, nu is the number of curves */
       scicos_getouttb (nu, csi->wu, D->outtc);
-      nsp_oscillo_add_point (D->L, t,csr->per, D->outtc, nu);
+      ret=nsp_oscillo_add_point(D->L, t,csr->per, D->outtc, nu);
+      if (ret==FALSE) {
+        scicos_set_block_error (-16);
+        return;
+      }
       if (  D->count % csi->n == 0 ) 
 	{
 	  /* redraw each csi->n accumulated points 
@@ -2844,6 +2854,7 @@ void scicos_cmscope_block (scicos_block * block, int flag)
   if (flag == 2)
     {
       int i;
+      int ret;
       Cell *cloc;
       cmscope_data *D = (cmscope_data *) (*block->work);
       NspList *L =NULL;
@@ -2867,7 +2878,11 @@ void scicos_cmscope_block (scicos_block * block, int flag)
 	      double *u1 = GetRealInPortPtrs (block, i + 1);
 	      NspAxes *axe = (NspAxes *) cloc->O;
 	      /* add nu points for time t, nu is the number of curves */
-	      nsp_oscillo_add_point (axe->obj->children, t,period[i], u1,nswin[i]);
+	      ret=nsp_oscillo_add_point(axe->obj->children, t,period[i], u1,nswin[i]);
+              if (ret==FALSE) {
+                scicos_set_block_error (-16);
+                return;
+              }
 	      i++;
 	    }
 	  cloc = cloc->next;
@@ -2991,7 +3006,7 @@ struct _cscopxy_rpar
   double xmin, xmax, ymin, ymax;
 };
 
-static void  scicos_cscopxy_add_point(NspList *L,int animed,const double *x,const double *y, int n);
+static int scicos_cscopxy_add_point(NspList *L,int animed,const double *x,const double *y, int n);
 static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
 				       double ymin,double ymax);
 
@@ -3010,6 +3025,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
   nu = Min(nu1,nu2);
   if (flag == 2)
     {
+      int ret;
       double *u1 = GetRealInPortPtrs (block, 1);
       double *u2 = GetRealInPortPtrs (block, 2);
       cscope_data *D = (cscope_data *) (*block->work);
@@ -3021,7 +3037,11 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       D->count++;
       D->tlast = t;
       /* add nu points for time t, nu is the number of curves */
-      scicos_cscopxy_add_point(D->L, csi->animed,u1, u2, nu);
+      ret=scicos_cscopxy_add_point(D->L, csi->animed,u1, u2, nu);
+      if (ret==FALSE) {
+        scicos_set_block_error (-16);
+        return;
+      }
       if (  D->count % csi->n == 0 ) 
 	{
 	  /* redraw each csi->n accumulated points 
@@ -3117,7 +3137,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
     }
 }
 
-static void  scicos_cscopxy_add_point(NspList *L,int animed, const double *x,const double *y, int n)
+static int scicos_cscopxy_add_point(NspList *L,int animed, const double *x,const double *y, int n)
 {
   int count =0;
   Cell *Loc = L->first;
@@ -3126,17 +3146,18 @@ static void  scicos_cscopxy_add_point(NspList *L,int animed, const double *x,con
       if ( Loc->O != NULLOBJ )
 	{ 
 	  NspQcurve *curve =(NspQcurve *) Loc->O;
-	  if ( count >= n ) return;
+	  if ( count >= n ) return TRUE;
           NspMatrix *M = curve->obj->Pts;
           /* enlarge qcurve to display all pts in the window if needed */
           if ( (((curve->obj->last)+1) == M->m) && (animed==1) ) {
-            nsp_qcurve_enlarge(curve,M->m); /*alan : need a memory test!!*/
+            if ((nsp_qcurve_enlarge(curve,M->m)) == FALSE) return FALSE;
           }
 	  nsp_qcurve_addpt(curve,&x[count],&y[count],1);
 	  count++;
 	}
       Loc = Loc->next;
     }
+  return TRUE;
 }
 
 static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
@@ -3700,6 +3721,7 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
   
   if (flag == 2)
     {
+      int ret;
       int i;
       double vals[10]; /* 10 max a revoir */
       cevscpe_data *D = (cevscpe_data *) (*block->work);
@@ -3720,7 +3742,11 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
 	      vals[i]= 0.8;
 	    }
 	}
-      nsp_oscillo_add_point (D->L, t,period, vals, nbc);
+      ret=nsp_oscillo_add_point(D->L, t,period, vals, nbc);
+      if (ret==FALSE) {
+        scicos_set_block_error (-16);
+        return;
+      }
       scicos_cscope_axes_update(D->Axes,t,period,0,1.0);
       nsp_axes_invalidate((NspGraphic *) D->Axes);
     }
@@ -3886,7 +3912,7 @@ static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int width[],int 
 
 /* add one point for each curve in qcurve data  */
 
-static void  nsp_oscillo_add_point(NspList *L,double t,double period,const double *y, int n)
+static int nsp_oscillo_add_point(NspList *L,double t,double period,const double *y, int n)
 {
   int count =0;
   Cell *Loc = L->first;
@@ -3895,16 +3921,17 @@ static void  nsp_oscillo_add_point(NspList *L,double t,double period,const doubl
       if ( Loc->O != NULLOBJ )
 	{ 
 	  NspQcurve *curve =(NspQcurve *) Loc->O;
-	  if ( count >= n ) return;
+	  if ( count >= n ) return TRUE;
           NspMatrix *M = curve->obj->Pts;
           /* enlarge qcurve to display all pts in the period if needed */
           /*fprintf(stderr,"curve(%d) : C->obj->last=%d,M->m=%d,t=%f,period=%f\n",count,curve->obj->last,M->m,t,period);*/
           if ( (((curve->obj->last)+1) == M->m) && (t<period) ) {
-            nsp_qcurve_enlarge(curve,M->m); /*alan : need a memory test!!*/
+            if ((nsp_qcurve_enlarge(curve,M->m)) == FALSE) return FALSE;
           }
 	  nsp_qcurve_addpt(curve,&t,&y[count],1);
 	  count++;
 	}
       Loc = Loc->next;
     }
+  return TRUE;
 }
