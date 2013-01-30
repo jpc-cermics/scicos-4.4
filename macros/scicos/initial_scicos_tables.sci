@@ -79,7 +79,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["sep2"                        "separator" ""                  ""        ""],
                   ["Select All|||gtk-select-all" "menuitem"  "scmenu_select_all" "<Ctrl>a" ""],
                   ["sep3"            "separator" ""                  "" ""],
-                  list(["Block Menu"          "menu"      "scmenu_block_menu"          ""           ""],
+                  list(["Block"               "menu"      "scmenu_block_menu"          ""           ""],
                        ["Duplicate"           "menuitem"  "scmenu_duplicate"           ""           ""],
                        ["bsep1"               "separator" ""                           ""           ""],
                        ["Flip"                "menuitem"  "scmenu_flip"                ""           ""],
