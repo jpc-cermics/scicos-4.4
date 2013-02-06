@@ -33,7 +33,6 @@
 #include <nsp/qcurve.h>
 #include <nsp/grstring.h>
 #include <nsp/compound.h>
-#include <nsp/qcurve.h>
 #include <nsp/grarc.h>
 #include <nsp/interf.h>
 #include <nsp/blas.h>
