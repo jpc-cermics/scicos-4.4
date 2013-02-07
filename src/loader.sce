@@ -5,3 +5,4 @@
 
 libscicos_path=file('join',['.','libscicos'+%shext]);
 addinter(libscicos_path,'Scicos',global=%t);
+clear libscicos_path;

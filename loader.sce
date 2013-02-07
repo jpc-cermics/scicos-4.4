@@ -25,3 +25,7 @@ if ~new_graphics() then
 end
 
 scicos_library_initialize();
+
+clear libname;
+clear libtitle;
+clear scicos_path;
