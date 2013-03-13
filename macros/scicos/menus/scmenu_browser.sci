@@ -53,7 +53,8 @@ function window=do_browser(scs_m)
     sub=H.iskey[L(1)(1)+L(1)(2)];
     if sub then sub=H(L(1)(1)+L(1)(2));else sub=['Empty','-1'];end
     for j=1:size(sub,1)
-      icon = scicos_icon_path + sub(j,:)(1) + '.png' ;
+      //icon = scicos_icon_path + sub(j,:)(1) + '.png' ;
+      icon = file('join',[%scicos_gif(1),sub(j,:)(1) + '.png'])
       ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
       if ~ok then 
 	lasterror();
@@ -161,12 +162,12 @@ function window=do_browser(scs_m)
   
   model = gtktreestore_new(list(list(%types.GdkPixbuf),"name","path"),%f)
   
-  scicos_icon_path = scicos_path+'/macros/scicos/scicos-images/';
-  icons = glob(scicos_icon_path);
-  
-  dir_logo = scicos_icon_path + 'gtk-directory.png';
-  pixbuf_dir = gdk_pixbuf_new_from_file(dir_logo);
-  pixbuf_def = gdk_pixbuf_new_from_file(scicos_icon_path + 'VOID.png');
+  //scicos_icon_path = scicos_path+'/macros/scicos/scicos-images/';
+  //icons = glob(scicos_icon_path);
+  //dir_logo = scicos_icon_path + 'gtk-directory.png';
+
+  pixbuf_dir = gdk_pixbuf_new_from_file(file('join',[%scicos_gif(1),'gtk-directory.png']));
+  pixbuf_def = gdk_pixbuf_new_from_file(file('join',[%scicos_gif(1),'VOID.png']));
 
   // create a model 
   [H,L]=scicos_scm_browse(scs_m);
