@@ -169,8 +169,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     if ~gh_current_window.check_data['user_data'] then 
       gh_current_window.user_data=list([]);
     end
-    //pause
     user_data=gh_current_window.user_data;
+    //pause
     if ~isequal(user_data(1),scs_m) then
       ierr=execstr('load(getenv(''NSP_TMPDIR'')+''/AllWindows'')',errcatch=%t)
       if ierr then
@@ -189,6 +189,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	// pause ici ici ici 
       end
       needsavetest=%f
+      scs_m=scs_m_remove_gr(scs_m,recursive=%f);
       %zoom=restore(curwin,%zoom)
       scicos_set_uimanager(slevel <=1 );
       scs_m=scs_m_remove_gr(scs_m,recursive=%f);
@@ -213,7 +214,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     gh_current_window=nsp_graphic_widget(F.id);
     gh_current_window.present[]
   else
-    // ~diagram_open
+    // ~%diagram_open
     if or(curwin==winsid()) then
       xset('window',curwin)
       F=get_current_figure()
@@ -222,7 +223,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	gh_current_window.user_data=list([]);
       end
       user_data=gh_current_window.user_data;
-      if ~isequal(user_data(1),scs_m) then
+      if isequal(user_data(1),scs_m) then
         Select=user_data(2)
       end
     end
@@ -425,9 +426,13 @@ function scs_m=scicos_leave(scs_m)
     save(file('join',[getenv('NSP_TMPDIR');'BackupInfo']),...
 	 edited,needcompile,alreadyran, %cpr,%state0,%tcur,...
 	 %scicos_solver,inactive_windows);
-    //close palettes 
-    OpenPals=windows(find(windows(:,1)<0),2 ) 
-    xdel(OpenPals);
+    //close widgets
+    global scicos_widgets
+    for kk=1:length(scicos_widgets)
+      if scicos_widgets(kk).open then
+        scicos_widgets(kk).id.destroy[]
+      end
+    end
   end
   if ~ok then
     message(['Problem saving a backup; I cannot activate ScicosLab.';
@@ -549,7 +554,7 @@ endfunction
 
 
 function scs_m=rec_restore_gr(scs_m,inactive_windows)
-//restore the gr graphics from scs_m and inactive_windows
+//draw the gr graphics from scs_m for inactive_windows
 //-------------------------------------------
   options=scs_m.props.options
   %scicos_solver=scs_m.props.tol(6)
@@ -569,6 +574,8 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
       options=scs_m.props.options
       window_set_size()
       scs_m=do_replot(scs_m)
+      //do not store gr in rpar
+      scs_m=scs_m_remove_gr(scs_m,recursive=%t);
       o.model.rpar=scs_m
       scs_m=scs_m_save
       scs_m(path)=o
