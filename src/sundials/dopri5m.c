@@ -115,46 +115,37 @@ static double max_d (double a, double b){  return (a > b)?a:b;}
 
 static int DP5Rootfind(DOPRI5_mem *dopri5_mem);
 
+#if 0
 static long nfcnRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->nfcn;
-
-} /* nfcnRead */
-
+}
 
 static long nstepRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->nstep;
-
-} /* stepRead */
-
+}
 
 static long naccptRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->naccpt;
-
-} /* naccptRead */
-
+}
 
 static long nrejctRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->nrejct;
-
-} /* nrejct */
-
+}
 
 static double hRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->h;
-
-} /* hRead */
-
+}
 
 static double xRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->x;
-} /* xRead */
-
+}
+#endif 
 
 int DP5_set_tstop (DOPRI5_mem *dopri5_mem, double xstop)
 {
@@ -1128,6 +1119,7 @@ int dopri5_free (DOPRI5_mem *dopri5_mem) {
 /********************************************************
 **********************************************************/
 
+#ifdef USE_MAIN 
 static void faren (unsigned n, double x, double *y, double *f, void *udata)
 {
   double amu, amup, r1, r2, sqr;
@@ -1144,9 +1136,7 @@ static void faren (unsigned n, double x, double *y, double *f, void *udata)
   r2 = r2 * sqrt(r2);
   f[2] = y[0] + 2.0 * y[3] - amup * (y[0]+amu) / r1 - amu * (y[0]-amup) / r2;
   f[3] = y[1] - 2.0 * y[2] - amup * y[1] / r1 - amu * y[1] / r2;
-
-  // f[0]=f[1]=f[2]=f[3]=1;
-
+  /* f[0]=f[1]=f[2]=f[3]=1; */
 } 
 
 static int garen(unsigned n, double x, double *y, double *g, void *udata)
@@ -1156,8 +1146,6 @@ static int garen(unsigned n, double x, double *y, double *g, void *udata)
   return 0;
 }
 
-
-#if 0 
 int mainx (void)
 {
   int   N=4;
@@ -1203,6 +1191,5 @@ int mainx (void)
 
   dopri5_free (dopri5_mem);
   return 0;
-
-} /* main */
+} 
 #endif 
