@@ -153,7 +153,7 @@ static NspArrows *scicos_vumeter_getarrows(NspCompound *C)
 
 static void scicos_vumeter_str_update(NspGrstring *S,const int form[], double v)
 {
-  int ok = FALSE;
+  /* int ok = FALSE; */
   char *st=S->obj->text->S[0];
   char buf[128];
   int kj =sprintf(buf,"%*.*f",form[0], form[1], v);
@@ -165,6 +165,6 @@ static void scicos_vumeter_str_update(NspGrstring *S,const int form[], double v)
     {
       Sciprintf("Warning: buffer has wrong size\n");
     }
-  if ( strcmp(st,buf) != 0 ) ok = TRUE;
+  /* if ( strcmp(st,buf) != 0 ) ok = TRUE; */
   snprintf(st,strlen(st)+1,"%s",buf);
 }
