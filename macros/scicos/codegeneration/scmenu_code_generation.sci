@@ -220,11 +220,10 @@ function scmenu_code_generation()
       //## remove variables
       clear XX YY flgcdgen k szclkINTemp freof gui_path nscs_m
     end
-
   end
-
 endfunction
-//**---------------------------------------------------------------------------------------------------------------------------------
+
+//**-------------------------------------------------------------------------
 function [txt]=call_block42(bk,pt,flag)
 //Copyright (c) 1989-2011 Metalau project INRIA
 
@@ -3186,7 +3185,16 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       break
     end
   end
-
+  
+  //-- inserted for gene-auto2 March 2013 
+  // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  
+  // P_project = %t;
+  if P_project then 
+    codegen_main_p();
+    return;
+  end
+  //-- end-insertion 
+  
   //@@ cpr ptrs declaration
   x=cpr.state.x;
   z=cpr.state.z;
@@ -3283,8 +3291,8 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       rdnom = strsubst(rdnom,'-','_');
       rdnom = strsubst(rdnom,'.','_');
       rdnom = strsubst(rdnom,'''','_');
-      rpat=TMPDIR
-
+      rpat=TMPDIR; //  getenv('NSP_TMPDIR')
+      
       //@@ regular code generation
     else
       //@@ check name of block for space,'-','_',quote
@@ -18993,7 +19001,7 @@ function [txt]=write_code_zzdoit(ev,flag)
       error('Unknown block type '+string(bk));
     end
   end
-
 endfunction
+
 
 
