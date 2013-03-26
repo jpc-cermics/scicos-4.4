@@ -3188,7 +3188,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   
   //-- inserted for gene-auto2 March 2013 
   // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  
-  // P_project = %t;
+  P_project = %f;
   if P_project then 
     codegen_main_p();
     return;
