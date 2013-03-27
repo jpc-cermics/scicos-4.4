@@ -12,15 +12,15 @@ function scmenu_context()
   if ~ok then 
     %scicos_context=%sc_keep;
     clear %sc_keep;
-    return;
+  else
+    // here context can be properly evaluated. 
+    [%scicos_context,ierr]=script2var(context);
+    // we can change scs_m
+    edited=%t; alreadyran=%f; 
+    scs_m.props.context=context;
+    [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr,%scicos_context);
+    if needcompile<>4 && size(%cpr)>0 then %state0=%cpr.state,end;
   end
-  // here context can be properly evaluated. 
-  [%scicos_context,ierr]=script2var(context);
-  // we can change scs_m
-  edited=%t; alreadyran=%f; 
-  scs_m.props.context=context;
-  [scs_m,%cpr,needcompile,ok]=do_eval(scs_m,%cpr,%scicos_context);
-  if needcompile<>4 && size(%cpr)>0 then %state0=%cpr.state,end;
 endfunction
 
 function [ok,new_context]=do_context(scs_m)
