@@ -3204,7 +3204,6 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 
   //-- inserted for gene-auto2 March 2013 
   // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  
-  pause xxx
   if P_project then 
     // code generator of p project 
     [ok,XX]=codegen_main_p();
