@@ -2708,7 +2708,7 @@ void scicos_cfscope_block (scicos_block * block, int flag)
  * @flag: 
  * 
  * a multi scope:
- * Copyright (C) 2010-2011 J.Ph Chancelier 
+ * Copyright (C) 2010-2013 J.Ph Chancelier 
  **/
 
 typedef struct _cmscope_ipar cmscope_ipar;
@@ -2729,16 +2729,19 @@ typedef struct _cmscope_data cmscope_data;
 
 struct _cmscope_data
 {
+  int count_invalidates;
   int count;    /* number of points inserted in the scope buffer */
   double tlast; /* last time inserted in csope data */
   NspFigure *F;
 };
 
+static void nsp_cmscope_invalidate(cmscope_data *D,double t,double *period, double *yminmax);
+
 /* creates a new Axes object for the multiscope 
  *
  */
 
-static NspAxes *nsp_mscope_new_axe(int ncurves,const int *style, double ymin, double ymax)
+static NspAxes *nsp_cmscope_new_axe(int ncurves,const int *style, double ymin, double ymax)
 {
   char strflag[]="151";
   char *curve_l=NULL;
@@ -2784,7 +2787,7 @@ static NspAxes *nsp_mscope_new_axe(int ncurves,const int *style, double ymin, do
  * style[k]: style for curve k 
  */
 
-static NspFigure *nsp_mscope_obj(int win,int nswin,const int *ncs,const int *style,
+static NspFigure *nsp_cmscope_obj(int win,int nswin,const int *ncs,const int *style,
 				 const double *period, int yfree,const double *yminmax)
 {
   const int *cstyle = style;
@@ -2812,7 +2815,7 @@ static NspFigure *nsp_mscope_obj(int win,int nswin,const int *ncs,const int *sty
   /* create nswin axes */
   for ( i = 0 ; i < nswin ; i++) 
     {
-      if ((axe = nsp_mscope_new_axe(ncs[i],cstyle,-1,1))== NULL)
+      if ((axe = nsp_cmscope_new_axe(ncs[i],cstyle,-1,1))== NULL)
 	return NULL;
       /* set the wrect */
       axe->obj->wrect->R[1]= ((double ) i)/nswin;
@@ -2886,27 +2889,13 @@ void scicos_cmscope_block (scicos_block * block, int flag)
 	    }
 	  cloc = cloc->next;
 	}
+      /* fprintf(stderr,"test for invalidate %d %d \n",D->count,csi->buffer_size); */
       if (  D->count %  csi->buffer_size == 0 ) 
 	{
 	  /* redraw each csi->buffer_size accumulated points 
 	   * first check if we need to change the xscale 
 	   */
-	  i=0;
-	  cloc = L->first ;
-	  while ( cloc != NULLCELL ) 
-	    {
-	      if ( cloc->O != NULLOBJ ) 
-		{
-		  double ymin = yminmax[2*i];
-		  double ymax = yminmax[2*i+1];
-		  NspAxes *axe = (NspAxes *) cloc->O;
-		  /* add nu points for time t, nu is the number of curves */
-		  scicos_cscope_axes_update(axe,t,period[i],ymin,ymax);
-		  nsp_axes_invalidate((NspGraphic *)axe);
-		  i++;
-		}
-	      cloc = cloc->next;
-	    }
+	  nsp_cmscope_invalidate(D,t,period,yminmax);
 	}
     }
   else if (flag == 4)
@@ -2914,7 +2903,7 @@ void scicos_cmscope_block (scicos_block * block, int flag)
       /* initialize a scope window */
       cmscope_data *D;
       /* create a figure with axes and qcurves  */
-      NspFigure *F1,*F = nsp_mscope_obj(wid,csi->number_of_subwin,nswin,colors,
+      NspFigure *F1,*F = nsp_cmscope_obj(wid,csi->number_of_subwin,nswin,colors,
 					period, TRUE,yminmax);
       if (F == NULL)
 	{
@@ -2939,6 +2928,7 @@ void scicos_cmscope_block (scicos_block * block, int flag)
 	}
       D->F = F1;
       D->count = 0;
+      D->count_invalidates=0;
       D->tlast = t;
       Xgc = scicos_set_win (wid, &cur);
       if (csi->wpos[0] >= 0)
@@ -2958,6 +2948,11 @@ void scicos_cmscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cmscope_data *D = (cmscope_data *) (*block->work);
+      if ( D->count_invalidates == 0 )
+	{
+	  /* figure was never invalidated : we update the graphics at the end  */
+	  nsp_cmscope_invalidate(D,t,period,yminmax);
+	}
       /* we have locally incremented the count of figure: thus 
        * we can destroy figure here. It will only decrement the ref 
        * counter
@@ -2969,6 +2964,30 @@ void scicos_cmscope_block (scicos_block * block, int flag)
       scicos_free (D);
     }
 }
+
+static void nsp_cmscope_invalidate(cmscope_data *D,double t,double *period, double *yminmax)
+{
+  /* figure was never invalidated : we update the graphics at the end  */
+  int i=0;
+  NspList *L= D->F->obj->children;
+  Cell *cloc = cloc = L->first ;
+  while ( cloc != NULLCELL ) 
+    {
+      if ( cloc->O != NULLOBJ ) 
+	{
+	  double ymin = yminmax[2*i];
+	  double ymax = yminmax[2*i+1];
+	  NspAxes *axe = (NspAxes *) cloc->O;
+	  /* add nu points for time t, nu is the number of curves */
+	  scicos_cscope_axes_update(axe,t,period[i],ymin,ymax);
+	  nsp_axes_invalidate((NspGraphic *)axe);
+	  i++;
+	  D->count_invalidates ++;
+	}
+      cloc = cloc->next;
+    }
+}
+
 
 /**
  * scicos_canimxy_block:
@@ -3148,9 +3167,10 @@ static int scicos_cscopxy_add_point(NspList *L,int animed, const double *x,const
 	  if ( count >= n ) return TRUE;
           NspMatrix *M = curve->obj->Pts;
           /* enlarge qcurve to display all pts in the window if needed */
-          if ( (((curve->obj->last)+1) == M->m) && (animed==1) ) {
-            if ((nsp_qcurve_enlarge(curve,M->m)) == FALSE) return FALSE;
-          }
+          if ( (((curve->obj->last)+1) == M->m) && (animed==1) )
+	    {
+	      if ((nsp_qcurve_enlarge(curve,M->m)) == FALSE) return FALSE;
+	    }
 	  nsp_qcurve_addpt(curve,&x[count],&y[count],1);
 	  count++;
 	}
@@ -3923,10 +3943,12 @@ static int nsp_oscillo_add_point(NspList *L,double t,double period,const double 
 	  if ( count >= n ) return TRUE;
           NspMatrix *M = curve->obj->Pts;
           /* enlarge qcurve to display all pts in the period if needed */
-          /*fprintf(stderr,"curve(%d) : C->obj->last=%d,M->m=%d,t=%f,period=%f\n",count,curve->obj->last,M->m,t,period);*/
+          /* fprintf(stderr,"curve(%d) : C->obj->last=%d,M->m=%d,t=%f,period=%f\n",
+	     count,curve->obj->last,M->m,t,period); */
           if ( (((curve->obj->last)+1) == M->m) && (t<period) ) {
             if ((nsp_qcurve_enlarge(curve,M->m)) == FALSE) return FALSE;
           }
+	  /* fprintf(stderr,"curve(%d) : t=%f, y=%f\n",count,t,y[count]); */
 	  nsp_qcurve_addpt(curve,&t,&y[count],1);
 	  count++;
 	}
