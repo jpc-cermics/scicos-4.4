@@ -73,9 +73,10 @@ function scmenu_code_generation()
 	end
 
 	//## call do_compile_superblock
+	P_project = %f; // put %t to test P project code generation
 	ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code] = '+...
 		     'do_compile_superblock42(scs_m_top, k);',errcatch=%t);
-
+	
 	//@@ silent_mode/cblock
 	if k<>-1 then
 	  silent_mode=scs_m_top.objs(k).model.rpar.codegen.silent
@@ -99,32 +100,47 @@ function scmenu_code_generation()
 	
 	//**quick fix for sblock that contains scope
 	//gh_curwin=scf(curwin)
-		
 	if ok.equal[%t] then
-	  if cblock==1 then
-            //@@ remove XX.gr
-            ishilited=%f
-            if XX.iskey['gr'] then
-              F=get_current_figure();
-              ishilited=XX.gr.hilited
-              F.remove[XX.gr]
-            end
-	    XX=gencblk4(XX,gui_path)
+	  if P_project then 
+	    // the new generated block will replace scs_m.objs(k);
+	    // remove the old block graphics 
+	    scs_m_save  = scs_m ; 
+	    nc_save     = needcompile;
+	    sz=XX.graphics.sz
+	    w=sz(1);h=sz(2)
+	    XX.graphics.orig= scs_m.objs(k).graphics.orig;
+	    if scs_m.objs(k).iskey['gr'] then
+	      F=get_current_figure();
+	      F.remove[scs_m.objs(k).gr]
+	    end
+	    scs_m = changeports(scs_m,list('objs',k), XX);  //scs_m.objs(k)=XX
+	    edited      = %t ;
+	    needcompile = 4  ;
+	    enable_undo=%t
+	  else
+	    if cblock==1 then
+	      //@@ remove XX.gr
+	      ishilited=%f
+	      if XX.iskey['gr'] then
+		F=get_current_figure();
+		ishilited=XX.gr.hilited
+		F.remove[XX.gr]
+	      end
+	      XX=gencblk4(XX,gui_path)
+	    end
+	    scs_m = changeports(scs_m,list('objs',k), XX);  //scs_m.objs(k)=XX
+	    scs_m = draw_sampleclock(scs_m,XX,k,flgcdgen, szclkINTemp, freof);
+	    edited      = %t ;
+	    needcompile = 4  ;
+	    // The interface function must be defined on the first
+	    // level
+	    // XXXXX
+	    Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
+			     'ierr=execstr(''exec('''''+strsubst(gui_path,'''','''''''''')+''''');'',errcatch=%t);'+...
+			     'if ~ierr then message(''Cannot load the '''''+strsubst(gui_path,'''','''''''''')+''''' file'');end; '+...
+			     '%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1';
+			     'Cmenu='"Replot'"'];
 	  end
-
-	  scs_m = changeports(scs_m,list('objs',k), XX);  //scs_m.objs(k)=XX
-	  scs_m = draw_sampleclock(scs_m,XX,k,flgcdgen, szclkINTemp, freof);
-	  edited      = %t ;
-	  needcompile = 4  ;
-
-	  // The interface function must be defined on the first
-	  // level
-	  // XXXXX
-	  Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
-			   'ierr=execstr(''exec('''''+strsubst(gui_path,'''','''''''''')+''''');'',errcatch=%t);'+...
-			   'if ~ierr then message(''Cannot load the '''''+strsubst(gui_path,'''','''''''''')+''''' file'');end; '+...
-			   '%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1';
-			   'Cmenu='"Replot'"']
 	else
 	  if ok then
 	    Cmenu = "Open/Set"
@@ -133,7 +149,7 @@ function scmenu_code_generation()
 	//## remove variables
 	clear XX flgcdgen k szclkINTemp freof gui_path
       end
-
+      
     else
       //** the clicked/selected block is NOT a superblock
       message("Code Generation only work for a Superblock or for an entire diagram.")
@@ -2578,7 +2594,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   //*****************************************
   
   //## set void value for gui_path
-  gui_path=[];
+  gui_path=m2s([]);
 
   if numk<>-1 then
     //## get the model of the sblock
@@ -3185,15 +3201,22 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       break
     end
   end
-  
+
   //-- inserted for gene-auto2 March 2013 
   // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  
-  P_project = %f;
+  pause xxx
   if P_project then 
-    codegen_main_p();
-    return;
+    // code generator of p project 
+    [ok,XX]=codegen_main_p();
+    nbcap=0;
+    nbact=0;
+    capt=[];
+    actt=[];
+    Protostalone=[];
+    Protos=[];
+    dfuns=m2s([]);
+    return 
   end
-  //-- end-insertion 
   
   //@@ cpr ptrs declaration
   x=cpr.state.x;
@@ -3499,6 +3522,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
     end
   end
 
+  
   //###################################################
   //generate blocs simulation function prototypes
   //and extract infos from ports for sensors/actuators
@@ -3533,15 +3557,15 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 	yk_t  = mat2scs_c_nb(outtb(yk));
       end
       capt=[capt;
-            i yk nyk_1 nyk_2 yk_t bllst(i).ipar]
+	    i yk nyk_1 nyk_2 yk_t bllst(i).ipar]
 
       //## only one proto for sensor
       if nbcap==1 then
-        Protostalone=[Protostalone;
-                      '';
-                      +get_comment('proto_sensor')
-                      'void '+rdnom+'_sensor(int *, int *, int *, double *, void *, \';
-                      get_blank(rdnom)+'             int *, int *, int *, int, void *);']
+	Protostalone=[Protostalone;
+		      '';
+		      +get_comment('proto_sensor')
+		      'void '+rdnom+'_sensor(int *, int *, int *, double *, void *, \';
+		      get_blank(rdnom)+'             int *, int *, int *, int, void *);']
       end
 
       //## block is an actuator
@@ -3550,38 +3574,38 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       //## number of input ports
       nin=inpptr(i+1)-inpptr(i);
       if nin==0 then
-        //uk    = 0;
-        //nuk_1 = 0;
-        //nuk_2 = 0;
-        //uk_t  = 1;
-        printf('nin=0 for an actuator');
-        pause
+	//uk    = 0;
+	//nuk_1 = 0;
+	//nuk_2 = 0;
+	//uk_t  = 1;
+	printf('nin=0 for an actuator');
+	pause
       else
-        uk    = inplnk(inpptr(i));
-        nuk_1 = size(outtb(uk),1);
-        nuk_2 = size(outtb(uk),2);
-        uk_t  = mat2scs_c_nb(outtb(uk));
+	uk    = inplnk(inpptr(i));
+	nuk_1 = size(outtb(uk),1);
+	nuk_2 = size(outtb(uk),2);
+	uk_t  = mat2scs_c_nb(outtb(uk));
       end
       actt=[actt;
-            i uk nuk_1 nuk_2 uk_t bllst(i).ipar]
+	    i uk nuk_1 nuk_2 uk_t bllst(i).ipar]
 
       //## only one proto for actuator
       if nbact==1 then
-        Protostalone=[Protostalone;
-                      ''
-                      +get_comment('proto_actuator')
-                      'void '+rdnom+'_actuator(int *, int *, int *, double *, void *, \';
-                      get_blank(rdnom)+'               int *, int *, int *, int, void *);']
+	Protostalone=[Protostalone;
+		      ''
+		      +get_comment('proto_actuator')
+		      'void '+rdnom+'_actuator(int *, int *, int *, double *, void *, \';
+		      get_blank(rdnom)+'               int *, int *, int *, int, void *);']
       end
     else
       //## all other types of blocks excepts evt sensors and evt actuators
       if funs(i)<>'bidon' & funs(i)<>'bidon2' then
-        ki=find(funs(i)==dfuns)
-        dfuns=[dfuns;funs(i)]
-        if isempty(ki) then
-          Protos=[Protos;'';BlockProto(i)];
-          Protostalone=[Protostalone;'';BlockProto(i)];
-        end
+	ki=find(funs(i)==dfuns)
+	dfuns=[dfuns;funs(i)]
+	if isempty(ki) then
+	  Protos=[Protos;'';BlockProto(i)];
+	  Protostalone=[Protostalone;'';BlockProto(i)];
+	end
       end
     end
   end
@@ -3660,11 +3684,12 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
       ok=buildnewblock(rdnom,files,filestan,filesint,libs,rpat,'',cflags)
     end
   end
-
+  
   if ok then
 
     if ~ALL then
       //global gui_path
+      pause zzz
       gui_path=rpat+'/'+rdnom+'_c.sci'
 
       //exec the gui function
@@ -3690,7 +3715,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
           end
         end
       end
-
+      
       //@@ put a doc into the field doc of the new block
       XX=update_block_doc(XX)
 
