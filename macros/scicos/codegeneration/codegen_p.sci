@@ -12,15 +12,10 @@ function [ok,XX]=codegen_main_p()
 
   FunName=file('join',[TMPDIR,'test'+DateCode]);
   [txt,ins,outs]=codegen_p(scs_m,cpr,FunName+'.c');
+  
   file('delete', FunName+'.sci');
   scicos_mputl(txt, FunName+'.sci');
-  // convert the code to insert numerics 
-  //ast=parse_file(FunName+'.sci');
-  //ast1=ast_bvar(ast);
-  //txt1=ast1.sprint[];
-  //file('delete', FunName+'.sci');
-  //scicos_mputl(txt1, FunName+'.sci');  
-  // now evaluate the code 
+  
   global("code","declarations","_i","_defs");
   _i=0;
   code=list();
@@ -56,6 +51,8 @@ function [ok,XX]=codegen_main_p()
 	      '';
 	      txtc];
   
+  // generate a scicos block 
+    
   Cblock_txt.concatd[["void toto"+DateCode+"(scicos_block *block,int flag)";
 		      "  {"]];
   
@@ -83,14 +80,15 @@ function [ok,XX]=codegen_main_p()
     outsizes=[outsizes;size(outs(i))]
     outtypes=[outtypes;outtype]
   end
-  
-  Cblock_txt($+1,1)="  if (flag == 1) {"
-  Cblock_txt($+1,1)="   updateOutput1("+strcat(ios,',')+");"
-  Cblock_txt($+1,1)="  }"
-  Cblock_txt($+1,1)="  if (flag == 2) {"
-  Cblock_txt($+1,1)="   updateState1("+strcat(ios,',')+");"
-  Cblock_txt($+1,1)="  }"
-  Cblock_txt($+1,1)="}"
+    
+  Cblock_txt.concatd[["  if (flag == 1) {"
+		      "   updateOutput1("+strcat(ios,',')+");"
+		      "  }"
+		      "  else if (flag == 2) {"
+		      "   updateState1("+strcat(ios,',')+");"
+		      "  }"
+		      "  else if (flag == 4) { initialize();}"
+		      "}"]];
 
   XX   = CBLOCK4('define')
   XX.graphics.sz = 20 *XX.graphics.sz
