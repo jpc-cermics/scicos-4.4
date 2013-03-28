@@ -2948,9 +2948,10 @@ void scicos_cmscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cmscope_data *D = (cmscope_data *) (*block->work);
-      if ( D->count_invalidates == 0 )
+      if ( D->count_invalidates == 0 && D->F->obj->ref_count > 1 )
 	{
-	  /* figure was never invalidated : we update the graphics at the end  */
+	  /* figure was never invalidated and was not destroyed during simulation
+	   * we update the graphics at the end  */
 	  nsp_cmscope_invalidate(D,t,period,yminmax);
 	}
       /* we have locally incremented the count of figure: thus 
@@ -2967,7 +2968,6 @@ void scicos_cmscope_block (scicos_block * block, int flag)
 
 static void nsp_cmscope_invalidate(cmscope_data *D,double t,double *period, double *yminmax)
 {
-  /* figure was never invalidated : we update the graphics at the end  */
   int i=0;
   NspList *L= D->F->obj->children;
   Cell *cloc = cloc = L->first ;

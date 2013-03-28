@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2012-2012 J.P. Chancelier 
+ * Copyright (C) 2012-2013 J.P. Chancelier ENPC/Cermics 
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -67,6 +67,7 @@ typedef struct _dmscope_data dmscope_data;
 
 struct _dmscope_data
 {
+  int count_invalidates;
   int count;    /* number of points inserted in the scope buffer */
   double tlast; /* last time inserted in csope data */
   NspCompound *C;
@@ -178,6 +179,28 @@ static void nsp_list_delete_axes(NspList *L)
     }
 }
 
+static void scicos_dmscope_invalidate(dmscope_data *D,NspGraphic *Gr,double t,double *period, double *yminmax)
+{
+  int i=0;
+  NspList *L= ((NspCompound *) Gr)->obj->children;
+  Cell *cloc = cloc = L->first ;
+  while ( cloc != NULLCELL ) 
+    {
+      if ( cloc->O != NULLOBJ && IsAxes(cloc->O)) 
+	{
+	  double ymin = yminmax[2*i];
+	  double ymax = yminmax[2*i+1];
+	  NspAxes *axe = (NspAxes *) cloc->O;
+	  /* add nu points for time t, nu is the number of curves */
+	  scicos_cscope_axes_update(axe,t,period[i],ymin,ymax);
+	  nsp_axes_invalidate((NspGraphic *)axe);
+	  i++;
+	}
+      cloc = cloc->next;
+    }
+}
+
+
 void scicos_dmscope_block (scicos_block * block, int flag)
 {
   /* used to decode parameters by name */
@@ -236,22 +259,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 	  /* redraw each csi->buffer_size accumulated points 
 	   * first check if we need to change the xscale 
 	   */
-	  i=0;
-	  cloc = L->first ;
-	  while ( cloc != NULLCELL ) 
-	    {
-	      if ( cloc->O != NULLOBJ && IsAxes(cloc->O)) 
-		{
-		  double ymin = yminmax[2*i];
-		  double ymax = yminmax[2*i+1];
-		  NspAxes *axe = (NspAxes *) cloc->O;
-		  /* add nu points for time t, nu is the number of curves */
-		  scicos_cscope_axes_update(axe,t,period[i],ymin,ymax);
-		  nsp_axes_invalidate((NspGraphic *)axe);
-		  i++;
-		}
-	      cloc = cloc->next;
-	    }
+	  scicos_dmscope_invalidate(D,Gr,t,period,yminmax);
 	}
     }
   else if (flag == 4)
@@ -287,11 +295,17 @@ void scicos_dmscope_block (scicos_block * block, int flag)
        */
       D->C = C;
       D->count = 0;
+      D->count_invalidates=0;
       D->tlast = t;
     }
   else if (flag == 5)
     {
       dmscope_data *D = (dmscope_data *) (*block->work);
+      if ( D->count_invalidates == 0 &&  D->C->obj->ref_count > 1 ) 
+	{
+	  /* figure was never invalidated: we update the graphics at the end  */
+	  scicos_dmscope_invalidate(D,Gr,t,period,yminmax);
+	}
       /* we have locally incremented the count of figure: thus 
        * we can destroy figure here. It will only decrement the ref 
        * counter
