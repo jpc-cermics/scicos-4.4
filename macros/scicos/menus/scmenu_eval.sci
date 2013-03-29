@@ -57,8 +57,8 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
     msg=m2s([]);
 
     // to detect that message was activated
-    global %scicos_prob;     // detect pbs in non interactive blovk evaluation
-    global %scicos_setvalue; // detect loop in non interactive blovk evaluation
+    global %scicos_prob;     // detect pbs in non interactive block evaluation
+    global %scicos_setvalue; // detect loop in non interactive block evaluation
 
     // enrich context with scs_m.props.context 
     [context,ierr]=script2var(scs_m.props.context,context);
