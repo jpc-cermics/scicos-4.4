@@ -105,7 +105,9 @@ function [ok,XX]=codegen_main_p()
   XX.graphics.exprs(1)(18) = 'y'                   //direct feedthrough
   XX.graphics.exprs(2)=Cblock_txt
 
-  //@@ run 'set' job of the CBLOCK4
+  // run 'set' job of the CBLOCK4 in a non interactive way 
+  // all this should be hiden in a function 
+  
   getvalue=setvalue;
   function message(txt)
     x_message('In block '+XX.gui+': '+txt);
@@ -115,14 +117,19 @@ function [ok,XX]=codegen_main_p()
   function [ok,tt,cancel,libss,cflags] = CC4(funam,tt,i,o,libss,cflags)
     ok=%t;tt=tt;cancel=%f; libss=libss;   cflags=cflags;
   endfunction;
-
+  // to detect that message was activated
+  global %scicos_prob;     // detect pbs in non interactive block evaluation
+  global %scicos_setvalue; // detect loop in non interactive block evaluation
   %scicos_prob = %f
+  %scicos_setvalue=[];
   XX = CBLOCK4('set',XX);
-  // XXXX a revoir ? 
-  [a,b]=c_link('toto');
-  while a
-    ulink(b);
-    [a,b]=c_link('toto');
+  // XXX is this to be done here ? 
+  // this should be the job of CBLOCK4 
+  epoint = 'toto'+DateCode;
+  while %t
+    [ok,id]=c_link(epoint);
+    if ~ok then break;end
+    ulink(id);
   end
   ok=%t;
 endfunction 
