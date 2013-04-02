@@ -23,15 +23,16 @@ function [ok,XX]=codegen_main_p()
   ok = execstr(txt,errcatch=%t);
   if ~ok then pause codegen_main_p1;end 
   funlist=fun_sat_defs( )
-  txt_defs=[];
-  for fun=_defs'
+  if type(_defs,'short')<>'h' then _defs=hash(10);end 
+  txt_defs=m2s([]);
+  for fun=_defs.__keys'
     txt_defs=[txt_defs;funlist(fun)]
   end
   
   clearglobal("code","declarations","_i","_defs")
   ///////////////////////////////////////////////////////////
   txtc = scicos_mgetl(FunName+'.c');
-
+  
   Date=gdate_new();
   str= Date.strftime["%d %B %Y"];
   
@@ -185,7 +186,7 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
 	  txt($+1,1)="params=hash(10)";
 	  blkparams=_params(blk)
 	  j=1;
-	  for par=blkparams
+	  for par=blkparams 
             txt($+1,1)="params.p"+string(j)+"="+nsp2bvarexp(blkparams(j),0)+";";
             j=j+1
 	  end
@@ -269,10 +270,11 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
 
 
   function %val=EvalinContext(%expr,%ctx)
+  // XXXX a revoir
     execstr(%ctx)
     %val=evstr(%expr)
   endfunction
-
+  
 
   function txt=initialize(txt,ord)
     valids=_params.defined[]; // in out blocks have no params 
@@ -496,6 +498,7 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       exprs=scs_m.objs(cpr.corinv(i)).graphics.exprs
       _params(i)=list()
       for j=1:size(exprs,1)
+	// pause zzzztttt
 	ok=execstr("_params(i)($+1)=EvalinContext(exprs(j),scs_m.props.context)",...
 		   errcatch=%t);
 	if ~ok then
