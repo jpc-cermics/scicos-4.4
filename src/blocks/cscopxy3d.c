@@ -155,9 +155,11 @@ void cscopxy3d (scicos_block * block, int flag)
     case Ending:
       {
 	cscope_data *D = (cscope_data *) (*GetPtrWorkPtrs(block));
-        /* figure was never invalidated and was not destroyed during simulation
-         * we update the graphics at the end  */
-	/* TODO */
+        if ( D->count_invalidates == 0 ) {
+          /* figure was never invalidated and was not destroyed during simulation
+           * we update the graphics at the end  */
+          nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
+        }
 	scicos_free(D);
 	break;
       }
