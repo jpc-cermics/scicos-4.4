@@ -46,7 +46,7 @@ function [ok,XX]=codegen_main_p()
 	      '#include <stdlib.h>'
 	      '#include <stdint.h>';
 	      '#include <math.h>'
-	      '';
+	      'typedef int boolean;';
 	      txt_defs;
 	      '';
 	      txtc];
