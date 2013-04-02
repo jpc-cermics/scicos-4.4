@@ -269,13 +269,12 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
   endfunction
 
 
-  function %val=EvalinContext(%expr,%ctx)
-  // XXXX a revoir
-    execstr(%ctx)
-    %val=evstr(%expr)
+  function [val,err]=EvalinContext(%expr,%ctx)
+  // could be changed to transmit a context to evstr 
+    execstr(%ctx);
+    [val,err]=evstr(%expr);
   endfunction
   
-
   function txt=initialize(txt,ord)
     valids=_params.defined[]; // in out blocks have no params 
     for i=1:size(ord,1)
@@ -472,8 +471,8 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       if length(exprs3)<3 then error("Unsupported Scilab block.");end
       _params(i)=list()
       exprs=exprs3(1)(7)
-      ok=execstr("vexprs=EvalinContext(exprs,scs_m.props.context)",errcatch=%t)
-      if ~ok then message(catenate(lasterror())); ok=%f;return; end;
+      [vexprs,err]=EvalinContext(exprs,scs_m.props.context);
+      if err then message(catenate(lasterror())); ok=%f;return; end;
       for j=1:length(vexprs)
 	ok =execstr("_params(i)($+1)=vexprs(j)",errcatch=%t);
 	if ~ok then  message(catenate(lasterror())); ok=%f;return; end;
@@ -498,12 +497,12 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       exprs=scs_m.objs(cpr.corinv(i)).graphics.exprs
       _params(i)=list()
       for j=1:size(exprs,1)
-	// pause zzzztttt
-	ok=execstr("_params(i)($+1)=EvalinContext(exprs(j),scs_m.props.context)",...
-		   errcatch=%t);
-	if ~ok then
-	  message(catenate(lasterror()));
+	[rep,err]=EvalinContext(exprs(j),scs_m.props.context);
+	if err then
+	  // message(catenate(lasterror()));
 	  _params(i)($+1)=exprs(j);
+	else
+	  _params(i)($+1)=rep;
 	end
       end
     end
