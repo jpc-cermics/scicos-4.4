@@ -2375,6 +2375,7 @@ typedef struct _cscope_data cscope_data;
 
 struct _cscope_data
 {
+  int count_invalidates;
   int count;    /* number of points inserted in the scope buffer */
   double tlast; /* last time inserted in csope data */
   NspAxes *Axes;
@@ -2431,6 +2432,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	   */
 	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
+	  D->count_invalidates ++;
 	}
     }
   else if (flag == 4)
@@ -2483,6 +2485,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
       D->Axes = Axes1;
       D->L = L;
       D->count = 0;
+      D->count_invalidates = 0;
       D->tlast = t;
       Xgc = scicos_set_win (wid, &cur);
       if (csi->wpos[0] >= 0)
@@ -2502,6 +2505,13 @@ void scicos_cscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cscope_data *D = (cscope_data *) (*block->work);
+      if ( D->count_invalidates == 0 && D->Axes->obj->ref_count >= 1 )
+	{
+	  /* figure was never invalidated and was not destroyed during simulation
+	   * we update the graphics at the end  */
+	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
+	  nsp_axes_invalidate((NspGraphic *) D->Axes);
+	}
       if ( D->Axes->obj->ref_count >= 1 ) 
 	{
 	  /* Axes was destroyed during simulation 
@@ -2561,6 +2571,7 @@ typedef struct _cfscope_data cfscope_data;
 
 struct _cfscope_data
 {
+  int count_invalidates;
   int count;    /* number of points inserted in the scope buffer */
   double tlast; /* last time inserted in csope data */
   NspAxes *Axes;
@@ -2616,6 +2627,7 @@ void scicos_cfscope_block (scicos_block * block, int flag)
 	   */
 	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
+	  D->count_invalidates ++;
 	}
     }
   else if (flag == 4)
@@ -2668,6 +2680,7 @@ void scicos_cfscope_block (scicos_block * block, int flag)
       D->Axes = Axes1;
       D->L = L;
       D->count = 0;
+      D->count_invalidates = 0;
       D->tlast = t;
       if ( (D->outtc = scicos_malloc(nu*sizeof(double))) == NULL) {
         scicos_set_block_error (-16);
@@ -2691,6 +2704,13 @@ void scicos_cfscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cfscope_data *D = (cfscope_data *) (*block->work);
+      if ( D->count_invalidates == 0 && D->Axes->obj->ref_count >= 1 )
+	{
+	  /* figure was never invalidated and was not destroyed during simulation
+	   * we update the graphics at the end  */
+	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
+	  nsp_axes_invalidate((NspGraphic *) D->Axes);
+	}
       if ( D->Axes->obj->ref_count >= 1 ) 
 	{
 	  /* Axes was destroyed during simulation 
@@ -3067,6 +3087,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
 	   */
 	  scicos_cscopxy_axes_update(D,csr->xmin, csr->xmax,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
+	  D->count_invalidates ++;
 	}
     }
   else if (flag == 4)
@@ -3124,6 +3145,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       D->Axes = Axes1;
       D->L = L;
       D->count = 0;
+      D->count_invalidates = 0;
       D->tlast = t;
       Xgc = scicos_set_win (wid, &cur);
       if (csi->wpos[0] >= 0)
@@ -3143,6 +3165,13 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cscope_data *D = (cscope_data *) (*block->work);
+      if ( D->count_invalidates == 0 && D->Axes->obj->ref_count >= 1 )
+	{
+	  /* figure was never invalidated and was not destroyed during simulation
+	   * we update the graphics at the end  */
+	  scicos_cscopxy_axes_update(D,csr->xmin, csr->xmax,csr->ymin,csr->ymax);
+	  nsp_axes_invalidate((NspGraphic *) D->Axes);
+	}
       /* we have locally incremented the count of Axes: thus 
        * we can destroy it here. It will only decrement the ref 
        * counter

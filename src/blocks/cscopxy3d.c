@@ -19,6 +19,7 @@ struct _cscope_data
 {
   NspObjs3d *objs3d;
   NspMatrix *Mcol;
+  int count_invalidates;
   int count;    /* number of points inserted in the scope buffer */
   int max;      /* number of points which can be inserted */
   int malloc_size ; /* we allocate malloc_size rows on re-allocation */
@@ -123,6 +124,7 @@ void cscopxy3d (scicos_block * block, int flag)
 	/* SetEch3d1(Xgc, nsp_box_3d *box,const double *bbox,csr->theta,csr->alpha,(i=0)); */
         nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
         D->count=0;
+        D->count_invalidates = 0;
         D->max=D->malloc_size;
         break;
       }
@@ -146,12 +148,16 @@ void cscopxy3d (scicos_block * block, int flag)
         if (D->count % buffer_size == 0) {
           /* when we have inserted buffer_size points: then we must draw */
           nsp_objs3d_invalidate(((NspGraphic *) D->objs3d));
+	  D->count_invalidates ++;
         }
         break;
       }
     case Ending:
       {
 	cscope_data *D = (cscope_data *) (*GetPtrWorkPtrs(block));
+        /* figure was never invalidated and was not destroyed during simulation
+         * we update the graphics at the end  */
+	/* TODO */
 	scicos_free(D);
 	break;
       }
