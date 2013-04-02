@@ -65,6 +65,7 @@ function OpenSet_()
       if Cmenu=="Link" then
         %pt=[%xc, %yc]
         super_path($)=[]
+        return
       else
         edited = edited | editedb
         super_path($-size(%kk,2)+1:$)=[]

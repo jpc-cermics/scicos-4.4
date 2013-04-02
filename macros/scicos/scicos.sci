@@ -281,7 +281,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
           end
 
           if Cmenu=="OpenSet" then
-            ierr=execstr('exec(OpenSet_);',errcatch=%t)
+            ierr=execstr('_ie=exec(OpenSet_);',errcatch=%t)
             if ierr==%f then message(catenate(lasterror())),end
             if isequal(%diagram_path_objective,super_path) then 
 	      // must add after testing &%scicos_navig<>[] 
