@@ -11,7 +11,8 @@ function save_to_nsp(fname)
     return;
   end
   message('convert file '+fname);
-  [ok,scs_m,%cpr,edited]=do_scicoslab_import(fname,'diagram');
+  //[ok,scs_m,%cpr,edited]=do_scicoslab_import(fname,'diagram');
+  [ok,scs_m,%cpr,edited]=do_load(fname,'diagram',%t);
   [sc,cpr,needcompile,ok]=do_eval(scs_m,%cpr);
   if ok then scs_m=sc;end
   [%cpr,ok]=do_compile(scs_m);
