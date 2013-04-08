@@ -116,7 +116,8 @@ function [ierreport]=scicos_test(fname,import=%f)
   do_terminate=do_terminate2;
   // load the diagram and update 
   if import then 
-    [ok,scs_m,%cpr]=do_scicoslab_import(fname);
+    [ok,scs_m,%cpr]=do_load(fname,'diagram',%t);
+    // [ok,scs_m,%cpr]=do_scicoslab_import(fname);
   else
     [ok,scs_m,%cpr]=do_load(fname);
   end
