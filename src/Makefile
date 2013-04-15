@@ -66,7 +66,8 @@ distclean:: clean
 
 clean:: 
 	@cd blocks; make clean $(MFLAGS)
-	@$(RM) */*.o */*.lo
+	@$(RM) */*.o */*.lo 
+	@$(RM) -fr */.libs 
 
 # special rules for compilation 
 
