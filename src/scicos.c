@@ -1016,6 +1016,7 @@ static void cossim (double *told)
       if (Abs (t - *told) < Scicos->params.ttol)
 	{
 	  t = *told;
+          cdoit (told);
 	  /*     update output part */
 	}
       if (*told > t)
