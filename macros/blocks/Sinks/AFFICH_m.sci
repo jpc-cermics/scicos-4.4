@@ -99,7 +99,7 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
 	break
       end
     end
-    
+
    case 'compile'
     model=arg1
     in=[model.in,model.in2]
@@ -107,7 +107,7 @@ function [x,y,typ]=AFFICH_m(job,arg1,arg2)
     model.dstate = [-1;0;0;1;1;zeros(in(1,1)*in(1,2),1)]
     x=model
     // we should replot the icon here !
-    o1=scs_m(scs_full_path(corinv(arg2)));
+    o1=o
     if o1.iskey['gr'] then 
       // XXX Update the graphics if necessary 
       str = affich_str(model.in,model.in2,model.ipar(5:6))

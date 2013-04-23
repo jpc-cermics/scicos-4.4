@@ -3404,24 +3404,27 @@ void scicos_affich2_block (scicos_args_F0)
 {
   NspGrstring **S= (NspGrstring **) &z__[0] ;
   --ipar;
-  if (*flag__ == 1)
-    {
-      /* draw the string matrix */
-      if ( *S != NULL) 
-	{
-	  scicos_affich2_update(*S,&ipar[5],u,ipar[7],*nu/ipar[7]);
-	}
-    }
-  else if (*flag__ == 4)
-    {
-      int cb = Scicos->params.curblk -1;
-      NspGraphic *Gr = Scicos->Blocks[cb].grobj;
-      *S = NULL;
-      if ( Gr != NULL && IsCompound((NspObject *) Gr))
-	{
-	  *S = scicos_affich2_getstring((NspCompound *)Gr);
-	}
-    }
+  if (*flag__ == 1) {
+    int cb = Scicos->params.curblk -1;
+    NspGraphic *Gr = Scicos->Blocks[cb].grobj;
+    *S = NULL;
+    if ( Gr != NULL && IsCompound((NspObject *) Gr))
+      *S = scicos_affich2_getstring((NspCompound *)Gr);
+    /* draw the string matrix */
+    if ( *S != NULL)
+      scicos_affich2_update(*S,&ipar[5],u,ipar[7],*nu/ipar[7]);
+  }
+ /* else if (*flag__ == 4)
+  *  {
+  *    int cb = Scicos->params.curblk -1;
+  *    NspGraphic *Gr = Scicos->Blocks[cb].grobj;
+  *    *S = NULL;
+  *    if ( Gr != NULL && IsCompound((NspObject *) Gr))
+  *    {
+  *      *S = scicos_affich2_getstring((NspCompound *)Gr);
+  *    }
+  *  }
+  */
 }
 
 static NspGrstring *scicos_affich2_getstring(NspCompound *C)
