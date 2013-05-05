@@ -62,7 +62,16 @@ function [x,y,typ]=IN_f(job,arg1,arg2)
     while %t do
       [ok,prt,otsz,ot,exprs]=getvalue('Set Input block parameters',..
 				      ['Port number';'Outport Size (-1 for inherit)';'Outport Type (-1 for inherit)'],list('vec',1,'vec',-1,'vec',1),exprs);
-      if ~ok then break,end
+      if ~ok then 
+      	// change port number in any case
+	ok1=execstr('prti=evstr(graphics.exprs(1))',errcatch=%t);
+	if ~ok1 then lasterror();
+	else
+	  model.ipar=prti
+	  x.model=model
+	end
+	break
+      end 
       prt=int(prt)
       if prt<=0 then
 	message('Port number must be a positive integer')

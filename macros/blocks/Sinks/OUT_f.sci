@@ -64,7 +64,14 @@ function [x,y,typ]=OUT_f(job,arg1,arg2)
     while %t do
       [ok,prt,exprs]=getvalue('Set Output block parameters',..
 			      'Port number',list('vec',1),exprs)
-      if ~ok then break,end
+      if ~ok then 
+	// change port number in any case
+	if execstr('prti=evstr(graphics.exprs(1))','errcatch')==0 then
+	  model.ipar=prti
+	  x.model=model
+	end
+	break,
+      end
       prt=int(prt)
       if prt<=0 then
 	message('Port number must be a positive integer')
