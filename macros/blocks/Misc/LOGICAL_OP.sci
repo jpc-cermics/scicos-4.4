@@ -57,7 +57,6 @@ function [x,y,typ]=LOGICAL_OP(job,arg1,arg2)
 	end
       end
     end
-
    case 'compile' then
     model=arg1
     Datatype= model.outtyp
@@ -83,12 +82,11 @@ function [x,y,typ]=LOGICAL_OP(job,arg1,arg2)
       elseif Datatype==8 then
 	model.sim=list('logicalop_ui8',4)
       else 
-	error("Datatype is not supported")
+	error("Datatype "+string(Datatype)+" is not supported")
       end
     end
-
-    x=model
-
+    x=model;
+    
    case 'define' then
     in=[-1;-1]
     ipar=[0;0]
