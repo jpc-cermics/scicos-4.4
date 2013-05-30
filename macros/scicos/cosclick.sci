@@ -29,6 +29,25 @@ function [btn,%pt,win,Cmenu]=cosclick()
     label.set_label[o.gui]
   endfunction
 
+  //destroy block tooltip
+  function win_tooltip=destroy_block_tooltip(win_tooltip)
+    if ~win_tooltip.equal[[]] then
+      win_tooltip.destroy[]
+      win_tooltip=[]
+    end
+  endfunction
+
+  //unhilite hilited port
+  function port_hilited=unhilite_port(gr_port,port_hilited)
+    if port_hilited then
+      F=get_current_figure()
+      F.remove[gr_port]
+      F.invalidate[];
+      port_hilited=%f
+      xcursor(GDK.CROSSHAIR)
+    end
+  endfunction
+
 // select action from an activated event 
 // 
   global Scicos_commands
@@ -45,18 +64,17 @@ function [btn,%pt,win,Cmenu]=cosclick()
     btn=-1
 
     win_tooltip=[];
+    port_hilited=%f;
+    gr_port=[];
 
-    //new : motion event loop
-    //Alan,30/05/13
+    //new : motion event loop (Alan,30/05/13)
     while %t
       //switch getmotion to %f to not show the tooltip
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%f,getmotion=%t)
 
       if (btn~=-1) then
-        if ~win_tooltip.equal[[]] then
-          win_tooltip.destroy[]
-          win_tooltip=[]
-        end
+        port_hilited=unhilite_port(gr_port,port_hilited)
+        win_tooltip=destroy_block_tooltip(win_tooltip)
         break
       else
         if win==curwin then
@@ -64,16 +82,29 @@ function [btn,%pt,win,Cmenu]=cosclick()
           xinfo(str_pt); //display mouse position
           kk=getblock(scs_m,[xc;yc]);
           if ~isempty(kk) then
-            if win_tooltip.equal[[]] then
-              win_tooltip=show_block_tooltip(scs_m.objs(kk))
+            [connected,xyo,typo,szout,szouttyp,from]=getportblk(scs_m.objs(kk),kk,'from',[xc,yc])
+            cedge=check_edge(scs_m.objs(kk),'inside',[xc,yc])
+            if ~connected && cedge=='Link' then
+              win_tooltip=destroy_block_tooltip(win_tooltip)
+              if ~port_hilited then
+                xcursor(GDK.PENCIL)
+                gr_port=hilite_port(xyo(1),xyo(2),scs_m.objs(kk))
+                port_hilited=%t
+              end
+            elseif cedge=='inside'
+              port_hilited=unhilite_port(gr_port,port_hilited)
+              if win_tooltip.equal[[]] then
+                win_tooltip=show_block_tooltip(scs_m.objs(kk))
+              else
+                win_tooltip=update_block_tooltip(scs_m.objs(kk),win_tooltip)
+              end
             else
-              win_tooltip=update_block_tooltip(scs_m.objs(kk),win_tooltip)
+              port_hilited=unhilite_port(gr_port,port_hilited)
+              win_tooltip=destroy_block_tooltip(win_tooltip)
             end
           else
-            if ~win_tooltip.equal[[]] then
-              win_tooltip.destroy[]
-              win_tooltip=[]
-            end
+            port_hilited=unhilite_port(gr_port,port_hilited)
+            win_tooltip=destroy_block_tooltip(win_tooltip)
           end
         end
       end
