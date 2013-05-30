@@ -1,4 +1,34 @@
-function [btn,%pt,win,Cmenu]=cosclick(flag)
+function [btn,%pt,win,Cmenu]=cosclick()
+
+  //display a tooltip for blk when mouse pointer
+  //is above à block
+  function win_tooltip=show_block_tooltip(o)
+    win_tooltip = gtkwindow_new (type=1)
+    win_tooltip.set_type_hint[GDK.WINDOW_TYPE_HINT_TOOLTIP]
+    screen=win_tooltip.get_root_window[]
+    pos=screen.get_pointer[]
+    win_tooltip.move[pos(1)+10,pos(2)+10]
+    hbox = gtkhbox_new();
+    frame = gtkframe_new();
+    label = gtklabel_new(str=o.gui);
+    frame.add[label]
+    hbox.pack_start[frame,expand=%f,fill=%f,padding=0]
+    win_tooltip.add[hbox]
+    win_tooltip.show_all[];
+  endfunction
+
+  //update a tooltip for blk when mouse pointer
+  //move above à block
+  function win_tooltip=update_block_tooltip(o,win_tooltip)
+    screen=win_tooltip.get_root_window[]
+    pos=screen.get_pointer[]
+    win_tooltip.move[pos(1)+10,pos(2)+10]
+    hbox=win_tooltip.get_children[](1)
+    frame=hbox.get_children[](1)
+    label=frame.get_children[](1)
+    label.set_label[o.gui]
+  endfunction
+
 // select action from an activated event 
 // 
   global Scicos_commands
@@ -11,17 +41,51 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   enablemenus();
   
   if isempty(scicos_dblclk) then
-    if nargin==1 then
-      [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=flag)
-    else
-      [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%t)
+    xcursor(GDK.CROSSHAIR)
+    btn=-1
+
+    win_tooltip=[];
+
+    //new : motion event loop
+    //Alan,30/05/13
+    while %t
+      //switch getmotion to %f to not show the tooltip
+      [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%f,getmotion=%t)
+
+      if (btn~=-1) then
+        if ~win_tooltip.equal[[]] then
+          win_tooltip.destroy[]
+          win_tooltip=[]
+        end
+        break
+      else
+        if win==curwin then
+          str_pt= sprintf("[%.2f,%.2f]",xc,yc);
+          xinfo(str_pt); //display mouse position
+          kk=getblock(scs_m,[xc;yc]);
+          if ~isempty(kk) then
+            if win_tooltip.equal[[]] then
+              win_tooltip=show_block_tooltip(scs_m.objs(kk))
+            else
+              win_tooltip=update_block_tooltip(scs_m.objs(kk),win_tooltip)
+            end
+          else
+            if ~win_tooltip.equal[[]] then
+              win_tooltip.destroy[]
+              win_tooltip=[]
+            end
+          end
+        end
+      end
     end
   else
     btn=10;xc=scicos_dblclk(1);yc=scicos_dblclk(2);win=scicos_dblclk(3);str=''
     scicos_dblclk=[]
   end
   %pt=[xc,yc]
-  
+
+//   printf("btn=%d,xc=%f,yc=%f,win=%d\n",btn,xc,yc,win)
+
   if btn==-100 then  
     if win==curwin then
       Cmenu='Quit',
@@ -90,6 +154,8 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
       end
     elseif (btn==1000) then
       cmd='Cmenu='"CheckSmartMove'"'
+    elseif (btn==-1) then
+      cmd='Cmenu='''''
     else
       cmd='Cmenu=''SelectLink'''
     end
@@ -177,5 +243,5 @@ function [btn,%pt,win,Cmenu]=cosclick(flag)
   else
     strb=string(btn);
   end
-  //printf("cosclick: btn=%s, pt=%s, Cmenu=''%s'', win=%d, curwin=%d\n",strb,str_pt,Cmenu,win,curwin);
+//   printf("cosclick: btn=%s, pt=%s, Cmenu=''%s'', win=%d, curwin=%d\n",strb,str_pt,Cmenu,win,curwin);
 endfunction
