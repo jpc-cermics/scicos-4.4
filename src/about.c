@@ -77,7 +77,7 @@ void create_scicos_about(void)
   gtk_show_about_dialog (NULL,/*GTK_WINDOW (window),*/
 			 "program-name", "Scicos",
 			 "version", SCICOS_VERSION,
-			 "copyright", "(C) 2004-2011 The Scicos Team",
+			 "copyright", "(C) 2004-2013 The Scicos Team",
 			 "license", license,
 			 "website", "http://www.scicos.org/",
 			 "authors", authors,
