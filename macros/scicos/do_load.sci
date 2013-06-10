@@ -152,7 +152,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
     // convert from scilab
     scs_m=do_update_scilab_schema(scs_m);
     // just in case we make a save
-    scs_m.props.title(1)=  scs_m.props.title(1)+'_nsp' ;
+    scs_m.props.title=[scs_m.props.title(1)+'_nsp',path];
   else
     scs_m.props.title=[scs_m.props.title(1),path]
   end

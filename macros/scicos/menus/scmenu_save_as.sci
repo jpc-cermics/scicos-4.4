@@ -82,15 +82,15 @@ function scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
   scs_m=do_purge(scs_m);
   scs_m=scs_m_remove_gr(scs_m);
   if ext=='cos' then
-    // save in binary mode 
-    rep = execstr('save('''+fname+''',scicos_ver,scs_m,%cpr)',errcatch=%t);
+    // save in binary mode
+    rep = execstr('save(fname,scicos_ver,scs_m,%cpr)',errcatch=%t);
     if rep==%f then
       message(['File or directory write access denied';lasterror()])
       return
     end
   elseif ext=='xml' then
     // save in xml syntax mode
-    rep=execstr('F=fopen('''+ fname+''',mode = ''w'');',errcatch=%t);
+    rep=execstr('F=fopen(fname,mode=''w'');',errcatch=%t);
     if rep==%f then
       message('Cannot open file '+fname)
       return
@@ -103,8 +103,8 @@ function scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
     end
     F.close[];
   else
-    // save in nsp syntax mode 
-    rep=execstr('F=fopen('''+ fname+''',mode = ''w'');',errcatch=%t);
+    // save in nsp syntax mode
+    rep=execstr('F=fopen(fname,mode=''w'');',errcatch=%t);
     if rep==%f then
       message('Cannot open file '+fname)
       return
