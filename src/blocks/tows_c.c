@@ -27,6 +27,8 @@
 #include <nsp/hash.h>
 #include <nsp/datas.h>
 
+#define tows_name_len 64
+
 typedef struct _tows_data tows_data;
 
 struct _tows_data
@@ -35,7 +37,7 @@ struct _tows_data
   NspMatrix *time; /* matrix to store time */
   NspCells *values; /* cell array to store values */
   int m,n;          /* each value in values is a mxn matrix */
-  char name[32];
+  char name[tows_name_len];
 };
 
 static int nsp_store_tows_data(tows_data *D,int type, int m, int n, void *data, double time);
@@ -74,7 +76,7 @@ void tows_c (scicos_block * block, int flag)
     {			
       /* finish */
       tows_data *D = (tows_data *) (*block->work);
-      if (  nsp_tows_data_to_toplevel(D)==FAIL) 
+      if ( D== NULL ||  nsp_tows_data_to_toplevel(D)==FAIL) 
 	{
 	  set_block_error (-16);
 	  return;
@@ -117,7 +119,7 @@ static int nsp_alloc_tows_data(tows_data **hD,int size,int m,int n, int *ipar)
   D->start = 0;
   D->m = m;
   D->n = n;
-  for ( i = 0 ; i < Min(ipar[1],32-1) ; i++)  D->name[i] = ipar[2+i];
+  for ( i = 0 ; i < Min(ipar[1],tows_name_len-2) ; i++)  D->name[i] = ipar[2+i];
   D->name[i]='\0';
   if ((D->time= nsp_matrix_create("time",'r',1,size))==NULL) goto end;
   D->time->R[D->time->mn -1]=0.0;
