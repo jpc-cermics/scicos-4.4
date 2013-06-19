@@ -59,6 +59,8 @@
       }									\
   }
 
+#define tows_name_len 64
+
 typedef struct _fromws_data fromws_data;
 
 struct _fromws_data
@@ -66,7 +68,7 @@ struct _fromws_data
   NspMatrix *time; /* matrix to store time */
   NspCells *values; /* cell array to store values */
   int m,n,type;     /* each value in values is a mxn matrix of type type */
-  char name[32];
+  char name[tows_name_len];
   int Method, ZC, OutEnd;
   double *D;
   int cnt1; 
@@ -95,8 +97,8 @@ void fromws_c (scicos_block * block, int flag)
     {
       fromws_data *D;
       int i;
-      char name[32];
-      for ( i = 0 ; i <  _ipar[0];i++) name[i]= *( _ipar + 1+i);
+      char name[tows_name_len];
+      for ( i = 0 ; i <  Min(_ipar[0], tows_name_len-2 ) ;i++) name[i]= *( _ipar + 1+i);
       name[i]='\0';
       if (nsp_fromws_acquire_data(name,&D,my,ny,ytype)==FAIL) 
 	{
@@ -155,7 +157,8 @@ void fromws_c (scicos_block * block, int flag)
 	    }
 	}
       else
-	{			/*zero crossing disable */
+	{		
+	  /*zero crossing disable */
 	  if (D->OutEnd == 2)
 	    {
 	      double r;
@@ -390,8 +393,11 @@ void fromws_c (scicos_block * block, int flag)
     }
   else if (flag == 5)
     {
-      /* fromws_data *D = (fromws_data *) (*block->work); */
-      Sciprintf ("fromws_c is to be done for nsp \n");
+      fromws_data *D = (fromws_data *) (*block->work);
+      if ( D == NULL) return;
+      if ( D->D != NULL) free(D->D);
+      free(D);
+      *block->work= NULL;
     }
 }
 
@@ -552,7 +558,7 @@ static int nsp_alloc_for_spline(fromws_data *D)
     }
   if ((spline =  (double *) scicos_malloc ((3 * nPoints - 2) * sizeof (double))) == NULL)
     {
-      Coserror ("Allocation problem in spline.\n");
+      Coserror ("Allocation problem in spline for fromws block.\n");
       /*set_block_error(-16); */
       return FAIL;
     }
