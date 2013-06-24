@@ -100,7 +100,6 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	      | (model.sim(1)=='asuper'& flag=='XML') ..
 	      | (o.gui == 'DSUPER' & flag == 'XML')) then  //exclude mask
 	    sblock=rpar;
-	    pause zzz
 	    [scicos_context1,ierr]=script2var(sblock.props.context,context)
 	    if ierr<>0 then
 	      [ok,msg]=do_eval_report('Error: cannot evaluate a context:','');
@@ -264,24 +263,16 @@ function [scs_m,ok]=do_silent_eval(scs_m)
 	
 	rpar=o.model.rpar;
 	model=o.model
-	if  ( model.sim(1)=='super' || model.sim(1)=='csuper' ...
-	      || model.sim(1)=='asuper' || o.gui == 'DSUPER' ) then
+	if or(model.sim(1)==['super','csuper','asuper']) || o.gui == 'DSUPER' then
 	  sblock=rpar;
 	  [scicos_context1,ierr]=script2var(sblock.props.context,context)
 	  [sblock,lok]=do_silent_eval_rec(sblock,scicos_context1)
-	  if lok then
-	    o.model.rpar=sblock
-	  else
-	    ok=%f
-	    continue;
-	  end
+	  o.model.rpar=sblock;
 	else
-	  //should we generate a message here?
 	  %scicos_prob=%f;
 	  %scicos_setvalue=[];
 	  eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
-	  if ~eok || %scicos_prob  then  ok=%f;   continue;
-	  end
+	  if ~eok || %scicos_prob  then  ok=%f; continue;  end
 	end
 	scs_m.objs(%kk)=o;
       end
