@@ -35,8 +35,7 @@ function ok=do_save(scs_m,filenamepath)
   alreadyran= acquire("alreadyran", def = %f);
   scicos_ver =acquire("scicos_ver", def="")
   if scicos_ver == "" then find_scicos_version(scs_m);end 
-  
-  
+    
   if pal_mode then scs_m=do_purge(scs_m),end
   //file path
   if size(scs_m.props.title,'*')<2 then 
@@ -60,6 +59,11 @@ function ok=do_save(scs_m,filenamepath)
   if nargin>1 then
     fname=filenamepath
     [path,name,ext]=splitfilepath(fname)
+    if ext <> 'cos' then 
+      message(['Error: do_save second argument should have a cos suffix"]);
+      ok=%f;
+      return;
+    end
   else
     fname=path+scs_m.props.title(1)+'.cos'
   end
@@ -69,18 +73,12 @@ function ok=do_save(scs_m,filenamepath)
     ok=%f
     return 
   end
-  if ext <> 'cos' then 
-    message(['Error: do_save second argument should have a cos suffix"]);
-    ok=%f;
-    return;
-  end
   // remove gr fields
   scs_m=scs_m_remove_gr(scs_m);
   // save current diagram 
   if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then 
-    message(['Save error:';
-	     catenate(lasterror())]);
-    ok=%f
+    message(['Save error:'; catenate(lasterror())]);
+    ok=%f;
     return
   end
   if pal_mode then update_scicos_pal(path,scs_m.props.title(1),fname),end
