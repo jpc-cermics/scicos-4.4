@@ -84,13 +84,9 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	    sim=o.model.sim;
 	    %scicos_prob=%f
 	    eok=execstr('o='+o.gui+'(""define"",o);',errcatch=%t);
-	    if ~eok then
+	    if ~eok || %scicos_prob then
 	      [ok,msg]=do_eval_report('Error: while defining a block:',o.gui);
 	      return
-	    end
-	    if %scicos_prob then 
-	      [ok,msg]=do_eval_report('Error: while defining a block:',o.gui);
-	      return;
 	    end
 	    //update model compatibility with old csuper blocks
 	    if length(o.model)<length(scicos_model()) then
@@ -104,6 +100,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	      | (model.sim(1)=='asuper'& flag=='XML') ..
 	      | (o.gui == 'DSUPER' & flag == 'XML')) then  //exclude mask
 	    sblock=rpar;
+	    pause zzz
 	    [scicos_context1,ierr]=script2var(sblock.props.context,context)
 	    if ierr<>0 then
 	      [ok,msg]=do_eval_report('Error: cannot evaluate a context:','');
@@ -240,6 +237,95 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
   [scs_m,cpr,needcompile,ok,msg]=do_eval_rec(scs_m,cpr,context,flag);
   if ~ok && ~isempty(msg) then x_message(catenate(msg));end
   if needcompile==4 then cpr=list(),end
+  if ~%win0_exists then xdel(0);end
+endfunction
+
+function [scs_m,ok]=do_silent_eval(scs_m)
+// simplified version which re-evaluates 
+// without messages. This is mainly used when importing 
+  
+  function [scs_m,ok]=do_silent_eval_rec(scs_m,context)
+  // This function (re)-evaluates blocks in the scicos data structure
+  // scs_m. The evaluation is made in a non-interactive way.
+    msg=m2s([]);
+    // to detect that message was activated
+    global %scicos_prob;     // detect pbs in non interactive block evaluation
+    global %scicos_setvalue; // detect loop in non interactive block evaluation
+    
+    // enrich context with scs_m.props.context 
+    [context,ierr]=script2var(scs_m.props.context,context);
+    // getvalue will use %scicos_context
+    %scicos_context=context;
+    ok=%t
+        
+    for %kk=1:length(scs_m.objs)
+      o=scs_m.objs(%kk)
+      if (o.type =='Block' || o.type =='Text') && o.gui<>'PAL_f' then 
+	
+	rpar=o.model.rpar;
+	model=o.model
+	if  ( model.sim(1)=='super' || model.sim(1)=='csuper' ...
+	      || model.sim(1)=='asuper' || o.gui == 'DSUPER' ) then
+	  sblock=rpar;
+	  [scicos_context1,ierr]=script2var(sblock.props.context,context)
+	  [sblock,lok]=do_silent_eval_rec(sblock,scicos_context1)
+	  if lok then
+	    o.model.rpar=sblock
+	  else
+	    ok=%f
+	    continue;
+	  end
+	else
+	  //should we generate a message here?
+	  %scicos_prob=%f;
+	  %scicos_setvalue=[];
+	  eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
+	  if ~eok || %scicos_prob  then  ok=%f;   continue;
+	  end
+	end
+	scs_m.objs(%kk)=o;
+      end
+    end
+  endfunction
+    
+  function message(txt)
+    resume(%scicos_prob=%t); 
+  endfunction
+  
+  function [ok,tt]=FORTR(funam,tt,i,o) ; ok=%t; endfunction
+  function [ok,tt,cancel]=CFORTR2(funam,tt,i,o); ok=%t;cancel=%f; endfunction
+  function [ok,tt]=CFORTR(funam,tt,i,o); ok=%t; endfunction
+  function [x,y,ok,gc]=edit_curv(x,y,job,tit,gc); ok=%t; endfunction
+  function [ok,tt,dep_ut]=genfunc1(tt,ni,no,nci,nco,nx,nz,nrp,type_)
+    dep_ut=model.dep_ut;ok=%t; 
+  endfunction
+  function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
+    ok=%t,cancel=%f;tt=tt;
+    libss=libss;cflags=cflags;
+  endfunction
+  
+  function result= dialog(labels,valueini); result=valueini;endfunction
+  function [result,Quit]  = scstxtedit(valueini,v2);result=valueini,Quit=%f;endfunction
+  function [ok,msg]=do_eval_report(message,name)
+  // change the error message and propagate the message;
+    msg=lasterror();
+    if ~isempty(msg) && msg(1)=="Loop in setvalue\n" then 
+      // message to indicate that we have aborted an infinite loop
+      // in set operation of a block.
+      msg=[sprintf("Error: parameters for block %s\n",name);
+	 'are inconsistent and should be edited manually'];
+    end
+    if ~message.equal[''] then msg=[message;msg];end 
+    ok=%f;
+  endfunction
+  
+  // main code 
+  // ----------
+  // window 0 existed 
+  %win0_exists=or(winsid()==0)
+  // overload some functions used in GUI
+  getvalue=setvalue;
+  [scs_m]=do_silent_eval_rec(scs_m,hash(5))
   if ~%win0_exists then xdel(0);end
 endfunction
 
