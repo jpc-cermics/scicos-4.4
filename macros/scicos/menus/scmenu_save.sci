@@ -25,6 +25,18 @@ endfunction
 function ok=do_save(scs_m,filenamepath)   
 // saves scicos data structures scs_m and %cpr on a binary file
 // Copyright INRIA
+  
+  // give default value to some variables if not found in the 
+  // calling frames.
+    
+  pal_mode = acquire("pal_mode",def=%f);
+  super_block = acquire("super_block",def=%f);
+  needcompile = acquire("needcompile", def=4);
+  alreadyran= acquire("alreadyran", def = %f);
+  scicos_ver =acquire("scicos_ver", def="")
+  if scicos_ver == "" then find_scicos_version(scs_m);end 
+  
+  
   if pal_mode then scs_m=do_purge(scs_m),end
   //file path
   if size(scs_m.props.title,'*')<2 then 
@@ -57,12 +69,17 @@ function ok=do_save(scs_m,filenamepath)
     ok=%f
     return 
   end
+  if ext <> 'cos' then 
+    message(['Error: do_save second argument should have a cos suffix"]);
+    ok=%f;
+    return;
+  end
   // remove gr fields
   scs_m=scs_m_remove_gr(scs_m);
   // save current diagram 
   if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then 
-    message(['Save error:']);
-    lasterror();
+    message(['Save error:';
+	     catenate(lasterror())]);
     ok=%f
     return
   end
