@@ -66,9 +66,11 @@ function [x,y,typ]=OUT_f(job,arg1,arg2)
 			      'Port number',list('vec',1),exprs)
       if ~ok then 
 	// change port number in any case
-	if execstr('prti=evstr(graphics.exprs(1))','errcatch')==0 then
-	  model.ipar=prti
-	  x.model=model
+	ok1=execstr('prti=evstr(graphics.exprs(1))',errcatch=%t);
+	if ~ok1 then lasterror();
+	else
+	  model.ipar=prti;
+	  x.model=model;
 	end
 	break,
       end
