@@ -270,7 +270,7 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
 	    if ~ok then lasterror();else isref=%t; end
 	    txt.concatd[sprintf('%s%s=scicos_%s();',w,temp,typ)];
 	  else
-	    txt.concatd[sprintf('%s%s=hash(%d);',w,temp,typ)];
+	    txt.concatd[sprintf('%s%s=hash(%d);',w,temp,length(obj))];
 	  end
 	end
       else

@@ -95,7 +95,7 @@ function fname=do_save_block_gui(scs_m,fdef)
 	'       message(catenate(lasterror()));'
 	'       ok=%f';
 	'     else';
-	'       [sblock,%w,needcompile2,ok]=do_eval(sblock,list(),%scicos_contex);';
+	'       [sblock,%w,needcompile2,ok]=do_eval(sblock,list(),%scicos_context);';
 	'       if ok then'
 	'          y=max(2,needcompile,needcompile2)'
 	'          x.graphics.exprs=exprs'
