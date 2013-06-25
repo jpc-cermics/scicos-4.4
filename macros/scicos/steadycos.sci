@@ -178,7 +178,7 @@ for k=pointo'
 end
 // y=state.outtb(pointo);
 zer=ones(y);zer(Indy)=0;err=zer.*(Y-y);
-f=.5*(norm(xp,2)+norm(err,2));
+f=.5*(norm(xp,2)^2+norm(err,2)^2);
 
 sys=lincos(scs_m,X,U,param)
 g=xp'*[sys.B(:,Indu) sys.A(:,Indx)]-..
