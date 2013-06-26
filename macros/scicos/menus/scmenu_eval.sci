@@ -239,9 +239,10 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
   if ~%win0_exists then xdel(0);end
 endfunction
 
-function [scs_m,ok]=do_silent_eval(scs_m)
+function [scs_m,ok]=do_silent_eval(scs_m, context)
 // simplified version which re-evaluates 
-// without messages. This is mainly used when importing 
+// without messages and without stopping at errors.
+// This is mainly used when importing 
   
   function [scs_m,ok]=do_silent_eval_rec(scs_m,context)
   // This function (re)-evaluates blocks in the scicos data structure
@@ -316,7 +317,8 @@ function [scs_m,ok]=do_silent_eval(scs_m)
   %win0_exists=or(winsid()==0)
   // overload some functions used in GUI
   getvalue=setvalue;
-  [scs_m]=do_silent_eval_rec(scs_m,hash(5))
+  if nargin < 2 then context=hash(10);end
+  [scs_m,ok]=do_silent_eval_rec(scs_m,context)
   if ~%win0_exists then xdel(0);end
 endfunction
 
