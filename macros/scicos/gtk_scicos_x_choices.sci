@@ -297,7 +297,11 @@ function L=gtk_scicos_x_choices(desc,Li)
   hbox.set_border_width[0]
   window.connect["delete-event",DestroyFunc,list(hbox)];
   window.set_transient_for[gh]
-  window.set_type_hint[GDK.WINDOW_TYPE_HINT_MENU]
+  if %win32 then
+    window.set_type_hint[GDK.WINDOW_TYPE_HINT_DIALOG]
+  else
+    window.set_type_hint[GDK.WINDOW_TYPE_HINT_MENU]
+  end
   window.show_all[];
   window.present[]
   set_focus(entries(1))
