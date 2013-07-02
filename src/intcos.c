@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2005-2012 Jean-Philippe Chancelier Enpc/Cermics, Alan
+ * Copyright (C) 2005-2013 Jean-Philippe Chancelier Enpc/Cermics, Alan
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -348,21 +348,20 @@ static int int_scicos_debug (Stack stack, int rhs, int opt, int lhs)
 {
   int debug;
   NspMatrix *M;
-  CheckRhs (-1, 1);
-  CheckLhs (-1, 1);
-  if ((lhs==1) && (rhs==0)) {
-    if ((M = nsp_matrix_create (NVOID, 'r', 1, 1)) == NULLMAT)
-      return RET_BUG;
-    M->R[0] = (double) scicos_debug_level;
-    NSP_OBJECT (M)->ret_pos = 1;
-    StackStore (stack, (NspObject *) M, 1);
-    return 1;
-  } else {
-    if (GetScalarInt (stack, 1, &debug) == FAIL)
-    return RET_BUG;
-    scicos_debug_level = debug;
-    return 0;
-  }
+  CheckStdRhs (0, 1);
+  CheckLhs (0, 1);
+  if (rhs -opt == 0)
+    {
+      if (nsp_move_double (stack, 1, scicos_debug_level ) == FAIL)
+	return RET_BUG;
+      return 1;
+    } 
+  else 
+    {
+      if (GetScalarInt (stack, 1, &debug) == FAIL) return RET_BUG;
+      scicos_debug_level = debug;
+      return 0;
+    }
 }
 
 int scicos_connection (int *path_out, int *path_in)

@@ -69,7 +69,8 @@ distclean:: clean
 
 clean:: 
 	@cd blocks; make clean $(MFLAGS)
-	@$(RM) */*.obj */*.lo
+	@$(RM) */*.obj */*.lo 
+	@$(RM) -fr */.libs 
 
 # special rules for compilation 
 
@@ -105,3 +106,16 @@ calelm/%.lo: calelm/%.c
 	@echo "compiling $<  Wall "
 	@$(LTCOMPILE) -c $< -o $@
 
+
+# temporary target to also produce the def file 
+# we could also use 
+# pexports testdll.dll | sed "s/^_//" > testdll.def
+
+libscicos.def:
+	@echo "creation of libscicos1.dll"	
+	@$(CC) -shared -o libscicos1.dll $(OBJS) \
+		-Wl,--output-def,libscicos.def \
+		-Wl,--export-all-symbols -Wl,--allow-multiple-definition \
+		-Wl,--enable-auto-import $(LIBS) -Xlinker --out-implib -Xlinker libscicos1.dll.lib \
+		-lgfortran ../../../bin/libnsp.dll.lib $(OTHERLIBS) $(WIN32LIBS)
+	@rm -f  libscicos1.*

@@ -157,8 +157,7 @@ static int AJacobian_block;
 /* Jacobian*/
 int TCritWarning;
 
-void call_debug_scicos (scicos_block * block, int *flag, int flagi,
-			int deb_blk);
+void call_debug_scicos (scicos_block * block, int *flag, int flagi,int deb_blk, int before);
 
 scicos_run *Scicos = NULL;
 int scicos_debug_level = -1;
@@ -2942,20 +2941,19 @@ void callf (const double *t, scicos_block * block, int *flag)
     {
       if (cosd != 3)
 	{
-	  Sciprintf ("block %d is called ", Scicos->params.curblk);
+	  Sciprintf ("--> block %d called ", Scicos->params.curblk);
 	  Sciprintf ("with flag=%d ", *flag);
 	  Sciprintf ("Phase=%d ", Scicos->params.phase);
 	  Sciprintf ("at time %f \n", *t);
 	}
       if (Scicos->sim.debug_block > -1)
 	{
-	  if (cosd != 3)
-	    Sciprintf ("Entering the block \n");
-	  fprintf (stderr, "Entering the block=%d  %d %d %p \n",
-		   Scicos->sim.debug_block, flagi, *flag, block);
-	  call_debug_scicos (block, flag, flagi, Scicos->sim.debug_block);
-	  if (*flag < 0)
-	    return;		/* error in debug block */
+	  call_debug_scicos (block, flag, flagi, Scicos->sim.debug_block, TRUE);
+	  if (0 && cosd != 3)
+	    {
+	      Sciprintf ("==> block %d \n", Scicos->params.curblk);
+	    }
+	  if (*flag < 0)  return; /* error in debug block */
 	}
     }
   
@@ -3356,17 +3354,24 @@ void callf (const double *t, scicos_block * block, int *flag)
 	{
 	  if (*flag < 0)
 	    return;		/* error in block */
-	  if (cosd != 3)
-	    Sciprintf ("Leaving block %d \n", Scicos->params.curblk);
-	  call_debug_scicos (block, flag, flagi, Scicos->sim.debug_block);
-	  /*call_debug_scicos(flag,kf,flagi,Scicos->sim.debug_block); */
+	  if (0 && cosd != 3)
+	    {
+	      Sciprintf ("<== block %d \n", Scicos->params.curblk);
+	    }
+	  call_debug_scicos (block, flag, flagi, Scicos->sim.debug_block, FALSE);
+	}
+      if (cosd != 3)
+	{
+	  Sciprintf ("<-- block %d ", Scicos->params.curblk);
+	  Sciprintf ("with flag=%d ", *flag);
+	  Sciprintf ("Phase=%d ", Scicos->params.phase);
+	  Sciprintf ("at time %f \n", *t);
 	}
     }
-}				/* callf */
+} /* callf */
 
 
-void call_debug_scicos (scicos_block * block, int *flag, int flagi,
-			int deb_blk)
+void call_debug_scicos (scicos_block * block, int *flag, int flagi,int deb_blk,int before)
 {
   voidf loc;
   int solver = Scicos->params.solver, k;
@@ -3386,13 +3391,13 @@ void call_debug_scicos (scicos_block * block, int *flag, int flagi,
       ptr_d = block->xd;
       block->xd = block->res;
     }
-  fprintf (stderr, "In the block=%d  %d %d %p  loc=%p\n", deb_blk, flagi,
-	   *flag, block, loc);
-
+  if (  Scicos->params.debug != 3 )
+    {
+      Sciprintf("=>debug_block=%d %s calling block=%d flagi=%d flag=%d\n",
+		deb_blk, (before) ? "before": "after", Scicos->params.curblk, flagi, *flag);
+    }  
   (*loc4) (block, *flag);
-  fprintf (stderr, "Out the block=%d  %d %d %p \n", deb_blk, flagi, *flag,
-	   block);
-
+    
   /* Implicit Solver & explicit block & flag==0 */
   /* adjust continuous state vector after call */
   if (solver == 100 && block->type < 10000 && *flag == 0)
@@ -3413,10 +3418,8 @@ void call_debug_scicos (scicos_block * block, int *flag, int flagi,
 	    }
 	}
     }
-
-  if (*flag < 0)
-    Sciprintf ("Error in the Debug block \n");
-}				/* call_debug_scicos */
+  if (*flag < 0)  Sciprintf ("Error in the Debug block \n");
+} /* call_debug_scicos */
 
 /* simblk: used by lsodar2 
  */
