@@ -186,6 +186,7 @@ int scicos_main (scicos_run * sr, double *t0_in, double *tf_in,
   Scicos->params.solver = (int) simpar[5];
   Scicos->params.hmax = simpar[6];
   Scicos->params.debug_counter = 0;
+  Scicos->params.aborted = FALSE;
   *ierr = 0;
 
   Scicos->sim.xd = &Scicos->sim.x[xptr[Scicos->sim.nblk] - 1];
@@ -2936,8 +2937,14 @@ void callf (const double *t, scicos_block * block, int *flag)
       *flag = 0;
     }
 
+  /* do not make a call to the debug blog itself 
+   * it is only used to encapsulate call to standard blocks 
+   */
+  if (Scicos->sim.debug_block > -1 && Scicos->sim.debug_block + 1 == Scicos->params.curblk )
+    return;
+
   /* display information for debugging mode */
-  if (cosd > 1)
+  if (cosd > 1 && Scicos->params.aborted == FALSE )
     {
       if (cosd != 3)
 	{
@@ -2946,14 +2953,19 @@ void callf (const double *t, scicos_block * block, int *flag)
 	  Sciprintf ("Phase=%d ", Scicos->params.phase);
 	  Sciprintf ("at time %f \n", *t);
 	}
-      if (Scicos->sim.debug_block > -1)
+      if (Scicos->sim.debug_block > -1 ) 
 	{
 	  call_debug_scicos (block, flag, flagi, Scicos->sim.debug_block, TRUE);
 	  if (0 && cosd != 3)
 	    {
 	      Sciprintf ("==> block %d \n", Scicos->params.curblk);
 	    }
-	  if (*flag < 0)  return; /* error in debug block */
+	  if (*flag < 0) 
+	    {
+	      /* a faire en cas de abort */
+	      Scicos->params.aborted = TRUE;
+	      return; /* error in debug block */
+	    }
 	}
     }
   
@@ -3348,9 +3360,9 @@ void callf (const double *t, scicos_block * block, int *flag)
     }
 
   /* debug block */
-  if (cosd > 1)
+  if (cosd > 1  && Scicos->params.aborted == FALSE) 
     {
-      if (Scicos->sim.debug_block > -1)
+      if (Scicos->sim.debug_block > -1  )
 	{
 	  if (*flag < 0)
 	    return;		/* error in block */
@@ -3359,6 +3371,11 @@ void callf (const double *t, scicos_block * block, int *flag)
 	      Sciprintf ("<== block %d \n", Scicos->params.curblk);
 	    }
 	  call_debug_scicos (block, flag, flagi, Scicos->sim.debug_block, FALSE);
+	  if (*flag < 0) 
+	    {
+	      /* a faire en cas de abort */
+	      Scicos->params.aborted = TRUE;
+	    }
 	}
       if (cosd != 3)
 	{
@@ -3394,7 +3411,7 @@ void call_debug_scicos (scicos_block * block, int *flag, int flagi,int deb_blk,i
   if (  Scicos->params.debug != 3 )
     {
       Sciprintf("=>debug_block=%d %s calling block=%d flagi=%d flag=%d\n",
-		deb_blk, (before) ? "before": "after", Scicos->params.curblk, flagi, *flag);
+		deb_blk + 1 , (before) ? "before": "after", Scicos->params.curblk, flagi, *flag);
     }  
   (*loc4) (block, *flag);
     
@@ -3418,8 +3435,12 @@ void call_debug_scicos (scicos_block * block, int *flag, int flagi,int deb_blk,i
 	    }
 	}
     }
+  /* Note that the value of *flag can have changed during the 
+   * call of previous code because flag is also transmited as 
+   * a global variable
+   */
   if (*flag < 0)  Sciprintf ("Error in the Debug block \n");
-} /* call_debug_scicos */
+} 
 
 /* simblk: used by lsodar2 
  */
