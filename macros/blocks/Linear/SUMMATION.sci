@@ -1,3 +1,4 @@
+
 function [x,y,typ]=SUMMATION(job,arg1,arg2)
 // Copyright INRIA
 
@@ -121,8 +122,7 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     model.ipar=sgn
     model.blocktype='c'
     model.dep_ut=[%t %f]
-    
-    exprs=sci2exp(sgn)
+    exprs=[sci2exp(1);sci2exp(sgn);sci2exp(0)];
     gr_i=['SUMMATION_draw(o,sz,orig);'];
     x=standard_define([2 3],model, exprs,gr_i,'SUMMATION');
   end
