@@ -71,7 +71,7 @@ BLOCKSC=selector.o sum.o prod.o switchn.o relay.o readc.o writec.o writeau.o \
         extract_bit_u8_RB1.o rndblk_m.o relational_op.o curve_c.o counter.o m_frequ.o \
         tows_c.o rndblkz_m.o fromws_c.o mathermit_m.o scicosexit.o automat.o lookup_c.o tablex2d_c.o\
 	matbyscal.o matbyscal_s.o matbyscal_e.o matmul2_s.o matmul2_e.o constraint_c.o lookup2d.o \
-	diffblk_c.o andlog.o foriterator.o assignment.o whileiterator.o loopbreaker.o
+	diffblk_c.o andlog.o foriterator.o assignment.o whileiterator.o loopbreaker.o satur2.o
 
 BLOCKS_MULTIC=absolute_valuei_SCSREAL_COP.o absolute_valuei_SCSINT32_COP.o \
 	absolute_valuei_SCSINT16_COP.o absolute_valuei_SCSINT8_COP.o absolute_valuei_SCSUINT32_COP.o \
