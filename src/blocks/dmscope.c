@@ -179,10 +179,10 @@ static void nsp_list_delete_axes(NspList *L)
     }
 }
 
-static void scicos_dmscope_invalidate(dmscope_data *D,NspGraphic *Gr,double t,double *period, double *yminmax)
+static void scicos_dmscope_invalidate(dmscope_data *D,double t,double *period, double *yminmax)
 {
   int i=0;
-  NspList *L= ((NspCompound *) Gr)->obj->children;
+  NspList *L= D->C->obj->children;
   Cell *cloc = cloc = L->first ;
   while ( cloc != NULLCELL ) 
     {
@@ -216,14 +216,12 @@ void scicos_dmscope_block (scicos_block * block, int flag)
   /* ymin,ymax for each curve */
   double *yminmax =((double *) csr) + 1 + csi->number_of_subwin;
   double t = scicos_get_scicos_time ();
-  NspGraphic *Gr=Scicos->Blocks[Scicos->params.curblk -1].grobj;
+  dmscope_data *D = (dmscope_data *) (*block->work);
   
   if (flag == 2)
     {
-      int i;
-      int ret;
+      int i, ret;
       Cell *cloc;
-      dmscope_data *D = (dmscope_data *) (*block->work);
       NspList *L =NULL;
       t = GetScicosTime (block);
       /*k = D->count;*/
@@ -234,7 +232,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 	  /* Compound was destroyed during simulation */
 	  return;
 	}
-      L= ((NspCompound *) Gr)->obj->children;
+      L= D->C->obj->children;
       /* insert the points */
       i=0;
       cloc = L->first ;
@@ -259,7 +257,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 	  /* redraw each csi->buffer_size accumulated points 
 	   * first check if we need to change the xscale 
 	   */
-	  scicos_dmscope_invalidate(D,Gr,t,period,yminmax);
+	  scicos_dmscope_invalidate(D,t,period,yminmax);
 	}
     }
   else if (flag == 4)
@@ -267,7 +265,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
       NspCompound *C;
       /* initialize a scope window */
       dmscope_data *D;
-      Gr = Scicos->Blocks[Scicos->params.curblk -1].grobj;
+      NspGraphic *Gr=Scicos->Blocks[Scicos->params.curblk -1].grobj;
       if (!(Gr != NULL && IsCompound((NspObject *) Gr)))
 	{
 	  scicos_set_block_error (-16);
@@ -278,7 +276,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 	  scicos_set_block_error (-16);
 	  return;
 	}
-      if ( nsp_dmscope_obj((NspCompound *) Gr,csi->number_of_subwin,ncs,colors,period,TRUE,yminmax,csi->npts,csi->grid)== FAIL)
+      if ( nsp_dmscope_obj(C,csi->number_of_subwin,ncs,colors,period,TRUE,yminmax,csi->npts,csi->grid)== FAIL)
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -301,10 +299,11 @@ void scicos_dmscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       dmscope_data *D = (dmscope_data *) (*block->work);
+      Sciprintf("Flag 5\n");
       if ( D->count_invalidates == 0 &&  D->C->obj->ref_count > 1 ) 
 	{
 	  /* figure was never invalidated: we update the graphics at the end  */
-	  scicos_dmscope_invalidate(D,Gr,t,period,yminmax);
+	  scicos_dmscope_invalidate(D,t,period,yminmax);
 	}
       /* we have locally incremented the count of figure: thus 
        * we can destroy figure here. It will only decrement the ref 
@@ -315,6 +314,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
 	  nsp_compound_destroy(D->C);
 	}
       scicos_free (D);
+      D = NULL;
     }
 }
 
