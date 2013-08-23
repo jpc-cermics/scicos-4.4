@@ -5,6 +5,7 @@ function scmenu_code_generation()
 // Input editor function of Scicos code generator
 //
 // modified for nsp 
+  P_project = %f; // put %t to test P project code generation
   
   k     = [] ; //** index of the CodeGen source superbloc candidate
   %pt   = []   ;
@@ -73,7 +74,6 @@ function scmenu_code_generation()
 	end
 
 	//## call do_compile_superblock
-	P_project = %f; // put %t to test P project code generation
 	ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code] = '+...
 		     'do_compile_superblock42(scs_m_top, k);',errcatch=%t);
 	
@@ -2926,10 +2926,14 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
     ALL=%f
   elseif isempty(szclkIN) then
     if ~ALL & ~ALWAYS_ACTIVE then
-      //superblock has no event input, add a fictious clock
-      output=ones((2^(size(cap,'*')))-1,1)
-      if isempty(output) then
-        output=0;
+      if P_project then 
+	output=1
+      else
+	//superblock has no event input, add a fictious clock
+	output=ones((2^(size(cap,'*')))-1,1)
+	if isempty(output) then
+	  output=0;
+	end
       end
       bllst($+1)=scicos_model(sim=list('bidon',1),evtout=output,..
                               firing=-output,blocktype='d',dep_ut=[%f %f])
@@ -3040,12 +3044,20 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 	end
       end
     elseif ~ALWAYS_ACTIVE then
-      //inheritance case to activate sensors
-      for i=1:2^n-1
-	vec=codebinaire(i,n);
+      if P_project then 
+      	// change inheritance rules to only have one clock
+	i=1
 	for j=1:n
-	  if (vec(j)==1) then
-	    clkconnect=[clkconnect;[howclk i cap(j) 1]];
+	  clkconnect=[clkconnect;[howclk i cap(j) 1]];
+	end
+      else
+	//inheritance case to activate sensors
+	for i=1:2^n-1
+	  vec=codebinaire(i,n);
+	  for j=1:n
+	    if (vec(j)==1) then
+	      clkconnect=[clkconnect;[howclk i cap(j) 1]];
+	    end
 	  end
 	end
       end

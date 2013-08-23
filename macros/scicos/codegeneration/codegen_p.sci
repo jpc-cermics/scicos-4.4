@@ -6,9 +6,12 @@ function [ok,XX]=codegen_main_p()
     out=find(in==["double","complex","int32","int16","int8","uint32","uint16","uint8"])
     if isempty(out) then pause,error(in+" data type is not supported"),end
   endfunction
-  
+
+  global p_count;
+  if isempty(p_count) then p_count=1000;else p_count=p_count+1;end
+    
   D=gdate_create();
-  DateCode= D.strftime["%Y%m%d"];
+  DateCode= D.strftime["%Y%m%d"]+string(p_count);
 
   FunName=file('join',[TMPDIR,'test'+DateCode]);
   [txt,ins,outs]=codegen_p(scs_m,cpr,FunName+'.c');
@@ -16,10 +19,11 @@ function [ok,XX]=codegen_main_p()
   file('delete', FunName+'.sci');
   scicos_mputl(txt, FunName+'.sci');
   
-  global("code","declarations","_i","_defs");
+  global("code","declarations","_i","_defs","_cblks");
   _i=0;
   code=list();
   declarations=list();
+  _cblks=list();
   ok = execstr(txt,errcatch=%t);
   if ~ok then pause codegen_main_p1;end 
   funlist=fun_sat_defs( )
@@ -28,8 +32,11 @@ function [ok,XX]=codegen_main_p()
   for fun=_defs.__keys'
     txt_defs=[txt_defs;funlist(fun)]
   end
-  
-  clearglobal("code","declarations","_i","_defs")
+  txt_cblks=[]
+  for cblk=_cblks
+    txt_cblks=[txt_cblks;cblk]
+  end
+  clearglobal("code","declarations","_i","_defs","_cblks")
   ///////////////////////////////////////////////////////////
   txtc = scicos_mgetl(FunName+'.c');
   
@@ -48,9 +55,12 @@ function [ok,XX]=codegen_main_p()
 	      '#include <stdint.h>';
 	      '#include <math.h>'
 	      'typedef int boolean;';
+	      "/* Start"+DateCode + '*/';
+	      txt_cblks;
 	      txt_defs;
-	      '';
-	      txtc];
+	      "";
+	      txtc;
+	      "/* End"+DateCode + '*/'];
   
   // generate a scicos block 
     
@@ -81,16 +91,15 @@ function [ok,XX]=codegen_main_p()
     outsizes=[outsizes;size(outs(i))]
     outtypes=[outtypes;outtype]
   end
-    
+  
   Cblock_txt.concatd[["  if (flag == 1) {"
-		      "   updateOutput1("+strcat(ios,',')+");"
+		      "   updateOutput"+DateCode+"1("+strcat(ios,',')+");"
 		      "  }"
 		      "  else if (flag == 2) {"
-		      "   updateState1("+strcat(ios,',')+");"
+		      "   updateState"+DateCode+"1("+strcat(ios,',')+");"
 		      "  }"
-		      "  else if (flag == 4) { initialize();}"
 		      "}"]];
-
+  
   XX   = CBLOCK4('define')
   XX.graphics.sz = 20 *XX.graphics.sz
   //@@ set the graphics exprs
@@ -99,13 +108,21 @@ function [ok,XX]=codegen_main_p()
   XX.graphics.exprs(1)(4)  = sci2exp(intypes,0)  //regular input port type
   XX.graphics.exprs(1)(5)  = sci2exp(outsizes,0) //regular output port size
   XX.graphics.exprs(1)(6)  = sci2exp(outtypes,0) //regular output port type
-  XX.graphics.exprs(1)(7)  = '1'                   //event input port size
+  //  XX.graphics.exprs(1)(7)  = '1'                 //event input port size
+  if ~isempty(szclkIN) then 
+     XX.graphics.exprs(1)(7)  = '1' 
+  else
+     XX.graphics.exprs(1)(7)  = '[]'  // change inheritance rule to have one clock
+  end
+  
   XX.graphics.exprs(1)(8)  = '[]'                   //event output port size
   XX.graphics.exprs(1)(9)  = '[]'          //continuous state
   XX.graphics.exprs(1)(10) = '0'          //discrete state (to force call with flag 2)
   XX.graphics.exprs(1)(18) = 'y'                   //direct feedthrough
   XX.graphics.exprs(2)=Cblock_txt
-
+  
+  c_atomic_code=Cblock_txt;
+  
   // run 'set' job of the CBLOCK4 in a non interactive way 
   // all this should be hiden in a function 
   
@@ -152,13 +169,22 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
         end
       end
     end
-    txtfuns=[txtfuns;gen_outputupdate(m2s([]),Ev)]
-    txtfuns=[txtfuns;gen_stateupdate(m2s([]),Ev)]
+    //txtfuns=[txtfuns;gen_outputupdate(m2s([]),Ev)]
+    //txtfuns=[txtfuns;gen_stateupdate(m2s([]),Ev)]
+    txtfuns=[txtfuns;
+	     ""
+	     "StartFunction('"updateOutput"+DateCode+string(Ev)+"'",_io)"
+	     gen_outputupdate(m2s([]),Ev)
+	     "EndFunction()"
+	     ""
+	     "StartFunction('"updateState"+DateCode+string(Ev)+"'",_io)"
+	     gen_stateupdate(m2s([]),Ev)
+	     "EndFunction()"]
   endfunction
   
   function txt=gen_outputupdate(txt,Ev)
-    txt($+1,1)=""
-    txt($+1,1)="StartFunction('"updateOutput"+string(Ev)+"'",_io)"
+    //txt($+1,1)=""
+    //txt($+1,1)="StartFunction('"updateOutput"+string(Ev)+"'",_io)"
     valids=_params.defined[];// in out blocks have no params 
     for i=cpr.sim.ordptr(Ev):cpr.sim.ordptr(Ev+1)-1
       blk=cpr.sim.ordclk(i,1);nevprt=cpr.sim.ordclk(i,2);
@@ -175,13 +201,14 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
 	  elseif ~isempty(kkout) then
             input_if="_io.inouts"+string(outtbout(kkout,2)+nin)
 	  else
-            input_if="persistent_extract(_links,''link"+string(kin)+"'')";
+            input_if="persistent_extract(_links,''link"+DateCode+string(kin)+"'')";
 	  end
-	  txt($+1,1)="if_cos("+input_if+",CallFunction('"updateOutput"+string(EvThen)+"'",_io),CallFunction('"updateOutput"+string(EvElse)+"'",_io))"
+	  txt($+1,1)="if_cos("+input_if+",CallFunction('"updateOutput"+DateCode+string(EvThen)+"'",_io),CallFunction('"updateOutput"+DateCode+string(EvElse)+"'",_io))"
 
 	elseif cpr.sim.funtyp(blk)==-2 then
 	  error("Iselect block not implemented yet")
 	else
+	  //RN         txt($+1)="if length(stateptr("+string(blk)+"))>0 then"
 	  txt($+1,1)="block=hash(10)"
 	  txt($+1,1)="params=hash(10)";
 	  blkparams=_params(blk)
@@ -200,19 +227,21 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
 	  txt($+1,1)="end"
 	  txt($+1,1)="block.state=bstate;"
 	  txt($+1,1)="block.nevprt="+string(nevprt)
-	  txt($+1,1)="block=P_"+scs_m.objs(cpr.corinv(blk)).gui+"(block,numerics(1))"
+	  // txt($+1,1)="block=P_"+scs_m.objs(cpr.corinv(blk)).gui+"(block,numerics(1))"
+	  xxb=scs_m(get_subobj_path(cpr.corinv(blk)))
+	  txt($+1,1)="block=P_"+xxb.gui+"(block,numerics(1))"
 
 	  txt=set_block_io_text_out(cpr,blk,outtbout,outtbin,txt)
 
         end
       end
     end
-    txt($+1,1)="EndFunction()"
+    // txt($+1,1)="EndFunction()"
   endfunction
 
   function txt=gen_stateupdate(txt,Ev)
-    txt($+1,1)=""
-    txt($+1,1)="StartFunction('"updateState"+string(Ev)+"'",_io)"
+    //txt($+1,1)=""
+    //txt($+1,1)="StartFunction('"updateState"+string(Ev)+"'",_io)"
     valids=_params.defined[];
     for i=cpr.sim.ordptr(Ev):cpr.sim.ordptr(Ev+1)-1
       blk=cpr.sim.ordclk(i,1);nevprt=cpr.sim.ordclk(i,2);
@@ -230,15 +259,15 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
 	  elseif ~isempty(kkout) then
             input_if="_io.inouts"+string(outtbout(kkout,2)+nin)
 	  else
-            input_if="persistent_extract(_links,''link"+string(kin)+"'')";
+            input_if="persistent_extract(_links,''link"+DateCode+string(kin)+"'')";
 	  end
 
-	  txt($+1,1)="if_cos("+input_if+",CallFunction('"updateState"+string(EvThen)+"'",_io),CallFunction('"updateState"+string(EvElse)+"'",_io))"
+	  txt($+1,1)="if_cos("+input_if+",CallFunction('"updateState"+DateCode+string(EvThen)+"'",_io),CallFunction('"updateState"+DateCode+string(EvElse)+"'",_io))"
 
 	elseif cpr.sim.funtyp(blk)==-2 then
 	  error("Iselect block not implemented yet")
 	else
-	  txt($+1,1)="if length(stateptr("+string(blk)+"))>0 then"
+	  //RN txt($+1,1)="if length(stateptr("+string(blk)+"))>0 then"
 	  txt($+1,1)="  block=hash(10)"
 	  txt($+1,1)="  params=hash(10)";
 	  blkparams=_params(blk)
@@ -257,15 +286,17 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
 	  txt($+1,1)="  end"
 	  txt($+1,1)="  block.state=bstate;"
 	  txt($+1,1)="  block.nevprt="+string(nevprt)
-	  txt($+1,1)="  block=P_"+scs_m.objs(cpr.corinv(blk)).gui+"(block,numerics(2))"
+	  //txt($+1,1)="  block=P_"+scs_m.objs(cpr.corinv(blk)).gui+"(block,numerics(2))"
+	  xxb=scs_m(get_subobj_path(cpr.corinv(blk)))
+	  txt($+1,1)="block=P_"+xxb.gui+"(block,numerics(2))"
 	  txt($+1,1)="  for i=1:length(stateptr("+string(blk)+"))"    
 	  txt($+1,1)="    _states=persistent_insert(_states,stateptr("+string(blk)+")(i),block.state(i));"
 	  txt($+1,1)="  end"
-	  txt($+1,1)="end"
+	  //txt($+1,1)="end"
 	end
       end
     end
-    txt($+1,1)="EndFunction()"
+    //txt($+1,1)="EndFunction()"
   endfunction
 
 
@@ -324,8 +355,10 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
 	  //        txt($+1,1)="block.state=bstate;"
 	  txt($+1,1)="block.state=vstates("+string(blk)+")"
 	  txt($+1,1)="block.nevprt="+string(nevprt)
-	  txt($+1,1)="block=P_"+scs_m.objs(cpr.corinv(blk)).gui+"(block,numerics(1))"
-
+	  // txt($+1,1)="block=P_"+scs_m.objs(cpr.corinv(blk)).gui+"(block,numerics(1))"
+	  xxb=scs_m(get_subobj_path(cpr.corinv(blk)))
+	  txt($+1)="block=P_"+xxb.gui+"(block,numerics(1));"
+	  
 	  j=cpr.sim.inpptr(blk+1)-cpr.sim.inpptr(blk)+1
 	  for ko=[cpr.sim.outptr(blk):cpr.sim.outptr(blk+1)-1]
 	    kout=cpr.sim.outlnk(ko)
@@ -358,7 +391,7 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       elseif ~isempty(kkout) then
         execstr("blkio("+string(j)+")=_io.inouts"+string(outtbout(kkout,2)+nin))
       else
-        execstr("blkio("+string(j)+")=_links.link"+string(kin))
+        execstr("blkio("+string(j)+")=_links.link"+DateCode+string(kin))
       end
       j=j+1
     end
@@ -372,7 +405,7 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       elseif ~isempty(kkin) then
         execstr("blkio("+string(j)+")=_io.inouts"+string(outtbin(kkin,2)))
       else
-        execstr("blkio("+string(j)+")=_links.link"+string(kout))
+        execstr("blkio("+string(j)+")=_links.link"+DateCode+string(kout))
       end
       j=j+1
     end
@@ -390,7 +423,7 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       elseif ~isempty(kkout) then
 	txt($+1,1)="  blkio("+string(j)+")=_io.inouts"+string(outtbout(kkout,2)+nin)
       else
-	txt($+1,1)="  blkio("+string(j)+")=persistent_extract(_links,''link"+string(kin)+"'');";
+	txt($+1,1)="  blkio("+string(j)+")=persistent_extract(_links,''link"+DateCode+string(kin)+"'');";
       end
       j=j+1
     end
@@ -404,7 +437,7 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       elseif ~isempty(kkin) then
 	txt($+1,1)="  blkio("+string(j)+")=_io.inouts"+string(outtbin(kkin,2))
       else
-	txt($+1,1)="  blkio("+string(j)+")=persistent_extract(_links,''link"+string(kout)+"'');";
+	txt($+1,1)="  blkio("+string(j)+")=persistent_extract(_links,''link"+DateCode+string(kout)+"'');";
       end
       j=j+1
     end
@@ -454,7 +487,7 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       elseif ~isempty(kkin) then
 	txt($+1,1)="  _io = inouts_insert(_io,''inouts"+string(outtbin(kkin,2))+"'',block.io("+string(j)+")"
       else
-	txt($+1,1)="_links=persistent_insert(_links,''link"+string(kout)+"'',block.io("+string(j)+"));";
+	txt($+1,1)="_links=persistent_insert(_links,''link"+DateCode+string(kout)+"'',block.io("+string(j)+"));";
       end
       j=j+1
     end
@@ -467,7 +500,9 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
     
     if type(funs(i),'short')== 'pl' then  // Support for P_block
       // funs(i) is a nsp function
-      exprs3=scs_m.objs(cpr.corinv(i)).graphics.exprs
+      // exprs3=scs_m.objs(cpr.corinv(i)).graphics.exprs
+      xxb=scs_m(get_subobj_path(cpr.corinv(i)))
+      exprs3=xxb.graphics.exprs
       if length(exprs3)<3 then error("Unsupported Scilab block.");end
       _params(i)=list()
       exprs=exprs3(1)(7)
@@ -494,15 +529,47 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
     elseif funs(i)=='bidon' then
       Ev=[cpr.sim.clkptr(i):cpr.sim.clkptr(i+1)-1]
     else
-      exprs=scs_m.objs(cpr.corinv(i)).graphics.exprs
+      // exprs=scs_m.objs(cpr.corinv(i)).graphics.exprs
+      xxb=scs_m(get_subobj_path(cpr.corinv(i)))
+      exprs=xxb.graphics.exprs
       _params(i)=list()
-      for j=1:size(exprs,1)
-	[rep,err]=EvalinContext(exprs(j),scs_m.props.context);
-	if err then
-	  // message(catenate(lasterror()));
-	  _params(i)($+1)=exprs(j);
-	else
-	  _params(i)($+1)=rep;
+      
+      if xxb.gui=="SUPER_f" then  // for asuper
+	exprs=exprs(1)
+	lexprs=exprs(2)
+	exprs=exprs(1)
+	for j=1:size(exprs,1)
+          [rep,err]=EvalinContext(exprs(j),scs_m.props.context);
+          if err then
+            message(catenate(lasterror()));
+            _params(i)($+1)=exprs(j);
+	  else
+	    _params(i)($+1)=rep;
+          end
+	end
+	_params(i)($+1)=lexprs
+      elseif type(exprs,'short')=='l' && part(cpr.sim.funs(i),1:4)=="toto" then // for CBlock
+	lexprs=exprs(2)
+	exprs=exprs(1)
+	for j=1:size(exprs,1)
+          [rep,err]=EvalinContext(exprs(j),scs_m.props.context);
+          if err then
+            message(catenate(lasterror()));
+            _params(i)($+1)=exprs(j);
+	  else
+	    _params(i)($+1)=rep;
+          end
+         end
+         _params(i)($+1)=lexprs
+      else
+	for j=1:size(exprs,1)
+	  [rep,err]=EvalinContext(exprs(j),scs_m.props.context);
+	  if err then
+	    // message(catenate(lasterror()));
+	    _params(i)($+1)=exprs(j);
+	  else
+	    _params(i)($+1)=rep;
+	  end
 	end
       end
     end
@@ -544,7 +611,9 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
       end
       txt($+1,1)="block.io=blkio";
       txt($+1,1)="block.nevprt=0";
-      txt($+1,1)="block=P_"+scs_m.objs(cpr.corinv(blk)).gui+"(block,numerics(-1))";
+      // txt($+1,1)="block=P_"+scs_m.objs(cpr.corinv(blk)).gui+"(block,numerics(-1))";
+      xxb=scs_m(get_subobj_path(cpr.corinv(blk)))
+      txt($+1,1)="block=P_"+xxb.gui+"(block,numerics(-1))";
       txt($+1,1)="vstates("+string(blk)+")=block.state";
     else
       txt($+1,1)="vstates("+string(blk)+")=list()";
@@ -588,7 +657,7 @@ function [txt,ins,outs]=codegen_p(scs_m,cpr,fname)
   for i=1:length(outtb)
     XX=[outtbout;outtbin];
     if ~or(i==XX(:,1)) then
-      txt($+1,1)="_links=persistent_insert(_links,''link"+string(i)+"'',vlinks("+string(i)+"));";
+      txt($+1,1)="_links=persistent_insert(_links,''link"+DateCode+string(i)+"'',vlinks("+string(i)+"));";
     end
   end
   txt($+1,1)="";
