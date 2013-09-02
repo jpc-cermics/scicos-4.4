@@ -546,7 +546,7 @@ function H1=scicos_default_palettes()
        'LOGBLK_f', 'LOOKUP_f', 'MAXMIN',
        'POWBLK_f', 'PROD_f',
        'PRODUCT',  'QUANT_f','EXPRESSION',
-       'SATURATION', 'SIGNUM','CONSTRAINT_c');
+       'SATURATION', 'SATURATIONDYNAMIC', 'SIGNUM','CONSTRAINT_c');
 
   H.Lookup_Tables = list('LOOKUP_c','LOOKUP2D' , 'INTRPLBLK_f', 'INTRP2BLK_f');
 
@@ -570,7 +570,7 @@ function H1=scicos_default_palettes()
        'CLINDUMMY_f','DLSS','REGISTER','TIME_DELAY',
        'CLR','GAINBLK','SAMPHOLD_m','VARIABLE_DELAY',
        'CLSS','SUMMATION','INTEGRAL_m','SUM_f',
-       'DERIV','PID2','DIFF_c');
+       'DERIV','PID2','DIFF_c','DISCRETE_DERIVATIVE');
 
   H.OldBlocks= list('CLOCK_f','ABSBLK_f',
        'MAX_f', 'MIN_f','SAT_f', 'MEMORY_f',
@@ -628,7 +628,7 @@ function H1=scicos_default_palettes()
        'CUMSUM',
        'SQRT','Assignment');
 
-  H.Integer = list('BITCLEAR','BITSET','CONVERT','EXTRACTBITS','INTMUL',
+  H.Integer = list('BITCLEAR','BITSET','COMBINATORIALLOGIC','CONVERT','EXTRACTBITS','INTMUL',
        'SHIFT','LOGIC','DLATCH','DFLIPFLOP','JKFLIPFLOP',
        'SRFLIPFLOP');
 
