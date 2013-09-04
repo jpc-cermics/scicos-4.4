@@ -1,22 +1,63 @@
 function [btn,%pt,win,Cmenu]=cosclick()
 
-  //display a tooltip for blk when mouse pointer
+  //build a tooltip for blk when mouse pointer
   //is above à block
-  function win_tooltip=show_block_tooltip(o)
-    win_tooltip = gtkwindow_new (type=1)
-    win_tooltip.set_type_hint[GDK.WINDOW_TYPE_HINT_TOOLTIP]
+  function win_tooltip=build_block_tooltip(o)
+    //win_tooltip = gtkwindow_new(type=1)
+    //win_tooltip.set_type_hint[GDK.WINDOW_TYPE_HINT_TOOLTIP]
+    
+    win_tooltip = gtkwindow_new()
+    F=get_current_figure();
+    gh=nsp_graphic_widget(F.id)
+    win_tooltip.set_transient_for[gh]
+    win_tooltip.set_resizable[%f]
+    win_tooltip.set_decorated[%f]
+    win_tooltip.set_skip_taskbar_hint[%t]
+    win_tooltip.set_skip_pager_hint[%t]
+    win_tooltip.set_accept_focus[%f]
+
     screen=win_tooltip.get_root_window[]
     pos=screen.get_pointer[]
     win_tooltip.move[pos(1)+10,pos(2)+10]
     hbox = gtkhbox_new();
     frame = gtkframe_new();
+    frame.set_shadow_type[1]
     label = gtklabel_new(str=o.gui);
+    label.set_padding[3,1]
     frame.add[label]
-    hbox.pack_start[frame,expand=%f,fill=%f,padding=0]
+    hbox.pack_start[frame,expand=%f,fill=%t,padding=0]
     win_tooltip.add[hbox]
-    win_tooltip.show_all[];
+    ev=ior([GDK.EXPOSURE_MASK;GDK.LEAVE_NOTIFY_MASK;GDK.BUTTON_PRESS_MASK;
+	    GDK.POINTER_MOTION_MASK;GDK.POINTER_MOTION_HINT_MASK]);
+    win_tooltip.set_events[ev]
+    //win_tooltip.show_all[];
   endfunction
 
+  //callback to show and update the tooltip
+  function y=update_show_block_tooltip(args)
+    y=%t
+    win_tooltip=args(1)
+    o=args(2)
+    if ~win_tooltip.equal[[]] then
+      win_tooltip=update_block_tooltip(o,win_tooltip)
+      win_tooltip.show_all[];
+    end
+  endfunction
+  
+  //callback to only show the tooltip
+  function y=show_block_tooltip(args)
+    y=%t
+    win_tooltip=args(1)
+    o=args(2)
+    if ~win_tooltip.equal[[]] then
+      if ~win_tooltip.get_visible[] then
+        win_tooltip=update_block_tooltip(o,win_tooltip)
+      end
+      win_tooltip.show_all[];
+//       pause
+    end
+  endfunction
+  
   //update a tooltip for blk when mouse pointer
   //move above à block
   function win_tooltip=update_block_tooltip(o,win_tooltip)
@@ -37,6 +78,14 @@ function [btn,%pt,win,Cmenu]=cosclick()
     end
   endfunction
 
+  //remove timeout event source tooltip
+  function id=remove_timeout(id)
+    if ~id.equal[[]] then
+      gtk_timeout_remove(id);
+      id=[];
+    end
+  endfunction
+  
   //unhilite hilited port
   function port_hilited=unhilite_port(gr_port,port_hilited)
     if port_hilited then
@@ -47,7 +96,16 @@ function [btn,%pt,win,Cmenu]=cosclick()
       xcursor(GDK.CROSSHAIR)
     end
   endfunction
-
+  
+  function rep=move_tooltip(win_tooltip,event)
+    win_tooltip.hide[]
+    screen=win_tooltip.get_root_window[]
+    pos=screen.get_pointer[]
+    win_tooltip.move[pos(1)+10,pos(2)+10]
+    win_tooltip.show_all[];
+    rep=%t
+  endfunction
+  
 // select action from an activated event 
 // 
   global Scicos_commands
@@ -66,12 +124,15 @@ function [btn,%pt,win,Cmenu]=cosclick()
     win_tooltip=[];
     port_hilited=%f;
     gr_port=[];
+    id=[];
+    kk_last=[];
 
     //new : motion event loop (Alan,30/05/13)
     while %t
       //switch getmotion to %f to not show the tooltip
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%f,getmotion=%t)
-
+      id=remove_timeout(id)
+      
       if (btn~=-1) then
         port_hilited=unhilite_port(gr_port,port_hilited)
         win_tooltip=destroy_block_tooltip(win_tooltip)
@@ -82,6 +143,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
           xinfo(str_pt); //display mouse position
           kk=getblock(scs_m,[xc;yc]);
           if ~isempty(kk) then
+            if isempty(kk_last) then kk_last=kk, end
             [connected,xyo,typo,szout,szouttyp,from]=getportblk(scs_m.objs(kk),kk,'from',[xc,yc])
             cedge=check_edge(scs_m.objs(kk),'inside',[xc,yc])
             if ~connected && cedge=='Link' then
@@ -92,12 +154,17 @@ function [btn,%pt,win,Cmenu]=cosclick()
                 port_hilited=%t
               end
             elseif cedge=='inside'
+              //fprintf("ici\n");
               port_hilited=unhilite_port(gr_port,port_hilited)
-              if win_tooltip.equal[[]] then
-                win_tooltip=show_block_tooltip(scs_m.objs(kk))
-              else
-                win_tooltip=update_block_tooltip(scs_m.objs(kk),win_tooltip)
+              if ~(kk.equal[kk_last]) then
+                win_tooltip=destroy_block_tooltip(win_tooltip)
               end
+              if win_tooltip.equal[[]] then
+                win_tooltip=build_block_tooltip(scs_m.objs(kk))
+                win_tooltip.connect["motion_notify_event",move_tooltip]
+              end
+              id = gtk_timeout_add(500,show_block_tooltip,list(win_tooltip,scs_m.objs(kk)))
+              kk_last=kk
             else
               port_hilited=unhilite_port(gr_port,port_hilited)
               win_tooltip=destroy_block_tooltip(win_tooltip)
