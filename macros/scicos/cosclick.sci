@@ -5,7 +5,6 @@ function [btn,%pt,win,Cmenu]=cosclick()
   function win_tooltip=build_block_tooltip(o)
     //win_tooltip = gtkwindow_new(type=1)
     //win_tooltip.set_type_hint[GDK.WINDOW_TYPE_HINT_TOOLTIP]
-    
     win_tooltip = gtkwindow_new()
     F=get_current_figure();
     gh=nsp_graphic_widget(F.id)
@@ -15,7 +14,6 @@ function [btn,%pt,win,Cmenu]=cosclick()
     win_tooltip.set_skip_taskbar_hint[%t]
     win_tooltip.set_skip_pager_hint[%t]
     win_tooltip.set_accept_focus[%f]
-
     screen=win_tooltip.get_root_window[]
     pos=screen.get_pointer[]
     win_tooltip.move[pos(1)+10,pos(2)+10]
@@ -25,49 +23,23 @@ function [btn,%pt,win,Cmenu]=cosclick()
     label = gtklabel_new(str=o.gui);
     label.set_padding[3,1]
     frame.add[label]
-    hbox.pack_start[frame,expand=%f,fill=%t,padding=0]
+    hbox.pack_start[frame,expand=%f,fill=%f,padding=0]
     win_tooltip.add[hbox]
-    ev=ior([GDK.EXPOSURE_MASK;GDK.LEAVE_NOTIFY_MASK;GDK.BUTTON_PRESS_MASK;
-	    GDK.POINTER_MOTION_MASK;GDK.POINTER_MOTION_HINT_MASK]);
-    win_tooltip.set_events[ev]
-    //win_tooltip.show_all[];
+    if %win32 then
+      win_tooltip.set_focus_on_map[%f]
+      win_tooltip.show_all[];
+      win_tooltip.hide[]
+    end
   endfunction
 
-  //callback to show and update the tooltip
-  function y=update_show_block_tooltip(args)
-    y=%t
-    win_tooltip=args(1)
-    o=args(2)
-    if ~win_tooltip.equal[[]] then
-      win_tooltip=update_block_tooltip(o,win_tooltip)
-      win_tooltip.show_all[];
-    end
-  endfunction
-  
-  //callback to only show the tooltip
+  //callback to show the tooltip
   function y=show_block_tooltip(args)
-    y=%t
     win_tooltip=args(1)
-    o=args(2)
-    if ~win_tooltip.equal[[]] then
-      if ~win_tooltip.get_visible[] then
-        win_tooltip=update_block_tooltip(o,win_tooltip)
-      end
-      win_tooltip.show_all[];
-//       pause
-    end
-  endfunction
-  
-  //update a tooltip for blk when mouse pointer
-  //move above à block
-  function win_tooltip=update_block_tooltip(o,win_tooltip)
     screen=win_tooltip.get_root_window[]
     pos=screen.get_pointer[]
     win_tooltip.move[pos(1)+10,pos(2)+10]
-    hbox=win_tooltip.get_children[](1)
-    frame=hbox.get_children[](1)
-    label=frame.get_children[](1)
-    label.set_label[o.gui]
+    win_tooltip.show_all[];
+    y=%f
   endfunction
 
   //destroy block tooltip
@@ -97,15 +69,6 @@ function [btn,%pt,win,Cmenu]=cosclick()
     end
   endfunction
   
-  function rep=move_tooltip(win_tooltip,event)
-    win_tooltip.hide[]
-    screen=win_tooltip.get_root_window[]
-    pos=screen.get_pointer[]
-    win_tooltip.move[pos(1)+10,pos(2)+10]
-    win_tooltip.show_all[];
-    rep=%t
-  endfunction
-  
 // select action from an activated event 
 // 
   global Scicos_commands
@@ -132,6 +95,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
       //switch getmotion to %f to not show the tooltip
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%f,getmotion=%t)
       id=remove_timeout(id)
+      win_tooltip=destroy_block_tooltip(win_tooltip)
       
       if (btn~=-1) then
         port_hilited=unhilite_port(gr_port,port_hilited)
@@ -161,9 +125,8 @@ function [btn,%pt,win,Cmenu]=cosclick()
               end
               if win_tooltip.equal[[]] then
                 win_tooltip=build_block_tooltip(scs_m.objs(kk))
-                win_tooltip.connect["motion_notify_event",move_tooltip]
               end
-              id = gtk_timeout_add(500,show_block_tooltip,list(win_tooltip,scs_m.objs(kk)))
+              id=gtk_timeout_add(500,show_block_tooltip,list(win_tooltip))
               kk_last=kk
             else
               port_hilited=unhilite_port(gr_port,port_hilited)
