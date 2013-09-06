@@ -638,3 +638,115 @@ function  vbox=scicos_show_table(cols,table)
   vbox.show_all[];
 endfunction 
 
+function [texte] = mini_standard_document(objet)
+  type_objet = objet.type
+  
+  select type_objet
+   //blk
+   case 'Block' then
+    modele = objet.model
+    graphique = objet.graphics
+    macro = objet.gui
+    fonction = modele.sim
+    if prod(size(fonction)) == 1 then
+      fonction=list(fonction,0)
+    end
+    
+    //gui
+    texte=[macro]
+    
+    //simulation function
+    if modele.sim(1)=='super' then
+      texte=[texte;
+             "<tt><small><small>Superblock</small></small></tt>"]
+    elseif modele.sim(1)=='csuper' then
+      texte=[texte;
+             "<tt><small><small>Compiled Superblock</small></small></tt>"]
+    else
+      if is_modelica_block(objet) then
+        texte=[texte;
+               "<tt><small><small>Modelica block</small></small></tt>"]
+        simul_fun = fonction(1);
+        texte=[texte
+               "<tt><small><small>sim    "+simul_fun+"</small></small></tt>"]
+      
+      else
+        if prod(size(fonction)) == 1 then
+          fonction=list(fonction,0)
+        end
+        simul_fun = fonction(1);
+        if type(simul_fun,'short')=='pl' then 
+          // fonction(1) is a macro then get its name.
+          simul_fun = simul_fun.get_name[];
+        end
+        texte=[texte
+               "<tt><small><small>sim    "+simul_fun+"("+...
+               string(fonction(2))+")"+"</small></small></tt>"]
+             
+        //dep_ut
+        if modele.dep_ut(1) then
+          du = '%t'
+        else
+          du = '%f'
+        end
+        if modele.dep_ut(2) then
+          dt = '%t'
+        else
+          dt = '%f'
+        end
+        texte=[texte
+               "<tt><small><small>dep_ut ["+du+";"+dt+"]</small></small></tt>"]
+             
+        //regular input ports
+        sz_in=size(modele.in,'*');
+        sz_in2=size(modele.in2,'*');
+        sz_intyp=size(modele.intyp,'*');
+        //adjust dimension of in2
+        if sz_in2 < sz_in then
+          modele.in2=[modele.in2;ones(sz_in-sz_in2,1)]
+        end
+        //adjust dimension of intyp
+        if sz_intyp<sz_in then
+          modele.intyp=[modele.intyp;ones(sz_in-sz_intyp,1)]
+        end
+        for i = 1 : min(size(modele.in,'*'),size(graphique.pin,'*'))
+          texte=[texte
+                 "<tt><small><small>in"+string(i)+"    ["+...
+                 string(modele.in(i))+";"+string(modele.in2(i))+"]"+...
+                 "("+string(modele.intyp(i))+")</small></small></tt>"]
+        end
+      
+        //regular output ports
+        sz_out=size(modele.out,'*');
+        sz_out2=size(modele.out2,'*');
+        sz_outtyp=size(modele.outtyp,'*');
+        //adjust dimension of out2
+        if sz_out2 < sz_out then
+          modele.out2=[modele.out2;ones(sz_out-sz_out2,1)]
+        end
+        //adjust dimension of outtyp
+        if sz_outtyp<sz_out then
+          modele.outtyp=[modele.outtyp;ones(sz_out-sz_outtyp,1)]
+        end
+        for i = 1 : min(size(modele.out,'*'),size(graphique.pout,'*'))
+          texte=[texte
+                 "<tt><small><small>out"+string(i)+"   ["+...
+                 string(modele.out(i))+";"+string(modele.out2(i))+"]"+...
+                 "("+string(modele.outtyp(i))+")</small></small></tt>"]
+        end
+      
+        //that's all
+      end
+    end
+    
+   //lnk
+   case 'Link' then
+    //TODO
+    texte=[]
+    
+   else
+    texte=[]
+    
+  end
+  
+endfunction

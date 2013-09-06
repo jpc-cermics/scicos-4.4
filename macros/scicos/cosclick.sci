@@ -42,6 +42,18 @@ function [btn,%pt,win,Cmenu]=cosclick()
     y=%f
   endfunction
 
+  //callback to add extra info in the tooltip
+  function y=add_extra_info_tooltip(args)
+    win_tooltip=args(1)
+    o=args(2)
+    hbox=win_tooltip.get_children[](1)
+    frame=hbox.get_children[](1)
+    label=frame.get_children[](1)
+    str=mini_standard_document(o);
+    label.set_markup[catenate(str,sep="\n")];
+    y=%f
+  endfunction
+  
   //destroy block tooltip
   function win_tooltip=destroy_block_tooltip(win_tooltip)
     if ~win_tooltip.equal[[]] then
@@ -51,10 +63,14 @@ function [btn,%pt,win,Cmenu]=cosclick()
   endfunction
 
   //remove timeout event source tooltip
-  function id=remove_timeout(id)
+  function [id,id2]=remove_timeout(id,id2)
     if ~id.equal[[]] then
       gtk_timeout_remove(id);
       id=[];
+    end
+    if ~id2.equal[[]] then
+      gtk_timeout_remove(id2);
+      id2=[];
     end
   endfunction
   
@@ -87,14 +103,14 @@ function [btn,%pt,win,Cmenu]=cosclick()
     win_tooltip=[];
     port_hilited=%f;
     gr_port=[];
-    id=[];
+    id=[];id2=[];
     kk_last=[];
 
     //new : motion event loop (Alan,30/05/13)
     while %t
       //switch getmotion to %f to not show the tooltip
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%f,getmotion=%t)
-      id=remove_timeout(id)
+      [id,id2]=remove_timeout(id,id2)
       win_tooltip=destroy_block_tooltip(win_tooltip)
       
       if (btn~=-1) then
@@ -127,6 +143,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
                 win_tooltip=build_block_tooltip(scs_m.objs(kk))
               end
               id=gtk_timeout_add(500,show_block_tooltip,list(win_tooltip))
+              id2=gtk_timeout_add(2000,add_extra_info_tooltip,list(win_tooltip,scs_m.objs(kk)))
               kk_last=kk
             else
               port_hilited=unhilite_port(gr_port,port_hilited)
