@@ -2,7 +2,7 @@ SHELL = /bin/sh
 TOP=..
 include $(TOP)/Path.incl
 
-SUBDIRS =  blocks scicos 
+SUBDIRS =  blocks scicos importapi
 
 
 all:: 
