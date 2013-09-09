@@ -18,11 +18,15 @@ function [o,ok]=drawobj(o,F)
   otype = o.type;
   ok = %t;
   ishilited=%f
+  hilite_type=0
+  hilite_size=0
   select otype 
    case 'Block' then
-    // keep track of previous hilited field 
+    // keep track of previous hilited fields
     if o.iskey['gr'] then 
       ishilited=o.gr.hilited
+      hilite_type=o.gr.hilite_type
+      hilite_size=o.gr.hilite_size
     end
 
     // draw  a block 
@@ -94,7 +98,8 @@ function [o,ok]=drawobj(o,F)
   end
   
   C=F.end_compound[];
-  C.hilite_type=0;C.hilite_size=0;
+  C.hilite_type=hilite_type;
+  C.hilite_size=hilite_size;
   if o.iskey['gr'] then 
     // remove previous graphic object 
     // o.gr.invalidate[];
