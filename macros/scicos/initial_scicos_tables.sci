@@ -84,6 +84,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                        ["Duplicate"           "menuitem"  "scmenu_duplicate"           ""           ""],
                        ["bsep1"               "separator" ""                           ""           ""],
                        ["Flip"                "menuitem"  "scmenu_flip"                ""           ""],
+                       ["Set Size"            "menuitem"  "scmenu_set_size"            ""           ""],
                        ["Resize"              "menuitem"  "scmenu_resize"              ""           ""],
                        ["Rotate Left"         "menuitem"  "scmenu_rotate_left"         ""           ""],
                        ["Rotate Right"        "menuitem"  "scmenu_rotate_right"        ""           ""],
@@ -308,6 +309,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                                   'Rotate Left',..
                                   'Rotate Right'),..
                              list('Block Properties',..
+                                  'Set Size',..
                                   'Resize',..
                                   'Icon',..
                                   'Icon Editor',..
@@ -368,6 +370,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                                   'Rotate Left',..
                                   'Rotate Right'),..
                              list('Block Properties',..
+                                  'Set Size',..
                                   'Resize',..
                                   'Icon',..
                                   'Icon Editor',..

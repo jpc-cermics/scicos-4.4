@@ -10,7 +10,19 @@ function scmenu_resize()
   end
 endfunction
 
-function [scs_m]=do_resize(scs_m)
+function scmenu_set_size()
+  Cmenu='';
+  sc=scs_m;
+  [scs_m]= do_resize(scs_m,setsize=%t);
+  if ~scs_m.equal[sc] then 
+    edited=%t;
+    scs_m_save=sc;
+    enable_undo=%t;
+    nc_save=needcompile;
+  end
+endfunction
+
+function [scs_m]=do_resize(scs_m,setsize=%f)
 // resize a block or a link 
 // for a block resize its box 
 // for a link changes its thickness and type
@@ -37,7 +49,7 @@ function [scs_m]=do_resize(scs_m)
     sz=graphics.sz
     orig=graphics.orig
     %scs_help='Resize_block'
-    if %t then 
+    if ~setsize then 
       rect=[orig(1);orig(2)+sz(2);0;0]
       if size(%pt,'*')==2 then 
 	rect(3:4)=%pt(:);

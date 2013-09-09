@@ -409,10 +409,15 @@ function H=scicos_help_menu()
       [" This menu allows to select 3D shape for blocks and ";
        " associated parameters."];
 
-  H('scmenu_resize')=...
-      [" To change the size of a block, select first this menu item,";
-       " click next on the desired block. A dialog appear that allows ";
+  H('scmenu_set_size')=...
+      [" To change the size of a block, select first the desired block,";
+       " click next on this menu item. A dialog appear that allows ";
        " you to change the width and/or height of the block shape."];
+
+  H('scmenu_resize')=...
+      [" To change the size of a block, select first the desired block,";
+       " click next on this menu item. You can interactively change "
+       " the width and/or height of the block shape."];
 
   H('scmenu_id_fonts')=...
       [" This menu allows to change the font used to write in the block";
