@@ -40,30 +40,11 @@ function Select=do_select_region(win);
   end
 endfunction
 
-function [rect,btn]=rubberbox(rect,edit_mode)
-  select nargin
-    case 0 then
-      edit_mode=%f
-      initial_rect=%f
-    case 1 then
-      initial_rect=type(rect,'short')=='m'
-      if ~initial_rect then edit_mode=rect,end
-    case 2 then
-      initial_rect=%t
-  end
+function [rect,btn]=rubberbox(rect,edit_mode,hilite_objs_in_rect=%t)
   if edit_mode then 
     sel=0:2,//only button press requested
   else 
     sel=0:5,//press and click
-  end
-  opt=[%t edit_mode]
-  first=%t
-  if ~initial_rect
-    while %t
-      [btn,xc,yc]=xclick(0)
-      if or(btn==sel) then break,end
-    end
-    rect(1)=xc;rect(2)=yc
   end
   if size(rect,'*')==2 then rect(3)=0;rect(4)=0,end
   rep(3)=-1;
@@ -76,26 +57,29 @@ function [rect,btn]=rubberbox(rect,edit_mode)
   R=C.children(1);
   R.invalidate[];
   in=[];
-  while rep(3)<>-5 do
+  while ~or(rep(3)==[-5 2]) do
     F.process_updates[];
     rep=xgetmouse(clearq=%f,cursor=%f,getrelease=edit_mode,getmotion=%t);
+    //printf("rep(3)=%d\n",rep(3));
     R.invalidate[];
     xc1=rep(1);yc1=rep(2)
     R.x=min(xc,xc1)
     R.y=max(yc,yc1)
     R.w=abs(xc-xc1)
     R.h=abs(yc-yc1)
-    [in_n,out] = getobjs_in_rect(scs_m,R.x,R.y,R.w,R.h)
-    if ~isempty(in_n) then
-      if ~isempty(in) then
-        unhilite_obj(in)
-      end
-      hilite_obj(in_n)
-      in=in_n
-    else
-      if ~isempty(in) then
-        unhilite_obj(in)
-        in=[]
+    if hilite_objs_in_rect then
+      [in_n,out] = getobjs_in_rect(scs_m,R.x,R.y,R.w,R.h)
+      if ~isempty(in_n) then
+        if ~isempty(in) then
+          unhilite_obj(in)
+        end
+        hilite_obj(in_n)
+        in=in_n
+      else
+        if ~isempty(in) then
+          unhilite_obj(in)
+          in=[]
+        end
       end
     end
     //####

@@ -4,7 +4,9 @@ function scmenu_resize()
   [scs_m]= do_resize(scs_m);
   if ~scs_m.equal[sc] then 
     edited=%t;
-    scs_m_save=sc;enable_undo=%t;
+    scs_m_save=sc;
+    enable_undo=%t;
+    nc_save=needcompile;
   end
 endfunction
 
@@ -40,8 +42,8 @@ function [scs_m]=do_resize(scs_m)
       if size(%pt,'*')==2 then 
 	rect(3:4)=%pt(:);
       end
-      [rect,button]=rubberbox(rect,%t);
-      w=rect(3);h=rect(4);ok = %t;
+      [rect,button]=rubberbox(rect,%t,hilite_objs_in_rect=%f);
+      w=rect(3);h=rect(4);ok = (button~=2);
       if ok && rect(1)==orig(1) then 
 	graphics.sz=[w;h]
 	graphics.orig=[orig(1),orig(2)+sz(2)-h];
