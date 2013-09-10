@@ -2,7 +2,7 @@ function newparameters=mark_newpars(k,newparametersb,newparameters)
 // k block index in x
 //
 // Copyright INRIA
-  o=scs_m(get_subobj_path(k))
+  o=scs_m(scs_full_path(k))
   model=o.model
   if model.sim(1)=='super'|model.sim(1)=='csuper'
     for npb=newparametersb

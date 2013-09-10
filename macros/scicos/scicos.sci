@@ -562,7 +562,7 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
   for i=1:n
     wii=find(winsid()==inactive_windows(2)(i))
     if ~isempty(wii) then
-      path=get_subobj_path(inactive_windows(1)(i))
+      path=scs_full_path(inactive_windows(1)(i))
       o=scs_m(path)
       scs_m_save=scs_m
       scs_m=o.model.rpar
