@@ -1,3 +1,7 @@
+//interactively resize a block 
+//from the bottom right corner
+//or display a gui to set
+//thickness and type of a link
 function scmenu_resize()
   Cmenu='';
   sc=scs_m;
@@ -10,6 +14,10 @@ function scmenu_resize()
   end
 endfunction
 
+//interactively resize a block 
+//from the top left corner
+//or display a gui to set
+//thickness and type of a link
 function scmenu_resize_top()
   Cmenu='';
   sc=scs_m;
@@ -22,6 +30,10 @@ function scmenu_resize_top()
   end
 endfunction
 
+//display a gui to set the
+//width and height of a block
+//or display a gui to set
+//thickness and type of a link
 function scmenu_set_size()
   Cmenu='';
   sc=scs_m;
@@ -83,6 +95,7 @@ function [scs_m]=do_resize(scs_m,setsize=%f,bot=%t)
         rep=xgetmouse(clearq=%f,cursor=%f,getrelease=%t,getmotion=%t);
         dx=rep(1)-%pt(1);dy=rep(2)-%pt(2);
         
+        //use snap mode
         if %scicos_snap then
           if abs( floor(dx/%scs_wgrid(1))-(dx/%scs_wgrid(1)) ) <...
                   abs(  ceil(dx/%scs_wgrid(1))-(dx/%scs_wgrid(1)) )
