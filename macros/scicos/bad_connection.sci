@@ -27,7 +27,6 @@ function bad_connection(path_out,prt_out,nout,outtyp,path_in,prt_in,nin,intyp,ty
       path = scs_full_path(path);
     end
     ret = hilite_obj(scs_m(path));
-    pause xxx
     if ret then 
       // object was hilited 
       message(mess);
