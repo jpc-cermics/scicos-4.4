@@ -1,7 +1,8 @@
 function hilite_path(path,mess,with_intermediates)
 // Copyright INRIA
-// path is here a vector of indices which gives a path 
-// to a block path($). 
+// path: a vector of indices which gives a path to a block 
+//       or a list which gives a full path to a block 
+// 
 // hilite_path is used to hilite the block path($) and if 
 // requested hilite also all the superblocks hierarchy which 
 // leads to the block path($).
@@ -17,6 +18,9 @@ function hilite_path(path,mess,with_intermediates)
 // 
   if nargin<3 then with_intermediates=%f,end
   if nargin<2 then mess=' ',end
+
+  if type(path,'short')== 'l' then path = scs_short_path(path);end
+    
   scs_m=scs_m;
   scs_m_s=scs_m;
   mxwin=max(winsid()),opened_windows=[]

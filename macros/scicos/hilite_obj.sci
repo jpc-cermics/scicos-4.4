@@ -1,4 +1,4 @@
-function hilite_obj(o,draw=%t,warn=%f)
+function ret=hilite_obj(o,draw=%t,warn=%f)
 // Copyright INRIA
 // just keep the new_graphics case 
 
@@ -8,7 +8,10 @@ function hilite_obj(o,draw=%t,warn=%f)
     end
     return;
   end
-  if ~o.iskey['gr'] then return;end 
+  if ~o.iskey['gr'] then 
+    ret=%f;// printf("Object not displayed !\n");
+    return;
+  end 
   if o.type =='Block'|o.type=='Text' then
     if warn then
       o.gr.hilite_color=7;
@@ -28,4 +31,5 @@ function hilite_obj(o,draw=%t,warn=%f)
   if draw then 
     o.gr.invalidate[];
   end
+  ret=%t;
 endfunction

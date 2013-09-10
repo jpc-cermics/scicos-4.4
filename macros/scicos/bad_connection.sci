@@ -26,9 +26,16 @@ function bad_connection(path_out,prt_out,nout,outtyp,path_in,prt_in,nin,intyp,ty
     if type(path,'short')<>'l' then 
       path = scs_full_path(path);
     end
-    hilite_obj(scs_m(path));
-    message(mess);
-    unhilite_obj(scs_m(path));
+    ret = hilite_obj(scs_m(path));
+    pause xxx
+    if ret then 
+      // object was hilited 
+      message(mess);
+      unhilite_obj(scs_m(path));
+    else
+      // object was not hilited we try to hilite the path 
+      hilite_path(path,mess,%f);
+    end    
   endfunction
 
   function show_bad_connections(path1,path2,mess)
@@ -64,7 +71,6 @@ function bad_connection(path_out,prt_out,nout,outtyp,path_in,prt_in,nin,intyp,ty
     if typ==0 then str_typ= 'sizes' else str_typ = 'types';end 
     mess=['Hilited block has connected ports ';
 	  'with  incompatible '+ str_typ];
-    pause xxx;
     show_bad_connection(path_out,mess);
     return;
   end
