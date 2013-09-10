@@ -87,13 +87,13 @@ function [btn,%pt,win,Cmenu]=cosclick()
   
   //detect mouse position in
   //top left/bottom right corners
-  //of the bbox of a single selected block
-  function corner=nearest_tl_br_corner(%pt,o,kk,Select)
+  //of the bbox of the selected block
+  function [corne]r=nearest_tl_br_corner(%pt,o,kk,Select)
     corner=[]
     if ~isempty(Select) then
       if size(Select,1)==1 && ~isempty(find(Select(:,1)==kk)) then
         bbox=o.gr.get_bounds[]
-        sz=6 //??
+        sz=10 //??
         %xc=%pt(1)
         %yc=%pt(2)
         x1=bbox(1);
@@ -103,8 +103,8 @@ function [btn,%pt,win,Cmenu]=cosclick()
           (y1-sz-%yc)*(y1-%yc)]
         
         if data(1)<0 && data(2)<0 then
-          //printf("Top Left!\n");
           corner='tl'
+          return
         end
         
         x1=bbox(3);
@@ -113,24 +113,37 @@ function [btn,%pt,win,Cmenu]=cosclick()
           (y1+sz-%yc)*(y1-%yc)]
         
         if data(1)<0 && data(2)<0 then
-          //printf("Bottom right!\n");
           corner='br'
+          return
         end
-        //pause
       end
     end
   endfunction
-  
-//   function [c_hilited]=hilite_cblock(gr_block,c_hilited)
-//     htype=gr_block.hilite_type
-//     hsize=gr_block.hilite_size
-//     hcolor=gr_block.hilite_color
-//   endfunction
-    
-  function c_hilited=unhilite_cblock(gr_block,c_hilited,htype,hisze,hcolor)
+
+  //unhilite resizable block
+  function [c_hilited]=unhilite_cblock(gr_block,c_hilited,htype,hsize)
     if c_hilited then
+      gr_block.hilite_type=htype
+      gr_block.hilite_size=hsize
+      gr_block.invalidate[]
+      xcursor(GDK.CROSSHAIR)
+      c_hilited=%f
     end
   endfunction
+  
+  //hilite resizable block
+  function [c_hilited]=hilite_cblock(gr_block,corner)
+    gr_block.hilite_type=1
+    gr_block.hilite_size=-1
+    gr_block.invalidate[]
+    c_hilited=%t
+    if corner=='tl' then
+     xcursor(GDK.TOP_LEFT_CORNER)
+    elseif corner=='br' then
+     xcursor(GDK.BOTTOM_RIGHT_CORNER)
+    end
+  endfunction
+  
 // select action from an activated event 
 // 
   global Scicos_commands
@@ -165,14 +178,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
       if (btn~=-1) then
         port_hilited=unhilite_port(gr_port,port_hilited)
         win_tooltip=destroy_block_tooltip(win_tooltip)
-        if c_hilited then
-          //gr_block=scs_m.objs(kk).gr
-          gr_block.hilite_type=htype
-          gr_block.hilite_size=hsize
-          gr_block.invalidate[]
-//           c_hilited=%f
-          xcursor(GDK.CROSSHAIR)
-        end
+        unhilite_cblock(gr_block,c_hilited,htype,hsize)
         break
       else
         if win==curwin then
@@ -180,20 +186,12 @@ function [btn,%pt,win,Cmenu]=cosclick()
           xinfo(str_pt); //display mouse position
           kk=getblock(scs_m,[xc;yc]);
           if ~isempty(kk) then
-            //printf("getblock\n");
             if isempty(kk_last) then kk_last=kk, end
             [connected,xyo,typo,szout,szouttyp,from]=getportblk(scs_m.objs(kk),kk,'from',[xc,yc])
             cedge=check_edge(scs_m.objs(kk),'inside',[xc,yc])
             if ~connected && cedge=='Link' && size(Select,1)<=1 then
               win_tooltip=destroy_block_tooltip(win_tooltip)
-              if c_hilited then
-                //gr_block=scs_m.objs(kk).gr
-                gr_block.hilite_type=htype
-                gr_block.hilite_size=hsize
-                gr_block.invalidate[]
-                c_hilited=%f
-                xcursor(GDK.CROSSHAIR)
-              end
+              c_hilited=unhilite_cblock(gr_block,c_hilited,htype,hsize)
               if ~port_hilited then
                 xcursor(GDK.PENCIL)
                 gr_port=hilite_port(xyo(1),xyo(2),scs_m.objs(kk))
@@ -207,27 +205,10 @@ function [btn,%pt,win,Cmenu]=cosclick()
                   gr_block=scs_m.objs(kk).gr
                   htype=gr_block.hilite_type
                   hsize=gr_block.hilite_size
-                  //hcolor=gr_block.hilite_color
-                  gr_block.hilite_type=1
-                  gr_block.hilite_size=-1
-                  gr_block.invalidate[]
-                  c_hilited=%t
-                  if corner=='tl' then
-                    xcursor(GDK.TOP_LEFT_CORNER)
-                  elseif corner=='br' then
-                    xcursor(GDK.BOTTOM_RIGHT_CORNER)
-                  end
-                  //printf("TODO\n")
+                  c_hilited=hilite_cblock(gr_block,corner)
                 end
               else
-                if c_hilited then
-                  //gr_block=scs_m.objs(kk).gr
-                  gr_block.hilite_type=htype
-                  gr_block.hilite_size=hsize
-                  gr_block.invalidate[]
-                  c_hilited=%f
-                  xcursor(GDK.CROSSHAIR)
-                end
+                c_hilited=unhilite_cblock(gr_block,c_hilited,htype,hsize)
                 if ~(kk.equal[kk_last]) then
                   win_tooltip=destroy_block_tooltip(win_tooltip)
                 end
@@ -247,38 +228,16 @@ function [btn,%pt,win,Cmenu]=cosclick()
                   gr_block=scs_m.objs(kk).gr
                   htype=gr_block.hilite_type
                   hsize=gr_block.hilite_size
-                  //hcolor=gr_block.hilite_color
-                  gr_block.hilite_type=1
-                  gr_block.hilite_size=-1
-                  gr_block.invalidate[]
-                  c_hilited=%t
-                  if corner=='tl' then
-                    xcursor(GDK.TOP_LEFT_CORNER)
-                  elseif corner=='br' then
-                    xcursor(GDK.BOTTOM_RIGHT_CORNER)
-                  end
-//                   printf("TODO\n")
+                  c_hilited=hilite_cblock(gr_block,corner)
                 end
-              elseif c_hilited then
-                //gr_block=scs_m.objs(kk).gr
-                gr_block.hilite_type=htype
-                gr_block.hilite_size=hsize
-                gr_block.invalidate[]
-                c_hilited=%f
-                xcursor(GDK.CROSSHAIR)
+              else
+                c_hilited=unhilite_cblock(gr_block,c_hilited,htype,hsize)
               end             
             end
           else
             port_hilited=unhilite_port(gr_port,port_hilited)
             win_tooltip=destroy_block_tooltip(win_tooltip)
-            if c_hilited then
-              //gr_block=scs_m.objs(kk).gr
-              gr_block.hilite_type=htype
-              gr_block.hilite_size=hsize
-              gr_block.invalidate[]
-              c_hilited=%f
-              xcursor(GDK.CROSSHAIR)
-            end
+            c_hilited=unhilite_cblock(gr_block,c_hilited,htype,hsize)
           end
         end
       end
@@ -371,6 +330,8 @@ function [btn,%pt,win,Cmenu]=cosclick()
     return
 
   elseif btn==0 then
+    //c_hilited means that we want resize a block
+    //TODO : Cmenu should be switched in CheckMove/CheckSmartMove
     if c_hilited then
       if corner=='tl' then
         Cmenu='Resize Top'
