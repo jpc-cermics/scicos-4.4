@@ -88,7 +88,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
   //detect mouse position in
   //top left/bottom right corners
   //of the bbox of the selected block
-  function [corne]r=nearest_tl_br_corner(%pt,o,kk,Select)
+  function [corner]=nearest_tl_br_corner(%pt,o,kk,Select)
     corner=[]
     if ~isempty(Select) then
       if size(Select,1)==1 && ~isempty(find(Select(:,1)==kk)) then
