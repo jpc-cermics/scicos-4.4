@@ -18,6 +18,7 @@ function [Cmenu,Select]=do_check_move(Select)
     // the press is in the current window
     Cmenu="Move";
     k=getobj(scs_m,%pt)
+    //pause
     if isempty(k) then
       // if the press is in the void of the current window 
       Cmenu="SelectRegion";resume(%ppt=%pt);Select=[];

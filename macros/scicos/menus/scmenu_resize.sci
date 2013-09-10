@@ -10,6 +10,18 @@ function scmenu_resize()
   end
 endfunction
 
+function scmenu_resize_top()
+  Cmenu='';
+  sc=scs_m;
+  [scs_m]= do_resize(scs_m,bot=%f);
+  if ~scs_m.equal[sc] then 
+    edited=%t;
+    scs_m_save=sc;
+    enable_undo=%t;
+    nc_save=needcompile;
+  end
+endfunction
+
 function scmenu_set_size()
   Cmenu='';
   sc=scs_m;
@@ -22,7 +34,7 @@ function scmenu_set_size()
   end
 endfunction
 
-function [scs_m]=do_resize(scs_m,setsize=%f)
+function [scs_m]=do_resize(scs_m,setsize=%f,bot=%t)
 // resize a block or a link 
 // for a block resize its box 
 // for a link changes its thickness and type
@@ -50,7 +62,7 @@ function [scs_m]=do_resize(scs_m,setsize=%f)
     orig=graphics.orig
     %scs_help='Resize_block'
     if ~setsize then
-      bot=%t;//set the direction of the resize(bottom right or top left)
+      //bot=%t;//set the direction of the resize(bottom right or top left)
       
       if bot then
         xcursor(GDK.BOTTOM_RIGHT_CORNER)

@@ -27,7 +27,8 @@ function [menus]=scicos_menu_prepare()
 	   'PlaceDropped'    , 'PlaceDropped_'
 	   'BrowseTo'        , 'BrowseTo_'
 	   'Place in Browser', 'PlaceinBrowser_'
-	   'Smart Link'      , 'scmenu_smart_getlink'];
+	   'Smart Link'      , 'scmenu_smart_getlink'
+	   'Resize Top'      , 'scmenu_resize_top'];
 
   menus=[menus(:,2),menus(:,2);menus];
 
