@@ -2,6 +2,8 @@ function ret=hilite_obj(o,draw=%t,warn=%f)
 // Copyright INRIA
 // just keep the new_graphics case 
 
+  ret=%t;
+  
   if type(o,'short')=='m' then 
     for k=1:size(o,'*')
       hilite_obj(scs_m.objs(o(k)),draw=draw,warn=warn);
@@ -31,5 +33,4 @@ function ret=hilite_obj(o,draw=%t,warn=%f)
   if draw then 
     o.gr.invalidate[];
   end
-  ret=%t;
 endfunction
