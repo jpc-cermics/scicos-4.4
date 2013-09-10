@@ -20,10 +20,13 @@ function hilite_path(path,mess,with_intermediates)
   if nargin<2 then mess=' ',end
 
   if type(path,'short')== 'l' then path = scs_short_path(path);end
-    
+  
   scs_m=scs_m;
   scs_m_s=scs_m;
-  mxwin=max(winsid()),opened_windows=[]
+
+  mxwin=max(winsid()),if isempty(mxwin) then mxwin=0;end 
+  cur = mxwin;  
+  opened_windows=[]
   hilite_obj(scs_m.objs(path(1)))
   
   if with_intermediates then
@@ -45,6 +48,10 @@ function hilite_path(path,mess,with_intermediates)
   message(mess)
   xdel(opened_windows)
   scs_m=scs_m_s
-  xset('window',Main_Scicos_window)
+  if exists('Main_Scicos_window') then 
+    cur = Main_Scicos_window;
+  end
+  xset('window',cur);
   unhilite_obj(scs_m.objs(path(1)))
 endfunction
+
