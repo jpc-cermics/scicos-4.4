@@ -40,7 +40,7 @@ function [%state0,state,sim,ok]=modipar(newparameters,%state0,state,sim,scs_m,co
       o=scs_m.objs(k)
     else
       kc=get_tree_elt(cor,k); 
-      o=scs_m(get_subobj_path(k))
+      o=scs_m(scs_full_path(k))
     end
     // o can be a deleted block which is strange ?
     if o.type == 'Deleted' then continue;end 

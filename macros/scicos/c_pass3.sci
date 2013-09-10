@@ -10,7 +10,7 @@ function [cpr,ok]=c_pass3(scs_m,cpr)
       if size(corinv(k),'*')==1 then
         bllst(k)=scs_m.objs(corinv(k)).model;
       else
-        path=get_subobj_path(corinv(k));path($+1)='model';
+        path=scs_full_path(corinv(k));path($+1)='model';
         bllst(k)=scs_m(path);
       end
     else
