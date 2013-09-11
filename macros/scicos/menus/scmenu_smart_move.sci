@@ -80,6 +80,7 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
   xset('pattern',default_color(0))
   pto=[xc,yc];
   pt = pto;
+  move_xy=[0,0]
   options=scs_m.props.options
   while %t 
     // move loop
@@ -97,6 +98,10 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
                                  pto(1),pto(2),options('Snap'),options('Wgrid')(1),options('Wgrid')(2))
     //pt = rep(1:2);
     //tr= pt - pto;
+    
+    //** Integrate the movements
+    move_xy = move_xy + tr ;
+    
     // draw block shape
     o.gr.translate[tr];
     o.gr.invalidate[];
@@ -155,7 +160,8 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
   if rep(3)<>2 then
     // updates
     o.graphics.orig.redim[1,-1]; // be sure that we are a row
-    o.graphics.orig= o.graphics.orig + pt - [xc,yc];
+    //o.graphics.orig= o.graphics.orig + pt - [xc,yc];
+    o.graphics.orig= o.graphics.orig + move_xy;
     o.gr.invalidate[];
     for i=connected
       xl= scs_m.objs(i).gr.children(1).x(:);
@@ -211,7 +217,7 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
         while 1
           F.process_updates[];
 	  rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-          if rep(3)==10 then
+          if rep(3)==3 then
             global scicos_dblclk
             scicos_dblclk=[rep(1),rep(2),curwin]
           end
@@ -248,7 +254,7 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 	scs_m.objs(k)=o;
 	scs_m=do_smart_move_link(scs_m,k,xc,yc,wh+2)
       end
-    else  
+    else
       // link comes from a split 
       scs_m=do_smart_move_link2(scs_m,o)
     end
@@ -268,6 +274,10 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 	while rep(3)==-1
           F.process_updates[];
 	  rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+          if rep(3)==3 then
+            global scicos_dblclk
+            scicos_dblclk=[rep(1),rep(2),curwin]
+          end
 	  pt = rep(1:2);
 	  tr= pt - pto;
 	  o.gr.children(1).x($-1) = o.gr.children(1).x($-1) + tr(1);
@@ -297,7 +307,7 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 	scs_m.objs(k)=o;
 	scs_m=do_smart_move_link(scs_m,k,xc,yc,nl-1)
       end
-    else 
+    else
       // link goes to a split 
       scs_m=do_smart_move_link3(scs_m,o)
     end
@@ -313,6 +323,10 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
     while rep(3)==-1 ,
       F.process_updates[]
       rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+      if rep(3)==3 then
+        global scicos_dblclk
+        scicos_dblclk=[rep(1),rep(2),curwin]
+      end
       pt = rep(1:2);
       tr= pt - pto;
       o.gr.children(1).x(wh+1) = o.gr.children(1).x(wh+1) + tr(1);
@@ -348,7 +362,7 @@ function o=do_smart_move_link4(o)
     F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
     o.gr.invalidate[]
-    if rep(3)==10 then
+    if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
     end
@@ -385,7 +399,7 @@ function scs_m=do_smart_move_link1(scs_m)
   while 1
     F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-    if rep(3)==10 then
+    if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
     end
@@ -486,7 +500,7 @@ function scs_m=do_smart_move_link2(scs_m,o)
   while 1
     F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-    if rep(3)==10 then
+    if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
     end
@@ -587,7 +601,7 @@ function scs_m=do_smart_move_link3(scs_m,o)
   while 1
     F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-    if rep(3)==10 then
+    if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
     end
@@ -666,7 +680,7 @@ function scs_m=do_smart_move_corner(scs_m,k,xc,yc,wh)
   while 1
     F.process_updates[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-    if rep(3)==10 then
+    if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
     end
