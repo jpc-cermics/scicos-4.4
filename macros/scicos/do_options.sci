@@ -97,6 +97,34 @@ function [edited,options]=do_options(opt,flag,edited)
     if options('Background')==xget('lastpattern')+2 then
       options('Background')=options('Background')+size(R,'*')
     end
+  elseif flag=='DefaultAction' then
+    if ~options('Action') then repp1=2, else repp1=1, end
+    if ~options('Snap') then repp2=2, else repp2=1, end
+    l1=list('combo','Type',repp1,["Free","Smart"])
+    l2=list('combo','Snap',repp2,["Yes","No"])
+    rep=x_choices('Set Default Action',list(l1,l2))
+    if ~isempty(rep) then
+      ok =%t
+      if rep(1)==2 then options('Action')=%f, else options('Action')=%t, end
+      if rep(2)==2 then options('Snap')=%f, else options('Snap')=%t, end
+    end
+  elseif flag=='Grid' then
+    exprs=[string(options('Wgrid')(1)),...
+           string(options('Wgrid')(2)),...
+           string(options('Wgrid')(3))]
+    %scs_help='Grid'
+    while %t do
+      [ok,b1,b2,colorr,exprs]=getvalue(['Set Grid'],..
+             ['x','y','color'],list('vec',1,'vec',1,'vec',1),exprs)
+      if ~ok then
+        break
+      else
+        options('Wgrid')(1)=b1
+        options('Wgrid')(2)=b2
+        options('Wgrid')(3)=colorr
+        break
+      end
+    end
   end
   if ok then
     if or(opt<>options) then
