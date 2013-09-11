@@ -88,26 +88,27 @@ function [scs_m]=do_resize(scs_m,setsize=%f,bot=%t)
       hilite_type=o_n.gr.hilite_type
       o_n.gr.hilite_type=1
       o_n.gr.hilite_size=-1
-      
+      options=scs_m.props.options
       rep(3)=-1;
       while ~or(rep(3)==[-5 2]) do
         xinfo("Block Sizes [w h] : ["+string(o_n.graphics.sz(1))+" "+string(o_n.graphics.sz(2))+"]")        
         rep=xgetmouse(clearq=%f,cursor=%f,getrelease=%t,getmotion=%t);
+        
         dx=rep(1)-%pt(1);dy=rep(2)-%pt(2);
         
         //use snap mode
-        if %scicos_snap then
-          if abs( floor(dx/%scs_wgrid(1))-(dx/%scs_wgrid(1)) ) <...
-                  abs(  ceil(dx/%scs_wgrid(1))-(dx/%scs_wgrid(1)) )
-            dx = floor(dx/%scs_wgrid(1))*%scs_wgrid(1) ;
+        if options('Snap') then
+          if abs( floor(dx/options('Wgrid')(1))-(dx/options('Wgrid')(1)) ) <...
+                  abs(  ceil(dx/options('Wgrid')(1))-(dx/options('Wgrid')(1)) )
+            dx = floor(dx/options('Wgrid')(1))*options('Wgrid')(1) ;
           else
-            dx = ceil(dx/%scs_wgrid(1))*%scs_wgrid(1) ;
+            dx = ceil(dx/options('Wgrid')(1))*options('Wgrid')(1) ;
           end
-          if abs( floor(dy/%scs_wgrid(2))-(dy/%scs_wgrid(2)) ) <...
-                  abs(  ceil(dy/%scs_wgrid(2))-(dy/%scs_wgrid(2)) )
-            dy = floor(dy/%scs_wgrid(2))*%scs_wgrid(2) ;
+          if abs( floor(dy/options('Wgrid')(2))-(dy/options('Wgrid')(2)) ) <...
+                  abs(  ceil(dy/options('Wgrid')(2))-(dy/options('Wgrid')(2)) )
+            dy = floor(dy/options('Wgrid')(2))*options('Wgrid')(2) ;
           else
-            dy = ceil(dy/%scs_wgrid(2))*%scs_wgrid(2) ;
+            dy = ceil(dy/options('Wgrid')(2))*options('Wgrid')(2) ;
           end
         end
         

@@ -554,7 +554,7 @@ function scs_m=do_version(scs_m,version)
 
     scs_m(1)(1)(2)=max(scs_m(1)(1)(2),450)
     if size(scs_m(1))<6 then 
-      options=default_options()
+      options=scicos_options()
       doc=list() //documentation structure
       wpar=scs_m(1)
       wpar(6)=list()
@@ -572,7 +572,7 @@ function scs_m=do_version(scs_m,version)
     end
     if type(scs_m(1)(7))==15 then //options 
       old_opt=scs_m(1)(7)
-      options=default_options()
+      options=scicos_options()
       options('3D')(1)=old_opt(1)
       options('Cmap')=old_opt(2)
       scs_m(1)(7)=options
@@ -1493,21 +1493,21 @@ function scs_m=do_version(scs_m,version)
   if or(version==['scicos2.7.3','scicos4','scicos4.0.1','scicos4.0.2']) then
     version='scicos4.2';
     printf('updates version to %s\n',version);
-    scs_m=update_scs_m(scs_m);
+    //scs_m=update_scs_m(scs_m);
     scs_m=do_version42(scs_m);
   end
   // now we are at least scicos4.2 
   if version=='scicos4.2' then
     version='scicos4.3';
     printf('updates version to %s\n',version);
-    scs_m=update_scs_m(scs_m);
+    //scs_m=update_scs_m(scs_m);
     scs_m=do_version43(scs_m);
   end
   // now we are at least scicos4.3
   if version=='scicos4.3' then
     version='scicos4.4';
     printf('updates version to %s\n',version);
-    scs_m=update_scs_m(scs_m);
+    //scs_m=update_scs_m(scs_m);
     scs_m=do_version44(scs_m);
   end
 endfunction
@@ -1516,6 +1516,7 @@ function [ok,scicos_ver,scs_m]=update_version(scs_m)
 // Copyright INRIA
 // updates a diagram to the current scicos version 
   ok=%t;
+  scs_m=update_scs_m(scs_m);
   current_version = get_scicos_version()
   // guess the proper version of the diagram 
   scicos_ver = find_scicos_version(scs_m)

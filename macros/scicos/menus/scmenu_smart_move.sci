@@ -80,6 +80,7 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
   xset('pattern',default_color(0))
   pto=[xc,yc];
   pt = pto;
+  options=scs_m.props.options
   while %t 
     // move loop
     // get new position
@@ -93,7 +94,7 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
       break
     end
     [tr(1),tr(2),pt(1),pt(2)]=get_scicos_delta(rep,..
-                                 pto(1),pto(2),%scicos_snap,%scs_wgrid(1),%scs_wgrid(2))
+                                 pto(1),pto(2),options('Snap'),options('Wgrid')(1),options('Wgrid')(2))
     //pt = rep(1:2);
     //tr= pt - pto;
     // draw block shape

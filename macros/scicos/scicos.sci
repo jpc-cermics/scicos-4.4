@@ -40,18 +40,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     scicos_library_initialize()
     //     
     modelica_libs=unique(modelica_libs);
-    if exists('%scicos_with_grid')==%f then
-      %scicos_with_grid=%f;
-    end
-    if exists('%scs_wgrid')==%f then
-      %scs_wgrid=[10;10;12];
-    end
-    if exists('%scicos_action')==%f then
-      %scicos_action=%t;
-    end
-    if exists('%scicos_snap')==%f then
-      %scicos_snap=%f;
-    end
     %zoom=1.4; // default zoom value 
     pal_mode=%f; //Palette edition mode
     newblocks=[]; //table of added functions in pal_mode

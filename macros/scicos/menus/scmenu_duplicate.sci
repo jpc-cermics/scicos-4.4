@@ -48,11 +48,12 @@ function [scs_m,changed]=do_duplicate(pt,scs_m,Select)
   if o.iskey['gr'] then o.delete['gr'], end
   o=drawobj(o,F)
   F.draw_now[];
+  options=scs_m.props.options
   while rep(3)==-1 then 
     // get new position
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f)
     [tr(1),tr(2),pt(1),pt(2)]=get_scicos_delta(rep,..
-                                 pt(1),pt(2),%scicos_snap,%scs_wgrid(1),%scs_wgrid(2))
+                                 pt(1),pt(2),options('Snap'),options('Wgrid')(1),options('Wgrid')(2))
 //    tr = rep(1:2) - pt;
 //    pt = rep(1:2)
     F.draw_latter[];

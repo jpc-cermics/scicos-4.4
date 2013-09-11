@@ -20,7 +20,7 @@ function [scs_m]=do_move(%pt,scs_m,Select)
     [scs_m,have_moved]=do_stupidMultimove(%pt,Select,scs_m)
   end
   if have_moved then
-    resume(scs_m_save,needreplay,enable_undo,edited,nc_save);
+    resume(scs_m_save,needreplay,enable_undo=%t,edited=%t,nc_save=needcompile);
   else
     if size(Select,1)>1 then
       if %win == curwin then
@@ -435,6 +435,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   moved_dist=0
   cursor_changed=%f;
   nb=0
+  options=scs_m.props.options
   while 1 do //** interactive move loop
     F.process_updates[];
     rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f);
@@ -452,7 +453,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
     //TODO
 
     if nb>2 then   
-      [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,%scicos_snap,%scs_wgrid(1),%scs_wgrid(2))
+      [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,options('Snap'),options('Wgrid')(1),options('Wgrid')(2))
 
       //** Integrate the movements
       move_x = move_x +  delta_x ;
@@ -650,7 +651,8 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
     //**=---> If the user abort the operation
   else //** restore original position of block and links in figure
     //** in this case: [scs_m] is not modified !
-
+    
+    have_moved=%f
     //** Move back the SuperCompound
     for k=SuperCompound_id 
       o=scs_m.objs(k)
@@ -714,8 +716,8 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   end //**----------------------------------------
 endfunction
 
-function [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,%scicos_snap,SnapIncX,SnapIncY)
-  if %scicos_snap then
+function [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,Snap,SnapIncX,SnapIncY)
+  if Snap then
     if abs( floor(rep(1)/SnapIncX)-(rep(1)/SnapIncX) ) <...
 	    abs(  ceil(rep(1)/SnapIncX)-(rep(1)/SnapIncX) )
       delta_x  = floor((rep(1)-xc)/SnapIncX)*SnapIncX;

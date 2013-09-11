@@ -13,22 +13,22 @@ function scmenu_set_code_gen_properties()
   end
   if inside_sblock then
     o=scs_m.objs(Select(1,1)).model.rpar
-    [ok,codegen,edited]=do_set_codegen(o.codegen)
+    [ok,codegen,edited]=do_set_codegen(o.codegen,edited)
     if ok then
       scs_m.objs(Select(1,1)).model.rpar.codegen=codegen
     end
   else
-    [ok,codegen,edited]=do_set_codegen(scs_m.codegen)
+    [ok,codegen,edited]=do_set_codegen(scs_m.codegen,edited)
     if ok then
       scs_m.codegen=codegen
     end
   end
 endfunction
 
-function [ok,codegeneration,edited]=do_set_codegen(codegeneration)
+function [ok,codegeneration,edited]=do_set_codegen(codegen,edited)
   ok=%f
-  edited=%t
-
+  codegeneration=codegen
+  
   mess='Set default properties for Code Generation'
 
   silent_in       = sci2exp(codegeneration.silent)
@@ -72,7 +72,7 @@ function [ok,codegeneration,edited]=do_set_codegen(codegeneration)
                            opt_in,...
                            enable_debug_in])
 
-    if ~ok then edited=%f, break, end
+    if ~ok then break, end
 
     err_mess=[]
     if isempty(find(silent==[0 1])) then
@@ -124,6 +124,9 @@ function [ok,codegeneration,edited]=do_set_codegen(codegeneration)
       codegeneration.libs=evstr(libs)
       codegeneration.opt=opt
       codegeneration.enable_debug=enable_debug
+      if or(codegen<>codegeneration) then
+        edited=%t
+      end
       break
     end
   end

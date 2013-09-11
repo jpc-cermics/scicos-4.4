@@ -85,37 +85,35 @@ function [btn,%pt,win,Cmenu]=cosclick()
     end
   endfunction
   
-  //detect mouse position in
-  //top left/bottom right corners
+  //detect mouse position in corners
   //of the bbox of the selected block
   function [corner]=nearest_tl_br_corner(%pt,o,kk,Select)
+  
+    function [data]=get_data_corner(xy,pt,sz)
+      data=[(xy(1)-pt(1))*(xy(1)+sz-pt(1)),..
+            (xy(2)-sz-pt(2))*(xy(2)-pt(2))]
+    endfunction
+    
     corner=[]
     if ~isempty(Select) then
       if size(Select,1)==1 && ~isempty(find(Select(:,1)==kk)) then
         bbox=o.gr.get_bounds[]
         sz=10 //??
-        %xc=%pt(1)
-        %yc=%pt(2)
-        x1=bbox(1);
-        y1=bbox(4);
         
-        data=[(x1-%xc)*(x1+sz-%xc),..
-          (y1-sz-%yc)*(y1-%yc)]
-        
+        //top left
+        data=get_data_corner([bbox(1);bbox(4)],%pt,sz)
         if data(1)<0 && data(2)<0 then
           corner='tl'
           return
         end
         
-        x1=bbox(3);
-        y1=bbox(2);
-        data=[(x1-%xc)*(x1-sz-%xc),..
-          (y1+sz-%yc)*(y1-%yc)]
-        
+        //bottom right
+        [data]=get_data_corner([bbox(3);bbox(2)],%pt,-sz)
         if data(1)<0 && data(2)<0 then
           corner='br'
           return
         end
+        
       end
     end
   endfunction
@@ -152,7 +150,6 @@ function [btn,%pt,win,Cmenu]=cosclick()
   Cmenu_orig=Cmenu
   Cmenu="";%pt=[];btn=0;
   if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end
-  if ~exists('%scicos_action') then %scicos_action=%t, end
   enablemenus();
   
   if isempty(scicos_dblclk) then
@@ -249,7 +246,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
   %pt=[xc,yc]
 
 //   printf("btn=%d,xc=%f,yc=%f,win=%d\n",btn,xc,yc,win)
-
+  options=scs_m.props.options
   if btn==-100 then  
     if win==curwin then
       Cmenu='Quit',
@@ -295,7 +292,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
     if (btn==-2) then
       cmd= mcmd;
     elseif (btn==0) then
-      if %scicos_action then
+      if options('Action') then
         cmd='Cmenu='"CheckMove'"'
       else
         cmd='Cmenu='"CheckSmartMove'"'
@@ -339,7 +336,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
         Cmenu='Resize'
       end
     else
-      if %scicos_action then
+      if options('Action') then
         Cmenu='CheckMove'
       else
         Cmenu='CheckSmartMove'		// 

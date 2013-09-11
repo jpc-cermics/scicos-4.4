@@ -1,7 +1,7 @@
 function clr=default_color(typ)
 // Copyright INRIA
   if ~exists('options') then 
-    options=default_options()
+    options=scicos__options()
   end;
   if typ==-1 then //event links
     clr=options('Link')(2),

@@ -1,13 +1,18 @@
 function scmenu_set_default_action()
   xinfo('Set Default Actions')
-  if %scicos_action==%f then repp1=2, else repp1=1, end
-  if %scicos_snap==%f then repp2=2, else repp2=1, end
+  options=scs_m.props.options
+  if ~options('Action') then repp1=2, else repp1=1, end
+  if ~options('Snap') then repp2=2, else repp2=1, end
   l1=list('combo','Type',repp1,["Free","Smart"])
   l2=list('combo','Snap',repp2,["Yes","No"])
-  repp=x_choices('Set Default Action',list(l1,l2))
-  if ~isempty(repp) then
-    if repp(1)==2 then %scicos_action=%f, else %scicos_action=%t, end
-    if repp(2)==2 then %scicos_snap=%f, else %scicos_snap=%t, end
+  rep=x_choices('Set Default Action',list(l1,l2))
+  if ~isempty(rep) then
+    if rep(1)==2 then options('Action')=%f, else options('Action')=%t, end
+    if rep(2)==2 then options('Snap')=%f, else options('Snap')=%t, end
+    if rep(1)~=repp1 || rep(2)~=repp2 then
+      edited=%t
+      scs_m.props.options=options
+    end
   end
   xinfo(' ')
   Cmenu='';%pt=[];
