@@ -846,7 +846,7 @@ function scs_m=jklflipflop_diagram_new()
 		     0,    29.5000,   523.0000,   454.0000,   503.0000,    99.0000 ,...
 		     1.4000,   521.0000,   370.0000 ]
   x_1.context=      [ " " ]
-  x_2=scicos_scsopt();
+  x_2=scicos_options();
   x_3=list();
   x_3(1)=        [   5,   1 ]
   x_3(2)=        [   4,   1 ]
