@@ -186,7 +186,7 @@ function scs_m=do_smart_move_block(scs_m,k,xc,yc)
       scs_m.objs(i).gr.invalidate[];
     end
     // we need to move the block where it was
-    o.gr.translate[[xc,yc]-pt];
+    o.gr.translate[-move_xy];
     scs_m.objs(k)=o;
   end
 endfunction
