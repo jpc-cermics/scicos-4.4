@@ -13,20 +13,23 @@ function scmenu_set_code_gen_properties()
   end
   if inside_sblock then
     o=scs_m.objs(Select(1,1)).model.rpar
-    [ok,codegen,edited]=do_set_codegen(o.codegen,edited)
-    if ok then
+    [changed,codegen]=do_set_codegen(o.codegen)
+    if changed then
       scs_m.objs(Select(1,1)).model.rpar.codegen=codegen
+      edited=%t
     end
   else
-    [ok,codegen,edited]=do_set_codegen(scs_m.codegen,edited)
-    if ok then
+    [changed,codegen]=do_set_codegen(scs_m.codegen)
+    if changed then
       scs_m.codegen=codegen
+      edited=%t
     end
   end
 endfunction
 
-function [ok,codegeneration,edited]=do_set_codegen(codegen,edited)
+function [edited,codegeneration]=do_set_codegen(codegen)
   ok=%f
+  edited=%f
   codegeneration=codegen
   
   mess='Set default properties for Code Generation'
