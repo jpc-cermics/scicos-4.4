@@ -7,189 +7,56 @@ function scmenu_smart_move()
     return
   end
   // performs the move 
-  [scs_m]=do_smart_move(%pt,scs_m)
+  [scs_m]=do_smart_move(%pt,scs_m,Select)
   %pt=[];
 endfunction
 
-function [scs_m]=do_smart_move(%pt,scs_m)
-// Copyright INRIA
-// get a scicos object to move, and move it with connected objects
-// using smart moves 
-//   
-  win=%win;
-  xc=%pt(1);yc=%pt(2)
-  [k,wh]=getobj(scs_m,[xc;yc])
-  if isempty(k) then return, end
-  if %f then 
-    // this should not be here 
-    Cmenu=check_edge(scs_m.objs(k),"Do Smart Move",%pt);
-    if Cmenu.equal["Link"] then
-      resume(Cmenu="Smart Link")
-      return
+function [scs_m]=do_smart_move(%pt,scs_m,Select)
+  if ~isempty(Select) && size(Select,1) == 1 && 
+    scs_m.objs(Select(1)).type=="Link" then
+    [%pt,scs_m,have_moved]=do_stupidsmartmove(%pt,Select,scs_m)  
+  else
+    [scs_m,have_moved]=do_stupidMultimove(%pt,Select,scs_m,smart=%t)
+  end
+  if have_moved then
+    resume(scs_m_save,needreplay,enable_undo=%t,edited=%t,nc_save=needcompile);
+  else
+    if size(Select,1)>1 then
+      if %win == curwin then
+        k=getobj(scs_m,%pt)
+        if ~isempty(k) then
+	  Select=[k,%win];
+          resume(Select)
+        end
+      end
     end
   end
-  scs_m_save=scs_m
+endfunction
+
+function [%pt,scs_m,have_moved]=do_stupidsmartmove(%pt,Select,scs_m)
+  rela=15/100;
+  have_moved=%f;
+  win=%win;
+  xc=%pt(1);yc=%pt(2);
+//  [k,wh,scs_m]=stupid_getobj(scs_m,Select,[xc;yc]);
+  [k,wh]=getobj(scs_m,[xc;yc])
+  if isempty(k) then return, end;
+  scs_m_save=scs_m;
   xcursor(52);
-  if scs_m.objs(k).type=='Block' | scs_m.objs(k).type =='Text' then
-    needreplay=replayifnecessary()
-    scs_m=do_smart_move_block(scs_m,k,xc,yc)
-  elseif scs_m.objs(k).type =='Link' then
+  if scs_m.objs(k).type == 'Link' then
     if wh>0 then
       scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
     else
       scs_m=do_smart_move_corner(scs_m,k,xc,yc,wh)
     end
-    xcursor()
+    have_moved=%t //TODO
   end
-  resume(scs_m_save,needreplay,enable_undo=%t,edited=%t,nc_save=needcompile);
+  xcursor();
+  if have_moved then
+    resume(scs_m_save,needreplay,enable_undo=%t,edited=%t,nc_save=needcompile);
+  end
 endfunction
 
-function scs_m=do_smart_move_block(scs_m,k,xc,yc)
-// Copyright INRIA  
-// Move  block k and modify connected links if any
-//
-//look at connected links
-  
-  connected=unique(get_connected(scs_m,k))
-  o=scs_m.objs(k)
-  xx=[];yy=[];ii=[];clr=[];
-  for i=connected
-    // explore the  connected links
-    // to detect links of size 2 which are 
-    // vertical or horizontal.
-    oi=scs_m.objs(i)
-    [xl,yl,ct,from,to]=(oi.xx,oi.yy,oi.ct,oi.from,oi.to)
-    clr=[clr ct(1)]
-    nl=size(xl,'*');
-    // If the link is of size 2 and is vertical 
-    // or horizontal then we add intermediate middle points
-    if nl == 2  then 
-      if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end 
-      if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end 
-      if xl(1)==xl(2) || yl(1)==yl(2) then 
-	xm=(xl(1)+xl(2))/2;
-	ym=(yl(1)+yl(2))/2;
-	oi.gr.children(1).x= [xl(1);xm;xm;xl(2)];
-	oi.gr.children(1).y= [yl(1);ym;ym;yl(2)];
-      end
-    end
-  end
-  // move a block and connected links
-  F=get_current_figure()
-  pat=xget('pattern')
-  xset('pattern',default_color(0))
-  pto=[xc,yc];
-  pt = pto;
-  move_xy=[0,0]
-  options=scs_m.props.options
-  while %t 
-    // move loop
-    // get new position
-    F.process_updates[];
-    rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-    if rep(3)==3 then
-      global scicos_dblclk
-      scicos_dblclk=[rep(1),rep(2),curwin]
-    end
-    if or(rep(3)==[0,-5, 2, 3, 5]) then
-      break
-    end
-    [tr(1),tr(2),pt(1),pt(2)]=get_scicos_delta(rep,..
-                                 pto(1),pto(2),options('Snap'),options('Wgrid')(1),options('Wgrid')(2))
-    //pt = rep(1:2);
-    //tr= pt - pto;
-    
-    //** Integrate the movements
-    move_xy = move_xy + tr ;
-    
-    // draw block shape
-    o.gr.translate[tr];
-    o.gr.invalidate[];
-    // draw moving links
-    for ii=1:length(connected)
-      i=connected(ii);	
-      oi=scs_m.objs(i)
-      // translate the first point or the first 
-      // two points to preserve vertical or horizontal 
-      // first link;
-      nl=size(oi.gr.children(1).x,'*');
-      if oi.from(1)==k then
-	xl= oi.gr.children(1).x(1:2);
-	yl= oi.gr.children(1).y(1:2);
-	if nl > 2 then 
-	  if xl(1)==xl(2) then 
-	    oi.gr.children(1).x(1:2)= xl+ tr(1);
-	    oi.gr.children(1).y(1)= yl(1)+ tr(2);
-	  elseif yl(1)==yl(2) then 
-	    oi.gr.children(1).x(1)= xl(1)+ tr(1);
-	    oi.gr.children(1).y(1:2)= yl+ tr(2);
-	  else
-	    oi.gr.children(1).x(1)= xl(1)+ tr(1);
-	    oi.gr.children(1).y(1)= yl(1)+ tr(2);
-	  end
-	else
-	  oi.gr.children(1).x(1)= xl(1)+ tr(1);
-	  oi.gr.children(1).y(1)= yl(1)+ tr(2);
-	end
-      end
-      if oi.to(1)==k then
-	xl= oi.gr.children(1).x($-1:$);
-	yl= oi.gr.children(1).y($-1:$);
-	if nl > 2 then
-	  if xl(1)==xl(2) then 
-	    oi.gr.children(1).x($-1:$)= xl+ tr(1);
-	    oi.gr.children(1).y($)= yl(2)+ tr(2);
-	  elseif yl(1)==yl(2) then 
-	    oi.gr.children(1).x($)= xl(2)+ tr(1);
-	    oi.gr.children(1).y($-1:$)= yl+ tr(2);
-	  else
-	    oi.gr.children(1).x($)= xl(2)+ tr(1);
-	    oi.gr.children(1).y($)= yl(2)+ tr(2);
-	  end
-	else
-	  oi.gr.children(1).x($)= xl(2)+ tr(1);
-	  oi.gr.children(1).y($)= yl(2)+ tr(2);
-	end
-      end
-      oi.gr.invalidate[];
-    end
-    pto=pt;
-  end
-  F.draw_now[];
-  // update the block structure and connected links
-  if rep(3)<>2 then
-    // updates
-    o.graphics.orig.redim[1,-1]; // be sure that we are a row
-    //o.graphics.orig= o.graphics.orig + pt - [xc,yc];
-    o.graphics.orig= o.graphics.orig + move_xy;
-    o.gr.invalidate[];
-    for i=connected
-      xl= scs_m.objs(i).gr.children(1).x(:);
-      yl= scs_m.objs(i).gr.children(1).y(:);
-      nl=size(xl,'*');
-      //eliminate double points
-      kz=find((xl(2:nl)-xl(1:nl-1)).^2+(yl(2:nl)-yl(1:nl-1)).^2==0)
-      xl(kz)=[];yl(kz)=[]
-      scs_m.objs(i).xx = xl;
-      scs_m.objs(i).yy = yl;
-      scs_m.objs(i).gr.children(1).x = xl;
-      scs_m.objs(i).gr.children(1).y = yl;
-      scs_m.objs(i).gr.invalidate[];
-    end
-    //redraw block
-    scs_m.objs(k)=o;
-  else
-    // we need to restore back the links
-    for i=connected
-      scs_m.objs(i).gr.children(1).x = scs_m.objs(i).xx(:);
-      scs_m.objs(i).gr.children(1).y = scs_m.objs(i).yy(:);
-      scs_m.objs(i).gr.invalidate[];
-    end
-    // we need to move the block where it was
-    o.gr.translate[-move_xy];
-    scs_m.objs(k)=o;
-  end
-endfunction
 
 function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
 // move the  segment wh of the link k and modify the other segments if necessary

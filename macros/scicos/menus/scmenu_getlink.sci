@@ -397,6 +397,20 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 
   typ=typo;
 
+  //remove not needed intermediate pts
+  nl=size(xl,'*');
+  rela=15/100;
+  kz=[]
+  for i=1:nl
+    if i+2>nl then break, end  
+    d2 = projaff([xl(i);xl(i+2)],[yl(i);yl(i+2)],[xl(i+1);yl(i+1)])
+    if norm(d2(:)-[xl(i+1);yl(i+1)])<..
+         rela*max(norm(d2(:)-[xl(i+2);yl(i+2)]),norm(d2(:)-[xl(i);yl(i)])) then
+      kz=[kz i+1]
+    end
+  end
+  xl(kz)=[];yl(kz)=[];
+  
   if fromsplit then
     [d,xl,yl]=get_xyl([xc2;yc2],xl,yl,d,xx,yy,fromsplit,wh)
   else

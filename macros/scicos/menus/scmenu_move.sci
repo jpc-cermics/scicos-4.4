@@ -278,22 +278,21 @@ function [k,wh,scs_m]=stupid_getobj(scs_m,Select,pt)
 endfunction
 
 
-function [scs_m,have_moved] = do_stupidMultimove(%pt, Select, scs_m)
+function [scs_m,have_moved] = do_stupidMultimove(%pt, Select, scs_m,smart=%f)
   rel=15/100
   have_moved=%f
   xc = %pt(1)
   yc = %pt(2)
   scs_m_save = scs_m
   needreplay = replayifnecessary()
-  [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
+  [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart=smart)
   if Cmenu=='Quit' then [%win,Cmenu] = resume(%win,Cmenu), end
   if have_moved then
     resume(scs_m_save,needreplay,enable_undo=%t,edited=%t,nc_save=needcompile);
   end
 endfunction
 
-
-function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
+function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart=%f)
 // Move Selected Blocks/Texts and Links and modify connected (external) links if any
 //** scs_m  : the local level diagram
 //** Select : matrix [object_id win_id] of selected object
@@ -305,8 +304,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
 //**          Multiple selection is permitted: each object is a line of the matrix.
 //**
   have_moved  = %f;
-  gh_link_i   = list();
-  gh_link_mod = list();
+  
   //**----------------------------------------------------------------------------------
   diagram_links=[]; //** ALL the LINKs of the diagram
   diagram_size=size(scs_m.objs)
@@ -402,26 +400,23 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   end //** end of scan
   //**-----------------------------------------------------------------------------------
 
-  //** look for all the connected link(s) and build "impiling" the two data structures
-  //** [xm , ym] for the links data points
-  //** gh_link_i is a vector of the associated graphic handles
-
-  xm = []; //** init
-  ym = [];
-  if ~isempty(connected) then //** check if external link are present
+  if ~isempty(connected) & smart then //** check if external link are present
     for l=1:length(connected) //** scan all the connected links
       i  = connected(l)  ;
       oi = scs_m.objs(i) ;
-      gh_link_i($+1)=oi.gr;
       [xl, yl, ct, from, to] = (oi.xx, oi.yy, oi.ct, oi.from, oi.to)
-      if from(1)==ext_block(l) then 
-        xm = [xm, [xl(2);xl(1)] ];
-        ym = [ym, [yl(2);yl(1)] ];
-      end
-
-      if to(1)==ext_block(l) then
-        xm = [xm, xl($-1:$) ];
-        ym = [ym, yl($-1:$) ];
+      nl=size(xl,'*');
+      // If the link is of size 2 and is vertical 
+      // or horizontal then we add intermediate middle points
+      if nl == 2  then 
+        if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end 
+        if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end 
+        if xl(1)==xl(2) || yl(1)==yl(2) then 
+          xm=(xl(1)+xl(2))/2;
+          ym=(yl(1)+yl(2))/2;
+          oi.gr.children(1).x= [xl(1);xm;xm;xl(2)];
+          oi.gr.children(1).y= [yl(1);ym;ym;yl(2)];
+        end
       end
     end
   end
@@ -431,23 +426,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   //** create a new compund that include ALL the selected object
   SuperCompound_id = [sel_block int_link sel_text] ;
 
-  //** -----------------------------------------------------------------------
-  xmt = xm ;
-  ymt = ym ; //** init ...
-
-  //** --------------------------------- MOVE BLOCK WITH CONNECTED LINKS ------------
-
-  xco = xc;
-  yco = yc;
-
-  move_x = 0 ;
-  move_y = 0 ;
-
-  //**-------------------------------------------------------------------
-  gh_link_mod = []
-  tmp_data    = []
-  t_xmt       = []
-  t_ymt       = []
+  move_xy = [0 0];
 
   //** ------------------------------- INTERACTIVE MOVEMENT LOOP ------------------------------
 
@@ -471,157 +450,164 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
     //** Window change and window closure protection
     //TODO
 
-    if nb>2 then   
+    if nb>2 then   //nb2
       [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,options('Snap'),options('Wgrid')(1),options('Wgrid')(2))
+      tr=[delta_x , delta_y]
 
       //** Integrate the movements
-      move_x = move_x +  delta_x ;
-      move_y = move_y +  delta_y ;
+      move_xy = move_xy +  tr ;
 
       moved_dist=moved_dist+abs(delta_x)+abs(delta_y)
       // under window clicking on a block in a different window causes a move
+      if moved_dist>.001 then
+        have_moved=%t
+      end
       if ~cursor_changed then
-        if moved_dist>.001 then
-          have_moved=%t
-        end
         cursor_changed=%t
         xcursor(52)
       end 
       //** Move the SuperCompound
       for k = SuperCompound_id
         o=scs_m.objs(k)
-        o.gr.translate[[delta_x , delta_y]];
+        o.gr.translate[tr];
         o.gr.invalidate[]
       end
 
       if ~isempty(connected) then  //** Move the links
-        xmt(2,:) = xm(2,:) + move_x ;
-        ymt(2,:) = ym(2,:) + move_y ;
-        j = 0 ;
-        for l=1:length(connected)
-          i  = connected(l)
-          oi = scs_m.objs(i)
-          [xl,from,to] = (oi.xx,oi.from,oi.to);
-          gh_link_mod = gh_link_i(l);
-
-          if from(1)==ext_block(l) then
-            xx = gh_link_mod.children(1).x(:);
-            yy = gh_link_mod.children(1).y(:);
-            tmp_data = [xx,yy]
-
-            rect=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-            j = j + 1 ;
-            t_xmt = xmt([2,1],j)
-            t_ymt = ymt([2,1],j)
-            data = [ [t_xmt(1) , t_ymt(1)] ; tmp_data(2:$ , 1:$) ]
-            gh_link_mod.children(1).x=data(:,1)
-            gh_link_mod.children(1).y=data(:,2)
-
-            if size(gh_link_mod.children)>1 then
-              xx = gh_link_mod.children(1).x(:);
-              yy = gh_link_mod.children(1).y(:);
-              rect_now=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-              xx = gh_link_mod.children(2).x(:);
-              yy = gh_link_mod.children(2).y(:);
-              gh_link_mod.children(2).x=xx-(rect(1)-rect_now(1))
-              gh_link_mod.children(2).y=yy-(rect(2)-rect_now(2))
+        //smart move
+        if smart then
+          // draw moving links
+          for l=1:length(connected)
+            i=connected(l);
+            oi=scs_m.objs(i);
+            nl=size(oi.gr.children(1).x,'*');
+            
+            // translate the first point or the first 
+            // two points to preserve vertical or horizontal 
+            // first link;
+            if oi.from(1)==ext_block(l) then
+              xl= oi.gr.children(1).x(1:2);
+              yl= oi.gr.children(1).y(1:2);
+              if nl > 2 then 
+                if xl(1)==xl(2) then 
+                  oi.gr.children(1).x(1:2)= xl+ tr(1);
+                  oi.gr.children(1).y(1)= yl(1)+ tr(2);
+                elseif yl(1)==yl(2) then 
+                  oi.gr.children(1).x(1)= xl(1)+ tr(1);
+                  oi.gr.children(1).y(1:2)= yl+ tr(2);
+                else
+                  oi.gr.children(1).x(1)= xl(1)+ tr(1);
+                  oi.gr.children(1).y(1)= yl(1)+ tr(2);
+                end
+              else
+                oi.gr.children(1).x(1)= xl(1)+ tr(1);
+                oi.gr.children(1).y(1)= yl(1)+ tr(2);
+              end
             end
-          end
-
-          if to(1)==ext_block(l) then
-            xx = gh_link_mod.children(1).x(:)
-            yy = gh_link_mod.children(1).y(:)
-            tmp_data = [xx,yy]
-
-            rect=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-            j = j + 1 ;
-            data = [ tmp_data(1:$-2 , 1:$) ; [xmt(:,j) , ymt(:,j)] ]
-            gh_link_mod.children(1).x=data(:,1)
-            gh_link_mod.children(1).y=data(:,2)
-
-            if size(gh_link_mod.children)>1 then
-              xx = gh_link_mod.children(1).x(:);
-              yy = gh_link_mod.children(1).y(:);
-              rect_now=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-              xx = gh_link_mod.children(2).x(:);
-              yy = gh_link_mod.children(2).y(:);
-              gh_link_mod.children(2).x=xx-(rect(1)-rect_now(1))
-              gh_link_mod.children(2).y=yy-(rect(2)-rect_now(2))
+            
+            if oi.to(1)==ext_block(l) then
+              xl= oi.gr.children(1).x($-1:$);
+              yl= oi.gr.children(1).y($-1:$);
+              if nl > 2 then
+                if xl(1)==xl(2) then 
+                  oi.gr.children(1).x($-1:$)= xl+ tr(1);
+                  oi.gr.children(1).y($)= yl(2)+ tr(2);
+                elseif yl(1)==yl(2) then 
+                  oi.gr.children(1).x($)= xl(2)+ tr(1);
+                  oi.gr.children(1).y($-1:$)= yl+ tr(2);
+                else
+                  oi.gr.children(1).x($)= xl(2)+ tr(1);
+                  oi.gr.children(1).y($)= yl(2)+ tr(2);
+                end
+              else
+                oi.gr.children(1).x($)= xl(2)+ tr(1);
+                oi.gr.children(1).y($)= yl(2)+ tr(2);
+              end
             end
+            oi.gr.invalidate[];
           end
-          gh_link_mod.invalidate[]
-        end
-      end
-    end
+        //free move
+        else
+          for l=1:length(connected)
+            i  = connected(l)
+            oi = scs_m.objs(i)
+            nl=size(oi.gr.children(1).x,'*');
+            
+            if oi.from(1)==ext_block(l) then
+              xl= oi.gr.children(1).x(1:2);
+              yl= oi.gr.children(1).y(1:2);
+              oi.gr.children(1).x(1)= xl(1)+ tr(1);
+              oi.gr.children(1).y(1)= yl(1)+ tr(2);
+            end
+
+            if oi.to(1)==ext_block(l) then
+              xl= oi.gr.children(1).x($-1:$);
+              yl= oi.gr.children(1).y($-1:$);
+              oi.gr.children(1).x($)= xl(2)+ tr(1);
+              oi.gr.children(1).y($)= yl(2)+ tr(2);
+            end
+            oi.gr.invalidate[];
+          end
+        end//smart
+      end//**isempty(connected)
+    end //nb2
   end //** ... of while Interactive move LOOP --------------------------------------------------------------
+  
   xcursor();
   F.draw_now[];
-
-  //**-----------------------------------------------
-  //gh_figure = gcf();
-  //if gh_figure.figure_id<>curwin | rep(3)==-100 then
-  //     [%win,Cmenu] = resume(curwin,'Quit') ;
-  //end
-  //**-----------------------------------------------
-
+  
   //** OK If update and block and links position in scs_m
-
   //** if the exit condition is NOT a right button press OR click
-  if and(rep(3)<>[2 5]) then //** update the data structure
+  if and(rep(3)<>[2 5]) then
+  
     //** Rigid SuperCompund Elements
-    block=[];
+    for k = [sel_block(:)' sel_text(:)']
+      o = scs_m.objs(k);
+      o.graphics.orig.redim[1,-1]; // be sure that we are a row
+      o.graphics.orig= o.graphics.orig + move_xy
+      scs_m.objs(k) = o;
+    end   
 
-    for k = sel_block
-      block = scs_m.objs(k)    ;
-      xy_block = block.graphics.orig ;
-      xy_block(1) = xy_block(1) + move_x ;
-      xy_block(2) = xy_block(2) + move_y ;
-      block.graphics.orig = xy_block ;
-      scs_m.objs(k) = block; //update block coordinates
-    end
-
-    text=[]
-    for k = sel_text
-      text = scs_m.objs(k)
-      xy_text = text.graphics.orig ;
-      xy_text(1) = xy_text(1) + move_x ;
-      xy_text(2) = xy_text(2) + move_y ;
-      text.graphics.orig = xy_text;
-      scs_m.objs(k) = text; //update block coordinates
-    end
-
-    link_=[]
     for l = int_link
-      link_= scs_m.objs(l)
-      [xl, yl] = (link_.xx, link_.yy)
-      xl = xl + move_x ;
-      yl = yl + move_y ;
-      link_.xx = xl ; link_.yy = yl ;
-      scs_m.objs(l) = link_ ; 
+      xl= scs_m.objs(l).gr.children(1).x(:);
+      yl= scs_m.objs(l).gr.children(1).y(:);
+      scs_m.objs(l).xx = xl;
+      scs_m.objs(l).yy = yl;
     end
 
     //** Flexible Link elements
     if ~isempty(connected) then
-      j = 0 ;
-      for l=1:length(connected)
-	i  = connected(l)  ;
-	oi = scs_m.objs(i) ;
-	[xl,from,to] = (oi.xx,oi.from,oi.to);
-
-	if from(1)==ext_block(l) then
-	  j = j + 1 ;
-	  oi.xx(1:2) = xmt([2,1],j) ;
-	  oi.yy(1:2) = ymt([2,1],j) ;
-	end
-
-	if to(1)==ext_block(l) then
-	  j = j + 1 ;
-	  oi.xx($-1:$) = xmt(:,j) ;
-	  oi.yy($-1:$) = ymt(:,j) ;
-	end
-	scs_m.objs(i) = oi ; //** update the datastructure 
+      for l=connected
+        xl= scs_m.objs(l).gr.children(1).x(:);
+        yl= scs_m.objs(l).gr.children(1).y(:);
+        nl=size(xl,'*');
+        
+        //eliminate double points
+        kz=find((xl(2:nl)-xl(1:nl-1)).^2+(yl(2:nl)-yl(1:nl-1)).^2==0)
+        xl(kz)=[];yl(kz)=[]
+      
+        //remove not needed intermediate pts
+        nl=size(xl,'*');
+        rela=1/100;
+        kz=[]
+        for j=1:nl
+          if j+2>nl then break, end  
+          d = projaff([xl(j);xl(j+2)],[yl(j);yl(j+2)],[xl(j+1);yl(j+1)])
+          if norm(d(:)-[xl(j+1);yl(j+1)])<..
+              rela*max(norm(d(:)-[xl(j+2);yl(j+2)]),norm(d(:)-[xl(j);yl(j)])) then
+            kz=[kz j+1]
+          end
+        end
+        xl(kz)=[];yl(kz)=[];
+        
+        scs_m.objs(l).xx = xl;
+        scs_m.objs(l).yy = yl;
+        scs_m.objs(l).gr.children(1).x = xl;
+        scs_m.objs(l).gr.children(1).y = yl;
+        scs_m.objs(l).gr.invalidate[];
       end //... for loop
     end //** of if
+    
     //**---------------------------------------------------
     if size(sel_block,2)==1&length(connected)==1 then
       k = sel_block
@@ -629,41 +615,34 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
 
       moving=0
       if size(lk.xx,'*')==2 then
-	dx=lk.xx(1)-lk.xx(2);dy=lk.yy(1)-lk.yy(2);
-	if abs(dx)<rel*abs(dy) then
-	  dy=0;moving=1
-	elseif abs(dy)<rel*abs(dx) then
-	  dx=0;moving=1
-	end
+        dx=lk.xx(1)-lk.xx(2);dy=lk.yy(1)-lk.yy(2);
+        if abs(dx)<rel*abs(dy) then
+          dy=0;moving=1
+        elseif abs(dy)<rel*abs(dx) then
+          dx=0;moving=1
+        end
 
-	if moving then
-	  if lk.to(1)==k then
-	    scs_m.objs(k).graphics.orig=scs_m.objs(k).graphics.orig+[dx,dy]
-	    lk.xx(2)=lk.xx(2)+dx;lk.yy(2)=lk.yy(2)+dy
-	    scs_m.objs(connected(1))=lk
-	    gh_link_mod = gh_link_i(1)
-	    gh_link_mod.children(1).x(2)=gh_link_mod.children(1).x(2)+dx
-	    gh_link_mod.children(1).y(2)=gh_link_mod.children(1).y(2)+dy
-	    gh_link_mod.invalidate[]
-	  elseif lk.from(1)==k  then
-	    scs_m.objs(k).graphics.orig=scs_m.objs(k).graphics.orig-[dx,dy]
-	    lk.xx(1)=lk.xx(1)-dx;lk.yy(1)=lk.yy(1)-dy
-	    dx=-dx;dy=-dy
-	    scs_m.objs(connected(1))=lk
-	    gh_link_mod=gh_link_i(1)
-	    gh_link_mod.children(1).x(1)=gh_link_mod.children(1).x(1)+dx
-	    gh_link_mod.children(1).y(1)=gh_link_mod.children(1).y(1)+dy
-	    gh_link_mod.invalidate[]
-	  else
-	    resume(Cmenu='Replot') // graphics inconsistent with scs_m
-	  end
-	end
-      end
-
-      if moving then
-	o=scs_m.objs(k)
-	o.gr.translate[[dx,dy]];
-	o.gr.invalidate[]
+        if moving then
+          scs_m.objs(k).gr.translate[[dx,dy]];
+          if lk.to(1)==k then
+            scs_m.objs(k).graphics.orig=scs_m.objs(k).graphics.orig+[dx,dy]
+            lk.xx(2)=lk.xx(2)+dx;lk.yy(2)=lk.yy(2)+dy
+            scs_m.objs(connected(1))=lk
+            lk.gr.children(1).x=lk.xx(:)
+            lk.gr.children(1).y=lk.yy(:)
+            lk.gr.invalidate[]
+          elseif lk.from(1)==k  then
+            scs_m.objs(k).graphics.orig=scs_m.objs(k).graphics.orig-[dx,dy]
+            lk.xx(1)=lk.xx(1)-dx;lk.yy(1)=lk.yy(1)-dy
+            dx=-dx;dy=-dy
+            scs_m.objs(connected(1))=lk
+            lk.gr.children(1).x=lk.xx(:)
+            lk.gr.children(1).y=lk.yy(:)
+            lk.gr.invalidate[]
+          else
+            resume(Cmenu='Replot') // graphics inconsistent with scs_m
+          end
+        end
       end
     end
 
@@ -675,61 +654,15 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
     //** Move back the SuperCompound
     for k=SuperCompound_id 
       o=scs_m.objs(k)
-      o.gr.translate[[-move_x,-move_y]];
+      o.gr.translate[-move_xy];
     end
 
     //**-------------------------------------------------------
-    if ~isempty(connected) then 
-      xmt(2,:) = xm(2,:);  //** original datas of links
-      ymt(2,:) = ym(2,:);
-      j = 0 ; //** init
-      for l=1:length(connected)
-	i  = connected(l)  ;
-	oi = scs_m.objs(i) ;
-	[xl,from,to] = (oi.xx,oi.from,oi.to);
-	gh_link_mod = gh_link_i(l) ; // get the link graphics data structure
-
-	if from(1)==ext_block(l) then
-	  xx=gh_link_mod.children(1).x(:);
-	  yy=gh_link_mod.children(1).y(:);
-	  rect=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-	  tmp_data = [xx,yy]
-	  j = j + 1 ;
-	  t_xmt = xmt([2,1],j) ;  t_ymt = ymt([2,1],j) ;
-	  data = [ [t_xmt(1) , t_ymt(1)] ; tmp_data(2:$ , 1:$) ];
-	  gh_link_mod.children(1).x=data(:,1)
-	  gh_link_mod.children(1).y=data(:,2)
-	  if size(gh_link_mod.children)>1 then
-	    xx = gh_link_mod.children(1).x(:);
-	    yy = gh_link_mod.children(1).y(:);
-	    rect_now=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-	    xx=gh_link_mod.children(2).x(:);
-	    yy=gh_link_mod.children(2).y(:);
-	    gh_link_mod.children(2).x=xx-(rect(1)-rect_now(1))
-	    gh_link_mod.children(2).y=yy-(rect(2)-rect_now(2))
-	  end
-	end
-
-	if to(1)==ext_block(l) then
-	  xx = gh_link_mod.children(1).x(:);
-	  yy = gh_link_mod.children(1).y(:);
-	  rect=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-	  tmp_data = [xx,yy]
-	  j = j +  1 ;
-	  data = [ tmp_data(1:$-2 , 1:$) ; [xmt(:,j) , ymt(:,j)] ];
-	  gh_link_mod.children(1).x=data(:,1)
-	  gh_link_mod.children(1).y=data(:,2)
-	  if size(gh_link_mod.children)>1 then
-	    xx=gh_link_mod.children(1).x(:);
-	    yy=gh_link_mod.children(1).y(:);
-	    rect_now=[min(xx)+(max(xx)-min(xx))/2 min(yy)+(max(yy)-min(yy))/2]
-	    xx = gh_link_mod.children(2).x(:);
-	    yy = gh_link_mod.children(2).y(:);
-	    gh_link_mod.children(2).x=xx-(rect(1)-rect_now(1))
-	    gh_link_mod.children(2).y=yy-(rect(2)-rect_now(2))
-	  end
-	end
-	gh_link_mod.invalidate[]
+    if ~isempty(connected) then
+      for l=connected
+        scs_m.objs(l).gr.children(1).x = scs_m.objs(l).xx(:);
+        scs_m.objs(l).gr.children(1).y = scs_m.objs(l).yy(:);
+        scs_m.objs(l).gr.invalidate[];
       end //... for loop
     end //** of if
   end //**----------------------------------------
