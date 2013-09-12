@@ -4,9 +4,9 @@ function scmenu_set_grid()
   if changed then
     scs_m.props.options=options
     edited=%t
-  end
-  if scs_m.props.options('Grid') && changed then
-    Cmenu='Replot'
+    if options('Grid') then
+      Cmenu='Replot'
+    end
   end
   %pt=[]
 endfunction
