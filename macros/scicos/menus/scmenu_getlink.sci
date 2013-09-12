@@ -117,11 +117,32 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   D=[];gr_in=[]
   pt=[];
   first=%t;nb=0;
-
+  options=scs_m.props.options
+  X_W = options('Wgrid')(1)
+  Y_W = options('Wgrid')(2)
+  
   while %t do ; //loop on link segments
     rep(3)=-1
     n=size(P.x,'*');
     kto=[]
+    
+    //grid adjustment from link origin
+    if options('Snap') then
+      if abs( floor(xo/X_W)-(xo/X_W) ) <...
+              abs(  ceil(xo/X_W)-(xo/X_W) )
+        xxo = floor(xo/X_W)*X_W ;
+      else
+        xxo = ceil(xo/X_W)*X_W ;
+      end
+      if abs( floor(yo/Y_W)-(yo/Y_W) ) <...
+              abs(  ceil(yo/Y_W)-(yo/Y_W) )
+        yyo = floor(yo/Y_W)*Y_W ;
+      else
+        yyo = ceil(yo/Y_W)*Y_W ;
+      end
+      dx=xxo-xo;dy=yyo-yo;
+    end
+
     while rep(3)==-1 do 
       nb=nb+1
       // since the previously acquired point can have been 
@@ -241,11 +262,29 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       end
 
       //plot new position of last link segment
-      P.x(n+1)=rep(1);
-      P.y(n+1)=rep(2);
       pt=[rep(1),rep(2)];
+      
+      //use snap mode
+      if options('Snap') then
+        if abs( floor(pt(1)/X_W)-(pt(1)/X_W) ) <...
+                abs(  ceil(pt(1)/X_W)-(pt(1)/X_W) )
+          pt(1) = floor(pt(1)/X_W)*X_W ;
+        else
+          pt(1) = ceil(pt(1)/X_W)*X_W ;
+        end
+        if abs( floor(pt(2)/Y_W)-(pt(2)/Y_W) ) <...
+                abs(  ceil(pt(2)/Y_W)-(pt(2)/Y_W) )
+          pt(2) = floor(pt(2)/Y_W)*Y_W ;
+        else
+          pt(2) = ceil(pt(2)/Y_W)*Y_W ;
+        end
+        pt(1)=pt(1)-dx;pt(2)=pt(2)-dy;
+      end
+        
+      P.x(n+1)=pt(1);
+      P.y(n+1)=pt(2);
       P.invalidate[];
-    end
+    end //endDDDD
 
     if ~isempty(D) then
       F.remove[D];
@@ -353,8 +392,9 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       end
       break;
 
-    else
+    else //LLLLLLAAAAAAAAA
       // -- new point ends current line segment
+      xe=pt(1);ye=pt(2);
       if xe<>xo | ye<>yo then //to avoid null length segments
         xc2=xe;yc2=ye
         if abs(xo-xc2)<abs(yo-yc2) then
