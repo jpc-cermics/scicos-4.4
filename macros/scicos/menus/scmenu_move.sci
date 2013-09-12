@@ -98,6 +98,15 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
   F=get_current_figure()
   rep(3)=-1;
   cursor_changed=%f;
+  options=scs_m.props.options
+  X_W = options('Wgrid')(1)
+  Y_W = options('Wgrid')(2)
+  //grid adjustment from link coordinates
+  if options('Snap') then
+    [dxy]=get_wgrid_alignment([xc yc],[X_W Y_W])
+    dxy=dxy-[xc yc];
+  end
+  nb=0
   while 1 do
     if rep(3)==3 then
       global scicos_dblclk
@@ -111,33 +120,38 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
     
     o.gr.children(1).x=[X_start;x1;X_end]
     o.gr.children(1).y=[Y_start;y1;Y_end]
-
+    
     o.gr.invalidate[]
     F.process_updates[];
     rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f);
-    xc1=rep(1)
-    yc1=rep(2)
-    x1(2)=X1(2)-(xc-xc1);
-    y1(2)=Y1(2)-(yc-yc1);
-    rect_now=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
-              min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
-    if ~cursor_changed then
-      if ~isequal(rect,rect_now) then
+    nb=nb+1
+    
+    if nb>2 then
+      if ~cursor_changed then
         cursor_changed=%t
         xcursor(52);
       end
+      xc1=rep(1), yc1=rep(2)
+      if options('Snap') then
+        [pt]=get_wgrid_alignment([xc1,yc1],[X_W Y_W])
+        xc1=pt(1)-dxy(1)
+        yc1=pt(2)-dxy(2)
+      end
+      x1(2)=X1(2)-(xc-xc1);
+      y1(2)=Y1(2)-(yc-yc1);
+      rect_now=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
+                min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
+      if size(o.gr.children)>1 then
+        data=[o.gr.children(2).x-(rect(1)-rect_now(1)),..
+              o.gr.children(2).y-(rect(2)-rect_now(2))]
+        o.gr.children(2).x=data(1,1)
+        o.gr.children(2).y=data(1,2)
+      end
+      o.gr.invalidate[]
     end
-    if size(o.gr.children)>1 then
-      data=[o.gr.children(2).x-(rect(1)-rect_now(1)),..
-            o.gr.children(2).y-(rect(2)-rect_now(2))]
-      o.gr.children(2).x=data(1,1)
-      o.gr.children(2).y=data(1,2)
-    end
-    o.gr.invalidate[]
   end
 
-  if and(rep(3)<>[2 5]) then //** if the link manipulation is OK 
-    have_moved=%t
+  if and(rep(3)<>[2 5]) then //** if the link manipulation is OK
     rect=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
           min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
     if abs(x1(1)-x1(2))<rela*abs(y1(1)-y1(2)) then
@@ -162,7 +176,12 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       xx(moving_seg)=x1
       yy(moving_seg)=y1
     end
-    o.xx=xx;o.yy=yy;
+    if xx.equal[o.xx] && yy.equal[o.yy] then
+      have_moved=%f
+    else
+      have_moved=%t
+      o.xx=xx;o.yy=yy;
+    end
     o.gr.children(1).x=o.xx
     o.gr.children(1).y=o.yy
     rect_now=[min(xx)+(max(xx)-min(xx))/2 , min(yy)+(max(yy)-min(yy))/2]
