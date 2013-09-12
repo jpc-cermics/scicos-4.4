@@ -31,7 +31,14 @@ function [%pt,scs_m,needcompile]=do_place_dropped_new(scs_m,blk)
   o=disconnect_ports(blk);
   xc=%pt(1);yc=%pt(2);%pt=[];
   sz=o.graphics.sz;
-  o.graphics.orig=[xc-sz(1)/2,yc-sz(2)/2];
+  orig=[xc-sz(1)/2,yc-sz(2)/2];
+  options=scs_m.props.options
+  X_W = options('Wgrid')(1)
+  Y_W = options('Wgrid')(2)
+  if options('Snap') then
+    [orig]=get_wgrid_alignment(orig,[X_W Y_W])
+  end
+  o.graphics.orig=orig;
   xset('window',curwin);
   xselect();
   F=get_current_figure();

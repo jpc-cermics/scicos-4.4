@@ -68,9 +68,16 @@ function [scs_m,fct,Select]=do_addnew(scs_m,Select)
   //      pour correctement initialiser %pt. 
   // il faut une fonction pour cela 
   pt=%pt;
-  if isempty(pt) then pt=[0,0];end 
+  if isempty(pt) then pt=[0.5,0.2];end 
   blk.graphics.sz=20*blk.graphics.sz;
-  blk.graphics.orig=[pt-blk.graphics.sz/2];
+  orig=[pt-blk.graphics.sz/2];
+  options=scs_m.props.options
+  X_W = options('Wgrid')(1)
+  Y_W = options('Wgrid')(2)
+  if options('Snap') then
+    [orig]=get_wgrid_alignment(orig,[X_W Y_W])
+  end
+  blk.graphics.orig=orig;
   // record the objects in graphics 
   F=get_current_figure();
   F.draw_latter[];
@@ -81,7 +88,6 @@ function [scs_m,fct,Select]=do_addnew(scs_m,Select)
     xcursor();
     return;
   end
-  
   blk.gr.invalidate[];
   rep(3)=-1
   while rep(3)==-1 then 
@@ -90,10 +96,9 @@ function [scs_m,fct,Select]=do_addnew(scs_m,Select)
     F.draw_now[]
     rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f)
     F.draw_latter[];
-    tr = rep(1:2) - pt;
-    pt = rep(1:2)
-    blk.gr.translate[tr]; // this will properly invalidate blk
-    blk.graphics.orig=blk.graphics.orig + tr;
+    [delta_x,delta_y,pt(1),pt(2)]=get_scicos_delta(rep,pt(1),pt(2),options('Snap'),X_W,Y_W)
+    blk.gr.translate[[delta_x , delta_y]];
+    blk.graphics.orig=blk.graphics.orig + [delta_x , delta_y]
   end
   if rep(3)==2 then 
     // this is a cancel 

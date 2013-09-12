@@ -716,6 +716,21 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc)
   end //**----------------------------------------
 endfunction
 
+function [dxy]=get_wgrid_alignment(xy,XY_W)
+  if abs( floor(xy(1)/XY_W(1))-(xy(1)/XY_W(1)) ) <...
+          abs(  ceil(xy(1)/XY_W(1))-(xy(1)/XY_W(1)) )
+    dxy(1) = floor(xy(1)/XY_W(1))*XY_W(1) ;
+  else
+    dxy(1) = ceil(xy(1)/XY_W(1))*XY_W(1) ;
+  end
+  if abs( floor(xy(2)/XY_W(2))-(xy(2)/XY_W(2)) ) <...
+          abs(  ceil(xy(2)/XY_W(2))-(xy(2)/XY_W(2)) )
+    dxy(2) = floor(xy(2)/XY_W(2))*XY_W(2) ;
+  else
+    dxy(2) = ceil(xy(2)/XY_W(2))*XY_W(2) ;
+  end
+endfunction
+
 function [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,Snap,SnapIncX,SnapIncY)
   if Snap then
     if abs( floor(rep(1)/SnapIncX)-(rep(1)/SnapIncX) ) <...
@@ -741,4 +756,3 @@ function [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,Snap,SnapIncX,SnapIn
     yc = rep(2);
   end
 endfunction
-

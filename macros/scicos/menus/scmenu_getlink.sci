@@ -3,16 +3,18 @@ function scmenu_getlink()
 // standard method 
   Cmenu=''
   xinfo('Click link origin, drag, click left for final or intermediate points or right to cancel')
-  [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,%t);
+  [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,%f);
   %pt=[];Select=[];
   xinfo(' ')
 endfunction
-//alan reversed link and smartlink sept/2012
+
 function scmenu_smart_getlink()
 // interactively acquire a link 
 // smart method
-  [scs_m, needcompile]=do_getlink(%pt,scs_m,needcompile,%f);
+  xinfo('Click link origin, drag, click left for final or intermediate points or right to cancel')
+  [scs_m, needcompile]=do_getlink(%pt,scs_m,needcompile,%t);
   Cmenu='';%pt=[];Select=[];
+  xinfo(' ')
 endfunction
 
 function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
@@ -128,19 +130,8 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
     
     //grid adjustment from link origin
     if options('Snap') then
-      if abs( floor(xo/X_W)-(xo/X_W) ) <...
-              abs(  ceil(xo/X_W)-(xo/X_W) )
-        xxo = floor(xo/X_W)*X_W ;
-      else
-        xxo = ceil(xo/X_W)*X_W ;
-      end
-      if abs( floor(yo/Y_W)-(yo/Y_W) ) <...
-              abs(  ceil(yo/Y_W)-(yo/Y_W) )
-        yyo = floor(yo/Y_W)*Y_W ;
-      else
-        yyo = ceil(yo/Y_W)*Y_W ;
-      end
-      dx=xxo-xo;dy=yyo-yo;
+      [dxy]=get_wgrid_alignment([xo yo],[X_W Y_W])
+      dxy=dxy-[xo yo];
     end
 
     while rep(3)==-1 do 
@@ -266,25 +257,14 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       
       //use snap mode
       if options('Snap') then
-        if abs( floor(pt(1)/X_W)-(pt(1)/X_W) ) <...
-                abs(  ceil(pt(1)/X_W)-(pt(1)/X_W) )
-          pt(1) = floor(pt(1)/X_W)*X_W ;
-        else
-          pt(1) = ceil(pt(1)/X_W)*X_W ;
-        end
-        if abs( floor(pt(2)/Y_W)-(pt(2)/Y_W) ) <...
-                abs(  ceil(pt(2)/Y_W)-(pt(2)/Y_W) )
-          pt(2) = floor(pt(2)/Y_W)*Y_W ;
-        else
-          pt(2) = ceil(pt(2)/Y_W)*Y_W ;
-        end
-        pt(1)=pt(1)-dx;pt(2)=pt(2)-dy;
+        [pt]=get_wgrid_alignment(pt,[X_W Y_W])
+        pt=pt-dxy
       end
         
       P.x(n+1)=pt(1);
       P.y(n+1)=pt(2);
       P.invalidate[];
-    end //endDDDD
+    end
 
     if ~isempty(D) then
       F.remove[D];
@@ -392,7 +372,7 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
       end
       break;
 
-    else //LLLLLLAAAAAAAAA
+    else
       // -- new point ends current line segment
       xe=pt(1);ye=pt(2);
       if xe<>xo | ye<>yo then //to avoid null length segments

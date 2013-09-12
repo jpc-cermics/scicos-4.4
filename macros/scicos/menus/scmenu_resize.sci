@@ -89,7 +89,10 @@ function [scs_m]=do_resize(scs_m,setsize=%f,bot=%t)
       o_n.gr.hilite_type=1
       o_n.gr.hilite_size=-1
       options=scs_m.props.options
+      X_W = options('Wgrid')(1)
+      Y_W = options('Wgrid')(2)
       rep(3)=-1;
+      
       while ~or(rep(3)==[-5 2]) do
         xinfo("Block Sizes [w h] : ["+string(o_n.graphics.sz(1))+" "+string(o_n.graphics.sz(2))+"]")        
         rep=xgetmouse(clearq=%f,cursor=%f,getrelease=%t,getmotion=%t);
@@ -98,18 +101,8 @@ function [scs_m]=do_resize(scs_m,setsize=%f,bot=%t)
         
         //use snap mode
         if options('Snap') then
-          if abs( floor(dx/options('Wgrid')(1))-(dx/options('Wgrid')(1)) ) <...
-                  abs(  ceil(dx/options('Wgrid')(1))-(dx/options('Wgrid')(1)) )
-            dx = floor(dx/options('Wgrid')(1))*options('Wgrid')(1) ;
-          else
-            dx = ceil(dx/options('Wgrid')(1))*options('Wgrid')(1) ;
-          end
-          if abs( floor(dy/options('Wgrid')(2))-(dy/options('Wgrid')(2)) ) <...
-                  abs(  ceil(dy/options('Wgrid')(2))-(dy/options('Wgrid')(2)) )
-            dy = floor(dy/options('Wgrid')(2))*options('Wgrid')(2) ;
-          else
-            dy = ceil(dy/options('Wgrid')(2))*options('Wgrid')(2) ;
-          end
+          [dxy]=get_wgrid_alignment([dx dy],[X_W Y_W]);
+          dx=dxy(1);dy=dxy(2);
         end
         
         graphics.sz=[max(w+floor(dx),5);max(h-floor(dy),5)]
