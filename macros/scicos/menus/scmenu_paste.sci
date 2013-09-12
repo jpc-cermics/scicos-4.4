@@ -14,6 +14,9 @@ function scmenu_paste()
   xselect();
   F=get_current_figure();
   F.draw_latter[];
+  options=scs_m.props.options
+  X_W = options('Wgrid')(1)
+  Y_W = options('Wgrid')(2)
   if and(size(Select)==[1,2]) then
     if windows(find(windows(:,2)==Select(1,2)),1)>0 then //** only one object selected 
       Sel_obj = scs_m.objs(Select(1,1)) ; 
@@ -50,6 +53,10 @@ function scmenu_paste()
 	%ppt=Clipboard.graphics.orig + Clipboard.graphics.sz/2 ; //** automatic position shift       
       end  
       blk=Clipboard;
+      //use snap mode
+      if options('Snap') then
+        [%ppt]=get_wgrid_alignment(%ppt,[X_W Y_W])
+      end
       blk.graphics.orig=%ppt;
       if blk.iskey['gr'] then blk.delete['gr'], end
       blk=drawobj(blk,F); //** draw the single object 
@@ -73,6 +80,10 @@ function scmenu_paste()
 	  end
 	end   
       end //** ppt is void 
+      //use snap mode
+      if options('Snap') then
+        [%ppt]=get_wgrid_alignment(%ppt,[X_W Y_W])
+      end
       %ppt = %ppt + 10 // (x,y) decalage, a modifier
 
       if size(reg.objs)>=1 then
@@ -83,18 +94,21 @@ function scmenu_paste()
 	xc=%ppt(1);
 	yc=%ppt(2);
 	rect=dig_bound(reg)
+        if options('Snap') then
+          [rrect]=get_wgrid_alignment([rect(1) rect(2)],[X_W Y_W])
+        end
 	for k=1:size(reg.objs)
 	  o = reg.objs(k)
 	  // translate blocks and update connection index 
 	  if o.type=="Link" then
-	    o.xx=o.xx-rect(1)+xc
-	    o.yy=o.yy-rect(2)+yc
+	    o.xx=o.xx-rrect(1)+xc
+	    o.yy=o.yy-rrect(2)+yc
 	    [from,to]=(o.from,o.to)
 	    o.from(1)=o.from(1) + n;
 	    o.to(1)=o.to(1) + n;
 	  elseif o.type=="Block" then
-	    o.graphics.orig(1) = o.graphics.orig(1)-rect(1)+xc
-	    o.graphics.orig(2) = o.graphics.orig(2)-rect(2)+yc
+	    o.graphics.orig(1) = o.graphics.orig(1)-rrect(1)+xc
+	    o.graphics.orig(2) = o.graphics.orig(2)-rrect(2)+yc
 	    k_conn=find(o.graphics.pin>0)
 	    o.graphics.pin(k_conn) = o.graphics.pin(k_conn) + n
 	    k_conn = find(o.graphics.pout>0)
@@ -104,8 +118,8 @@ function scmenu_paste()
 	    k_conn=find(o.graphics.peout>0)
 	    o.graphics.peout(k_conn)=o.graphics.peout(k_conn)+n
 	  elseif o.type=="Text" then
-	    o.graphics.orig(1) = o.graphics.orig(1)-rect(1)+xc
-	    o.graphics.orig(2) = o.graphics.orig(2)-rect(2)+yc
+	    o.graphics.orig(1) = o.graphics.orig(1)-rrect(1)+xc
+	    o.graphics.orig(2) = o.graphics.orig(2)-rrect(2)+yc
 	  end
           if o.iskey['gr'] then o.delete['gr'], end
 	  o=drawobj(o,F); //** draw the object
