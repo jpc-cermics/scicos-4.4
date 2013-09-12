@@ -1,4 +1,4 @@
-function [edited,options]=do_options(opt,flag,edited)
+function [edited,options]=do_options(opt,flag)
 // Copyright INRIA
 // nsp adpatations jpc 
     
@@ -32,7 +32,7 @@ function [edited,options]=do_options(opt,flag,edited)
   DashesIds=['Solid','-2-  -2-','-5-  -5-','-5-  -2-','-8-  -2-',...
 	     '-11- -2-','-11- -5-'];
   ok=%f
-  //edited=%f
+  edited=%f
   options=opt
   if flag=='D3' || flag == '3D' then
     if options.iskey['D3'] then f__3D= 'D3' else f__3D= '3D';end
