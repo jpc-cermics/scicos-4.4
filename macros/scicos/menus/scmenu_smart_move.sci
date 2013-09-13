@@ -215,9 +215,9 @@ function [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
   o=scs_m.objs(k);
   xx=o.gr.children(1).x;
   yy=o.gr.children(1).y;
-//   e=[min(yy)-max(yy),min(xx)-max(xx)];
-  e=[max(yy)-min(yy),max(xx)-min(xx)];
-  e=e./norm(e)
+  e=[min(yy)-max(yy),min(xx)-max(xx)];
+//  e=[max(yy)-min(yy),max(xx)-min(xx)];
+  e=e/norm(e)
   
   from=o.from;to=o.to
   connected=[get_connected(scs_m,from(1)),...
@@ -238,7 +238,7 @@ function [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
       break
     end
     [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,options('Snap'),options('Wgrid')(1),options('Wgrid')(2))
-    tr=[delta_x , delta_y].*e
+    tr=[delta_x , delta_y].*-e
     move_xy = move_xy +  tr ;
     
     //main link
@@ -272,7 +272,7 @@ function [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
     
     for kk=2:size(connected,'*')
       if connected(kk)<>k then
-        oi=scs_m.objs(connected(1));
+        oi=scs_m.objs(connected(kk));
         xl=oi.gr.children(1).x
         yl=oi.gr.children(1).y
         if size(oi.gr.children(1).x,'*')>2 then
