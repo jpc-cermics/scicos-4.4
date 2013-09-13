@@ -20,6 +20,7 @@ endfunction
 function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 // edition of a link from an output block to an input  block
 // Copyright INRIA
+  printf("do get_link\n");
   dash=xget('color')
   if nargin<4 then smart=%t,end
   rel=15/100
@@ -396,20 +397,8 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
   selecthilite(Select, %f)
 
   typ=typo;
-
-  //remove not needed intermediate pts
-  nl=size(xl,'*');
-  rela=15/100;
-  kz=[]
-  for i=1:nl
-    if i+2>nl then break, end  
-    d2 = projaff([xl(i);xl(i+2)],[yl(i);yl(i+2)],[xl(i+1);yl(i+1)])
-    if norm(d2(:)-[xl(i+1);yl(i+1)])<..
-         rela*max(norm(d2(:)-[xl(i+2);yl(i+2)]),norm(d2(:)-[xl(i);yl(i)])) then
-      kz=[kz i+1]
-    end
-  end
-  xl(kz)=[];yl(kz)=[];
+  
+  [xl,yl]=clean_link(xl,yl)
   
   if fromsplit then
     [d,xl,yl]=get_xyl([xc2;yc2],xl,yl,d,xx,yy,fromsplit,wh)

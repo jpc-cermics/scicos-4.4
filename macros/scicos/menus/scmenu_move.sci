@@ -58,6 +58,7 @@ endfunction
 function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
 // move a corner of a link  
 //
+printf("stupid movecorner\n");
   o=scs_m.objs(k);
   [xx,yy,ct]=(o.xx,o.yy,o.ct);
   o_link=size(xx);
@@ -66,20 +67,24 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
   have_moved=%f;
   
   if (-wh-1)==1 then //** the moving include the starting point  
+    printf("ici -1\n");
     start_seg=[];
     X_start=[];
     Y_start=[];
   else                 //** the move need some static point from the beginning 
+    printf("ici -2\n");
     start_seg=[1:-wh-1];
     X_start=xx(start_seg);
     Y_start=yy(start_seg);
   end
   
   if (-wh+1)==link_size then //** the moving include the endpoint 
+    printf("ici -3\n");
     end_seg=[];
     X_end=[];
     Y_end=[];
   else                //** the moving need some static point to the end 
+    printf("ici -4\n");
     end_seg=[-wh+1:link_size];
     X_end=xx(end_seg);
     Y_end=yy(end_seg);
@@ -108,6 +113,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
   end
   nb=0
   while 1 do
+    printf("stupid_movecorner rep(3):%d\n",rep(3));
     if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
@@ -180,6 +186,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       have_moved=%f
     else
       have_moved=%t
+      [xx,yy]=clean_link(xx,yy)
       o.xx=xx;o.yy=yy;
     end
     o.gr.children(1).x=o.xx
@@ -205,7 +212,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
   F.draw_now[]
 endfunction
 
-function [k,wh,scs_m]=stupid_getobj(scs_m,Select,pt)
+function [k,wh,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
 // get which point of the link which will move 
 // or which object 
   
@@ -260,19 +267,33 @@ function [k,wh,scs_m]=stupid_getobj(scs_m,Select,pt)
   xx=o.xx;yy=o.yy;
   [d,ptp,ind]=stupid_dist2polyline(xx, yy, pt, 0.85)
   if d < eps then 
-    if ind==-1 then 
-      k=o.from(1);
-    elseif ind==-size(xx,1) then 
-      k=o.to(1); //** click near an output
-    elseif ind>0 then 
-      o.xx=[xx(1:ind);ptp(1);xx(ind+1:$)];
-      o.yy=[yy(1:ind);ptp(2);yy(ind+1:$)];
-      scs_m.objs(i)=o;
+    //** click in the start point of the link
+    if ind==-1 then
+      printf("stupid_getobj : click sur debut lien\n")
+      k=o.from(1); //we return index of connected blk
+    //** click in the end point of the link
+    elseif ind==-size(xx,1) then
+      printf("stupid_getobj : click sur fin lien\n")
+      k=o.to(1); //we return index of connected blk
+    //** click in a segment of a link
+    //** nb : we add a point here in free mode
+    //** wh is negative and is the index of the segment plus 1
+    elseif ind>0 then
+      printf("stupid_getobj : click sur un segment du lien\n")
+      if ~smart then
+        o.xx=[xx(1:ind);ptp(1);xx(ind+1:$)];
+        o.yy=[yy(1:ind);ptp(2);yy(ind+1:$)];
+        scs_m.objs(i)=o;
+      end
       k=i;
       wh=-ind-1;
+    //** click in a corner of a link
+    //** ind is still negative
+    //** wh is negative and is the index of corner
     else
+      printf("stupid_getobj : click sur un point du lien\n")
       k=i
-      wh=ind; //** click in the middle (case 2) of a link
+      wh=ind;
     end
   end
 endfunction
@@ -480,6 +501,26 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
           for l=1:length(connected)
             i=connected(l);
             oi=scs_m.objs(i);
+            
+            //Alan tst
+            [xl,yl]=clean_link(oi.gr.children(1).x(:),oi.gr.children(1).y(:));
+            nl=size(xl,'*');
+            // If the link is of size 2 and is vertical 
+            // or horizontal then we add intermediate middle points
+            if nl == 2  then 
+              if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end 
+              if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end 
+              if xl(1)==xl(2) || yl(1)==yl(2) then 
+                xm=(xl(1)+xl(2))/2;
+                ym=(yl(1)+yl(2))/2;
+                oi.gr.children(1).x= [xl(1);xm;xm;xl(2)];
+                oi.gr.children(1).y= [yl(1);ym;ym;yl(2)];
+              end
+            else
+              oi.gr.children(1).x=xl
+              oi.gr.children(1).y=yl
+            end
+            
             nl=size(oi.gr.children(1).x,'*');
             
             // translate the first point or the first 
@@ -524,6 +565,9 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
                 oi.gr.children(1).y($)= yl(2)+ tr(2);
               end
             end
+            [xl,yl]=clean_link(oi.gr.children(1).x(:),oi.gr.children(1).y(:));
+            oi.gr.children(1).x=xl
+            oi.gr.children(1).y=yl
             oi.gr.invalidate[];
           end
         //free move
@@ -578,28 +622,9 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
     //** Flexible Link elements
     if ~isempty(connected) then
       for l=connected
-        xl= scs_m.objs(l).gr.children(1).x(:);
-        yl= scs_m.objs(l).gr.children(1).y(:);
-        nl=size(xl,'*');
-        
-        //eliminate double points
-        kz=find((xl(2:nl)-xl(1:nl-1)).^2+(yl(2:nl)-yl(1:nl-1)).^2==0)
-        xl(kz)=[];yl(kz)=[]
-      
-        //remove not needed intermediate pts
-        nl=size(xl,'*');
-        rela=1/100;
-        kz=[]
-        for j=1:nl
-          if j+2>nl then break, end  
-          d = projaff([xl(j);xl(j+2)],[yl(j);yl(j+2)],[xl(j+1);yl(j+1)])
-          if norm(d(:)-[xl(j+1);yl(j+1)])<..
-              rela*max(norm(d(:)-[xl(j+2);yl(j+2)]),norm(d(:)-[xl(j);yl(j)])) then
-            kz=[kz j+1]
-          end
-        end
-        xl(kz)=[];yl(kz)=[];
-        
+        [xl,yl]=clean_link(scs_m.objs(l).gr.children(1).x(:),...
+                           scs_m.objs(l).gr.children(1).y(:))
+         
         scs_m.objs(l).xx = xl;
         scs_m.objs(l).yy = yl;
         scs_m.objs(l).gr.children(1).x = xl;
@@ -706,5 +731,36 @@ function [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,Snap,SnapIncX,SnapIn
     xc = rep(1);
     delta_y = rep(2)-yc;
     yc = rep(2);
+  end
+endfunction
+
+function [xl,yl]=clean_link(xx,yy)
+  xl= xx;
+  yl= yy;
+  nl=size(xl,'*');
+        
+  //eliminate double points
+  kz=find((xl(2:nl)-xl(1:nl-1)).^2+(yl(2:nl)-yl(1:nl-1)).^2==0);
+  xl(kz)=[];yl(kz)=[];
+      
+  //remove not needed intermediate pts
+  //fixed point
+  rela=1/100;
+  ok=%f;
+  while ~ok
+    nl=size(xl,'*');
+    for j=1:nl
+      if j+2>nl then
+        ok=%t;
+        break;
+       end  
+       d = projaff([xl(j);xl(j+2)],[yl(j);yl(j+2)],[xl(j+1);yl(j+1)]);
+       if norm(d(:)-[xl(j+1);yl(j+1)])<..
+           rela*max(norm(d(:)-[xl(j+2);yl(j+2)]),norm(d(:)-[xl(j);yl(j)])) then
+         kz=[j+1];
+         xl(kz)=[];yl(kz)=[];
+         break
+       end
+    end
   end
 endfunction
