@@ -623,7 +623,6 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
         end
 
         if moving then
-          scs_m.objs(k).gr.translate[[dx,dy]];
           if lk.to(1)==k then
             scs_m.objs(k).graphics.orig=scs_m.objs(k).graphics.orig+[dx,dy]
             lk.xx(2)=lk.xx(2)+dx;lk.yy(2)=lk.yy(2)+dy
@@ -642,6 +641,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
           else
             resume(Cmenu='Replot') // graphics inconsistent with scs_m
           end
+          scs_m.objs(k).gr.translate[[dx,dy]];
         end
       end
     end
