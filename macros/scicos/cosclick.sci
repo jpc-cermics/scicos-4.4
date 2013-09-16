@@ -198,11 +198,14 @@ function [btn,%pt,win,Cmenu]=cosclick()
               port_hilited=unhilite_port(gr_port,port_hilited)
               corner=nearest_tl_br_corner([xc,yc],scs_m.objs(kk),kk,Select)
               if ~isempty(corner) then
-                if ~c_hilited then
-                  gr_block=scs_m.objs(kk).gr
-                  htype=gr_block.hilite_type
-                  hsize=gr_block.hilite_size
-                  c_hilited=hilite_cblock(gr_block,corner)
+                if ~(scs_m.objs(kk).gui=="IMPSPLIT_f" || scs_m.objs(kk).gui=="SPLIT_f" ||...
+                     scs_m.objs(kk).gui=="BUSSPLIT"   || scs_m.objs(kk).gui=="CLKSPLIT_f") then
+                  if ~c_hilited then
+                    gr_block=scs_m.objs(kk).gr
+                    htype=gr_block.hilite_type
+                    hsize=gr_block.hilite_size
+                    c_hilited=hilite_cblock(gr_block,corner)
+                  end
                 end
               else
                 c_hilited=unhilite_cblock(gr_block,c_hilited,htype,hsize)
@@ -221,11 +224,14 @@ function [btn,%pt,win,Cmenu]=cosclick()
               win_tooltip=destroy_block_tooltip(win_tooltip)
               corner=nearest_tl_br_corner([xc,yc],scs_m.objs(kk),kk,Select)
               if ~isempty(corner) then
-                if ~c_hilited then
-                  gr_block=scs_m.objs(kk).gr
-                  htype=gr_block.hilite_type
-                  hsize=gr_block.hilite_size
-                  c_hilited=hilite_cblock(gr_block,corner)
+                if ~(scs_m.objs(kk).gui=="IMPSPLIT_f" || scs_m.objs(kk).gui=="SPLIT_f" ||...
+                     scs_m.objs(kk).gui=="BUSSPLIT"   || scs_m.objs(kk).gui=="CLKSPLIT_f") then
+                  if ~c_hilited then
+                    gr_block=scs_m.objs(kk).gr
+                    htype=gr_block.hilite_type
+                    hsize=gr_block.hilite_size
+                    c_hilited=hilite_cblock(gr_block,corner)
+                  end
                 end
               else
                 c_hilited=unhilite_cblock(gr_block,c_hilited,htype,hsize)
