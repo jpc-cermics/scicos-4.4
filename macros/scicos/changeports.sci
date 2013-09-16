@@ -54,6 +54,8 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 //** ---- INITIALIZATION ----
 //** isolate the object that will be substituited 
   o = scs_m(path) ;
+  options=scs_m.props.options
+  smart=options('Action')==%f //...
   
   //** extract the proprieties of the OLD object 
   [pin, pout, pein, peout, in_mod, out_mod] = (o.graphics.pin,  o.graphics.pout, ...
@@ -310,7 +312,38 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
     //** New graphics section
     gh_link = [];
   end
-
+  
+  function [xl,yl]=adj_first(xl,yl,xx,yy)
+    nl = size(xl,1)
+    if nl > 2 then
+      if xl(1)==xl(2) then
+        xl(1:2) = xx; yl(1) = yy;
+      elseif yl(1)==yl(2) then 
+        xl(1) = xx; yl(1:2) = yy;
+      else
+        xl(1) = xx; yl(1) = yy;
+      end
+    else
+      xl(1) = xx; yl(1) = yy;
+    end
+  endfunction
+  
+  function [xl,yl]=adj_last(xl,yl,xx,yy)
+    nl = size(xl,1)
+    if nl > 2 then
+      if xl($-1)==xl($) then
+        xl($-1:$) = xx; yl($) = yy;
+      elseif yl($-1)==yl($) then 
+        xl($) = xx; yl($-1:$) = yy;
+      else
+        xl($) = xx; yl($) = yy;
+      end
+    else
+      xl($) = xx; yl($) = yy;
+    end
+  endfunction
+  
+  
   //** ------------------------ ADJUST THE CONNECTED LINKS ----------------------------------------
 
   //**-------------------------- Input Links ---------------------------------------
@@ -324,7 +357,24 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
       oi = scs_m.objs(Link_index)
 
       [xlink, ylink, ct ,from ,to ] = (oi.xx, oi.yy, oi.ct, oi.from, oi.to) ;
-
+      nl = size(xlink,1)
+      if smart then
+        [xlink,ylink]=clean_link(xlink,ylink);
+        nl = size(xlink,1)
+        // If the link is of size 2 and is vertical 
+        // or horizontal then we add intermediate middle points
+        if nl == 2  then
+          if abs(xlink(1)-xlink(2)) < 1.e-3 then xlink(1)=xlink(2);end 
+          if abs(ylink(1)-ylink(2)) < 1.e-3 then ylink(1)=ylink(2);end 
+          if xlink(1)==xlink(2) || ylink(1)==ylink(2) then 
+            xm=(xlink(1)+xlink(2))/2;
+            ym=(ylink(1)+ylink(2))/2;
+            xlink= [xlink(1);xm;xm;xlink(2)];
+            ylink= [ylink(1);ym;ym;ylink(2)];
+          end
+        end
+      end
+      
       //** Use theta parameters to compute the physical position of the port on the screen
       xxx = rotate([xInPortToCon(i);yInPortToCon(i)],...
                     o_n.graphics.theta*%pi/180,...
@@ -332,24 +382,40 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 
       //** the link is connected to the same block
       if from(1)==to(1) then
-         //we check here inputs : we look for to(3)==1 or from(3)==1
-         //to(2) or from(2) are the input port number
-         if (to(2)==NumInPortToCon(i) & to(3)==1) then
-           xlink($) = xxx(1,:); ylink($) = xxx(2,:); //** standard port
-         elseif (from(2)==NumInPortToCon(i) & from(3)==1) then
-           xlink(1) = xxx(1,:); ylink(1) = xxx(2,:); //** standard port
-         end
+        //we check here inputs : we look for to(3)==1 or from(3)==1
+        //to(2) or from(2) are the input port number
+        if (to(2)==NumInPortToCon(i) & to(3)==1) then
+          if smart then
+            [xlink,ylink]=adj_last(xlink,ylink,xxx(1,:),xxx(2,:))
+          else
+            xlink($) = xxx(1,:); ylink($) = xxx(2,:);
+          end
+        elseif (from(2)==NumInPortToCon(i) & from(3)==1) then
+          if smart then
+            [xlink,ylink]=adj_first(xlink,ylink,xxx(1,:),xxx(2,:))
+          else
+            xlink(1) = xxx(1,:); ylink(2) = xxx(2,:);
+          end
+        end
 
       //** the link is connected to different blocks
       else
         if from(1)==path(2) then
           //** if the bloc is connected to a link with a 'from' tag
           //** force the position to the first point of the link
-           xlink(1) = xxx(1,:); ylink(1) = xxx(2,:);
+          if smart then
+            [xlink,ylink]=adj_first(xlink,ylink,xxx(1,:),xxx(2,:))
+          else
+            xlink(1) = xxx(1,:); ylink(2) = xxx(2,:);
+          end
         else
           //** else if it is connected to a link with a 'to' tag
           //** force the position to the last point of the link
-          xlink($) = xxx(1,:); ylink($) = xxx(2,:);
+          if smart then
+            [xlink,ylink]=adj_last(xlink,ylink,xxx(1,:),xxx(2,:))
+          else
+            xlink($) = xxx(1,:); ylink($) = xxx(2,:);
+          end
         end
       end
 
@@ -381,7 +447,24 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
       oi = scs_m.objs(Link_index)
 
       [xlink, ylink, ct ,from ,to ] = (oi.xx, oi.yy, oi.ct, oi.from, oi.to) ;
-
+      nl = size(xlink,1)
+      if smart then
+        [xlink,ylink]=clean_link(xlink,ylink);
+        nl = size(xlink,1)
+        // If the link is of size 2 and is vertical 
+        // or horizontal then we add intermediate middle points
+        if nl == 2  then
+          if abs(xlink(1)-xlink(2)) < 1.e-3 then xlink(1)=xlink(2);end 
+          if abs(ylink(1)-ylink(2)) < 1.e-3 then ylink(1)=ylink(2);end 
+          if xlink(1)==xlink(2) || ylink(1)==ylink(2) then 
+            xm=(xlink(1)+xlink(2))/2;
+            ym=(ylink(1)+ylink(2))/2;
+            xlink= [xlink(1);xm;xm;xlink(2)];
+            ylink= [ylink(1);ym;ym;ylink(2)];
+          end
+        end
+      end
+      
       //** Use theta parameters to compute the physical position of the port on the screen
       xxx = rotate([xOutPortToCon(i);yOutPortToCon(i)],...
                     o_n.graphics.theta*%pi/180,...
@@ -389,24 +472,40 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 
       //** the link is connected to the same block
       if from(1)==to(1) then
-         //we check here inputs : we look for to(3)==1 or from(3)==1
-         //to(2) or from(2) are the input port number
-         if (to(2)==NumOutPortToCon(i) & to(3)==0) then
-           xlink($) = xxx(1,:); ylink($) = xxx(2,:); //** standard port
-         elseif (from(2)==NumOutPortToCon(i) & from(3)==0) then
-           xlink(1) = xxx(1,:); ylink(1) = xxx(2,:); //** standard port
-         end
+        //we check here inputs : we look for to(3)==1 or from(3)==1
+        //to(2) or from(2) are the input port number
+        if (to(2)==NumOutPortToCon(i) & to(3)==0) then
+          if smart then
+            [xlink,ylink]=adj_last(xlink,ylink,xxx(1,:),xxx(2,:))
+          else
+            xlink($) = xxx(1,:); ylink($) = xxx(2,:);
+          end
+        elseif (from(2)==NumOutPortToCon(i) & from(3)==0) then
+          if smart then
+            [xlink,ylink]=adj_first(xlink,ylink,xxx(1,:),xxx(2,:))
+          else
+            xlink(1) = xxx(1,:); ylink(1) = xxx(2,:);
+          end
+        end
 
       //** the link is connected to different blocks
       else
         if from(1)==path(2) then
-         //** if the bloc is connected to a link with a 'from' tag
-         //** force the position to the first point of the link
-         xlink(1) = xxx(1,:); ylink(1) = xxx(2,:);
+          //** if the bloc is connected to a link with a 'from' tag
+          //** force the position to the first point of the link
+          if smart then
+            [xlink,ylink]=adj_first(xlink,ylink,xxx(1,:),xxx(2,:))
+          else
+            xlink(1) = xxx(1,:); ylink(1) = xxx(2,:);
+          end
         else
-         //** else if it is connected to a link with a 'to' tag
-         //** force the position to the last point of the link
-         xlink($) = xxx(1,:); ylink($) = xxx(2,:);
+          //** else if it is connected to a link with a 'to' tag
+          //** force the position to the last point of the link
+          if smart then
+            [xlink,ylink]=adj_last(xlink,ylink,xxx(1,:),xxx(2,:))
+          else
+             xlink($) = xxx(1,:); ylink($) = xxx(2,:);
+          end
         end
       end
 
