@@ -40,7 +40,7 @@ function [%pt,scs_m,have_moved]=do_stupidmove(%pt,Select,scs_m)
   have_moved=%f;
   win=%win;
   xc=%pt(1);yc=%pt(2);
-  [k,wh,scs_m]=stupid_getobj(scs_m,Select,[xc;yc]);
+  [k,wh,on_pt,scs_m]=stupid_getobj(scs_m,Select,[xc;yc]);
   if isempty(k) then return, end;
   scs_m_save=scs_m;
   if scs_m.objs(k).type == 'Link' then
@@ -58,33 +58,27 @@ endfunction
 function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
 // move a corner of a link  
 //
-printf("stupid movecorner\n");
   o=scs_m.objs(k);
   [xx,yy,ct]=(o.xx,o.yy,o.ct);
   o_link=size(xx);
   link_size=o_link(1);
   moving_seg=[-wh-1:-wh+1];
   have_moved=%f;
-  
-  if (-wh-1)==1 then //** the moving include the starting point  
-    printf("ici -1\n");
+  if (-wh-1)==1 then //** the moving include the starting point
     start_seg=[];
     X_start=[];
     Y_start=[];
-  else                 //** the move need some static point from the beginning 
-    printf("ici -2\n");
+  else                 //** the move need some static point from the beginning
     start_seg=[1:-wh-1];
     X_start=xx(start_seg);
     Y_start=yy(start_seg);
   end
   
-  if (-wh+1)==link_size then //** the moving include the endpoint 
-    printf("ici -3\n");
+  if (-wh+1)==link_size then //** the moving include the endpoint
     end_seg=[];
     X_end=[];
     Y_end=[];
-  else                //** the moving need some static point to the end 
-    printf("ici -4\n");
+  else                //** the moving need some static point to the end
     end_seg=[-wh+1:link_size];
     X_end=xx(end_seg);
     Y_end=yy(end_seg);
@@ -113,7 +107,6 @@ printf("stupid movecorner\n");
   end
   nb=0
   while 1 do
-    printf("stupid_movecorner rep(3):%d\n",rep(3));
     if rep(3)==3 then
       global scicos_dblclk
       scicos_dblclk=[rep(1),rep(2),curwin]
@@ -121,8 +114,6 @@ printf("stupid movecorner\n");
     if or(rep(3)==[0,2,3,5,-5,-100]) then
       break
     end
-    rect=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
-          min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
     
     o.gr.children(1).x=[X_start;x1;X_end]
     o.gr.children(1).y=[Y_start;y1;Y_end]
@@ -145,21 +136,11 @@ printf("stupid movecorner\n");
       end
       x1(2)=X1(2)-(xc-xc1);
       y1(2)=Y1(2)-(yc-yc1);
-      rect_now=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
-                min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
-      if size(o.gr.children)>1 then
-        data=[o.gr.children(2).x-(rect(1)-rect_now(1)),..
-              o.gr.children(2).y-(rect(2)-rect_now(2))]
-        o.gr.children(2).x=data(1,1)
-        o.gr.children(2).y=data(1,2)
-      end
       o.gr.invalidate[]
     end
   end
 
   if and(rep(3)<>[2 5]) then //** if the link manipulation is OK
-    rect=[min(o.gr.children(1).x)+(max(o.gr.children(1).x)-min(o.gr.children(1).x))/2 ,..
-          min(o.gr.children(1).y)+(max(o.gr.children(1).y)-min(o.gr.children(1).y))/2]
     if abs(x1(1)-x1(2))<rela*abs(y1(1)-y1(2)) then
       x1(2)=x1(1)
     elseif abs(x1(2)-x1(3))<rela*abs(y1(2)-y1(3)) then
@@ -182,37 +163,26 @@ printf("stupid movecorner\n");
       xx(moving_seg)=x1
       yy(moving_seg)=y1
     end
-    if xx.equal[o.xx] && yy.equal[o.yy] then
-      have_moved=%f
-    else
+    [xx,yy]=clean_link(xx,yy)
+    if ~xx.equal[o.xx] || ~yy.equal[o.yy] then
       have_moved=%t
-      [xx,yy]=clean_link(xx,yy)
       o.xx=xx;o.yy=yy;
+      scs_m.objs(k)=o
     end
-    o.gr.children(1).x=o.xx
-    o.gr.children(1).y=o.yy
-    rect_now=[min(xx)+(max(xx)-min(xx))/2 , min(yy)+(max(yy)-min(yy))/2]
-    if size(o.gr.children)>1 then
-      data=[o.gr.children(2).x-(rect(1)-rect_now(1)),..
-            o.gr.children(2).y-(rect(2)-rect_now(2))]
-      o.gr.children(2).x=data(1,1)
-      o.gr.children(2).y=data(1,2)
-    end
-    o.gr.invalidate[]
-    scs_m.objs(k)=o
   else
-    o.gr.children(1).x=ini_data(:,1)
-    o.gr.children(1).y=ini_data(:,2)
-    if size(o.gr.children)>1 then
-      o.gr.children(2).x=ini_data_id(:,1)
-      o.gr.children(2).y=ini_data_id(:,2)
+    [xx,yy]=clean_link(ini_data(:,1),ini_data(:,2))
+    if ~xx.equal[o.xx] || ~yy.equal[o.yy] then
+      o.xx=xx;o.yy=yy;
+      scs_m.objs(k)=o
     end
-    o.gr.invalidate[]
   end
-  F.draw_now[]
+  o.gr.children(1).x=o.xx
+  o.gr.children(1).y=o.yy
+  o.gr.invalidate[]
+
 endfunction
 
-function [k,wh,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
+function [k,wh,on_pt,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
 // get which point of the link which will move 
 // or which object 
   
@@ -265,21 +235,22 @@ function [k,wh,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
   o=scs_m.objs(i)
   eps=3;
   xx=o.xx;yy=o.yy;
+  on_pt=%f
   [d,ptp,ind]=stupid_dist2polyline(xx, yy, pt, 0.85)
   if d < eps then 
     //** click in the start point of the link
     if ind==-1 then
-      printf("stupid_getobj : click sur debut lien\n")
+      //printf("stupid_getobj : click sur debut lien\n")
       k=o.from(1); //we return index of connected blk
     //** click in the end point of the link
     elseif ind==-size(xx,1) then
-      printf("stupid_getobj : click sur fin lien\n")
+      //printf("stupid_getobj : click sur fin lien\n")
       k=o.to(1); //we return index of connected blk
     //** click in a segment of a link
     //** nb : we add a point here in free mode
     //** wh is negative and is the index of the segment plus 1
     elseif ind>0 then
-      printf("stupid_getobj : click sur un segment du lien\n")
+      //printf("stupid_getobj : click sur un segment du lien\n")
       if ~smart then
         o.xx=[xx(1:ind);ptp(1);xx(ind+1:$)];
         o.yy=[yy(1:ind);ptp(2);yy(ind+1:$)];
@@ -291,9 +262,10 @@ function [k,wh,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
     //** ind is still negative
     //** wh is negative and is the index of corner
     else
-      printf("stupid_getobj : click sur un point du lien\n")
+      //printf("stupid_getobj : click sur un point du lien\n")
       k=i
       wh=ind;
+      on_pt=%t
     end
   end
 endfunction
@@ -507,7 +479,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
             nl=size(xl,'*');
             // If the link is of size 2 and is vertical 
             // or horizontal then we add intermediate middle points
-            if nl == 2  then 
+            if nl == 2  then
               if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end 
               if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end 
               if xl(1)==xl(2) || yl(1)==yl(2) then 
@@ -565,9 +537,9 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
                 oi.gr.children(1).y($)= yl(2)+ tr(2);
               end
             end
-            [xl,yl]=clean_link(oi.gr.children(1).x(:),oi.gr.children(1).y(:));
-            oi.gr.children(1).x=xl
-            oi.gr.children(1).y=yl
+//             [xl,yl]=clean_link(oi.gr.children(1).x(:),oi.gr.children(1).y(:));
+//             oi.gr.children(1).x=xl
+//             oi.gr.children(1).y=yl
             oi.gr.invalidate[];
           end
         //free move

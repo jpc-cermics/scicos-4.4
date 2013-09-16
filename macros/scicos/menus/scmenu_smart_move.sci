@@ -38,14 +38,12 @@ function [%pt,scs_m,have_moved]=do_stupidsmartmove(%pt,Select,scs_m)
   have_moved=%f;
   win=%win;
   xc=%pt(1);yc=%pt(2);
-  [k,wh,scs_m]=stupid_getobj(scs_m,Select,[xc;yc],smart=%t);
+  [k,wh,on_pt,scs_m]=stupid_getobj(scs_m,Select,[xc;yc],smart=%t);
   if isempty(k) then return, end;
   scs_m_save=scs_m;
   if scs_m.objs(k).type == 'Link' then
     xcursor(52);
-    printf("wh : %f\n",wh);
-    scs_m=do_smart_move_link(scs_m,k,xc,yc,-wh-1)
-    have_moved=%t //TODO
+    [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,-wh-1,on_pt)
     xcursor();
   end
   if have_moved then
@@ -53,41 +51,53 @@ function [%pt,scs_m,have_moved]=do_stupidsmartmove(%pt,Select,scs_m)
   end
 endfunction
 
-function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
+function [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,wh,on_pt)
 // move the  segment wh of the link k and modify the other segments if necessary
 //!
   o=scs_m.objs(k)
   nl=size(o.xx,'*')  // number of link points
-  printf("do_smart_move_link wh :%f,nl:%f \n",wh,nl);
   xx=o.gr.children(1).x;
   yy=o.gr.children(1).y;
   
+  if on_pt then
+    [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,-wh-1)
+  else
   // we have selected the first segment 
   if wh==1 then
     if is_split(scs_m.objs(o.from(1))) && is_split(scs_m.objs(o.to(1))) &&nl<3 then
       [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
-      printf("smart_move_link1 have_moved: %d\n",b2m(have_moved));
       
     elseif ~is_split(scs_m.objs(o.from(1)))|| nl < 3 then
-      
-      // add a corner 
       p=projaff(xx(1:2),yy(1:2),[xc,yc]);
-      o.gr.children(1).x = [xx(1);p(1);p(1); xx(2:$)];
-      o.gr.children(1).y = [yy(1);p(2);p(2); yy(2:$)];
-      o.gr.invalidate[]
-      o.xx = o.gr.children(1).x;
-      o.yy = o.gr.children(1).y;
-      
-      scs_m=do_smart_move_link(scs_m,k,xc,yc,wh+2)
+      if nl==2 then
+        // add a point
+        o.gr.children(1).x = [xx(1);p(1); xx(2:$)];
+        o.gr.children(1).y = [yy(1);p(2); yy(2:$)];
+        o.gr.invalidate[]
+        o.xx = o.gr.children(1).x;
+        o.yy = o.gr.children(1).y;
+        scs_m.objs(k)=o;
+        [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,-wh-1)
+      else
+        // add a corner
+        o.gr.children(1).x = [xx(1);p(1);p(1); xx(2:$)];
+        o.gr.children(1).y = [yy(1);p(2);p(2); yy(2:$)];
+        o.gr.invalidate[]
+        o.xx = o.gr.children(1).x;
+        o.yy = o.gr.children(1).y;
+        scs_m.objs(k)=o;
+        [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,wh+2,on_pt)
+      end
     else
       // link comes from a split 
       [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc)
-      printf("smart_move_link2 have_moved: %d\n",b2m(have_moved));
     end
     
   // we have selected the last segment 
   elseif wh >= nl-1 then
-    if ~is_split(scs_m.objs(o.to(1))) | nl < 3 then
+    if is_split(scs_m.objs(o.from(1))) | nl < 3 then
+      [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc,nl-1)
+    elseif ~is_split(scs_m.objs(o.to(1))) | nl < 3 then
       // add a corner 
       p=projaff(xx($-1:$),yy($-1:$),[xc,yc]);
       o.gr.children(1).x = [xx(1:$-1);p(1);p(1); xx($)];
@@ -95,15 +105,15 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
       o.gr.invalidate[]
       o.xx = o.gr.children(1).x;
       o.yy = o.gr.children(1).y;
-      // and force a move of 
       scs_m.objs(k)=o;
-      scs_m=do_smart_move_link(scs_m,k,xc,yc,nl-1)
+      // and force a move of 
+      [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,nl-1,on_pt)
     else
       // link goes to a split 
       [scs_m,have_moved]=do_smart_move_link3(scs_m,k,xc,yc)
-      printf("smart_move_link3 have_moved: %d\n",b2m(have_moved));
     end
   elseif nl < 4 then
+    pause DEBUG
     //-------------
     F=get_current_figure()
     p=projaff(xx(wh:wh+1),yy(wh:wh+1),[xc,yc])
@@ -138,10 +148,8 @@ function scs_m=do_smart_move_link(scs_m,k,xc,yc,wh)
       F.draw_now[];
     end
   else
-    //o=do_smart_move_link4(o);
-    //scs_m.objs(k)=o;
     [scs_m,have_moved]=do_smart_move_link4(scs_m,k,xc,yc)
-    printf("smart_move_link4 have_moved: %d\n",b2m(have_moved));
+  end
   end
 endfunction
 
@@ -154,7 +162,11 @@ function [scs_m,have_moved]=do_smart_move_link4(scs_m,k,xc,yc)
   xx=o.gr.children(1).x;
   yy=o.gr.children(1).y;
   e=[min(yy(wh:wh+1))-max(yy(wh:wh+1)),min(xx(wh:wh+1))-max(xx(wh:wh+1))];
-  e=e/norm(e)
+  if and(e==[0 0]) then
+    e=[-1 -1]
+  else
+    e=e/norm(e)
+  end
   
   F=get_current_figure()
   move_xy = [0 0];
@@ -190,7 +202,6 @@ function [scs_m,have_moved]=do_smart_move_link4(scs_m,k,xc,yc)
       o.yy = yl;
       scs_m.objs(k)=o
     end
-      
   else
     // undo the move 
     //always clean the link here because we have added intermediate pts
@@ -200,23 +211,22 @@ function [scs_m,have_moved]=do_smart_move_link4(scs_m,k,xc,yc)
       o.yy=yl
       scs_m.objs(k)=o
     end
-    o.gr.children(1).x = o.xx;
-    o.gr.children(1).y = o.yy;
-    o.gr.invalidate[]
   end
+  o.gr.children(1).x = o.xx;
+  o.gr.children(1).y = o.yy;
+  o.gr.invalidate[]
 endfunction
 
 //a link entre 2 blocks split
+// review : alan,13/09/13
 function [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
-  printf("do_smart_move_link1\n");
 
   have_moved=%f
   
   o=scs_m.objs(k);
   xx=o.gr.children(1).x;
   yy=o.gr.children(1).y;
-  e=[min(yy)-max(yy),min(xx)-max(xx)];
-//  e=[max(yy)-min(yy),max(xx)-min(xx)];
+  e=[max(yy)-min(yy),max(xx)-min(xx)];
   e=e/norm(e)
   
   from=o.from;to=o.to
@@ -238,7 +248,7 @@ function [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
       break
     end
     [delta_x,delta_y,xc,yc]=get_scicos_delta(rep,xc,yc,options('Snap'),options('Wgrid')(1),options('Wgrid')(2))
-    tr=[delta_x , delta_y].*-e
+    tr=[delta_x , delta_y].*e
     move_xy = move_xy +  tr ;
     
     //main link
@@ -370,12 +380,24 @@ function [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
   else
     // undo the move 
     o=scs_m.objs(k);
+    [xl,yl]=clean_link(o.xx,o.yy)
+    if ~xl.equal[o.xx] || ~yl.equal[o.yy] then
+      o.xx=xl
+      o.yy=yl
+      scs_m.objs(k)=o
+    end
     o.gr.children(1).x = o.xx;
     o.gr.children(1).y = o.yy;
     o.gr.invalidate[]
     
     if connected(1)<>k then
       o=scs_m.objs(connected(1));
+      [xl,yl]=clean_link(o.xx,o.yy)
+      if ~xl.equal[o.xx] || ~yl.equal[o.yy] then
+        o.xx=xl
+        o.yy=yl
+        scs_m.objs(connected(1))=o
+      end
       o.gr.children(1).x = o.xx;
       o.gr.children(1).y = o.yy;
       o.gr.invalidate[]
@@ -383,6 +405,12 @@ function [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
     for kk=2:size(connected,'*')
       if connected(kk)<>k then
         o=scs_m.objs(connected(kk))
+        [xl,yl]=clean_link(o.xx,o.yy)
+        if ~xl.equal[o.xx] || ~yl.equal[o.yy] then
+          o.xx=xl
+          o.yy=yl
+          scs_m.objs(connected(kk))=o
+        end
         o.gr.children(1).x=o.xx
         o.gr.children(1).y=o.yy
         o.gr.invalidate[]
@@ -548,12 +576,24 @@ function [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc)
   else
     // undo the move
     o=scs_m.objs(k);
+    [xl,yl]=clean_link(o.xx,o.yy)
+    if ~xl.equal[o.xx] || ~yl.equal[o.yy] then
+      o.xx=xl
+      o.yy=yl
+      scs_m.objs(k)=o
+    end
     o.gr.children(1).x = o.xx;
     o.gr.children(1).y = o.yy;
     o.gr.invalidate[]
     
     if connected(1)<>k then
       o=scs_m.objs(connected(1));
+      [xl,yl]=clean_link(o.xx,o.yy)
+      if ~xl.equal[o.xx] || ~yl.equal[o.yy] then
+        o.xx=xl
+        o.yy=yl
+        scs_m.objs(connected(1))=o
+      end
       o.gr.children(1).x = o.xx;
       o.gr.children(1).y = o.yy;
       o.gr.invalidate[]
@@ -561,6 +601,12 @@ function [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc)
     for kk=2:size(connected,'*')
       if connected(kk)<>k then
         o=scs_m.objs(connected(kk))
+        [xl,yl]=clean_link(o.xx,o.yy)
+        if ~xl.equal[o.xx] || ~yl.equal[o.yy] then
+          o.xx=xl
+          o.yy=yl
+          scs_m.objs(connected(kk))=o
+        end
         o.gr.children(1).x=o.xx
         o.gr.children(1).y=o.yy
         o.gr.invalidate[]
@@ -685,13 +731,25 @@ function [scs_m,have_moved]=do_smart_move_link3(scs_m,k,xc,yc)
   
   else
     // undo the move 
-    o=scs_m.objs(k);
+    o=scs_m.objs(k)
+    [xl,yl]=clean_link(o.xx,o.yy)
+    if ~xl.equal[o.xx] || ~yl.equal[o.yy] then
+      o.xx=xl
+      o.yy=yl
+      scs_m.objs(k)=o
+    end
     o.gr.children(1).x = o.xx;
     o.gr.children(1).y = o.yy;
     o.gr.invalidate[]
     
     for kk=2:size(connected,'*')
       o=scs_m.objs(connected(kk))
+      [xl,yl]=clean_link(o.xx,o.yy)
+      if ~xl.equal[o.xx] || ~yl.equal[o.yy] then
+        o.xx=xl
+        o.yy=yl
+        scs_m.objs(connected(kk))=o
+      end
       o.gr.children(1).x=o.xx
       o.gr.children(1).y=o.yy
       o.gr.invalidate[]
