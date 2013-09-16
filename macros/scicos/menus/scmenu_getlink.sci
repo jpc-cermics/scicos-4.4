@@ -20,7 +20,6 @@ endfunction
 function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
 // edition of a link from an output block to an input  block
 // Copyright INRIA
-  printf("do get_link\n");
   dash=xget('color')
   if nargin<4 then smart=%t,end
   rel=15/100
@@ -180,7 +179,6 @@ function [scs_m,needcompile]=do_getlink(%pt,scs_m,needcompile,smart)
             if ~isempty(xyi) then
               if or(from<>to) then
                 if typo==typi
-                  //printf("getblock : find a block (%s)\n",scs_m.objs(kto).gui);
                   if fromsplit then
                     [dd,xxl,yyl]=get_xyl([xyi(1);xyi(2)],xl,yl,d,xx,yy,fromsplit,wh)
                   else
