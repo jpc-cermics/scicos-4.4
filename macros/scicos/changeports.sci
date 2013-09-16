@@ -419,6 +419,9 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
         end
       end
 
+      if smart then
+        [xlink,ylink]=clean_link(xlink,ylink);
+      end
       oi.xx = xlink ; oi.yy = ylink ;                           //** link
 
       if  or(curwin==winsid()) then
@@ -509,6 +512,9 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
         end
       end
 
+      if smart then
+        [xlink,ylink]=clean_link(xlink,ylink);
+      end
       oi.xx = xlink ; oi.yy = ylink ;
 
       if  or(curwin==winsid()) then
