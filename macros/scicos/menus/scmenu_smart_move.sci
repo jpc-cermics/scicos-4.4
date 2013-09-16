@@ -59,97 +59,99 @@ function [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,wh,on_pt)
   xx=o.gr.children(1).x;
   yy=o.gr.children(1).y;
   
+  // we have clicked on pt of a link
+  // we use free mode
   if on_pt then
     [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,-wh-1)
   else
-  // we have selected the first segment 
-  if wh==1 then
-    if is_split(scs_m.objs(o.from(1))) && is_split(scs_m.objs(o.to(1))) &&nl<3 then
-      [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
+    // we have selected the first segment 
+    if wh==1 then
+      if is_split(scs_m.objs(o.from(1))) && is_split(scs_m.objs(o.to(1))) &&nl<3 then
+        [scs_m,have_moved]=do_smart_move_link1(scs_m,k,xc,yc)
       
-    elseif ~is_split(scs_m.objs(o.from(1)))|| nl < 3 then
-      p=projaff(xx(1:2),yy(1:2),[xc,yc]);
-      if nl==2 then
-        // add a point
-        o.gr.children(1).x = [xx(1);p(1); xx(2:$)];
-        o.gr.children(1).y = [yy(1);p(2); yy(2:$)];
-        o.gr.invalidate[]
-        o.xx = o.gr.children(1).x;
-        o.yy = o.gr.children(1).y;
-        scs_m.objs(k)=o;
-        [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,-wh-1)
+      elseif ~is_split(scs_m.objs(o.from(1)))|| nl < 3 then
+        p=projaff(xx(1:2),yy(1:2),[xc,yc]);
+        if nl==2 then
+          // add a point
+          o.gr.children(1).x = [xx(1);p(1); xx(2:$)];
+          o.gr.children(1).y = [yy(1);p(2); yy(2:$)];
+          o.gr.invalidate[]
+          o.xx = o.gr.children(1).x;
+          o.yy = o.gr.children(1).y;
+          scs_m.objs(k)=o;
+          [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,-wh-1)
+        else
+          // add a corner
+          o.gr.children(1).x = [xx(1);p(1);p(1); xx(2:$)];
+          o.gr.children(1).y = [yy(1);p(2);p(2); yy(2:$)];
+          o.gr.invalidate[]
+          o.xx = o.gr.children(1).x;
+          o.yy = o.gr.children(1).y;
+          scs_m.objs(k)=o;
+          [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,wh+2,on_pt)
+        end
       else
-        // add a corner
-        o.gr.children(1).x = [xx(1);p(1);p(1); xx(2:$)];
-        o.gr.children(1).y = [yy(1);p(2);p(2); yy(2:$)];
+        // link comes from a split 
+        [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc)
+      end
+    
+    // we have selected the last segment 
+    elseif wh >= nl-1 then
+      if is_split(scs_m.objs(o.from(1))) | nl < 3 then
+        [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc,nl-1)
+      elseif ~is_split(scs_m.objs(o.to(1))) | nl < 3 then
+        // add a corner 
+        p=projaff(xx($-1:$),yy($-1:$),[xc,yc]);
+        o.gr.children(1).x = [xx(1:$-1);p(1);p(1); xx($)];
+        o.gr.children(1).y = [yy(1:$-1);p(2);p(2); yy($)];
         o.gr.invalidate[]
         o.xx = o.gr.children(1).x;
         o.yy = o.gr.children(1).y;
         scs_m.objs(k)=o;
-        [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,wh+2,on_pt)
+        // and force a move of 
+        [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,nl-1,on_pt)
+      else
+        // link goes to a split 
+        [scs_m,have_moved]=do_smart_move_link3(scs_m,k,xc,yc)
+      end
+    elseif nl < 4 then
+      pause DEBUG
+      //-------------
+      F=get_current_figure()
+      p=projaff(xx(wh:wh+1),yy(wh:wh+1),[xc,yc])
+      o.gr.children(1).x = [xx(1:wh);p(1);xx(wh+1:$)];
+      o.gr.children(1).y = [yy(1:wh);p(2);yy(wh+1:$)];
+      o.gr.invalidate[]
+      pto=[xc,yc];
+      rep(3)=-1
+      while rep(3)==-1 ,
+        F.process_updates[]
+        rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
+        if rep(3)==3 then
+          global scicos_dblclk
+          scicos_dblclk=[rep(1),rep(2),curwin]
+        end
+        pt = rep(1:2);
+        tr= pt - pto;
+        o.gr.children(1).x(wh+1) = o.gr.children(1).x(wh+1) + tr(1);
+        o.gr.children(1).y(wh+1) = o.gr.children(1).y(wh+1) + tr(2);
+        o.gr.invalidate[]
+        pto=pt;
+      end
+      if rep(3)<>2 then 
+        o.xx = o.gr.children(1).x;
+        o.yy = o.gr.children(1).y;
+        scs_m.objs(k)=o
+      else
+        // undo the move 
+        F.draw_latter[];
+        o.gr.children(1).x = o.xx;
+        o.gr.children(1).y = o.yy;
+        F.draw_now[];
       end
     else
-      // link comes from a split 
-      [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc)
+      [scs_m,have_moved]=do_smart_move_link4(scs_m,k,xc,yc)
     end
-    
-  // we have selected the last segment 
-  elseif wh >= nl-1 then
-    if is_split(scs_m.objs(o.from(1))) | nl < 3 then
-      [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc,nl-1)
-    elseif ~is_split(scs_m.objs(o.to(1))) | nl < 3 then
-      // add a corner 
-      p=projaff(xx($-1:$),yy($-1:$),[xc,yc]);
-      o.gr.children(1).x = [xx(1:$-1);p(1);p(1); xx($)];
-      o.gr.children(1).y = [yy(1:$-1);p(2);p(2); yy($)];
-      o.gr.invalidate[]
-      o.xx = o.gr.children(1).x;
-      o.yy = o.gr.children(1).y;
-      scs_m.objs(k)=o;
-      // and force a move of 
-      [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,nl-1,on_pt)
-    else
-      // link goes to a split 
-      [scs_m,have_moved]=do_smart_move_link3(scs_m,k,xc,yc)
-    end
-  elseif nl < 4 then
-    pause DEBUG
-    //-------------
-    F=get_current_figure()
-    p=projaff(xx(wh:wh+1),yy(wh:wh+1),[xc,yc])
-    o.gr.children(1).x = [xx(1:wh);p(1);xx(wh+1:$)];
-    o.gr.children(1).y = [yy(1:wh);p(2);yy(wh+1:$)];
-    o.gr.invalidate[]
-    pto=[xc,yc];
-    rep(3)=-1
-    while rep(3)==-1 ,
-      F.process_updates[]
-      rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-      if rep(3)==3 then
-        global scicos_dblclk
-        scicos_dblclk=[rep(1),rep(2),curwin]
-      end
-      pt = rep(1:2);
-      tr= pt - pto;
-      o.gr.children(1).x(wh+1) = o.gr.children(1).x(wh+1) + tr(1);
-      o.gr.children(1).y(wh+1) = o.gr.children(1).y(wh+1) + tr(2);
-      o.gr.invalidate[]
-      pto=pt;
-    end
-    if rep(3)<>2 then 
-      o.xx = o.gr.children(1).x;
-      o.yy = o.gr.children(1).y;
-      scs_m.objs(k)=o
-    else
-      // undo the move 
-      F.draw_latter[];
-      o.gr.children(1).x = o.xx;
-      o.gr.children(1).y = o.yy;
-      F.draw_now[];
-    end
-  else
-    [scs_m,have_moved]=do_smart_move_link4(scs_m,k,xc,yc)
-  end
   end
 endfunction
 
