@@ -128,7 +128,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	      end
 	    end
 	  elseif o.model.sim(1)=='asuper' then
-	    if o.model.sim=='asuper' then // code not yet generated
+	    if o.model.sim.equal['asuper'] then // code not yet generated
 	      sblock=rpar
 	      //deff('hilite_obj(a,b,c,d,e,f,g,h)','')
 	      //deff('unhilite_obj(a,b,c,d,e,f,g,h)','')
