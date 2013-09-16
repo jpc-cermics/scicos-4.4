@@ -13,8 +13,8 @@ function options=scicos_options(varargopt)
   options('3D')=list(%t,33);
   options('Grid')=%f;
   options('Wgrid')=[10;10;12];
-  options('Action')=%t;
-  options('Snap')=%f;
+  options('Action')=%f;
+  options('Snap')=%t;
   options('type')='options';
   options.merge[varargopt];
 endfunction
