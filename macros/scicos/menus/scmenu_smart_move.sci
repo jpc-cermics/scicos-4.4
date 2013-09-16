@@ -97,9 +97,9 @@ function [scs_m,have_moved]=do_smart_move_link(scs_m,k,xc,yc,wh,on_pt)
     
     // we have selected the last segment 
     elseif wh >= nl-1 then
-      if is_split(scs_m.objs(o.from(1))) | nl < 3 then
-        [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc,nl-1)
-      elseif ~is_split(scs_m.objs(o.to(1))) | nl < 3 then
+//       if is_split(scs_m.objs(o.from(1))) | nl < 3 then
+//         [scs_m,have_moved]=do_smart_move_link2(scs_m,k,xc,yc,nl-1)
+      if ~is_split(scs_m.objs(o.to(1))) | nl < 3 then
         // add a corner 
         p=projaff(xx($-1:$),yy($-1:$),[xc,yc]);
         o.gr.children(1).x = [xx(1:$-1);p(1);p(1); xx($)];
