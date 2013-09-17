@@ -13,11 +13,7 @@ function nobj = update_scs_m(obj)
     if obj.iskey['type'] && type(obj.type,'short')== 's' then 
       typ=obj.type;
       // if typ is in H then use H value instead.
-      if H.iskey[typ] then typ=H(typ);end 
-      if typ == 'scsopt' then
-        typ='options'
-        obj.type=typ
-      end
+      if H.iskey[typ] then typ=H(typ);end
       // check if a function exists
       fun=sprintf('scicos_%s',typ);
       if exists(fun,'nsp-function') then 

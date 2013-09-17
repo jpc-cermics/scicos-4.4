@@ -2,6 +2,30 @@ function scs_m=do_version(scs_m,version)
 // Copyright INRIA
 // translate scicos data structure to new version
   
+  function scs_m_new=do_version441(scs_m)
+  // updates to 441
+    scs_m_new=scs_m
+    scs_m_new.version='scicos4.4.1';
+    //for compatibility
+    scs_m_new.props.options=scicos_options();
+    keys=scs_m.props.options.__keys;
+    for i=1:size(keys,'*')
+      if keys(i)~='type' then
+        scs_m_new.props.options(keys(i))=scs_m.props.options(keys(i));
+      end
+    end
+    
+    for j=1:length(scs_m.objs)
+      o=scs_m.objs(j);
+      if typeof(o)=='Block' then
+        if omod.sim.equal['super'] || omod.sim.equal['csuper'] || omod.sim(1).equal['asuper'] then
+          rpar=do_version441(omod.rpar);
+          scs_m_new.objs(j).model.rpar=rpar
+        end
+      end
+    end
+  endfunction
+  
   function scs_m_new=do_version44(scs_m)
   // updates to 44
     scs_m_new=scs_m
@@ -1493,22 +1517,29 @@ function scs_m=do_version(scs_m,version)
   if or(version==['scicos2.7.3','scicos4','scicos4.0.1','scicos4.0.2']) then
     version='scicos4.2';
     printf('updates version to %s\n',version);
-    //scs_m=update_scs_m(scs_m);
+    scs_m=update_scs_m(scs_m);
     scs_m=do_version42(scs_m);
   end
   // now we are at least scicos4.2 
   if version=='scicos4.2' then
     version='scicos4.3';
     printf('updates version to %s\n',version);
-    //scs_m=update_scs_m(scs_m);
+    scs_m=update_scs_m(scs_m);
     scs_m=do_version43(scs_m);
   end
   // now we are at least scicos4.3
   if version=='scicos4.3' then
     version='scicos4.4';
     printf('updates version to %s\n',version);
-    //scs_m=update_scs_m(scs_m);
+    scs_m=update_scs_m(scs_m);
     scs_m=do_version44(scs_m);
+  end
+  // now we are at least scicos4.4
+  if version=='scicos4.4' then
+    version='scicos4.4.1';
+    printf('updates version to %s\n',version);
+    scs_m=update_scs_m(scs_m);
+    scs_m=do_version441(scs_m);
   end
 endfunction
 
@@ -1516,7 +1547,6 @@ function [ok,scicos_ver,scs_m]=update_version(scs_m)
 // Copyright INRIA
 // updates a diagram to the current scicos version 
   ok=%t;
-  scs_m=update_scs_m(scs_m);
   current_version = get_scicos_version()
   // guess the proper version of the diagram 
   scicos_ver = find_scicos_version(scs_m)
