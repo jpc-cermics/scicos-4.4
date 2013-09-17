@@ -292,7 +292,7 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
   n=size(scs_m.objs);
   for i=1:n
     o=scs_m.objs(i);
-    if typeof(o)=='Block'|typeof(o)=='Text' then
+    if o.type=='Block'|o.type=='Text' then
       graphics=o.graphics;
       rpar=o.model.rpar;
       sim=o.model.sim;

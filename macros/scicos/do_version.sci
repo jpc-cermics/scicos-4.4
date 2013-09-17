@@ -17,7 +17,8 @@ function scs_m=do_version(scs_m,version)
     
     for j=1:length(scs_m.objs)
       o=scs_m.objs(j);
-      if typeof(o)=='Block' then
+      if o.type=='Block' then
+        omod=o.model
         if omod.sim.equal['super'] || omod.sim.equal['csuper'] || omod.sim(1).equal['asuper'] then
           rpar=do_version441(omod.rpar);
           scs_m_new.objs(j).model.rpar=rpar
@@ -46,7 +47,7 @@ function scs_m=do_version(scs_m,version)
     
     for j=1:length(scs_m.objs)
       o=scs_m.objs(j);
-      if typeof(o)=='Block' then
+      if o.type=='Block' then
 	gra=o.graphics
 	omod=o.model
 	if o.gui=='CBLOCK4' then
@@ -99,7 +100,7 @@ function scs_m=do_version(scs_m,version)
     
     for j=1:length(scs_m.objs);
       o=scs_m.objs(j);
-      if typeof(o)=='Block' then
+      if o.type=='Block' then
 	// block updates 
 	omod=o.model;
 	// sbloc
@@ -113,7 +114,7 @@ function scs_m=do_version(scs_m,version)
 	  gr_i=convert_gri(name,gri);
 	  scs_m_new.objs(j).graphics.gr_i=gr_i;
 	end 
-      elseif typeof(o)=="Link" then 
+      elseif o.type=="Link" then 
 	// update links 
 	scs_m_new.objs(j).xx=o.xx(:)
 	scs_m_new.objs(j).yy=o.yy(:)
