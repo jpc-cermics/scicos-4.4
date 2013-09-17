@@ -33,7 +33,7 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
 		    'Accept herited events 0/1'
 		    'Name of Scope (label&Id)'],..
 						  list('vec',-1,'vec',-1,'vec',1,'vec',-1,'vec',-1,..
-						       'vec','size(%1,''*'')','vec','size(%1,''*'')','vec','size(%1,''*'')',..
+						       'vec','size(%1,''*'')','vec','size(%1,''*'')','vec',-1,..
 						       'vec',1,'vec',1,'str',1),exprs)
       if ~ok then break,end //user cancel modification
       mess=[]
@@ -61,10 +61,16 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
 	mess=[mess;'Window number can''t be  < -1';' ']
 	ok=%f
       end
+
       if size(per,'*')<>size(ymin,'*') then
-	mess=[mess;'Size of Refresh Period must equal size of Ymin/Ymax vector';' ']
-	ok=%f
+	if size(per,'*')==1 then
+	  per=per*ones(1,size(ymin,'*'))
+	else
+	  mess=[mess;'Size of Refresh Period must be consistent with size of Ymin/Ymax vectors';' ']
+	  ok=%f
+	end
       end
+
       for i=1:1:size(per,'*')
 	if (per(i)<=0) then
 	  mess=[mess;'Refresh Period must be positive';' ']
