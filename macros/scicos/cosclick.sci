@@ -1,6 +1,6 @@
 function [btn,%pt,win,Cmenu]=cosclick()
 
-  //build a tooltip for blk when mouse pointer
+  //build a windows tooltip for blk when mouse pointer
   //is above à block
   function win_tooltip=build_block_tooltip(o)
     //win_tooltip = gtkwindow_new(type=1)
@@ -17,17 +17,25 @@ function [btn,%pt,win,Cmenu]=cosclick()
     screen=win_tooltip.get_root_window[]
     pos=screen.get_pointer[]
     win_tooltip.move[pos(1)+10,pos(2)+10]
-    hbox = gtkhbox_new();
-    frame = gtkframe_new();
-    frame.set_shadow_type[1]
-    label = gtklabel_new(str=o.gui);
+    hbox=gtkhbox_new()
+    color= gdk_color_parse("black")
+    event_box_fg = gtkeventbox_new()
+    event_box_fg.modify_bg[GTK.STATE_NORMAL,color]
+    event_box_bg = gtkeventbox_new()
+    event_box_bg.set_border_width[1]
+//     color=gdk_color_parse("#F6F6B9")
+//     event_box_bg.modify_bg[GTK.STATE_NORMAL,color]
+    event_box_fg.add[event_box_bg]
+    label = gtklabel_new(str=o.gui)
     label.set_padding[3,1]
-    frame.add[label]
-    hbox.pack_start[frame,expand=%f,fill=%f,padding=0]
+    event_box_bg.add[label]
+    hbox.pack_start[event_box_fg,expand=%f,fill=%f,padding=0]
     win_tooltip.add[hbox]
     if %win32 then
+      color=gdk_color_parse("#FFFFCA")
+      event_box_bg.modify_bg[GTK.STATE_NORMAL,color]
       win_tooltip.set_focus_on_map[%f]
-      win_tooltip.show_all[];
+      win_tooltip.show_all[]
       win_tooltip.hide[]
     end
   endfunction
@@ -47,9 +55,14 @@ function [btn,%pt,win,Cmenu]=cosclick()
     win_tooltip=args(1)
     o=args(2)
     hbox=win_tooltip.get_children[](1)
-    frame=hbox.get_children[](1)
-    label=frame.get_children[](1)
+    event_box_fg=hbox.get_children[](1)
+    event_box_bg=event_box_fg.get_children[](1)
+    label=event_box_bg.get_children[](1)
     str=mini_standard_document(o);
+    if %win32 then
+      str=strsubst(str,'<small><small>','<small>');
+      str=strsubst(str,'</small></small>','</small>');
+    end
     label.set_markup[catenate(str,sep="\n")];
     y=%f
   endfunction
