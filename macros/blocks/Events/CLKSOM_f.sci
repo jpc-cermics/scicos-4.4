@@ -42,10 +42,10 @@ function [x,y,typ]=CLKSOM_f(job,arg1,arg2)
     else
       t=[%pi %pi/2 0]
     end
-    r=sz(2)/2
-    rx=r*p
+    rx=sz(1)*p/2
     x=(rx*sin(t)+(orig(1)+rx)*ones_deprecated(t))
-    y=r*cos(t)+(orig(2)+r)*ones_deprecated(t)
+    ry=sz(2)/2
+    y=ry*cos(t)+(orig(2)+ry)*ones_deprecated(t)
     typ=-ones_deprecated(x)
    case 'getoutputs' then
     orig=arg1.graphics.orig;
@@ -58,10 +58,10 @@ function [x,y,typ]=CLKSOM_f(job,arg1,arg2)
       t=-%pi/2
       dx=-sz(1)/7
     end
-    r=sz(2)/2
-    rx=r*p
+    rx=sz(1)*p/2
     x=(rx*sin(t)+(orig(1)+rx)*ones_deprecated(t))+dx
-    y=r*cos(t)+(orig(2)+r)*ones_deprecated(t)
+    ry=sz(2)/2
+    y=ry*cos(t)+(orig(2)+ry)*ones_deprecated(t)
     typ=-ones_deprecated(x)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
