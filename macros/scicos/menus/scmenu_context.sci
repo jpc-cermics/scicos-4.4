@@ -59,6 +59,7 @@ function [ok,new_context]=do_context(scs_m)
     if ierr<>0 then
       message(['Error occured when evaluating context:';
 	       catenate(lasterror())]);
+      context= new_context;
       continue;
     end
     // check now that evaluation still works.
@@ -66,6 +67,8 @@ function [ok,new_context]=do_context(scs_m)
     [sc,cpr,nc,ok]=do_eval(scs_m,%cpr,env_context);
     if ok then
       break;// we can quit !
+    else
+      context=scs_m.props.context;
     end
   end
 endfunction
