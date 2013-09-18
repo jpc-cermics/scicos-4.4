@@ -347,7 +347,7 @@ extern int scicos_debug_level;
 static int int_scicos_debug (Stack stack, int rhs, int opt, int lhs)
 {
   int debug;
-  NspMatrix *M;
+  /*NspMatrix *M;*/
   CheckStdRhs (0, 1);
   CheckLhs (0, 1);
   if (rhs -opt == 0)
