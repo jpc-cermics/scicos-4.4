@@ -1,6 +1,15 @@
 function [x,y,typ]=LOOKUP2D(job,arg1,arg2)
 // Copyright INRIA
 
+  function blk_draw(o,sz,orig,orient,label)
+    [x,y,typ]=standard_inputs(o)
+    dd=sz(1)*0.005;
+    txt=['   Lookup';'   table'];
+    xstringb(orig(1),orig(2),txt,sz(1),sz(2),'fill');
+    xstringb(orig(1)+dd,y(1)-sz(2)/12,'r',sz(1)/6,sz(2)/5,'fill');
+    xstringb(orig(1)+dd,y(2)-sz(2)/12,'c',sz(1)/6,sz(2)/5,'fill');
+  endfunction
+
   function METHOD=getmethod(order)
     select order
      case 1 then, METHOD='Interpolation-extrapolation(biliniear)'
@@ -89,10 +98,11 @@ function [x,y,typ]=LOOKUP2D(job,arg1,arg2)
     model.blocktype='c'
     model.dep_ut=[%t %f]
     exprs=list(strcat(sci2exp(xx)),strcat(sci2exp(yy)),strcat(sci2exp(zz)),sci2exp(Method),Graf)
-    gr_i=['txt=[''   Lookup'';''   table''];';
-	  'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'');';
-	  'txt=''r'';';'xstringb(orig(1)+.01*sz(1), orig(2)+.5*sz(1), txt, sz(1)/6,sz(2)/6,''fill'');'
-	  'txt=''c'';';'xstringb(orig(1)+.01*sz(1), orig(2)+.1*sz(1), txt, sz(1)/6,sz(2)/6,''fill'');' ]    
+    gr_i="blk_draw(o,sz,orig,orient,model.label)";
+//     gr_i=['txt=[''   Lookup'';''   table''];';
+// 	  'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'');';
+// 	  'txt=''r'';';'xstringb(orig(1)+.01*sz(1), orig(2)+.5*sz(2), txt, sz(1)/6,sz(2)/6,''fill'');'
+// 	  'txt=''c'';';'xstringb(orig(1)+.01*sz(1), orig(2)+.1*sz(2), txt, sz(1)/6,sz(2)/6,''fill'');' ]    
     
     x=standard_define([2.5 2],model,exprs,gr_i,'LOOKUP2D');
   end

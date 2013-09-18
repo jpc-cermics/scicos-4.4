@@ -2,16 +2,14 @@ function [x,y,typ]=SATURATIONDYNAMIC(job,arg1,arg2)
 
   function blk_draw(o,sz,orig,orient,label)
     [x,y,typ]=standard_inputs(o)
-    dd=sz(1)/10;dd1=dd;dd2=6*sz(1)/7
+    dd=sz(1)*0.05;dd1=dd;dd2=6*sz(1)/8
     if ~arg1.graphics.flip then
-      dd=6*sz(1)/8,dd1=-dd1,dd2=sz(1)/10
+      dd=6*sz(1)/8,dd1=-dd1,dd2=sz(1)*0.05
     end
-    if ~exists("%zoom") then %zoom=1, end;
-    fz=%zoom*6;
-    xstring(orig(1)+dd,y(1)-4,'up',size=fz);
-    xstring(orig(1)+dd,y(2)-4,'u',size=fz);
-    xstring(orig(1)+dd2,y(2)-4,'y',size=fz);
-    xstring(orig(1)+dd,y(3)-4,'lo',size=fz);
+    xstringb(orig(1)+dd,y(1)-sz(2)/16,'up',sz(1)/6,sz(2)/8,'fill');
+    xstringb(orig(1)+dd2,y(2)-sz(2)/20,'y',sz(1)/6,sz(2)/10,'fill');
+    xstringb(orig(1)+dd,y(2)-sz(2)/20,'u',sz(1)/6,sz(2)/10,'fill');
+    xstringb(orig(1)+dd,y(3)-sz(2)/18,'lo',sz(1)/6,sz(2)/9,'fill');
     if ~arg1.graphics.flip then
       xx=orig(1)+dd1+[1/5;1/2-1/5;1/2+1/5;4/5]*sz(1);
     else
