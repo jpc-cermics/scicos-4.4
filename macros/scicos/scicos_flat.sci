@@ -222,7 +222,7 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(s
 	if scs_m.objs(connected).to(1)==k then
 	  scs_m.objs(connected).to(1)=-(pind+o.model.ipar)
 	end
-      elseif o.model.sim(1)=='asuper' then  
+      elseif o.model.sim(1).equal['asuper'] then  
 	nb=nb+1
 	corinv(nb)=k
 	cor(k)=nb

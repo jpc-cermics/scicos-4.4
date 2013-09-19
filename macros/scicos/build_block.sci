@@ -4,7 +4,7 @@ function [model,ok]=build_block(o)
   model=o.model
   graphics=o.graphics
   
-  if model.sim(1)=='scifunc' then
+  if model.sim(1).equal['scifunc'] || type(model.sim(1),'short')== 'pl'  then
     if type(model.sim,'short')=='l' then
       if model.sim(2)==5 | model.sim(2)==10005 then
         name=graphics.exprs(1)(1)
@@ -30,6 +30,7 @@ function [model,ok]=build_block(o)
       end
       model.sim=list(genmac(model.ipar,size(model.in,'*'),size(model.out,'*')),3)
     end
+    
   elseif type(model.sim,'short')=='l' then
     modsim=modulo(model.sim(2),10000)
     if int(modsim/1000)==1 then   //fortran block

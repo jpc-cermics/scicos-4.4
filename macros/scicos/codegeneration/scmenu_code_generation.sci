@@ -2875,22 +2875,22 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   
   for i=1:size(bllst)
     for j=1:size(bllst)
-      if (bllst(i).sim(1)=='capteur'+string(j)) then
+      if (bllst(i).sim(1).equal['capteur'+string(j)]) then
         if tt<>i then
           cap=[cap;i];
           tt=i;
         end
-      elseif (bllst(i).sim(1)=='actionneur'+string(j)) then
+      elseif (bllst(i).sim(1).equal['actionneur'+string(j)]) then
         if tt<>i then
           act=[act;i];
           tt=i;
         end
-      elseif (bllst(i).sim(1)=='bidon') then
+      elseif (bllst(i).sim(1).equal['bidon']) then
         if tt<>i then
           allhowclk=[allhowclk;i];
           tt=i;
         end
-      elseif (bllst(i).sim(1)=='bidon2') then
+      elseif (bllst(i).sim(1).equal['bidon2']) then
         if tt<>i then
           allhowclk2=[allhowclk2;i];
           tt=i;
@@ -3066,7 +3066,11 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   //@@ remove problematic scopes
   for i=1:length(bllst)
-    ind = find(bllst(i).sim(1)==sim_to_be_removed(:,1))
+    if type(bllst(i).sim(1),'short') == 's' then 
+      ind = find(bllst(i).sim(1)==sim_to_be_removed(:,1))
+    else
+      ind=[];
+    end
     if ~isempty(ind) then
       mess=[sim_to_be_removed(ind,2)+' block is not allowed.' ;
             'It will be not called.'];
@@ -3208,7 +3212,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 
   //@@ add a work ptr for agenda blk
   for i=cpr.sim.nb:-1:1
-    if cpr.sim.funs(i)=='agenda_blk' then
+    if cpr.sim.funs(i).equal['agenda_blk'] then
       with_work(i)=1
       break
     end
@@ -16354,7 +16358,11 @@ function [bllst,ok]=adjust_id_scopes(list_of_scopes,bllst)
 
   //@@ loop on number of scicos models
   for i=1:length(bllst)
-    ind = find(bllst(i).sim(1)==list_of_scopes(:,1))
+    if type(bllst(i).sim(1),'short')== 's' then 
+      ind = find(bllst(i).sim(1)==list_of_scopes(:,1))
+    else
+      ind=[];
+    end
     if ~isempty(ind) then
       ierr=execstr('win=bllst(i).'+list_of_scopes(ind,2),errcatch=%t);
       if ~ierr then
