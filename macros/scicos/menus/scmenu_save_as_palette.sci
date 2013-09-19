@@ -4,7 +4,7 @@ function scmenu_save_as_palette()
   spmode=pal_mode
   pal_mode=%t
 
-  [scs_m,editedx]=do_SaveAs()
-  if ~super_block then edited=editedx,end
+  [ok,scs_m]=do_SaveAs(scs_m)
+  if ok&~super_block then edited=%f,end
   pal_mode=spmode
 endfunction

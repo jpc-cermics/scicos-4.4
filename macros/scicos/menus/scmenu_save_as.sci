@@ -14,34 +14,58 @@ function scmenu_save_as()
       return
     end
   end
-  [scs_m,editedx]=do_SaveAs()
-  if ~super_block then edited=editedx;end
+  [ok,scs_m]=do_SaveAs(scs_m)
+  if ok&~super_block then edited=%f;end
 endfunction
 
-function [scs_m,edited]=do_SaveAs()
+function [ok,scs_m]=do_SaveAs(scs_m)
 //
 // Copyright INRIA
   global %scicos_saveas_path ;
+  if size(scs_m.props.title,'*')<2 then
+    default_name=''
+  else
+    ext='cos' //TODO
+    default_name=scs_m.props.title(1)+'.'+ext
+  end
   if isempty(%scicos_saveas_path) then %scicos_saveas_path='', end
-  edited=%f;
-  scs_m=scs_m;
   tit=['For saving in binary file use .cos extension,';
        'for saving in ascii file use .cosf extension'];
   // FIXME: 
-  fname=xgetfile(masks=['Scicos';'*.cos*';'*.xml'],title='cos, cosf or xml',save=%t,dir=%scicos_saveas_path)
-  if fname=="" then return,end
-  [path,name,ext]=splitfilepath(fname)
-  %scicos_saveas_path=path
-  select ext
-   case 'cos' then
-    ok=%t
-   case 'cosf' then
-    ok=%t
-   case 'xml' then
-    ok=%t
-  else
-    message('Only *.cos binary, cosf ascii, xml files allowed');
-    return
+  while %t
+    fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],save=%t,dir=%scicos_saveas_path,file=default_name)
+    if fname=="" then
+      ok=%f
+      return
+    else
+      [path,name,ext]=splitfilepath(fname)
+      %scicos_saveas_path=path
+      select ext
+        case 'cos' then
+          ok=%t
+        case 'cosf' then
+          ok=%t
+        case 'xml' then
+          ok=%t
+       else
+         ok=%f
+         message('Only *.cos binary, cosf ascii, xml files allowed');
+      end
+      if ok then
+        if file('exists',fname) then
+          r=x_message(['The file '''+name+'.'+ext+''' already exists.';
+                       'Do you really want to overwrite it ?'],...
+                      ['gtk-cancel';'gtk-ok']);
+          if r==0||r==1 then
+            ok=%f
+          else
+            break
+          end
+        else
+          break
+        end
+      end
+    end
   end
   if ~super_block & ~pal_mode then
     //update %cpr data structure to make it coherent with last changes
@@ -64,7 +88,6 @@ function [scs_m,edited]=do_SaveAs()
   scs_m=scs_m_rec
   clear scs_m_rec
   drawtitle(scs_m.props)  // draw the new title
-  edited=%f
   if pal_mode then 
     scicos_pal=update_scicos_pal(path,scs_m.props.title(1),fname),
     resume(scicos_pal)

@@ -231,6 +231,15 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   global Clipboard 
   
   while (Cmenu<>"Quit" & Cmenu<>"Leave")
+    if isempty(%scicos_navig) && ~isempty(Scicos_commands) then
+      // we have a command to execute 
+      ok=execstr(Scicos_commands(1),errcatch=%t);
+      if ~ok then 
+	message(['Error: failed to execute command:';Scicos_commands(1)]);
+      end
+      Scicos_commands(1)=[];
+    end
+    
     if or(winsid()==curwin) then
       if edited then
         [frect,axsize,viewport,winsize,winpos,pagesize]=get_curwpar(curwin)
@@ -240,15 +249,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
         end
       end
       drawtitle(scs_m.props)
-    end
-    
-    if isempty(%scicos_navig) && ~isempty(Scicos_commands) then
-      // we have a command to execute 
-      ok=execstr(Scicos_commands(1),errcatch=%t);
-      if ~ok then 
-	message(['Error: failed to execute command:';Scicos_commands(1)]);
-      end
-      Scicos_commands(1)=[];
     end
     
     if Cmenu=='Quit' then break,end

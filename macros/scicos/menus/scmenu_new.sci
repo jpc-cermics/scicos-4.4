@@ -34,8 +34,7 @@ function scmenu_new()
     %wpar=scs_m.props;  ; 
     %zoom=1.4
     window_set_size()
-    Cmenu='Replot'
-    edited=%f
     Select=[]
+    Scicos_commands=['Cmenu='"Replot'"';'edited=%f'];
   end
 endfunction

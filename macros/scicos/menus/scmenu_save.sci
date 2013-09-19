@@ -16,13 +16,15 @@ function scmenu_save()
     end
   end
   scs_m_rec=scs_m
-  ok=do_save(scs_m)
+  [ok,scs_m]=do_save(scs_m)
+  scs_m_rec.props=scs_m.props
   scs_m=scs_m_rec
   clear scs_m_rec
+  drawtitle(scs_m.props)  // draw the new title if any
   if ok&~super_block then edited=%f,end
 endfunction
 
-function ok=do_save(scs_m,filenamepath)   
+function [ok,scs_m]=do_save(scs_m,filenamepath)   
 // saves scicos data structures scs_m and %cpr on a binary file
 // Copyright INRIA
   
@@ -38,10 +40,14 @@ function ok=do_save(scs_m,filenamepath)
     
   if pal_mode then scs_m=do_purge(scs_m),end
   //file path
-  if size(scs_m.props.title,'*')<2 then 
-    path='./'
-  else
-    path=scs_m.props.title(2)
+  if nargin==1 then
+    if size(scs_m.props.title,'*')<2 then 
+      //path='./'
+      [ok,scs_m]=do_SaveAs(scs_m)
+      return
+    else
+      path=scs_m.props.title(2)
+    end
   end
   //open file
   if ~super_block & ~pal_mode then

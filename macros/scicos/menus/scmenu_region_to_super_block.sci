@@ -28,10 +28,10 @@ function [%pt,scs_m,Select]=do_region2block(%pt,scs_m,fun)
   if length(scs_mb.objs)==0 then return, end
   //superblock should not inherit the context nor the name
   scs_mb.props.context=' '
-  if fun.get_fname[]=='SUPER_f' then 
-    scs_mb.props.title(1)='Untitled'
+  if fun.get_fname[]=='SuperBlock' then 
+    scs_mb.props.title='Untitled'
   elseif fun.get_fname[]=='PAL_f' then
-    scs_mb.props.title(1)='Palette'
+    scs_mb.props.title='Palette'
     [scs_mb,edited] = do_rename(scs_mb,%t,%t)
   end
   ox=rect(1);oy=rect(2)+rect(4);w=rect(3),h=rect(4)
@@ -641,9 +641,9 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m,fun)
   //superblock should not inherit the context nor the name
   reg.props.context=' ' 
   if fun.get_fname[]=='SUPER_f' then 
-    reg.props.title(1)='SuperBlock'
+    reg.props.title='SuperBlock'
   elseif fun.get_fname[]=='PAL_f' then
-    reg.props.title(1)='Palette'
+    reg.props.title='Palette'
     [reg,edited] = do_rename(reg,%t,%t)
   end
 
