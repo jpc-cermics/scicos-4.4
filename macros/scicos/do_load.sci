@@ -4,6 +4,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
 
   global %scicos_demo_mode ;
   global %scicos_open_path ;
+  global %scicos_ext ;
   if isempty(%scicos_open_path) then %scicos_open_path='', end
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
@@ -21,14 +22,14 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
     xpause(100)  // quick and dirty fix for windows bug on fast
     // computers
   end
+  if %scicos_ext.equal['xml'] then
+    masks=['Scicos xml','Scicos file';'*.xml','*.cos*']
+  else
+    masks=['Scicos file','Scicos xml';'*.cos*','*.xml']
+  end
   if ~isempty(%scicos_demo_mode) then
     //** open a demo file
     if isempty(fname) then
-      if exists('%scicos_gui_mode') && %scicos_gui_mode==1 then
-        file_mask = ["*.cos*","*.xml"]
-      else
-        file_mask = "*.cos*"
-      end
       path=file('join',[get_scicospath();"demos"]);
       // fname     = getfile(file_mask, path)
       fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=path)
@@ -37,11 +38,11 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
     //** conventional Open
     if isempty(fname) then
       if import then
-        fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos','*.xml'],open=%t,dir=%scicos_open_path);
+        fname=xgetfile(masks=masks,open=%t,dir=%scicos_open_path);
       else
         if (exists('%scicos_gui_mode') && %scicos_gui_mode==1) then
           // fname = getfile(['*.cos*','*.xml'])
-          fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=%scicos_open_path);
+          fname=xgetfile(masks=masks,open=%t,dir=%scicos_open_path);
         else
           // fname = getfile('*.cos*')
           fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t,dir=%scicos_open_path);
@@ -163,6 +164,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
     if ~ok then scs_m=scs_m_sav;ok=%t;end
   end
   if ~ok then scs_m = get_new_scs_m();return;end
+  %scicos_ext=ext
   if typ=='diagram' then
     if ~%cpr.equal[list()] then
       for jj=1:size(%cpr.sim.funtyp,'*')

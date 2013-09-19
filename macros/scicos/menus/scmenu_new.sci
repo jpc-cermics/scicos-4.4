@@ -1,4 +1,6 @@
 function scmenu_new()
+  global %scicos_ext
+  %scicos_ext='cos'
   Cmenu=''
   %r=2
   if edited then
@@ -31,6 +33,10 @@ function scmenu_new()
       end
     end
     scs_m=get_new_scs_m()
+    //we preserve lastest options
+    if exists('options') then 
+      scs_m.props.options=options;
+    end
     %wpar=scs_m.props;  ; 
     %zoom=1.4
     window_set_size()

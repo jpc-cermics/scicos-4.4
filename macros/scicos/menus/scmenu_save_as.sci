@@ -22,18 +22,29 @@ function [ok,scs_m]=do_SaveAs(scs_m)
 //
 // Copyright INRIA
   global %scicos_saveas_path ;
+  global %scicos_ext
+  
   if size(scs_m.props.title,'*')<2 then
     default_name=''
   else
-    ext='cos' //TODO
+    if ~%scicos_ext.equal['cos'] && ~%scicos_ext.equal['cosf'] && ~%scicos_ext.equal['xml'] then
+      ext='cos' //TODO
+    else
+      ext=%scicos_ext
+    end
     default_name=scs_m.props.title(1)+'.'+ext
   end
   if isempty(%scicos_saveas_path) then %scicos_saveas_path='', end
   tit=['For saving in binary file use .cos extension,';
        'for saving in ascii file use .cosf extension'];
+  if %scicos_ext.equal['xml'] then
+    masks=['Scicos xml','Scicos file';'*.xml','*.cos*']
+  else
+    masks=['Scicos file','Scicos xml';'*.cos*','*.xml']
+  end
   // FIXME: 
   while %t
-    fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],save=%t,dir=%scicos_saveas_path,file=default_name)
+    fname=xgetfile(masks=masks,save=%t,dir=%scicos_saveas_path,file=default_name)
     if fname=="" then
       ok=%f
       return
@@ -83,7 +94,7 @@ function [ok,scs_m]=do_SaveAs(scs_m)
     %cpr=list()
   end
   scs_m_rec=scs_m
-  scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver);
+  [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver);
   scs_m_rec.props=scs_m.props
   scs_m=scs_m_rec
   clear scs_m_rec
@@ -95,8 +106,9 @@ function [ok,scs_m]=do_SaveAs(scs_m)
   end
 endfunction
 
-function scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
+function [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
 // open the selected file
+  ok=%t
   if nargin <= 2 then %cpr=list();end
   if nargin <= 3 then scicos_ver=get_scicos_version();end 
   [path,name,ext]=splitfilepath(fname)
@@ -109,6 +121,7 @@ function scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
     rep = execstr('save(fname,scicos_ver,scs_m,%cpr)',errcatch=%t);
     if rep==%f then
       message(['File or directory write access denied';lasterror()])
+      ok=%f
       return
     end
   elseif ext=='xml' then
@@ -116,6 +129,7 @@ function scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
     rep=execstr('F=fopen(fname,mode=''w'');',errcatch=%t);
     if rep==%f then
       message('Cannot open file '+fname)
+      ok=%f
       return
     end
     [ok,t]=cos2xml(scs_m,'',atomic=%f);
@@ -144,4 +158,7 @@ function scs_m=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
     //fprint(F,%cpr,'as_read');
     F.close[];
   end
+  //update default file extension
+  global %scicos_ext
+  %scicos_ext=ext
 endfunction

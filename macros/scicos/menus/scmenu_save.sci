@@ -31,6 +31,8 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
   // give default value to some variables if not found in the 
   // calling frames.
     
+  global %scicos_ext; //default file extension
+  
   pal_mode = acquire("pal_mode",def=%f);
   super_block = acquire("super_block",def=%f);
   needcompile = acquire("needcompile", def=4);
@@ -71,7 +73,12 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
       return;
     end
   else
-    fname=path+scs_m.props.title(1)+'.cos'
+    if ~%scicos_ext.equal['cos'] && ~%scicos_ext.equal['cosf'] && ~%scicos_ext.equal['xml'] then
+      ext='cos' //TODO
+    else
+      ext=%scicos_ext
+    end
+    fname=path+scs_m.props.title(1)+'.'+ext
   end
   // jpc: test if directory is writable 
   if file('writable',path) == %f then 
@@ -79,13 +86,17 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
     ok=%f
     return 
   end
-  // remove gr fields
-  scs_m=scs_m_remove_gr(scs_m);
-  // save current diagram 
-  if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then 
-    message(['Save error:'; catenate(lasterror())]);
-    ok=%f;
-    return
+  if nargin>1 then
+    // remove gr fields
+    scs_m=scs_m_remove_gr(scs_m);
+    // save current diagram 
+    if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then 
+      message(['Save error:'; catenate(lasterror())]);
+      ok=%f;
+      return
+    end
+  else
+    [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver);
   end
   if pal_mode then update_scicos_pal(path,scs_m.props.title(1),fname),end
   ok=%t
