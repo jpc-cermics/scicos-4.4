@@ -5,7 +5,9 @@ function scmenu_code_generation()
 // Input editor function of Scicos code generator
 //
 // modified for nsp 
-  P_project = %f; // put %t to test P project code generation
+
+  //P_project = %f; // put %t to test P project code generation
+  //This is moved in do_compile_superblock42
   
   k     = [] ; //** index of the CodeGen source superbloc candidate
   %pt   = []   ;
@@ -2584,6 +2586,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 //          c_atomic_code :
 //          cpr           :
 //
+  P_project = %f; // put %t to test P project code generation
   
   //******************* atomic blk **********
   if nargin < 3 then atomicflag=%f; end
@@ -3704,7 +3707,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 
     if ~ALL then
       //global gui_path
-      pause zzz
+      //pause zzz
       gui_path=rpat+'/'+rdnom+'_c.sci'
 
       //exec the gui function
