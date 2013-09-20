@@ -3,9 +3,9 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
 // Load a Scicos diagram
 
   global %scicos_demo_mode ;
-  global %scicos_open_path ;
+  global %scicos_open_saveas_path ;
   global %scicos_ext ;
-  if isempty(%scicos_open_path) then %scicos_open_path='', end
+  if isempty(%scicos_open_saveas_path) then %scicos_open_saveas_path='', end
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
   if nargin <=2 then import = %f;  end
@@ -27,70 +27,83 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
   else
     masks=['Scicos file','Scicos xml';'*.cos*','*.xml']
   end
-  if ~isempty(%scicos_demo_mode) then
-    //** open a demo file
-    if isempty(fname) then
-      path=file('join',[get_scicospath();"demos"]);
-      // fname     = getfile(file_mask, path)
-      fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=path)
-    end
-  else
-    //** conventional Open
-    if isempty(fname) then
-      if import then
-        fname=xgetfile(masks=masks,open=%t,dir=%scicos_open_path);
-      else
-        if (exists('%scicos_gui_mode') && %scicos_gui_mode==1) then
-          // fname = getfile(['*.cos*','*.xml'])
-          fname=xgetfile(masks=masks,open=%t,dir=%scicos_open_path);
+  
+  ok=%t
+  with_gui=isempty(fname) //if fname is empty one needs gui
+  fnam=fname
+  while %t
+    fname=fnam
+    if ~isempty(%scicos_demo_mode) then
+      //** open a demo file
+      if isempty(fname) then
+        path=file('join',[get_scicospath();"demos"]);
+        // fname     = getfile(file_mask, path)
+        fname=xgetfile(masks=['Scicos file','Scicos xml';'*.cos*','*.xml'],open=%t,dir=path)
+      end
+    else
+      //** conventional Open
+      if isempty(fname) then
+        if import then
+          fname=xgetfile(masks=masks,open=%t,dir=%scicos_open_saveas_path);
         else
-          // fname = getfile('*.cos*')
-          fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t,dir=%scicos_open_path);
+          if (exists('%scicos_gui_mode') && %scicos_gui_mode==1) then
+            // fname = getfile(['*.cos*','*.xml'])
+            fname=xgetfile(masks=masks,open=%t,dir=%scicos_open_saveas_path);
+          else
+            // fname = getfile('*.cos*')
+            fname=xgetfile(masks=['Scicos file';'*.cos*'],open=%t,dir=%scicos_open_saveas_path);
+          end
+        end
+      end
+    end 
+    %scicos_demo_mode = []; //** clear the variable
+
+    fname = stripblanks(fname)
+
+    if fname.equal[""] then 
+      // We have canceled the open 
+      ok=%f
+      %cpr=%cpr
+      scs_m=scs_m
+      edited=edited
+      return
+    end
+  
+    %cpr=list()
+    scs_m=[]
+    edited = %f
+    [path,name,ext]=splitfilepath(fname);
+    if with_gui then %scicos_open_saveas_path=path, end
+    if import then
+      if ~or(ext==['cos','COS','XML','xml']) then
+        message(['Only *.cos (binary) and *.xml (xml) files allowed for import']);
+        ok=%f
+        if ~with_gui then return, end
+      else
+        ok=%t
+      end
+    else
+      //first pass
+      if or(ext==['cos','COS','cosf','COSF','','XML','xml']) then
+        if ext=='' then  
+          // to allow user not to enter necessarily the extension
+          fname=fname+'.cos'
+          ext='cos'
+        end
+        ok=%t
+      else
+        message(['Only *.cos (binary), *.cosf (formatted) files and *.xml (xml)';
+                 'allowed'])
+        ok=%f
+        if ~with_gui then 
+          scs_m = get_new_scs_m();
+          return
         end
       end
     end
-  end 
-  %scicos_demo_mode = []; //** clear the variable
-
-  fname = stripblanks(fname)
-
-  if fname.equal[""] then 
-    // We have canceled the open 
-    ok=%f
-    %cpr=%cpr
-    scs_m=scs_m
-    edited=edited
-    return
+    if ok then break, end
   end
   
-  %cpr=list()
-  scs_m=[]
-  edited = %f
-  [path,name,ext]=splitfilepath(fname);
-  %scicos_open_path=path
-  if import then
-    if ~or(ext==['cos','COS','XML','xml']) then
-      message(['Only *.cos (binary) and *.xml (xml) files allowed for import']);
-      ok=%f
-      return
-    end
-  else
-    //first pass
-    if or(ext==['cos','COS','cosf','COSF','','XML','xml']) then
-      if ext=='' then  
-        // to allow user not to enter necessarily the extension
-        fname=fname+'.cos'
-        ext='cos'
-      end
-    else
-      message(['Only *.cos (binary), *.cosf (formatted) files and *.xml (xml)';
-	       'allowed'])
-      ok=%f
-      //scs_m=scicos_diagram(version=current_version)
-      scs_m = get_new_scs_m();
-      return
-    end
-  end
   //second pass
   if ext=='cos'|ext=='COS' then
     if import then

@@ -21,7 +21,7 @@ endfunction
 function [ok,scs_m]=do_SaveAs(scs_m)
 //
 // Copyright INRIA
-  global %scicos_saveas_path ;
+  global %scicos_open_saveas_path ;
   global %scicos_ext
   
   if size(scs_m.props.title,'*')<2 then
@@ -34,7 +34,7 @@ function [ok,scs_m]=do_SaveAs(scs_m)
     end
     default_name=scs_m.props.title(1)+'.'+ext
   end
-  if isempty(%scicos_saveas_path) then %scicos_saveas_path='', end
+  if isempty(%scicos_open_saveas_path) then %scicos_open_saveas_path='', end
   tit=['For saving in binary file use .cos extension,';
        'for saving in ascii file use .cosf extension'];
   if %scicos_ext.equal['xml'] then
@@ -44,13 +44,13 @@ function [ok,scs_m]=do_SaveAs(scs_m)
   end
   // FIXME: 
   while %t
-    fname=xgetfile(masks=masks,save=%t,dir=%scicos_saveas_path,file=default_name)
+    fname=xgetfile(masks=masks,save=%t,dir=%scicos_open_saveas_path,file=default_name)
     if fname=="" then
       ok=%f
       return
     else
       [path,name,ext]=splitfilepath(fname)
-      %scicos_saveas_path=path
+      %scicos_open_saveas_path=path
       select ext
         case 'cos' then
           ok=%t
