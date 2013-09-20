@@ -34,8 +34,8 @@ function [x,y,typ]=CLR_f(job,arg1,arg2)
 		    'Denominator (s)'],..
 				  list('pol',1,'pol',1),exprs)
       if ~ok then break,end
-      if type(num,'short')=='m' then num=m2p(num);end
-      if type(den,'short')=='m' then den=m2p(den);end
+      if type(num,'short')=='m' then num=m2p(num,var='s');end
+      if type(den,'short')=='m' then den=m2p(den,var='s');end
       if num.degree[] > den.degree[] then
 	message('Transfer must be proper or strictly proper !')
 	ok=%f;
@@ -98,8 +98,6 @@ function [a,b,c,d]=scicos_getabcd(num,den)
   end
   [ns,ne]=size(num);
   nd=den.degree[];
-  num.set_var['s']
-  den.set_var['s']
   // normalization
   dnd=den.coeffs{1}($); den=den/dnd;num=num/dnd
   // D(s)
