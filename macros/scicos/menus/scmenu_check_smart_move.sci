@@ -55,7 +55,7 @@ function [Cmenu,Select]=do_check_smart_move(Select)
   else
     // %win <> curwin 
     // we should never be there since navigation should 
-    printf('do_check_smart_move with %%win<>curwin\n');
+    //printf('do_check_smart_move with %%win<>curwin\n');
     kc=find(%win==windows(:,2));
     // check if the press is not inside an scicos active window
     if isempty(kc) then return;end 
