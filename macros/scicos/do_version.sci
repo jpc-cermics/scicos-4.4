@@ -59,7 +59,8 @@ function scs_m=do_version(scs_m,version)
 	  end
 	else
 	  if type(omod.sim(1),'short')=='s' && or(omod.sim(1)==Changeb) then
-	    dep_t=omod.dep_ut($);dep_u(1:size(omod.in,'*'))=%t
+	    dep_t=omod.dep_ut($);
+	    dep_u=m2b([]);dep_u(1:size(omod.in,'*'))=%t;
 	    scs_m_new.objs(j).model.dep_ut=[%t dep_t]
 	    if or(omod.sim(1)==['cmscope';'cscope']) then 
 	      scs_m_new.objs(j).model.blocktype='x'
