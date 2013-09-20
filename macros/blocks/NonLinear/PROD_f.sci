@@ -11,6 +11,10 @@ function [x,y,typ]=PROD_f(job,arg1,arg2)
     orient = graphics.flip
     rx = sz(1)*p/2
     ry = sz(2)/2
+    gr_i = arg1.graphics.gr_i
+    if type(gr_i,'short')=='l' then 
+      xfarcs([orig(1);orig(2)+sz(2);sz(1)*p;sz(2);0;360*64],color=default_color(1),thickness=2)
+    end
     xarc(orig(1),orig(2)+sz(2),sz(1)*p,sz(2),0,23040) // (23040=360*64)
     t=%pi/4
     xx=(orig(1)+rx)+..
