@@ -98,6 +98,8 @@ function [a,b,c,d]=scicos_getabcd(num,den)
   end
   [ns,ne]=size(num);
   nd=den.degree[];
+  num.set_var['s']
+  den.set_var['s']
   // normalization
   dnd=den.coeffs{1}($); den=den/dnd;num=num/dnd
   // D(s)
