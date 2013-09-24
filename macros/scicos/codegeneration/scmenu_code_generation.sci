@@ -12177,9 +12177,12 @@ function [Code,Code_xml_param]=make_standalone43()
             Code=[Code;
                   '  '+cformatline(' * Label: '+strcat(string(OO.model.label)),70)];
           end
-          if stripblanks(OO.graphics.exprs(1))~=emptystr() then
-            Code=[Code;
-                  '  '+cformatline(' * Exprs: '+strcat(OO.graphics.exprs(1),","),70)];
+          
+          if ~isempty(OO.graphics.exprs) then
+            if stripblanks(OO.graphics.exprs(1))~=emptystr() then
+              Code=[Code;
+                    '  '+cformatline(' * Exprs: '+strcat(OO.graphics.exprs(1),","),70)];
+            end
           end
           if stripblanks(OO.graphics.id)~=emptystr() then
             Code=[Code;

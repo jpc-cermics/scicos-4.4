@@ -456,7 +456,6 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
       'PlaceinDiagram',        ''                                  ;
       'Label',                 "Click block to label";
       'Get Info',              "Click on object  to get information on it";
-      'scmenu_code_generation',"Click on a Super Block (without activation output) to obtain a coded block!" ;
       'Resize',                "" ;
       'Resize Top',            "" ;
       'Block Documentation',   "Click on a block to set or get it''s documentation"]
