@@ -706,6 +706,14 @@ function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
   // do not use a win32 path when cross compiling
   if %win32 && part(NSP,2)==":" then NSP=part(NSP,3:length(NSP));end
 
+  //test to know which directory we must include
+  dirname=file('join',[NSP;'include'])
+  if file('exist',dirname) then
+    incl="-I$(NSPDIR)/include/ -I$(NSPDIR)/include/scicos"
+  else
+    incl="-I$(NSPDIR)/src/include/ -I$(NSPDIR)/src/include/scicos"
+  end
+  
   // get scicos path
   scicospath=get_scicospath()
   scicoslib='';// scicospath+'/src/libscicos.a'
@@ -715,7 +723,8 @@ function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
      "#Copyright (c) 1989-2011 Metalau project INRIA"
      "#"
      "# ------------------------------------------------------"
-     "SCIDIR       = "+NSP
+     "NSPDIR       = "+NSP
+     "SCIDIR       = $(NSPDIR)"
      "LIBRARY      = lib"+blknam]
 
   if ~isempty(libs) then
@@ -737,17 +746,17 @@ function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
 
   if ~isempty(cflags) then
     T=[T;
-       "include $(SCIDIR)/Makefile.incl";
-       "CFLAGS    = $(CC_OPTIONS) -DFORDLL -I$(SCIDIR)/routines/ "+cflags]
+       "include $(NSPDIR)/Makefile.incl";
+       "CFLAGS    = $(CC_OPTIONS) -DFORDLL "+incl+" "+cflags]
   else
     T=[T;
-       "include $(SCIDIR)/Makefile.incl";
-       "CFLAGS    = $(CC_OPTIONS) -DFORDLL -I$(SCIDIR)/routines/"]
+       "include $(NSPDIR)/Makefile.incl";
+       "CFLAGS    = $(CC_OPTIONS) -DFORDLL "+incl]
   end
 
   T=[T;
-     "FFLAGS    = $(FC_OPTIONS) -DFORDLL -I$(SCIDIR)/routines/"
-     "include $(SCIDIR)/config/Makeso.incl"]
+     "FFLAGS    = $(FC_OPTIONS) -DFORDLL "+incl
+     "include $(NSPDIR)/config/Makeso.incl"]
 
   if filestan<>'' then
     T=[T;

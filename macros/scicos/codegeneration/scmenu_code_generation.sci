@@ -214,7 +214,7 @@ function scmenu_code_generation()
 	Cmenu       = "Replot"
       else
 	nc_save=4
-	Cmenu=[]
+	Cmenu=""
 	[%cpr,ok]=do_compile(nscs_m)
 	if ok then
 	  %cpr.cor=update_cor_cdgen(cpr.cor)
@@ -1215,9 +1215,17 @@ function [XX]=gen_allblk()
     end
   end
   
-  XX.graphics.exprs(1)(3)  = sci2exp(in_siz,0)  //regular input port size
+  if isempty(in_siz) then
+    XX.graphics.exprs(1)(3)  = 'zeros(0,2)'  //regular input port size
+  else
+    XX.graphics.exprs(1)(3)  = sci2exp(in_siz,0)  //regular input port size
+  end
   XX.graphics.exprs(1)(4)  = sci2exp(in_typ,0)  //regular input port typ
-  XX.graphics.exprs(1)(5)  = sci2exp(out_siz,0) //regular output port size
+  if isempty(out_siz) then
+    XX.graphics.exprs(1)(5)  = 'zeros(0,2)' //regular output port size
+  else
+    XX.graphics.exprs(1)(5)  = sci2exp(out_siz,0) //regular output port size
+  end
   XX.graphics.exprs(1)(6)  = sci2exp(out_typ,0) //regular output port typ
   if ~isempty(firing_evtout) then
     XX.graphics.exprs(1)(7)  = '1'              //event input port size
@@ -1252,8 +1260,8 @@ function [XX]=gen_allblk()
   XX.graphics.exprs(2)=toto
 
   //@@ run 'set' job of the CBLOCK4
-  prot=funcprot()
-  funcprot(0)
+//   prot=funcprot()
+//   funcprot(0)
   getvalue=setvalue;
   function message(txt)
     x_message('In block '+XX.gui+': '+txt);
@@ -1267,7 +1275,7 @@ function [XX]=gen_allblk()
 
   %scicos_prob = %f
   XX = CBLOCK4('set',XX)
-  funcprot(prot)
+//   funcprot(prot)
 
 endfunction
 
@@ -1791,7 +1799,11 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     end
 
     //@@include scicos_block/scicos_block4.h
-    txt=scicos_mgetl('NSP/include/scicos/scicos_block4.h');
+    ffname = file('join',[getenv('NSP');'include/scicos';'scicos_block4.h']);
+    if ~file('exists',ffname) then
+      ffname = file('join',[getenv('NSP');'src/include/scicos';'scicos_block4.h']);
+    end
+    txt=scicos_mgetl(ffname);
 
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
@@ -1809,27 +1821,7 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
       ok=%f
       return
     end
-
-    txt=scicos_mgetl('NSP/include/scicos/scicos_block4.h');
-    Date=gdate_new();
-    str= Date.strftime["%d %B %Y"];
-    txt=['/* Scicos computational function header '
-         ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version()
-         ' * date : '+str;
-         ' * Copyright (c) 1989-2011 Metalau project INRIA '
-         ' */'
-         txt]
-    ffname = file('join',[rpat_blocks;'scicos_block4.h']);
-    ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
-    if ~ierr then
-      message(catenate(lasterror()))
-      ok=%f
-      return
-    end
-
-    Date=gdate_new();
-    str= Date.strftime["%d %B %Y"];
-
+    
     for i=1:2:length(CCode)
             
       CCode(i+1)=['/* Code of '+CCode(i)+' routine ';
@@ -1900,39 +1892,31 @@ function [ok,Cblocks_files,solver_files]=gen_ccode42()
     //** copy source code of machine.h and scicos_block4.h
     //   in target path
     // XXXXX use file('copy',...)
-    txt=scicos_mgetl('NSP/include/nsp/machine.h');
+    ffname = file('join',[getenv('NSP');'include/nsp';'machine.h']);
+    if ~file('exists',ffname) then
+      ffname = file('join',[getenv('NSP');'src/include/nsp';'machine.h']);
+    end
+    txt=scicos_mgetl(ffname);
     ffname=file('join',[rpat;'machine.h']);
     ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
-    end
+    end 
     
-    txt=scicos_mgetl('NSP/include/scicos/scicos_block4.h');
-    Date=gdate_new();
-    str= Date.strftime["%d %B %Y"];
+    ffname = file('join',[getenv('NSP');'include/scicos';'scicos_block4.h']);
+    if ~file('exists',ffname) then
+      ffname = file('join',[getenv('NSP');'src/include/scicos';'scicos_block4.h']);
+    end
+    txt=scicos_mgetl(ffname);
 
-    txt=['/* Scicos computational function header '
-         ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version();
-         ' * date : '+str;
-         ' * Copyright (c) 1989-2011 Metalau project INRIA '
-         ' */'
-         txt];
-    ffname = file('join',[rpat;'scicos_block4.h']);
-    ierr=execstr('scicos_mputl(txt,ffname);',errcatch=%t)
-    if ~ierr then
-      message(catenate(lasterror()))
-      ok=%f
-      return
-    end
-    
-    txt=scicos_mgetl('NSP/include/scicos/scicos_block4.h');
     Date=gdate_new();
     str= Date.strftime["%d %B %Y"];
+    
     txt=['/* Scicos computational function header '
-         ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version();
-         ' * date: '+str
+         ' * Extracted by Code_Generation toolbox of Scicos with '+get_scicos_version()
+         ' * date: '+str+' '
          ' * Copyright (c) 1989-2011 Metalau project INRIA '
          ' */'
          txt]
@@ -2207,7 +2191,8 @@ function [ok]=get_solver_code(s_name)
 //@@ initial lhs
   ok=%t
   solver_files=[]
-
+  sundials_path=file('join',[get_scicospath();'src';'sundials']);
+  
   //@@ SUNDIALS @@
   if s_name=='CVODE' | s_name=='IDA' then
     //@@ test for solver directory
@@ -2230,13 +2215,13 @@ function [ok]=get_solver_code(s_name)
     end
 
     //@@ License
-    if file('exists',SCI+'/routines/scicos/sundials/LICENSE') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/LICENSE');
+    if file('exists',file('join',[sundials_path;'LICENSE'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'LICENSE']));
     else
       txt=get_solver_file_code('LICENSE');
     end
     fname = file('join',[rpat;'solver';'LICENSE']);
-    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
@@ -2244,74 +2229,73 @@ function [ok]=get_solver_code(s_name)
     end
 
     //@@ headers
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_types.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_types.h');
+    if file('exists',file('join',[sundials_path;'sundials_types.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_types.h']));
     else
       txt=get_solver_file_code('sundials_types.h');
     end
     fname = file('join',[rpat;'solver';'sundials_types.h']);
-    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_math.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_math.h');
+    if file('exists',file('join',[sundials_path;'sundials_math.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_math.h']));
     else
       txt=get_solver_file_code('sundials_math.h');
     end
     fname = file('join',[rpat;'solver';'sundials_math.h']);
-    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/nvector_serial.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/nvector_serial.h');
+    if file('exists',file('join',[sundials_path;'nvector_serial.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'nvector_serial.h']));
     else
       txt=get_solver_file_code('nvector_serial.h');
     end
     fname = file('join',[rpat;'solver';'nvector_serial.h']);
-    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_nvector.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_nvector.h');
+    if file('exists',file('join',[sundials_path;'sundials_nvector.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_nvector.h']));
     else
       txt=get_solver_file_code('sundials_nvector.h');
     end
-
     fname = file('join',[rpat;'solver';'sundials_nvector.h']);
-    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_config.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_config.h');
+    if file('exists',file('join',[sundials_path;'sundials_config.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_config.h']));
     else
       txt=get_solver_file_code('sundials_config.h');
     end
     fname = file('join',[rpat;'solver';'sundials_config.h']);
-    ierr=execstr('scicos_mputl(Code,fname);',errcatch=%t)
+    ierr=execstr('scicos_mputl(txt,fname);',errcatch=%t)
     if ~ierr then
       message(catenate(lasterror()))
       ok=%f
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_dense.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_dense.h');
+    if file('exists',file('join',[sundials_path;'sundials_dense.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_dense.h']));
     else
       txt=get_solver_file_code('sundials_dense.h');
     end
@@ -2322,8 +2306,8 @@ function [ok]=get_solver_code(s_name)
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_smalldense.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_smalldense.h');
+    if file('exists',file('join',[sundials_path;'sundials_smalldense.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_smalldense.h']));
     else
       txt=get_solver_file_code('sundials_smalldense.h');
     end
@@ -2335,8 +2319,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     //@@ C sources
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_math.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_math.c');
+    if file('exists',file('join',[sundials_path;'sundials_math.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_math.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_math.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2346,8 +2330,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'sundials_math']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/nvector_serial.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/nvector_serial.c');
+    if file('exists',file('join',[sundials_path;'nvector_serial.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'nvector_serial.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/nvector_serial.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2357,8 +2341,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'nvector_serial']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_nvector.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_nvector.c');
+    if file('exists',file('join',[sundials_path;'sundials_nvector.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_nvector.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_nvector.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2368,8 +2352,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'sundials_nvector']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_dense.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_dense.c');
+    if file('exists',file('join',[sundials_path;'sundials_dense.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_dense.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_dense.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2379,8 +2363,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'sundials_dense']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/sundials_smalldense.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/sundials_smalldense.c');
+    if file('exists',file('join',[sundials_path;'sundials_smalldense.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'sundials_smalldense.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/sundials_smalldense.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2395,8 +2379,8 @@ function [ok]=get_solver_code(s_name)
   //@@@@ IDA @@@@
   if s_name=='IDA' then
     //@@ headers
-    if file('exists',SCI+'/routines/scicos/sundials/ida.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida.h');
+    if file('exists',file('join',[sundials_path;'ida.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'ida.h']));
     else
       txt=get_solver_file_code('ida.h');
     end
@@ -2407,8 +2391,8 @@ function [ok]=get_solver_code(s_name)
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/ida_dense.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_dense.h');
+    if file('exists',file('join',[sundials_path;'ida_dense.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'ida_dense.h']));
     else
       txt=get_solver_file_code('ida_dense.h');
     end
@@ -2419,8 +2403,8 @@ function [ok]=get_solver_code(s_name)
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/ida_impl.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_impl.h');
+    if file('exists',file('join',[sundials_path;'ida_impl.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'ida_impl.h']));
     else
       txt=get_solver_file_code('ida_impl.h');
     end
@@ -2432,8 +2416,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     //@@ C sources
-    if file('exists',SCI+'/routines/scicos/sundials/ida.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida.c');
+    if file('exists',file('join',[sundials_path;'ida.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'ida.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2443,8 +2427,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'ida']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/ida_dense.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_dense.c');
+    if file('exists',file('join',[sundials_path;'ida_dense.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'ida_dense.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida_dense.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2454,8 +2438,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'ida_dense']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/ida_ic.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_ic.c');
+    if file('exists',file('join',[sundials_path;'ida_ic.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'ida_ic.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida_ic.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2465,8 +2449,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'ida_ic']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/ida_io.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/ida_io.c');
+    if file('exists',file('join',[sundials_path;'ida_io.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'ida_io.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/ida_io.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2481,8 +2465,8 @@ function [ok]=get_solver_code(s_name)
   //@@@@ CVODE @@@@
   if s_name=='CVODE' then
     //@@ headers
-    if file('exists',SCI+'/routines/scicos/sundials/cvode.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode.h');
+    if file('exists',file('join',[sundials_path;'cvode.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'cvode.h']));
     else
       txt=get_solver_file_code('cvode.h');
     end
@@ -2493,8 +2477,8 @@ function [ok]=get_solver_code(s_name)
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/cvode_impl.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_impl.h');
+    if file('exists',file('join',[sundials_path;'cvode_impl.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'cvode_impl.h']));
     else
       txt=get_solver_file_code('cvode_impl.h');
     end
@@ -2505,8 +2489,8 @@ function [ok]=get_solver_code(s_name)
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/cvode_dense.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_dense.h');
+    if file('exists',file('join',[sundials_path;'cvode_dense.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'cvode_dense.h']));
     else
       txt=get_solver_file_code('cvode_dense.h');
     end
@@ -2517,8 +2501,8 @@ function [ok]=get_solver_code(s_name)
       return
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/cvode_dense_impl.h') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_dense_impl.h');
+    if file('exists',file('join',[sundials_path;'cvode_dense_impl.h'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'cvode_dense_impl.h']));
     else
       txt=get_solver_file_code('cvode_dense_impl.h');
     end
@@ -2530,8 +2514,8 @@ function [ok]=get_solver_code(s_name)
     end
 
     //@@ C sources
-    if file('exists',SCI+'/routines/scicos/sundials/cvode.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode.c');
+    if file('exists',file('join',[sundials_path;'cvode.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'cvode.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2541,8 +2525,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'cvode']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/cvode_dense.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_dense.c');
+    if file('exists',file('join',[sundials_path;'cvode_dense.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'cvode_dense.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode_dense.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2552,8 +2536,8 @@ function [ok]=get_solver_code(s_name)
       solver_files=[solver_files 'cvode_dense']
     end
 
-    if file('exists',SCI+'/routines/scicos/sundials/cvode_io.c') then
-      txt=scicos_mgetl(SCI+'/routines/scicos/sundials/cvode_io.c');
+    if file('exists',file('join',[sundials_path;'cvode_io.c'])) then
+      txt=scicos_mgetl(file('join',[sundials_path;'cvode_io.c']));
       ierr=execstr('scicos_mputl(txt,rpat+''/solver/cvode_io.c'')',errcatch=%t)
       if ~ierr then
         message(catenate(lasterror()))
@@ -2657,7 +2641,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
   sta__#=scs_m.codegen.opt
 
   //@@ with_gui
-  with_gui=scs_m.codegen.cblock
+  with_gui=m2b(scs_m.codegen.cblock)
 
   //@@ cdgen_libs
   if ~exists('%scicos_libs') then
@@ -12321,16 +12305,14 @@ function [Code,Code_xml_param]=make_standalone43()
     nopar = opptr(i+1)-opptr(i)
     if nopar>0  then
       //** Add comments **//
+      Code_opar=[Code_opar;
+                 '  /* Objects parameters declaration */';'']
 
       //## Modelica block
       if type(corinv(i),'short')=='l' then
         //## we can extract here all informations
         //## from original scicos blocks with corinv : TODO
-        if isempty(Code_opar) then
-          Code_opar='  /* Modelica Block */';
-        else
-          Code_opar($+1)='  /* Modelica Block */';
-        end
+        Code_opar($+1)='  /* Modelica Block */';
       else
         //@@ 04/11/08, disable generation of comment for opar
         //@@ for m_frequ because of sample clock
@@ -12349,7 +12331,7 @@ function [Code,Code_xml_param]=make_standalone43()
             path($+1)=cpr.corinv(i)($);
             OO=scs_m(path);
           end
-
+          
           Code_opar($+1)='  /* Routine name of block: '+strcat(string(cpr.sim.funs(i)));
           Code_opar($+1)='   * Gui name of block: '+strcat(string(OO.gui));
           Code_opar($+1)='   * Compiled structure index: '+strcat(string(i));
