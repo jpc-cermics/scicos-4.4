@@ -53,7 +53,7 @@ function [o,needcompile,ok]=do_create_atomic(o,k,scs_m)
   ALL=%f;
   xx=scmenu_code_generation;
   ok=execstr('[ok, XX, gui_path,flgcdgen, szclkINTemp, freof,c_atomic_code,cpr] ='+ ...
-	       'do_compile_superblock42(scs_m, k, %t);',errcatch=%t);
+	       'do_compile_superblock42(scs_m, k, atomicflag=%t);',errcatch=%t);
   if ~ok then
     message(lasterror());
     return; 

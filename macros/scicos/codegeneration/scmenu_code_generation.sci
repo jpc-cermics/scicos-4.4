@@ -6,8 +6,7 @@ function scmenu_code_generation()
 //
 // modified for nsp 
 
-  //P_project = %f; // put %t to test P project code generation
-  //This is moved in do_compile_superblock42
+  P_project = %f; // put %t to test P project code generation
   
   k     = [] ; //** index of the CodeGen source superbloc candidate
   %pt   = []   ;
@@ -77,7 +76,7 @@ function scmenu_code_generation()
 
 	//## call do_compile_superblock
 	ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code] = '+...
-		     'do_compile_superblock42(scs_m_top, k);',errcatch=%t);
+		     'do_compile_superblock42(scs_m_top, k,P_project=P_project);',errcatch=%t);
 	
 	//@@ silent_mode/cblock
 	if k<>-1 then
@@ -172,7 +171,7 @@ function scmenu_code_generation()
 
     //## call do_compile_superblock
     ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code, cpr] ='+ ...
-		 'do_compile_superblock42(scs_m, -1);',errcatch=%t)
+		 'do_compile_superblock42(scs_m, -1,P_project=P_project);',errcatch=%t)
     //## display error message if any
     if ~ierr then
       //@@ silent_mode
@@ -2551,7 +2550,10 @@ function [ok]=get_solver_code(s_name)
 
 endfunction
 
-function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compile_superblock42(all_scs_m,numk,atomicflag)
+function [ok,XX,gui_path,flgcdgen,szclkINTemp,...
+          freof,c_atomic_code,cpr]=do_compile_superblock42(all_scs_m,numk,...
+                                                           atomicflag=%f,
+                                                           P_project=%f)
 //Copyright (c) 1989-2011 Metalau project INRIA
 
 //@@ do_compile_superblock42 : transforms a given Scicos discrete and continuous
@@ -2570,10 +2572,9 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,freof,c_atomic_code,cpr]=do_compil
 //          c_atomic_code :
 //          cpr           :
 //
-  P_project = %f; // put %t to test P project code generation
   
   //******************* atomic blk **********
-  if nargin < 3 then atomicflag=%f; end
+//   if nargin < 3 then atomicflag=%f; end
   c_atomic_code=[];
   freof=[];
   flgcdgen=[];
