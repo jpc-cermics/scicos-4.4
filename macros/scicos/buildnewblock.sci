@@ -38,10 +38,10 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   if ok then
     fd.close[];
     files=[files,blknam+'f']
-    if filesint<>'' then
+    if ~isempty(filesint) then
       filesint=[filesint,blknam+'f']
     end
-    if filestan<>'' then
+    if ~filestan.equal[''] then
       filestan=[filestan,blknam+'f']
     end
   else
@@ -50,7 +50,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   
   //## define a variable to know if we use
   //## a ScicosLab interfacing function for the standalone
-  if filesint<>'' then
+  if ~isempty(filesint) then
     with_int = %t;
   else
     with_int = %f;
@@ -88,33 +88,21 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 
   //** def make file name
   Makename=file('join',[rpat;'Makefile_'+blknam]);
+  
   //@@ generation of Makefiles
-  if %win32 then //@@  windows
+  if ~%win32 then //@@ unix
     SCI = 'E:\scicoslab_43_cross'
-    if with_lcc()==%f then
-      //@@ win32
-      txt=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags);
-      Makename2 = Makename+'.mak'
-      ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
-      if ~ierr then
-	x_message(['Can''t write '+Makename2;catenate(lasterror())]);
-	ok=%f;
-	return;
-      end
-    else
-      //@@ lccwin32
-      txt=gen_make_lccwin32(blknam,files,filestan,libs,ldflags,cflags);
-      Makename2 = Makename+'.lcc'
-      ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
-      if ~ierr then
-	x_message(['Can''t write '+Makename2;catenate(lasterror())]);
-	ok=%f;
-	return;
-      end
+    txt=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags);
+    Makename2 = Makename+'.mak'
+    ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
+    if ~ierr then
+      x_message(['Can''t write '+Makename2;catenate(lasterror())]);
+      ok=%f;
+      return;
     end
     SCI = getenv('NSP');
   else 
-    //@@ unix
+    //@@ windows
     SCI = '/usr/lib/scicoslab_gtk-4.3'
     txt=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags);
     ierr=execstr('scicos_mputl(txt,Makename)',errcatch=%t)
@@ -129,7 +117,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   //** generate txt of makefile and get wright name
   //   of the Makefile file
   [Makename2,txt]=gen_make(blknam,files,filestan,libs,Makename,ldflags,cflags);
-
+  
   //** write text of the Makefile in the file called Makename
   ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
   if ~ierr then
@@ -177,41 +165,33 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   end
   
   //## generate makefile for interfacing function of the standalone
-  if filesint<>'' then
+  if ~isempty(filesint) then
      //## def name of interf func and
      //## name of interf librabry derived from name of superblock
      l_blknam=length(blknam)
      //l_blknam=(l_blknam>17)*17 + (l_blknam<=17)*l_blknam
      blknamint='int'+part(blknam,1:l_blknam)
      Makename=file('join',[rpat;'Makefile_'+blknamint]);
+     
      //@@ generation of Makefiles
-     if %win32 then 
-       if with_lcc()==%f then
-         //@@ win32
-         txt=gen_make_win32(blknamint,filesint,'',libs,ldflags,cflags);
-         Makename2 = Makename+'.mak';
-         ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
-         if ~ierr then
-           x_message(['Can''t write '+Makename2;catenate(lasterror())]);
-           ok=%f;
-           return;
-         end
-       else
-         //@@ lccwin32
-         txt=gen_make_lccwin32(blknamint,filesint,'',libs,ldflags, cflags);
-	 Makename2 = Makename+'.lcc';
-         ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
-         if ~ierr then
-           x_message(['Can''t write '+Makename2;catenate(lasterror())]);
-           ok=%f;
-           return;
-         end
-       end
-     else 
-       SCI = '/usr/lib/scicoslab_gtk-4.3'
-       //@@ unix
-       txt=gen_make_unix(blknamint,filesint,'',libs,ldflags,cflags);
+     if ~%win32 then 
+       //@@ unix (we generate also win32 makefile)
+       SCI='E:\scicoslab_43_cross'
+       
+       txt=gen_make_win32(blknamint,filesint,'',libs,ldflags,cflags);
+       Makename2 = Makename+'.mak';
        ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
+       if ~ierr then
+         x_message(['Can''t write '+Makename2;catenate(lasterror())]);
+         ok=%f;
+         return;
+       end
+       SCI = getenv('NSP');
+     else 
+       //@@ windows (we generate also unix makefile)
+       SCI = '/usr/lib/scicoslab_gtk-4.3'
+       txt=gen_make_unix(blknamint,filesint,'',libs,ldflags,cflags);
+       ierr=execstr('scicos_mputl(txt,Makename)',errcatch=%t)
        if ~ierr then
          x_message(['Can''t write '+Makename;catenate(lasterror())]);
          ok=%f;
@@ -574,7 +554,7 @@ function [T]=gen_make_lccwin32(blknam,files,filestan,libs,ldflags,cflags)
      ""
      "OBJS         = "+strcat(files+'.obj',' ')]
 
-  if filestan<>'' then
+  if ~filestan.equal[''] then
     T=[T;
        "OBJSSTAN     = "+strcat(filestan+'.obj',' ')]
   end
@@ -618,7 +598,7 @@ function [T]=gen_make_lccwin32(blknam,files,filestan,libs,ldflags,cflags)
      "distclean:: clean"
      ""]
 
-  if filestan<>'' then
+  if ~filestan.equal[''] then
     T=[T;
        "standalone: $(OBJSSTAN) "
         ascii(9)+"$(LINKER) $(LINKER_FLAGS) $(OBJSSTAN)"+...
@@ -739,7 +719,7 @@ function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
      ""
      "OBJS         = "+strcat(files+'.o',' ')]
 
-  if filestan<>'' then
+  if ~filestan.equal[''] then
     T=[T;
        "OBJSSTAN     = "+strcat(filestan+'.o',' ')]
   end
@@ -758,7 +738,7 @@ function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
      "FFLAGS    = $(FC_OPTIONS) -DFORDLL "+incl
      "include $(NSPDIR)/config/Makeso.incl"]
 
-  if filestan<>'' then
+  if ~filestan.equal[''] then
     T=[T;
        "standalone: $(OBJSSTAN) "
        "#"+ascii(9)+"f77 $(FFLAGS) -o $@  $(OBJSSTAN) $(OTHERLIBS) $(SCILIBS)"
@@ -826,7 +806,7 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
      ""
      "OBJS         = "+strcat(files+'.obj',' ')]
 
-  if filestan<>'' then
+  if ~filestan.equal[''] then
     T=[T;
        "OBJSSTAN     = "+strcat(filestan+'.obj',' ')]
   end
@@ -870,7 +850,7 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
      "distclean:: clean"
      ""]
 
-  if filestan<>'' then
+  if ~filestan.equal[''] then
     T=[T;
        "standalone: $(OBJSSTAN) "
         ascii(9)+"$(LINKER) $(LINKER_FLAGS) $(OBJSSTAN)"+...
