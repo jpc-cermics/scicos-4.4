@@ -220,7 +220,7 @@ function scmenu_code_generation()
 	  %cpr.cor=update_cor_cdgen(cpr.cor)
 	  corinv=list()
 	  for i =1:length(cpr.corinv)
-	    if cpr.corinv(i)<>0 then
+	    if ~cpr.corinv(i).equal[0] then
 	      corinv($+1)=cpr.corinv(i)
 	    end
 	  end
