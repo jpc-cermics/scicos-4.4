@@ -10,7 +10,7 @@ function y=sci2exp(exp,nam)
 //
 // XXXX a sprint(.,as_read=%t) without line breaks 
 //      should be usefull
-  if or(type(exp,'short')==['m','s']) && size(exp,'*')==1 then 
+  if or(type(exp,'short')==['m','s','b']) && size(exp,'*')==1 then 
     // scalar 
     y= sprint(exp,as_read=%t);
     y=y(2:$);
@@ -21,12 +21,12 @@ function y=sci2exp(exp,nam)
     // empty
     [m,n]=size(exp);
     y = sprintf("%s_create(%d,%d)", tolower(type(exp,'string')),m,n);
-  elseif or(type(exp,'short')==['m','s']) & size(exp,2)==1 then 
+  elseif or(type(exp,'short')==['m','s','b']) & size(exp,2)==1 then 
     // column vector 
     y= sprint(exp,as_read=%t);
     y=y(2:$);
     y=strcat(stripblanks(y));
-  elseif or(type(exp,'short')==['m','s']) & size(exp,1)==1 then 
+  elseif or(type(exp,'short')==['m','s','b']) & size(exp,1)==1 then 
     // row vector 
     y=sprint(exp',as_read=%t);
     y=y(2:$);
