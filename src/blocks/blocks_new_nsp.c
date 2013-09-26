@@ -3459,7 +3459,7 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
     {
       char *st=S->obj->text->S[i];
       int k=0;
-      char buf[128];
+      char buf[1024];
       for ( j= 0 ; j < n ; j++) 
 	{
 	  int kj =sprintf(buf+k, "%*.*f" , form[0], form[1], v[i+m*j]);
