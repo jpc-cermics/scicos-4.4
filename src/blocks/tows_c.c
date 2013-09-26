@@ -33,6 +33,7 @@ typedef struct _tows_data tows_data;
 
 struct _tows_data
 {
+  int infinite;    /* infinite workspace */
   int start;
   NspMatrix *time; /* matrix to store time */
   NspCells *values; /* cell array to store values */
@@ -63,9 +64,10 @@ void tows_c (scicos_block * block, int flag)
   if (flag == 4)
     {
       tows_data *D;
-      /* initialization 
+      /* initialization: if nz < 0 data will be allocated dynamically during 
+       * the simulation. Note that a buffer size of %inf will give a <0 value here 
        */
-      if ( nsp_alloc_tows_data(&D,Max(nz,0),nu,nu2,ipar) == FAIL) 
+      if ( nsp_alloc_tows_data(&D,nz,nu,nu2,ipar) == FAIL) 
 	{
 	  set_block_error (-16);
 	  return;
@@ -89,10 +91,14 @@ void tows_c (scicos_block * block, int flag)
       tows_data *D = (tows_data *) (*block->work);
       void *data = GetInPortPtrs (block, 1);
       /* check data dimension */
-      if ( D->time->mn != nz || nu != D->m || (nu2 != D->n))
+      if ( nu != D->m || (nu2 != D->n))
 	{
-	  Coserror ("Size of buffer or input size have changed!\n");
-	  /*set_block_error(-1); */
+	  Coserror ("Error: Size of buffer or input size have changed!\n");
+	  return;
+	}
+      if ( nz >= 0 &&  D->time->mn != Max(nz,1)) 
+	{
+	  Coserror ("Error: Size of buffer or input size have changed!\n");
 	  return;
 	}
       /* get old time 
@@ -109,11 +115,12 @@ void tows_c (scicos_block * block, int flag)
     }
 }
 
-static int nsp_alloc_tows_data(tows_data **hD,int size,int m,int n, int *ipar)
+static int nsp_alloc_tows_data(tows_data **hD,int rsize,int m,int n, int *ipar)
 {
-  int i;
+  int i, size = Max(rsize,1);
   tows_data *D=NULL;
   if ((D= malloc(sizeof(tows_data)))== NULL) goto end;
+  D->infinite = (rsize < 0 ) ? TRUE : FALSE;
   D->time = NULL;
   D->values = NULL;
   D->start = 0;
@@ -121,6 +128,7 @@ static int nsp_alloc_tows_data(tows_data **hD,int size,int m,int n, int *ipar)
   D->n = n;
   for ( i = 0 ; i < Min(ipar[1],tows_name_len-2) ; i++)  D->name[i] = ipar[2+i];
   D->name[i]='\0';
+  if ( D->infinite == TRUE ) size= 1024;
   if ((D->time= nsp_matrix_create("time",'r',1,size))==NULL) goto end;
   D->time->R[D->time->mn -1]=0.0;
   if ((D->values= nsp_cells_create("values",1,size))==NULL) goto end;
@@ -138,6 +146,7 @@ static int nsp_alloc_tows_data(tows_data **hD,int size,int m,int n, int *ipar)
  * or at position [D->start, D->time->mn-1,0,D->start-1] if the queue is fully filled. 
  * When objects at position D->start does not exists it is created. We assume that the 
  * type of objects when set are not changed.
+ * When D->infinite is TRUE we enlarge D during simulation. 
  */
 
 static int nsp_store_tows_data(tows_data *D,int type, int m, int n, void *data, double time)
@@ -160,7 +169,24 @@ static int nsp_store_tows_data(tows_data *D,int type, int m, int n, void *data, 
 	    M= (NspMatrix *) D->values->objs[D->start];
 	  }
 	D->start++; 
-	if ( D->start == D->time->mn ) D->start = 0;
+	if ( D->start == D->time->mn ) 
+	  {
+	    if ( D->infinite == FALSE )
+	      {
+		D->start = 0;
+	      }
+	    else
+	      {
+		if ( nsp_matrix_resize(D->time, 1, D->time->mn + 1024) == FAIL) 
+		  {
+		    return FAIL;
+		  }
+		if ( nsp_cells_resize(D->values, 1, D->values->mn + 1024) == FAIL) 
+		  {
+		    return FAIL;
+		  }
+	      }
+	  }
 	if ( ctype== 'c' ) 
 	  {
 	    int i;
