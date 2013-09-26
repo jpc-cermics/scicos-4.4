@@ -257,7 +257,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     if ~isempty(%scicos_navig) then 
       // navigation mode is active 
       while ~isempty(%scicos_navig) do
-        if ~isequal(%diagram_path_objective,super_path) then
+        if ~isequal(%diagram_path_objective,super_path) &&...
+           ~(isempty(%diagram_path_objective) && isempty(super_path)) then
           %diagram_open=%f
           Select_back=Select
           [Cmenu,Select]=Find_Next_Step(%diagram_path_objective,super_path,Select) 
