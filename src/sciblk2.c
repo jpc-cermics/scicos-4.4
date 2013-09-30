@@ -1,5 +1,5 @@
 /* Nsp
- * Copyright (C) 2006-2011 Jean-Philippe Chancelier (Enpc), Alan Layec
+ * Copyright (C) 2006-2013 Jean-Philippe Chancelier (Enpc), Alan Layec
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -137,50 +137,31 @@ static NspObject *scicos_inttosci (const char *name, const void *x, int mx,int n
 {
   nsp_itype itype;
   NspIMatrix *M;
-  
   switch (typ)
   {
-    case SCSINT_N    : itype=nsp_gint;
-                       break;
-    case SCSINT8_N   : itype=nsp_gint8;
-                       break;
-    case SCSINT16_N  : itype=nsp_gint16;
-                       break;
-    case SCSINT32_N  : itype=nsp_gint32;
-                       break; 
-    case SCSUINT_N   : itype=nsp_guint;
-                       break; 
-    case SCSUINT8_N  : itype=nsp_guint8;
-                       break; 
-    case SCSUINT16_N : itype=nsp_guint16;
-                       break;  
-    case SCSUINT32_N : itype=nsp_guint32;
-                       break; 
+    case SCSINT_N    : itype=nsp_gint;   break;
+    case SCSINT8_N   : itype=nsp_gint8;  break;
+    case SCSINT16_N  : itype=nsp_gint16; break;
+    case SCSINT32_N  : itype=nsp_gint32; break; 
+    case SCSUINT_N   : itype=nsp_guint;  break; 
+    case SCSUINT8_N  : itype=nsp_guint8; break; 
+    case SCSUINT16_N : itype=nsp_guint16;break;  
+    case SCSUINT32_N : itype=nsp_guint32;break; 
     default          : return NULLOBJ;
   }
   
   if ((M = nsp_imatrix_create(name, mx, nx, itype)) == NULLIMAT) return NULLOBJ;
-  
   switch (typ)
   {
-    case SCSINT_N    : memcpy((gint *) M->Gint, (SCSINT_COP *) x, M->mn*sizeof(gint));
-                       break;
-    case SCSINT8_N   : memcpy((gint8 *) M->Gint8, (SCSINT8_COP *) x, M->mn*sizeof(gint8));
-                       break;
-    case SCSINT16_N  : memcpy((gint16 *) M->Gint16, (SCSINT16_COP *) x, M->mn*sizeof(gint16));
-                       break;
-    case SCSINT32_N  : memcpy((gint32 *) M->Gint32, (SCSINT32_COP *) x, M->mn*sizeof(gint32));
-                       break; 
-    case SCSUINT_N   : memcpy((guint *) M->Guint, (SCSUINT_COP *) x, M->mn*sizeof(guint));
-                       break; 
-    case SCSUINT8_N  : memcpy((guint8 *) M->Guint8, (SCSUINT8_COP *) x, M->mn*sizeof(guint8));
-                       break; 
-    case SCSUINT16_N : memcpy((guint16 *) M->Guint16, (SCSUINT16_COP *) x, M->mn*sizeof(guint16));
-                       break;  
-    case SCSUINT32_N : memcpy((guint32 *) M->Guint32, (SCSUINT32_COP *) x, M->mn*sizeof(guint32));
-                       break;
+    case SCSINT_N    : memcpy((gint *) M->Gint, (SCSINT_COP *) x, M->mn*sizeof(gint));  break;
+    case SCSINT8_N   : memcpy((gint8 *) M->Gint8, (SCSINT8_COP *) x, M->mn*sizeof(gint8)); break;
+    case SCSINT16_N  : memcpy((gint16 *) M->Gint16, (SCSINT16_COP *) x, M->mn*sizeof(gint16)); break;
+    case SCSINT32_N  : memcpy((gint32 *) M->Gint32, (SCSINT32_COP *) x, M->mn*sizeof(gint32)); break; 
+    case SCSUINT_N   : memcpy((guint *) M->Guint, (SCSUINT_COP *) x, M->mn*sizeof(guint)); break; 
+    case SCSUINT8_N  : memcpy((guint8 *) M->Guint8, (SCSUINT8_COP *) x, M->mn*sizeof(guint8)); break; 
+    case SCSUINT16_N : memcpy((guint16 *) M->Guint16, (SCSUINT16_COP *) x, M->mn*sizeof(guint16)); break;  
+    case SCSUINT32_N : memcpy((guint32 *) M->Guint32, (SCSUINT32_COP *) x, M->mn*sizeof(guint32)); break;
   }
-
   return NSP_OBJECT(M);
 }
 
@@ -377,25 +358,16 @@ static int scicos_scitoint(void *x, int mx, int nx, const NspObject *Ob)
     Sciprintf("Expecting a (%d,%d) matrix and (%d,%d) returned\n", mx, nx,
               M->m, M->n);
   }
- 
   switch (M->itype)
   {
-    case nsp_gint    : memcpy((SCSINT_COP *) x, (gint *) M->Gint, M->mn*sizeof(SCSINT_COP));
-                       break;
-    case nsp_gint8   : memcpy((SCSINT8_COP *) x, (gint8 *) M->Gint8, M->mn*sizeof(SCSINT_COP));
-                       break;
-    case nsp_gint16  : memcpy((SCSINT16_COP *) x, (gint16 *) M->Gint16, M->mn*sizeof(SCSINT_COP));
-                       break;
-    case nsp_gint32  : memcpy((SCSINT32_COP *) x, (gint32 *) M->Gint32, M->mn*sizeof(SCSINT_COP));
-                       break;
-    case nsp_guint   : memcpy((SCSUINT_COP *) x, (guint *) M->Guint, M->mn*sizeof(SCSUINT_COP));
-                       break;
-    case nsp_guint8  : memcpy((SCSUINT8_COP *) x, (guint8 *) M->Guint8, M->mn*sizeof(SCSUINT8_COP));
-                       break;
-    case nsp_guint16 : memcpy((SCSUINT16_COP *) x, (guint16 *) M->Guint16, M->mn*sizeof(SCSUINT16_COP));
-                       break;
-    case nsp_guint32 : memcpy((SCSUINT32_COP *) x, (guint32 *) M->Guint32, M->mn*sizeof(SCSUINT32_COP));
-                       break;
+    case nsp_gint    : memcpy((SCSINT_COP *) x, (gint *) M->Gint, M->mn*sizeof(SCSINT_COP));  break;
+    case nsp_gint8   : memcpy((SCSINT8_COP *) x, (gint8 *) M->Gint8, M->mn*sizeof(SCSINT8_COP)); break;
+    case nsp_gint16  : memcpy((SCSINT16_COP *) x, (gint16 *) M->Gint16, M->mn*sizeof(SCSINT16_COP)); break;
+    case nsp_gint32  : memcpy((SCSINT32_COP *) x, (gint32 *) M->Gint32, M->mn*sizeof(SCSINT32_COP)); break;
+    case nsp_guint   : memcpy((SCSUINT_COP *) x, (guint *) M->Guint, M->mn*sizeof(SCSUINT_COP)); break;
+    case nsp_guint8  : memcpy((SCSUINT8_COP *) x, (guint8 *) M->Guint8, M->mn*sizeof(SCSUINT8_COP)); break;
+    case nsp_guint16 : memcpy((SCSUINT16_COP *) x, (guint16 *) M->Guint16, M->mn*sizeof(SCSUINT16_COP)); break;
+    case nsp_guint32 : memcpy((SCSUINT32_COP *) x, (guint32 *) M->Guint32, M->mn*sizeof(SCSUINT32_COP)); break;
     default          : return FAIL;
   }
 
