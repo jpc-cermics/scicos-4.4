@@ -32,13 +32,13 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   if nargin <= 8 then silent   = %f, end
 
   if libs.equal[''] then libs=m2s([]);end 
-    
+  
   //@@ check if a fortran files exist
   ok =execstr("fd=fopen(''"+rpat+'/'+blknam+'f.f'+"'',mode=""r"")", errcatch=%t);
   if ok then
     fd.close[];
     files=[files,blknam+'f']
-    if ~isempty(filesint) then
+    if ~filesint.equal[''] then
       filesint=[filesint,blknam+'f']
     end
     if ~filestan.equal[''] then
@@ -50,7 +50,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   
   //## define a variable to know if we use
   //## a ScicosLab interfacing function for the standalone
-  if ~isempty(filesint) then
+  if ~filesint.equal[''] then
     with_int = %t;
   else
     with_int = %f;
@@ -165,7 +165,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   end
   
   //## generate makefile for interfacing function of the standalone
-  if ~isempty(filesint) then
+  if with_int then
      //## def name of interf func and
      //## name of interf librabry derived from name of superblock
      l_blknam=length(blknam)
