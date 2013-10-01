@@ -173,7 +173,10 @@ function [ok,scs_m,%cpr] = scicos_codegeneration(scs_m,Params)
       scs_m = nscs_m
       [%cpr,ok]=do_compile(nscs_m)
     else
-      [%cpr,ok]=do_compile(nscs_m)
+      scs_m_save=scs_m
+      scs_m=nscs_m 
+      [%cpr,ok]=do_compile(scs_m)
+      scs_m=scs_m_save
       %cpr.cor=update_cor_cdgen(cpr.cor)
       corinv=list()
       for i =1:lstsize(cpr.corinv)
