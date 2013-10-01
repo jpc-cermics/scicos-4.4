@@ -397,9 +397,16 @@ function [SCode]=gen_loader(blknam,for_link,with_int)
          'blknam='+sci2exp(blknam)+';';
          ''
          '//** Get the absolute path of this loader file'
-         '//FIXME'
-         '//DIR=get_absolute_file_path(blknam+''_loader.sce'');'
-         'DIR='+rpat+'''/'''
+         'DIR=get_current_exec_dir();'
+         'if DIR=='''' then'
+         '  DIR=getcwd();'
+         'else'
+         '  end_char=part(DIR,length(DIR));'
+         '  if end_char==''/''|end_char==''\'' then'
+         '    DIR=part(DIR,1:length(DIR)-1);'
+         '  end'
+         'end'
+         'DIR=DIR+''/'''
          ''
          '//** Define Makefile name'
          'Makename=DIR+''Makefile_''+blknam;'
@@ -444,7 +451,7 @@ function [SCode]=gen_loader(blknam,for_link,with_int)
          ''
          '//** Load the gui function';
          'if file(''exists'',DIR+blknam+''_c.sci'') then'
-         '  getf(DIR+blknam+''_c.sci'');'
+         '  exec(DIR+blknam+''_c.sci'');'
          'end'
          '']
 
@@ -743,7 +750,7 @@ function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
     T=[T;
        "standalone: $(OBJSSTAN) "
        "#"+ascii(9)+"f77 $(FFLAGS) -o $@  $(OBJSSTAN) $(OTHERLIBS) $(SCILIBS)"
-       ascii(9)+"gcc $(CFLAGS) -lm -lgfortran -o $@ $(OBJSSTAN) $(OTHERLIBS) -Wl,--whole-archive $(SCICOSLIB) $(NSPLIBS) -Wl,--no-whole-archive $(EXTERNLIBS) $(FC_LDFLAGS)"]
+       ascii(9)+"gcc $(CFLAGS) -lm -lgfortran -o $@ $(OBJSSTAN) $(OTHERLIBS) $(SCICOSLIB) $(NSPLIBS) -Wl,--no-whole-archive $(EXTERNLIBS) $(FC_LDFLAGS)"]
   end
 
 endfunction
