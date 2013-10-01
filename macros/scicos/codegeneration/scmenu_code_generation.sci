@@ -7385,6 +7385,7 @@ function [Code]=make_sci_interf43()
        '#include <nsp/interf.h>'
        '#define SCICOS_CODEGEN'
        '#include <scicos/scicos_codegen.h>'
+       '#include <scicos/simul4.h>'
        '']
 
  //## external definition of standalone simulation function
@@ -7706,6 +7707,13 @@ function [Code]=make_sci_interf43()
        '    }'
        '  }']
   
+ //XX initialize a Scicos struct
+ Code=[Code
+       ''
+       '  /* initialize a Scicos struct */'
+       '  scicos_run r_scicos;'
+       '  Scicos = &r_scicos;']
+ 
  //## call standalone simulation function
  Code=[Code
        ''
@@ -7716,7 +7724,7 @@ function [Code]=make_sci_interf43()
        '  if (ierr!=0) {'
        '    /* Scierror  */'
        '    Scierror(""Simulation fails with error number %d.\\n"",ierr);'
-       '  }'  ]
+       '  }']
 
  // returned values
  if nbact<>0 then
