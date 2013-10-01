@@ -7690,16 +7690,17 @@ function [Code]=make_sci_interf43()
        '  params.tf = tf;'
        ''
        '  /* check parameters data file */'
-       '  if ( fname != NULL ) '
-       '    {'
-       '      params.filen = fname;'
-       '    }'
-       '  else'
+       '  if ( fname != NULL ) {'
+       '    params.filen = fname;'
+       '  }'
+       '  else {'
+       '    params.filen = filen;'
+       '    /* open parameters data file */'
+       '    if ((fp = fopen(rpatfilen,""rb"")) != NULL) {'
+       '      fclose(fp);'
        '      params.filen = rpatfilen;'
-       '      /* open parameters data file */'
-       '      if ((fp = fopen(rpatfilen,""rb"")) != NULL) {'
-       '        params.filen = filen;fclose(fp);'
-       '    }']
+       '    }'
+       '  }']
   
  //## call standalone simulation function
  Code=[Code
