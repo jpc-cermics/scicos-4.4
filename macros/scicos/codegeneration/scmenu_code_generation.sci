@@ -14605,7 +14605,7 @@ function [Code,Code_xml_param]=make_standalone43()
       Code=[Code;
             '{'
             '  /* local variables used to call block */'
-            '  int local_flag;i']
+            '  int local_flag;']
 
       if ~isempty(act) | ~isempty(cap) then
         Code=[Code;
