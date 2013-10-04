@@ -45,6 +45,7 @@
 
 void scicos_forblk_block (scicos_args_F0)
 {
+  scicos_run *Scicos=scicos_get_scicos_run();
   --y;
   --u;
   --ipar;
@@ -100,6 +101,7 @@ void scicos_forblk_block (scicos_args_F0)
 
 void scicos_hltblk_block (scicos_args_F0)
 {
+  scicos_run *Scicos=scicos_get_scicos_run();
   if (*flag__ == 2)
     {
       Scicos->params.halt = 1;

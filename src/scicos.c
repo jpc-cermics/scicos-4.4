@@ -5348,7 +5348,7 @@ int scicos_get_block_number ()
  * block number
  */
 
-void set_block_number (int block_number)
+void scicos_set_block_number (int block_number)
 {
   Scicos->params.curblk = block_number;
 }
@@ -5449,6 +5449,18 @@ double Get_Jacobian_cj (void)
 double Get_Scicos_SQUR (void)
 {
   return SQuround;
+}
+
+
+void scicos_set_scicos_run (scicos_run *scicos_r)
+{
+  Scicos=scicos_r;
+}
+
+
+scicos_run * scicos_get_scicos_run (void)
+{
+  return Scicos;
 }
 
 /*-----------------------------------------------------------------------*/

@@ -36,6 +36,8 @@
 int scicos_getscicosvars (int what, double **v, int *nv, int *type)
 {
   int nblk;
+  scicos_run *Scicos=scicos_get_scicos_run();
+  
   if (Scicos->status == run_off)
     {
       *v = NULL;
@@ -131,13 +133,17 @@ int scicos_getscicosvars (int what, double **v, int *nv, int *type)
 
 char *scicos_getlabel (int kf)
 {
+  scicos_run *Scicos=scicos_get_scicos_run();
   return Scicos->Blocks[kf - 1].label;
 }
 
 
 int scicos_get_block_by_label (const char *label)
 {
-  int nblk = Scicos->sim.nblk, k;
+  scicos_run *Scicos=scicos_get_scicos_run();;
+  int nblk,k;
+  nblk = Scicos->sim.nblk;
+  
   for (k = 0; k < nblk; k++)
     {
       if (strcmp (Scicos->Blocks[k].label, label) == 0)
@@ -148,6 +154,7 @@ int scicos_get_block_by_label (const char *label)
 
 int scicos_getscilabel (int kfun, char **label)
 {
+  scicos_run *Scicos=scicos_get_scicos_run();
   if (Scicos->status == run_off)
     return FAIL;
   *label = Scicos->Blocks[kfun - 1].label;
@@ -156,6 +163,7 @@ int scicos_getscilabel (int kfun, char **label)
 
 int scicos_getcurblock (void)
 {
+  scicos_run *Scicos=scicos_get_scicos_run();
   return Scicos->params.curblk;
 }
 
@@ -185,6 +193,8 @@ void scicos_getouttb (int nsize, int *nvec, double *outtc)
 
   /*auxiliary variable */
   int j, lnk, pos;
+  
+  scicos_run *Scicos=scicos_get_scicos_run();
 
   /*get outtbptr from import struct. */
   outtbptr = Scicos->sim.outtbptr;
@@ -281,6 +291,7 @@ void scicos_getouttb (int nsize, int *nvec, double *outtc)
 
 void scicos_send_halt (void)
 {
+  scicos_run *Scicos=scicos_get_scicos_run();
   if ( Scicos != NULL) 
     Scicos->params.halt = 1;
 }

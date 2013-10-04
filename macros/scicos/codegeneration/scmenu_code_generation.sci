@@ -1650,45 +1650,45 @@ function [CCode,FCode]=gen_blocks()
   //@@ other routines of scicos blocks can also be included
   //@@
   //@@ warning we use cpr :
-  if ALL then
-    cod_include=''
-    for kf=1:size(cpr.sim.funtyp,1)
-      if (cpr.sim.funtyp(kf)==4) | (cpr.sim.funtyp(kf)==10004) then
-        if isempty(find(cpr.sim.funs(kf)==cod_include)) then
-          cod=get_blk4_code(cpr.sim.funs(kf))
-          if ~isempty(cod) then
-            for i=1:size(cod,1)
-              if ~isempty(strindex(cod(i),'get_scicos_time')) then
-                cod_include=[cod_include;cpr.sim.funs(kf)]
-                CCode($+1)=cpr.sim.funs(kf)
-                CCode($+1)=cod
-                break
-              elseif ~isempty(strindex(cod(i),'do_cold_restart')) then
-                cod_include=[cod_include;cpr.sim.funs(kf)]
-                CCode($+1)=cpr.sim.funs(kf)
-                CCode($+1)=cod
-                break
-              elseif ~isempty(strindex(cod(i),'get_phase_simulation')) then
-                cod_include=[cod_include;cpr.sim.funs(kf)]
-                CCode($+1)=cpr.sim.funs(kf)
-                CCode($+1)=cod
-                break
-              end
-            end
-          end
-        end
-      end
-    end
-    //@@ extract dgelsy1
-    for kf=1:length(cpr.sim.funs)
-      if cpr.sim.funs(kf)=='mat_bksl' | cpr.sim.funs(kf)=='mat_div' then
-        cod=get_blk4_code('dgelsy1')
-        CCode($+1)='dgelsy1'
-        CCode($+1)=cod
-        break
-      end
-    end
-  end
+//   if ALL then
+//     cod_include=''
+//     for kf=1:size(cpr.sim.funtyp,1)
+//       if (cpr.sim.funtyp(kf)==4) | (cpr.sim.funtyp(kf)==10004) then
+//         if isempty(find(cpr.sim.funs(kf)==cod_include)) then
+//           cod=get_blk4_code(cpr.sim.funs(kf))
+//           if ~isempty(cod) then
+//             for i=1:size(cod,1)
+//               if ~isempty(strindex(cod(i),'get_scicos_time')) then
+//                 cod_include=[cod_include;cpr.sim.funs(kf)]
+//                 CCode($+1)=cpr.sim.funs(kf)
+//                 CCode($+1)=cod
+//                 break
+//               elseif ~isempty(strindex(cod(i),'do_cold_restart')) then
+//                 cod_include=[cod_include;cpr.sim.funs(kf)]
+//                 CCode($+1)=cpr.sim.funs(kf)
+//                 CCode($+1)=cod
+//                 break
+//               elseif ~isempty(strindex(cod(i),'get_phase_simulation')) then
+//                 cod_include=[cod_include;cpr.sim.funs(kf)]
+//                 CCode($+1)=cpr.sim.funs(kf)
+//                 CCode($+1)=cod
+//                 break
+//               end
+//             end
+//           end
+//         end
+//       end
+//     end
+//     //@@ extract dgelsy1
+//     for kf=1:length(cpr.sim.funs)
+//       if cpr.sim.funs(kf)=='mat_bksl' | cpr.sim.funs(kf)=='mat_div' then
+//         cod=get_blk4_code('dgelsy1')
+//         CCode($+1)='dgelsy1'
+//         CCode($+1)=cod
+//         break
+//       end
+//     end
+//   end
 
   if CCode==list()
     //     CCode($+1)=['void no_ccode()'
@@ -2761,10 +2761,9 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,...
   //## overload some functions used
   //## in modelica block compilation
   //## disable it for codegeneration
-
-  function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cflags) 
-    ok=%t;
-  endfunction;
+  //function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cflags) 
+  //  ok=%t;
+  //endfunction;
 
   //## first pass of compilation
   if ~ALL then
@@ -3191,6 +3190,11 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,...
     eok=execstr('[state,t]=scicosim(state,0,0,cpr.sim,'+..
                  '''finish'',scs_m.props.tol)',errcatch=%t)
     if ~eok then lasterror();end 
+  else
+    lasterror();
+    for i=1:cpr.sim.nb
+      with_work(i)=1
+    end
   end
 
   //@@ remove windows opened by simulation
@@ -7511,7 +7515,8 @@ function [Code]=make_sci_interf43()
  fdat = file('join',[rpat;rdnom+'_params.dat']);
  fdat = file('native',fdat);
  if %win32 then
-   fdat = strsubst(fdat,'\','\\');
+   fdat = strsubst(fdat,'/','\');
+   fdat = strsubst(fdat,'\','\\\\');
  end
  Code.concatd[sprintf('  char rpatfilen[] = ""%s"";',fdat)];
 
@@ -7578,6 +7583,13 @@ function [Code]=make_sci_interf43()
        ''
        '  /* Ouput standalone error handling */'
        '  int ierr;']
+ 
+ //XX initialize a Scicos struct
+ Code=[Code
+       ''
+       '  /* initialize a Scicos struct */'
+       '  scicos_run r_scicos,*Scicos=scicos_get_scicos_run();'
+       '  scicos_set_scicos_run(&r_scicos);']
  
  //## counter variable
  Code=[Code
@@ -7707,23 +7719,19 @@ function [Code]=make_sci_interf43()
        '    }'
        '  }']
   
- //XX initialize a Scicos struct
- Code=[Code
-       ''
-       '  /* initialize a Scicos struct */'
-       '  scicos_run r_scicos;'
-       '  Scicos = &r_scicos;']
- 
  //## call standalone simulation function
  Code=[Code
        ''
        '  /* call standalone simulation function */'
        '  ierr='+rdnom+'_sim(params, typin, inptr, typout, outptr);'
        ''
+       '  scicos_set_scicos_run(Scicos);'
+       ''
        '  /* display error message */'
        '  if (ierr!=0) {'
        '    /* Scierror  */'
        '    Scierror(""Simulation fails with error number %d.\\n"",ierr);'
+       '    goto error;'
        '  }']
 
  // returned values
@@ -8056,6 +8064,7 @@ function [Code]=make_sci_interf()
        '  if (ierr!=0) {'
        '    /* Scierror  */'
        '    Scierror(""Simulation fails with error number %d.\\n"",ierr);'
+       '    goto error;'
        '  }'  ]
 
  if nbact<>0 then
@@ -9151,9 +9160,11 @@ function [Code]=make_standalone42()
                   '  '+cformatline(' * Label: '+strcat(string(OO.model.label)),70)];
           end
 
-          if stripblanks(OO.graphics.exprs(1))~=emptystr() then
-            Code=[Code;
-                  '  '+cformatline(' * Exprs: '+strcat(OO.graphics.exprs(1),","),70)];
+          if ~isempty(OO.graphics.exprs) then
+            if stripblanks(OO.graphics.exprs(1))~=emptystr() then
+              Code=[Code;
+                    '  '+cformatline(' * Exprs: '+strcat(OO.graphics.exprs(1),","),70)];
+            end
           end
           if stripblanks(OO.graphics.id)~=emptystr() then
             Code=[Code;
@@ -9384,9 +9395,11 @@ function [Code]=make_standalone42()
               Code=[Code;
                     cformatline('     Label: '+strcat(string(OO.model.label)),70)]
             end
-            if stripblanks(OO.graphics.exprs(1))~=emptystr() then
-              Code=[Code;
-                    cformatline('     Exprs: '+strcat(OO.graphics.exprs(1),","),70)]
+            if ~isempty(OO.graphics.exprs) then
+              if stripblanks(OO.graphics.exprs(1))~=emptystr() then
+                Code=[Code;
+                      cformatline('     Exprs: '+strcat(OO.graphics.exprs(1),","),70)]
+              end
             end
             if stripblanks(OO.graphics.id)~=emptystr() then
               Code=[Code;
@@ -11489,10 +11502,11 @@ function [Code,Code_xml_param]=make_standalone43()
   //@@ adjust path of parameters file for
   //@@ scicoslab interfacing function
   if %win32 then
+    fdat = strsubst(rpat,'/','\');
     Code=[Code
-          '  char rpatfilen[] = ""'+rpat+'\'+rdnom+'_params.dat"";']
-    if isempty(strindex(Code($),'\\')) then
-      Code($)=strsubst(Code($),'\','\\')
+          '  char rpatfilen[] = ""'+fdat+'\'+rdnom+'_params.dat"";']
+    if isempty(strindex(Code($),'\\\\')) then
+      Code($)=strsubst(Code($),'\','\\\\')
     end
   else
     Code=[Code
@@ -12270,9 +12284,11 @@ function [Code,Code_xml_param]=make_standalone43()
                   '  '+cformatline(' * Label: '+strcat(string(OO.model.label)),70)];
           end
 
-          if stripblanks(OO.graphics.exprs(1))~=emptystr() then
-            Code=[Code;
-                  '  '+cformatline(' * Exprs: '+strcat(OO.graphics.exprs(1),","),70)];
+          if ~isempty(OO.graphics.exprs) then
+            if stripblanks(OO.graphics.exprs(1))~=emptystr() then
+              Code=[Code;
+                    '  '+cformatline(' * Exprs: '+strcat(OO.graphics.exprs(1),","),70)];
+            end
           end
           if stripblanks(OO.graphics.id)~=emptystr() then
             Code=[Code;
@@ -12567,9 +12583,11 @@ function [Code,Code_xml_param]=make_standalone43()
               Code=[Code;
                     cformatline('     Label: '+strcat(string(OO.model.label)),70)]
             end
-            if stripblanks(OO.graphics.exprs(1))~=emptystr() then
-              Code=[Code;
-                    cformatline('     Exprs: '+strcat(OO.graphics.exprs(1),","),70)]
+            if ~isempty(OO.graphics.exprs) then
+              if stripblanks(OO.graphics.exprs(1))~=emptystr() then
+                Code=[Code;
+                      cformatline('     Exprs: '+strcat(OO.graphics.exprs(1),","),70)]
+              end
             end
             if stripblanks(OO.graphics.id)~=emptystr() then
               Code=[Code;

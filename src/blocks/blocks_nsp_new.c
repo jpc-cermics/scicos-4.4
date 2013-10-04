@@ -980,6 +980,8 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
 void scicos_affich2_block (scicos_args_F0)
 {
   NspGrstring **S= (NspGrstring **) &z__[0] ;
+  scicos_run *Scicos=scicos_get_scicos_run();
+  
   --ipar;
   if (*flag__ == 1) {
     int cb = Scicos->params.curblk -1;
@@ -1070,6 +1072,7 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
 void scicos_affich_block (scicos_args_F0)
 {
   NspGrstring **S= (NspGrstring **) &z__[0] ;
+  scicos_run *Scicos=scicos_get_scicos_run();
   --ipar;
   if (*flag__ == 1)
     {

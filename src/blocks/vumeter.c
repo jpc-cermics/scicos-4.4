@@ -50,6 +50,7 @@ void scicos_vumeter_block (scicos_block * block, int flag)
   /* int nur = GetInPortRows(block,1); */
   /* int nuc = GetInPortCols(block,1); */
   double *z = block->z;
+  scicos_run *Scicos=scicos_get_scicos_run();
   /* double nz= block->nz; */
   NspGrstring **GrS= (NspGrstring **) &z[0] ;
   NspArrows **Arrows= (NspArrows **) &z[1] ;

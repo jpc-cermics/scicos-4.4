@@ -58,6 +58,7 @@ void scicos_slider_block (int *flag, int *nevprt, const double *t, double *xd,
   int red=5,green=3;
   double val,percent,dx;
   NspGrRect **S= (NspGrRect **) &z[0] ;
+  scicos_run *Scicos=scicos_get_scicos_run();
   NspGraphic *Gr=Scicos->Blocks[Scicos->params.curblk -1].grobj;
   switch (*flag)
     {

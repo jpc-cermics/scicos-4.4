@@ -217,6 +217,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
   double *yminmax =((double *) csr) + 1 + csi->number_of_subwin;
   double t = scicos_get_scicos_time ();
   dmscope_data *D = (dmscope_data *) (*block->work);
+  scicos_run *Scicos=scicos_get_scicos_run();
   
   if (flag == 2)
     {

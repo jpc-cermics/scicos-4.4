@@ -562,6 +562,9 @@ void scicos_sciblk2 (int *flag, int *nevprt, double *t, double *xd, double *x,
   int i;
   NspObject *Args[8] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL };
   NspObject *Ret[5] = { NULL, NULL, NULL, NULL, NULL };
+  scicos_run *Scicos;
+  
+  Scicos=scicos_get_scicos_run();
 
   /* we give no names to Args, they will be freed by scicos_scifunc */
   if ((Args[0] = scicos_itosci (NVOID, flag, 1, 1)) == NULL)
@@ -788,6 +791,8 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
   NspHash *H = NULL, *Hi = NULL;
   NspObject *Args[2], *Ret[1];
   double time = scicos_get_scicos_time ();
+  scicos_run *Scicos=scicos_get_scicos_run();
+  
   if ((Hi = createblklist(time, Blocks)) == NULL) 
     goto err;
   Args[0] = NSP_OBJECT(Hi);
@@ -967,6 +972,8 @@ void scicos_sciblk (int *flag, int *nevprt, double *t, double *xd, double *x,
   int mlhs = 5, mrhs = 8;
   NspObject *Args[9];
   NspObject *Ret[6];
+  scicos_run *Scicos=scicos_get_scicos_run();
+  
   /* FIXME: give names to all */
   if ((Args[0] = scicos_itosci (NVOID, flag, 1, 1)) == NULL)
     goto err;

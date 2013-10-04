@@ -83,7 +83,7 @@ static int curblk = 0;		/* kept static to be given to curblock in case of
 
 static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
 {
-  scicos_run r_scicos;
+  scicos_run r_scicos,*Scicos;
   double tcur, tf;
   int i, rep, flag, ierr = 0;
   const char *action_name[] = { "finish", "linear", "run", "start", NULL };
@@ -143,12 +143,13 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
   scicos_main (&r_scicos, &tcur, &tf, simpar, &flag, &ierr);
 
   /* keep track of last block */
+  Scicos=scicos_get_scicos_run();
   curblk = Scicos->params.curblk;
   /* back convert variables and free allocated variables */
   scicos_clear_run (&r_scicos);
 
-  Scicos = NULL;
-  
+  //Scicos = NULL;
+  scicos_set_scicos_run(NULL);
   if (ierr > 0)
     {
       nsp_simul_error_msg(ierr,&curblk);
@@ -397,6 +398,7 @@ int scicos_Message (char *code)
 static int int_curblock (Stack stack, int rhs, int opt, int lhs)
 {
   NspMatrix *M;
+  scicos_run *Scicos=scicos_get_scicos_run();
   CheckRhs (-1, 0);
   if ((M = nsp_matrix_create (NVOID, 'r', 1, 1)) == NULLMAT)
     return RET_BUG;
@@ -611,6 +613,7 @@ static int int_get_phase_simulation (Stack stack, int rhs, int opt, int lhs)
 
 static int int_scicos_debug_count (Stack stack, int rhs, int opt, int lhs)
 {
+  scicos_run *Scicos=scicos_get_scicos_run();
   CheckRhs (-1, 0);
   CheckLhs (1, 1);
   int count = (Scicos == NULL) ? 0 : Scicos->params.debug_counter;
@@ -2204,7 +2207,7 @@ static int int_callblk(Stack stack, int rhs, int opt, int lhs)
   scicos_block Block;
   int flag;
   double tcur;
-  scicos_run r_scicos;
+  scicos_run *Scicos,r_scicos;
 
   CheckRhs (3,3);
 
@@ -2214,12 +2217,13 @@ static int int_callblk(Stack stack, int rhs, int opt, int lhs)
   
   if (extractblklist(BlkHash_IN, &Block)==FAIL) return RET_BUG;
   
-  //TOBEREVIEWED
-  Scicos = &r_scicos;
-  Scicos->params.solver=0;
-  Scicos->params.debug=0;
-  Scicos->params.curblk=1;
-  Scicos->params.phase=1;
+  r_scicos.params.solver=0;
+  r_scicos.params.debug=0;
+  r_scicos.params.curblk=1;
+  r_scicos.params.phase=1;
+  
+  Scicos=scicos_get_scicos_run();
+  scicos_set_scicos_run(&r_scicos);
   
   callf(&tcur, &Block, &flag);
   
@@ -2230,6 +2234,7 @@ static int int_callblk(Stack stack, int rhs, int opt, int lhs)
   
   scicos_unalloc_block(&Block);
   MoveObj(stack,1,NSP_OBJECT(BlkHash_OUT));
+  scicos_set_scicos_run(Scicos);
   return Max(lhs,1);
 }
 

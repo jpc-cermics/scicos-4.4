@@ -785,6 +785,7 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
      "NSPIMPLIB    = ""$(NSPDIR)/bin/libnsp.lib"""
      "COSIMPLIB    = ""$(SCICOSDIR)/src/libscicos.lib"""
      "NSPLIBS      = ""$(NSPDIR)/bin/libnsp.dll"""
+     "COSLIBS      = ""$(SCICOSDIR)/src/libscicos.dll"""
      "LIBRARY      = lib"+blknam
      "CC           = cl"
      "LINKER       = link"]
@@ -862,7 +863,7 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
     T=[T;
        "standalone: $(OBJSSTAN) "
         ascii(9)+"$(LINKER) $(LINKER_FLAGS) $(OBJSSTAN)"+...
-                 " $(OTHERLIBS) $(NSPLIBS) /out:standalone.exe"]
+                 " $(OTHERLIBS) $(NSPIMPLIB) $(COSIMPLIB) /out:standalone.exe"]
   end
 
 endfunction

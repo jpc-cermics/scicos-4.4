@@ -64,6 +64,7 @@ void scicos_sliderm_block (scicos_block * block, int flag)
   int nur = GetInPortRows(block,1);
   /* int nuc = GetInPortCols(block,1); */
   double *z = block->z;
+  scicos_run *Scicos=scicos_get_scicos_run();
   /* double nz= block->nz; */
   NspCompound **S= (NspCompound **) &z[0] ;
   NspGraphic *Gr=Scicos->Blocks[Scicos->params.curblk -1].grobj;
