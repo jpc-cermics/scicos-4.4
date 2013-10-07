@@ -12,43 +12,44 @@ function [ok]=setscicosparam(dt,fic)
 
    ok=%f;
 
-   if typeof(dt)<>'SicosParam' then
+   if dt.type<>'SicosParam' then
      error('Type of data list doesn''t match.');
    end
 
-   if fileinfo(fic)==[] then
+   if ~file('exists',fic) then
      error('File doesn''t exists.');
    end
 
    [path,fname,extension]=fileparts(fic)
-   fic_xml=path+fname+'.xml';
+   fic_xml=path+'/'+fname+'.xml';
 
-   if fileinfo(fic_xml)==[] then
+   if ~file('exists',fic_xml) then
      error('Xml file doesn''t exists.');
    end
 
    [dt_old,data]=getscicosparam(fic);
 
-   if lstsize(dt)<>lstsize(dt_old) then
+   if length(dt)<>length(dt_old) then
      error('Bad size for data list.');
    end
 
-   for i=2:lstsize(dt)
-     if dt(1)(i)<>dt_old(1)(i) then
-       error('Bad name for component of data list : '+dt(1)(i)+'.');
+   for i=dt.__keys'
+     if ~dt_old.iskey[i] then
+       error('Bad name for component of data list : '+i+'.');
      end
      if ~isequal(size(dt(i)),size(dt_old(i))) then
-       error('Bad size for component of data list : '+dt(1)(i)+'. Must be '+sci2exp(size(dt_old(i)))+'.');
+       error('Bad size for component of data list : '+i+'. Must be '+sci2exp(size(dt_old(i)))+'.');
      end
      if ~isequal(typeof(dt(i)),typeof(dt_old(i))) then
-       error('Bad type for component of data list : '+dt(1)(i)+'. Must be '+typeof(dt_old(i))+'.');
+       error('Bad type for component of data list : '+i+'. Must be '+typeof(dt_old(i))+'.');
      end
    end
-
-   fd=mopen(fic,'wb');
-
-   for i=2:lstsize(dt)
-     select evstr(data(i-1,4))
+   
+   fd=fopen(fic,mode='wb');
+   
+   for i=data(:,1)'
+     j=find(data(:,1)==i);
+     select evstr(data(j,4))
        case 10 then typ='dl';
        case 11 then typ='dl';
        case 84 then typ='ll';
@@ -58,10 +59,10 @@ function [ok]=setscicosparam(dt,fic)
        case 812 then typ='usl';
        case 811 then typ='ucl';
      end
-     mput(dt(i),typ,fd)
+     fd.put[dt(i),type=typ]
    end
-
-   mclose(fd);
+   
+   fd.close[];
    ok=%t
 
 endfunction

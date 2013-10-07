@@ -14,39 +14,39 @@ function [dt,data]=getscicosparam(fic)
 
    data = [];
    dt=[];
-
-   if fileinfo(fic)==[] then
+   
+   if ~file('exists',fic) then
      error('File doesn''t exists.');
    end
 
    [path,fname,extension]=fileparts(fic)
-   fic_xml=path+fname+'.xml';
+   fic_xml=path+'/'+fname+'.xml';
 
-   if fileinfo(fic_xml)==[] then
+   if ~file('exists',fic_xml) then
      error('Xml file doesn''t exists.');
    end
 
-   txt = mgetl(fic_xml);
-   data = [];
+   txt = scicos_mgetl(fic_xml);
+   data = m2s([]);
 
-   function [data]=start_handl(data,el,attr)
-     if el=='ScicosVar' then
+   for i=1:size(txt,1)
+     if ~isempty(strindex(txt(i),'<ScicosVar')) then
+       attr=["name=""";"dim1=""";"dim2=""";"typ=""";"/>"]
+       n=size(attr,1); p=[];dt=m2s([]); Hin=hash(1);
+       for j=1:n
+         p=[p strindex(txt(i),attr(j))];
+         if j>1 then
+           dt=[dt part(txt(i),p(j-1):p(j)-1)]
+           [ok,Hin]=execstr(dt($),env=Hin, errcatch=%t);
+         end
+       end
        data=[data;
-             attr(2) attr(4) attr(6) attr(8)]
+             Hin.name Hin.dim1 Hin.dim2 Hin.typ]
      end
-   endfunction
-
-   function [data]=end_handl(data,el)
-
-   endfunction
-
-   %ptr=XML_ParserCreate();
-   XML_SetUserData(%ptr,'data');
-   XML_SetElementHandler(%ptr,'start_handl','end_handl');
-   XML_Parse(%ptr, txt);
+   end
 
    dt=tlist(['SicosParam',data(:,1)']);
-   fd=mopen(fic,'rb');
+   fd=fopen(fic,mode='rb');
 
    for i=1:size(data,1)
      sz=evstr(data(i,2))*evstr(data(i,3));
@@ -60,8 +60,8 @@ function [dt,data]=getscicosparam(fic)
        case 812 then typ='usl';
        case 811 then typ='ucl';
      end
-     dt(1+i)=matrix(mget(sz,typ,fd),evstr(data(i,2)),evstr(data(i,3)));
+     dt(data(i,1))=matrix(fd.get[n=sz,type=typ],evstr(data(i,2)),evstr(data(i,3)));
    end
 
-   mclose(fd);
+   fd.close[];
 endfunction
