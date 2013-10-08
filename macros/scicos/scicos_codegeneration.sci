@@ -179,8 +179,8 @@ function [ok,scs_m,%cpr] = scicos_codegeneration(scs_m,Params)
       scs_m=scs_m_save
       %cpr.cor=update_cor_cdgen(cpr.cor)
       corinv=list()
-      for i =1:lstsize(cpr.corinv)
-        if cpr.corinv(i)<>0 then
+      for i =1:length(cpr.corinv)
+        if ~cpr.corinv(i).equal[0] then
           corinv($+1)=cpr.corinv(i)
         end
       end
