@@ -182,8 +182,11 @@ function x=mulf3v(x1,x2,x3)
 endfunction
 
 function str=addf(a,b)
-  if a.equal['0'] then str=b;return;end
-  if b.equal['0'] then str=a;return;end
+  if a.equal[emptystr()] && b.equal[emptystr()] then
+    str='0';return;
+  end
+  if a.equal['0'] || a.equal[emptystr()] then str=b;return;end
+  if b.equal['0'] || b.equal[emptystr()] then str=a;return;end
   if pde_num(a) && pde_num(b) then 
     x = evstr(a+'+'+b);
     str=m2s_opt(x);
@@ -199,6 +202,9 @@ function str=addf(a,b)
 endfunction
 
 function str=mulf(a,b)
+  if a.equal[emptystr()] || b.equal[emptystr()] then
+    str='0';return;
+  end
   if a.equal['1'] then str=b;return;end
   if b.equal['1'] then str=a;return;end
   if a.equal['0'] || b.equal['0'] then str='0';return;end
@@ -225,14 +231,17 @@ function x=mulf3(x1,x2,x3)
 endfunction
 
 function str=subf(a,b)
-  if a.equal['0'] then 
+  if a.equal[emptystr()] && b.equal[emptystr()] then
+    str='0';return;
+  end
+  if a.equal['0'] || a.equal[emptystr()] then 
     if ~pde_name(b) && ~validvar(b,id='NUMBER') then 
       b='('+b+')';
     end
     str='-'+b;
     return;
   end
-  if b.equal['0'] then str=a;return;end
+  if b.equal['0'] || b.equal[emptystr()] then str=a;return;end
   if pde_num(a) && pde_num(b) then 
     x = evstr(a+'-'+b);
     str=m2s_opt(x);
