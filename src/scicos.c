@@ -1016,7 +1016,12 @@ static void cossim (double *told)
       if (Abs (t - *told) < Scicos->params.ttol)
 	{
 	  t = *told;
-          cdoit (told);
+          /*cdoit (told);
+           *if (*ierr != 0) {
+	   * goto err;
+	   * return;
+           * }
+	   */
 	  /*     update output part */
 	}
       if (*told > t)
@@ -1619,6 +1624,7 @@ static void cossim (double *told)
 		}
 	      Sciprintf ("**mod**\n");
 	    }
+	    
 	  ddoit (told);
 
 	  if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
@@ -2815,7 +2821,7 @@ static void cossimdaskr (double *told)
 	    {
 	      Sciprintf ("Event: %d activated at t=%f\n", *pointi, *told);
 	    }
-
+	    
 	  ddoit (told);
 	  if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
 	    {
@@ -4203,7 +4209,7 @@ void edoit (double *told, int *kiwa)
 	  if (flag < 0)
 	    {
 	      *ierr = 5 - flag;
-	      return;
+	      return; 
 	    }
 	}
 

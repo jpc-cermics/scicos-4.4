@@ -411,10 +411,10 @@ static int int_curblock (Stack stack, int rhs, int opt, int lhs)
 static const char *var_names[] =
   { "inplnk", "inpptr", "ipar", "ipptr", "lnkptr", "outlnk",
     "outptr", "outtb", "rpar", "rpptr",
-    "x", "xptr", "z", "zptr", NULL
+    "x", "xptr", "z", "zptr", "halt", NULL
   };
 
-const int reps[] = { 12, 10, 7, 8, 14, 13, 11, 9, 5, 6, 1, 2, 3, 4 };
+const int reps[] = { 12, 10, 7, 8, 14, 13, 11, 9, 5, 6, 1, 2, 3, 4, 15 };
 
 int int_getscicosvars (Stack stack, int rhs, int opt, int lhs)
 {
@@ -2523,6 +2523,8 @@ static OpTab Scicos_func[] = {
   {"scicos_count_blocks", int_scicos_count_blocks},
   {"scicos_is_split", int_scicos_is_split},
   {"scicos_is_block", int_scicos_is_block},
+  {"scicos_getscicosvars", int_getscicosvars},
+  {"scicos_setscicosvars", int_setscicosvars},
   {"scicos_is_text", int_scicos_is_text},
   {"scicos_is_link", int_scicos_is_link},
   {"scicos_is_modelica_block", int_scicos_is_modelica_block},

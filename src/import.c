@@ -119,7 +119,12 @@ int scicos_getscicosvars (int what, double **v, int *nv, int *type)
       *v = (void *) (Scicos->sim.outlnk);
       *type = 0;
       break;
-    case 15:			/* lnkptr */
+    case 15:			/* halt */
+       *nv=1;
+       *v=(void *) (&Scicos->params.halt); 
+       *type=0;
+      break;
+    case 16:			/* lnkptr */
       /* 
        *nv=(int)(Scicos->sim.nlnkptr);
        *v=(void *) (Scicos->sim.lnkptr); 

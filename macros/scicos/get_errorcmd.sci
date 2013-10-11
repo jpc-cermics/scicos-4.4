@@ -70,7 +70,7 @@ function cmd=get_errorcmd(path,scs_m_in,title_err,mess_err)
   mess1_err=strsubst(mess1_err,'''','''''');
   mess1_err=strsubst(mess1_err,'""','""""');
   mess1_err= catenate(mess1_err);
-  mess1_err=''''+strsubst(mess1_err,'\n',''';''')+''';';
+  mess1_err=''''+strsubst(mess1_err,'\n',''';''')+'''';
   
   if type(path,'short')=='l' then
     // ---- modelica block
