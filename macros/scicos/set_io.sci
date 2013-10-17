@@ -148,7 +148,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
     //        return, end
     ip1=ip1(1:n)
   else
-    ip1=[ip1;zeros(n-n1,1)]
+    ip1=[ip1(:);zeros(n-n1,1)]
   end
   n1=size(out1,1);// size(:,1),'*')
   n=size(out,1)// size(:,1),'*')
@@ -160,7 +160,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
     //        return, end
     op1=op1(1:n)
   else
-    op1=[op1;zeros(n-n1,1)]
+    op1=[op1(:);zeros(n-n1,1)]
   end
 
   n1=size(clkin1,'*')
@@ -173,7 +173,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
     //        return, end
     cip1=cip1(1:n,:)
   else
-    cip1=[cip1;zeros(n-n1,1)]
+    cip1=[cip1(:);zeros(n-n1,1)]
   end
   n1=size(clkout1,'*')
   n=size(clkout,'*')
@@ -185,7 +185,7 @@ function [model, graphics, ok]=set_io(model, graphics,...
     //        return, end
     cop1=cop1(1:n,:)
   else
-    cop1=[cop1;zeros(n-n1,1)]
+    cop1=[cop1(:);zeros(n-n1,1)]
   end
 
   I='E'
