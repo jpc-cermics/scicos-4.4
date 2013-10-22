@@ -38,6 +38,7 @@
 #include <nsp/grstring.h>
 #include <nsp/compound.h>
 #include <nsp/grarc.h>
+#include <nsp/eval.h>
 #include <nsp/interf.h>
 #include <nsp/blas.h>
 #include <nsp/matutil.h>
@@ -1568,4 +1569,76 @@ static int nsp_oscillo_add_point(NspList *L,double t,double period,const double 
       Loc = Loc->next;
     }
   return TRUE;
+}
+
+void scicos_assertion_block(scicos_block *block,int flag)
+/*void toto(scicos_block *block,int flag)*/
+{
+  void **work           = GetPtrWorkPtrs(block);
+  int *ipar             = GetIparPtrs(block);
+  SCSINT8_COP *callback = Getint8OparPtrs(block, 1);
+  double t              = scicos_get_scicos_time();
+  scicos_run *Scicos    = scicos_get_scicos_run();
+  int *iw;
+  char *txt="Assertion detected";
+  char buf[1024];
+  int rep;
+  
+  if (flag == 4) {
+    if ((*work = scicos_malloc(sizeof(int))) == NULL) {
+      scicos_set_block_error(-16);
+      return;
+    }
+    iw=*work;
+    *iw=0;
+  }
+  else if (flag == 1) {
+    iw=*work; /* hidden state */
+    if (!(*iw)) {
+      /* running callback */
+      if (callback != NULL && strlen(callback) != 0 && strcmp(callback," ") != 0) {
+        sprintf(buf,"%s\nat time %f\n",txt,t);
+        Sciprintf(buf);
+        rep=nsp_parse_eval_from_string(callback,FALSE,FALSE,TRUE,TRUE);
+        if (rep<0) {
+          Coserror("Invalid callback expression.");
+        }
+      } else {
+        switch(ipar[0])
+        {
+          case 1  : /*stop*/
+                    Scicos->params.halt = 1;
+                    sprintf(buf,"hilite_path(%%cpr.corinv(curblock())(1:$-%d),\"%s\\nat time %f\",%%f);",ipar[1],txt,t);
+                    rep=nsp_parse_eval_from_string(buf,FALSE,FALSE,TRUE,TRUE);
+                    if (rep<0) {
+                      scicos_set_block_error(-3);
+                    }
+                    break;
+
+          case 2  : /*halt*/
+                    Scicos->params.halt = 2;
+                    sprintf(buf,"hilite_path(%%cpr.corinv(curblock())(1:$-%d),\"%s\\nat time %f\",%%f);",ipar[1],txt,t);
+                    rep=nsp_parse_eval_from_string(buf,FALSE,FALSE,TRUE,TRUE);
+                    if (rep<0) {
+                      scicos_set_block_error(-3);
+                    }
+                    break;
+
+          case 3  : /*error*/
+                    sprintf(buf,"%s\nat time %f\n",txt,t);
+                    Coserror(buf);
+                    break;
+
+          default : /*sciprintf*/
+                    sprintf(buf,"%s\nat time %f\n",txt,t);
+                    Sciprintf(buf);
+                    /*break;*/
+        }
+      }
+      *iw=1;
+    }
+  }
+  else if (flag == 5) {
+    scicos_free (*work);
+  }
 }
