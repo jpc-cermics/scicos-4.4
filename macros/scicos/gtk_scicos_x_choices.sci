@@ -146,7 +146,7 @@ function L=gtk_scicos_x_choices(desc,Li)
     end
   endfunction
 
-  F=get_current_figure[];
+  F=get_current_figure();
   gh=nsp_graphic_widget(F.id);
 
   window = gtkwindow_new();//GTK.WINDOW_TOPLEVEL);

@@ -425,7 +425,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
       oi.xx = xlink ; oi.yy = ylink ;                           //** link
 
       if  or(curwin==winsid()) then
-        F=get_current_figure[];
+        F=get_current_figure();
         F.draw_latter[];
         oi=drawobj(oi,F);
         oi.gr.invalidate[];
@@ -518,7 +518,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
       oi.xx = xlink ; oi.yy = ylink ;
 
       if  or(curwin==winsid()) then
-        F=get_current_figure[];
+        F=get_current_figure();
         F.draw_latter[];
         oi=drawobj(oi,F);
         oi.gr.invalidate[];
