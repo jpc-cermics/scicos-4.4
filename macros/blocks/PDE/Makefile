@@ -20,7 +20,7 @@ distclean::
 		$(MAKE) $(MFLAGS) -s silent-distclean ); \
 	done
 
-clean::
+silent-clean clean::
 	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
 	for i in $(SUBDIRS) ;\
 	do \
