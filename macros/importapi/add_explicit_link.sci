@@ -7,13 +7,13 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
   [to,nok2]=evstr(lto)
   if nok1+nok2>0 then
     obj_num=length(scs_m.objs)
-    warning('Link '+sci2exp(lfrom,0)+'->'+sci2exp(lto,0)+ ' not supported.')
+    printf('Warning: Link %s->%s not supported.\n',sci2exp(lfrom,0),sci2exp(lto,0));
     return
   end
 
   if nargin<4 then points=zeros(0,2),end
   if isempty(points) then points=zeros(0,2),end
-    
+  
   o1 = scs_m.objs(from(1))
   graphics1=o1.graphics
   orig  = graphics1.orig
@@ -46,7 +46,7 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
 
   port_number=k
   if op(port_number)<>0 then
-    warning('Selected port is already connected.'),pause
+    printf('Warning: Selected port is already connected.\n'),pause
   end
   typpfrom='out'
 
@@ -92,7 +92,7 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
   end
   port_number = k ;
   if ip(port_number)<>0 then
-    warning('Selected port is already connected.')
+    printf('Warning: Selected port is already connected.\n')
   end
 
   clr=default_color(typo)

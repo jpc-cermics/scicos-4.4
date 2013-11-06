@@ -32,7 +32,7 @@ function [scs_m,obj_num] = add_event_link(scs_m,from,to,points)
 
   port_number=k
   if cop(port_number)<>0 then
-    warning('Selected event port is already connected.'),pause
+    printf('Warning: Selected event port is already connected.\n'),pause
   end
   typpfrom='out'
 

@@ -3,7 +3,7 @@ function scs_m = set_solver_parameters(scs_m,tol)
   for i = 1:size(tol,"*")
     [val,err]=evstr(tol(i))
     if err then
-      warning('Some simulation parameter values cannot be determined\n')
+      printf('Warning: Some simulation parameter values cannot be determined\n')
     else
       tol(i)=val
     end
