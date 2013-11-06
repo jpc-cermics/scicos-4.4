@@ -11,7 +11,9 @@ function [bllsti,ok]=do_job_compile(o,bllsti,i)
    ok=%f,
    obj = scs_m(scs_full_path(corinv(i)));
    hilite_obj(obj);
-   message(lasterror())
+   str = lasterror();str = str(1:$-4);
+   message(["Compilation of block "+o.gui+" failed:";
+	    catenate(str)]);
    unhilite_obj(obj);
    return;
  end
