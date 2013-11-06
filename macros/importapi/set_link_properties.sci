@@ -1,5 +1,5 @@
 function scs_m = set_link_properties(scs_m,k,col,thick)
-  // nargin=argn(2)
+// nargin=argn(2)
   if typeof(scs_m)<>"diagram" then error("1st argument must be a diagram."),end
   if typeof(scs_m.objs(k))<>"Link" then error ("Not a link."),end
   scs_m.objs(k).ct(1)=col

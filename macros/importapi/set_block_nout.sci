@@ -1,5 +1,5 @@
 function blk = set_block_nout(blk,nout,impl)
-  // nargin=argn(2)
+// nargin=argn(2)
   if ~isempty(blk.graphics.pout) &  ~and(0==blk.graphics.pout) then
     error("Number of ports of connected blocks cannot be changed.")
   end

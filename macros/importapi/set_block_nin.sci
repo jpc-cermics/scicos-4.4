@@ -1,5 +1,5 @@
 function blk = set_block_nin(blk,nin,impl)
-  // nargin=argn(2)
+// nargin=argn(2)
   if ~isempty(blk.graphics.pin) &  ~and(0==blk.graphics.pin) then
     error("Number of ports of connected blocks cannot be changed.")
   end
