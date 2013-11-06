@@ -15,7 +15,7 @@ function o = set_block_mask (blk, mask, ptitle)
     o = blk
     model=o.model
     graphics=o.graphics;
-    if model.sim=='super' then  //
+    if or(model.sim==['super','asuper']) then  //
       bname=model.rpar.props.title(1)
       model.sim='csuper'
       model.ipar=1 ;  // specifies the type of csuper (mask)
