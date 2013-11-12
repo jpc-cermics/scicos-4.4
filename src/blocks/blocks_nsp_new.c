@@ -1572,7 +1572,6 @@ static int nsp_oscillo_add_point(NspList *L,double t,double period,const double 
 }
 
 void scicos_assertion_block(scicos_block *block,int flag)
-/*void toto(scicos_block *block,int flag)*/
 {
   void **work           = GetPtrWorkPtrs(block);
   int *ipar             = GetIparPtrs(block);
@@ -1595,44 +1594,46 @@ void scicos_assertion_block(scicos_block *block,int flag)
   else if (flag == 1) {
     iw=*work; /* hidden state */
     if (!(*iw)) {
+      /*default message */
+      sprintf(buf,"%s\nat time %f\n",txt,t);
+      Sciprintf(buf);
+      
+      switch(ipar[0])
+      {
+       case 1  : /*stop*/
+                 Scicos->params.halt = 1;
+                 sprintf(buf,"hilite_path(%%cpr.corinv(curblock())(1:$-%d),\"%s\\nat time %f\",%%f);",ipar[1],txt,t);
+                 rep=nsp_parse_eval_from_string(buf,FALSE,FALSE,TRUE,TRUE);
+                 if (rep<0) {
+                   scicos_set_block_error(-3);
+                 }
+                 break;
+
+       case 2  : /*halt*/
+                 Scicos->params.halt = 2;
+                 sprintf(buf,"hilite_path(%%cpr.corinv(curblock())(1:$-%d),\"%s\\nat time %f\",%%f);",ipar[1],txt,t);
+                 rep=nsp_parse_eval_from_string(buf,FALSE,FALSE,TRUE,TRUE);
+                 if (rep<0) {
+                   scicos_set_block_error(-3);
+                 }
+                 break;
+
+       case 3  : /*error*/
+                 sprintf(buf,"%s\nat time %f\n",txt,t);
+                 Coserror(buf);
+                 break;
+
+       default : /*sciprintf*/
+                 break;
+      }
+      
       /* running callback */
       if (callback != NULL && strlen(callback) != 0 && strcmp(callback," ") != 0) {
-        sprintf(buf,"%s\nat time %f\n",txt,t);
+        sprintf(buf,"Running callback : ->%s\n",callback);
         Sciprintf(buf);
         rep=nsp_parse_eval_from_string(callback,FALSE,FALSE,TRUE,TRUE);
         if (rep<0) {
           Coserror("Invalid callback expression.");
-        }
-      } else {
-        switch(ipar[0])
-        {
-          case 1  : /*stop*/
-                    Scicos->params.halt = 1;
-                    sprintf(buf,"hilite_path(%%cpr.corinv(curblock())(1:$-%d),\"%s\\nat time %f\",%%f);",ipar[1],txt,t);
-                    rep=nsp_parse_eval_from_string(buf,FALSE,FALSE,TRUE,TRUE);
-                    if (rep<0) {
-                      scicos_set_block_error(-3);
-                    }
-                    break;
-
-          case 2  : /*halt*/
-                    Scicos->params.halt = 2;
-                    sprintf(buf,"hilite_path(%%cpr.corinv(curblock())(1:$-%d),\"%s\\nat time %f\",%%f);",ipar[1],txt,t);
-                    rep=nsp_parse_eval_from_string(buf,FALSE,FALSE,TRUE,TRUE);
-                    if (rep<0) {
-                      scicos_set_block_error(-3);
-                    }
-                    break;
-
-          case 3  : /*error*/
-                    sprintf(buf,"%s\nat time %f\n",txt,t);
-                    Coserror(buf);
-                    break;
-
-          default : /*sciprintf*/
-                    sprintf(buf,"%s\nat time %f\n",txt,t);
-                    Sciprintf(buf);
-                    /*break;*/
         }
       }
       *iw=1;

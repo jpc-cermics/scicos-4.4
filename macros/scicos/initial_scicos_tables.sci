@@ -568,7 +568,7 @@ function H1=scicos_default_palettes()
        'HYSTHERESIS','DEBUG_SCICOS',
        'LOGICAL_OP','RELATIONALOP','generic_block3',
        'PDE','ENDBLK','AUTOMAT','Loop_Breaker',
-       'PAL_f');
+       'PAL_f','ASSERT');
 
   H.Linear = list('DLR','TCLSS','DOLLAR_m',
        'CLINDUMMY_f','DLSS','REGISTER','TIME_DELAY',
