@@ -19,7 +19,10 @@ function scs_m=do_version(scs_m,version)
       o=scs_m.objs(j);
       if o.type=='Block' then
         omod=o.model
-        if omod.sim.equal['super'] || omod.sim.equal['csuper'] || omod.sim(1).equal['asuper'] then
+        if o.gui.equal['INVBLK'] then
+          scs_m_new.objs(j).model.in2  = -2;
+          scs_m_new.objs(j).model.out2 = -2;
+        elseif omod.sim.equal['super'] || omod.sim.equal['csuper'] || omod.sim(1).equal['asuper'] then
           rpar=do_version441(omod.rpar);
           scs_m_new.objs(j).model.rpar=rpar
         end

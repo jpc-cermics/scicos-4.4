@@ -13,7 +13,7 @@ void invblk4 (scicos_block * block, int flag)
   double ww;
   if (flag == 6)
     {
-      for (i = 0; i < GetInPortRows (block, 1); i++)
+      for (i = 0; i < GetInPortRows(block, 1) * GetInPortCols(block, 1); i++)
 	{
 	  ww = _u1[i];
 	  if (ww != 0.0)
@@ -22,7 +22,7 @@ void invblk4 (scicos_block * block, int flag)
     }
   if (flag == 1)
     {
-      for (i = 0; i < GetInPortRows (block, 1); i++)
+      for (i = 0; i < GetInPortRows(block, 1) * GetInPortCols(block, 1); i++)
 	{
 	  ww = _u1[i];
 	  if (ww != 0.0)

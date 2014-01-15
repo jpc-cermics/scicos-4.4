@@ -13,11 +13,13 @@ function [x,y,typ]=INVBLK(job,arg1,arg2)
    case 'set' then
     x=arg1;
    case 'define' then
-    in=-1
+    in=-1;in2=-2
     model=scicos_model()
     model.sim=list('invblk4',4)
     model.in=in
+    model.in2=in2
     model.out=in
+    model.out2=in2
     model.blocktype='c'
     model.dep_ut=[%t %f]
 
