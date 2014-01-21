@@ -797,9 +797,15 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
     T=[T;
        "OTHERLIBS    = "]
   end
-
+  
+  if %win64 then 
+    T_LINK = "LINKER_FLAGS = /NOLOGO /machine:x64"
+  else
+    T_LINK = "LINKER_FLAGS = /NOLOGO /machine:ix86"
+  end
+  
   T=[T;
-     "LINKER_FLAGS = /NOLOGO /machine:ix86"
+     T_LINK;
      "INCLUDES     = -I""$(NSPDIR)/routines/f2c"""
      "CC_COMMON    = -D__MSC__ -DWIN32 -c -DSTRICT -nologo $(INCLUDES)"
      "CC_OPTIONS   = $(CC_COMMON) -Od -Gd -W3"]
