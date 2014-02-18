@@ -9877,13 +9877,13 @@ function [Code]=make_standalone42()
       if or(kf==capt(:,1)) then
         ind=find(kf==capt(:,1))
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = (double **) inptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = inptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].insz    = &typin['+string(ind-1)+'];']
 	//              '  block_'+rdnom+'['+string(kf-1)+'].insz    = insz_'+string(kf)+';']
 	//## other blocks ##//
       elseif nin<>0 then
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = (double **) inptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = inptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].insz    = insz_'+string(kf)+';']
       end
       //**********************************************************************//
@@ -9893,13 +9893,13 @@ function [Code]=make_standalone42()
       if or(kf==actt(:,1)) then
         ind=find(kf==actt(:,1))
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = (double **) outptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = outptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].outsz   = &typout['+string(ind-1)+'];']
 //              '  block_'+rdnom+'['+string(kf-1)+'].outsz   = outsz_'+string(kf)+';']
       //## other blocks ##//
       elseif nout<>0 then
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = (double **) outptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = outptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].outsz   = outsz_'+string(kf)+';']
       end
       //**********************************************************************//
@@ -13178,12 +13178,12 @@ function [Code,Code_xml_param]=make_standalone43()
       if or(kf==capt(:,1)) then
         ind=find(kf==capt(:,1))
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = (double **)inptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = inptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].insz    = &typin['+string(ind-1)+'];']
       //## other blocks ##//
       elseif nin<>0 then
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = (double **)inptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].inptr   = inptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].insz    = insz_'+string(kf)+';']
       end
       //**********************************************************************//
@@ -13193,12 +13193,12 @@ function [Code,Code_xml_param]=make_standalone43()
       if or(kf==actt(:,1)) then
         ind=find(kf==actt(:,1))
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = (double **)outptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = outptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].outsz   = &typout['+string(ind(1)-1)+'];']
       //## other blocks ##//
       elseif nout<>0 then
         Code=[Code;
-              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = (double **)outptr_'+string(kf)+';'
+              '  block_'+rdnom+'['+string(kf-1)+'].outptr  = outptr_'+string(kf)+';'
               '  block_'+rdnom+'['+string(kf-1)+'].outsz   = outsz_'+string(kf)+';']
       end
       //**********************************************************************//
