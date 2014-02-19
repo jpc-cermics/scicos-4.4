@@ -8092,9 +8092,11 @@ function [Code]=make_sci_interf()
  //## case of error
  Code.concatd[['  goto end;']];
  Code.concatd[['  error: ';'  ret=RET_BUG;']];
+ Code.concatd[['  end: ']];
+ 
  //## free allocated array
  if nbcapt<>0 || nbact<>0 then
-   Code.concatd[['  end: ';'  /* free allocated array and return */']];
+   Code.concatd[['  /* free allocated array and return */']];
    //   array of sensors
    nf = (1:nbcapt)';
    Code.concatd[sprintf('  if (in_%d.data != NULL) free(in_%d.data);',nf,nf)];
@@ -13914,6 +13916,11 @@ function [Code,Code_xml_param]=make_standalone43()
             '        /* */'
             '        '+rdnom+'_Jacobians(NEQ, (realtype) (told), yy, yp, bidon, \'
             '                  (realtype) CJ, ida_data, TJacque, tempv1, tempv2, tempv3);'
+            ''
+            '        /* error handling */'
+            '        if (get_block_error() != 0) {'
+            '         return get_block_error();'
+            '        }'
             ''
             '        /* */'
             '        for (i = 0; i < NEQ; i++) {'
