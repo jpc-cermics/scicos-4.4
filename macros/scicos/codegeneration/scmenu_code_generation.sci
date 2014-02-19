@@ -15507,6 +15507,14 @@ function [Code,Code_xml_param]=make_standalone43()
        '}'
        '']
 
+ Code=[Code;
+       '/*'+part('-',ones(1,40))+' end_scicos_sim function */'
+       'void end_scicos_sim ()'
+       '{'
+       '  return;'
+       '}'
+       '']
+
  Code=[Code
         '/*'+part('-',ones(1,40))+' Coserror function */']
 
