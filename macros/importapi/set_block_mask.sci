@@ -8,6 +8,9 @@ function o = set_block_mask (blk, mask, ptitle)
     params_names.concatd[mask{i,1}];
     params_values.concatd[mask{i,2}];
     params_prompts.concatd[mask{i,3}];
+//  XXXXXX 
+//  we should take care of this boolean 
+//  params_evaluate.concatd[mask{i,3}];
     param_types($+1)="gen";
     param_types($+1)= -1;
   end
