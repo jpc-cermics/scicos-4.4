@@ -12,10 +12,6 @@ function  [ok]=Link_modelica_C(Cfile)
     ok=%t 
     return;
   end
-  //##add libraries provided by %scicos_libs
-  if exists('%scicos_libs') &&  ~isempty(%scicos_libs) then
-    mlibs=[mlibs(:)',%scicos_libs(:)'];
-  end
   //  build the list of external functions libraries
   // remove repreated directories from mlibs
   mlibs = unique(mlibs);
@@ -28,6 +24,10 @@ function  [ok]=Link_modelica_C(Cfile)
     for j=1:size(aa,'*')
       libs=[libs;file('root',aa(j))];
     end
+  end
+  //##add libraries provided by %scicos_libs
+  if exists('%scicos_libs') &&  ~isempty(%scicos_libs) then
+    libs=[libs(:)',unique(%scicos_libs(:)')];
   end
   // add modelica_libs to the list of directories to be searched for *.h
   EIncludes=catenate("-I"""+ mlibs+"""",sep=" ")
