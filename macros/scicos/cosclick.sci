@@ -1,19 +1,22 @@
 function [btn,%pt,win,Cmenu]=cosclick()
 
   //build a windows tooltip for blk when mouse pointer
-  //is above à block
+  //is above a block
   function win_tooltip=build_block_tooltip(o)
-    //win_tooltip = gtkwindow_new(type=1)
-    //win_tooltip.set_type_hint[GDK.WINDOW_TYPE_HINT_TOOLTIP]
-    win_tooltip = gtkwindow_new()
-    F=get_current_figure();
-    gh=nsp_graphic_widget(F.id)
-    win_tooltip.set_transient_for[gh]
-    win_tooltip.set_resizable[%f]
-    win_tooltip.set_decorated[%f]
-    win_tooltip.set_skip_taskbar_hint[%t]
-    win_tooltip.set_skip_pager_hint[%t]
-    win_tooltip.set_accept_focus[%f]
+    if %win32 then
+      win_tooltip = gtkwindow_new(type=1)
+      win_tooltip.set_type_hint[GDK.WINDOW_TYPE_HINT_TOOLTIP]
+    else
+      win_tooltip = gtkwindow_new()
+      F=get_current_figure();
+      gh=nsp_graphic_widget(F.id)
+      win_tooltip.set_transient_for[gh]
+      win_tooltip.set_resizable[%f]
+      win_tooltip.set_decorated[%f]
+      win_tooltip.set_skip_taskbar_hint[%t]
+      win_tooltip.set_skip_pager_hint[%t]
+      win_tooltip.set_accept_focus[%f]
+    end
     screen=win_tooltip.get_root_window[]
     pos=screen.get_pointer[]
     win_tooltip.move[pos(1)+10,pos(2)+10]
@@ -34,9 +37,10 @@ function [btn,%pt,win,Cmenu]=cosclick()
     if %win32 then
       color=gdk_color_parse("#FFFFCA")
       event_box_bg.modify_bg[GTK.STATE_NORMAL,color]
-      win_tooltip.set_focus_on_map[%f]
-      win_tooltip.show_all[]
-      win_tooltip.hide[]
+//       win_tooltip.grab_focus[%f]
+//       win_tooltip.set_focus_on_map[%f]
+//       win_tooltip.show_all[]
+//       win_tooltip.hide[]
     end
   endfunction
 
