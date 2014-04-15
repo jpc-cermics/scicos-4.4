@@ -300,7 +300,7 @@ void scicos_dmscope_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       dmscope_data *D = (dmscope_data *) (*block->work);
-      Sciprintf("Flag 5\n");
+      /*Sciprintf("Flag 5\n");*/
       if ( D->count_invalidates == 0 &&  D->C->obj->ref_count > 1 ) 
 	{
 	  /* figure was never invalidated: we update the graphics at the end  */
