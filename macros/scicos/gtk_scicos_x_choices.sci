@@ -1,5 +1,6 @@
 function L=gtk_scicos_x_choices(desc,Li)
-
+// used in gtk_getvalue 
+// see getvalue for parameters description
   function []=set_focus(wid)
     wid.grab_focus[]
     if type(wid,'string')=='GtkEntry' then
