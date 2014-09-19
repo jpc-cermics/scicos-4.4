@@ -5,8 +5,6 @@ function scmenu_code_generation()
 // Input editor function of Scicos code generator
 //
 // modified for nsp 
-
-  P_project = %f; // put %t to test P project code generation
   
   k     = [] ; //** index of the CodeGen source superbloc candidate
   %pt   = []   ;
@@ -75,8 +73,15 @@ function scmenu_code_generation()
 	end
 
 	//## call do_compile_superblock
+	P_target =[];
+	if scs_m_top.codegen.iskey['pcodegen_target'] then 
+	  P_target = scs_m_top.codegen.use_pcode;
+	  if isempty(P_target == ["C" "P"]) then 
+	    P_target = [];
+	  end
+	end
 	ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code] = '+...
-		     'do_compile_superblock42(scs_m_top, k,P_project=P_project);',errcatch=%t);
+		     'do_compile_superblock42(scs_m_top, k,P_target=P_target);',errcatch=%t);
 	
 	//@@ silent_mode/cblock
 	if k<>-1 then
@@ -102,7 +107,7 @@ function scmenu_code_generation()
 	//**quick fix for sblock that contains scope
 	//gh_curwin=scf(curwin)
 	if ok.equal[%t] then
-	  if P_project then 
+	  if ~isempty(P_target) then 
 	    // the new generated block will replace scs_m.objs(k);
 	    // remove the old block graphics 
 	    scs_m_save  = scs_m ; 
@@ -171,7 +176,7 @@ function scmenu_code_generation()
 
     //## call do_compile_superblock
     ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code, cpr] ='+ ...
-		 'do_compile_superblock42(scs_m, -1,P_project=P_project);',errcatch=%t)
+		 'do_compile_superblock42(scs_m, -1,P_target=P_target);',errcatch=%t)
     //## display error message if any
     if ~ierr then
       //@@ silent_mode
@@ -2557,7 +2562,7 @@ endfunction
 function [ok,XX,gui_path,flgcdgen,szclkINTemp,...
           freof,c_atomic_code,cpr]=do_compile_superblock42(all_scs_m,numk,...
                                                            atomicflag=%f,
-                                                           P_project=%f)
+                                                           P_target=[])
 //Copyright (c) 1989-2011 Metalau project INRIA
 
 //@@ do_compile_superblock42 : transforms a given Scicos discrete and continuous
@@ -2917,7 +2922,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,...
     ALL=%f
   elseif isempty(szclkIN) then
     if ~ALL & ~ALWAYS_ACTIVE then
-      if P_project then 
+      if ~isempty(P_target) then 
 	output=1
       else
 	//superblock has no event input, add a fictious clock
@@ -3035,7 +3040,7 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,...
 	end
       end
     elseif ~ALWAYS_ACTIVE then
-      if P_project then 
+      if ~isempty(P_target) then 
       	// change inheritance rules to only have one clock
 	i=1
 	for j=1:n
@@ -3216,9 +3221,9 @@ function [ok,XX,gui_path,flgcdgen,szclkINTemp,...
 
   //-- inserted for gene-auto2 March 2013 
   // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  
-  if P_project then 
+  if ~isempty(P_target) then 
     // code generator of p project 
-    [ok,XX]=codegen_main_p();
+    [ok,XX]=codegen_main_p(target=P_target);
     nbcap=0;
     nbact=0;
     capt=[];
