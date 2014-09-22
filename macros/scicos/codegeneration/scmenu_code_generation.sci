@@ -75,8 +75,8 @@ function scmenu_code_generation()
 	//## call do_compile_superblock
 	P_target =[];
 	if scs_m_top.codegen.iskey['pcodegen_target'] then 
-	  P_target = scs_m_top.codegen.use_pcode;
-	  if isempty(P_target == ["C" "P"]) then 
+	  P_target = scs_m_top.codegen.pcodegen_target;
+	  if ~isempty(P_target) && isempty(find(P_target == ["C" "P"])) then 
 	    P_target = [];
 	  end
 	end
