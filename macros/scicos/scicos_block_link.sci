@@ -1,5 +1,6 @@
 function ok=scicos_block_link(funam,txt,flag,libs,cflags)
 // compile and link funnam given by text txt 
+  
   if nargin < 4 then libs=[];end
   if nargin < 5 then cflags="";end
   

@@ -70,11 +70,7 @@ function YY=gencblk4(XX,gui_path)
   endfunction
 
   function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
-    ok=%t
-    tt=tt
-    cancel=%f
-    libss=libss
-    cflags=cflags
+    ok=%t,cancel=%f;tt=tt; libss=libss;cflags=cflags;
   endfunction
 
   %scicos_prob = %f

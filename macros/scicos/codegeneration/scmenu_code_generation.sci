@@ -5,6 +5,16 @@ function scmenu_code_generation()
 // Input editor function of Scicos code generator
 //
 // modified for nsp 
+
+  // checks if we are using the partial eval codegen generator 
+  P_target =[];
+  if scs_m.codegen.iskey['pcodegen_target'] then 
+    P_target = scs_m.codegen.pcodegen_target;
+    if ~isempty(P_target) && isempty(find(P_target == ["C" "P"])) then 
+      P_target = [];
+    end
+  end
+  
   
   k     = [] ; //** index of the CodeGen source superbloc candidate
   %pt   = []   ;
@@ -73,13 +83,7 @@ function scmenu_code_generation()
 	end
 
 	//## call do_compile_superblock
-	P_target =[];
-	if scs_m_top.codegen.iskey['pcodegen_target'] then 
-	  P_target = scs_m_top.codegen.pcodegen_target;
-	  if ~isempty(P_target) && isempty(find(P_target == ["C" "P"])) then 
-	    P_target = [];
-	  end
-	end
+	
 	ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code] = '+...
 		     'do_compile_superblock42(scs_m_top, k,P_target=P_target);',errcatch=%t);
 	
@@ -1129,8 +1133,7 @@ function XX=gen_allblk_new()
   endfunction
   
   function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
-    ok=%t,cancel=%f;
-    libss=libss;cflags=cflags;
+    ok=%t,cancel=%f;tt=tt; libss=libss;cflags=cflags;
   endfunction
 
   %scicos_prob = %f
@@ -1277,8 +1280,7 @@ function [XX]=gen_allblk()
   endfunction
 
   function [ok,tt,cancel,libss,cflags]=CC4(funam,tt,i,o,libss,cflags)
-    ok=%t,cancel=%f;
-    libss=libss;cflags=cflags;
+    ok=%t,cancel=%f;tt=tt; libss=libss;cflags=cflags;
   endfunction
 
   %scicos_prob = %f

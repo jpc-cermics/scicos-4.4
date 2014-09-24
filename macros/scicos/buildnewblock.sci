@@ -20,8 +20,9 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
 //
 // Output :  ok : a flag to say if build is ok
 //
-  //** check rhs paramaters
 
+//** check rhs paramaters
+    
   if nargin <= 1 then files    = blknam, end
   if nargin <= 2 then filestan = '', end
   if nargin <= 3 then filesint = '', end //##

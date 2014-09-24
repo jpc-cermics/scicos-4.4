@@ -132,15 +132,16 @@ function [edited,codegeneration]=do_set_codegen(codegen)
     if ~isempty(err_mess) then
       message(err_mess)
     else
-      codegeneration.silent=silent
-      codegeneration.cblock=cblock
-      codegeneration.rdnom=evstr(rdnom)
-      codegeneration.rpat=evstr(rpat)
-      codegeneration.libs=evstr(libs)
-      codegeneration.opt=opt
-      codegeneration.enable_debug=enable_debug
-      codegeneration.pcodegen_target = evstr(pcodegen_target)
+      codegeneration.silent=silent;
+      codegeneration.cblock=cblock;
+      codegeneration.rdnom=evstr(rdnom);
+      codegeneration.rpat=evstr(rpat);
+      codegeneration.libs=evstr(libs);
+      codegeneration.opt=opt;
+      codegeneration.enable_debug=enable_debug;
+      codegeneration.pcodegen_target = evstr(pcodegen_target);
       if or(codegen<>codegeneration) then
+	// printf("Edited set to TRUE\n");
         edited=%t
       end
       break

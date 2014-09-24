@@ -25,7 +25,6 @@ function all_scs_m=adjust_all_scs_m(scs_m_temporary,k)
   
   // overload some functions used in modelica block compilation
   // to disable them locally.
-    
   function [ok]= buildnewblock(blknam,files,filestan,filesint,libs,rpat, ...
 			       ldflags,cflags)
     ok=%t;
