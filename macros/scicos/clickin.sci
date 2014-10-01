@@ -101,7 +101,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
 
     elseif o.model.sim(1)=='asuper' then
       message(['This is an atomic superblock';..
-               'To edite it, you must first remove the atomicity']);
+               'To edit the block, you must first remove atomicity']);
 
     else
       // standard block
