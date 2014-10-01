@@ -28,7 +28,11 @@ function [o,needcompile,ok]=do_remove_atomic(o,needcompile)
     o.model.out2=-2*ones(size(model.out2,1),size(model.out,2))
     o.model.intyp=-ones(1,size(model.intyp,'*'))
     o.model.outtyp=o.model.intyp
-    o.graphics.exprs=graphics.exprs(1)
+    if ~isempty(graphics.exprs) then 
+      o.graphics.exprs=graphics.exprs(1)
+    else
+      o.graphics.exprs=graphics.exprs;
+    end
     needcompile=4;
   else
     message('Remove Atomic can only be applied to Atomic Super Blocks');

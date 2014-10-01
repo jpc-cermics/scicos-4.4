@@ -78,6 +78,7 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
     else
       ext=%scicos_ext
     end
+    path=getcwd();
     fname=path+scs_m.props.title(1)+'.'+ext
   end
   // jpc: test if directory is writable 
