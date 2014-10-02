@@ -74,7 +74,7 @@ function [scs_m,obj_num] = add_event_link(scs_m,from,to,points)
   yi=xxx(2);
   
   port_number = k ;
-  if cip(port_number)<>0 then
+  if ~isempty(cip) && cip(port_number)<>0 then
     error('Selected port is already connected.')
   end
 
