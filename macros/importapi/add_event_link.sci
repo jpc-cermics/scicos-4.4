@@ -1,5 +1,5 @@
 function [scs_m,obj_num] = add_event_link(scs_m,from,to,points)
-//// nargin=argn(2)  
+//
   if nargin < 4 then points=zeros(0,2),end
   if isempty(points) then points=zeros(0,2),end;
   from=evstr(from)
@@ -53,21 +53,26 @@ function [scs_m,obj_num] = add_event_link(scs_m,from,to,points)
   cip   = graphics2.pein
   [xin,yin,typin] = getinputs(o2)
 
-  idx = find(typin==-1)
-  xin=xin(idx);    yin=yin(idx);    typin=typin(idx)
-
+  if ~isempty(xin) then 
+    idx = find(typin==-1)
+    xin=xin(idx); yin=yin(idx); typin=typin(idx)
+  end
+  
   k = to(2)
-  xi = xin(k); yi = yin(k); typi = typin(k);
-
-  if [xi;yi] <> [] then   
-    xxx=rotate([xi;yi],...
-	       theta*%pi/180,...
-	       [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+  
+  if ~isempty(xin) then 
+    xi = xin(k); yi = yin(k); typi = typin(k);
+  else
+    xi=[];yi=[];typi=[];
+  end
+  
+  if ~isempty([xi;yi]) then   
+    xxx=rotate([xi;yi], theta*%pi/180,[orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
   end
 
   xi=xxx(1);
   yi=xxx(2);
-
+  
   port_number = k ;
   if cip(port_number)<>0 then
     error('Selected port is already connected.')
@@ -82,15 +87,10 @@ function [scs_m,obj_num] = add_event_link(scs_m,from,to,points)
   if typ==3 then
     lk.thick=[2 2]
   end
-
   scs_m.objs($+1) = lk ;
-
   obj_num=length(scs_m.objs)
-
   //update connected blocks
-  
   outin=['out','in']
-
   scs_m.objs(from_node(1))=mark_prt(scs_m.objs(from_node(1)),from_node(2),outin(from_node(3)+1),typ,obj_num)
   scs_m.objs(to_node(1))=mark_prt(scs_m.objs(to_node(1)),to_node(2),outin(to_node(3)+1),typ,obj_num)
 
