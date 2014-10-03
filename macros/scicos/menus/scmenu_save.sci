@@ -27,29 +27,48 @@ endfunction
 function [ok,scs_m]=do_save(scs_m,filenamepath)   
 // saves scicos data structures scs_m and %cpr on a binary file
 // Copyright INRIA
+
+// select extension 
+  global(%scicos_ext='.cos'); //default file extension
+  ext=%scicos_ext;
+  if ~or(ext==['cos','cosf','xml']) then
+    ext='cos';
+  end
   
-  // give default value to some variables if not found in the 
-  // calling frames.
+  // fname,path,ext;
+  
+  if nargin <= 1 then
+    fname=scs_m.props.title(1)+'.'+ext
+    if size(scs_m.props.title,'*') < 2 then 
+      path=m2s([]);
+    else
+      path=scs_m.props.title(2); 
+    end
+  else
+    fname = filenamepath;
+    [path,name,ext]=splitfilepath(fname);
+  end
     
-  global %scicos_ext; //default file extension
+  if ext <> 'cos' then 
+    message(['Error: do_save second argument should have a cos suffix"]);
+    ok=%f;
+    return;
+  end
   
   pal_mode = acquire("pal_mode",def=%f);
   super_block = acquire("super_block",def=%f);
   needcompile = acquire("needcompile", def=4);
   alreadyran= acquire("alreadyran", def = %f);
   scicos_ver =acquire("scicos_ver", def="")
+
   if scicos_ver == "" then find_scicos_version(scs_m);end 
     
   if pal_mode then scs_m=do_purge(scs_m),end
-  //file path
-  if nargin==1 then
-    if size(scs_m.props.title,'*')<2 then 
-      //path='./'
-      [ok,scs_m]=do_SaveAs(scs_m)
-      return
-    else
-      path=scs_m.props.title(2)
-    end
+
+  // no path found or given 
+  if isempty(path) then
+    [ok,scs_m]=do_SaveAs(scs_m)
+    return
   end
   //open file
   if ~super_block & ~pal_mode then
@@ -64,23 +83,7 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
   else
     %cpr=list()
   end
-  if nargin>1 then
-    fname=filenamepath
-    [path,name,ext]=splitfilepath(fname)
-    if ext <> 'cos' then 
-      message(['Error: do_save second argument should have a cos suffix"]);
-      ok=%f;
-      return;
-    end
-  else
-    if ~%scicos_ext.equal['cos'] && ~%scicos_ext.equal['cosf'] && ~%scicos_ext.equal['xml'] then
-      ext='cos' //TODO
-    else
-      ext=%scicos_ext
-    end
-    path=getcwd();
-    fname=path+scs_m.props.title(1)+'.'+ext
-  end
+
   // jpc: test if directory is writable 
   if file('writable',path) == %f then 
     message(['Directory write access denied '''+path+'''']);  // ;lasterror()])

@@ -31,7 +31,7 @@ function [x,y,typ]=TKSWITCH(job,arg1,arg2)
    case 'define' then
     ch=1;// default parameter values
     model=scicos_model()
-    model.sim=list('tkswitch',5)
+    model.sim=list('gtkswitch',4);// implemented with gtk in nsp 
     model.in=[-1;-1]
     model.in2=[-2;-2]
     model.intyp=[-1;-1]
@@ -43,7 +43,7 @@ function [x,y,typ]=TKSWITCH(job,arg1,arg2)
     model.blocktype='d'
     model.dep_ut=[%t %f]
     exprs=[sci2exp(ch);string(0)]
-    gr_i=['xstringb(orig(1),orig(2),[''Manual'';''TK'';''Switch''],sz(1),sz(2),''fill'')']
+    gr_i=['xstringb(orig(1),orig(2),[''Manual'';''Gtk'';''Switch''],sz(1),sz(2),''fill'')']
     x=standard_define([2 3],model,exprs,gr_i,'TKSWITCH')
   end
 endfunction 
