@@ -56,7 +56,7 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
       if ~ok then continue;end 
       //============================
       [dirF,nameF,extF]=splitfilepath(funam);
-      if extF=='.mo' && file('exists',funam) then
+      if extF=='mo' && file('exists',funam) then
 	tt=scicos_mgetl(funam);
       else
 	tt=exprs.funtxt
