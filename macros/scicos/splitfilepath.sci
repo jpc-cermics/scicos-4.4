@@ -3,7 +3,6 @@
 
 function [path,name,ext]=splitfilepath(fname)
 // in splitfilepath extension do not contain the dot 
-// 
   [path,name,ext]=splitfilepath_cos(fname);
 endfunction
 
@@ -13,7 +12,6 @@ function [path,name,ext]=fileparts(fname)
     return;
   end
   name=file('root',file('tail',fname));
-  // path=strsubst(stripblanks(Cfile),name+'.c','')
   path=file('dirname',fname);
   ext = file('extension',fname);
 endfunction

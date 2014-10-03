@@ -16,14 +16,14 @@ function [dt,data]=getscicosparam(fic)
    dt=[];
    
    if ~file('exists',fic) then
-     error('File doesn''t exists.');
+     error(sprintf('File %d doesn''t exists.',fic));
    end
-
+   
    [path,fname,extension]=fileparts(fic)
-   fic_xml=path+'/'+fname+'.xml';
-
+   fic_xml=file('join',[path,fname+'.xml']);
+   
    if ~file('exists',fic_xml) then
-     error('Xml file doesn''t exists.');
+     error(sprintf('Xml file %s doesn''t exists.',fic_xml));
    end
 
    txt = scicos_mgetl(fic_xml);
