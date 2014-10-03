@@ -24,10 +24,9 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
 // %state0 : is initial state value
 //
 // define user possible choices
-
 // Copyright INRIA
-  
 // be sure that returned values exists in the local frame
+  
   if exists('%tcur','all'); %tcur=%tcur;else %tcur=0;end 
   if exists('alreadyran','all');alreadyran=alreadyran ;else alreadyran=%f;end;
   if exists('needcompile','all');needcompile=needcompile;else needcompile=4;end
@@ -148,7 +147,12 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       //	 'or you can save the XML file defined in the initialization GUI']);
       //return;
     end
-    grs=scicos_graphic_array(%cpr,scs_m);
+    ok_grs=execstr('grs=scicos_graphic_array(%cpr,scs_m);',errcatch=%t);
+    if ~ok_grs then 
+      lasterror();
+      [%cpr,ok]=do_compile(scs_m);
+      ok_grs=execstr('grs=scicos_graphic_array(%cpr,scs_m);',errcatch=%t);
+    end
     execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''start'',tolerances,grs)',errcatch=%t)
     %cpr.state=state
     if ~execok then
@@ -181,7 +185,14 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
   scicos_set_stop_sensitivity(%t);
   //timer()
   needreplay=%t
-  grs=scicos_graphic_array(%cpr,scs_m);
+
+  ok_grs=execstr('grs=scicos_graphic_array(%cpr,scs_m);',errcatch=%t);
+  if ~ok_grs then 
+    lasterror();
+    [%cpr,ok]=do_compile(scs_m);
+    grs=scicos_graphic_array(%cpr,scs_m);
+  end
+
   Te=cputime();
   execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''run'',tolerances,grs)',errcatch=%t);
   timex=cputime()-Te;
