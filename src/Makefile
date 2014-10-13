@@ -7,13 +7,10 @@ LIBRARY=libscicos.a
 
 BLOCKS=$(patsubst %.c,%.o,$(wildcard blocks/*.c))
 
-
 # utilities for blocks 
-
 # full contents of control and calelm 
-
-ALL_CONTROL= $(patsubst %.c,%.o,$(wildcard control/*.c))
-ALL_CALELM = $(patsubst %.c,%.o,$(wildcard calelm/*.c))
+# ALL_CONTROL= $(patsubst %.c,%.o,$(wildcard control/*.c))
+# ALL_CALELM = $(patsubst %.c,%.o,$(wildcard calelm/*.c))
 
 # subset used by scicos 
 
