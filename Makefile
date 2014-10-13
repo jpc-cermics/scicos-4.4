@@ -36,7 +36,7 @@ else
 	@cp ../../Path.incl .
 endif
 
-
-
-
+up:
+	@echo "Update cvs"
+	@cvs up 
 
