@@ -253,6 +253,117 @@ function scmenu_code_generation()
   end
 endfunction
 
+function scs_m=scmenu_code_generation_super()
+// detects a SUPER_f in a schema and compile the SUPER_f 
+// this is used for tests?
+    
+// checks if we are using the partial eval codegen generator 
+  P_target =[];
+  if scs_m.codegen.iskey['pcodegen_target'] then 
+    P_target = scs_m.codegen.pcodegen_target;
+    if ~isempty(P_target) && isempty(find(P_target == ["C" "P"])) then 
+      P_target = [];
+    end
+  end
+    
+  k     = [] ; //** index of the CodeGen source superbloc candidate
+  %pt   = []   ;
+  Cmenu = "" ;
+
+  needcompile = 4  ;// this have to be done before calling the generator to avoid error with modelica blocks
+
+  k=[];Select=[];curwin=0;alreadyran=%f;
+  for i=1:length(scs_m.objs) 
+    sc=scs_m.objs(i);
+    if sc.gui == 'SUPER_f' then k=i;break;end 
+  end
+  
+  if isempty(k) then
+    message("SUPER_f not found in schema\n");
+    return
+  end
+  
+  // the selected block is really a superblock
+  //
+  if scs_m.objs(k).model.sim(1)=='super' | scs_m.objs(k).gui =='DSUPER'  then
+    if isempty(Select) then
+      Select=[k curwin]
+    end
+  end
+  
+  if ~scs_m.objs(k).model.rpar.iskey['codegen'] then 
+    scs_m.objs(k).model.rpar.codegen = scicos_codegen();
+  end
+  // call do_compile_superblock
+  scs_m=adjust_all_scs_m(scs_m,k);
+  ierr=execstr('[ok, XX, gui_path, flgcdgen, szclkINTemp, freof, c_atomic_code] = '+...
+	       'do_compile_superblock42(scs_m, k,P_target=P_target);',errcatch=%t);
+  
+  silent_mode=scs_m.objs(k).model.rpar.codegen.silent
+  cblock=scs_m.objs(k).model.rpar.codegen.cblock
+  
+  //## display error message if any
+  if ~ierr then
+    if silent_mode <> 1 then
+      message(catenate(lasterror()))
+    else
+      printf(catenate(lasterror()))
+    end
+    ok=%f;
+  end
+  
+  if ok.equal[%f] then 
+    message("Error: error in do_compile_superblock42\n");
+    return;
+  end
+  
+  if ok.equal[%t] then
+    if ~isempty(P_target) then 
+      // the new generated block will replace scs_m.objs(k);
+      // remove the old block graphics 
+      scs_m_save  = scs_m ; 
+      nc_save     = needcompile;
+      sz=XX.graphics.sz
+      w=sz(1);h=sz(2)
+      XX.graphics.orig= scs_m.objs(k).graphics.orig;
+      if scs_m.objs(k).iskey['gr'] then
+	F=get_current_figure();
+	F.remove[scs_m.objs(k).gr]
+      end
+      scs_m = changeports(scs_m,list('objs',k), XX);  //scs_m.objs(k)=XX
+      edited      = %t ;
+      needcompile = 4  ;
+      enable_undo=%t
+    else
+      if cblock==1 then
+	//@@ remove XX.gr
+	ishilited=%f
+	if XX.iskey['gr'] then
+	  F=get_current_figure();
+	  ishilited=XX.gr.hilited
+	  F.remove[XX.gr]
+	end
+	XX=gencblk4(XX,gui_path)
+      end
+      scs_m = changeports(scs_m,list('objs',k), XX);  //scs_m.objs(k)=XX
+      scs_m = draw_sampleclock(scs_m,XX,k,flgcdgen, szclkINTemp, freof);
+      edited      = %t ;
+      needcompile = 4  ;
+      // The interface function must be defined on the first
+      // level
+      // XXXXX
+      Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
+		       'ierr=execstr(''exec('''''+strsubst(gui_path,'''','''''''''')+''''');'',errcatch=%t);'+...
+		       'if ~ierr then message(''Cannot load the '''''+strsubst(gui_path,'''','''''''''')+''''' file'');end; '+...
+		       '%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1';
+		       'Cmenu='"Replot'"'];
+    end
+  end
+  //## remove variables
+  clear XX flgcdgen k szclkINTemp freof gui_path
+endfunction
+
+
 //**-------------------------------------------------------------------------
 function [txt]=call_block42(bk,pt,flag)
 //Copyright (c) 1989-2011 Metalau project INRIA
