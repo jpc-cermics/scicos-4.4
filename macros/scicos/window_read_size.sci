@@ -1,5 +1,5 @@
 function window_read_size(win)
-
+  //printf("debug: inside window_read_size\n");
   if nargin<1 then
     win=curwin
   end

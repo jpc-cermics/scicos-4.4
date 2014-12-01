@@ -1,5 +1,5 @@
 function window_set_size(win,viewport,invalidate=%t)
-
+  //printf("debug: inside window_set_size\n");
   if ~exists('scs_m') then scs_m=hash();end 
   if ~exists('curwin') then curwin=0;end
   if ~exists('%zoom') then %zoom=1;end 
@@ -71,6 +71,7 @@ endfunction
 function [frect,wdim]=windows_compute_size()
 // compute proper frect and proper wdim 
 // from scs_m 
+// printf("debug: inside windows_comppute_size\n");
   r=xget('wpdim');
   rect=dig_bound(scs_m);
   if isempty(rect) then rect=[0,0,r(1),r(2)], end
@@ -82,10 +83,8 @@ function [frect,wdim]=windows_compute_size()
   ay = (max(r(2)/(%zoom*h),j));
   bx = (1-1/ax)/2; 
   by = (1-1/ay)/2; 
-
   // window dim 
   wdim = %zoom*[ w * ax, h * ay];
-
   // 
   margins=[0.02 0.02 0.02 0.02]
   wp=w*(ax+margins(1)+margins(2))

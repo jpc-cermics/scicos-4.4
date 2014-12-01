@@ -1,8 +1,9 @@
 function %zoom=restore(curwin,%zoom)
 // sets up proper parameters for the 
 // curwin graphic window. 
-// If the window already exists its graphic contents are 
-// cleared.
+// If the window already exists its graphic contents are cleared.
+// take care that this function uses scs_m !
+// 
   gr_on = length(scs_m.objs) > 0 && ~(scs_m.objs(1).iskey['gr']);
   if ~or(curwin==winsid()) || gr_on then
     xclear(curwin,gc_reset=%f);

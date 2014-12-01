@@ -35,7 +35,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   if nargin <= 0 then flag=%f;end
   context=hash(0);
   if flag then 
-    //[ok,scs_m,%cpr,edited]=do_scicoslab_import();
+    // import from scicoslab 
     [ok,scs_m,%cpr,edited]=do_load([],'diagram',%t);
   else
     [ok,scs_m,%cpr,edited]=do_load();

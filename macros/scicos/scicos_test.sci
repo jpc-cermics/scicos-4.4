@@ -1,4 +1,4 @@
-function [ierreport]=scicos_test(fname,import=%f)
+function [ierreport]=scicos_test(fname,import=%f, path="/tmp")
 // make a full step test for diagram stored 
 // in fname. Simulation results are stored in a repository 
 // comparison.
@@ -106,11 +106,8 @@ function [ierreport]=scicos_test(fname,import=%f)
       execstr('clearglobal var_name_'+nbr_block+' counter_'+nbr_block)
     end
   endfunction  
-
   
-  
-  
-  scicos_test_path='/tmp';
+  scicos_test_path=path;
   dd=file('join',[scicos_test_path;"data_file"]);
   if ~exists(dd) then file("mkdir",dd);end
   do_terminate=do_terminate2;

@@ -9,7 +9,7 @@ endfunction
 function scmenu_export_all()
 // Export recursively scs_m in graphic files stored in 
 // a directory.
-  do_export_all(scs_m);
+  do_export_all(scs_m,fb=%f);
   Cmenu=''
 endfunction
 
@@ -18,6 +18,8 @@ function do_export(scs_m,fname)
   function do_export_gwin(scs_m)
   // export to a graphic window
   // jpc 2011 using the restore function 
+  // the exported graphic window will have the 
+  // same size as the scicos graphic window.
     
     if ~isempty(winsid()) then 
       old_curwin=xget('window')
@@ -35,7 +37,7 @@ function do_export(scs_m,fname)
     drawobjs(scs_m,curwin);
     if ~isempty(old_curwin) then xset('window',old_curwin);end
   endfunction
-
+  
   function do_export_gfile(scs_m,fname) 
   // export to a graphic file according to
   // file extensions. This only works if scs_m 
@@ -47,7 +49,7 @@ function do_export(scs_m,fname)
       do_export_gwin(scs_m);
     end
     cwin=xget('window');
-    xexport(cwin,fname);
+    xexport(cwin,fname,mode='k');
     if created then xdel(winsid());end
   endfunction
   
@@ -78,15 +80,19 @@ function do_export(scs_m,fname)
   end
 endfunction
 
-function do_export_all(scsm,fname=[],path=[],ext=[],depth=1)
+function do_export_all(scsm,fname=[],path=[],ext=[],depth=1,fb=%f)
 // export the diagram and all the contained super blocks 
-// ut to depth given by depth 
+// ut to depth given by depth to graphic files.
 // path: is the repository name in which files are exported
-// fname: if given it is the prefix name used for exports.
+// fname: if given it is the prefix name used for exports
+//        if not given then the diagram name ans superblock names will be used.
 // ext: file suffix which code the graphic files to use 
 // depth: depth for exports 
-    
-  function do_export_scsm(scsm,path,ext,fname,d)
+// fb: boolean to specify if the figure_background is to be kept or not 
+//     it can be usefull to set this value to %f when exporting to get
+//     rid of the enclosed white rectangle around the diagram.
+  
+  function do_export_scsm(scs_m,path,ext,fname,d,fb)
   // export to a graphic file by first creating a graphic window.
   // This will be changed when it will be possible to draw on 
   // a figure not associated to a graphic window. 
@@ -99,31 +105,33 @@ function do_export_all(scsm,fname=[],path=[],ext=[],depth=1)
       curwin=0;
     end
     xset('window',curwin);
-    options=scsm.props.options
+    options=scs_m.props.options
     set_background();
-    scsm=scs_m_remove_gr(scsm);
+    scs_m=scs_m_remove_gr(scs_m);
+    // take care that restore uses scs_m !
     %zoom=restore(curwin,1.0);
-    drawobjs(scsm,curwin);
+    drawobjs(scs_m,curwin);
     if isempty(fname) 
-      fname_export = file('join',[path,scsm.props.title(1)+ext]);
+      fname_export = file('join',[path,scs_m.props.title(1)+ext]);
     else
       fname_export = file('join',[path,fname+ext]);
     end
     // printf("exporting %s at level %d\n",fname_export,d);
-    xexport(curwin,fname_export);
+    xexport(curwin,fname_export,mode='l',figure_background=fb);
     xdel(curwin);
     if ~isempty(old_curwin) then xset('window',old_curwin);end
   endfunction
   
-  function count=do_export_recursive(scsm,path,ext,fname,count,d,depth);
+  function count=do_export_recursive(scsm,path,ext,fname,count,d,depth,fb);
     if d > depth then return;end 
-    if ~isempty(fname) then fname = fname + sprintf("[%02d]",count);end 
-    do_export_scsm(scsm,path,ext,fname,d);
+    oname=fname;
+    if ~isempty(oname) then oname = oname + sprintf("%02d",count);end 
+    do_export_scsm(scsm,path,ext,oname,d,fb);
     count=count+1;
     for k=1:length(scsm.objs)
       o=scsm.objs(k)
       if o.type =='Block' && o.model.sim(1)=='super' then 
-	count=do_export_recursive(o.model.rpar,path,ext,fname,count,d+1,depth);
+	count=do_export_recursive(o.model.rpar,path,ext,fname,count,d+1,depth,fb);
       end
     end
   endfunction
@@ -145,7 +153,7 @@ function do_export_all(scsm,fname=[],path=[],ext=[],depth=1)
   end
   
   // recursively export the files 
-  do_export_recursive(scsm,path,ext,fname,1,0,depth);
+  do_export_recursive(scsm,path,ext,fname,1,0,depth,fb);
 endfunction
 
 

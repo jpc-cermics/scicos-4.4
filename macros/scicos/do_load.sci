@@ -1,7 +1,9 @@
-function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
+function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 // Copyright INRIA
-// Load a Scicos diagram
-
+// Load a Scicos diagram or import a scicos diagram from scicoslab
+// keep_xstring can be set to true if during import the icons of xstringb types 
+// should be kept and not re-created with define. 
+    
   global %scicos_demo_mode ;
   global %scicos_open_saveas_path ;
   global %scicos_ext ;
@@ -164,7 +166,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import)
 
   if import then
     // convert from scilab
-    scs_m=do_update_scilab_schema(scs_m);
+    scs_m=do_update_scilab_schema(scs_m,keep_xstringb=keep_xstringb);
     // just in case we make a save
     scs_m.props.title=[scs_m.props.title(1)+'_nsp',path];
   else
@@ -408,7 +410,7 @@ endfunction
 //    string into scilab code.
 // -- angle is to be changed since conventions are not the same.
 
-function scs_m=do_update_scilab_schema(scs_m)
+function scs_m=do_update_scilab_schema(scs_m,keep_xstringb=%t)
   n=size(scs_m.objs);
   if scs_m.props.options.iskey['D3'];
     scs_m.props.options('3D')=   scs_m.props.options('D3')
@@ -416,17 +418,26 @@ function scs_m=do_update_scilab_schema(scs_m)
   end
   for i=1:n
     if scs_m.objs(i).iskey['gui'] then
+      keep = %f;
+      // check is graphics is a xstringb: we will keep it if keep_xstringb is true.
+      gr_i= scs_m.objs(i).graphics.gr_i;
+      if type(gr_i,'short')=='l' then gr_i = gr_i(1);end 
+      if type(gr_i,'short')== 's' && part(gr_i($),1:8)=="xstringb" && keep_xstringb then keep=%t;end 
+      //       
       gui=scs_m.objs(i).gui;
-      ok=execstr( 'obj='+gui+'(''define'')',errcatch=%t);
-      if ok then
-        if type(scs_m.objs(i).graphics.gr_i,'short')=='l' then
-          scs_m.objs(i).graphics.gr_i(1) = obj.graphics.gr_i(1);
-        else
-          scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
-        end
-      else
-        message([sprintf('Update of %s cannot be done, we ignore the update',gui);
-                 catenate(lasterror())]);
+      if ~keep then 
+	// we can change the gui 
+	ok=execstr( 'obj='+gui+'(''define'')',errcatch=%t);
+	if ok then
+	  if type(scs_m.objs(i).graphics.gr_i,'short')=='l' then
+	    scs_m.objs(i).graphics.gr_i(1) = obj.graphics.gr_i(1);
+	  else
+	    scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
+	  end
+	else
+	  message([sprintf('Update of %s cannot be done, we ignore the update',gui);
+		   catenate(lasterror())]);
+	end
       end
       //scs_m.objs(i).graphics.out_implicit = obj.graphics.out_implicit;
       //scs_m.objs(i).graphics.in_implicit = obj.graphics.in_implicit;
@@ -503,7 +514,7 @@ function scs_m=do_update_scilab_schema(scs_m)
     if o.type =='Block' then
       omod=o.model;
       if or(o.model.sim(1)==['super','asuper','csuper']) then
-        o.model.rpar=do_update_scilab_schema(o.model.rpar)
+        o.model.rpar=do_update_scilab_schema(o.model.rpar,keep_xstringb=keep_xstringb);
       end
       o.graphics.theta = - o.graphics.theta;
       scs_m.objs(i)=o;
@@ -515,3 +526,6 @@ function scs_m=do_update_scilab_schema(scs_m)
     end
   end
 endfunction
+
+
+  
