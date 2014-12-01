@@ -534,7 +534,7 @@ function scs_m_out=scs_m_remove_gr(scs_m_in,recursive=%t)
     scs_m_out.objs(k).delete['gr'];
     o = scs_m_out.objs(k);
     if recursive && o.type=='Block' then 
-      if or(o.model.sim(1)==['super','csuper','asuper']) then 
+      if type(o.model.sim(1),'short')== 's' && or(o.model.sim(1)==['super','csuper','asuper']) then 
 	o.model.rpar=scs_m_remove_gr(o.model.rpar,recursive=%t);
 	scs_m_out.objs(k)=o;
       end

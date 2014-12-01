@@ -253,38 +253,12 @@ function scmenu_code_generation()
   end
 endfunction
 
-function scs_m=scmenu_code_generation_super()
-// detects a SUPER_f in a schema and compile the SUPER_f 
-// this is used for tests?
-    
-// checks if we are using the partial eval codegen generator 
-  P_target =[];
-  if scs_m.codegen.iskey['pcodegen_target'] then 
-    P_target = scs_m.codegen.pcodegen_target;
-    if ~isempty(P_target) && isempty(find(P_target == ["C" "P"])) then 
-      P_target = [];
-    end
-  end
-    
-  k     = [] ; //** index of the CodeGen source superbloc candidate
-  %pt   = []   ;
-  Cmenu = "" ;
 
-  needcompile = 4  ;// this have to be done before calling the generator to avoid error with modelica blocks
-
-  k=[];Select=[];curwin=0;alreadyran=%f;
-  for i=1:length(scs_m.objs) 
-    sc=scs_m.objs(i);
-    if sc.gui == 'SUPER_f' then k=i;break;end 
-  end
-  
-  if isempty(k) then
-    message("SUPER_f not found in schema\n");
-    return
-  end
-  
-  // the selected block is really a superblock
-  //
+function [scs_m,ok]=scmenu_code_generation_super_k(scs_m,k)
+// the selected block is really a superblock
+//
+  curwin=0;alreadyran=%f;
+  Select=[];
   if scs_m.objs(k).model.sim(1)=='super' | scs_m.objs(k).gui =='DSUPER'  then
     if isempty(Select) then
       Select=[k curwin]
@@ -349,14 +323,41 @@ function scs_m=scmenu_code_generation_super()
       scs_m = draw_sampleclock(scs_m,XX,k,flgcdgen, szclkINTemp, freof);
       edited      = %t ;
       needcompile = 4  ;
-      // The interface function must be defined on the first
-      // level
-      // XXXXX
-      Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
-		       'ierr=execstr(''exec('''''+strsubst(gui_path,'''','''''''''')+''''');'',errcatch=%t);'+...
-		       'if ~ierr then message(''Cannot load the '''''+strsubst(gui_path,'''','''''''''')+''''' file'');end; '+...
-		       '%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1';
-		       'Cmenu='"Replot'"'];
+    end
+  end
+endfunction
+
+function scs_m=scmenu_code_generation_super()
+// detects a SUPER_f in a schema and compile the SUPER_f 
+// this is used for tests?
+    
+// checks if we are using the partial eval codegen generator 
+  P_target =[];
+  if scs_m.codegen.iskey['pcodegen_target'] then 
+    P_target = scs_m.codegen.pcodegen_target;
+    if ~isempty(P_target) && isempty(find(P_target == ["C" "P"])) then 
+      P_target = [];
+    end
+  end
+
+  needcompile = 4  ;// this have to be done before calling the generator to avoid error with modelica blocks
+  
+  // Try to detect if a SUPER_f is labelled Ptarget and compile it 
+  ok=%f
+  for i=1:length(scs_m.objs) 
+    sc=scs_m.objs(i);
+    if sc.iskey['gui'] && sc.gui == 'SUPER_f' && sc.model.label=='Ptarget' then
+      //message('Found a P target');
+      [scs_m,ok] = scmenu_code_generation_super_k(scs_m,i);
+      return;
+    end
+  end
+  
+  // try to compile the first SUPER_f
+  for i=1:length(scs_m.objs) 
+    sc=scs_m.objs(i);
+    if sc.iskey['gui'] && sc.gui == 'SUPER_f' then 
+      [scs_m,ok] = scmenu_code_generation_super_k(scs_m,i);
     end
   end
   //## remove variables

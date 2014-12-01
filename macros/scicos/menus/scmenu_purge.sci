@@ -21,7 +21,8 @@ function [scs_m_new,changed]=do_purge(scs_m)
     if typ=='Deleted' then
       deleted=[deleted,k];
     elseif typ=='Block' then
-      if scs_m.objs(k).model.sim(1)=='super' then
+      // take care that sim(1) can be != from a string
+      if scs_m.objs(k).model.sim(1).equal['super'] then
 	scs_m.objs(k).model.rpar=do_purge(scs_m.objs(k).model.rpar)
       end
     end
