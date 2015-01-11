@@ -113,3 +113,10 @@ libscicos.def:
 		-Wl,--enable-auto-import $(LIBS) -Xlinker --out-implib -Xlinker libscicos1.dll.a \
 		-lgfortran ../../../bin/libnsp.dll.a $(OTHERLIBS) $(WIN32LIBS)
 	@rm -f  libscicos1.*
+
+libscicos.x64: libscicos.def 
+	lib.exe /machine:x64 /def:libscicos.def /out:libscicos.lib
+
+libscicos.x86: libscicos.def 
+	lib.exe /machine:x86 /def:libscicos.def /out:libscicos.lib
+
