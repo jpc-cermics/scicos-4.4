@@ -537,7 +537,7 @@ function [T]=gen_make_lccwin32(blknam,files,filestan,libs,ldflags,cflags)
      "# ------------------------------------------------------"
      "SCIDIR       = "+SCI
      "SCIDIR1      = "+WSCI
-     "DUMPEXTS     = ""$(SCIDIR1)\bin\dumpexts"""
+     "DUMPEXTS     = ""$(SCIDIR1)\bin\dumpexts-nsp"""
      "SCIIMPLIB    = ""$(SCIDIR1)\bin\LibScilablcc.lib"""
      "SCILIBS      = ""$(SCIDIR1)\bin\LibScilablcc.lib"""
      "LIBRARY      = lib"+blknam
@@ -782,7 +782,7 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
      "# ------------------------------------------------------"
      "NSPDIR       = "+getenv('NSP')
      "SCICOSDIR    = "+get_scicospath()
-     "DUMPEXTS     = ""$(NSPDIR)/bin/dumpexts"""
+     "DUMPEXTS     = ""$(NSPDIR)/bin/dumpexts-nsp"""
      "NSPIMPLIB    = ""$(NSPDIR)/bin/libnsp.lib"""
      "COSIMPLIB    = ""$(SCICOSDIR)/src/libscicos.lib"""
      "NSPLIBS      = ""$(NSPDIR)/bin/libnsp.dll"""
