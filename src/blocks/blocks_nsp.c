@@ -150,7 +150,7 @@ void scicos_readau_block (int *flag, int *nevprt, const double *t, double *xd,
   double *buffer;
   unsigned long offset;
   --z;
-  F = (NspFile *) (long) z[3];
+  F = (NspFile *) NSP_POINTER_CAST_TO_INT z[3];
   buffer = (z + 4);
 
   /*
@@ -206,7 +206,7 @@ void scicos_readau_block (int *flag, int *nevprt, const double *t, double *xd,
 	  *flag = -3;
 	  return;
 	}
-      z[3] = (long) F;
+      z[3] = NSP_POINTER_CAST_TO_INT F;
       /* read the header */
       if (nsp_mget (F, buffer, 4, "c", &nread) == FAIL)
 	goto read_fail;
@@ -336,7 +336,7 @@ void scicos_writeau_block (int *flag, int *nevprt, const double *t,
   double *buffer;
   const int SCALE = 32768;
   --z;
-  F = (NspFile *) (long) z[2];
+  F = (NspFile *) NSP_POINTER_CAST_TO_INT z[2];
   buffer = (z + 3);
   /*
    *    k    : record counter within the buffer
@@ -378,7 +378,7 @@ void scicos_writeau_block (int *flag, int *nevprt, const double *t,
 	  *flag = -3;
 	  return;
 	}
-      z[2] = (long) F;
+      z[2] = NSP_POINTER_CAST_TO_INT F;
       /* write the header */
       if (nsp_mput (F, ".snd", 4, "c") == FAIL)
 	goto write_fail;
@@ -455,7 +455,7 @@ scicos_writef_block (int *flag, int *nevprt, const double *t, double *xd,
   double *buffer, *record;
 
   --z;
-  F = (FILE *) (long) z[2];
+  F = (FILE *) NSP_POINTER_CAST_TO_INT z[2];
   buffer = (z + 3);
   /* k    : record counter within the buffer */
   k = (int) z[1];
@@ -526,7 +526,7 @@ scicos_writef_block (int *flag, int *nevprt, const double *t, double *xd,
 	  *flag = -3;
 	  return;
 	}
-      z[2] = (long) F;
+      z[2] = NSP_POINTER_CAST_TO_INT F;
       z[1] = 1.0;
     }
   else if (*flag == 5)
@@ -600,7 +600,7 @@ scicos_writec_block (int *flag, int *nevprt, const double *t, double *xd,
   double *buffer, *record;
 
   --z;
-  F = (NspFile *) (long) z[2];
+  F = (NspFile *) NSP_POINTER_CAST_TO_INT z[2];
   buffer = (z + 3);
   k = (int) z[1];
   /*
@@ -654,7 +654,7 @@ scicos_writec_block (int *flag, int *nevprt, const double *t, double *xd,
 	  *flag = -3;
 	  return;
 	}
-      z[2] = (long) F;
+      z[2] = NSP_POINTER_CAST_TO_INT F;
       z[1] = 1.0;
     }
   else if (*flag == 5)
@@ -741,7 +741,7 @@ void scicos_readc_block (int *flag, int *nevprt, const double *t, double *xd,
   int k, kmax, m, *mask, nread;
   long offset;
   --z;
-  F = (NspFile *) (long) z[3];
+  F = (NspFile *) NSP_POINTER_CAST_TO_INT z[3];
   buffer = (z + 4);
 
   /* pointer to the mask start position */
@@ -840,7 +840,7 @@ void scicos_readc_block (int *flag, int *nevprt, const double *t, double *xd,
 	  *flag = -3;
 	  return;
 	}
-      z[3] = (long) F;
+      z[3] = NSP_POINTER_CAST_TO_INT F;
 
       /* get the type from its ascii code  */
       for (i = 0; i < 3; i++)
@@ -944,7 +944,7 @@ scicos_readf_block (int *flag, int *nevprt, const double *t, double *xd,
   --z;
   --x;
 
-  F = (NspFile *) (long) z[3];
+  F = (NspFile *) NSP_POINTER_CAST_TO_INT z[3];
 
   if (*flag == 1)
     {
@@ -1009,7 +1009,7 @@ scicos_readf_block (int *flag, int *nevprt, const double *t, double *xd,
 	  z[3] = 0.0;
 	  return;
 	}
-      z[3] = (long) F;
+      z[3] = NSP_POINTER_CAST_TO_INT F;
       /*     buffer initialisation */
       no = (*nz - 3) / rf->n;
       if (bfrdr (F, rf, ipar, &z[4], &no, &kmax) == FAIL)

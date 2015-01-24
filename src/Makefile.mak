@@ -108,8 +108,8 @@ calelm/%.lo: calelm/%.c
 # we could also use 
 # pexports testdll.dll | sed "s/^_//" > testdll.def
 
-libscicos.def:
-	@echo "creation of libscicos1.dll"	
+def:
+	@echo "creation of libscicos.def"	
 	@$(CC) -shared -o libscicos1.dll $(OBJS) \
 		-Wl,--output-def,libscicos.def \
 		-Wl,--export-all-symbols -Wl,--allow-multiple-definition \
@@ -117,9 +117,9 @@ libscicos.def:
 		-lgfortran ../../../bin/libnsp.dll.lib $(OTHERLIBS) $(WIN32LIBS)
 	@rm -f  libscicos1.*
 
-libscicos.x64: libscicos.def 
+libscicos.x64: def 
 	lib.exe /machine:x64 /def:libscicos.def /out:libscicos.lib
 
-libscicos.x86: libscicos.def 
+libscicos.x86: def 
 	lib.exe /machine:x86 /def:libscicos.def /out:libscicos.lib
 
