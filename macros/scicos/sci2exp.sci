@@ -10,12 +10,19 @@ function y=sci2exp(exp,nam)
 //
 // XXXX a sprint(.,as_read=%t) without line breaks 
 //      should be usefull
-  if or(type(exp,'short')==['m','s','b']) && size(exp,'*')==1 then 
+  if or(type(exp,'short')==['m','b']) && size(exp,'*')==1 then 
     // scalar 
     y= sprint(exp,as_read=%t);
     y=y(2:$);
     y=strsubst(y,'[','');
     y=strsubst(y,']','');
+    y=stripblanks(y);
+  if or(type(exp,'short')==['s']) && size(exp,'*')==1 then 
+    // scalar string 
+    y= sprint(exp,as_read=%t);
+    y=y(2:$);
+    // take care not to remove the [] which are inside the tsring 
+    y= part(y,2:(length(y)-1));
     y=stripblanks(y);
   elseif or(type(exp,'short')==['m','s','b']) && size(exp,'*')==0 then 
     // empty
