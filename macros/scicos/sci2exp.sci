@@ -17,7 +17,7 @@ function y=sci2exp(exp,nam)
     y=strsubst(y,'[','');
     y=strsubst(y,']','');
     y=stripblanks(y);
-  if or(type(exp,'short')==['s']) && size(exp,'*')==1 then 
+  elseif or(type(exp,'short')==['s']) && size(exp,'*')==1 then 
     // scalar string 
     y= sprint(exp,as_read=%t);
     y=y(2:$);
