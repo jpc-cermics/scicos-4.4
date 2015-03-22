@@ -50,35 +50,35 @@ static int int_scicos_about (Stack stack, int rhs, int opt, int lhs)
   return 0;
 }
 
-/* 
- * [state,t]=scicosim(state,tcur,tf,sim,'start',tol,graphics) 
- * 
+/*
+ * [state,t]=scicosim(state,tcur,tf,sim,'start',tol,graphics)
+ *
  * sim=tlist(['scs','funs','xptr','zptr','zcptr','inpptr',..
  *           'outptr','inplnk','outlnk','lnkptr','rpar',..
  *	     'rpptr','ipar','ipptr','clkptr','ordptr',..
  *	     'execlk','ordclk','cord','oord','zord',..
  *	     'critev','nb','ztyp','nblk','ndcblk',..
  *	     'subscr','funtyp','iord','labels','modptr'],..
- * 4.4 version: 
- *       ozptr: added (integer array) 
+ * 4.4 version:
+ *       ozptr: added (integer array)
  *       lnkptr: removed
- *       opar: added (list of objects) 
- *       opptr: added (integer array) 
+ *       opar: added (list of objects)
+ *       opptr: added (integer array)
  *        - 5  : sim.ozptr  : column vector of real
  *        - 15 : sim.opar   : list of scilab object
  *        - 16 : sim.opptr  : column vector of real
- * 
+ *
  * state=tlist(['xcs','x','z','iz','tevts','evtspt','pointi','outtb'],..
  *               x,z,iz,tevts,evtspt,pointi,outtb)
  * 4.4 version:
- *     oz: list of scilab objects 
- *     outtb: is now a list of scilab objects 
- *     
+ *     oz: list of scilab objects
+ *     outtb: is now a list of scilab objects
+ *
  * graphic if present is a cell containing graphic objects or %f
  */
 
-static int curblk = 0;		/* kept static to be given to curblock in case of 
-				 * error 
+static int curblk = 0;		/* kept static to be given to curblock in case of
+				 * error
 				 */
 
 static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
@@ -125,7 +125,7 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
     return RET_BUG;
   if ( rhs == 7 )
     {
-      if ((Gr = GetCells(stack,7))== NULLCELLS) 
+      if ((Gr = GetCells(stack,7))== NULLCELLS)
 	return RET_BUG;
     }
 
@@ -133,11 +133,11 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
     simpar[i] = 0.0;
   for (i = 0; i < Min (Msimpar->mn, 7); i++)
     simpar[i] = Msimpar->R[i];
-  
+
   if (scicos_fill_run (&r_scicos, Sim, State) == FAIL)
     return RET_BUG;
 
-  if (scicos_fill_gr(&r_scicos,Gr) == FAIL) 
+  if (scicos_fill_gr(&r_scicos,Gr) == FAIL)
     return RET_BUG;
 
   scicos_main (&r_scicos, &tcur, &tf, simpar, &flag, &ierr);
@@ -155,7 +155,7 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
       nsp_simul_error_msg(ierr,&curblk);
       return RET_BUG;
     }
-  
+
   NthObj (1)->ret_pos = 1;
   if (lhs >= 2)
     {
@@ -182,8 +182,8 @@ static int scicos_fill_gr(scicos_run *sr, NspCells *Gr)
     }
   if ( Gr == NULL || Gr->mn != scsim->nblk ) return OK;
   for (kf = 0; kf < scsim->nblk; ++kf)
-    { 
-      if ( Gr->objs[kf] != NULLOBJ && IsGraphic(Gr->objs[kf])) 
+    {
+      if ( Gr->objs[kf] != NULLOBJ && IsGraphic(Gr->objs[kf]))
 	{
 	  Blocks[kf].grobj = Gr->objs[kf];
 	}
@@ -356,8 +356,8 @@ static int int_scicos_debug (Stack stack, int rhs, int opt, int lhs)
       if (nsp_move_double (stack, 1, scicos_debug_level ) == FAIL)
 	return RET_BUG;
       return 1;
-    } 
-  else 
+    }
+  else
     {
       if (GetScalarInt (stack, 1, &debug) == FAIL) return RET_BUG;
       scicos_debug_level = debug;
@@ -367,8 +367,8 @@ static int int_scicos_debug (Stack stack, int rhs, int opt, int lhs)
 
 int scicos_connection (int *path_out, int *path_in)
 {
-  /* FIXME : call the routine 
-   * under_connection 
+  /* FIXME : call the routine
+   * under_connection
    * function ninnout=under_connection(path_out,path_in)
    */
   return 0;
@@ -377,7 +377,7 @@ int scicos_connection (int *path_out, int *path_in)
 int scicos_badconnection (int *path_out, int prt_out, int nout, int *path_in,
 			  int prt_in, int nin)
 {
-  /* FXME : call the routine 
+  /* FXME : call the routine
    * bad_connection(path_out,prt_out,nout,path_in,prt_in,nin)
    */
   return 0;
@@ -385,12 +385,12 @@ int scicos_badconnection (int *path_out, int prt_out, int nout, int *path_in,
 
 int scicos_Message (char *code)
 {
-  /* FIXME call x_message 
+  /* FIXME call x_message
    */
   return 0;
 }
 
-/* should only be called when Scicos 
+/* should only be called when Scicos
  * is initialized i.e Scicos != NULL
  *
  */
@@ -471,7 +471,7 @@ int int_setscicosvars (Stack stack, int rhs, int opt, int lhs)
   return 0;
 }
 
-/* should only be called when Scicos 
+/* should only be called when Scicos
  * is initialized i.e Scicos != NULL
  *
  */
@@ -519,7 +519,7 @@ static int int_time_scicos (Stack stack, int rhs, int opt, int lhs)
   return 1;
 }
 
-/* v=duplicate(u,count) 
+/* v=duplicate(u,count)
  * returns v=[u(1)*ones(count(1),1);
  *            u(2)*ones(count(2),1);
  *            ...
@@ -579,13 +579,13 @@ static int int_duplicate (Stack stack, int rhs, int opt, int lhs)
 }
 
 
-/* renvoi le type d'equation get_pointer_xproperty() 
- *	(-1: algebriques, +1 differentielles) 
+/* renvoi le type d'equation get_pointer_xproperty()
+ *	(-1: algebriques, +1 differentielles)
  */
 
 static int int_xproperty (Stack stack, int rhs, int opt, int lhs)
 {
-  /* 
+  /*
      int un;
      extern int* pointer_xproperty;
      extern int n_pointer_xproperty;
@@ -622,8 +622,8 @@ static int int_scicos_debug_count (Stack stack, int rhs, int opt, int lhs)
   return 1;
 }
 
-/* renvoi le type d'equation get_pointer_xproperty() 
- *	(-1: algebriques, +1 differentielles) 
+/* renvoi le type d'equation get_pointer_xproperty()
+ *	(-1: algebriques, +1 differentielles)
  */
 
 static int int_setxproperty (Stack stack, int rhs, int opt, int lhs)
@@ -671,7 +671,7 @@ static int int_setblockerror (Stack stack, int rhs, int opt, int lhs)
  *         can have n,1 or 1,n size
  *
  * lhs 1 : a list of size n
- * 
+ *
  */
 
 
@@ -719,8 +719,8 @@ static int int_buildouttb (Stack stack, int rhs, int opt, int lhs)
 	 NspFname (stack));
       return RET_BUG;
     }
-  /* detect the special case of 2,2 matrix A 
-   * which is not considered with 2xn but nx2 
+  /* detect the special case of 2,2 matrix A
+   * which is not considered with 2xn but nx2
    */
   m1 = A->m;
   if (A->m == A->n && A->m == 2)  m1 = -1;
@@ -784,8 +784,8 @@ static int int_buildouttb (Stack stack, int rhs, int opt, int lhs)
   return RET_BUG;
 }
 
-/* get the entry point name associated to a 
- * simulator name. i.e search names in tabsim 
+/* get the entry point name associated to a
+ * simulator name. i.e search names in tabsim
  * it can be name or scicos_name_block
  */
 
@@ -812,7 +812,7 @@ static int int_rat(Stack stack, int rhs, int opt, int lhs)
   CheckStdRhs(1,2);
   CheckLhs(0,2);
   if ((M = GetRealMat(stack,1)) == NULLMAT) return RET_BUG;
-  if ( rhs >= 2 ) 
+  if ( rhs >= 2 )
     {
       if (GetScalarDouble (stack, 2, &eps) == FAIL)
 	return RET_BUG;
@@ -830,11 +830,11 @@ static int int_rat(Stack stack, int rhs, int opt, int lhs)
       if ( d > ma) ma=d;
     }
   if ( ma != 0.0) eps *= ma;
-  
+
   for ( i=0; i < M->mn ; i++)
     {
       int n,d;
-      if ( nsp_calpack_rat(M->R[i],eps,&n,&d) == FAIL) 
+      if ( nsp_calpack_rat(M->R[i],eps,&n,&d) == FAIL)
 	goto bug;
       if ( lhs >= 2)
 	{
@@ -850,14 +850,14 @@ static int int_rat(Stack stack, int rhs, int opt, int lhs)
   if ( lhs >= 2 )
     MoveObj(stack,2,NSP_OBJECT(D));
   return Max(lhs,1);
- bug: 
+ bug:
   if (N != NULL)   nsp_matrix_destroy(N);
   if (D != NULL)   nsp_matrix_destroy(D);
   return RET_BUG;
 }
 
 
-/* Computes ppol 
+/* Computes ppol
  */
 
 static int int_ppol(Stack stack, int rhs, int opt, int lhs)
@@ -874,22 +874,22 @@ static int int_ppol(Stack stack, int rhs, int opt, int lhs)
   if ((P = GetMat(stack,3)) == NULLMAT) return RET_BUG;
   CheckSquare(NspFname(stack),1,A);
   if ( B->m != A->m )
-    { 
+    {
       Scierror("%s: second argument is incompatible, expecting a %dxm matrix\n"
 	       ,NspFname(stack),A->m);
       return RET_BUG;
     }
-  if ( P->mn != A->m) 
+  if ( P->mn != A->m)
     {
       Scierror("%s: third argument is incompatible, expecting a %d vector\n"
 	       ,NspFname(stack),A->m);
       return RET_BUG;
     }
-  /* canonical form 
+  /* canonical form
    * wrka: double(A->m*B->n), wrk1: double(B->n), wrk2: double(B->n), iwrk: int(B->n);
    */
   worksize1 = A->m*B->n+3*B->n;
-  /* Pole placement worksize 
+  /* Pole placement worksize
    * jpvt: int B->n
    * rm1:  double B->nxB->n; rm2:  double B->nxMax(B->n,2);
    * rv1,rv2: double A->m; rv3,rv4: double B->n;
@@ -1003,14 +1003,14 @@ static int scicos_moddimtoblkport(NspMatrix *Dim1,
   int *blk_sz=NULL;
   void **blk_ptr=NULL;
   int i,j;
-  
+
   if (Dim1->mn==0) {
     *n=blk_n;
     *sz=blk_sz;
     *ptr=blk_ptr;
     return OK;
   }
-  
+
   if ( (Dim1->mn!=Dim2->mn) || (Dim1->mn!=Typ->mn) ) {
     Scierror("Cross size checking not ok for model.%s, model.%s2, model.%styp.\n",name,name,name);
     return FAIL;
@@ -1124,7 +1124,7 @@ static int scicos_moddimtoblkport(NspMatrix *Dim1,
       }
     }
   }
-    
+
   *n=blk_n;
   *sz=blk_sz;
   *ptr=blk_ptr;
@@ -1154,7 +1154,7 @@ static int scicos_modlisttoblktdata(NspObject *Obj,
                                     int **sz,
                                     int **typ,
                                     void ***ptr,
-                                    const char *name) 
+                                    const char *name)
 {
   int blk_n;
   int *blk_sz;
@@ -1162,15 +1162,15 @@ static int scicos_modlisttoblktdata(NspObject *Obj,
   void **blk_ptr;
   NspList *L;
   int i,nel;
-  
+
   blk_n=0;
   blk_sz=NULL;
   blk_typ=NULL;
   blk_ptr=NULL;
   L = (NspList *) Obj;
-  
+
   *n=blk_n;
-  *sz=blk_sz; 
+  *sz=blk_sz;
   *typ=blk_typ;
   *ptr=blk_ptr;
   nel=L->nel;
@@ -1224,7 +1224,7 @@ static int scicos_modlisttoblktdata(NspObject *Obj,
             }
             blk_typ[i]=SCSREAL_N;
             memcpy((SCSREAL_COP *)blk_ptr[i], (double *)M->R, M->mn*sizeof(SCSREAL_COP));
-            break; 
+            break;
           default  :
             Scierror("Bad matrix type for model.%s(%d).\n",name,i+1);
             return FAIL;
@@ -1284,7 +1284,7 @@ static int scicos_modlisttoblktdata(NspObject *Obj,
             blk_typ[i]=SCSUINT8_N;
             memcpy((SCSUINT8_COP *) blk_ptr[i], (guint8 *) M->Guint8, M->mn*sizeof(SCSUINT8_COP));
             break;
-    
+
           case nsp_guint16 :
             if ((blk_ptr[i]=(SCSUINT16_COP *) malloc(M->mn*sizeof(SCSUINT16_COP))) == NULL) {
               Scierror("Allocation error for blk->%sptr[%d].\n",name,i);
@@ -1305,12 +1305,12 @@ static int scicos_modlisttoblktdata(NspObject *Obj,
             Scierror("Bad imatrix type for model.%s(%d).\n",name,i+1);
             return FAIL;
         }
-      } 
+      }
     }
   }
 
   *n=blk_n;
-  *sz=blk_sz; 
+  *sz=blk_sz;
   *typ=blk_typ;
   *ptr=blk_ptr;
   return OK;
@@ -1331,7 +1331,7 @@ static int scicos_modlisttoblktdata(NspObject *Obj,
  * Return OK or FAIL
  *
  */
-  
+
 static int scicos_modvectoblkvec(NspObject *obj,
                                  int *n,
                                  double **x,
@@ -1340,12 +1340,12 @@ static int scicos_modvectoblkvec(NspObject *obj,
 {
   NspMatrix *M;
   double *v;
-  
+
   M=(NspMatrix *)obj;
   v=NULL;
   *n=M->mn;
   *x=v;
-  
+
   if (M->mn!=0) {
     if (funflag == fun_pointer) {
       if ((v=(double *) malloc(*n*sizeof(double)))==NULL) return FAIL;
@@ -1363,10 +1363,10 @@ static int scicos_modvectoblkvec(NspObject *obj,
       *n=M2->mn;
       if ((v=(double *) malloc(*n*sizeof(double)))==NULL) return FAIL;
       memcpy(v, M2->R, *n*sizeof(double));
-      nsp_matrix_destroy(M2); 
+      nsp_matrix_destroy(M2);
     }
   }
-  
+
   *x=v;
   return OK;
 }
@@ -1402,14 +1402,14 @@ static int scicos_modobjtoblkobj(NspObject *Obj,
   int *blk_sz;
   int *blk_typ;
   void **blk_ptr;
-  
+
   blk_n=0;
   blk_sz=NULL;
   blk_typ=NULL;
   blk_ptr=NULL;
-  
+
   *n=blk_n;
-  *sz=blk_sz; 
+  *sz=blk_sz;
   *typ=blk_typ;
   *ptr=blk_ptr;
 
@@ -1443,7 +1443,7 @@ static int scicos_modobjtoblkobj(NspObject *Obj,
   }
 
   *n=blk_n;
-  *sz=blk_sz; 
+  *sz=blk_sz;
   *typ=blk_typ;
   *ptr=blk_ptr;
   return OK;
@@ -1461,59 +1461,59 @@ void scicos_unalloc_block(scicos_block *Block)
     for(j=0;j<Block->nin;j++) FREE(Block->inptr[j]);
     FREE(Block->inptr);
   }
-  
+
   if (Block->nout!=0) {
     FREE(Block->outsz);
     for(j=0;j<Block->nout;j++) FREE(Block->outptr[j]);
     FREE(Block->outptr);
   }
-  
+
   if (Block->nevout!=0) {
     FREE(Block->evout);
   }
-  
+
   if (Block->nx!=0) {
     FREE(Block->x);
     FREE(Block->xd);
     FREE(Block->res);
     FREE(Block->xprop);
   }
-  
+
   if (Block->nz!=0) {
     FREE(Block->z);
   }
-  
+
   if (Block->noz!=0) {
     FREE(Block->ozsz);
     FREE(Block->oztyp);
     for(j=0;j<Block->noz;j++) FREE(Block->ozptr[j]);
     FREE(Block->ozptr);
   }
-  
+
   if (Block->nrpar!=0) {
     FREE(Block->rpar);
   }
-  
+
   if (Block->nipar!=0) {
     FREE(Block->ipar);
   }
-  
+
   if (Block->nopar!=0) {
     FREE(Block->oparsz);
     FREE(Block->opartyp);
     for(j=0;j<Block->nopar;j++) FREE(Block->oparptr[j]);
     FREE(Block->oparptr);
   }
-  
+
   if (strlen(Block->label)!=0) {
     FREE(Block->label);
   }
-  
+
   if (Block->ng!=0) {
     FREE(Block->g);
     FREE(Block->jroot);
   }
-  
+
   if (Block->nmode!=0) {
     FREE(Block->mode);
   }
@@ -1523,7 +1523,7 @@ extern int scicos_update_scsptr(scicos_block *Block, int funtyp, scicos_funflag 
 extern int scicos_get_scsptr(NspObject *obj, scicos_funflag *funflag, void **funptr);
 
 /*
- * fill a scicos_block structure 
+ * fill a scicos_block structure
  * with pointers from the Hash table Model
  *
  */
@@ -1545,7 +1545,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
                  "blocktype","firing","dep_ut","label","nzcross","nmode","equations"};
 
   const int nmodel=22;
-  
+
   for (i =0;i<nmodel;i++) {
     if (nsp_hash_find(Model,model[i],&obj)==FAIL) return FAIL;
   }
@@ -1566,7 +1566,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   Block->ztyp=0;
   Block->nmode=0;
   Block->work=NULL;
-  
+
   /* 1 : model.sim  */
   nsp_hash_find(Model,model[0],&obj);
   if (IsList(obj)) {
@@ -1577,13 +1577,13 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
   } else {
     funtyp = 0;
   }
-  
+
   if ((scicos_get_scsptr(obj,&funflag,&funptr)) == FAIL)
     goto err;
 
   if ((scicos_update_scsptr(Block,funtyp,funflag,funptr)) == FAIL)
     goto err;
-        
+
   /* TODO */
   /* debugging block */
   /*if (funtyp==99) scsim->debug_block = kf;*/
@@ -1603,7 +1603,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
                               &Block->inptr,
                               "in")) == FAIL)
     goto err;
-  
+
   /* output ports     */
   /* 5 : model.out    */
   /* 6 : model.out2   */
@@ -1619,7 +1619,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
                               &Block->outptr,
                               "out")) == FAIL)
     goto err;
-  
+
   /* event input port */
   /* 8 : model.evtin  */
 
@@ -1644,7 +1644,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
       }
     }
   }
-  
+
   /* continuous state  */
   /* 10 : model.state  */
   nsp_hash_find(Model,model[9],&obj);
@@ -1668,7 +1668,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
     for(i=0;i<Block->nx;i++) Block->res[i]=0.;
     for(i=0;i<Block->nx;i++) Block->xprop[i]=1;
   }
-  
+
   /* discrete state  */
   /* 11 : model.dstate  */
   nsp_hash_find(Model,model[10],&obj);
@@ -1700,8 +1700,8 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
                              Block->scsptr_flag,
                              "rpar")) == FAIL)
     goto err;
-  
-  
+
+
   /* integer parameters */
   /* 14 : model.ipar  */
   nsp_hash_find(Model,model[13],&obj);
@@ -1713,7 +1713,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
       goto err;
     for(i=0;i<Block->nipar;i++) Block->ipar[i]=(int)M->R[i];
   }
-  
+
   /* object parameters */
   /* 15 : model.opar  */
   nsp_hash_find(Model,model[14],&obj);
@@ -1734,7 +1734,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
     int len_str=strlen(SMat->S[0]);
     if (len_str!=0) {
       if ((Block->label=(char *) malloc((len_str+1)*sizeof(char)))==NULL)
-        goto err; 
+        goto err;
       strcpy(Block->label,SMat->S[0]);
     }
   }
@@ -1755,7 +1755,7 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
     for(i=0;i<Block->ng;i++) Block->jroot[i]=0;
     Block->ztyp=1;
   }
-   
+
   /* mode */
   /* 21 : model.nmode  */
   nsp_hash_find(Model,model[20],&obj);
@@ -1767,14 +1767,14 @@ static int scicos_fill_model(NspHash *Model,scicos_block *Block)
       goto err;
     for(i=0;i<Block->nmode;i++) Block->mode[i]=0;
   }
-  
+
   /* work */
   if ((Block->work=(void **) malloc(sizeof(void*)))==NULL)
     goto err;
   *Block->work=NULL;
-  
+
   return OK;
-  
+
   err :
     scicos_unalloc_block(Block);
     return FAIL;
@@ -1784,21 +1784,21 @@ extern NspHash *createblklist(double time, scicos_block *Block);
 extern int scicos_list_to_vars(void *outptr[], int nout, int outsz[], int outsz2[], int outtyp[],
                                NspObject *Ob);
 extern void callf(const double *t, scicos_block * block, int *flag);
-/* 
+/*
  * int_model2blk : Build a scicos_block structure from
  * a scicos model.
  *
  * [Block]=model2blk(objs.model)
  *
  */
- 
+
 static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
 {
   NspHash *Model;
   NspHash *HModel;
   scicos_block Block;
   double time=0.;
-  
+
   CheckLhs(0,1);
   CheckRhs(1,1);
 
@@ -1822,7 +1822,7 @@ static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
  * Input : NspHash : the nsp scicos_block structure
  *
  * Output : Block : C scicos_block structure
- * 
+ *
  * return FAIL if error, OK else
  *
  * initial rev 13/11/07, Alan
@@ -1830,20 +1830,20 @@ static int int_model2blk(Stack stack, int rhs, int opt, int lhs)
 
 static int extractblklist(NspHash *Hi,scicos_block *Block)
 {
-  
+
   NspObject *obj;
   NspMatrix *M;
   NspSMatrix *SMat;
   int i;
-  
+
   char *fields[]={"nevprt","type","scsptr","scsptr_flag","funpt",
                   "z","oz","x","xd","res","xprop",
                   "nin","insz","inptr","nout","outsz","outptr",
                   "nevout","evout",
                   "rpar","ipar","opar","g","ztyp","jroot","label","work","mode"};
-                  
+
   const int nfields=28;
-  
+
   for (i =0;i<nfields;i++) {
     if (nsp_hash_find(Hi,fields[i],&obj)==FAIL) return FAIL;
   }
@@ -1864,34 +1864,34 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
   Block->ztyp=0;
   Block->nmode=0;
   Block->work=NULL;
-  
+
   /************* time */
   /* 1 - nevprt */
   nsp_hash_find(Hi,fields[0],&obj);
   M=(NspMatrix *)obj;
   Block->nevprt = (int) M->R[0];
-  
+
   /* 2 - type */
   nsp_hash_find(Hi,fields[1],&obj);
   M=(NspMatrix *)obj;
   Block->type = (int) M->R[0];
-  
+
   /* 3 - scsptr */
   nsp_hash_find(Hi,fields[2],&obj);
   M=(NspMatrix *)obj;
   Block->scsptr = scicos_scid2ptr(M->R[0]);
-  
+
   /* 4 - scsptr_flag */
   nsp_hash_find(Hi,fields[3],&obj);
   M=(NspMatrix *)obj;
   i=(int) M->R[0];
   Block->scsptr_flag = (scicos_funflag) i;
-  
+
   /* 5 - funpt */
   nsp_hash_find(Hi,fields[4],&obj);
   M=(NspMatrix *) obj;
   Block->funpt = scicos_scid2ptr (M->R[0]);
-  
+
   /************* nz */
   /* 6 - z */
   nsp_hash_find(Hi,fields[5],&obj);
@@ -1901,7 +1901,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              Block->scsptr_flag,
                              "z")) == FAIL)
     goto err;
-    
+
   /************** noz */
   /************** ozsz */
   /************** oztyp */
@@ -1915,7 +1915,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              Block->scsptr_flag,
                              "odstate")) == FAIL)
     goto err;
-  
+
   /************** nx */
   /* 8 - x */
   nsp_hash_find(Hi,fields[7],&obj);
@@ -1925,7 +1925,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              fun_pointer,
                              "x")) == FAIL)
     goto err;
-  
+
   /* 9 - xd */
   nsp_hash_find(Hi,fields[8],&obj);
   if ((scicos_modvectoblkvec(obj,
@@ -1934,7 +1934,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              fun_pointer,
                              "xd")) == FAIL)
     goto err;
-    
+
   /* 10 - res */
   nsp_hash_find(Hi,fields[9],&obj);
   if ((scicos_modvectoblkvec(obj,
@@ -1943,7 +1943,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              fun_pointer,
                              "res")) == FAIL)
     goto err;
-  
+
   /* 11 - xprop */
   nsp_hash_find(Hi,fields[10],&obj);
   M=(NspMatrix *)obj;
@@ -1953,12 +1953,12 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
       goto err;
     for(i=0;i<Block->nx;i++) Block->xprop[i]=(int)M->R[i];
   }
-  
+
   /* 12 - nin */
   nsp_hash_find(Hi,fields[11],&obj);
   M=(NspMatrix *)obj;
   Block->nin = (int) M->R[0];
-  
+
   /* 13 - insz */
   nsp_hash_find(Hi,fields[12],&obj);
   M=(NspMatrix *)obj;
@@ -1968,7 +1968,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
       goto err;
     for(i=0;i<3*Block->nin;i++) Block->insz[i]=(int)M->R[i];
   }
-  
+
   /* 14 - inptr */
   nsp_hash_find(Hi,fields[13],&obj);
   if (Block->nin != 0) {
@@ -2019,12 +2019,12 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
         Block->insz, &(Block->insz[Block->nin]), &(Block->insz[2*Block->nin]), obj) == FAIL)
       goto err;
   }
-  
+
   /* 15 - nout */
   nsp_hash_find(Hi,fields[14],&obj);
   M=(NspMatrix *)obj;
   Block->nout = (int) M->R[0];
-  
+
   /* 16 - outsz */
   nsp_hash_find(Hi,fields[15],&obj);
   M=(NspMatrix *)obj;
@@ -2034,7 +2034,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
       goto err;
     for(i=0;i<3*Block->nout;i++) Block->outsz[i]=(int)M->R[i];
   }
-  
+
   /* 17 - outptr */
   nsp_hash_find(Hi,fields[16],&obj);
   if (Block->nout != 0) {
@@ -2085,7 +2085,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
         Block->outsz, &(Block->outsz[Block->nout]), &(Block->outsz[2*Block->nout]), obj) == FAIL)
       goto err;
   }
-  
+
   /* 18 - nevout */
   /* 19 - evout */
   nsp_hash_find(Hi,fields[18],&obj);
@@ -2095,7 +2095,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              fun_pointer,
                              "evout")) == FAIL)
     goto err;
-  
+
   /************** nrpar */
   /* 20 - rpar */
   nsp_hash_find(Hi,fields[19],&obj);
@@ -2105,7 +2105,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              Block->scsptr_flag,
                              "rpar")) == FAIL)
     goto err;
-  
+
   /************** nipar */
   /* 21 - ipar */
   nsp_hash_find(Hi,fields[20],&obj);
@@ -2117,7 +2117,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
       goto err;
     for(i=0;i<Block->nipar;i++) Block->ipar[i]=(int)M->R[i];
   }
-  
+
   /************** nopar */
   /************** oparsz */
   /************** opartyp */
@@ -2131,7 +2131,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              Block->scsptr_flag,
                              "opar")) == FAIL)
     goto err;
-  
+
   /************** ng */
   /* 23 - g */
   nsp_hash_find(Hi,fields[22],&obj);
@@ -2141,12 +2141,12 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
                              fun_pointer,
                              "g")) == FAIL)
     goto err;
-  
+
   /* 24 - ztyp */
   nsp_hash_find(Hi,fields[23],&obj);
   M=(NspMatrix *)obj;
   Block->ztyp = (int) M->R[0];
-  
+
   /* 25 - jroot */
   nsp_hash_find(Hi,fields[24],&obj);
   M=(NspMatrix *)obj;
@@ -2156,7 +2156,7 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
       goto err;
     for(i=0;i<Block->ng;i++) Block->jroot[i]=(int)M->R[i];
   }
-  
+
   /* 26 - label */
   nsp_hash_find(Hi,fields[25],&obj);
   SMat=(NspSMatrix *)obj;
@@ -2164,11 +2164,11 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
     int len_str=strlen(SMat->S[0]);
     if (len_str!=0) {
       if ((Block->label=(char *) malloc((len_str+1)*sizeof(char)))==NULL)
-        goto err; 
+        goto err;
       strcpy(Block->label,SMat->S[0]);
     }
   }
-  
+
   /* 27 - work*/
   nsp_hash_find(Hi,fields[26],&obj);
   M=(NspMatrix *)obj;
@@ -2185,9 +2185,9 @@ static int extractblklist(NspHash *Hi,scicos_block *Block)
       goto err;
     for(i=0;i<Block->nmode;i++) Block->mode[i]=(int)M->R[i];
   }
-  
+
   return OK;
-  
+
   err :
     scicos_unalloc_block(Block);
     return FAIL;
@@ -2214,24 +2214,24 @@ static int int_callblk(Stack stack, int rhs, int opt, int lhs)
   if ((BlkHash_IN=GetHashCopy(stack,1))==NULLHASH) return RET_BUG;
   if (GetScalarInt(stack,2,&flag)==FAIL) return RET_BUG;
   if (GetScalarDouble(stack,3,&tcur)==FAIL) return RET_BUG;
-  
+
   if (extractblklist(BlkHash_IN, &Block)==FAIL) return RET_BUG;
-  
+
   r_scicos.params.solver=0;
   r_scicos.params.debug=0;
   r_scicos.params.curblk=1;
   r_scicos.params.phase=1;
-  
+
   Scicos=scicos_get_scicos_run();
   scicos_set_scicos_run(&r_scicos);
-  
+
   callf(&tcur, &Block, &flag);
-  
+
   if ((BlkHash_OUT = createblklist(tcur, &Block))==NULL) {
     scicos_unalloc_block(&Block);
     return RET_BUG;
   }
-  
+
   scicos_unalloc_block(&Block);
   MoveObj(stack,1,NSP_OBJECT(BlkHash_OUT));
   scicos_set_scicos_run(Scicos);
@@ -2251,8 +2251,8 @@ static int int_scicos_is(Stack stack, int rhs, int opt, int lhs, isfun F)
   NspObject *obj;
   CheckRhs (1,1);
   CheckLhs (0,1);
-  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG; 
-  if ( nsp_move_boolean(stack,1,F(obj)) == FAIL )  return RET_BUG; 
+  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
+  if ( nsp_move_boolean(stack,1,F(obj)) == FAIL )  return RET_BUG;
   return 1;
 }
 
@@ -2290,22 +2290,22 @@ static int int_scicos_is_super(Stack stack, int rhs, int opt, int lhs)
   NspObject *obj;
   CheckRhs (2,2);
   CheckLhs (0,1);
-  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG; 
-  if ((S = GetSMat(stack,2))== NULL) return RET_BUG; 
-  if (( sim1 = scicos_get_sim(obj))== NULL) 
+  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
+  if ((S = GetSMat(stack,2))== NULL) return RET_BUG;
+  if (( sim1 = scicos_get_sim(obj))== NULL)
     {
-      if ( nsp_move_boolean(stack,1,FALSE) == FAIL )  return RET_BUG; 
+      if ( nsp_move_boolean(stack,1,FALSE) == FAIL )  return RET_BUG;
       return 1;
     }
   for ( i= 0 ; i < S->mn; i++)
     {
-      if ( strcmp(S->S[i],sim1)==0) 
+      if ( strcmp(S->S[i],sim1)==0)
 	{
 	  rep=TRUE;
 	  break;
 	}
     }
-  if ( nsp_move_boolean(stack,1,rep) == FAIL )  return RET_BUG; 
+  if ( nsp_move_boolean(stack,1,rep) == FAIL )  return RET_BUG;
   return 1;
 }
 
@@ -2318,40 +2318,40 @@ static int int_scicos_count_blocks(Stack stack, int rhs, int opt, int lhs)
   NspObject *obj;
   CheckRhs (1,1);
   CheckLhs (0,1);
-  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG; 
+  if ((obj =nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
   n = scicos_count_blocks(obj);
-  if ( nsp_move_double(stack,1,n) == FAIL )  return RET_BUG; 
+  if ( nsp_move_double(stack,1,n) == FAIL )  return RET_BUG;
   return 1;
 }
 
 /* int_scicos_getobj
- * 
+ *
  * [k,wh]=scicos_getobj(scs_m,pt)
- * 
+ *
  */
 static int int_scicos_getobj(Stack stack, int rhs, int opt, int lhs)
 {
   NspObject *obj;
   NspMatrix *pt;
-  
+
   int k=0;
   int wh=0;
-  
+
   NspMatrix *y1;
   NspMatrix *y2;
-  
+
   CheckRhs(2,2);
   CheckLhs(1,2);
-  
+
   if ((obj = nsp_get_object(stack,1))== NULLOBJ) return RET_BUG;
   if ((pt = GetMat(stack,2))== NULL) return RET_BUG;
   if (pt->mn != 2) {
     Scierror ("pt must have a size 2.\n");
     return RET_BUG;
   }
-  
+
   if (scicos_getobj(obj,pt->R,&k,&wh)==FALSE) return RET_BUG;
-  
+
   if (k==0) {
     if ((y1 = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) {
       return RET_BUG;
@@ -2362,9 +2362,9 @@ static int int_scicos_getobj(Stack stack, int rhs, int opt, int lhs)
     }
     y1->R[0]=(double)k;
   }
-  
+
   MoveObj(stack,1, NSP_OBJECT(y1));
-  
+
   if (lhs==2) {
     if (wh==0) {
       if ((y2 = nsp_matrix_create(NVOID,'r',0,0)) == NULLMAT) return RET_BUG;
@@ -2374,7 +2374,7 @@ static int int_scicos_getobj(Stack stack, int rhs, int opt, int lhs)
     }
     MoveObj(stack,2, NSP_OBJECT(y2));
   }
-  
+
   return Max(lhs,1);
 }
 
@@ -2417,7 +2417,7 @@ static int int_scicos_getblock(Stack stack, int rhs, int opt, int lhs)
   }
 
   MoveObj(stack,1, NSP_OBJECT(y1));
-  
+
   return 1;
 }
 
@@ -2490,7 +2490,7 @@ static int int_scicos_getobjs_in_rect(Stack stack, int rhs, int opt, int lhs)
   NspMatrix *yin,*yout;
   double x,y,w,h;
   int nin=0, nout=0, nmax;
-  
+
   CheckRhs(5,5);
   CheckLhs(2,2);
 
@@ -2499,7 +2499,7 @@ static int int_scicos_getobjs_in_rect(Stack stack, int rhs, int opt, int lhs)
   if (GetScalarDouble(stack,3,&y) == FAIL) return RET_BUG;
   if (GetScalarDouble(stack,4,&w) == FAIL) return RET_BUG;
   if (GetScalarDouble(stack,5,&h) == FAIL) return RET_BUG;
-  
+
   /* check that obj is of proper type */
   if (!IsHash(obj)) goto err;
   if (nsp_hash_find((NspHash *) obj,"objs",&objs) == FAIL) goto err;
@@ -2508,7 +2508,7 @@ static int int_scicos_getobjs_in_rect(Stack stack, int rhs, int opt, int lhs)
   if ((yin  = nsp_matrix_create(NVOID,'r',1,nmax)) == NULLMAT) return RET_BUG;
   if ((yout = nsp_matrix_create(NVOID,'r',1,nmax)) == NULLMAT) return RET_BUG;
   scicos_getobjs_in_rect((NspList *) objs,x,y,w,h,&nin,yin->R,&nout,yout->R);
-  
+
   if (nsp_matrix_resize(yin,1,nin) == FAIL) return RET_BUG;
   if (nsp_matrix_resize(yout,1,nout) == FAIL) return RET_BUG;
   MoveObj(stack,1, NSP_OBJECT(yin));
@@ -2517,6 +2517,20 @@ static int int_scicos_getobjs_in_rect(Stack stack, int rhs, int opt, int lhs)
  err:
   Scierror("Error: first argument is not a scicos scs_m\n");
   return RET_BUG;
+}
+
+/* int_scicos_stop
+ *
+ * like clicking on the stop simulation button
+ */
+extern void scicos_send_halt(void);
+
+static int int_scicos_send_halt(Stack stack, int rhs, int opt, int lhs)
+{
+  CheckRhs(0,0);
+  CheckLhs(0,1);
+  scicos_send_halt();
+  return 0;
 }
 
 static OpTab Scicos_func[] = {
@@ -2552,10 +2566,9 @@ static OpTab Scicos_func[] = {
   {"scicos_about", int_scicos_about},
   {"scicos_get_internal_name", int_scicos_get_internal_name},
   {"coserror", int_coserror},
-
   {"model2blk", int_model2blk},
   {"callblk", int_callblk},
-
+  {"scicos_send_halt", int_scicos_send_halt},
   /* utilities */
   {"rat",int_rat},
   {"ppol",int_ppol},
@@ -2567,7 +2580,7 @@ int Scicos_Interf (int i, Stack stack, int rhs, int opt, int lhs)
   return (*(Scicos_func[i].fonc)) (stack, rhs, opt, lhs);
 }
 
-/* used to walk through the interface table 
+/* used to walk through the interface table
  * (for adding or removing functions) */
 
 void Scicos_Interf_Info (int i, char **fname, function (**f))
@@ -2602,8 +2615,8 @@ static void nsp_simul_error_msg(int err_code,int *curblk)
       break;
     case 8  : Scierror("Error: block produces an internal error");
       break;
-    case 10  : /* nothnig to do here the error message was 
-		* already performed in a block through a Coserror 
+    case 10  : /* nothnig to do here the error message was
+		* already performed in a block through a Coserror
 		* which call Scierror
 		*/
       break;
@@ -2639,7 +2652,7 @@ static void nsp_simul_error_msg(int err_code,int *curblk)
       Scierror ("Error: sliding mode condition, cannot integrate");
       break;
 
-      /*In this case, you need to turn off the parameter embedded code generation mode by setting 
+      /*In this case, you need to turn off the parameter embedded code generation mode by setting
        * Modelica_ParEmb=%f in the Scilab command window, and  recompile the Scicos diagram
        */
 
@@ -2927,10 +2940,10 @@ static void nsp_simul_error_msg(int err_code,int *curblk)
       break;
     case 336  : Scierror("Error: CV_EWT_FAIL: The user-provide EwtSet function failed.");
       *curblk=0;
-      break;    
+      break;
     case 337  : Scierror("Error: CV_BAD_EWT: Initial ewt has component(s) equal to zero (illegal).");
       *curblk=0;
-      break;    
+      break;
     case 338  : Scierror("Error: CV_LSOLVE_NULL: The linear solver''s solve routine is NULL.");
       *curblk=0;
       break;
@@ -3135,6 +3148,3 @@ static void nsp_simul_error_msg(int err_code,int *curblk)
       break;
     }
 }
-  
-
-
