@@ -5,7 +5,7 @@ function scmenu_save()
     r=x_choose(['Diagram';'Super Block'],..
                ['Save content of the Super Block or'
                 'the complete diagram?'],'Cancel')
-    if r==0 then 
+    if r==0 then
       return
     end
     if r==1 then
@@ -24,53 +24,53 @@ function scmenu_save()
   if ok&~super_block then edited=%f,end
 endfunction
 
-function [ok,scs_m]=do_save(scs_m,filenamepath)   
+function [ok,scs_m]=do_save(scs_m,filenamepath)
 // saves scicos data structures scs_m and %cpr on a binary file
 // Copyright INRIA
 
-  // select extension 
+  // select extension
   global(%scicos_ext='.cos'); //default file extension
   ext=%scicos_ext;
-  if ~or(ext==['cos','cosf','xml']) then
+  if ~ext.equal['cos'] && ~ext.equal['cosf'] && ~ext.equal['xml'] then
     ext='cos';
   end
-  
-  // we need fname (full name) 
+
+  // we need fname (full name)
   // path and ext;
-  
+
   if nargin <= 1 then
     name=scs_m.props.title(1);
-    if length(file('extension',name))==0 then 
+    if length(file('extension',name))==0 then
       name = name +'.' + ext
     end
-    if size(scs_m.props.title,'*') < 2 then 
+    if size(scs_m.props.title,'*') < 2 then
       path=m2s([]);
     else
-      path=scs_m.props.title(2); 
+      path=scs_m.props.title(2);
     end
     fname = path+name;
   else
     fname = filenamepath;
     [path,name,ext]=splitfilepath(fname);
   end
-  
-  if ext <> 'cos' then 
+
+  if ext <> 'cos' then
     message(['Error: do_save second argument should have a cos suffix"]);
     ok=%f;
     return;
   end
-  
+
   pal_mode = acquire("pal_mode",def=%f);
   super_block = acquire("super_block",def=%f);
   needcompile = acquire("needcompile", def=4);
   alreadyran= acquire("alreadyran", def = %f);
   scicos_ver =acquire("scicos_ver", def="")
 
-  if scicos_ver == "" then find_scicos_version(scs_m);end 
-    
+  if scicos_ver == "" then find_scicos_version(scs_m);end
+
   if pal_mode then scs_m=do_purge(scs_m),end
 
-  // no path found or given 
+  // no path found or given
   if isempty(path) then
     [ok,scs_m]=do_SaveAs(scs_m)
     return
@@ -89,17 +89,17 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
     %cpr=list()
   end
 
-  // jpc: test if directory is writable 
-  if file('writable',path) == %f then 
+  // jpc: test if directory is writable
+  if file('writable',path) == %f then
     message(['Directory write access denied '''+path+'''']);  // ;lasterror()])
     ok=%f
-    return 
+    return
   end
   if nargin>1 then
     // remove gr fields
     scs_m=scs_m_remove_gr(scs_m);
-    // save current diagram 
-    if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then 
+    // save current diagram
+    if ~execstr('save(fname,scicos_ver,scs_m,%cpr);',errcatch=%t) then
       message(['Save error:'; catenate(lasterror())]);
       ok=%f;
       return

@@ -2,15 +2,12 @@ libname='scicos'
 libtitle='scicos toolbox';
 
 // macros. 
-
 add_lib('macros',compile=%t);
 
 // loader for src 
-
 exec('src/loader.sce');
 
 printf(libtitle+' loaded\n');
-
 // path to here
 TMPDIR=getenv('NSP_TMPDIR')
 SCI=getenv('NSP');

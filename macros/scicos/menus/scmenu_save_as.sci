@@ -4,7 +4,7 @@ function scmenu_save_as()
     r = x_choose(['Diagram';'Super Block'],..
                  ['Save content of the Super Block or'
                   'the complete diagram?'],'Cancel')
-    if r==0 then 
+    if r==0 then
       return
     end
     if r==1 then
@@ -22,8 +22,8 @@ function [ok,scs_m]=do_SaveAs(scs_m)
 //
 // Copyright INRIA
   global %scicos_open_saveas_path ;
-  global %scicos_ext
-  
+  global(%scicos_ext='.cos'); //default file extension
+
   if size(scs_m.props.title,'*')<2 then
     default_name=''
   else
@@ -42,7 +42,7 @@ function [ok,scs_m]=do_SaveAs(scs_m)
   else
     masks=['Scicos file','Scicos xml';'*.cos*','*.xml']
   end
-  // FIXME: 
+  // FIXME:
   while %t
     fname=xgetfile(masks=masks,save=%t,dir=%scicos_open_saveas_path,file=default_name)
     if fname=="" then
@@ -84,7 +84,7 @@ function [ok,scs_m]=do_SaveAs(scs_m)
       %cpr=list()
     else
       [%cpr,%state0,needcompile,alreadyran,ok]=do_update(%cpr,%state0, needcompile)
-      if ~ok then 
+      if ~ok then
         message('do_update failed');
         return
       end
@@ -99,7 +99,7 @@ function [ok,scs_m]=do_SaveAs(scs_m)
   scs_m=scs_m_rec
   clear scs_m_rec
   drawtitle(scs_m.props)  // draw the new title
-  if pal_mode then 
+  if pal_mode then
     scicos_pal=update_scicos_pal(path,scs_m.props.title(1),fname),
     resume(scicos_pal)
     return;
@@ -110,12 +110,12 @@ function [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
 // open the selected file
   ok=%t
   if nargin <= 2 then %cpr=list();end
-  if nargin <= 3 then scicos_ver=get_scicos_version();end 
+  if nargin <= 3 then scicos_ver=get_scicos_version();end
   [path,name,ext]=splitfilepath(fname)
   scs_m = scs_m;
   scs_m.props.title=[name,path]; // Change the title
-  // do not purge is %cpr is saved 
-  if isempty(%cpr) then   scs_m=do_purge(scs_m);end 
+  // do not purge is %cpr is saved
+  if isempty(%cpr) then   scs_m=do_purge(scs_m);end
   scs_m=scs_m_remove_gr(scs_m);
   if ext=='cos' then
     // save in binary mode
@@ -134,7 +134,7 @@ function [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
       return
     end
     [ok,t]=cos2xml(scs_m,'',atomic=%f);
-    if ~ok then 
+    if ~ok then
       message('Error in xml format.');
     else
       F.put_smatrix[t];
@@ -148,10 +148,10 @@ function [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
       return
     end
     fprint(F,scicos_ver,as_read=%t);
-    if %t then 
+    if %t then
       fprint(F,scs_m,as_read=%t);
     else
-      // A much more compact way to save 
+      // A much more compact way to save
       txt=scicos_schema2smat(scs_m,name='scs_m',indent=4);
       F.put_smatrix[txt];
       F.put_smatrix[['scs_m=do_eval(scs_m)']];

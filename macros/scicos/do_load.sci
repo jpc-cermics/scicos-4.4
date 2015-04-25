@@ -1,22 +1,22 @@
 function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 // Copyright INRIA
 // Load a Scicos diagram or import a scicos diagram from scicoslab
-// keep_xstring can be set to true if during import the icons of xstringb types 
-// should be kept and not re-created with define. 
-    
+// keep_xstring can be set to true if during import the icons of xstringb types
+// should be kept and not re-created with define.
+
   global %scicos_demo_mode ;
   global %scicos_open_saveas_path ;
-  global %scicos_ext ;
+  global(%scicos_ext='.cos'); //default file extension
   if isempty(%scicos_open_saveas_path) then %scicos_open_saveas_path='', end
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end
   if nargin <=2 then import = %f;  end
-  if ~exists('alreadyran') then alreadyran = %f;end 
-  
+  if ~exists('alreadyran') then alreadyran = %f;end
+
   if alreadyran & typ=="diagram" then
     do_terminate(); //end current simulation
   end
-  
+
   scicos_debug(0); //set debug level to 0 for new diagram loaded
 
   current_version = get_scicos_version()
@@ -29,7 +29,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
   else
     masks=['Scicos file','Scicos xml';'*.cos*','*.xml']
   end
-  
+
   ok=%t
   with_gui=isempty(fname) //if fname is empty one needs gui
   fnam=fname
@@ -57,20 +57,20 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
           end
         end
       end
-    end 
+    end
     %scicos_demo_mode = []; //** clear the variable
 
     fname = stripblanks(fname)
 
-    if fname.equal[""] then 
-      // We have canceled the open 
+    if fname.equal[""] then
+      // We have canceled the open
       ok=%f
       %cpr=%cpr
       scs_m=scs_m
       edited=edited
       return
     end
-  
+
     %cpr=list()
     scs_m=[]
     edited = %f
@@ -87,7 +87,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
     else
       //first pass
       if or(ext==['cos','COS','cosf','COSF','','XML','xml']) then
-        if ext=='' then  
+        if ext=='' then
           // to allow user not to enter necessarily the extension
           fname=fname+'.cos'
           ext='cos'
@@ -97,7 +97,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
         message(['Only *.cos (binary), *.cosf (formatted) files and *.xml (xml)';
                  'allowed'])
         ok=%f
-        if ~with_gui then 
+        if ~with_gui then
           scs_m = get_new_scs_m();
           return
         end
@@ -105,7 +105,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
     end
     if ok then break, end
   end
-  
+
   //second pass
   if ext=='cos'|ext=='COS' then
     if import then
@@ -126,16 +126,16 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
   end
   if ~ok then
     str=lasterror();
-    if length(str)>= 4 then str=str(1:$-4);end 
+    if length(str)>= 4 then str=str(1:$-4);end
     message(['An error has occur during execution of ""'+name+'""';
 	     catenate(str)]);
     ok=%f
-    scs_m=get_new_scs_m();    
+    scs_m=get_new_scs_m();
     return
   end
   if tolower(ext) == 'xml' then
     needcompile=4;
-    //      [ok,scs_m]=do_define_and_set(scs_m) 
+    //      [ok,scs_m]=do_define_and_set(scs_m)
     [scs_m,cpr,vv,ok]=do_eval(scs_m,list(),hash(1),'XML');
     if ~ok then
       x_message(['An error occured while opening the diagram\n';
@@ -190,7 +190,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	  edited=%t
 	  return
 	end
-	
+
 	ft=modulo(%cpr.sim.funtyp(jj),10000)
 	if ft>999 then
 	  funam=%cpr.sim.funs(jj)
@@ -226,10 +226,10 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	        scs_string='scs_m.objs('+sci2exp(pp(1))+')'
  	      end
 	      execstr('fnam='+scs_string+'.model.sim(1)');
-	      if fnam=='asuper' then 
+	      if fnam=='asuper' then
 	        execstr('[modeli,ok]=recur_scicos_block_link('+scs_string+',''c'')')
-		clear modeli fnam pp scs_string        
-	      else 
+		clear modeli fnam pp scs_string
+	      else
 	        [ok]=scicos_block_link(funam,tt,'c')
 	      end
 	    else
@@ -264,20 +264,20 @@ endfunction
 
 function [ok,scs_m]=do_define_and_set(scs_m,flg)
   %mprt=funcprot()
-  funcprot(0) 
+  funcprot(0)
   getvalue=setvalue;
-  
+
   function message(txt)
     x_message('In block '+o.gui+': '+txt);
     global %scicos_prob;
     resume(%scicos_prob=%t);
   endfunction
-  
+
   global %scicos_prob
   %scicos_prob=%f
-  
+
   //## overload some functions used in GUI
-  function [ok,tt]        =  FORTR(funam,tt,i,o) 
+  function [ok,tt]        =  FORTR(funam,tt,i,o)
     ok=%t;
   endfunction
   function [ok,tt,cancel] =  CFORTR2(funam,tt,i,o)
@@ -300,10 +300,10 @@ function [ok,scs_m]=do_define_and_set(scs_m,flg)
   endfunction
   // use a non interactive version
   if nargin < 2 then
-    // do not use herited context 
+    // do not use herited context
     [%scicos_context,ierr]=script2var(scs_m.props.context,hash(10));
   else
-    // enrich %scicos_context 
+    // enrich %scicos_context
     [%scicos_context,ierr]=script2var(scs_m.props.context)
   end
   n=size(scs_m.objs);
@@ -374,7 +374,7 @@ function [scs_m,ok]=generating_atomic_code(scs_m)
     if o.type =='Block' then
       if or(o.model.sim(1)==['super','asuper','csuper']) then
 	[scs_m1,ok]=generating_atomic_code(o.model.rpar)
-	if ~ok then 
+	if ~ok then
 	  scs_m=scs_m_sav;
 	  return;
 	end
@@ -421,12 +421,12 @@ function scs_m=do_update_scilab_schema(scs_m,keep_xstringb=%t)
       keep = %f;
       // check is graphics is a xstringb: we will keep it if keep_xstringb is true.
       gr_i= scs_m.objs(i).graphics.gr_i;
-      if type(gr_i,'short')=='l' then gr_i = gr_i(1);end 
-      if type(gr_i,'short')== 's' && part(gr_i($),1:8)=="xstringb" && keep_xstringb then keep=%t;end 
-      //       
+      if type(gr_i,'short')=='l' then gr_i = gr_i(1);end
+      if type(gr_i,'short')== 's' && part(gr_i($),1:8)=="xstringb" && keep_xstringb then keep=%t;end
+      //
       gui=scs_m.objs(i).gui;
-      if ~keep then 
-	// we can change the gui 
+      if ~keep then
+	// we can change the gui
 	ok=execstr( 'obj='+gui+'(''define'')',errcatch=%t);
 	if ok then
 	  if type(scs_m.objs(i).graphics.gr_i,'short')=='l' then
@@ -526,6 +526,3 @@ function scs_m=do_update_scilab_schema(scs_m,keep_xstringb=%t)
     end
   end
 endfunction
-
-
-  

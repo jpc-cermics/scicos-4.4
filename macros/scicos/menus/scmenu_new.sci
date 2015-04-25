@@ -1,6 +1,7 @@
 function scmenu_new()
-  global %scicos_ext
-  %scicos_ext='cos'
+//
+  global(%scicos_ext='.cos'); //default file extension
+  %scicos_ext='cos' // force
   Cmenu=''
   %r=2
   if edited then
@@ -27,17 +28,17 @@ function scmenu_new()
     alreadyran=%f
     F=get_current_figure()
     for k=1:length(scs_m.objs)
-      if scs_m.objs(k).iskey['gr'] then 
+      if scs_m.objs(k).iskey['gr'] then
         F.remove[scs_m.objs(k).gr];
         scs_m.objs(k).remove['gr'];
       end
     end
     scs_m=get_new_scs_m()
     //we preserve lastest options
-    if exists('options') then 
+    if exists('options') then
       scs_m.props.options=options;
     end
-    %wpar=scs_m.props;  ; 
+    %wpar=scs_m.props;  ;
     %zoom=1.4
     window_set_size()
     Select=[]
