@@ -1,7 +1,7 @@
 function H=scicos_help_menu()
-// Build a hash table with scicos help menu 
-// i.e help strings for the scicos menus 
-  
+// Build a hash table with scicos help menu
+// i.e help strings for the scicos menus
+
   H=hash(100);
 
   //****** File Menu ******/
@@ -451,7 +451,7 @@ function H=scicos_help_menu()
        " parameters are identifed automatically by searching all the symbolic";
        " parameters used in the definition of the block parameters inside the"
        " Super block that are not defined in the appropriate contexts within";
-       " the Super Block;"]; 
+       " the Super Block;"];
 
   H('scmenu_remove_mask')=...
       [" This menu applies only to an already masked block. It removes the mask";
@@ -526,10 +526,11 @@ function H=scicos_help_menu()
 
 
   H('scmenu_activate_scicoslab_window')=...
-      ["This item activates the ScicosLab window without closing the Scicos diagram.";
-       "You can use ScicosLab as usual and later return to editing your Scicos diagram."
-       "Note that if you activate the ScicosLab window with this menu without saving";
-       "your diagram, if you leave ScicosLab without returning to Scicos, your diagram";
+      ["This item activates the Nsp window without closing the Scicos diagram.";
+       "You return in Scicos edition by typing scicos() in the Nsp interaction window";
+       "You can use Nsp interactively as usual and later return back to editing your Scicos diagram.";
+       "Note that if you activate the Nsp window with this menu without saving";
+       "your diagram, if you leave Nsp without returning first to Scicos, your diagram";
        "will be lost."];
 
   H('scmenu_calc')=...
@@ -537,7 +538,7 @@ function H=scicos_help_menu()
        " the pause mode (see the help on pause).";
        " In the ScicosLab main window and you may enter Scilab instructions";
        " as usual. In most cases, user should use the ''Activate ScicosLab Window''";
-       " menu instead. The ''Calc'' menu should only be used for advanced debugging."]; 
+       " menu instead. The ''Calc'' menu should only be used for advanced debugging."];
 
   //****** Help Menu ******/
 
@@ -638,12 +639,12 @@ function H=scicos_help_menu()
   //                 " on a node of the ""Navigator"" window."];
 endfunction
 
-function H=scicos_help() 
+function H=scicos_help()
 
   function H=scicos_help_cpr()
-  // help fo cpr 
+  // help fo cpr
     H=hash(100);
-    
+
     H(  'cpr')=...
 	[" The Scilab object {scicos_cpr} contains "
 	 " the result of the compilation."
@@ -688,7 +689,7 @@ function H=scicos_help()
 	 " ";
 	 " Size : number of blocks in the compiled structre.";
 	 " Type : scilab list."];
-  endfunction 
+  endfunction
 
   function H=scicos_help_block()
   //******* scicos_block *******/
@@ -730,10 +731,10 @@ function H=scicos_help()
 	 " ";
 	 " Size : 1.";
 	 " Type : string."];
-  endfunction 
+  endfunction
 
 
-  function H=scicos_help_diagram() 
+  function H=scicos_help_diagram()
   //****** scicos_diagram ******/
     H=hash(100);
 
@@ -773,7 +774,7 @@ function H=scicos_help()
 	 ""
 	 " Size : 1.";
 	 " Type : String."];
-  endfunction 
+  endfunction
 
   function H=scicos_help_params()
   //****** scicos_params ******/
@@ -913,11 +914,11 @@ function H=scicos_help()
 	 " ";
 	 " Size : 1.";
 	 " Type : Strings."];
-  endfunction 
+  endfunction
 
   function H=scicos_help_model()
   //****** scicos_model ******/
-    
+
     H=hash(100);
     H(  'model')=...
 	[" Scilab list that contains the features";
@@ -1138,7 +1139,7 @@ function H=scicos_help()
 	 " indifferently for standard blocks. ''x'' is used"
 	 " if we want to force the computational function to"
 	 " be called during the simulation phase even if"
-	 " the block does not contribute to computation of" 
+	 " the block does not contribute to computation of"
 	 " the state derivative.";
 	 " ''l'', ''m'' and ''s'' are reserved. Not to be used."
 	 " ";
@@ -1226,7 +1227,7 @@ function H=scicos_help()
 	 " ";
 	 " Size : 5.";
 	 " Type : scilab list."];
-  endfunction 
+  endfunction
 
   function H=scicos_help_graphics()
   //****** scicos_graphics ******/
@@ -1353,12 +1354,12 @@ function H=scicos_help()
 	 " ";
 	 " Size : nul or number of regular output ports.";
 	 " Type : column vector of strings."];
-  endfunction 
+  endfunction
 
   function H=scicos_help_link()
   //****** scicos_link ******/
     H=hash(100);
-    
+
     H(  'link')=...
 	[" ";
 	 " Size : 8.";
@@ -1419,7 +1420,7 @@ function H=scicos_help()
 	 " Size : 3.";
 	 " Type : row vector of integers."];
 
-  endfunction 
+  endfunction
   function H=scicos_help_state()
   //****** scicos_state ******/
     H=hash(100);
@@ -1495,7 +1496,7 @@ function H=scicos_help()
 	 " ";
 	 " Size : number of regular output ports.";
 	 " Type : list of scilab matrix."];
-  endfunction 
+  endfunction
   function H=scicos_help_sim()
   //****** scicos_sim ******/
     H=hash(100);
@@ -1590,7 +1591,7 @@ function H=scicos_help()
 
     H(  'rpar')=...
 	[" Vector of real parameters that is "
-	 " obtained by concatenating the real" 
+	 " obtained by concatenating the real"
 	 " parameters registers of all the blocks.";
 	 " ";
 	 " Size : total number of real parameters.";
@@ -1785,8 +1786,8 @@ function H=scicos_help()
 	 " Type : column vector of integer."];
 
 
-    /// FRENCH 
-  endfunction 	 
+    /// FRENCH
+  endfunction
   function H=scicos_help_cpr_fr()
   //******* cpr *******/
     H=hash(100);
@@ -1833,8 +1834,8 @@ function H=scicos_help()
 	 " ";
 	 " Taille : nombre de blocs dans la structure compilée.";
 	 " Type : scilab list."];
-  endfunction 
-  
+  endfunction
+
   function H=scicos_help_block_fr()
   //******* scicos_block *******/
   //****************************/
@@ -1875,7 +1876,7 @@ function H=scicos_help()
 	 " Taille : 1.";
 	 " Type : chaîne de caractères."];
 
-  endfunction 
+  endfunction
   function H=scicos_help_diagram_fr()
   //****** scicos_diagram ******/
   //****************************/
@@ -1918,8 +1919,8 @@ function H=scicos_help()
 	 " ";
 	 " Taille : 1.";
 	 " Type : chaîne de caractères."];
-    
-  endfunction 
+
+  endfunction
   function H=scicos_help_params_fr()
   //****** scicos_params ******/
     H=hash(100);
@@ -2044,7 +2045,7 @@ function H=scicos_help()
        " ";
        " Taille : -.";
        " Type : -."];
-    
+
     H(  'void3')=...
 	[" Champ inutilisé.";
 	 " ";
@@ -2056,7 +2057,7 @@ function H=scicos_help()
 	 " ";
 	 " Taille : 1.";
 	 " Type : Chaînes de caractères."];
-  endfunction 
+  endfunction
 
   function H=scicos_help_model_fr()
   //****** scicos_model ******/
@@ -2134,7 +2135,7 @@ function H=scicos_help()
 	 " "
 	 " Taille : nombre de ports réguliers d''entrée.";
 	 " Type : vecteur colonne de nombres entiers."];
-    
+
     H(  'intyp')=...
 	[" Un vecteur spécifiant les types des ports d''entrée réguliers.";
 	 " Sa taille est égale à {in}. ";
@@ -2203,7 +2204,7 @@ function H=scicos_help()
 	 " "
 	 " Taille : nombre de ports réguliers de sortie.";
 	 " Type : vecteur colonne de nombres entiers."];
-    
+
     H(  'outtyp')=...
 	[" Un vecteur spécifiant les types des ports de sortie réguliers.";
 	 " Sa taille est égale à {out}. ";
@@ -2401,8 +2402,8 @@ function H=scicos_help()
 	 " ";
 	 " Taille : 5.";
 	 " Type : liste scilab."];
-    
-  endfunction 
+
+  endfunction
   function H=scicos_help_graphics_fr()
   //****** scicos_graphics ******/
   //*****************************/
@@ -2530,7 +2531,7 @@ function H=scicos_help()
 	 " Taille : vide ou bien le nombre de ports réguliers de sorties.";
 	 " Type : vecteur colonne de chaînes de caractères."];
 
-  endfunction 
+  endfunction
   function H=scicos_help_link_fr()
   //****** scicos_link ******/
   //*************************/
@@ -2598,8 +2599,8 @@ function H=scicos_help()
 	 " ";
 	 " Taille : 3.";
 	 " Type : vecteur ligne de nombre entiers."];
-  endfunction 
-  
+  endfunction
+
   function H=scicos_help_state_fr()
   //****** scicos_state ******/
   //**************************/
@@ -2680,7 +2681,7 @@ function H=scicos_help()
 	 " Taille : nombre de ports réguliers de sortie.";
 	 " Type : liste scilab contenant des matrices."];
 
-  endfunction 
+  endfunction
 
   function H=scicos_help_sim_fr()
   //****** scicos_sim ******/
@@ -2969,15 +2970,15 @@ function H=scicos_help()
 	 " Taille : nombre de blocs + 1.";
 	 " Type : vecteur colonne de nombre entiers."];
   endfunction
-  
-  // Build the main hash table 
+
+  // Build the main hash table
 
   h=tlist(['scilst']);
-  if getenv('LANGUAGE','void')=='fr' then str='_fr' else str='';end 
+  if getenv('LANGUAGE','void')=='fr' then str='_fr' else str='';end
   for x=['diagram','params','model','graphics','link','state','sim','block','cpr'] do
     cmd= sprintf('h(""%s"")=scicos_help_%s%s();',x,x,str);
     ok=execstr(cmd,errcatch=%t);
-    if ~ok then 
+    if ~ok then
       message([sprintf('unable to insert help for %s\n',x); ...
 	       catenate(lasterror())]);
     end

@@ -3,15 +3,15 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
           %scicos_lhb_list, %CmenuTypeOneVector, %DmenuTypeOneVector, %scicos_gif, ...
           %scicos_contrib,%scicos_libs,%scicos_cflags] = initial_scicos_tables()
 
-  // build a set of scicos global data 
-  // 
-  
+  // build a set of scicos global data
+  //
+
   scicospath=get_scicospath()
-  
+
   %scicos_display_mode=0  // =1 if pixmap to be used for display
   %scicos_gif=file('join',[scicospath,'macros/scicos/scicos-images']);
   %scicos_contrib=[];
-  %scicos_libs=m2s([]);// string matrix 
+  %scicos_libs=m2s([]);// string matrix
   %scicos_cflags=[];
   %scicos_topics=hash(10);// hasch table used for help topics
 
@@ -23,7 +23,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
   //** and stockid item will be considered
   //**
   //** scmenu_up/scmenu_up_to_main_diagram are removed from top level diagram
-  
+
   File =     list(["_File"                 "menu"      "scmenu_file_menu"           "" ""],
                   ["New|||gtk-new"         "menuitem"  "scmenu_new"                 "<Ctrl>N" ""],
                   ["sep0"                  "separator" ""                           "" ""],
@@ -60,7 +60,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["Pal Tree"          "menuitem"  "scmenu_pal_tree"          "" ""],
                   ["Palettes"          "menuitem"  "scmenu_palettes"          "" ""]);
 
-  Palette.concat[list(...                  
+  Palette.concat[list(...
 		  ["sep0"              "separator" ""                         "" ""],
                   ["Pal editor"        "menuitem"  "scmenu_pal_editor"        "" ""],
                   ["sep1"              "separator" ""                         "" ""],
@@ -68,7 +68,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["sep2"              "separator" ""                         "" ""],
                   ["Load as Palette"   "menuitem"  "scmenu_load_as_palette"   "" ""],
                   ["Save as Palette"   "menuitem"  "scmenu_save_as_palette"   "" ""])];
-		 
+
   Edit =     list(["_Edit"                       "menu"      "scmenu_edit_menu"  ""        ""],
                   ["Undo|||gtk-undo"             "menuitem"  "scmenu_undo"       "<Ctrl>Z" ""],
                   ["sep0"                        "separator" ""                  ""        ""],
@@ -143,7 +143,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["ID fonts|||gtk-select-font" "menuitem"  "scmenu_id_fonts"            "" ""]);
 
   Tools =    list(["_Tools"                    "menu"      "scmenu_tools_menu"                "" ""],
-                  ["Activate ScicosLab Window" "menuitem"  "scmenu_activate_scicoslab_window" "" ""],
+                  ["Activate Nsp Window"       "menuitem"  "scmenu_activate_scicoslab_window" "" ""],
                   ["sep0"                      "separator" ""                                 "" ""],
                   ["Create Mask"               "menuitem"  "scmenu_create_mask"               "" ""],
                   ["Remove Mask"               "menuitem"  "scmenu_remove_mask"               "" ""],
@@ -226,7 +226,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
   //Window
 
   function L1=scicos_rmenu_pal_tree()
-    // make a mpopup data list 
+    // make a mpopup data list
     // for block insertion from right click menu
     // the action activated is placeindiagram.
 
@@ -265,7 +265,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
   endfunction
 
   L=scicos_rmenu_pal_tree();
-  
+
   %scicos_lhb_list(2) = list('Undo|||gtk-undo',..
                              'Paste',..
                              'Palettes',..
@@ -288,7 +288,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                              'Browser',..
                              'Details',..
                              'Help|||gtk-help');
-    
+
   //** state_var = 3 : right click over a valid object inside a PALETTE or
   //**                 not a current Scicos window
   %scicos_lhb_list(3) = list('Copy|||gtk-copy',..
@@ -351,7 +351,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                                   'Get Info',..
                                   'Details'));
 
-  //** state_var = 7 : right click over a valid sblock inside the 
+  //** state_var = 7 : right click over a valid sblock inside the
   //  CURRENT Scicos Window
   %scicos_lhb_list(7) = list('Open/Set',..
                              list('Super Block Properties',..
@@ -414,7 +414,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                  'h','Help']
 
   //Scicos Modelica librabry path definitions==============================
-  
+
   modelica_libs=scicospath+'/macros/blocks/'+['ModElectrical','ModHydraulics','ModLinear','ModEni'];
 
   //add TMPDIR/Modelica for generic modelica blocks
@@ -459,7 +459,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
       'Resize',                "" ;
       'Resize Top',            "" ;
       'Block Documentation',   "Click on a block to set or get it''s documentation"]
-  
+
   //** "%DmenuTypeOneVector" store the list of the commands/function to be called that don't require to
   //** disable menus in the editor. Should be carrefully updated
   %DmenuTypeOneVector =..
@@ -620,7 +620,7 @@ function H1=scicos_default_palettes()
   'HGround',    'Tank2',          'ValveDiscrete',
   'Medias',     'Tank3',          'VolumeFlow', 'PressionSource' );
 
-       
+
   H_Mod.contents=H2;
   H.Modelica = H_Mod;
 
