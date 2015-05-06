@@ -7,7 +7,7 @@
 #include <nsp/polyhedron.h>
 #include <nsp/figuredata.h>
 #include <nsp/figure.h>
-#include <nsp/gmatrix.h>
+#include <nsp/gmatrix.h> 
 
 #include "blocks.h"
 
@@ -130,7 +130,7 @@ void cscopxy3d (scicos_block * block, int flag)
       }
     case StateUpdate:
       {
-	cscope_data *D=(cscope_data *) (*GetPtrWorkPtrs(block));
+	cscope_data *D=(cscope_data *) (GetWorkPtrs(block));
 	double *u1 = GetRealInPortPtrs (block, 1);
 	double *u2 = GetRealInPortPtrs (block, 2);
 	double *u3 = GetRealInPortPtrs (block, 3);
@@ -154,7 +154,7 @@ void cscopxy3d (scicos_block * block, int flag)
       }
     case Ending:
       {
-	cscope_data *D = (cscope_data *) (*GetPtrWorkPtrs(block));
+	cscope_data *D = (cscope_data *) (GetWorkPtrs(block));
         if ( D->count_invalidates == 0 ) {
           /* figure was never invalidated and was not destroyed during simulation
            * we update the graphics at the end  */
