@@ -123,7 +123,7 @@ void switch2_SCSREAL_COP (scicos_block * block, int flag)
       for (j = 0; j < mu2 * nu2; j++)
 	{
 	  g[j] = u2[j] - rpar[j];
-	  if (!areModesFixed (phase))
+	  if (! areModesFixed(phase))
 	    {
 	      mode[j] = 2;
 	      if (ipar == 0)
