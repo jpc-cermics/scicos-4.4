@@ -35,9 +35,9 @@ function [scs_m,changed]=do_identification(scs_m)
     texte_1 = 'Set Block identification';
     %scs_help='Ident_block'
     // we accept \n in the getvalue
-    [ok,newid] = getvalue(texte_1,'ID',list('str',-1),identification)
+    identification_1 = strcat(identification,"\\n");
+    [ok,newid] = getvalue(texte_1,'ID',list('str',-1),identification_1);
     if ok then
-      newid = strcat(newid,"\\n");
       newid = stripblanks(newid);
       if newid==identification;return;end
       objet.graphics.id = newid;
