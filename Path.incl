@@ -1,2 +1,2 @@
-SCIDIR=/usr/local/src/nsp2
-SCIDIR1=\usr\local\src\nsp2
+SCIDIR=/usr/local/src/nsp2-ref
+SCIDIR1=\usr\local\src\nsp2-ref

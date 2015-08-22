@@ -29,6 +29,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["sep0"                  "separator" ""                           "" ""],
                   ["Open|||gtk-open"       "menuitem"  "scmenu_open"                "<Ctrl>O" ""],
                   ["Scicoslab Import"      "menuitem"  "scmenu_scicoslab_import"    "" "gtk-convert"],
+                  ["Mdl or Slx Import"        "menuitem"  "scmenu_simulink_import"     "" "gtk-convert"],
                   ["sep1"                  "separator" ""                           "" ""],
                   ["Save|||gtk-save"       "menuitem"  "scmenu_save"                "<Ctrl>S" ""],
                   ["Save As|||gtk-save-as" "menuitem"  "scmenu_save_as"             "" ""],
