@@ -14,6 +14,11 @@ function [x,y,typ]=CLSS(job,arg1,arg2)
     x=arg1
     graphics=arg1.graphics;exprs=graphics.exprs
     if size(exprs,'*')==7 then exprs=exprs([1:4 7]),end //compatibility
+    if size(exprs,1) >= 5 && exprs(5,1)=="0" || exprs(5,1)=="[]" then
+      // try to fix x0 dimensions
+      Ai=evstr(exprs(1,1),%scicos_context);
+      exprs(5,1)= sprintf("zeros(%d,1)",size(Ai,2));
+    end
     model=arg1.model;
     while %t do
       [ok,A,B,C,D,x0,exprs]=getvalue('Set continuous linear system parameters',..
@@ -34,9 +39,9 @@ function [x,y,typ]=CLSS(job,arg1,arg2)
       [ms,ns]=size(A)
       okD=%t
       if size(D,'*')<>size(C,1)*size(B,2) then
-	if size(D,'*')==1 then 
+	if size(D,'*')==1 then
 	  D=ones_deprecated(C*B)*D
-	elseif  size(D,'*')==0 then 
+	elseif  size(D,'*')==0 then
 	  D=zeros_deprecated(C*B)
 	else
 	  okD=%f
@@ -49,13 +54,13 @@ function [x,y,typ]=CLSS(job,arg1,arg2)
 	if ok then
 	  graphics.exprs=exprs;
 	  rpar=[A(:);B(:);C(:);D(:)];
-	  if ~isempty(D) then	
+	  if ~isempty(D) then
 	    if norm(D,1)<>0 then
 	      mmm=[%t %t];
 	    else
 	      mmm=[%f %t];
 	    end
-	    if or(model.dep_ut<>mmm) then 
+	    if or(model.dep_ut<>mmm) then
 	      model.dep_ut=mmm,end
 	  else
 	    model.dep_ut=[%f %t];
