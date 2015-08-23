@@ -1,7 +1,7 @@
 /* Nsp
- * Copyright (C) 2007-2011 Ramine Nikoukhah (Inria) 
+ * Copyright (C) 2007-2011 Ramine Nikoukhah (Inria)
  *               See the note at the end of banner
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either
@@ -17,10 +17,10 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * 
+ *
  * Scicos blocks copyrighted GPL in this version by Ramine Nikoukhah
- * Some blocks have specific authors which are named in the code. 
- * 
+ * Some blocks have specific authors which are named in the code.
+ *
  *--------------------------------------------------------------------------*/
 
 /* This module encloses set of 'new' scicos blocks
@@ -29,7 +29,7 @@
 
 #include <nsp/nsp.h>
 #include <nsp/objects.h>
-#include <nsp/graphics-new/Graphics.h> 
+#include <nsp/graphics-new/Graphics.h>
 #include <nsp/objs3d.h>
 #include <nsp/axes.h>
 #include <nsp/figuredata.h>
@@ -71,18 +71,18 @@ BCG *scicos_set_win (int wid, int *oldwid)
       Xgc = set_graphic_window (Max (wid, 0));
     }
   Xgc->graphic_engine->xselgraphic(Xgc);
-  
+
   return Xgc;
 }
 
 
 /**
  * scicos_cscope_block:
- * @block: 
- * @flag: 
- * 
+ * @block:
+ * @flag:
+ *
  * a scope:
- * Copyright (C) 2010-2011 J.Ph Chancelier 
+ * Copyright (C) 2010-2011 J.Ph Chancelier
  * new nsp graphics
  **/
 
@@ -127,12 +127,12 @@ void scicos_cscope_block (scicos_block * block, int flag)
   t = scicos_get_scicos_time ();
 
   wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
-  
+
   if (flag == 2)
     {
       int ret;
       cscope_data *D = (cscope_data *) (*block->work);
-      if ( D->Axes->obj->ref_count <= 1 ) 
+      if ( D->Axes->obj->ref_count <= 1 )
 	{
 	  /* Axes was destroyed during simulation */
 	  return;
@@ -153,10 +153,10 @@ void scicos_cscope_block (scicos_block * block, int flag)
         scicos_set_block_error (-16);
         return;
       }
-      if (  D->count % csi->n == 0 ) 
+      if (  D->count % csi->n == 0 )
 	{
-	  /* redraw each csi->n accumulated points 
-	   * first check if we need to change the xscale 
+	  /* redraw each csi->n accumulated points
+	   * first check if we need to change the xscale
 	   */
 	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
@@ -170,9 +170,9 @@ void scicos_cscope_block (scicos_block * block, int flag)
       NspList *L;
       int *width=NULL;
       /* XXX :
-       * buffer size for scope 
-       * this should be set to the number of points to keep 
-       * in order to cover a csr->per horizon. Unfortunately 
+       * buffer size for scope
+       * this should be set to the number of points to keep
+       * in order to cover a csr->per horizon. Unfortunately
        * this number is not known a-priori.
        */
       int scopebs = 10000;
@@ -182,7 +182,7 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	  return;
 	}
       for(k=0;k<8;k++) width[k]=0;
-      /* create a graphic window filled with an axe 
+      /* create a graphic window filled with an axe
        * (with predefined limits) and curves.
        * The axe is returned and the curves are accessible through the L list.
        */
@@ -194,11 +194,11 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	  scicos_set_block_error (-16);
 	  return;
 	}
-      /* keep a copy in case Axes is destroyed during simulation 
-       * axe is a by reference object 
+      /* keep a copy in case Axes is destroyed during simulation
+       * axe is a by reference object
        */
       Axes1 = nsp_axes_copy(Axes);
-      if ( Axes1 == NULL ) 
+      if ( Axes1 == NULL )
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -240,10 +240,10 @@ void scicos_cscope_block (scicos_block * block, int flag)
 	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
 	}
-      if ( D->Axes->obj->ref_count >= 1 ) 
+      if ( D->Axes->obj->ref_count >= 1 )
 	{
-	  /* Axes was destroyed during simulation 
-	   * we finish detruction 
+	  /* Axes was destroyed during simulation
+	   * we finish detruction
 	   */
 	  nsp_axes_destroy(D->Axes);
 	}
@@ -276,14 +276,14 @@ static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
     }
   memcpy(axe->obj->frect->R,frect,4*sizeof(double));
   memcpy(axe->obj->rect->R,frect,4*sizeof(double));
-  axe->obj->fixed = TRUE; 
+  axe->obj->fixed = TRUE;
 }
 
 /**
  * scicos_cfscope_block:
- * @block: 
- * @flag: 
- * 
+ * @block:
+ * @flag:
+ *
  * a floating scope
  * new nsp graphics
  **/
@@ -321,12 +321,12 @@ void scicos_cfscope_block (scicos_block * block, int flag)
   t = scicos_get_scicos_time ();
 
   wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
-  
+
   if (flag == 2)
     {
       int ret;
       cfscope_data *D = (cfscope_data *) (*block->work);
-      if ( D->Axes->obj->ref_count <= 1 ) 
+      if ( D->Axes->obj->ref_count <= 1 )
 	{
 	  /* Axes was destroyed during simulation */
 	  return;
@@ -348,10 +348,10 @@ void scicos_cfscope_block (scicos_block * block, int flag)
         scicos_set_block_error (-16);
         return;
       }
-      if (  D->count % csi->n == 0 ) 
+      if (  D->count % csi->n == 0 )
 	{
-	  /* redraw each csi->n accumulated points 
-	   * first check if we need to change the xscale 
+	  /* redraw each csi->n accumulated points
+	   * first check if we need to change the xscale
 	   */
 	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
@@ -365,9 +365,9 @@ void scicos_cfscope_block (scicos_block * block, int flag)
       NspList *L;
       int *width=NULL;
       /* XXX :
-       * buffer size for scope 
-       * this should be set to the number of points to keep 
-       * in order to cover a csr->per horizon. Unfortunately 
+       * buffer size for scope
+       * this should be set to the number of points to keep
+       * in order to cover a csr->per horizon. Unfortunately
        * this number is not known a-priori.
        */
       int scopebs = 10000;
@@ -377,7 +377,7 @@ void scicos_cfscope_block (scicos_block * block, int flag)
 	  return;
 	}
       for(k=0;k<8;k++) width[k]=0;
-      /* create a graphic window filled with an axe 
+      /* create a graphic window filled with an axe
        * (with predefined limits) and curves.
        * The axe is returned and the curves are accessible through the L list.
        */
@@ -389,11 +389,11 @@ void scicos_cfscope_block (scicos_block * block, int flag)
 	  scicos_set_block_error (-16);
 	  return;
 	}
-      /* keep a copy in case Axes is destroyed during simulation 
-       * axe is a by reference object 
+      /* keep a copy in case Axes is destroyed during simulation
+       * axe is a by reference object
        */
       Axes1 = nsp_axes_copy(Axes);
-      if ( Axes1 == NULL ) 
+      if ( Axes1 == NULL )
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -439,10 +439,10 @@ void scicos_cfscope_block (scicos_block * block, int flag)
 	  scicos_cscope_axes_update(D->Axes,t,csr->per,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
 	}
-      if ( D->Axes->obj->ref_count >= 1 ) 
+      if ( D->Axes->obj->ref_count >= 1 )
 	{
-	  /* Axes was destroyed during simulation 
-	   * we finish detruction 
+	  /* Axes was destroyed during simulation
+	   * we finish detruction
 	   */
 	  nsp_axes_destroy(D->Axes);
 	}
@@ -452,11 +452,11 @@ void scicos_cfscope_block (scicos_block * block, int flag)
 
 /**
  * scicos_cmscope_block:
- * @block: 
- * @flag: 
- * 
+ * @block:
+ * @flag:
+ *
  * a multi scope:
- * Copyright (C) 2010-2013 J.Ph Chancelier 
+ * Copyright (C) 2010-2013 J.Ph Chancelier
  **/
 
 typedef struct _cmscope_ipar cmscope_ipar;
@@ -485,7 +485,7 @@ struct _cmscope_data
 
 static void nsp_cmscope_invalidate(cmscope_data *D,double t,double *period, double *yminmax);
 
-/* creates a new Axes object for the multiscope 
+/* creates a new Axes object for the multiscope
  *
  */
 
@@ -501,18 +501,18 @@ static NspAxes *nsp_cmscope_new_axe(int ncurves,const int *style, double ymin, d
   if ( axe == NULL) return NULL;
   frect[0]=0;frect[1]=ymin;frect[2]=100;frect[3]=ymax;
   /* create a set of qcurves and insert them in axe */
-  for ( i = 0 ; i < ncurves ; i++) 
+  for ( i = 0 ; i < ncurves ; i++)
     {
       int mark=-1;
       NspQcurve *curve;
-      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2); 
+      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2);
       if ( Pts == NULL) return NULL;
       if ( style[i] <= 0 ) mark = -style[i];
       curve= nsp_qcurve_create("curve",mark,0,0,( style[i] > 0 ) ?  style[i] : -1,
 			       qcurve_std,Pts,curve_l,-1,-1,NULL);
       if ( curve == NULL) return NULL;
       /* insert the new curve */
-      if ( nsp_axes_insert_child(axe,(NspGraphic *) curve,FALSE)== FAIL) 
+      if ( nsp_axes_insert_child(axe,(NspGraphic *) curve,FALSE)== FAIL)
 	{
 	  return NULL;
 	}
@@ -532,7 +532,7 @@ static NspAxes *nsp_cmscope_new_axe(int ncurves,const int *style, double ymin, d
 
 /* nswin : number of subwindows
  * ncs[i] : number of curves in subsin i
- * style[k]: style for curve k 
+ * style[k]: style for curve k
  */
 
 static NspFigure *nsp_cmscope_obj(int win,int nswin,const int *ncs,const int *style,
@@ -546,22 +546,22 @@ static NspFigure *nsp_cmscope_obj(int win,int nswin,const int *ncs,const int *st
   /*
    * set current window
    */
-  if ((Xgc = window_list_get_first()) != NULL) 
+  if ((Xgc = window_list_get_first()) != NULL)
     Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
-  else 
+  else
     Xgc= set_graphic_window_new(Max(win,0));
   /*
-   * Gc of new window 
+   * Gc of new window
    */
   if ((Xgc = window_list_get_first())== NULL) return NULL;
   if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return NULL;
-  
+
   /* clean the figure */
   l =  nsp_list_length(F->obj->children);
   for ( i = 0 ; i < l  ; i++)
     nsp_list_remove_first(F->obj->children);
   /* create nswin axes */
-  for ( i = 0 ; i < nswin ; i++) 
+  for ( i = 0 ; i < nswin ; i++)
     {
       if ((axe = nsp_cmscope_new_axe(ncs[i],cstyle,-1,1))== NULL)
 	return NULL;
@@ -569,7 +569,7 @@ static NspFigure *nsp_cmscope_obj(int win,int nswin,const int *ncs,const int *st
       axe->obj->wrect->R[1]= ((double ) i)/nswin;
       axe->obj->wrect->R[3]= 1.0/nswin;
       /* store in Figure */
-      if ( nsp_list_end_insert(F->obj->children,(NspObject *) axe)== FAIL) 
+      if ( nsp_list_end_insert(F->obj->children,(NspObject *) axe)== FAIL)
 	{
 	  nsp_axes_destroy(axe);
 	  return NULL;
@@ -595,12 +595,12 @@ void scicos_cmscope_block (scicos_block * block, int flag)
   /* colors */
   int *colors = ((int *) csi) + 7 + csi->number_of_subwin;
   /* refresh period for each curve */
-  double *period = ((double *) csr) + 1; 
+  double *period = ((double *) csr) + 1;
   /* ymin,ymax for each curve */
   double *yminmax =((double *) csr) + 1 + csi->number_of_subwin;
   double t = scicos_get_scicos_time ();
   int wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
-  
+
   if (flag == 2)
     {
       int i;
@@ -612,7 +612,7 @@ void scicos_cmscope_block (scicos_block * block, int flag)
       /*k = D->count;*/
       D->count++;
       D->tlast = t;
-      if ( D->F->obj->ref_count <= 1 ) 
+      if ( D->F->obj->ref_count <= 1 )
 	{
 	  /* Figure was destroyed during simulation */
 	  return;
@@ -621,9 +621,9 @@ void scicos_cmscope_block (scicos_block * block, int flag)
       /* insert the points */
       i=0;
       cloc = L->first ;
-      while ( cloc != NULLCELL ) 
+      while ( cloc != NULLCELL )
 	{
-	  if ( cloc->O != NULLOBJ ) 
+	  if ( cloc->O != NULLOBJ )
 	    {
 	      double *u1 = GetRealInPortPtrs (block, i + 1);
 	      NspAxes *axe = (NspAxes *) cloc->O;
@@ -638,10 +638,10 @@ void scicos_cmscope_block (scicos_block * block, int flag)
 	  cloc = cloc->next;
 	}
       /* fprintf(stderr,"test for invalidate %d %d \n",D->count,csi->buffer_size); */
-      if (  D->count %  csi->buffer_size == 0 ) 
+      if (  D->count %  csi->buffer_size == 0 )
 	{
-	  /* redraw each csi->buffer_size accumulated points 
-	   * first check if we need to change the xscale 
+	  /* redraw each csi->buffer_size accumulated points
+	   * first check if we need to change the xscale
 	   */
 	  nsp_cmscope_invalidate(D,t,period,yminmax);
 	}
@@ -665,11 +665,11 @@ void scicos_cmscope_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (cmscope_data *) (*block->work);
-      /* keep a copy in case Figure is destroyed during simulation 
-       * note that is a by reference object 
+      /* keep a copy in case Figure is destroyed during simulation
+       * note that is a by reference object
        */
       F1 = nsp_figure_copy(F);
-      if ( F1 == NULL ) 
+      if ( F1 == NULL )
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -702,11 +702,11 @@ void scicos_cmscope_block (scicos_block * block, int flag)
 	   * we update the graphics at the end  */
 	  nsp_cmscope_invalidate(D,t,period,yminmax);
 	}
-      /* we have locally incremented the count of figure: thus 
-       * we can destroy figure here. It will only decrement the ref 
+      /* we have locally incremented the count of figure: thus
+       * we can destroy figure here. It will only decrement the ref
        * counter
        */
-      if ( D->F->obj->ref_count >= 1 ) 
+      if ( D->F->obj->ref_count >= 1 )
 	{
 	  nsp_figure_destroy(D->F);
 	}
@@ -719,9 +719,9 @@ static void nsp_cmscope_invalidate(cmscope_data *D,double t,double *period, doub
   int i=0;
   NspList *L= D->F->obj->children;
   Cell *cloc = cloc = L->first ;
-  while ( cloc != NULLCELL ) 
+  while ( cloc != NULLCELL )
     {
-      if ( cloc->O != NULLOBJ ) 
+      if ( cloc->O != NULLOBJ )
 	{
 	  double ymin = yminmax[2*i];
 	  double ymax = yminmax[2*i+1];
@@ -739,10 +739,10 @@ static void nsp_cmscope_invalidate(cmscope_data *D,double t,double *period, doub
 
 /**
  * scicos_canimxy_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_canimxy_block(scicos_block * block, int flag)
@@ -753,10 +753,10 @@ void scicos_canimxy_block(scicos_block * block, int flag)
 
 /**
  * scicos_cscopxy_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 typedef struct _cscopxy_ipar cscopxy_ipar;
@@ -795,7 +795,7 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       double *u1 = GetRealInPortPtrs (block, 1);
       double *u2 = GetRealInPortPtrs (block, 2);
       cscope_data *D = (cscope_data *) (*block->work);
-      if ( D->Axes->obj->ref_count <= 1 ) 
+      if ( D->Axes->obj->ref_count <= 1 )
 	{
 	  /* Axes was destroyed during simulation */
 	  return;
@@ -808,10 +808,10 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
         scicos_set_block_error (-16);
         return;
       }
-      if (  D->count % csi->n == 0 ) 
+      if (  D->count % csi->n == 0 )
 	{
-	  /* redraw each csi->n accumulated points 
-	   * first check if we need to change the xscale 
+	  /* redraw each csi->n accumulated points
+	   * first check if we need to change the xscale
 	   */
 	  scicos_cscopxy_axes_update(D,csr->xmin, csr->xmax,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
@@ -826,9 +826,9 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
       int *width=NULL;
 #define MAXXY 10
       int colors[MAXXY]; /* max number of curves ? */
-      /* buffer size for scope 
-       * this should be set to the number of points to keep 
-       * in order to cover a csr->per horizon. Unfortunately 
+      /* buffer size for scope
+       * this should be set to the number of points to keep
+       * in order to cover a csr->per horizon. Unfortunately
        * this number is not known a-priori except for the animated case
        */
       int scopebs = 10000;
@@ -861,11 +861,11 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (cscope_data *) (*block->work);
-      /* keep a copy in case Axes is destroyed during simulation 
-       * axe is a by reference object 
+      /* keep a copy in case Axes is destroyed during simulation
+       * axe is a by reference object
        */
       Axes1 = nsp_axes_copy(Axes);
-      if ( Axes1 == NULL ) 
+      if ( Axes1 == NULL )
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -900,11 +900,11 @@ void scicos_cscopxy_block (scicos_block * block, int flag)
 	  scicos_cscopxy_axes_update(D,csr->xmin, csr->xmax,csr->ymin,csr->ymax);
 	  nsp_axes_invalidate((NspGraphic *) D->Axes);
 	}
-      /* we have locally incremented the count of Axes: thus 
-       * we can destroy it here. It will only decrement the ref 
+      /* we have locally incremented the count of Axes: thus
+       * we can destroy it here. It will only decrement the ref
        * counter
        */
-      if ( D->Axes->obj->ref_count >= 1 ) 
+      if ( D->Axes->obj->ref_count >= 1 )
 	{
 	  nsp_axes_destroy(D->Axes);
 	}
@@ -916,10 +916,10 @@ static int scicos_cscopxy_add_point(NspList *L,int animed, const double *x,const
 {
   int count =0;
   Cell *Loc = L->first;
-  while ( Loc != NULLCELL ) 
+  while ( Loc != NULLCELL )
     {
       if ( Loc->O != NULLOBJ )
-	{ 
+	{
 	  NspQcurve *curve =(NspQcurve *) Loc->O;
 	  if ( count >= n ) return TRUE;
           NspMatrix *M = curve->obj->Pts;
@@ -953,26 +953,26 @@ static void scicos_cscopxy_axes_update(cscope_data *D,double xmin, double xmax,
   if ( isinf(ymax) && tag == TRUE ) frect[3]= bounds[3];
   memcpy(D->Axes->obj->frect->R,frect,4*sizeof(double));
   memcpy(D->Axes->obj->rect->R,frect,4*sizeof(double));
-  D->Axes->obj->fixed = TRUE; 
+  D->Axes->obj->fixed = TRUE;
 }
 
 /*
- *  This is an old block but with new graphics (that's why 
+ *  This is an old block but with new graphics (that's why
  *  it is temporary here).
- * 
+ *
  *  ipar = [font, fontsize, color, win, nt, nd, ipar7 ]
- *     nt : total number of output digits 
+ *     nt : total number of output digits
  *     nd : number of rationnal part digits
  *     nu2: nu/ipar(7);
- * 
- *  z(6:6+nu*nu2)=value 
- *  z(1) is used to keep the pointer of graphic object 
- *  
- *  To be done: values could be moved to z(2) since we 
+ *
+ *  z(6:6+nu*nu2)=value
+ *  z(1) is used to keep the pointer of graphic object
+ *
+ *  To be done: values could be moved to z(2) since we
  *  do not use the z(2:5).
- *  some ipar values are not taken into account 
- * 
- *  Copyright: J.Ph Chancelier Enpc 
+ *  some ipar values are not taken into account
+ *
+ *  Copyright: J.Ph Chancelier Enpc
  */
 
 static NspGrstring *scicos_affich2_getstring(NspCompound *C);
@@ -982,7 +982,7 @@ void scicos_affich2_block (scicos_args_F0)
 {
   NspGrstring **S= (NspGrstring **) &z__[0] ;
   scicos_run *Scicos=scicos_get_scicos_run();
-  
+
   --ipar;
   if (*flag__ == 1) {
     int cb = Scicos->params.curblk -1;
@@ -1009,25 +1009,16 @@ void scicos_affich2_block (scicos_args_F0)
 
 static NspGrstring *scicos_affich2_getstring(NspCompound *C)
 {
-  NspGrstring *S;
+  NspObject *elt;
   NspList *L = C->obj->children;
-  Cell *cloc = L->first;
-  while ( cloc != NULLCELL ) 
-    {
-      if ( cloc->O != NULLOBJ ) 
-	{
-	  if (IsCompound(cloc->O))
-	    {
-	      S=scicos_affich2_getstring((NspCompound *) cloc->O);
-	      if ( S != NULL) return S;
-	    }
-	  else if ( IsGrstring(cloc->O) )
-	    {
-	      return (NspGrstring *) cloc->O;
-	    }
-	}
-      cloc = cloc->next;
-    }
+  /* The NspGrstring to be returned is supposed to be
+   * the last graphic object of the list
+   * take care that when the affich block has an identification
+   * we have two Grstring. We must find the proper one.
+   */
+  elt = nsp_list_get_element(L,L->nel);
+  if ( elt == NULL) return NULL;
+  if ( IsGrstring(elt)) return (NspGrstring *) elt;
   return NULL;
 }
 
@@ -1041,10 +1032,10 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
       int k=0;
 #define BUFSIZE 1024
       char buf[BUFSIZE];
-      for ( j= 0 ; j < n ; j++) 
+      for ( j= 0 ; j < n ; j++)
 	{
 	  int kj =snprintf(buf+k,128-k, "%*.*f" , form[0], form[1], v[i+m*j]);
-	  if ( kj > form[0]) 
+	  if ( kj > form[0])
 	    {
 	      kj = snprintf(buf+k, 128-k , "%*s",form[0],"*");
 	    }
@@ -1062,12 +1053,12 @@ static void scicos_affich2_update(NspGrstring *S,const int form[], double *v,int
 }
 
 /*
- *  This is an old block but with new graphics (that's why 
+ *  This is an old block but with new graphics (that's why
  *  it is temporary here).
- *  This block is only here for backward compatibility since 
+ *  This block is only here for backward compatibility since
  *  it is superseded by affich2.
- * 
- *  Copyright: J.Ph Chancelier Enpc 
+ *
+ *  Copyright: J.Ph Chancelier Enpc
  */
 
 void scicos_affich_block (scicos_args_F0)
@@ -1078,7 +1069,7 @@ void scicos_affich_block (scicos_args_F0)
   if (*flag__ == 1)
     {
       /* draw the string matrix */
-      if ( *S != NULL) 
+      if ( *S != NULL)
 	{
 	  scicos_affich2_update(*S,&ipar[5],u,1,1);
 	}
@@ -1099,10 +1090,10 @@ void scicos_affich_block (scicos_args_F0)
 
 /**
  * scicos_bouncexy_block:
- * @block: 
- * @flag: 
- * 
- * new nsp graphics jpc 
+ * @block:
+ * @flag:
+ *
+ * new nsp graphics jpc
  **/
 
 typedef struct _bouncexy_data bouncexy_data;
@@ -1126,13 +1117,13 @@ static NspAxes *nsp_bouncexy_new_axe(int nb,const int *colors,const double *xmin
   if ( axe == NULL) return NULL;
   frect[0]=xminmax[0];frect[1]=xminmax[2];frect[2]=xminmax[1];frect[3]=xminmax[3];
   /* create a set of arcs and insert them in axe */
-  for ( i = 0 ; i < nb ; i++) 
+  for ( i = 0 ; i < nb ; i++)
     {
       int icolor=-1,iback=colors[i],ithickness=-1;
       if ((gobj =(NspGraphic *) nsp_grarc_create("arc",0,0,0.1,0.1,0,360*64,
 						 iback,ithickness,icolor,0.0,NULL)) == NULL)
 	    return NULL;
-      if (  nsp_axes_insert_child(axe,(NspGraphic *) gobj, TRUE)== FAIL) 
+      if (  nsp_axes_insert_child(axe,(NspGraphic *) gobj, TRUE)== FAIL)
 	return NULL;
     }
   /* updates the axes scale information */
@@ -1149,7 +1140,7 @@ static NspAxes *nsp_bouncexy_new_axe(int nb,const int *colors,const double *xmin
 
 /* nswin : number of subwindows
  * ncs[i] : number of curves in subsin i
- * style[k]: style for curve k 
+ * style[k]: style for curve k
  */
 
 static NspFigure *nsp_bouncexy_obj(int win,int nb,const int *colors,const double *yminmax,
@@ -1162,16 +1153,16 @@ static NspFigure *nsp_bouncexy_obj(int win,int nb,const int *colors,const double
   /*
    * set current window
    */
-  if ((Xgc = window_list_get_first()) != NULL) 
+  if ((Xgc = window_list_get_first()) != NULL)
     Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
-  else 
+  else
     Xgc= set_graphic_window_new(Max(win,0));
   /*
-   * Gc of new window 
+   * Gc of new window
    */
   if ((Xgc = window_list_get_first())== NULL) return NULL;
   if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return NULL;
-  
+
   /* clean the figure */
   l =  nsp_list_length(F->obj->children);
   for ( i = 0 ; i < l  ; i++)
@@ -1180,7 +1171,7 @@ static NspFigure *nsp_bouncexy_obj(int win,int nb,const int *colors,const double
   if ((axe = nsp_bouncexy_new_axe(nb,colors,yminmax)) == NULL)
     return NULL;
   /* store in Figure */
-  if ( nsp_list_end_insert(F->obj->children,(NspObject *) axe)== FAIL) 
+  if ( nsp_list_end_insert(F->obj->children,(NspObject *) axe)== FAIL)
     {
       nsp_axes_destroy(axe);
       return NULL;
@@ -1205,7 +1196,7 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
   int cur = 0;
   double t = scicos_get_scicos_time ();
   int wid = (win == -1) ? 20000 + scicos_get_block_number () : win;
-  
+
   if (flag == 2)
     {
       bouncexy_data *D = (bouncexy_data *) (*block->work);
@@ -1214,21 +1205,21 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
       double *u2 = GetRealInPortPtrs (block, 2);
       double *z = GetDstate (block);
       int i=0;
-      if ( D->F->obj->ref_count <= 1 ) 
+      if ( D->F->obj->ref_count <= 1 )
 	{
 	  /* Figure was destroyed during simulation */
 	  return;
 	}
       cloc = D->L->first;
-      /* 
+      /*
 	 t = GetScicosTime (block);
 	 k = D->count;
 	 D->count++;
 	 D->tlast = t;
       */
-      while ( cloc != NULLCELL ) 
+      while ( cloc != NULLCELL )
 	{
-	  if ( cloc->O != NULLOBJ ) 
+	  if ( cloc->O != NULLOBJ )
 	    {
 	      double size = z[6 * i + 2];
 	      NspGrArc *A = (NspGrArc *)  cloc->O;
@@ -1266,11 +1257,11 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (bouncexy_data *) (*block->work);
-      /* keep a copy in case Figure is destroyed during simulation 
-       * note that is a by reference object 
+      /* keep a copy in case Figure is destroyed during simulation
+       * note that is a by reference object
        */
       F1 = nsp_figure_copy(F);
-      if ( F1 == NULL ) 
+      if ( F1 == NULL )
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -1295,11 +1286,11 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       bouncexy_data *D = (bouncexy_data *) (*block->work);
-      /* we have locally incremented the count of figure: thus 
-       * we can destroy figure here. It will only decrement the ref 
+      /* we have locally incremented the count of figure: thus
+       * we can destroy figure here. It will only decrement the ref
        * counter
        */
-      if ( D->F->obj->ref_count >= 1 ) 
+      if ( D->F->obj->ref_count >= 1 )
 	{
 	  nsp_figure_destroy(D->F);
 	}
@@ -1312,11 +1303,11 @@ void scicos_bouncexy_block (scicos_block * block, int flag)
 
 /**
  * scicos_cevscpe_block:
- * @block: 
- * @flag: 
- * 
+ * @block:
+ * @flag:
+ *
  * a scope:
- * new nsp graphics jpc 
+ * new nsp graphics jpc
  **/
 
 typedef struct _cevscpe_ipar cevscpe_ipar;
@@ -1351,14 +1342,14 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
   int cur = 0,k;
   int wid = (csi->wid == -1) ? 20000 + scicos_get_block_number () : csi->wid;
   t = scicos_get_scicos_time ();
-  
+
   if (flag == 2)
     {
       int ret;
       int i;
       double vals[10]; /* 10 max a revoir */
       cevscpe_data *D = (cevscpe_data *) (*block->work);
-      if ( D->Axes->obj->ref_count <= 1 ) 
+      if ( D->Axes->obj->ref_count <= 1 )
 	{
 	  /* Axes was destroyed during simulation */
 	  return;
@@ -1390,9 +1381,9 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
       NspList *L;
       int *width=NULL;
       /* XXX :
-       * buffer size for scope 
-       * this should be set to the number of points to keep 
-       * in order to cover a csr->per horizon. Unfortunately 
+       * buffer size for scope
+       * this should be set to the number of points to keep
+       * in order to cover a csr->per horizon. Unfortunately
        * this number is not known a-priori.
        */
       int scopebs = 10000;
@@ -1419,11 +1410,11 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
 	}
       /* store created data in work area of block */
       D = (cevscpe_data *) (*block->work);
-      /* keep a copy in case Axes is destroyed during simulation 
-       * axe is a by reference object 
+      /* keep a copy in case Axes is destroyed during simulation
+       * axe is a by reference object
        */
       Axes1 = nsp_axes_copy(Axes);
-      if ( Axes1 == NULL ) 
+      if ( Axes1 == NULL )
 	{
 	  scicos_set_block_error (-16);
 	  return;
@@ -1448,11 +1439,11 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
   else if (flag == 5)
     {
       cevscpe_data *D = (cevscpe_data *) (*block->work);
-      /* we have locally incremented the count of Axes: thus 
-       * we can destroy it here. It will only decrement the ref 
+      /* we have locally incremented the count of Axes: thus
+       * we can destroy it here. It will only decrement the ref
        * counter
        */
-      if ( D->Axes->obj->ref_count >= 1 ) 
+      if ( D->Axes->obj->ref_count >= 1 )
 	{
 	  nsp_axes_destroy(D->Axes);
 	}
@@ -1468,12 +1459,12 @@ void scicos_cevscpe_block (scicos_block * block, int flag)
  * @style: style for each curve
  * @bufsize: size of points in each curve
  * @yfree: ignored (means that ymin and ymax can move freely).
- * @ymin: min y value 
- * @ymax: max y value 
+ * @ymin: min y value
+ * @ymax: max y value
  * @Lc: If requested returns the list of curves.
- * 
- * 
- * 
+ *
+ *
+ *
  * Returns: a #NspAxes or %NULL
  **/
 
@@ -1491,39 +1482,39 @@ static NspAxes *nsp_oscillo_obj(int win,int ncurves,int style[],int width[],int 
   /*
    * set current window
    */
-  if ((Xgc = window_list_get_first()) != NULL) 
+  if ((Xgc = window_list_get_first()) != NULL)
     Xgc->graphic_engine->xset_curwin(Max(win,0),TRUE);
-  else 
+  else
     Xgc= set_graphic_window_new(Max(win,0));
 
   /*
-   * Gc of new window 
+   * Gc of new window
    */
   if ((Xgc = window_list_get_first())== NULL) return NULL;
   if ((F = nsp_check_for_figure(Xgc,FALSE))== NULL) return NULL;
-  
+
   /* clean the figure */
   l =  nsp_list_length(F->obj->children);
   for ( i = 0 ; i < l  ; i++)
     nsp_list_remove_first(F->obj->children);
-  
+
   /* create a new axe */
   if ((axe=  nsp_check_for_axes(Xgc,NULL)) == NULL) return NULL;
   frect[0]=0;frect[1]=ymin;frect[2]=100;frect[3]=ymax;
-  
+
   /* create a set of qcurves and insert them in axe */
-  for ( i = 0 ; i < ncurves ; i++) 
+  for ( i = 0 ; i < ncurves ; i++)
     {
       int mark=-1;
       NspQcurve *curve;
-      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2); 
+      NspMatrix *Pts = nsp_matrix_create("Pts",'r',Max(bufsize,1),2);
       if ( Pts == NULL) return NULL;
       if ( style[i] <= 0 ) mark = -style[i];
       curve= nsp_qcurve_create("curve",mark,width[i],0,( style[i] > 0 ) ?  style[i] : -1,
 			       mode,Pts,curve_l,-1,-1,NULL);
       if ( curve == NULL) return NULL;
       /* insert the new curve */
-      if ( nsp_axes_insert_child(axe,(NspGraphic *) curve,FALSE)== FAIL) 
+      if ( nsp_axes_insert_child(axe,(NspGraphic *) curve,FALSE)== FAIL)
 	{
 	  return NULL;
 	}
@@ -1549,10 +1540,10 @@ static int nsp_oscillo_add_point(NspList *L,double t,double period,const double 
 {
   int count =0;
   Cell *Loc = L->first;
-  while ( Loc != NULLCELL ) 
+  while ( Loc != NULLCELL )
     {
       if ( Loc->O != NULLOBJ )
-	{ 
+	{
 	  NspQcurve *curve =(NspQcurve *) Loc->O;
 	  if ( count >= n ) return TRUE;
           NspMatrix *M = curve->obj->Pts;
@@ -1582,7 +1573,7 @@ void scicos_assertion_block(scicos_block *block,int flag)
   char *txt="Assertion detected";
   char buf[1024];
   int rep;
-  
+
   if (flag == 4) {
     if ((*work = scicos_malloc(sizeof(int))) == NULL) {
       scicos_set_block_error(-16);
@@ -1597,7 +1588,7 @@ void scicos_assertion_block(scicos_block *block,int flag)
       /*default message */
       sprintf(buf,"%s\nat time %f\n",txt,t);
       Sciprintf(buf);
-      
+
       switch(ipar[0])
       {
        case 1  : /*stop*/
@@ -1626,7 +1617,7 @@ void scicos_assertion_block(scicos_block *block,int flag)
        default : /*sciprintf*/
                  break;
       }
-      
+
       /* running callback */
       if (callback != NULL && strlen(callback) != 0 && strcmp(callback," ") != 0) {
         sprintf(buf,"Running callback : ->%s\n",callback);
