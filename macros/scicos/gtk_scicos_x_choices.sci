@@ -1,5 +1,5 @@
 function L=gtk_scicos_x_choices(desc,Li)
-// used in gtk_getvalue 
+// used in gtk_getvalue
 // see getvalue for parameters description
   function []=set_focus(wid)
     wid.grab_focus[]
@@ -59,7 +59,7 @@ function L=gtk_scicos_x_choices(desc,Li)
     y=%f
   endfunction
 
-  //GetFrameEntry : 
+  //GetFrameEntry :
   // Li : initial list
   // entries : list of widgets
   function [entries]=GetFrameEntry(Li,vbox)
@@ -75,7 +75,11 @@ function L=gtk_scicos_x_choices(desc,Li)
       label = gtklabel_new(str=Li(i)(2));
       //label.modify_font[font_desc]
       label.set_justify[GTK.JUSTIFY_LEFT]
-      label.set_alignment[0,0.5]
+      if exists('gtk_get_major_version','function') then
+	// gtk3
+      else
+	label.set_alignment[0,0.5]
+      end
       labels(i)=label
       width_labels(i)=label.size_request[](1)
       //label.set_size_request[260,-1]
@@ -151,10 +155,18 @@ function L=gtk_scicos_x_choices(desc,Li)
   gh=nsp_graphic_widget(F.id);
 
   window = gtkwindow_new();//GTK.WINDOW_TOPLEVEL);
-  //window.modify_bg[GTK.STATE_NORMAL,gdk_color_parse("light grey")]
+  if exists('gtk_get_major_version','function') then
+    // gtk3
+  else
+    window.modify_bg[GTK.STATE_NORMAL,gdk_color_parse("light grey")]
+  end
   window.set_border_width[0]
+  if exists('gtk_get_major_version','function') then
+    vbox = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=0);
+  else
+    vbox = gtkvbox_new(homogeneous=%f,spacing=0);
+  end
 
-  vbox = gtkvbox_new(homogeneous=%f,spacing=0);
   vbox.set_border_width[3]
   window.add[vbox]
 
@@ -163,7 +175,11 @@ function L=gtk_scicos_x_choices(desc,Li)
   label = gtklabel_new(str=strcat(desc,"\n"));
   //font_desc=pangofontdescription_new("Arial 10");
   //label.modify_font[font_desc]
-  event_box.modify_bg[GTK.STATE_NORMAL,gdk_color_parse("white")]
+  if exists('gtk_get_major_version','function') then
+    // gtk3
+  else
+    event_box.modify_bg[GTK.STATE_NORMAL,gdk_color_parse("white")]
+  end
   event_box.add[label]
   vbox.pack_start[event_box]
 
@@ -172,7 +188,12 @@ function L=gtk_scicos_x_choices(desc,Li)
   notebook.set_tab_pos[GTK.POS_TOP];
   //notebook.modify_bg[GTK.STATE_NORMAL,gdk_color_parse("light grey")]
   vbox.pack_start[notebook,padding=3]
-  vbox2 = gtkvbox_new(homogeneous=%f,spacing=2);
+
+  if exists('gtk_get_major_version','function') then
+    vbox2 = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=2);
+  else
+    vbox2 = gtkvbox_new(homogeneous=%f,spacing=2);
+  end
   vbox2.set_border_width[2]
 
   [entries]=GetFrameEntry(Li,vbox2)
@@ -204,10 +225,10 @@ function L=gtk_scicos_x_choices(desc,Li)
     titlewin="Set Grid Parameters"
   elseif typv=="scicos_debug" then
     titlewin="Set Debug Level"
-  else 
+  else
     titlewin="Set Block properties"
   end
-  
+
   window.set_title[titlewin]
   //user_data store if entries have been modified
   window.user_data=%f

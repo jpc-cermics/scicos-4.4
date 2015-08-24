@@ -3,10 +3,10 @@ function scmenu_fit_diagram_to_figure()
    xinfo('Fit diagram to figure');
    F=get_current_figure()
    gh=nsp_graphic_widget(curwin) // get widget associated to the current graphics window
-   r=gh.get_size[];              // get widget size 
+   r=gh.get_size[];              // get widget size
    rect=dig_bound(scs_m);        // Scicos diagram size
    if isempty(rect) then         // if the schematics is not defined we return;
-     return;                    
+     return;
    end
    w=(rect(3)-rect(1));
    h=(rect(4)-rect(2));
@@ -19,10 +19,15 @@ function scmenu_fit_diagram_to_figure()
    ScrolledWindow=ScrolledWindow($)
    hscrollbar=ScrolledWindow.get_hscrollbar[]
    vscrollbar=ScrolledWindow.get_vscrollbar[]
-   hrect=hscrollbar.allocation
-   vrect=vscrollbar.allocation
-
-   r=[hrect.width vrect.height]
+   if exists('gtk_get_major_version','function') then
+     hrect=hscrollbar.get_allocation[];
+     vrect=vscrollbar.get_allocation[];
+     r=[hrect.width vrect.height]
+   else
+     hrect=hscrollbar.allocation
+     vrect=vscrollbar.allocation
+     r=[hrect.width vrect.height]
+   end
 
    newzoom_w=r(1)/(w*(1+margins(1)+margins(2)))
    //suppose for that time that menu bar & status bar have the same height
@@ -40,7 +45,7 @@ function scmenu_fit_diagram_to_figure()
      end
 
      window_set_size(curwin,%f,invalidate=%f);
-     // see scmenu_zoom_in 
+     // see scmenu_zoom_in
      //  need redraw text and some blocks
      //  with not filled text.
      [scs_m]=scmenu_redraw_zoomed_text(scs_m,F);

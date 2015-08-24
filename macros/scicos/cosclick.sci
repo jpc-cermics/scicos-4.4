@@ -20,27 +20,37 @@ function [btn,%pt,win,Cmenu]=cosclick()
     screen=win_tooltip.get_root_window[]
     pos=screen.get_pointer[]
     win_tooltip.move[pos(1)+10,pos(2)+10]
-    hbox=gtkhbox_new()
+    if exists('gtk_get_major_version','function') then
+      hbox=gtk_box_new(GTK.ORIENTATION_HORIZONTAL);
+    else
+      hbox=gtkhbox_new();
+    end
     color= gdk_color_parse("black")
-    event_box_fg = gtkeventbox_new()
-    event_box_fg.modify_bg[GTK.STATE_NORMAL,color]
+    event_box_fg = gtkeventbox_new();
+    if ~exists('gtk_get_major_version','function') then
+      event_box_fg.modify_bg[GTK.STATE_NORMAL,color]
+    end
     event_box_bg = gtkeventbox_new()
     event_box_bg.set_border_width[1]
-//     color=gdk_color_parse("#F6F6B9")
-//     event_box_bg.modify_bg[GTK.STATE_NORMAL,color]
+    //     color=gdk_color_parse("#F6F6B9")
+    //     event_box_bg.modify_bg[GTK.STATE_NORMAL,color]
     event_box_fg.add[event_box_bg]
     label = gtklabel_new(str=o.gui)
-    label.set_padding[3,1]
+    if ~exists('gtk_get_major_version','function') then
+      label.set_padding[3,1]
+    end
     event_box_bg.add[label]
     hbox.pack_start[event_box_fg,expand=%f,fill=%f,padding=0]
     win_tooltip.add[hbox]
     if %win32 then
-      color=gdk_color_parse("#FFFFCA")
-      event_box_bg.modify_bg[GTK.STATE_NORMAL,color]
-//       win_tooltip.grab_focus[%f]
-//       win_tooltip.set_focus_on_map[%f]
-//       win_tooltip.show_all[]
-//       win_tooltip.hide[]
+      if ~exists('gtk_get_major_version','function') then
+	color=gdk_color_parse("#FFFFCA")
+	event_box_bg.modify_bg[GTK.STATE_NORMAL,color]
+      end
+      //       win_tooltip.grab_focus[%f]
+      //       win_tooltip.set_focus_on_map[%f]
+      //       win_tooltip.show_all[]
+      //       win_tooltip.hide[]
     end
   endfunction
 
@@ -70,7 +80,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
     label.set_markup[catenate(str,sep="\n")];
     y=%f
   endfunction
-  
+
   //destroy block tooltip
   function win_tooltip=destroy_block_tooltip(win_tooltip)
     if ~win_tooltip.equal[[]] then
@@ -82,15 +92,23 @@ function [btn,%pt,win,Cmenu]=cosclick()
   //remove timeout event source tooltip
   function [id,id2]=remove_timeout(id,id2)
     if ~id.equal[[]] then
-      gtk_timeout_remove(id);
+      if exists('gtk_get_major_version','function') then
+	g_source_remove(id);
+      else
+	gtk_timeout_remove(id);
+      end
       id=[];
     end
     if ~id2.equal[[]] then
-      gtk_timeout_remove(id2);
+      if exists('gtk_get_major_version','function') then
+	g_source_remove(id2);
+      else
+	gtk_timeout_remove(id2);
+      end
       id2=[];
     end
   endfunction
-  
+
   //unhilite hilited port
   function port_hilited=unhilite_port(gr_port,port_hilited)
     if port_hilited then
@@ -101,36 +119,36 @@ function [btn,%pt,win,Cmenu]=cosclick()
       xcursor(GDK.CROSSHAIR)
     end
   endfunction
-  
+
   //detect mouse position in corners
   //of the bbox of the selected block
   function [corner]=nearest_tl_br_corner(%pt,o,kk,Select)
-  
+
     function [data]=get_data_corner(xy,pt,sz)
       data=[(xy(1)-pt(1))*(xy(1)+sz-pt(1)),..
             (xy(2)-sz-pt(2))*(xy(2)-pt(2))]
     endfunction
-    
+
     corner=[]
     if ~isempty(Select) then
       if size(Select,1)==1 && ~isempty(find(Select(:,1)==kk)) then
         bbox=o.gr.get_bounds[]
         sz=10 //??
-        
+
         //top left
         data=get_data_corner([bbox(1);bbox(4)],%pt,sz)
         if data(1)<0 && data(2)<0 then
           corner='tl'
           return
         end
-        
+
         //bottom right
         [data]=get_data_corner([bbox(3);bbox(2)],%pt,-sz)
         if data(1)<0 && data(2)<0 then
           corner='br'
           return
         end
-        
+
       end
     end
   endfunction
@@ -145,7 +163,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
       c_hilited=%f
     end
   endfunction
-  
+
   //hilite resizable block
   function [c_hilited]=hilite_cblock(gr_block,corner)
     gr_block.hilite_type=1
@@ -158,17 +176,17 @@ function [btn,%pt,win,Cmenu]=cosclick()
      xcursor(GDK.BOTTOM_RIGHT_CORNER)
     end
   endfunction
-  
-// select action from an activated event 
-// 
+
+// select action from an activated event
+//
   global Scicos_commands
   global scicos_dblclk
-  
+
   Cmenu_orig=Cmenu
   Cmenu="";%pt=[];btn=0;
   if ~or(winsid()==curwin) then  win=xget('window');Cmenu='Quit',return,end
   enablemenus();
-  
+
   if isempty(scicos_dblclk) then
     xcursor(GDK.CROSSHAIR)
     btn=-1
@@ -188,7 +206,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%f,getmotion=%t)
       [id,id2]=remove_timeout(id,id2)
       win_tooltip=destroy_block_tooltip(win_tooltip)
-      
+
       if (btn~=-1) then
         port_hilited=unhilite_port(gr_port,port_hilited)
         win_tooltip=destroy_block_tooltip(win_tooltip)
@@ -252,7 +270,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
                 end
               else
                 c_hilited=unhilite_cblock(gr_block,c_hilited,htype,hsize)
-              end             
+              end
             end
           else
             port_hilited=unhilite_port(gr_port,port_hilited)
@@ -270,7 +288,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
 
 //   printf("btn=%d,xc=%f,yc=%f,win=%d\n",btn,xc,yc,win)
   options=scs_m.props.options
-  if btn==-100 then  
+  if btn==-100 then
     if win==curwin then
       Cmenu='Quit',
     else
@@ -280,35 +298,35 @@ function [btn,%pt,win,Cmenu]=cosclick()
     return
   end
 
-  if (btn==-2) then 
+  if (btn==-2) then
     %pt=[]
-    // menu activated 
+    // menu activated
     if part(str,1:7)=='execstr' then
-      // A menu was activated and str is like 
-      // str='execstr(Name_<win>(<number>))' 
+      // A menu was activated and str is like
+      // str='execstr(Name_<win>(<number>))'
       str1=part(str,9:length(str)-1);
       win=sscanf(str1,"%*[^_]_%d");
       mcmd='Cmenu='+str1+';execstr(''Cmenu=''+Cmenu)';
       // printf('cosclick: using menu cmd [%s]\n",mcmd);
-    elseif part(str,1:9)=='scicos_tb' then 
-      // A toolbar item was activated 
+    elseif part(str,1:9)=='scicos_tb' then
+      // A toolbar item was activated
       // str='scicos_tb(name,win)';
       [str1,win]=sscanf(str,'scicos_tb(%[^,],%d)');
       mcmd='Cmenu=""'+str1+'""';
       // printf('cosclick: using toolbar cmd [%s]\n",mcmd);
-    elseif part(str,1:9)=='scicos_br' then 
-      // A browser row was activated 
+    elseif part(str,1:9)=='scicos_br' then
+      // A browser row was activated
       // printf('cosclick: A browser row was activated');
       [str1,pathh]=sscanf(str,'scicos_br(%[^,],%[^)])');
       Scicos_commands=['%diagram_path_objective='+pathh+';%scicos_navig=1';
 		       'Cmenu='''';%win=curwin;xselect();%scicos_navig=[]'];
       mcmd='';
     else
-      // XXX we should not ignore other menus ? 
+      // XXX we should not ignore other menus ?
       mcmd="";
     end
   end
-  
+
   if ~isempty(win) & ~isempty(find(win==inactive_windows(2))) then
     pathh=inactive_windows(1)(find(win==inactive_windows(2)))
 
@@ -320,7 +338,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
       else
         cmd='Cmenu='"CheckSmartMove'"'
       end
-    elseif (btn==10) then 
+    elseif (btn==10) then
       cmd='Cmenu='"Open/Set'"'
     elseif or(btn==[2 5]) then
       cmd='Cmenu='"Popup'"';
@@ -362,12 +380,12 @@ function [btn,%pt,win,Cmenu]=cosclick()
       if options('Action') then
         Cmenu='CheckMove'
       else
-        Cmenu='CheckSmartMove'		// 
+        Cmenu='CheckSmartMove'		//
       end
     end
   elseif btn==1000 then
      Cmenu='CheckSmartMove'
-  elseif (btn==10) & (win==curwin) then  
+  elseif (btn==10) & (win==curwin) then
     Cmenu='Open/Set'
   elseif (btn==10) & (win<>curwin) then
     jj = find(windows(:,2)==win)
@@ -391,27 +409,27 @@ function [btn,%pt,win,Cmenu]=cosclick()
       execstr('Cmenu='+part(str,9:length(str)-1))
       execstr('Cmenu='+Cmenu,errcatch=%t);
       return
-    elseif ~isempty(strindex(str,'scicos_tb')) then 
-      // click in a scicos toolbar menu 
+    elseif ~isempty(strindex(str,'scicos_tb')) then
+      // click in a scicos toolbar menu
       [mcmd,vwin]=sscanf(str,'scicos_tb(%[^,],%d)');
       Cmenu = mcmd;
-    elseif part(str,1:9)=='scicos_br' then 
-      // A browser row was activated 
+    elseif part(str,1:9)=='scicos_br' then
+      // A browser row was activated
       [str1,pathh]=sscanf(str,'scicos_br(%[^,],%[^)])');
       Scicos_commands=['%diagram_path_objective='+pathh+';%scicos_navig=1';
 		       'Cmenu='''';%win=curwin;xselect();%scicos_navig=[]'];
       Cmenu='';
     elseif ~isempty(strindex(str,'PlaceDropped_info')) then
-      // we have dropped a block in the window 
+      // we have dropped a block in the window
       ok = execstr('[ptd,path,win,bname]='+str,errcatch=%t);
-      if ok && win == curwin  then 
+      if ok && win == curwin  then
 	// we need here to transmit info on dropped block
         Cmenu='PlaceDropped';
 	// well... path is [paletteid,blockid] and name is block name
         btn=hash_create(path=path,name=bname);
         %pt = ptd;
         return;
-      elseif win <> curwin then 
+      elseif win <> curwin then
         message("You can only drop in current window");
       end
     else // click in an other dynamic menu
@@ -427,12 +445,12 @@ function [btn,%pt,win,Cmenu]=cosclick()
     end
   end
 
-  if ~isempty(%pt) then 
+  if ~isempty(%pt) then
     str_pt= sprintf("[%05.0f,%05.0f]",%pt(1),%pt(2));
   else
     str_pt= "[]";
   end
-  if type(btn,'short')=='h' then 
+  if type(btn,'short')=='h' then
     strb=string('hash_table');
   else
     strb=string(btn);

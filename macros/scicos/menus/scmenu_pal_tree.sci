@@ -4,14 +4,14 @@ function scmenu_pal_tree()
 endfunction
 
 // simple demo of treestore with pixmap
-// the treestore model have two levels 
+// the treestore model have two levels
 // and is build with append.
 
 function window=scicos_palette_treeview(L)
-  if nargin <= 0 then 
+  if nargin <= 0 then
     H=%scicos_pal;
   end
-  
+
   function scicos_palette_tv_model(iter,model,H)
     L=H.structure;
     for i=1:length(L)
@@ -97,30 +97,35 @@ function window=scicos_palette_treeview(L)
     end
   endfunction
 
-  // a tree store with pixbufs from L 
+  // a tree store with pixbufs from L
   // which describes the palettes.
-      
+
   window = gtkwindow_new ()
   window.set_title["Scicos PalTree"]
   window.set_default_size[-1, 500]
   window.set_border_width[1]
-  
-  hbox = gtkhbox_new(homogeneous=%f,spacing=0);
+
+  if exists('gtk_get_major_version','function') then
+    hbox = gtk_box_new(GTK.ORIENTATION_HORIZONTAL,spacing=0);
+  else
+    hbox = gtkhbox_new(homogeneous=%f,spacing=0);
+  end
+
   window.add[hbox]
-  
+
   sw = gtkscrolledwindow_new ();
   sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
   sw.set_placement[GTK.CORNER_TOP_RIGHT]
   hbox.pack_start[sw,expand=%t,fill=%t,padding=0];
-  
-  // build an unfiled model 
-  
+
+  // build an unfiled model
+
   model = gtktreestore_new(list(list(%types.GdkPixbuf),"name",0,0),%f)
 
   [pixbuf_dir]=get_gdk_pixbuf(%scicos_gif,'gtk-directory')
 
   scicos_palette_tv_model(none_create(),model,H)
-      
+
   treeview=gtktreeview_new();
   treeview.set_model[model=model];
 
@@ -130,28 +135,31 @@ function window=scicos_palette_treeview(L)
   masks= ior(GDK.BUTTON1_MASK);
   treeview.enable_model_drag_source[masks,targets, GDK.ACTION_COPY];
   //treeview.enable_model_drag_dest[targets, GDK.ACTION_COPY];
-  // if this is true then we can re-order items by the 
-  // above drag and drop. 
-  // But it need to be false if we want to be able to drag to 
+  // if this is true then we can re-order items by the
+  // above drag and drop.
+  // But it need to be false if we want to be able to drag to
   // other widgets.
   treeview.set_reorderable[%f];
-  
+
   cell = gtkcellrendererpixbuf_new ();
   col = gtktreeviewcolumn_new (renderer=cell,attrs=hash(pixbuf= 0));
   col.set_title["Icon"];
   treeview.append_column[col]
-  
+
   cell = gtkcellrenderertext_new ();
   col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 1));
   col.set_title["Texte"];
   treeview.append_column[col]
 
   treeview.set_tooltip_column[1];
-  
+
   sw.add[treeview]
-  align = gtkalignment_new(xalign=0.5,yalign=0.0,xscale=0.0,yscale=0.0);
-  hbox.pack_end[align,expand=%f,fill=%f,padding=0]
+  if exists('gtk_get_major_version','function') then
+    // gtk3
+  else
+    align = gtkalignment_new(xalign=0.5,yalign=0.0,xscale=0.0,yscale=0.0);
+    hbox.pack_end[align,expand=%f,fill=%f,padding=0]
+  end
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
 endfunction
-

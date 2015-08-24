@@ -1,12 +1,12 @@
 function window_set_size(win,viewport,invalidate=%t)
   //printf("debug: inside window_set_size\n");
-  if ~exists('scs_m') then scs_m=hash();end 
+  if ~exists('scs_m') then scs_m=hash();end
   if ~exists('curwin') then curwin=0;end
-  if ~exists('%zoom') then %zoom=1;end 
-  
-  if nargin < 1 then win=curwin;end 
-  if nargin < 2 then viewport=%f;end 
-  
+  if ~exists('%zoom') then %zoom=1;end
+
+  if nargin < 1 then win=curwin;end
+  if nargin < 2 then viewport=%f;end
+
   xset('window',win)
   F=get_current_figure()
   gh=nsp_graphic_widget(win)
@@ -49,12 +49,19 @@ function window_set_size(win,viewport,invalidate=%t)
     Vbox=gh.get_children[]
     Vbox=Vbox(1);
     ScrolledWindow=Vbox.get_children[];
-    // scrolled window is the last one 
+    // scrolled window is the last one
     ScrolledWindow=ScrolledWindow($);
     hscrollbar=ScrolledWindow.get_hadjustment[];
     vscrollbar=ScrolledWindow.get_vadjustment[];
-    %XSHIFT=(int(wdim(1))-hscrollbar.page_size)/2
-    %YSHIFT=(int(wdim(2))-vscrollbar.page_size)/2
+    if exists('gtk_get_major_version','function') then
+      hpage_size = hscrollbar.get_page_size[];
+      vpage_size = vscrollbar.get_page_size[];
+    else
+      hpage_size = hscrollbar.page_size;
+      vpage_size = hscrollbar.page_size;
+    end
+    %XSHIFT=(int(wdim(1))-hpage_size)/2
+    %YSHIFT=(int(wdim(2))-vpage_size)/2
     hscrollbar.set_value[%XSHIFT]
     vscrollbar.set_value[%YSHIFT]
   else
@@ -62,15 +69,15 @@ function window_set_size(win,viewport,invalidate=%t)
     %YSHIFT=viewport(2)
     xset('viewport',%XSHIFT,%YSHIFT)
   end
-  if invalidate then 
+  if invalidate then
     F.invalidate[]
     F.process_updates[]
   end;
 endfunction
 
 function [frect,wdim]=windows_compute_size()
-// compute proper frect and proper wdim 
-// from scs_m 
+// compute proper frect and proper wdim
+// from scs_m
 // printf("debug: inside windows_comppute_size\n");
   r=xget('wpdim');
   rect=dig_bound(scs_m);
@@ -81,11 +88,11 @@ function [frect,wdim]=windows_compute_size()
   // amplitute correction if the user resize the window
   ax = (max(r(1)/(%zoom*w),j));
   ay = (max(r(2)/(%zoom*h),j));
-  bx = (1-1/ax)/2; 
-  by = (1-1/ay)/2; 
-  // window dim 
+  bx = (1-1/ax)/2;
+  by = (1-1/ay)/2;
+  // window dim
   wdim = %zoom*[ w * ax, h * ay];
-  // 
+  //
   margins=[0.02 0.02 0.02 0.02]
   wp=w*(ax+margins(1)+margins(2))
   hp=h*(ay+margins(3)+margins(4))
@@ -94,4 +101,3 @@ function [frect,wdim]=windows_compute_size()
   xmax=xmin+wp; ymax=ymin+hp;
   frect=[xmin ymin xmax ymax];
 endfunction
-

@@ -72,23 +72,23 @@ function o=standard_define(sz,model,label,gr_i,gui)
 //--------------------------------------------------
 //initialize graphic part of the block data structure
 // Copyright INRIA
-  if nargin <= 3 then gr_i = [] ; end 
+  if nargin <= 3 then gr_i = [] ; end
   if nargin <= 4 then gui = "" ;
-    if %f then 
+    if %f then
       error("gui should be defined for nsp blocks");
       return;
     else
-      // we can recover the name of the calling function 
+      // we can recover the name of the calling function
       // by getting the calling frame name
       S=exists();// matrix
-      if size(S,'*') >= 2 then 
+      if size(S,'*') >= 2 then
 	gui=S(2);
       else
 	error("gui should be defined for nsp blocks");
       end
     end
-  end 
-  
+  end
+
   nin=size(model.in,1);
   if nin>0 then pin(nin,1)=0,else pin=[],end
   nout=size(model.out,1);
@@ -97,14 +97,14 @@ function o=standard_define(sz,model,label,gr_i,gui)
   if ncin>0 then pein(ncin,1)=0,else pein=[],end
   ncout=size(model.evtout,1);
   if ncout>0 then peout(ncout,1)=0,else peout=[],end
-  
+
   if type(gr_i,'string')<>'List' then gr_i=list(gr_i,8),end
   if isempty(gr_i(2)) then gr_i(2)=8,end
   if gr_i(2)==0 then gr_i(2)=[],end
-  
-  graphics=scicos_graphics(sz=sz,pin=pin,pout=pout,pein=pein,peout=peout, 
-  gr_i=gr_i,exprs=label) 
-  
+
+  graphics=scicos_graphics(sz=sz,pin=pin,pout=pout,pein=pein,peout=peout,
+  gr_i=gr_i,exprs=label)
+
   if model.sim(1)=='super' then
     o=scicos_block(graphics=graphics,model=model,gui='SUPER_f')
   else
@@ -136,7 +136,7 @@ function standard_etiquette(bloc, legende, job)
 //           'clkout' : event output ports
 //           'centre' : in the block shape
 //           'croix'  : draw a cross in the block shape
-//%Origine 
+//%Origine
 // E. Demay E.D.F 97
 //
 // Copyright INRIA
@@ -205,7 +205,7 @@ function standard_etiquette(bloc, legende, job)
 		     //taille = bloc(GRAPHIQUE)(TAILLE)
 		     origine = bloc.graphics.orig
 		     taille = bloc.graphics.sz
-		     nx = [origine(1), origine(1)+taille(1); origine(1), origine(1)+taille(1)] 
+		     nx = [origine(1), origine(1)+taille(1); origine(1), origine(1)+taille(1)]
 		     ny = [origine(2), origine(2)+taille(2); origine(2)+taille(2), origine(2)]
 		     color = xget('color')
 		     xsegs(nx', ny', legende)
@@ -334,8 +334,8 @@ function [texte,L_out] = standard_document(objet, k)
   //
   select type_objet
    case 'Block' then
-    //- Block informations 
-    //- Initialisations 
+    //- Block informations
+    //- Initialisations
     modele = objet.model
     graphique = objet.graphics
     macro = objet.gui
@@ -361,7 +361,7 @@ function [texte,L_out] = standard_document(objet, k)
       language = '0 (Scilab function type Scicos 2.2)'
     end
     //
-    
+
     if modele.blocktype == 'l' then
       typ= 'synchro'
     elseif modele.blocktype == 'z'
@@ -386,29 +386,29 @@ function [texte,L_out] = standard_document(objet, k)
     end
     //
     identification = graphique.id
-    
+
     //- general informations
     //-----------------------
 
     if modele.sim(1)=='super'|modele.sim(1)=='csuper' then
-      texte = ['object type                ','Super Block';   
-	       'Identification             ',identification; 
-	       'Object number in diagram   ',string(k);  
+      texte = ['object type                ','Super Block';
+	       'Identification             ',identification;
+	       'Object number in diagram   ',string(k);
 	       'Drawing function           ',macro]
     else
       simul_fun = fonction(1);
-      if type(simul_fun,'short')=='pl' then 
+      if type(simul_fun,'short')=='pl' then
 	// fonction(1) is a macro then get its name.
 	simul_fun = simul_fun.get_name[];
       end
-      texte = ['object type                ','standard block';   
-	       'Identification             ',identification; 
-	       'Object number in diagram   ',string(k);  
-	       'Drawing function           ',macro;           
-	       'Simulation function        ',simul_fun;     
+      texte = ['object type                ','standard block';
+	       'Identification             ',identification;
+	       'Object number in diagram   ',string(k);
+	       'Drawing function           ',macro;
+	       'Simulation function        ',simul_fun;
 	       'Simulation Function type   ',language;
-	       'Bloc type                  ',typ;             
-	       'Direct feed through        ',dependance_u;    
+	       'Bloc type                  ',typ;
+	       'Direct feed through        ',dependance_u;
 	       'Permanently active         ',dependance_t]
       if ~%cpr.equal[list()] &needcompile<>4 then
 	cor = %cpr.cor
@@ -427,14 +427,14 @@ function [texte,L_out] = standard_document(objet, k)
       end
       texte=[texte;txt]
     end
-    
-    
+
+
     L_out=list()
     L_out(1)= list('General',['',''],texte)
-      
+
     texte=catenate(texte,col=':')
-    
-    //- gather Input-Output informations 
+
+    //- gather Input-Output informations
     //-----------------------------------
     title_tableau = ['Port type', 'Number', 'Size', 'Link']
     tableau=m2s([]);
@@ -448,12 +448,12 @@ function [texte,L_out] = standard_document(objet, k)
       tableau = [tableau; 'Regular output', string(i),
 		 string(modele.out(i)), string(graphique.pout(i))]
     end
-    //- Entrees evenements 
+    //- Entrees evenements
     for i = 1 : min(size(modele.evtin,'*'),size(graphique.pein,'*'))
       tableau = [tableau; 'Event input', string(i),
 		 string(modele.evtin(i)), string(graphique.pein(i))]
     end
-    //- Sorties evenements 
+    //- Sorties evenements
     for i = 1 : min(size(modele.evtout,'*'),size(graphique.peout,'*'))
       tableau = [tableau; 'Event output', string(i),
 		 string(modele.evtout(i)), string(graphique.peout(i))]
@@ -461,7 +461,7 @@ function [texte,L_out] = standard_document(objet, k)
     //
     L_out(2)= list('Input/Output',title_tableau,tableau);
 
-    texte = [texte; 'Input / output'; 
+    texte = [texte; 'Input / output';
 	     '--------------';
 	     ' '
 	     tabule(tableau); ' ']
@@ -472,7 +472,7 @@ function [texte,L_out] = standard_document(objet, k)
     if type(documentation,'short')=='l' then
       if size(documentation,'*')>=2 then
 	funname=documentation(1);doc=documentation(2)
-	if type(funname,'short')=='s' then 
+	if type(funname,'short')=='s' then
 	  ierr=execstr('docfun='+funname,errcatch=%t)
 	  if ierr==%f then
 	    x_message('function '+funname+' not found')
@@ -483,7 +483,7 @@ function [texte,L_out] = standard_document(objet, k)
 	end
 	ierr=execstr('doc=docfun(''get'',doc)',errcatch=%t)
 	if ierr==%t & ~isempty(doc) then
-	  texte = [texte; 'Documentation'; 
+	  texte = [texte; 'Documentation';
 		   '-------------';
 		   ' '
 		   doc; ' ']
@@ -491,24 +491,24 @@ function [texte,L_out] = standard_document(objet, k)
 	end
       end
     end
-    
+
    case 'Link' then
-    //- Link informations 
-    //- Initialisation 
+    //- Link informations
+    //- Initialisation
     identification = objet.id
     if objet.ct(2) == 1 then
       sous_type = 'Regular Link'
     else
       sous_type = 'Event link'
     end
-    //- Informations generales 
+    //- Informations generales
     texte = ['Object type                ',sous_type;
-	     'Object Identification      ',identification'; 
+	     'Object Identification      ',identification';
 	     'Object number in diagram   ',string(k)];
-        
+
     from=objet.from
     if ~%cpr.equal[list()] then
-      if sous_type == 'Regular Link' then 
+      if sous_type == 'Regular Link' then
 	while %t
 	  if scs_m.objs(from(1)).model.sim(1)=='lsplit' then
 	    __link=scs_m.objs(from(1)).graphics.pin
@@ -550,20 +550,20 @@ function [texte,L_out] = standard_document(objet, k)
       txt = ['Compiled link memory zone  ','Not available']
     end
 
-    texte=[texte;txt]   
-    
+    texte=[texte;txt]
+
     L_out=list()
     L_out(1)= list('General',['',''],texte)
     texte=catenate(texte,col=':')
-    
-    //- Connexions 
-    
+
+    //- Connexions
+
     tit_tableau = ['','Block', 'Port' ];
-    tableau=['From',string(objet.from(1:2)); 
+    tableau=['From',string(objet.from(1:2));
 	     'to', string(objet.to(1:2))];
     L_out(2)=list('Connections',tit_tableau,tableau);
-    texte = [texte; 
-	     'Connections'; 
+    texte = [texte;
+	     'Connections';
 	     '-----------';' ';
 	     catenate(tit_tableau,col=' ');
 	     catenate(tableau,col=' ');' ']
@@ -574,22 +574,32 @@ endfunction
 
 
 function win=scicos_show_info_notebook(L)
-// Copyright Chancelier/Enpc 
-// show L values in a notebook 
+// Copyright Chancelier/Enpc
+// show L values in a notebook
   win = gtkwindow_new()
   win.set_title["Block information"];
   win.set_size_request[400,400];
-  
-  box1 = gtkvbox_new(homogeneous=%f,spacing=0)
+
+  if exists('gtk_get_major_version','function') then
+    box1 = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=10);
+  else
+    box1 = gtkvbox_new(homogeneous=%f,spacing=10);
+  end
   win.add[box1]
   box1.show[]
-  box2 = gtkvbox_new(homogeneous=%f,spacing=10)
+
+  if exists('gtk_get_major_version','function') then
+    box2 = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=10);
+  else
+    box2 = gtkvbox_new(homogeneous=%f,spacing=10);
+  end
+
   box2.set_border_width[10]
   box1.pack_start[box2]
   box2.show[]
   notebook = gtknotebook_new()
   notebook.set_tab_pos[GTK.POS_TOP];
-  
+
   box2.pack_start[notebook]
   notebook.show[]
   for i = 1:length(L)
@@ -614,14 +624,19 @@ function win=scicos_show_info_notebook(L)
 endfunction
 
 function  vbox=scicos_show_table(cols,table)
-// Copyright Chancelier/Enpc 
-// show input-outputs in a GtkListStore 
-  vbox = gtkvbox_new(homogeneous=%f,spacing=8);
+// Copyright Chancelier/Enpc
+// show input-outputs in a GtkListStore
+
+  if exists('gtk_get_major_version','function') then
+    vbox = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=8);
+  else
+    vbox = gtkvbox_new(homogeneous=%f,spacing=8);
+  end
   sw = gtkscrolledwindow_new();
   sw.set_shadow_type[GTK.SHADOW_ETCHED_IN]
   sw.set_policy[GTK.POLICY_NEVER,GTK.POLICY_AUTOMATIC]
   vbox.pack_start[ sw,expand=%t,fill=%t,padding=0]
-  if ~isempty(table) then 
+  if ~isempty(table) then
     model = gtkliststore_new(table);
     // create tree view */
     treeview = gtktreeview_new(model);
@@ -629,18 +644,18 @@ function  vbox=scicos_show_table(cols,table)
     treeview.set_search_column[3];
     sw.add[treeview]
     renderer = gtkcellrenderertext_new ();
-    for i=1:size(table,'c') 
+    for i=1:size(table,'c')
       col = gtktreeviewcolumn_new(title=cols(1,i),renderer=renderer,attrs=hash(text=i-1));
       col.set_sort_column_id[i-1];
       treeview.append_column[col];
-    end 
+    end
   end
   vbox.show_all[];
-endfunction 
+endfunction
 
 function [texte] = mini_standard_document(objet)
   type_objet = objet.type
-  
+
   select type_objet
    //blk
    case 'Block' then
@@ -651,10 +666,10 @@ function [texte] = mini_standard_document(objet)
     if prod(size(fonction)) == 1 then
       fonction=list(fonction,0)
     end
-    
+
     //gui
     texte=[macro]
-    
+
     //simulation function
     if modele.sim(1)=='super' then
       texte=[texte;
@@ -669,20 +684,20 @@ function [texte] = mini_standard_document(objet)
         simul_fun = fonction(1);
         texte=[texte
                "<tt><small><small>sim    "+simul_fun+"</small></small></tt>"]
-      
+
       else
         if prod(size(fonction)) == 1 then
           fonction=list(fonction,0)
         end
         simul_fun = fonction(1);
-        if type(simul_fun,'short')=='pl' then 
+        if type(simul_fun,'short')=='pl' then
           // fonction(1) is a macro then get its name.
           simul_fun = simul_fun.get_name[];
         end
         texte=[texte
                "<tt><small><small>sim    "+simul_fun+"("+...
                string(fonction(2))+")"+"</small></small></tt>"]
-             
+
         //dep_ut
         if modele.dep_ut(1) then
           du = '%t'
@@ -696,7 +711,7 @@ function [texte] = mini_standard_document(objet)
         end
         texte=[texte
                "<tt><small><small>dep_ut ["+du+";"+dt+"]</small></small></tt>"]
-             
+
         //regular input ports
         sz_in=size(modele.in,'*');
         sz_in2=size(modele.in2,'*');
@@ -715,7 +730,7 @@ function [texte] = mini_standard_document(objet)
                  string(modele.in(i))+";"+string(modele.in2(i))+"]"+...
                  "("+string(modele.intyp(i))+")</small></small></tt>"]
         end
-      
+
         //regular output ports
         sz_out=size(modele.out,'*');
         sz_out2=size(modele.out2,'*');
@@ -734,19 +749,19 @@ function [texte] = mini_standard_document(objet)
                  string(modele.out(i))+";"+string(modele.out2(i))+"]"+...
                  "("+string(modele.outtyp(i))+")</small></small></tt>"]
         end
-      
+
         //that's all
       end
     end
-    
+
    //lnk
    case 'Link' then
     //TODO
     texte=[]
-    
+
    else
     texte=[]
-    
+
   end
-  
+
 endfunction

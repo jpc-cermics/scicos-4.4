@@ -1,5 +1,5 @@
-// 
-// obtained by translation to Nsp of testiconview.c 
+//
+// obtained by translation to Nsp of testiconview.c
 // Jean-Philippe Chancelier (2008-2011) jpc@cermics.enpc.fr
 //
 //
@@ -22,19 +22,25 @@
 ///
 
 function window=scicos_palette_icon_view(H)
-// Open a window with selectable palettes 
+// Open a window with selectable palettes
 // in icon views.
 //
-  if nargin <= 0 then 
+  if nargin <= 0 then
     H=%scicos_pal;
   end
-  
+
   window = gtkwindow_new ()// GTK.WINDOW_TOPLEVEL);
-  window.set_title['Scicos Palette IconView']; 
+  window.set_title['Scicos Palette IconView'];
   window.set_default_size[400, 400];
-  vbox = gtkvbox_new(homogeneous=%f,spacing=0);
+
+  if exists('gtk_get_major_version','function') then
+    vbox = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=0);
+  else
+    vbox = gtkvbox_new(homogeneous=%f,spacing=0);
+  end
+
   window.add[ vbox];
-  
+
   // a combo with recursive structure.
   function scicos_palette_tree_model_append(model,H,iter)
     L=H.structure;
@@ -52,7 +58,7 @@ function window=scicos_palette_icon_view(H)
       end
     end
   endfunction
-  
+
   // a hierarchical model
   model = gtktreestore_new(list("name"),%f);
   //scicos_palette_tree_model_append(model,H.structure,0);
@@ -60,18 +66,20 @@ function window=scicos_palette_icon_view(H)
 
   // a combo defined by model
   combobox2 = gtkcombobox_new(model=model);
-  combobox2.set_add_tearoffs[%t];
+  if ~exists('gtk_get_major_version','function') then
+    combobox2.set_add_tearoffs[%t];
+  end
   //g_object_unref (model);
   vbox.pack_start[combobox2, expand=%f,fill= %t,padding=0];
-  
+
   cell_renderer = gtkcellrenderertext_new ();
   combobox2.pack_start[ cell_renderer,expand= %t];
   combobox2.add_attribute[cell_renderer,"text",0];
-  // set active element in the combobox 
+  // set active element in the combobox
   combobox2.set_active[0];
 
   function combo2_changed(combo,args)
-  // this can be used as handler for 
+  // this can be used as handler for
   // combobox.connect["changed", current_option ]
     M= combo.get_model[]
     iter=combo.get_active_iter[]
@@ -106,12 +114,12 @@ function window=scicos_palette_icon_view(H)
     icon_list=scicos_build_iconlist(S,combo);
     icon_list.show[];
     L=sw.get_children[];
-    if length(L)>=1  then 
+    if length(L)>=1  then
       sw.remove[L(1)];
     end
     sw.add[icon_list];
   endfunction
-  
+
   function remove_scicos_widget(wingtkid)
     global scicos_widgets
     for i=1:length(scicos_widgets)
@@ -121,14 +129,14 @@ function window=scicos_palette_icon_view(H)
     end
   endfunction
 
-  // Icon list 
-  
+  // Icon list
+
   icon_list=scicos_build_iconlist(H.contents(H.structure(1)),combobox2);
-  // icon list in scrolled window 
+  // icon list in scrolled window
   scrolled_window = gtkscrolledwindow_new();
   scrolled_window.add[ icon_list];
   scrolled_window.set_policy[ GTK.POLICY_AUTOMATIC, GTK.POLICY_AUTOMATIC];
-  // 
+  //
   combobox2.connect["changed", combo2_changed,list(scrolled_window,H) ];
   vbox.pack_start[scrolled_window, expand=%t,fill= %t,padding=0];
   window.connect["destroy", remove_scicos_widget, list(window)];
@@ -136,9 +144,9 @@ function window=scicos_palette_icon_view(H)
 endfunction
 
 function icon_list=scicos_build_iconlist(S,combo)
-// build a new iconlist for palette described 
+// build a new iconlist for palette described
 // by S
-  
+
   function item_activated (icon_view,path,args)
   // double click on an item
     combo=args(1)
@@ -171,9 +179,9 @@ function icon_list=scicos_build_iconlist(S,combo)
       end
     end
   endfunction
-  
+
   function item_activated_cursor (icon_view,path)
-  // when return is typed in the palettes 
+  // when return is typed in the palettes
     model = icon_view.get_model[];
     L=icon_view.get_selected_items[];
     if ~isempty(L);
@@ -184,20 +192,20 @@ function icon_list=scicos_build_iconlist(S,combo)
   endfunction
 
   function selection_changed (icon_view)
-  // each time selection changes 
+  // each time selection changes
   // printf ("Selection changed!\n");
   endfunction
-  
+
   function press_event_handler(icon_view,event)
-    if event.button== 3 && event.type == GDK.BUTTON_PRESS then 
-      // a right press 
+    if event.button== 3 && event.type == GDK.BUTTON_PRESS then
+      // a right press
       path=icon_view.get_path_at_pos[event.x, event.y];
-      if type(path,'short')=='none' then 
-	// here we could decide to do something if 
-	// selection is non void 
+      if type(path,'short')=='none' then
+	// here we could decide to do something if
+	// selection is non void
 	//printf ("right-press activated in the background\n");
 	L=icon_view.get_selected_items[];
-	if isempty(L);return;end 
+	if isempty(L);return;end
 	path=L(1);
       end
       icon_view.select_path[path];
@@ -207,9 +215,9 @@ function icon_list=scicos_build_iconlist(S,combo)
       //printf ("right-press activated over item text is %s\n", text);
       ll = list('Help', 'Details');
       [Cmenu,args]=mpopup(ll);
-      if Cmenu == 'Help' then 
+      if Cmenu == 'Help' then
 	cos_help(text);
-      elseif Cmenu == 'Details' then 
+      elseif Cmenu == 'Details' then
 	ok=execstr('obj='+text+'(""define"");',errcatch=%t);
 	if ok then editvar('obj');
 	else
@@ -218,7 +226,7 @@ function icon_list=scicos_build_iconlist(S,combo)
       end
     end
   endfunction
-  
+
   icon_list = gtkiconview_new ();
   icon_list.set_selection_mode[GTK.SELECTION_SINGLE];
   // icon_list.set_selection_mode[GTK.SELECTION_MULTIPLE];
@@ -261,19 +269,19 @@ function icon_list=scicos_build_iconlist(S,combo)
       model.append[list(list(pixbuf),S(j),path(1),path(2))];
     end
   end
-  
+
   icon_list.set_model[model=model];
   icon_list.set_pixbuf_column[0];
-  // Allow DND between the icon view and nsp 
+  // Allow DND between the icon view and nsp
   targets = list( list("GTK_TREE_MODEL_ROW",GTK.TARGET_SAME_APP, 0)  );
   masks= ior(GDK.BUTTON1_MASK,GDK.BUTTON3_MASK);
   icon_list.enable_model_drag_source[masks,targets, GDK.ACTION_COPY];
   // only want to drag/drop in graphic window.
   icon_list.set_reorderable[%f];
   //
-  if ~isempty(icon_list.get_method_names[]=="set_tooltip_column") then 
-    // added Aug 2011 
-    // use block name as tooltip 
+  if ~isempty(icon_list.get_method_names[]=="set_tooltip_column") then
+    // added Aug 2011
+    // use block name as tooltip
     icon_list.set_tooltip_column[1];
   end
 endfunction
@@ -292,4 +300,3 @@ function [pixbuf]=get_gdk_pixbuf(%scicos_gif,blk_name)
     end
   end
 endfunction
-

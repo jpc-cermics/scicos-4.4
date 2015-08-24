@@ -21,10 +21,10 @@ function window_read_size(win)
   arect=[0 0 0 0];
   // (xmin,ymin,xmax,ymax)
   mrect=scs_m.props.wpar(1:4);
-  // Pb here: schéma imported from 
-  // scicoslab have not a proper wpar. 
+  // Pb here: schéma imported from
+  // scicoslab have not a proper wpar.
   // mrect=mrect([1,3,2,4]);
-  // we merge mrect with frect 
+  // we merge mrect with frect
   [frect,wdim]=windows_compute_size();
   mrect=[min(mrect(1:2),frect(1:2)),max(mrect(3:4),frect(3:4))];
   wrect=[0,0,1,1];
@@ -50,11 +50,21 @@ function window_read_size(win)
   vscrollbar=ScrolledWindow.get_vadjustment[]
 
   if size(scs_m.props.wpar,'*')>13 then
-    hscrollbar.page_size=scs_m.props.wpar(14)
-    vscrollbar.page_size=scs_m.props.wpar(15)
+    if exists('gtk_get_major_version','function') then
+      hscrollbar.set_page_size[scs_m.props.wpar(14)];
+      vscrollbar.set_page_size[scs_m.props.wpar(15)];
+    else
+      hscrollbar.page_size=scs_m.props.wpar(14)
+      vscrollbar.page_size=scs_m.props.wpar(15)
+    end
   end
-  hscrollbar.value=scs_m.props.wpar(7)
-  vscrollbar.value=scs_m.props.wpar(8)
+  if exists('gtk_get_major_version','function') then
+    hscrollbar.set_value[scs_m.props.wpar(7)];
+    vscrollbar.set_value[scs_m.props.wpar(8)];
+  else
+    hscrollbar.value=scs_m.props.wpar(7)
+    vscrollbar.value=scs_m.props.wpar(8)
+  end
 
   F.invalidate[]
   F.process_updates[]

@@ -2,10 +2,10 @@ function scmenu_browser()
 // Copyright INRIA
 //
   Cmenu='';
-  if isempty(super_path) then 
+  if isempty(super_path) then
     //do_browser(scs_m);
     scicos_widgets($+1)=hash(id=do_browser(scs_m),open=%t,what='Browser');
-  else    
+  else
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
 		     'Cmenu='"scmenu_browser'";%scicos_navig=[]';
 		     '%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1'];
@@ -13,39 +13,39 @@ function scmenu_browser()
 endfunction
 
 // simple demo of treestore with pixmap
-// the treestore model have two levels 
+// the treestore model have two levels
 // and is build with append.
 
 function window=do_browser(scs_m)
 
   function [H,SB]=scicos_scm_browse(scs_m,name='Main',H=hash(10),path='')
-  // fills H and SB structure from a scs_m 
-  // SB is a list describing the tree of superblocks 
-  // and H is a hash table which contains for each superblock the names 
+  // fills H and SB structure from a scs_m
+  // SB is a list describing the tree of superblocks
+  // and H is a hash table which contains for each superblock the names
   // of the standard blocks it contains (entries are stored as
   // blockname+path in the hash table to avoid multiple common names.
-  // 
+  //
     B=m2s(zeros(0,2));
     SB=list([name,path]);
     for k=1:length(scs_m.objs)
       o=scs_m.objs(k)
       if o.type =='Block' || o.type =='Text' then
 	model=o.model
-	if model.sim(1)=='super' then 
+	if model.sim(1)=='super' then
 	  sblock=o.model.rpar;
 	  [H,SB1]=scicos_scm_browse(o.model.rpar,name=o.gui,H=H,path=path+' '+string(k));
 	  SB($+1)=SB1;
-	elseif and(o.gui<>['SPLIT_f' 'CLKSPLIT_f' 'IMPSPLIT_f']) then 
+	elseif and(o.gui<>['SPLIT_f' 'CLKSPLIT_f' 'IMPSPLIT_f']) then
 	  B.concatd[[o.gui,path+' '+string(k)]];
 	end
       end
     end
     H(name+path)=B;
   endfunction
-  
+
   function scicos_browser_tv_model(iter,model,L,H)
   // build a model for the borwser.
-    if type(iter,'short')<>'none' then 
+    if type(iter,'short')<>'none' then
       iter1=model.append[iter,list(list(pixbuf_dir),L(1)(1),L(1)(2))];
     else
       iter1=model.append[list(list(pixbuf_dir),L(1)(1),L(1)(2))];
@@ -56,7 +56,7 @@ function window=do_browser(scs_m)
       //icon = scicos_icon_path + sub(j,:)(1) + '.png' ;
       icon = file('join',[%scicos_gif(1),sub(j,:)(1) + '.png'])
       ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
-      if ~ok then 
+      if ~ok then
 	lasterror();
 	pixbuf = pixbuf_def
       end
@@ -64,14 +64,14 @@ function window=do_browser(scs_m)
       // we assume that path is of length 2 (browserid,blockid).
       model.append[iter1,list(list(pixbuf),sub(j,:)(1),sub(j,:)(2))];
     end
-    // now the super blocks 
+    // now the super blocks
     for i=2:length(L);
       scicos_browser_tv_model(iter1,model,L(i),H);
     end
   endfunction
-  
+
   function row_activated_cb (tree_view,path,data)
-    // activated by double click 
+    // activated by double click
     // printf("Row activated cb\n");
     model = tree_view.get_model[];
     iter = model.get_iter[path];
@@ -79,7 +79,7 @@ function window=do_browser(scs_m)
     if bname<>'SUPER_f' && bname<>'Main' then return;end
     path='['+ model.get_value[iter,2]+']';
     nsp_enqueue_command(1000,sprintf('scicos_br(%s,%s)',bname,path));
-  endfunction 
+  endfunction
 
   function selection_cb(selection,args)
     tv=selection.get_tree_view[];
@@ -142,26 +142,30 @@ function window=do_browser(scs_m)
     end
   endfunction
 
-  // a tree store with pixbufs from L 
+  // a tree store with pixbufs from L
   // which describes the browsers.
-      
+
   window = gtkwindow_new ()
   window.set_title["Scicos Browser"]
   window.set_default_size[-1, 500]
   window.set_border_width[1]
-  
-  hbox = gtkhbox_new(homogeneous=%f,spacing=0);
+
+  if exists('gtk_get_major_version','function') then
+    hbox = gtk_box_new(GTK.ORIENTATION_HORIZONTAL,spacing=0);
+  else
+    hbox = gtkhbox_new(homogeneous=%f,spacing=0);
+  end
   window.add[hbox]
-  
+
   sw = gtkscrolledwindow_new ();
   sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
   sw.set_placement[GTK.CORNER_TOP_RIGHT]
   hbox.pack_start[sw,expand=%t,fill=%t,padding=0];
-  
-  // build an unfiled model 
-  
+
+  // build an unfiled model
+
   model = gtktreestore_new(list(list(%types.GdkPixbuf),"name","path"),%f)
-  
+
   //scicos_icon_path = scicos_path+'/macros/scicos/scicos-images/';
   //icons = glob(scicos_icon_path);
   //dir_logo = scicos_icon_path + 'gtk-directory.png';
@@ -169,10 +173,10 @@ function window=do_browser(scs_m)
   pixbuf_dir = gdk_pixbuf_new_from_file(file('join',[%scicos_gif(1),'gtk-directory.png']));
   pixbuf_def = gdk_pixbuf_new_from_file(file('join',[%scicos_gif(1),'VOID.png']));
 
-  // create a model 
+  // create a model
   [H,L]=scicos_scm_browse(scs_m);
   scicos_browser_tv_model(none_create(),model,L,H);
-  // 
+  //
   treeview=gtktreeview_new();
   treeview.set_model[model=model];
   treeview.connect["button_press_event",press_event_handler];
@@ -191,17 +195,18 @@ function window=do_browser(scs_m)
   treeview.append_column[col]
 
   treeview.set_tooltip_column[1];
-  
+
   cell = gtkcellrenderertext_new ();
   col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 1));
   col.set_title["Texte"];
   treeview.append_column[col]
   sw.add[treeview]
-  align = gtkalignment_new(xalign=0.5,yalign=0.0,xscale=0.0,yscale=0.0);
-  hbox.pack_end[align,expand=%f,fill=%f,padding=0]
+  if exists('gtk_get_major_version','function') then
+    // gtk3
+  else
+    align = gtkalignment_new(xalign=0.5,yalign=0.0,xscale=0.0,yscale=0.0);
+    hbox.pack_end[align,expand=%f,fill=%f,padding=0]
+  end
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
 endfunction
-
-
-

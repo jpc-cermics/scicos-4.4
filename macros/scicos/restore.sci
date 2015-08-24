@@ -1,9 +1,9 @@
 function %zoom=restore(curwin,%zoom)
-// sets up proper parameters for the 
-// curwin graphic window. 
+// sets up proper parameters for the
+// curwin graphic window.
 // If the window already exists its graphic contents are cleared.
 // take care that this function uses scs_m !
-// 
+//
   gr_on = length(scs_m.objs) > 0 && ~(scs_m.objs(1).iskey['gr']);
   if ~or(curwin==winsid()) || gr_on then
     xclear(curwin,gc_reset=%f);
@@ -56,6 +56,11 @@ function [frect,axsize,viewport,winsize,winpos,pagesize]=get_curwpar(win)
   ScrolledWindow=ScrolledWindow($)
   hscrollbar=ScrolledWindow.get_hadjustment[]
   vscrollbar=ScrolledWindow.get_vadjustment[]
-  viewport=[hscrollbar.value vscrollbar.value]
-  pagesize=[hscrollbar.page_size vscrollbar.page_size]
+  if exists('gtk_get_major_version','function') then
+    viewport=[hscrollbar.get_value[], vscrollbar.get_value[]];
+    pagesize=[hscrollbar.get_page_size[] vscrollbar.get_page_size[]];
+  else
+    viewport=[hscrollbar.value vscrollbar.value]
+    pagesize=[hscrollbar.page_size vscrollbar.page_size]
+  end
 endfunction
