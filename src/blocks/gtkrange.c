@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2019-2010 Jean-Philippe Chancelier Enpc/Cermics
  *
  * This library is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * a gtkscale block 
+ * a gtkscale block
  *--------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -26,7 +26,7 @@
 #include <math.h>
 #include <time.h>
 
-#include <gtk/gtk.h> 
+#include <gtk/gtk.h>
 
 #include "blocks.h"
 #include <nsp/matrix.h>
@@ -39,7 +39,7 @@ typedef struct _gtkscale_data gtkscale_data;
 
 struct _gtkscale_data
 {
-  double value; 
+  double value;
   int changed;
   GtkWidget *window;
 };
@@ -53,7 +53,7 @@ void scicos_gtkrange_block (scicos_block * block, int flag)
   if (flag == 4)
     {
       gtkscale_data *D;
-      if ((D= malloc(sizeof(gtkscale_data)))== NULL) 
+      if ((D= malloc(sizeof(gtkscale_data)))== NULL)
 	{
 	  Coserror ("Cannot set up data for gtkscale block\n");
 	  return;
@@ -71,7 +71,7 @@ void scicos_gtkrange_block (scicos_block * block, int flag)
     }
   else if (flag == 5)
     {
-      gtkscale_data *D = (gtkscale_data *) (*block->work); 
+      gtkscale_data *D = (gtkscale_data *) (*block->work);
       gtk_widget_destroy(D->window);
       free(D);
     }
@@ -79,23 +79,23 @@ void scicos_gtkrange_block (scicos_block * block, int flag)
 
 static void  adjustment_value_changed(GtkAdjustment *adjustment,gpointer user_data)
 {
-  gtkscale_data *D = (gtkscale_data *) user_data; 
+  gtkscale_data *D = (gtkscale_data *) user_data;
   double x = gtk_adjustment_get_value (adjustment);
   /* printf("Adjustment changed to %f\n",x); */
   D->changed = TRUE;
   D->value = x;
 }
 
-static void create_range_controls (gtkscale_data *D,double initial, double lower, double upper) 
+static void create_range_controls (gtkscale_data *D,double initial, double lower, double upper)
 {
   GtkWidget *window = NULL;
   GtkWidget *box1;
   GtkWidget *box2;
   GtkWidget *scale;
-  GtkObject *adjustment;
+  GtkAdjustment *adjustment;
   GtkWidget *hbox;
   D->window = window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-  /* 
+  /*
   gtk_window_set_screen (GTK_WINDOW (window),
 			 gtk_widget_get_screen (widget));
   */
@@ -104,12 +104,18 @@ static void create_range_controls (gtkscale_data *D,double initial, double lower
 		    &window);
   gtk_window_set_title (GTK_WINDOW (window), "range controls");
   gtk_container_set_border_width (GTK_CONTAINER (window), 0);
-  
+#if GTK_CHECK_VERSION (3,0,0)
+  box1 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+#else
   box1 = gtk_vbox_new (FALSE, 0);
+#endif
   gtk_container_add (GTK_CONTAINER (window), box1);
   gtk_widget_show (box1);
-
+#if GTK_CHECK_VERSION (3,0,0)
+  box2 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+#else
   box2 = gtk_vbox_new (FALSE, 10);
+#endif
   gtk_container_set_border_width (GTK_CONTAINER (box2), 10);
   gtk_box_pack_start (GTK_BOX (box1), box2, TRUE, TRUE, 0);
   gtk_widget_show (box2);
@@ -118,7 +124,7 @@ static void create_range_controls (gtkscale_data *D,double initial, double lower
   printf("Adjustment %f %f %f\n",initial,lower,upper);
 
   adjustment = gtk_adjustment_new (initial , lower, upper+1.0, 0.1, 1.0, 1.0);
-  /* 
+  /*
      gtk_adjustment_get_value ()
      gtk_adjustment_set_value ()
   */
@@ -126,18 +132,31 @@ static void create_range_controls (gtkscale_data *D,double initial, double lower
   g_signal_connect (adjustment, "value-changed",
 		    G_CALLBACK (adjustment_value_changed),
 		    (gpointer) D);
-  
+#if GTK_CHECK_VERSION (3,0,0)
+  scale = gtk_scale_new (GTK_ORIENTATION_HORIZONTAL,
+			 GTK_ADJUSTMENT (adjustment));
+#else
   scale = gtk_hscale_new (GTK_ADJUSTMENT (adjustment));
+#endif
   gtk_widget_set_size_request (GTK_WIDGET (scale), 150, -1);
+#if GTK_CHECK_VERSION (3,0,0)
+#else
   gtk_range_set_update_policy (GTK_RANGE (scale), GTK_UPDATE_DELAYED);
+#endif
   gtk_scale_set_digits (GTK_SCALE (scale), 2 );
   gtk_scale_set_draw_value (GTK_SCALE (scale), TRUE);
   gtk_box_pack_start (GTK_BOX (box2), scale, TRUE, TRUE, 0);
   gtk_widget_show (scale);
- 
-  hbox = gtk_hbox_new (FALSE, 0);
 
+#if GTK_CHECK_VERSION (3,0,0)
+  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
+  scale = gtk_scale_new (GTK_ORIENTATION_VERTICAL,
+			  GTK_ADJUSTMENT (adjustment));
+#else
+  hbox = gtk_hbox_new (FALSE, 0);
   scale = gtk_vscale_new (GTK_ADJUSTMENT (adjustment));
+#endif
+
   gtk_widget_set_size_request (scale, -1, 200);
   gtk_scale_set_digits (GTK_SCALE (scale), 2);
   gtk_scale_set_draw_value (GTK_SCALE (scale), TRUE);
@@ -145,11 +164,9 @@ static void create_range_controls (gtkscale_data *D,double initial, double lower
   gtk_widget_show (scale);
 
   /* gtk_range_set_inverted (GTK_RANGE (scale), TRUE); */
-        
+
   gtk_box_pack_start (GTK_BOX (box2), hbox, TRUE, TRUE, 0);
   gtk_widget_show (hbox);
-      
+
   gtk_widget_show (window);
 }
-
-
