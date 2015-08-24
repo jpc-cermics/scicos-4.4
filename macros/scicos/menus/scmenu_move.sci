@@ -1,19 +1,19 @@
 function scmenu_move()
-// performs a move of an object 
+// performs a move of an object
 //
   Cmenu=''
   if ~isempty(Select) && ~isempty(find(Select(:,2)<>curwin)) then
-    // XXX why this part ? 
+    // XXX why this part ?
     Select=[]; Cmenu='Move';
     return
   end
-  // performs the move 
+  // performs the move
   [scs_m]=do_move(%pt,scs_m,Select)
   %pt=[];
 endfunction
-  
+
 function [scs_m]=do_move(%pt,scs_m,Select)
-  if ~isempty(Select) && size(Select,1) == 1 && 
+  if ~isempty(Select) && size(Select,1) == 1 &&
     scs_m.objs(Select(1)).type=="Link" then
     [%pt,scs_m,have_moved]=do_stupidmove(%pt,Select,scs_m)
   else
@@ -56,7 +56,7 @@ function [%pt,scs_m,have_moved]=do_stupidmove(%pt,Select,scs_m)
 endfunction
 
 function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
-// move a corner of a link  
+// move a corner of a link
 //
   o=scs_m.objs(k);
   [xx,yy,ct]=(o.xx,o.yy,o.ct);
@@ -73,7 +73,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
     X_start=xx(start_seg);
     Y_start=yy(start_seg);
   end
-  
+
   if (-wh+1)==link_size then //** the moving include the endpoint
     end_seg=[];
     X_end=[];
@@ -114,15 +114,14 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
     if or(rep(3)==[0,2,3,5,-5,-100]) then
       break
     end
-    
+    o.gr.invalidate[]
     o.gr.children(1).x=[X_start;x1;X_end]
     o.gr.children(1).y=[Y_start;y1;Y_end]
-    
     o.gr.invalidate[]
     F.process_updates[];
     rep=xgetmouse(clearq=%t,getrelease=%t,cursor=%f);
     nb=nb+1
-    
+
     if nb>2 then
       if ~cursor_changed then
         cursor_changed=%t
@@ -136,7 +135,6 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       end
       x1(2)=X1(2)-(xc-xc1);
       y1(2)=Y1(2)-(yc-yc1);
-      o.gr.invalidate[]
     end
   end
 
@@ -145,12 +143,12 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       x1(2)=x1(1)
     elseif abs(x1(2)-x1(3))<rela*abs(y1(2)-y1(3)) then
       x1(2)=x1(3)
-    end  
+    end
     if abs(y1(1)-y1(2))<rela*abs(x1(1)-x1(2)) then
       y1(2)=y1(1)
     elseif abs(y1(2)-y1(3))<rela*abs(x1(2)-x1(3)) then
       y1(2)=y1(3)
-    end  
+    end
     d = projaff([x1(1);x1(3)],[y1(1);y1(3)],[x1(2);y1(2)])
     if norm(d(:)-[x1(2);y1(2)])<..
          rela*max(norm(d(:)-[x1(3);y1(3)]),norm(d(:)-[x1(1);y1(1)])) then
@@ -176,6 +174,7 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
       scs_m.objs(k)=o
     end
   end
+  o.gr.invalidate[]
   o.gr.children(1).x=o.xx
   o.gr.children(1).y=o.yy
   o.gr.invalidate[]
@@ -183,15 +182,15 @@ function [scs_m,have_moved]=stupid_movecorner(scs_m,k,xc,yc,wh)
 endfunction
 
 function [k,wh,on_pt,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
-// get which point of the link which will move 
-// or which object 
-  
+// get which point of the link which will move
+// or which object
+
   function [d,pt,ind] = stupid_dist2polyline(xp,yp,pt,pereps)
   // Copyright INRIA
   // computes minimum distance from a point to a polyline
   // d    minimum distance to polyline
   // pt   coordinate of the polyline closest point
-  // ind  
+  // ind
   //      if negative polyline closest point is a polyline corner:
   //         pt=[xp(-ind) yp(-ind)]
   //      if positive pt lies on segment [ind ind+1]
@@ -203,7 +202,7 @@ function [k,wh,on_pt,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
 	      (yp(1:$-1)-y).*(yp(1:$-1)-yp(2:$)))+..
        sign((xp(2:$)-x).*(xp(2:$)-xp(1:$-1))+..
 	    (yp(2:$)-y).*(yp(2:$)-yp(1:$-1)))
-    
+
     ki = find(cr==5) // index of segments for which projection fall inside
     np = size(xp,'*')
     if ~isempty(ki) then
@@ -220,13 +219,13 @@ function [k,wh,on_pt,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
     end
     zzz = [ones(np,1) ; zeros(size(ki,'*'),1)] * eps
     zz  = [ones(np,1)*pereps ; ones(size(ki,'*'),1)]
-    [d,k] = min(sqrt((xp-pt(1)).^2+(yp-pt(2)).^2).*zz - zzz) 
+    [d,k] = min(sqrt((xp-pt(1)).^2+(yp-pt(2)).^2).*zz - zzz)
     pt(1) = xp(k)
     pt(2) = yp(k)
     if k>np then ind=ki(k-np), else ind=-k, end
   endfunction
-  
-  
+
+
   wh=[];
   x=pt(1);y=pt(2)
   data=[]
@@ -237,7 +236,7 @@ function [k,wh,on_pt,scs_m]=stupid_getobj(scs_m,Select,pt,smart=%f)
   xx=o.xx;yy=o.yy;
   on_pt=%f
   [d,ptp,ind]=stupid_dist2polyline(xx, yy, pt, 0.85)
-  if d < eps then 
+  if d < eps then
     //** click in the start point of the link
     if ind==-1 then
       //printf("stupid_getobj : click sur debut lien\n")
@@ -297,7 +296,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
 //**          Multiple selection is permitted: each object is a line of the matrix.
 //**
   have_moved  = %f;
-  
+
   //**----------------------------------------------------------------------------------
   diagram_links=[]; //** ALL the LINKs of the diagram
   diagram_size=size(scs_m.objs)
@@ -399,12 +398,12 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
       oi = scs_m.objs(i) ;
       [xl, yl, ct, from, to] = (oi.xx, oi.yy, oi.ct, oi.from, oi.to)
       nl=size(xl,'*');
-      // If the link is of size 2 and is vertical 
+      // If the link is of size 2 and is vertical
       // or horizontal then we add intermediate middle points
-      if nl == 2  then 
-        if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end 
-        if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end 
-        if xl(1)==xl(2) || yl(1)==yl(2) then 
+      if nl == 2  then
+        if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end
+        if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end
+        if xl(1)==xl(2) || yl(1)==yl(2) then
           xm=(xl(1)+xl(2))/2;
           ym=(yl(1)+yl(2))/2;
           oi.gr.children(1).x= [xl(1);xm;xm;xl(2)];
@@ -458,12 +457,12 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
       if ~cursor_changed then
         cursor_changed=%t
         xcursor(52)
-      end 
+      end
       //** Move the SuperCompound
       for k = SuperCompound_id
         o=scs_m.objs(k)
         o.gr.translate[tr];
-        o.gr.invalidate[]
+        //o.gr.invalidate[] (translate performs an invalidate )
       end
 
       if ~isempty(connected) then  //** Move the links
@@ -473,16 +472,15 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
           for l=1:length(connected)
             i=connected(l);
             oi=scs_m.objs(i);
-            
-            //Alan tst
-            [xl,yl]=clean_link(oi.gr.children(1).x(:),oi.gr.children(1).y(:));
+	    oi.gr.invalidate[];
+	    [xl,yl]=clean_link(oi.gr.children(1).x(:),oi.gr.children(1).y(:));
             nl=size(xl,'*');
-            // If the link is of size 2 and is vertical 
+            // If the link is of size 2 and is vertical
             // or horizontal then we add intermediate middle points
             if nl == 2  then
-              if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end 
-              if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end 
-              if xl(1)==xl(2) || yl(1)==yl(2) then 
+              if abs(xl(1)-xl(2)) < 1.e-3 then xl(1)=xl(2);end
+              if abs(yl(1)-yl(2)) < 1.e-3 then yl(1)=yl(2);end
+              if xl(1)==xl(2) || yl(1)==yl(2) then
                 xm=(xl(1)+xl(2))/2;
                 ym=(yl(1)+yl(2))/2;
                 oi.gr.children(1).x= [xl(1);xm;xm;xl(2)];
@@ -492,20 +490,22 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
               oi.gr.children(1).x=xl
               oi.gr.children(1).y=yl
             end
-            
+	    oi.gr.invalidate[];
+
             nl=size(oi.gr.children(1).x,'*');
-            
-            // translate the first point or the first 
-            // two points to preserve vertical or horizontal 
+
+            // translate the first point or the first
+            // two points to preserve vertical or horizontal
             // first link;
-            if oi.from(1)==ext_block(l) then
+	    if oi.from(1)==ext_block(l) then
+	      oi.gr.invalidate[];
               xl= oi.gr.children(1).x(1:2);
               yl= oi.gr.children(1).y(1:2);
-              if nl > 2 then 
-                if xl(1)==xl(2) then 
+              if nl > 2 then
+                if xl(1)==xl(2) then
                   oi.gr.children(1).x(1:2)= xl+ tr(1);
                   oi.gr.children(1).y(1)= yl(1)+ tr(2);
-                elseif yl(1)==yl(2) then 
+                elseif yl(1)==yl(2) then
                   oi.gr.children(1).x(1)= xl(1)+ tr(1);
                   oi.gr.children(1).y(1:2)= yl+ tr(2);
                 else
@@ -516,16 +516,18 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
                 oi.gr.children(1).x(1)= xl(1)+ tr(1);
                 oi.gr.children(1).y(1)= yl(1)+ tr(2);
               end
+	      oi.gr.invalidate[];
             end
-            
+
             if oi.to(1)==ext_block(l) then
+	      oi.gr.invalidate[];
               xl= oi.gr.children(1).x($-1:$);
               yl= oi.gr.children(1).y($-1:$);
               if nl > 2 then
-                if xl(1)==xl(2) then 
+                if xl(1)==xl(2) then
                   oi.gr.children(1).x($-1:$)= xl+ tr(1);
                   oi.gr.children(1).y($)= yl(2)+ tr(2);
-                elseif yl(1)==yl(2) then 
+                elseif yl(1)==yl(2) then
                   oi.gr.children(1).x($)= xl(2)+ tr(1);
                   oi.gr.children(1).y($-1:$)= yl+ tr(2);
                 else
@@ -536,11 +538,8 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
                 oi.gr.children(1).x($)= xl(2)+ tr(1);
                 oi.gr.children(1).y($)= yl(2)+ tr(2);
               end
-            end
-//             [xl,yl]=clean_link(oi.gr.children(1).x(:),oi.gr.children(1).y(:));
-//             oi.gr.children(1).x=xl
-//             oi.gr.children(1).y=yl
-            oi.gr.invalidate[];
+	      oi.gr.invalidate[];
+	    end
           end
         //free move
         else
@@ -548,41 +547,44 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
             i  = connected(l)
             oi = scs_m.objs(i)
             nl=size(oi.gr.children(1).x,'*');
-            
+
             if oi.from(1)==ext_block(l) then
               xl= oi.gr.children(1).x(1:2);
               yl= oi.gr.children(1).y(1:2);
-              oi.gr.children(1).x(1)= xl(1)+ tr(1);
+	      oi.gr.invalidate[];
+	      oi.gr.children(1).x(1)= xl(1)+ tr(1);
               oi.gr.children(1).y(1)= yl(1)+ tr(2);
+	      oi.gr.invalidate[];
             end
 
             if oi.to(1)==ext_block(l) then
               xl= oi.gr.children(1).x($-1:$);
               yl= oi.gr.children(1).y($-1:$);
+	      oi.gr.invalidate[];
               oi.gr.children(1).x($)= xl(2)+ tr(1);
               oi.gr.children(1).y($)= yl(2)+ tr(2);
+	      oi.gr.invalidate[];
             end
-            oi.gr.invalidate[];
-          end
+	  end
         end//smart
       end//**isempty(connected)
     end //nb2
   end //** ... of while Interactive move LOOP --------------------------------------------------------------
-  
+
   xcursor();
   F.draw_now[];
-  
+
   //** OK If update and block and links position in scs_m
   //** if the exit condition is NOT a right button press OR click
   if and(rep(3)<>[2 5]) then
-  
+
     //** Rigid SuperCompund Elements
     for k = [sel_block(:)' sel_text(:)']
       o = scs_m.objs(k);
       o.graphics.orig.redim[1,-1]; // be sure that we are a row
       o.graphics.orig= o.graphics.orig + move_xy
       scs_m.objs(k) = o;
-    end   
+    end
 
     for l = int_link
       xl= scs_m.objs(l).gr.children(1).x(:);
@@ -596,15 +598,16 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
       for l=connected
         [xl,yl]=clean_link(scs_m.objs(l).gr.children(1).x(:),...
                            scs_m.objs(l).gr.children(1).y(:))
-         
+
         scs_m.objs(l).xx = xl;
         scs_m.objs(l).yy = yl;
+	scs_m.objs(l).gr.invalidate[];
         scs_m.objs(l).gr.children(1).x = xl;
         scs_m.objs(l).gr.children(1).y = yl;
         scs_m.objs(l).gr.invalidate[];
       end //... for loop
     end //** of if
-    
+
     //**---------------------------------------------------
     if size(sel_block,2)==1&length(connected)==1 then
       k = sel_block
@@ -624,14 +627,16 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
             scs_m.objs(k).graphics.orig=scs_m.objs(k).graphics.orig+[dx,dy]
             lk.xx(2)=lk.xx(2)+dx;lk.yy(2)=lk.yy(2)+dy
             scs_m.objs(connected(1))=lk
-            lk.gr.children(1).x=lk.xx(:)
+	    lk.gr.invalidate[]
+	    lk.gr.children(1).x=lk.xx(:)
             lk.gr.children(1).y=lk.yy(:)
-            lk.gr.invalidate[]
+	    lk.gr.invalidate[]
           elseif lk.from(1)==k  then
             scs_m.objs(k).graphics.orig=scs_m.objs(k).graphics.orig-[dx,dy]
             lk.xx(1)=lk.xx(1)-dx;lk.yy(1)=lk.yy(1)-dy
             dx=-dx;dy=-dy
             scs_m.objs(connected(1))=lk
+	    lk.gr.invalidate[]
             lk.gr.children(1).x=lk.xx(:)
             lk.gr.children(1).y=lk.yy(:)
             lk.gr.invalidate[]
@@ -646,10 +651,10 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
     //**=---> If the user abort the operation
   else //** restore original position of block and links in figure
     //** in this case: [scs_m] is not modified !
-    
+
     have_moved=%f
     //** Move back the SuperCompound
-    for k=SuperCompound_id 
+    for k=SuperCompound_id
       o=scs_m.objs(k)
       o.gr.translate[-move_xy];
     end
@@ -657,6 +662,7 @@ function [scs_m,have_moved] = stupid_MultiMoveObject(scs_m, Select, xc, yc,smart
     //**-------------------------------------------------------
     if ~isempty(connected) then
       for l=connected
+	scs_m.objs(l).gr.invalidate[];
         scs_m.objs(l).gr.children(1).x = scs_m.objs(l).xx(:);
         scs_m.objs(l).gr.children(1).y = scs_m.objs(l).yy(:);
         scs_m.objs(l).gr.invalidate[];
@@ -710,11 +716,11 @@ function [xl,yl]=clean_link(xx,yy)
   xl= xx;
   yl= yy;
   nl=size(xl,'*');
-        
+
   //eliminate double points
   kz=find((xl(2:nl)-xl(1:nl-1)).^2+(yl(2:nl)-yl(1:nl-1)).^2==0);
   xl(kz)=[];yl(kz)=[];
-      
+
   //remove not needed intermediate pts
   //fixed point
   rela=1/100;
@@ -725,7 +731,7 @@ function [xl,yl]=clean_link(xx,yy)
       if j+2>nl then
         ok=%t;
         break;
-       end  
+       end
        d = projaff([xl(j);xl(j+2)],[yl(j);yl(j+2)],[xl(j+1);yl(j+1)]);
        if norm(d(:)-[xl(j+1);yl(j+1)])<..
            rela*max(norm(d(:)-[xl(j+2);yl(j+2)]),norm(d(:)-[xl(j);yl(j)])) then
