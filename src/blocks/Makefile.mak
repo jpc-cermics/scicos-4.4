@@ -6,13 +6,13 @@ SHELL = /bin/sh
 SCIDIR=../../../..
 SCIDIR1=..\..\..\..
 
-LIBRARY=libblocks.lib 
+LIBRARY=libblocks.lib
 
 OBJS=$(patsubst %.c,%.obj,$(wildcard *.c))
 
 include $(SCIDIR)/Makefile.incl.mak
 
-CFLAGS = $(CC_OPTIONS) 
+CFLAGS = $(CC_OPTIONS)
 FFLAGS = $(FC_OPTIONS)
 
 include $(SCIDIR)/config/Makeso.incl
@@ -25,19 +25,19 @@ Makefile.mak	: Makefile
 Makefile.libmk	: Makefile
 	$(SCIDIR)/scripts/Mak2ABSMak Makefile
 
-distclean:: clean 
-	@$(RM) -f -r .libs *.so *.la 
+distclean:: clean
+	@$(RM) -f -r .libs *.so *.la
 
-clean:: 
+clean::
 	@$(RM) *.obj *.lo
 
-# special rules for compilation 
+# special rules for compilation
 #-------------------------------
 
-%.obj: %.c 
+%.obj: %.c
 	@echo "compiling $<  Wall "
-	@$(COMPILE) -c $< -o $@
+	$(COMPILE) -c $< -o $@
 
-%.lo: %.c 
+%.lo: %.c
 	@echo "compiling $<  Wall "
 	@$(LTCOMPILE) -c $< -o $@

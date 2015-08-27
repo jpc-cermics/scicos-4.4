@@ -1,7 +1,7 @@
 /* Nsp
- * Copyright (C) 2007-2011 Ramine Nikoukhah (Inria) 
+ * Copyright (C) 2007-2011 Ramine Nikoukhah (Inria)
  *               See the note at the end of banner
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either
@@ -17,10 +17,10 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * 
+ *
  * Scicos blocks copyrighted GPL in this version by Ramine Nikoukhah
- * Some blocks have specific authors which are named in the code. 
- * 
+ * Some blocks have specific authors which are named in the code.
+ *
  *--------------------------------------------------------------------------*/
 
 /* This module encloses set of 'new' scicos blocks
@@ -37,14 +37,14 @@ extern double atanh (double x);
 
 /**
  * scicos_time_delay_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_time_delay_block (scicos_block * block, int flag)
-{				
+{
   /*  rpar[0]=delay, rpar[1]=init value, ipar[0]=buffer length */
   void **work = GetPtrWorkPtrs (block);
   double *rpar = GetRparPtrs (block);
@@ -56,7 +56,7 @@ void scicos_time_delay_block (scicos_block * block, int flag)
   int i, j, k;
 
   if (flag == 4)
-    {				
+    {
       /* the workspace is used to store previous values */
       if ((*work =
 	   scicos_malloc (sizeof (int) + sizeof (double) *
@@ -187,10 +187,10 @@ void scicos_time_delay_block (scicos_block * block, int flag)
 
 /**
  * scicos_absolute_value_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_absolute_value_block (scicos_block * block, int flag)
@@ -202,10 +202,10 @@ void scicos_absolute_value_block (scicos_block * block, int flag)
   double *y1=GetRealOutPortPtrs(block,1);
   int i,side;
   int nxm=GetInPortRows(block,1)*GetInPortCols(block,1);
-  switch(flag) 
+  switch(flag)
     {
     case 1:
-      for(i=0 ; i < nxm ; ++i) 
+      for(i=0 ; i < nxm ; ++i)
 	{
 	  side = (!areModesFixed(block) || ng==0) ?
 	    ((u1[i]<0) ? 2 :1) : mode[i];
@@ -216,7 +216,7 @@ void scicos_absolute_value_block (scicos_block * block, int flag)
       for( i=0 ; i < nxm ; ++i)
 	{
 	  g[i]=u1[i];
-	  if ( !areModesFixed(block) ) 
+	  if ( !areModesFixed(block) )
 	    {
 	      mode[i]= (g[i]<0) ? 2 : 1;
 	    }
@@ -226,10 +226,10 @@ void scicos_absolute_value_block (scicos_block * block, int flag)
 
 /**
  * scicos_acos_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_acos_block (scicos_block * block, int flag)
@@ -248,10 +248,10 @@ void scicos_acos_block (scicos_block * block, int flag)
 
 /**
  * scicos_acosh_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_acosh_block (scicos_block * block, int flag)
@@ -270,10 +270,10 @@ void scicos_acosh_block (scicos_block * block, int flag)
 
 /**
  * scicos_asin_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_asin_block (scicos_block * block, int flag)
@@ -292,17 +292,17 @@ void scicos_asin_block (scicos_block * block, int flag)
 
 /**
  * scicos_asinh_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_asinh_block (scicos_block * block, int flag)
 {
   double *u1=GetRealInPortPtrs(block,1);
   double *y1=GetRealOutPortPtrs(block,1);
   int j;
-  if (flag==1) 
+  if (flag==1)
     {
       for (j = 0; j < GetInPortRows (block, 1); j++)
 	{
@@ -313,10 +313,10 @@ void scicos_asinh_block (scicos_block * block, int flag)
 
 /**
  * scicos_atan_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_atan_block (scicos_block * block, int flag)
 {
@@ -334,10 +334,10 @@ void scicos_atan_block (scicos_block * block, int flag)
 
 /**
  * scicos_atanh_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_atanh_block (scicos_block * block, int flag)
 {
@@ -355,10 +355,10 @@ void scicos_atanh_block (scicos_block * block, int flag)
 
 /**
  * scicos_tanh_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_tanh_block (scicos_block * block, int flag)
 {
@@ -376,10 +376,10 @@ void scicos_tanh_block (scicos_block * block, int flag)
 
 /**
  * scicos_tan_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_tan_block (scicos_block * block, int flag)
 {
@@ -397,10 +397,10 @@ void scicos_tan_block (scicos_block * block, int flag)
 
 /**
  * scicos_sin_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_sin_block (scicos_block * block, int flag)
@@ -419,10 +419,10 @@ void scicos_sin_block (scicos_block * block, int flag)
 
 /**
  * scicos_sinh_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_sinh_block (scicos_block * block, int flag)
 {
@@ -440,10 +440,10 @@ void scicos_sinh_block (scicos_block * block, int flag)
 
 /**
  * scicos_backlash_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_backlash_block (scicos_block * block, int flag)
@@ -520,10 +520,10 @@ void scicos_backlash_block (scicos_block * block, int flag)
 
 /**
  * scicos_cos_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_cos_block (scicos_block * block, int flag)
@@ -543,10 +543,10 @@ void scicos_cos_block (scicos_block * block, int flag)
 
 /**
  * scicos_cosh_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_cosh_block (scicos_block * block, int flag)
 {
@@ -564,10 +564,10 @@ void scicos_cosh_block (scicos_block * block, int flag)
 
 /**
  * scicos_deadband_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_deadband_block (scicos_block * block, int flag)
@@ -579,18 +579,18 @@ void scicos_deadband_block (scicos_block * block, int flag)
   int *mode = GetModePtrs (block);
   double *u1 = GetRealInPortPtrs (block, 1);
   double *y1 = GetRealOutPortPtrs (block, 1);
-  
+
   switch (flag)
     {
     case 1:
       if (!areModesFixed (block) || ng == 0)
 	{
-	  y1[0] = (u1[0] >= rpar[0]) ?  u1[0] - rpar[0] 
+	  y1[0] = (u1[0] >= rpar[0]) ?  u1[0] - rpar[0]
 	    : ((u1[0] <= rpar[1]) ? u1[0] - rpar[1] : 0.0);
 	}
       else
 	{
-	  y1[0]= (mode[0] == 1) ? (u1[0] - rpar[0]) 
+	  y1[0]= (mode[0] == 1) ? (u1[0] - rpar[0])
 	    : ((mode[0] == 2) ? u1[0] - rpar[1] : 0.0);
 	}
       break;
@@ -609,10 +609,10 @@ void scicos_deadband_block (scicos_block * block, int flag)
 
 /**
  * scicos_deriv_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_deriv_block (scicos_block * block, int flag)
@@ -627,7 +627,7 @@ void scicos_deriv_block (scicos_block * block, int flag)
   double t = GetScicosTime (block);
 
   if (flag == 4)
-    {				
+    {
       /* the workspace is used to store previous values */
       if ((*work =
 	   scicos_malloc (sizeof (double) * 2 *
@@ -690,7 +690,7 @@ void scicos_deriv_block (scicos_block * block, int flag)
 	}
     }
   else if (flag == 2)
-    {	
+    {
       /* called by odoit/ddoit & nevprt <=0 */
       rw = *work;
       x0 = rw[0];
@@ -756,7 +756,7 @@ void scicos_deriv_block (scicos_block * block, int flag)
   s1(x2)   = u2
 
   d=(x1-x2)*(x0-x2)*(x1-x0);
-  a0=((u2-uu1)*(x1-x0)-(x2-x1)*(uu1-u0))/d;	    
+  a0=((u2-uu1)*(x1-x0)-(x2-x1)*(uu1-u0))/d;
   a1=a0;
   b0=(uu1-u0)/(x1-x0)-a0*(x1-x0);
   b1=2*a0*(x1-x0)+b0;
@@ -765,10 +765,10 @@ void scicos_deriv_block (scicos_block * block, int flag)
 
 /**
  * scicos_extractor_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_extractor_block (scicos_block * block, int flag)
@@ -794,16 +794,16 @@ void scicos_extractor_block (scicos_block * block, int flag)
 
 /**
  * scicos_ratelimiter_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_ratelimiter_block (scicos_block * block, int flag)
 {
   /*
-   * rpar[0]=rising rate limit, rpar[1]=falling rate limit 
+   * rpar[0]=rising rate limit, rpar[1]=falling rate limit
    */
   void **work = GetPtrWorkPtrs (block);
   double *rpar = GetRparPtrs (block);
@@ -873,9 +873,9 @@ void scicos_ratelimiter_block (scicos_block * block, int flag)
 
 /**
  * scicos_variable_delay_block:
- * @block: 
- * @flag: 
- * 
+ * @block:
+ * @flag:
+ *
  **/
 
 void scicos_variable_delay_block (scicos_block * block, int flag)
@@ -1002,10 +1002,10 @@ void scicos_variable_delay_block (scicos_block * block, int flag)
 
 /**
  * scicos_gainblk_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_gainblk_block (scicos_block * block, int flag)
@@ -1031,13 +1031,41 @@ void scicos_gainblk_block (scicos_block * block, int flag)
     }
 }
 
+/* A.*u
+ * A can be scalar or have the same size as u
+ */
+
+void scicos_gainblk_tt_block (scicos_block * block, int flag)
+{
+  int i;
+  int nu = GetInPortRows (block, 1);
+  int mu = GetInPortCols (block, 1);
+  double *u = GetRealInPortPtrs (block, 1);
+  double *y = GetRealOutPortPtrs (block, 1);
+  double *rpar = GetRparPtrs (block);
+  int nrpar = GetNrpar (block);
+  if (nrpar == 1)
+    {
+      for (i = 0; i < nu*mu; ++i)
+	{
+	  y[i] = rpar[0] * u[i];
+	}
+    }
+  else
+    {
+      for (i = 0; i < nu*mu; ++i)
+	{
+	  y[i] = rpar[i] * u[i];
+	}
+    }
+}
 
 /**
  * scicos_step_func_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_step_func_block (scicos_block * block, int flag)
@@ -1064,10 +1092,10 @@ void scicos_step_func_block (scicos_block * block, int flag)
 
 /**
  * scicos_signum_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_signum_block (scicos_block * block, int flag)
@@ -1079,7 +1107,7 @@ void scicos_signum_block (scicos_block * block, int flag)
   double *_y1 = GetRealOutPortPtrs (block, 1);
   /* int phase= GetSimulationPhase(block); */
   int i, j;
-  
+
   if (flag == 1)
     {
       for (i = 0; i < GetInPortRows (block, 1); ++i)
@@ -1110,10 +1138,10 @@ void scicos_signum_block (scicos_block * block, int flag)
 
 /**
  * scicos_summation_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_summation_block (scicos_block * block, int flag)
@@ -1149,10 +1177,10 @@ void scicos_summation_block (scicos_block * block, int flag)
 
 /**
  * scicos_switch2_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_switch2_block (scicos_block * block, int flag)
 {
@@ -1239,10 +1267,10 @@ void scicos_switch2_block (scicos_block * block, int flag)
 
 /**
  * scicos_satur_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_satur_block (scicos_block * block, int flag)
 {
@@ -1311,10 +1339,10 @@ void scicos_satur_block (scicos_block * block, int flag)
 
 /**
  * scicos_logicalop_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_logicalop_block (scicos_block * block, int flag)
 {
@@ -1499,10 +1527,10 @@ void scicos_logicalop_block (scicos_block * block, int flag)
 
 /**
  * scicos_multiplex_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_multiplex_block (scicos_block * block, int flag)
@@ -1538,10 +1566,10 @@ void scicos_multiplex_block (scicos_block * block, int flag)
 
 /**
  * scicos_hystheresis_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_hystheresis_block (scicos_block * block, int flag)
@@ -1604,9 +1632,9 @@ void scicos_hystheresis_block (scicos_block * block, int flag)
 
 /**
  * scicos_ramp_block:
- * @block: 
- * @flag: 
- * 
+ * @block:
+ * @flag:
+ *
  **/
 
 void scicos_ramp_block (scicos_block * block, int flag)
@@ -1657,10 +1685,10 @@ void scicos_ramp_block (scicos_block * block, int flag)
 
 /**
  * scicos_minmax_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_minmax_block (scicos_block * block, int flag)
 {
@@ -1816,10 +1844,10 @@ void scicos_minmax_block (scicos_block * block, int flag)
 
 /**
  * scicos_modulo_count_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_modulo_count_block (scicos_block * block, int flag)
 {
@@ -1838,10 +1866,10 @@ void scicos_modulo_count_block (scicos_block * block, int flag)
 
 /**
  * scicos_mswitch_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_mswitch_block (scicos_block * block, int flag)
 {
@@ -1907,10 +1935,10 @@ void scicos_mswitch_block (scicos_block * block, int flag)
 
 /**
  * scicos_product_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_product_block (scicos_block * block, int flag)
@@ -1965,10 +1993,10 @@ void scicos_product_block (scicos_block * block, int flag)
 
 /**
  * scicos_integral_func_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_integral_func_block (scicos_block * block, int flag)
@@ -2062,10 +2090,10 @@ void scicos_integral_func_block (scicos_block * block, int flag)
 
 /**
  * scicos_evtvardly_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_evtvardly_block (scicos_block * block, int flag)
 {
@@ -2079,10 +2107,10 @@ void scicos_evtvardly_block (scicos_block * block, int flag)
 
 /**
  * scicos_relationalop_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_relationalop_block (scicos_block * block, int flag)
@@ -2097,7 +2125,7 @@ void scicos_relationalop_block (scicos_block * block, int flag)
   double *y1 = GetRealOutPortPtrs (block, 1);
   double *u2 = GetRealInPortPtrs (block, 2);
   int i =  ipar[0];
-  
+
   if (flag == 1)
     {
       if (ng != 0 && areModesFixed (block))
@@ -2140,23 +2168,23 @@ void scicos_relationalop_block (scicos_block * block, int flag)
 
 /**
  * scicos_bounce_ball_block:
- * @block: 
- * @flag: 
- * 
- * computes the dynamics of a multi balls in a box 
- * 
+ * @block:
+ * @flag:
+ *
+ * computes the dynamics of a multi balls in a box
+ *
  **/
 
 void scicos_bounce_ball_block (scicos_block * block, int flag)
 {
   /* rpar(i): mass of ball i
-   * rpar(i+n): radius of ball i 
+   * rpar(i+n): radius of ball i
    * rpar(2n+1:2n+4); [xmin,xmax,ymin,ymax]
    * x: [x1,x1',y1,y1',x2,x2',y2,y2',...,yn']
-   * n:number of ball=ny1=ny2 
-   * y1: x-coord of balls 
-   * y2: y-coord of balls 
-   *     ipar: storage de taille [nx(n-1)/2=ng]*2 
+   * n:number of ball=ny1=ny2
+   * y1: x-coord of balls
+   * y2: y-coord of balls
+   *     ipar: storage de taille [nx(n-1)/2=ng]*2
    */
   int *ipar = block->ipar;
   int *outsz = block->outsz;
@@ -2166,12 +2194,12 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
   int *jroot= block->jroot;
   int i, j, k, n= outsz[0];
   double *y1= block->outptr[0], *y2= block->outptr[1];
-  
-  /* Parameter adjustments to use index vectors starting at 1 
-   * as in Scilab (fortran) 
+
+  /* Parameter adjustments to use index vectors starting at 1
+   * as in Scilab (fortran)
    */
   --g;  --ipar;  --rpar;  --x;  --xd;  --y2;  --y1;  --jroot;
-  
+
   if (flag == 0)
     {
       double c = rpar[(n << 1) + 6];
@@ -2276,10 +2304,10 @@ void scicos_bounce_ball_block (scicos_block * block, int flag)
 
 /**
  * scicos_scalar2vector_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 void scicos_scalar2vector_block (scicos_block * block, int flag)
 {
@@ -2297,17 +2325,17 @@ void scicos_scalar2vector_block (scicos_block * block, int flag)
 
 /**
  * scicos_cstblk4_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_cstblk4_block (scicos_block * block, int flag)
 {
   /*
    * output a vector of constants out(i)=rpar(i)
-   * rpar(1:nrpar) : given constants 
+   * rpar(1:nrpar) : given constants
    */
   double *rpar = GetRparPtrs (block);
   int nrpar = GetNrpar (block);
@@ -2322,10 +2350,10 @@ void scicos_cstblk4_block (scicos_block * block, int flag)
 
 /**
  * scicos_transmit_or_zero_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_transmit_or_zero_block (scicos_block * block, int flag)
@@ -2345,10 +2373,10 @@ void scicos_transmit_or_zero_block (scicos_block * block, int flag)
 
 /**
  * scicos_mvswitch_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_mvswitch_block (scicos_block * block, int flag)
@@ -2366,10 +2394,10 @@ void scicos_mvswitch_block (scicos_block * block, int flag)
 
 /**
  * scicos_csslti4_block:
- * @block: 
- * @flag: 
- * 
- * 
+ * @block:
+ * @flag:
+ *
+ *
  **/
 
 void scicos_csslti4_block (scicos_block * block, int flag)
@@ -2378,7 +2406,7 @@ void scicos_csslti4_block (scicos_block * block, int flag)
    *   rpar(1:nx*nx)=A
    *   rpar(nx*nx+1:nx*nx+nx*nu)=B
    *   rpar(nx*nx+nx*nu+1:nx*nx+nx*nu+nx*ny)=C
-   *   rpar(nx*nx+nx*nu+nx*ny+1:nx*nx+nx*nu+nx*ny+ny*nu)=D 
+   *   rpar(nx*nx+nx*nu+nx*ny+1:nx*nx+nx*nu+nx*ny+ny*nu)=D
    */
 
   int un = 1, lb, lc, ld;
@@ -2420,4 +2448,3 @@ void scicos_csslti4_block (scicos_block * block, int flag)
 			  &un);
     }
 }
-
