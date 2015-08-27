@@ -122,6 +122,9 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     else
       gain=model.opar(1)
     end
+    if ~model.iskey['ipar'] || isempty(model.ipar) then
+      model.ipar=[0,0];
+    end
     over=model.ipar(1);
     mtype=model.ipar(2);
     model.ipar=[];
@@ -168,7 +171,7 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
 	end
 	select mtype
 	 case 0 then supp3=''
-	 case 1 then supp3=''; // to be implemented '_tt'
+	 case 1 then supp3='_tt';
 	else supp3=''
 	end
       end
@@ -187,6 +190,7 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     model.in2=in2
     model.out2=out2
     model.rpar=gain
+    model.ipar=[0,0];
     model.blocktype='c'
     model.dep_ut=[%t %f]
 
