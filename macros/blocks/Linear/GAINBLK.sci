@@ -1,5 +1,6 @@
 function [x,y,typ]=GAINBLK(job,arg1,arg2)
 // Copyright INRIA
+//
 
   function blk_draw(sz,orig,orient,label)
     orig=arg1.graphics.orig;
@@ -7,7 +8,7 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     orient=arg1.graphics.flip;
     if length(arg1.graphics.exprs(1))>6 then
       gain=part(arg1.graphics.exprs(1),1:4)+'..'
-    else 
+    else
       gain=arg1.graphics.exprs(1);
     end
     ll=length(arg1.graphics.exprs(1))
@@ -36,14 +37,14 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     hf=(1/3);
     //xrect(orig(1),orig(2)+sz(2)*(1-hf)/2+sz(2)*hf,w,hf*sz(2));
     xstringb(orig(1),orig(2)+sz(2)*(1-hf)/2,gain,w,hf*sz(2),'fill');
-  endfunction 
-  
+  endfunction
+
   x=[];y=[];typ=[];
   select job
-   case 'plot' then 
-    // no frame 
+   case 'plot' then
+    // no frame
     standard_draw(arg1,%f);
-   case 'getinputs' then 
+   case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
     [x,y,typ]=standard_outputs(arg1)
@@ -53,17 +54,22 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
-    if size(exprs,'*')==1 then exprs=[exprs;sci2exp(0)];end // compatibility
+    if size(exprs,'*') <= 1 then exprs=[exprs;sci2exp(0)];end // compatibility
+    if size(exprs,'*') <= 2 then exprs=[exprs;sci2exp(0);sci2exp(0)];end // compatibility
+    title= 'Set gain block parameters';
+    values_description=	['Gain';
+		    'Do On Overflow:\n 0=Nothing\n 1=Saturate\n 2=Error';
+		    'Mutliply:\n 0= *\n 1= .*'];
     while %t do
-      [ok,gain,over,exprs]=getvalue('Set gain block parameters',..
-				    ['Gain';..
-		    'Do On Overflow(0=Nothing 1=Saturate 2=Error)'],..
-				    list('mat',[-1,-1],'vec',1),exprs)
+      [ok,gain,over,mtype,exprs]=getvalue(title,values_description,...
+					  list('mat',[-1,-1],'vec',1,'vec',1),exprs);
       if ~ok then break,end
       if isempty(gain) then
 	message('Gain must have at least one element')
       else
-        model.ipar=over // temporary storage removed in job compile
+	mtype = min(max(int(mtype),mtype,0),1);
+        model.ipar(1)=over // temporary storage removed in job compile
+	model.ipar(2)=mtype // temporary storage removed in job compile
         model.opar(1)=gain
         ot=do_get_type(gain)
         if ot==1 then
@@ -73,17 +79,33 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
 	  ok=%f;
         end
         if ok then
-	  [out,in]=size(gain)
-	  if out*in<>1 then
-	    [model,graphics,ok]=set_io(model,graphics,...
-				       list([in,-1],ot),...
-				       list([out,-1],ot),[],[])
+	  if mtype == 0 then
+	    // *
+	    [out,in]=size(gain)
+	    if out*in<>1 then
+	      [model,graphics,ok]=set_io(model,graphics,...
+					 list([in,-1],ot),...
+					 list([out,-1],ot),[],[])
+	    else
+	      [model,graphics,ok]=set_io(model,graphics,...
+					 list([-1,-2],ot),...
+					 list([-1,-2],ot),[],[])
+	    end
 	  else
-	    [model,graphics,ok]=set_io(model,graphics,...
-				       list([-1,-2],ot),...
-				       list([-1,-2],ot),[],[])
+	    // .*
+	    [out,in]=size(gain)
+	    if out*in<>1 then
+	      [model,graphics,ok]=set_io(model,graphics,...
+					 list([out,in],ot),...
+					 list([out,in],ot),[],[])
+	    else
+	      [model,graphics,ok]=set_io(model,graphics,...
+					 list([-1,-2],ot),...
+					 list([-1,-2],ot),[],[])
+	    end
+
 	  end
-        end
+	end
 	if ok then
 	  graphics.exprs=exprs
 	  x.graphics=graphics;x.model=model
@@ -91,21 +113,27 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
 	end
       end
     end
-    
+
    case 'compile' then
     model=arg1
     ot=model.intyp
     if isequal(model.opar,list()) then
-      gain=model.rpar(1)  
+      gain=model.rpar(1)
     else
       gain=model.opar(1)
     end
-    over=model.ipar
+    over=model.ipar(1);
+    mtype=model.ipar(2);
     model.ipar=[];
-    if ot==1 then 
+    if ot==1 then
       model.rpar=double(gain(:));
       model.opar=list();
-      model.sim=list('gainblk',4);
+      select mtype
+       case 0 then supp3=''
+       case 1 then supp3='_tt'
+      else supp3=''
+      end
+      model.sim=list('gainblk'+supp3,4);
     else
       if ot==2 then
         error("Complex type is not supported");
@@ -133,17 +161,20 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
           error("Type "+string(ot)+" not supported.")
         end
         select over
-	 case 0
-          supp2='n'
-	 case 1
-          supp2='s'
-	 case 2
-          supp2='e'
-        end
+	 case 0 then supp2='n'
+	 case 1 then supp2='s'
+	 case 2 then supp2='e'
+	else supp2='n'
+	end
+	select mtype
+	 case 0 then supp3=''
+	 case 1 then supp3=''; // to be implemented '_tt'
+	else supp3=''
+	end
       end
-      model.sim=list('gainblk_'+supp1+supp2,4)
+      model.sim=list('gainblk_'+supp1+supp2+supp3,4);
     end
-    x=model    
+    x=model
 
    case 'define' then
     gain=1
