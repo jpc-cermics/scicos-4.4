@@ -266,16 +266,19 @@ function L=gtk_scicos_x_choices(desc,Li)
   button_help=gtkbutton_new(stock="gtk-help")
   button_help.connect["clicked",HelpButton,list(hbox)]
   hbox.pack_start[button_help]
+
+  button_cancel = gtkbutton_new(stock="gtk-cancel")
+  hbox.pack_start[button_cancel]
+  hbox.set_child_secondary[button_cancel,%t]
+  button_cancel.connect["clicked",CancelButton,list(hbox)]
+
   button_ok=gtkbutton_new(stock="gtk-ok")
   hbox.pack_start[button_ok]
   hbox.set_child_secondary[button_ok,%t]
   button_ok.set_flags[GTK.CAN_DEFAULT]
   button_ok.grab_default[]
   button_ok.connect["clicked",OkButton,list(hbox)]
-  button_cancel = gtkbutton_new(stock="gtk-cancel")
-  hbox.pack_start[button_cancel]
-  hbox.set_child_secondary[button_cancel,%t]
-  button_cancel.connect["clicked",CancelButton,list(hbox)]
+
   hbox.set_layout[3]
 
   function [y]=DestroyFunc(wid,event,args)
