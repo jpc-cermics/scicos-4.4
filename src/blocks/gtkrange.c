@@ -123,7 +123,7 @@ static void create_range_controls (gtkscale_data *D,double initial, double lower
   /* initial, lower,upper, step_incr, page_incr,page size */
   printf("Adjustment %f %f %f\n",initial,lower,upper);
 
-  adjustment = gtk_adjustment_new (initial , lower, upper+1.0, 0.1, 1.0, 1.0);
+  adjustment =GTK_ADJUSTMENT(gtk_adjustment_new (initial , lower, upper+1.0, 0.1, 1.0, 1.0));
   /*
      gtk_adjustment_get_value ()
      gtk_adjustment_set_value ()
