@@ -132,7 +132,7 @@ function scs_m = do_load_mdl(fname=[],warnings=%f)
   end
   nsp= getenv('NSP');
   simport= file('join',[file('split',getenv('NSP'));'bin';'simport.exe']);
-  pervasive= file('join',[file('split',getenv('NSP'));'lib']);
+  pervasive= file('join',[file('split',getenv('NSP'));'libs']);
   target_fname = file('tail',fname);
   target_fname = strsubst(target_fname,file('extension',fname),'.nsp');
   target = file('join',[file('split',getenv('NSP_TMPDIR'));target_fname]);
