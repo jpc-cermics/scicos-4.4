@@ -26,7 +26,7 @@ function [x,y,typ]=DIFF_c(job,arg1,arg2)
 	ask_again=%t
       end  
       if (N<=0 & ~ask_again) then
-	x_message('number of states must be > 0 ')
+	message('number of states must be > 0 ')
 	ask_again=%t
       end
       

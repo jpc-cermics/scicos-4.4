@@ -57,10 +57,10 @@ function [x,y,typ]=LOOKUP2D(job,arg1,arg2)
       if ~Ask_again then 
 	xx=xx(:);yy=yy(:);
 	[nx,mx]=size(xx); [ny,my]=size(yy);[nz,mz]=size(zz);
-	if ((nx<=1)|(ny<=1)) then, x_message('input row/column data size should be greater than one');  Ask_again=%t;end
-	if ~((nx==nz)&(ny==mz)) then, x_message('incompatible size of x and y');  Ask_again=%t;end
-	[ok]=test_increasing(xx);if (~ok) then  x_message('Row input values must be monotonically increasing');Ask_again=%t;end
-	[ok]=test_increasing(yy);if (~ok) then  x_message('Column input values must be monotonically increasing');Ask_again=%t;end
+	if ((nx<=1)|(ny<=1)) then, message('input row/column data size should be greater than one');  Ask_again=%t;end
+	if ~((nx==nz)&(ny==mz)) then, message('incompatible size of x and y');  Ask_again=%t;end
+	[ok]=test_increasing(xx);if (~ok) then  message('Row input values must be monotonically increasing');Ask_again=%t;end
+	[ok]=test_increasing(yy);if (~ok) then  message('Column input values must be monotonically increasing');Ask_again=%t;end
       end
       if ~Ask_again then 
 	if (graf=='Y' | graf=='y') then 

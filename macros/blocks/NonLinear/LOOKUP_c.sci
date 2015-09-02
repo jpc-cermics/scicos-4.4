@@ -47,7 +47,7 @@ function [x,y,typ]=LOOKUP_c(job,arg1,arg2)
       if ~Ask_again then 
 	xx=xx(:);yy=yy(:);
 	[nx,mx]=size(xx); [ny,my]=size(yy);
-	if ~((nx==ny)&(mx==my)) then, x_message('incompatible size of x and y');  Ask_again=%t;end
+	if ~((nx==ny)&(mx==my)) then, message('incompatible size of x and y');  Ask_again=%t;end
       end
       
       if ~Ask_again then//+++++++++++++++++++++++++++++++++++++++
@@ -544,7 +544,7 @@ function [rpar,ipar,ok]=lookup_poke_point(ixy,iparin,rparin)
       t3='Mouse-left double click: edit a point''s coordinates'
       t4='Mouse-left button press/drag/release: move a  point'
       t5='Change the window size: ''Data'' menu -> ''Databounds'''
-      x_message([t1;t2;t3;t4;t5]);
+      message([t1;t2;t3;t4;t5]);
       //---------------------------------------------------------------  
      case 'Load from Excel' then
       [tok,xytt]=lookup_read_excel()

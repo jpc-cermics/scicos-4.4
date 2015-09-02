@@ -36,7 +36,7 @@ function [x,y,typ]=CONSTRAINT2_c(job,arg1,arg2)
       end  
       
       if (N<=0 & ~ask_again) then
-	x_message('number of states (constraints) must be > 0 ')
+	message('number of states (constraints) must be > 0 ')
 	ask_again=%t
       end
       
@@ -44,7 +44,7 @@ function [x,y,typ]=CONSTRAINT2_c(job,arg1,arg2)
 	for i=1:N, 
 	  if ~((id(i)==0) | (id(i)==1)) then
 	    ask_again=%t
-	    x_message(['Id(i) must be either';'0 when x''(i) is not present in the feedback';'1: when x''(i) is present in the feedback'])
+	    message(['Id(i) must be either';'0 when x''(i) is not present in the feedback';'1: when x''(i) is present in the feedback'])
 	    break
 	  end  
 	  if (id(i)==0) then id(i)=-1;end;

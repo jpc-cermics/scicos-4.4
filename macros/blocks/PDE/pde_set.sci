@@ -187,12 +187,12 @@ function ok=pde_validate(params_pde)
 // verification du domaine
   ok=%f;
   if params_pde.a.equal[''] || params_pde.b.equal['']
-    x_message('Domain boundaries are missing');
+    message('Domain boundaries are missing');
     return;
   end
   if params_pde.rad_manuel.equal['1'] then 
     if params_pde.nnode.equal[''] then 
-      x_message(['Give the number of discretization points']);
+      message(['Give the number of discretization points']);
       return;
     end
   end
@@ -200,19 +200,19 @@ function ok=pde_validate(params_pde)
   if params_pde.check_op1=='1' || params_pde.check_op3=='1' || ...
 	params_pde.check_op4=='1' then 
     if params_pde.CI.equal[''] then 
-      x_message(['Please give the initial condition u(x,t0)']); 
+      message(['Please give the initial condition u(x,t0)']); 
       return
     end
   end
   if params_pde.check_op1=='1' then 
     if params_pde.dCI.equal[''] then 
-      x_message(['Please give the initial condition du/dt(x,t0)']);
+      message(['Please give the initial condition du/dt(x,t0)']);
       return;
     end
   end
   // verification du renseignement des conditions aux limites
   if (params_pde.CLa_exp.equal[''] ||   params_pde.CLb_exp.equal['']) then
-    x_message(['Please give expressions for the boundary conditions']);
+    message(['Please give expressions for the boundary conditions']);
   end
   ok=%t;
 endfunction

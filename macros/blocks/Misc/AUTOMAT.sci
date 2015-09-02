@@ -52,16 +52,16 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
 	ModifEncore=%t;
       end
       if (NX<>size(X0,'*')) then
-	x_message('the size of initial continuous-time states should be NX='+string(NX));
+	message('the size of initial continuous-time states should be NX='+string(NX));
 	ModifEncore=%t;
       end
       
       [rXP,cXP]=size(XP)
       if cXP<>NX then 
-	x_message('Xproperty matrix is not valid: it should have NX='+string(NX)+' columns');
+	message('Xproperty matrix is not valid: it should have NX='+string(NX)+' columns');
 	ModifEncore=%t;
       elseif ((rXP<>NMode) & (rXP>1))
-	x_message('Xproperty matrix is not valid: it should have NMode='+string(NMode)+' or 1 row(s)');
+	message('Xproperty matrix is not valid: it should have NMode='+string(NMode)+' or 1 row(s)');
 	ModifEncore=%t;
       elseif (rXP==1)
 	for i=1:NMode-1
@@ -91,12 +91,12 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
 	end 
 	
 	if MaxModes>NMode then 
-	  x_message(['Warning: Number of Modes should be '+string(MaxModes);..
+	  message(['Warning: Number of Modes should be '+string(MaxModes);..
 		     'A destination Mode in Mode#'+string(imax)+'''s targets is invalid!']);
 	  ModifEncore=%t;
 	end
 	if MaxModes<NMode then 
-	  x_message(['Warning: There is an unused Mode or the Number of Modes should be '+string(MaxModes)]);
+	  message(['Warning: There is an unused Mode or the Number of Modes should be '+string(MaxModes)]);
 	  ModifEncore=%t;
 	end
       end

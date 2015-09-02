@@ -211,7 +211,7 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,name
   eok= eok && execstr("nameF=stripblanks(Tfunam)",errcatch=%t);
   if ~eok then
     // something wrong when evaluating names 
-    x_message("Error in evaluation of variables in block MPBLOCK.")
+    message("Error in evaluation of variables in block MPBLOCK.")
     return;
   end
   //check for valid name variable
@@ -222,7 +222,7 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,name
       eok=execstr('valid=validvar(in(i))',errcatch=%t);
       if ~eok then latserror();end;
       if ~valid then
-	x_message(["Invalid variable name for the input "+string(i)+".";
+	message(["Invalid variable name for the input "+string(i)+".";
 		   """"+in(i)+"""";
 		   "Please choose another variable name."] );
 	return;
@@ -240,35 +240,35 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,name
   // type checking
   for i=1:size(intype,'*')
     if intype(i)<>'E' && intype(i)<>'I' then
-      x_message("Input type should be ''E'' or ''I''!");
+      message("Input type should be ''E'' or ''I''!");
       return;
     end
   end
   for i=1:size(outtype,'*')
     if outtype(i)<>'E'&outtype(i)<>'I' then
-      x_message("Output type should be ''E'' or ''I''!");
+      message("Output type should be ''E'' or ''I''!");
       return;
     end
   end
   //cross size checking
   if or(size(intype)<>size(in)) then
-    x_message("Input variables are not well defined!");
+    message("Input variables are not well defined!");
     return;
   end
   if or(size(outtype)<>size(out)) then
-    x_message("Output variables are not well defined!");
+    message("Output variables are not well defined!");
     return;
   end
   //check param properties
   pprop = pprop(:);
   if (size(param,'*')<>size(pprop,'*')) then
-    x_message(["There is differences in";
+    message(["There is differences in";
 	       "size of param and size ";
 	       "of param properties." ])
     return;
   end
   if max(pprop)>2 | min(pprop)<0 then
-    x_message(["Parameters properties must be :";
+    message(["Parameters properties must be :";
 	       "0 : if it is a paramaters";
 	       "1 : if it is an initial value of state,";
 	       "2 : it it is a fixed initial state value." ])
@@ -276,7 +276,7 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,name
   end
   //check name of modelica file
   if nameF=='' then
-    x_message("The model name is not defined!")
+    message("The model name is not defined!")
     return;
   end
   // 

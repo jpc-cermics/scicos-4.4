@@ -52,7 +52,7 @@ function [x,y,typ]=CURVE_c(job,arg1,arg2)
       mtd=max(min(int(Method),9),0);
       xx=xx(:);yy=yy(:);
       if ~size(xx).equal[size(yy)] then 
-	x_message('incompatible size of x and y');
+	message('incompatible size of x and y');
 	// return to while 
 	continue; 
       end
@@ -418,19 +418,19 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
       px=strindex(Cformat,'%');
       NC=size(px,'*');    
       if isempty(NC) then, 
-	x_message('Bad format for reading data file (see fscanfMat)');
+	message('Bad format for reading data file (see fscanfMat)');
 	continue;
       end
       Lx=[];
       try
 	Lx=fscanfMat(filen);
       catch
-	x_message('cannot open/read data file:'+filen);
+	message('cannot open/read data file:'+filen);
 	continue;
       end 
       [nD,mD]=size(Lx);
-      if ((mD==0) | (nD==0)) then, x_message('No data read');sok=%f;break;end
-      if (mD < 2 ) then, x_message('unable to read two columns in data file');continue;end
+      if ((mD==0) | (nD==0)) then, message('No data read');sok=%f;break;end
+      if (mD < 2 ) then, message('unable to read two columns in data file');continue;end
       xe=Lx(:,Cx);ye=Lx(:,Cy);
       xye=[xe,ye];
       [xye]=curve_cleandata(xye)
@@ -450,14 +450,14 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
       px=strindex(Cformat,'%');
       NC=size(px,'*');    
       if NC<>1 then 
-	x_message('Bad format for writing data (see fprintfMat)');
+	message('Bad format for writing data (see fprintfMat)');
 	sok=%f;
 	continue;
       end
       try
 	fprintfMat(filen,xye,format=Cformat)
       catch
-	x_message('Cannot open or write with given format to data file '''+filen+'''');
+	message('Cannot open or write with given format to data file '''+filen+'''');
       finally
 	sok=%t;
 	break,
@@ -830,7 +830,7 @@ function [rpar,ipar,ok]=edit_spline(ixy,ipar,rpar,win=%t)
       //---------------------------------------------------------------  
       t1='Add or remove control points with mouse right button press'
       t2='Move control points with mouse left button press/move'
-      x_message([t1;t2]);
+      message([t1;t2]);
      case 'Edit points' then
       //---------------------------------------------------------------  
       editvar('xy');

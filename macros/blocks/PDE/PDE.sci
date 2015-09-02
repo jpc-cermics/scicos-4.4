@@ -59,7 +59,7 @@ function [x,y,typ]=PDE(job,arg1,arg2)
 	if ~ok then return;end// cancel in menu 
 	rdnom=stripblanks(rdnom);
 	if rdnom.equal[''] then 
-	  x_message('Blocks name should not be an empty string');
+	  message('Blocks name should not be an empty string');
 	  continue;
 	else
 	  break;
@@ -81,7 +81,7 @@ function [x,y,typ]=PDE(job,arg1,arg2)
 	elseif (signe == 0) then,
 	  delta=0;
 	else
-	  x_message(['Dicriminant is not constant';
+	  message(['Dicriminant is not constant';
 		     'You must select a sign in gui']);
 	  return;
 	end
