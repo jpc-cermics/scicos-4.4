@@ -96,7 +96,7 @@ function [ok,scs_m,%cpr,edited,context]=do_import_mdl()
   gh.connect_after["destroy",scicos_destroy];
 endfunction
 
-function scs_m = do_load_mdl(fname=[],warnings=%f)
+function scs_m = do_load_mdl(fname=[],warnings=%f,check_companion=%t)
 // load a mdl diagram or a slx
 // can be used outside of scicos function
 // Reste a faire les companion files
@@ -144,7 +144,7 @@ function scs_m = do_load_mdl(fname=[],warnings=%f)
   if file('exists',companion) then
     cmd.concatr[['-ccf',companion]];
   else
-    if isempty(%scicos_demo_mode) then
+    if check_companion then 
       l1=list('combo','Answer',1,['Yes','No']);
       title = ['Is there a Matlab companion file ';
 	       sprintf('to file %s',fname)];
