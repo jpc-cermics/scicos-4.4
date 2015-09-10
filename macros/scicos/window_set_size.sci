@@ -58,7 +58,7 @@ function window_set_size(win,viewport,invalidate=%t)
       vpage_size = vscrollbar.get_page_size[];
     else
       hpage_size = hscrollbar.page_size;
-      vpage_size = hscrollbar.page_size;
+      vpage_size = vscrollbar.page_size;
     end
     %XSHIFT=(int(wdim(1))-hpage_size)/2
     %YSHIFT=(int(wdim(2))-vpage_size)/2
