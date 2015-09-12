@@ -1,15 +1,18 @@
 function pwindow_set_size()
   // printf("debug: inside pwindow_set_size\n");
   rect=dig_bound(scs_m);
-  if ~isempty(rect) then 
-    %diag_size=[rect(3)-rect(1),rect(4)-rect(2)];
-    %wsiz=[max(400,%diag_size(1)),max(300, %diag_size(2))];
+  if isempty(rect) then 
+    wdim=[600,400];
   else
-    %wsiz=[600/%zoom,400/%zoom]
-  end
-  %wdd=min(933, %zoom*%wsiz(1))+30;
-  %hdd=min(700, %zoom*%wsiz(2))+30
-  %hdd=%hdd+50
-  xset('wdim',int(max(400,%wdd)),int(max(300,%hdd)))
-  xset('wpdim',int(max(400,%wdd)),int(max(300,%hdd)))
+    wdim=%zoom*[rect(3)-rect(1),rect(4)-rect(2)]+[50,100];
+  end;
+  
+  D=gdk_display_get_default();
+  S=D.get_default_screen[]
+  wdim_max= [S.get_width[] S.get_height[]];
+  
+  wdim = max(min(wdim,wdim_max),[400,300]);
+  xset('wdim',wdim(1),wdim(2));
+  xset('wpdim',wdim(1),wdim(2));
 endfunction
+
