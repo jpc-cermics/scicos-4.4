@@ -3,6 +3,7 @@ function scs_m=scs_show(scs_m,win)
 // in a new graphic window win.
 // This is very similar to do_export_gwin 
 // Copyright INRIA/Enpc
+  %zoom=acquire('%zoom',def=1);
   if nargin <= 1 then win=1;end
   edited=%f
   scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);
