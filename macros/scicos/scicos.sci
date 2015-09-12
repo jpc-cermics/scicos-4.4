@@ -82,7 +82,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   if ~exists('needcompile') then needcompile=0;
   else needcompile=needcompile;
   end
-
+  
 
   if nargin >=1 then
     if type(scs_m,'string')== 'SMat' then //diagram is given by its filename
@@ -425,7 +425,7 @@ function scs_m=scicos_leave(scs_m)
     end
   end
   if ~ok then
-    message(['Problem saving a backup; I cannot activate ScicosLab.';
+    message(['Problem saving a backup; I cannot activate nsp.';
 	     'Save your diagram scs_m manually.'])
     pause saving scs_m;
   end
@@ -438,7 +438,7 @@ function scs_m=scicos_leave(scs_m)
   save(file('join',[getenv('NSP_TMPDIR');'AllWindows']),AllWindows);
   printf('%s\n','To reactivate Scicos, click on a diagram or type '"scicos();'"')
   if edited then
-    printf('%s\n','Your diagram is not saved. Do not quit ScicosLab or "+...
+    printf('%s\n','Your diagram is not saved. Do not quit nsp or "+...
 	   "open another Scicos diagram before returning to Scicos.')
   end
 endfunction
