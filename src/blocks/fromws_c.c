@@ -425,7 +425,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
   /* be sure that matrix is double converted */
   Mat2double((NspMatrix *) Time);
   D->time = (NspMatrix *) Time;
-  if ( !IsCells(Values) == FAIL) return FAIL;
+  if ( ! IsCells(Values)) return FAIL;
   D->values = (NspCells *) Values;
   if ( ((NspMatrix *) Time)->mn != ((NspCells *) Values)->mn) 
     {
