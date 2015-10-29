@@ -77,49 +77,76 @@ function L=gtk_scicos_x_choices(desc,Li)
       label.set_justify[GTK.JUSTIFY_LEFT]
       if exists('gtk_get_major_version','function') then
 	// gtk3
+	// r1=gtk_requisition_new()
+	// r2=gtk_requisition_new()
+	// width_labels(i)=label.get_preferred_size[r1,r2];
       else
-	label.set_alignment[0,0.5]
+	label.set_alignment[0,0.5];
+	width_labels(i)=label.size_request[](1)	
       end
       labels(i)=label
-      width_labels(i)=label.size_request[](1)
-      //label.set_size_request[260,-1]
-
+      
       if Li(i)(1)=='entry' then
         entry = gtkentry_new();
         entry.set_width_chars[width_entry]
         entry.set_text[Li(i)(4)]
         //entry.modify_font[font_desc]
         adjustment=gtkadjustment_new(value=0,lower=0,upper=0,step_incr=1,page_incr=1,page_size=30)
-        scrollbar=gtkhscrollbar_new(adjustment=adjustment)
-        scrollbar.set_update_policy[GTK.UPDATE_CONTINUOUS]
+	if exists('gtk_get_major_version','function') then
+	  scrollbar=gtk_scrollbar_new(GTK.ORIENTATION_HORIZONTAL,adjustment=adjustment);
+	else
+	  scrollbar=gtkhscrollbar_new(adjustment=adjustment);
+	  scrollbar.set_update_policy[GTK.UPDATE_CONTINUOUS]
+	end
         scrollbar.set_no_show_all[%t]
         //store width and scrollbar widget in entry user_data
         entry.user_data=list(width_entry,scrollbar)
-        table_entry=gtktable_new(rows=2,columns=2,homogeneous=%f)
-        table_entry.attach[label, 0, 1, 0, 1,xoptions=0]
-        table_entry.attach[entry, 1, 2, 0, 1]
-        table_entry.attach[scrollbar, 1, 2, 1, 2]
-        table_entry.set_col_spacings[2]
-        table_entry.queue_resize[]
-        vbox.pack_start[table_entry,expand=%t,fill=%f,padding=0]
+	if exists('gtk_get_major_version','function') then
+	  table_entry=gtk_grid_new();
+	  table_entry.set_row_spacing [ 2];
+	  table_entry.set_column_spacing [ 2];
+	  table_entry.attach[label, 0, 0, 1, 1]
+	  table_entry.attach[entry, 1, 0, 1, 1]
+	  table_entry.attach[scrollbar, 1, 1, 1, 1]
+	  table_entry.queue_resize[]
+	else
+	  table_entry=gtktable_new(rows=2,columns=2,homogeneous=%f)
+	  table_entry.attach[label, 0, 1, 0, 1,xoptions=0]
+	  table_entry.attach[entry, 1, 2, 0, 1]
+	  table_entry.attach[scrollbar, 1, 2, 1, 2]
+	  table_entry.set_col_spacings[2]
+	  table_entry.queue_resize[]
+	end
+	vbox.pack_start[table_entry,expand=%t,fill=%f,padding=0]
         entries(i)=entry
       elseif Li(i)(1)=='combo' then
         combo=gtkcombobox_new(text=Li(i)(4))
         combo.set_active[Li(i)(3)-1]
         //combo.modify_font[font_desc]
-        table_entry=gtktable_new(rows=1,columns=2,homogeneous=%f)
-        table_entry.attach[label, 0, 1, 0, 1,xoptions=0]
-        table_entry.attach[combo, 1, 2, 0, 1]
-        vbox.pack_start[table_entry,expand=%t,fill=%f,padding=0]
-        entries(i)=combo
+        if exists('gtk_get_major_version','function') then
+	  table_entry=gtk_grid_new();// rows=1,columns=2,homogeneous=%f)
+	  table_entry.attach[label, 0, 0, 1, 1]
+	  table_entry.attach[combo, 1, 0, 1, 1]
+	else
+	  table_entry=gtktable_new(rows=1,columns=2,homogeneous=%f)
+	  table_entry.attach[label, 0, 1, 0, 1,xoptions=0]
+	  table_entry.attach[combo, 1, 2, 0, 1]
+	end
+	vbox.pack_start[table_entry,expand=%t,fill=%f,padding=0]
+	entries(i)=combo
       end
     end
 
     //adjust label width
+
+
     width_label=min(max(width_labels),270)
-    for i=1:n
-      labels(i).set_line_wrap[%t]
-      labels(i).set_size_request[width_label,-1]
+    if exists('gtk_get_major_version','function') then
+    else
+      for i=1:n
+	labels(i).set_line_wrap[%t]
+	labels(i).set_size_request[width_label,-1]
+      end
     end
   endfunction
 
@@ -260,7 +287,13 @@ function L=gtk_scicos_x_choices(desc,Li)
     gtk_main_quit()
   endfunction
 
-  hbox=gtkhbuttonbox_new()
+  if exists('gtk_get_major_version','function') then
+    hbox=gtk_button_box_new(GTK.ORIENTATION_HORIZONTAL);
+  else
+    hbox=gtkhbuttonbox_new();
+  end
+
+  
   hbox.user_data=0
   vbox.pack_start[hbox,expand= %f,fill=%t,padding=2]
   button_help=gtkbutton_new(stock="gtk-help")
@@ -275,7 +308,11 @@ function L=gtk_scicos_x_choices(desc,Li)
   button_ok=gtkbutton_new(stock="gtk-ok")
   hbox.pack_start[button_ok]
   hbox.set_child_secondary[button_ok,%t]
-  button_ok.set_flags[GTK.CAN_DEFAULT]
+  
+  if exists('gtk_get_major_version','function') then
+  else
+    button_ok.set_flags[GTK.CAN_DEFAULT]
+  end
   button_ok.grab_default[]
   button_ok.connect["clicked",OkButton,list(hbox)]
 
