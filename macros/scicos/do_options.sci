@@ -2,9 +2,9 @@ function [edited,options]=do_options(opt,flag)
 // Copyright INRIA
 // nsp adpatations jpc 
     
-  function rgb=do_options_color_rgb()
+  function rgb=do_options_color_rgb_gtk2()
   // interactive selection of a new color 
-  // 
+  // gtk2
     window = gtkcolorselectiondialog_new ("Color selection dialog");
     window.help_button.hide[];
     window.set_position[GTK.WIN_POS_MOUSE]
@@ -23,6 +23,29 @@ function [edited,options]=do_options(opt,flag)
     window.destroy[];
   endfunction
 
+  function rgb=do_options_color_rgb_gtk3()
+  // gtk3 version 
+    flags = ior(GTK.DIALOG_MODAL, GTK.DIALOG_DESTROY_WITH_PARENT),
+    window = gtkdialog_new(title= "Color selection dialog",flags = flags,...
+			   buttons = ["Cancel","OK"]);
+    // window.set_border_width[0];
+    vbox = window.get_content_area[];
+    label = gtk_label_new (str="Pick a color");
+    vbox.add[label];
+    picker = gtk_color_button_new ();
+    picker.set_use_alpha[%t];
+    vbox.add[picker];
+    window.show_all[];
+    response = window.run[];
+    if response == 2 then 
+      rgba = picker.get_rgba[];
+      rgb = [rgba.red, rgba.green, rgba.blue];
+    else
+      rgb=[];
+    end
+    window.destroy[];
+  endfunction
+    
   colors=m2s(1:xget("lastpattern")+2,"%1.0f");
   fontsSiz=['08','10','12','14','18','24'];
   fontsIds=[ 'Courrier','Symbol','Times','Times Italic',...
@@ -91,7 +114,11 @@ function [edited,options]=do_options(opt,flag)
   elseif flag=='Cmap' then
     // add a color to colormap.
     cmap=options('Cmap')
-    rgb=do_options_color_rgb();
+    if exists('gtk_get_major_version','function') then
+      rgb=do_options_color_rgb_gtk3();
+    else
+      rgb=do_options_color_rgb_gtk2();
+    end
     options('Cmap')=[options('Cmap');rgb];
     set_cmap(options('Cmap'));    
     if options('Background')==xget('lastpattern')+2 then
