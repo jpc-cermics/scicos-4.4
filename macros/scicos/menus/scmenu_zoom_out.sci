@@ -16,8 +16,8 @@ function scmenu_zoom_out()
     end
   end
 
-  window_set_size(curwin,%f,invalidate=%f);
-
+  window_set_size(curwin,%f,invalidate=%f,popup_dim=%f);
+  
   //we need redraw text and some blocks
   //with not filled text
   [scs_m]=scmenu_redraw_zoomed_text(scs_m,F);

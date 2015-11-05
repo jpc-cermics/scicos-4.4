@@ -15,7 +15,7 @@ function %zoom=restore(curwin,%zoom)
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end
   
-  if size(scs_m.props.wpar,'*')>12 then
+  if size(scs_m.props.wpar,'*') > 12 then
     // we already have sizes recorded in scs_m
     gh=nsp_graphic_widget(curwin);
     winsize=scs_m.props.wpar(9:10)
@@ -28,11 +28,11 @@ function %zoom=restore(curwin,%zoom)
       scs_m=scs_m;
       scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
     end
-    %zoom=scs_m.props.wpar(13)
+    %zoom=scs_m.props.wpar(13);
     pwindow_read_size()
     window_read_size()
   else
-    pwindow_set_size()
+    // set up defaut size 
     window_set_size()
   end
 endfunction

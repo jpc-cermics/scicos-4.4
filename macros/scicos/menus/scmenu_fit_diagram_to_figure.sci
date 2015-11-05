@@ -44,7 +44,7 @@ function scmenu_fit_diagram_to_figure()
        end
      end
 
-     window_set_size(curwin,%f,invalidate=%f);
+     window_set_size(curwin,%f,invalidate=%f,popup_dim=%f);
      // see scmenu_zoom_in
      //  need redraw text and some blocks
      //  with not filled text.
