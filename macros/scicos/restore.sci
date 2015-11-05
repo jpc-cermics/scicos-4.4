@@ -29,38 +29,20 @@ function %zoom=restore(curwin,%zoom)
       scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
     end
     %zoom=scs_m.props.wpar(13);
-    pwindow_read_size()
-    window_read_size()
+    window_set_size(curwin,read=%t);
   else
     // set up defaut size 
     window_set_size()
   end
 endfunction
 
-function [frect,axsize,viewport,winsize,winpos,pagesize]=get_curwpar(win)
-  frect=[];axsize=[];viewport=[]
-  winsize=[];winpos=[];pagesize=[]
-
-  F=get_current_figure()
-  A=F.children(1)
-  gh=nsp_graphic_widget(win)
-
-  winsize=gh.get_size[];
-  axsize=xget("wdim")
-  frect=A.frect;
-  winpos=gh.get_position[];
-
-  Vbox=gh.get_children[]
-  Vbox=Vbox(1)
-  ScrolledWindow=Vbox.get_children[]
-  ScrolledWindow=ScrolledWindow($)
-  hscrollbar=ScrolledWindow.get_hadjustment[]
-  vscrollbar=ScrolledWindow.get_vadjustment[]
-  if exists('gtk_get_major_version','function') then
-    viewport=[hscrollbar.get_value[], vscrollbar.get_value[]];
-    pagesize=[hscrollbar.get_page_size[] vscrollbar.get_page_size[]];
-  else
-    viewport=[hscrollbar.value vscrollbar.value]
-    pagesize=[hscrollbar.page_size vscrollbar.page_size]
-  end
+function [frect, wdim, viewport, wpdim, winpos]=get_curwpar(win)
+// XXX: a revoir pour win 
+  [_v,frect]=xgetech();
+  wdim = xget('wdim');
+  viewport=xget('viewport');
+  wpdim = xget('wpdim');
+  winpos= xget('wpos');
 endfunction
+
+

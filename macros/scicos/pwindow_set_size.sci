@@ -1,5 +1,6 @@
 function pwindow_set_size()
   printf("enter: pwindow_set_size\n");
+  return;
   rect=dig_bound(scs_m);
   if isempty(rect) then 
     wdim=[600,400];

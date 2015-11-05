@@ -92,11 +92,9 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
     xclear(curwin,gc_reset=%f);
     xselect()
   end;
-  if size(scs_m.props.wpar,'*')>12 then
-    //Alan : seems to be not needed
-    // get screen size (do not suppose that we have a graphic window)
+  if size(scs_m.props.wpar,'*') > 12 then
+    // should be moved in window_set_size
     screensz=[gdk_screen_width(), gdk_screen_height()];
-    // 
     winsize=scs_m.props.wpar(9:10)
     winpos=scs_m.props.wpar(11:12)
     if min(winsize)>0 then
@@ -105,9 +103,9 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
       scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
     end
     %zoom=scs_m.props.wpar(13)
-    pwindow_read_size();
-    window_read_size();
+    window_set_size(curwin,%f,invalidate=%f,popup_dim=%t,read=%t);
   else
+    printf("do_open calls window_set_size\n");
     // If we already have a window it's maybe not usefull to change it
     %zoom=1.4
     window_set_size(curwin,%f,invalidate=%f,popup_dim=%t); // 

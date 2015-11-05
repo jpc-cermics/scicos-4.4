@@ -89,7 +89,12 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
     %cpr=list()
   end
 
-  // jpc: test if directory is writable
+  // store dimensions in the diagram 
+  if %t then 
+    [frect, wdim, viewport, wpdim, winpos]=get_curwpar();
+    scs_m.props.wpar = [frect, wdim, viewport, wpdim, winpos, %zoom];
+  end
+// jpc: test if directory is writable
   if file('writable',path) == %f then
     message(['Directory write access denied '''+path+'''']);  // ;lasterror()])
     ok=%f
