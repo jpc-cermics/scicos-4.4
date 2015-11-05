@@ -943,11 +943,12 @@ scicos_readf_block (int *flag, int *nevprt, const double *t, double *xd,
   --u;
   --z;
   --x;
-
+  
   F = (NspFile *) NSP_POINTER_CAST_TO_INT z[3];
 
   if (*flag == 1)
     {
+      /* Sciprintf("Info:scicos_readf_block with flag 1\n"); */
       /*     discrete state */
       k = (int) z[1];
       kmax = (int) z[2];
@@ -991,15 +992,16 @@ scicos_readf_block (int *flag, int *nevprt, const double *t, double *xd,
     }
   else if (*flag == 4)
     {
-      char str[FSIZE];
-      char fname[FSIZE + 1];
+      /* Sciprintf("Info:scicos_readf_block with flag 4\n"); */
+      char str[FSIZE+1];
+      char fname[FSIZE+1];
       int i;
       /* get the file name from its ascii code  */
       for (i = 0; i < rf->lfil; i++)
 	str[i] = *(&rf->fname + i);
       str[rf->lfil] = '\0';
       nsp_path_expand (str, fname, FSIZE);
-      /* sciprint("Trying to open [%s] in readf\n",str); */
+      /* Sciprintf("Trying to open [%s] in readf\n",fname); */
       if ((F = nsp_file_open (fname, "r", FALSE, FALSE)) == NULL)
 	{
 	  Scierror
@@ -1012,6 +1014,7 @@ scicos_readf_block (int *flag, int *nevprt, const double *t, double *xd,
       z[3] = NSP_POINTER_CAST_TO_INT F;
       /*     buffer initialisation */
       no = (*nz - 3) / rf->n;
+      /* Sciprintf("Je rentre dans bfrdr\n"); */
       if (bfrdr (F, rf, ipar, &z[4], &no, &kmax) == FAIL)
 	{
 	  Scierror ("Error: read error in %s !\n", str);
@@ -1021,8 +1024,10 @@ scicos_readf_block (int *flag, int *nevprt, const double *t, double *xd,
 	  z[3] = 0.0;
 	  return;
 	}
+      /* Sciprintf("Je sorts de bfrdr\n"); */
       z[1] = 1.;
       z[2] = (double) kmax;
+      /* Sciprintf("Code for F %ld z[3] %ld\n",(unsigned long int) F,z[3]); */
     }
   else if (*flag == 5)
     {
@@ -1041,6 +1046,8 @@ int bfrdr (NspFile * F, readf_ipar * rf, int *ipar, double *z, int *no,
   int i, j, imask, mm;
   double tmp[100];
 
+  /* Sciprintf("Je suis dans bfrdr avec %ld\n",(unsigned long int) F); */
+
   /*      no=(nz-3)/N */
   /*     maximum number of value to read */
   imask = rf->lfil + 5 + rf->lfmt - 1;
@@ -1058,27 +1065,36 @@ int bfrdr (NspFile * F, readf_ipar * rf, int *ipar, double *z, int *no,
     }
   else
     {
-      for (i = 0; i < rf->lfmt; i++)
-	fmt[i] = *(&rf->fname + rf->lfil + i);
-      fmt[rf->lfmt] = '\0';
+      /* we do not use the format given by user
+       * the only possible format here is %lf 
+       */
+      strcpy (fmt, "%lf");
     }
+  
+  /* Sciprintf("We fill a buffer of length %d\n",rf->n); */
 
   for (i = 1; i <= rf->n; ++i)
     {
+      /* Sciprintf("We read a block of %d values with format %s\n",mm,fmt); */
       for (j = 1; j <= mm; ++j)
 	{
-	  int ns = fscanf (F->obj->file, fmt, &tmp[j - 1]);
+	  double d;
+	  int ns = fscanf (F->obj->file, fmt, &d);
+	  tmp[j - 1]=d;
 	  /* printf("read = %s %lf\n",fmt,tmp[j - 1]); */
 	  /* Here we should be able to return to 
 	   * scicos a stop to tell that we have 
 	   * reached the end of file. 
 	   * or have a special event port for that.
 	   */
+	  /* Sciprintf("ns=%d\n",ns); */
+	  /* Sciprintf("[%f]\n",tmp[j - 1]); */
 	  if (ns == EOF)
 	    tmp[j - 1] = 0.0;
 	  else if (ns != 1)
 	    return FAIL;
 	}
+      /* Sciprintf("We store record %d of size %d in z\n",i,*no); */
       for (j = 0; j <= *no - 1; ++j)
 	{
 	  z[j * rf->n + i - 1] = tmp[ipar[imask + j] - 1];
