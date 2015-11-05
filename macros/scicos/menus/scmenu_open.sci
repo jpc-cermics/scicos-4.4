@@ -110,9 +110,9 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   else
     // If we already have a window it's maybe not usefull to change it
     %zoom=1.4
-    pwindow_set_size()
-    window_set_size()
+    window_set_size(curwin,%f,invalidate=%f,popup_dim=%t); // 
   end
+  
   // be sure that colormap is updated adding diagram colors
   if ~set_cmap(scs_m.props.options('Cmap')) then 
     // if failed to add colors and 3D exists. set 3d color to gray.
@@ -130,6 +130,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   gh=nsp_graphic_widget(curwin);
   gh.connect_after["delete_event", scicos_delete];
   gh.connect_after["destroy",scicos_destroy];
+  xflush();
 endfunction
 
 function [y]=scicos_delete(win, event) 
