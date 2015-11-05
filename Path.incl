@@ -1,2 +1,2 @@
-SCIDIR=../..
-SCIDIR1=..\..
+SCIDIR=/usr/local/src/nsp2-trunk-gtk3
+SCIDIR1=\usr\local\src\nsp2-trunk-gtk3

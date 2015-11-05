@@ -9,21 +9,21 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
   function [wpdim]=scrolled_window_compute_size(rect)
   // utility to evaluate popup size knowing 
   // the data rectangle (given by dig_bound(scs_m));
-    printf("enter: scrolled_window_compute_size\n");
+  // printf("enter: scrolled_window_compute_size\n");
     if isempty(rect) then rect=[0,0,600,400];end
     wdim=%zoom*[rect(3)-rect(1),rect(4)-rect(2)]+[50,100];
     D=gdk_display_get_default();
     S=D.get_default_screen[]
     wdim_max= [S.get_width[] S.get_height[]];
     wpdim = max(min(wdim,wdim_max),[400,300]);
-    printf("quit: scrolled_window_compute_size (%d,%d)\n",wpdim(1),wpdim(2));
+    // printf("quit: scrolled_window_compute_size (%d,%d)\n",wpdim(1),wpdim(2));
   endfunction
   
   function [frect,wdim]=darea_window_compute_size(rect)
   // compute proper frect and wdim for drawing area
   // when data is contained in rect (rect can be computed with 
   // dig_bound(scs_m);
-    printf("enter: darea_compute_size\n");
+    // printf("enter: darea_compute_size\n");
     if isempty(rect) then rect=[0,0,600,400], end
     w = (rect(3)-rect(1));
     h = (rect(4)-rect(2));
@@ -41,7 +41,7 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
     ymin=rect(4)-hp*(by+(1/ay))+margins(3)*hp
     xmax=xmin+wp; ymax=ymin+hp;
     frect=[xmin ymin xmax ymax];
-    printf("quit: darea_compute_size (%d,%d),zoom=%f\n",wdim(1),wdim(2),%zoom);
+    // printf("quit: darea_compute_size (%d,%d),zoom=%f\n",wdim(1),wdim(2),%zoom);
   endfunction
   
   if ~exists('scs_m') then scs_m=hash(10);end
@@ -54,6 +54,7 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
   // should be done at window creation not here
   xset('window',win)
   if xget('wresize') ~= 2 then xset('wresize',2);end
+  
   bounds=dig_bound(scs_m);
   if isempty(bounds) then bounds = [0,0,400,300];end
   if read then 
@@ -76,10 +77,10 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
   end
   
   if ~isempty(bounds) then
-    printf("window_set_size: set wdim to (%d,%d)\n",wdim(1),wdim(2));  
+    // printf("window_set_size: set wdim to (%d,%d)\n",wdim(1),wdim(2));  
     xset('wdim',wdim(1),wdim(2));
     if popup_dim then 
-      printf("window_set_size: set wpdim to (%d,%d)\n",wpdim(1),wpdim(2));  
+      // printf("window_set_size: set wpdim to (%d,%d)\n",wpdim(1),wpdim(2));  
       xset('wpdim',wpdim(1),wpdim(2));
     end
   end
@@ -99,12 +100,11 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
     // use given values 
     xset('viewport',viewport(1),viewport(2));
   end
-  if invalidate then
+  if %f && invalidate then
     F=get_current_figure()
     F.invalidate[]
     F.process_updates[]
   end;
-  xflush();
   printf("quit: window_set_size\n");
 endfunction
 
