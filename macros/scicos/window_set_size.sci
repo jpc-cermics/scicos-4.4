@@ -56,10 +56,13 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
   if xget('wresize') ~= 2 then xset('wresize',2);end
   bounds=dig_bound(scs_m);
   
-  if read then 
+  if %f && read && ~isempty(bounds) then 
     // just read dimensions in scs_m 
     // wpar = [frect, wdim, viewport, wpdim, winpos];
-    mrect=scs_m.props.wpar(1:4);
+    // mrect=scs_m.props.wpar(1:4);
+    // we recompute mrect which is not properly coded in 
+    // old diagrams
+    [mrect,_wdim]=darea_window_compute_size(bounds);
     wdim=scs_m.props.wpar(5:6);
     viewport=scs_m.props.wpar(7:8);
     wpdim = scs_m.props.wpar(9:10);

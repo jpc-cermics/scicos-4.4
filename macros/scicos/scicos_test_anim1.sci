@@ -71,7 +71,7 @@ endfunction
 
 
 function scicos_test_anim2(N=100,opengl=%f,poly_d=%t);
-  load('NSP/macros/scicos_no_xor/scicos_test_anim.cos');
+  // load('NSP/macros/scicos_no_xor/scicos_test_anim.cos');
   xclear();
   xinit(opengl=opengl);
   //xsetech(frect=[0,0,1000,1000]);

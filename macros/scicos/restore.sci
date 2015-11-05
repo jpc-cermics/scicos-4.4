@@ -29,7 +29,7 @@ function %zoom=restore(curwin,%zoom)
       scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
     end
     %zoom=scs_m.props.wpar(13);
-    window_set_size(curwin,read=%t);
+    window_set_size(curwin,%f,read=%t);
   else
     // set up defaut size 
     window_set_size()
