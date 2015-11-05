@@ -55,8 +55,8 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
   xset('window',win)
   if xget('wresize') ~= 2 then xset('wresize',2);end
   bounds=dig_bound(scs_m);
-  
-  if %f && read && ~isempty(bounds) then 
+  if isempty(bounds) then bounds = [0,0,400,300];end
+  if read then 
     // just read dimensions in scs_m 
     // wpar = [frect, wdim, viewport, wpdim, winpos];
     // mrect=scs_m.props.wpar(1:4);
