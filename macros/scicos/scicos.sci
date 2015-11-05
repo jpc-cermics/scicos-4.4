@@ -243,8 +243,8 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 
     if or(winsid()==curwin) then
       if edited then
-	[frect, wdim, viewport, wpdim, winpos]=get_curwpar();
-        %curwpar=[frect,axsize,viewport,winsize,winpos,%zoom];
+	%curwpar=get_curwpar();
+        %curwpar=[%curwpar,%zoom];
         if ~isequal(scs_m.props.wpar,%curwpar) then
           scs_m.props.wpar=%curwpar
         end
