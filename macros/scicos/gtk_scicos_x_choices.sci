@@ -62,8 +62,8 @@ function L=gtk_scicos_x_choices(desc,Li)
       table=gtktable_new(rows=n,columns=2,homogeneous=%f)
       table.set_col_spacings[5]
       for i=1:n
-	table.attach[labels(i), 0, 1, 0, 1,xoptions=0];
-	table.attach[entries(i), 1, 2, 0, 1];
+	table.attach[labels(i), 0, 1, i-1, i,xoptions=0];
+	table.attach[entries(i), 1, 2, i-1 , i];
       end
     end 
   endfunction
@@ -144,15 +144,14 @@ function L=gtk_scicos_x_choices(desc,Li)
   
   [title,tag]=get_title();
   dialog.set_title[title];
-  dialog.set_vexpand[%f];    
   
   if exists('gtk_get_major_version','function') then
+    dialog.set_vexpand[%f];    
     vbox = gtk_box_new (GTK.ORIENTATION_VERTICAL);
     vbox.set_hexpand[%t];
     vbox.set_vexpand[%f];
   else
     vbox = gtkvbox_new ();
-    hbox = win.action_area;
   end
   vbox.set_border_width[5];
   dialog.add[vbox,expand= %f,fill=%t];
@@ -200,7 +199,7 @@ function L=gtk_scicos_x_choices(desc,Li)
     hbox.user_data=0
     vbox.pack_start[hbox,expand= %f,fill=%t,padding=2]
     button_help=gtkbutton_new(stock="gtk-help")
-    button_help.connect["clicked", help_calback,list(dialog)]
+    // button_help.connect["clicked", help_calback,list(dialog)]
     hbox.pack_start[button_help]
     button_cancel = gtkbutton_new(stock="gtk-cancel")
     hbox.pack_start[button_cancel]
