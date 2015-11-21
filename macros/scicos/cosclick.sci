@@ -17,8 +17,12 @@ function [btn,%pt,win,Cmenu]=cosclick()
       win_tooltip.set_skip_pager_hint[%t]
       win_tooltip.set_accept_focus[%f]
     end
-    screen=win_tooltip.get_root_window[]
-    pos=screen.get_pointer[]
+    // win_tooltip.get_root_window is deprecated 
+    // screen=win_tooltip.get_root_window[]
+    // pos=screen.get_pointer[]
+    screen = gdk_screen_get_default();
+    root = screen.get_root_window[];
+    pos= root.get_pointer[];
     win_tooltip.move[pos(1)+10,pos(2)+10]
     if exists('gtk_get_major_version','function') then
       hbox=gtk_box_new(GTK.ORIENTATION_HORIZONTAL);
@@ -53,12 +57,14 @@ function [btn,%pt,win,Cmenu]=cosclick()
       //       win_tooltip.hide[]
     end
   endfunction
-
+  
   //callback to show the tooltip
   function y=show_block_tooltip(args)
     win_tooltip=args(1)
-    screen=win_tooltip.get_root_window[]
-    pos=screen.get_pointer[]
+    screen = gdk_screen_get_default();
+    root = screen.get_root_window[];
+    pos= root.get_pointer[];
+    // pos=screen.get_pointer[]
     win_tooltip.move[pos(1)+10,pos(2)+10]
     win_tooltip.show_all[];
     y=%f
