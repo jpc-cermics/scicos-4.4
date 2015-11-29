@@ -47,16 +47,9 @@ function [scs_m]=do_undo(scs_m)
   // it is useless and take memory).
   scs_m=scs_m_save;
   for i=1:length(scs_m.objs); scs_m.objs(i).delete['gr'];end
-  // similar to the scsmenu_replot operation.
-  if %f then 
-    scs_m.props.wpar=scs_m.props
-    %wdm=scs_m.props.wpar
-  else
-    window_set_size();
-  end 
+  window_set_size();
   scs_m=drawobjs(scs_m);
 endfunction
-
 
 function supers=findopenchildren(scs_m,super_path,supers)
 // find paths to all open (inactive) sub-diagrams
