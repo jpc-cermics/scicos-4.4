@@ -316,11 +316,17 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     else
       %diagram_open=%t
       if ~or(curwin==winsid()) then
-	// printf("restore 1\n");
-        %zoom=restore(curwin,%zoom)
+	// here on first entry in scicos 
+	printf("restore 1\n");
+	xset('window',curwin);
+	xselect();
+	if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
+	  scs_m.props.options('3D')(1)=%f //disable 3D block shape
+	end
+	read = size( scs_m.props.wpar,'*') >= 12;
+	window_set_size(curwin,%f,read=read);
         scicos_set_uimanager(slevel <=1 );
         scs_m=scs_m_remove_gr(scs_m,recursive=%f);
-        xset('recording',0)
         Cmenu='Replot'
         Select_back=[];Select=[]
       end

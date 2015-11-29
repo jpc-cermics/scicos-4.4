@@ -125,7 +125,7 @@ function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
   if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end
-  // XXX do not put extensions around the 
+  // XXX do not put extensions around the graphics 
   window_set_size(curwin,%f,read=%f);
   drawobjs(scs_m,curwin);
   xexport(curwin,name,figure_background=figure_background);
