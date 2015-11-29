@@ -1,17 +1,22 @@
 function scs_m=scs_show(scs_m,win)
 // this function is used to display a diagram 
 // in a new graphic window win.
-// This is very similar to do_export_gwin 
+// It is mainly used for error message to show 
+// faulty blocks or links 
 // Copyright INRIA/Enpc
+  
   %zoom=acquire('%zoom',def=1);
   if nargin <= 1 then win=1;end
-  edited=%f
-  scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);
-  options=scs_m.props.options
-  %zoom=restore(win,%zoom);
-  //xpause(10000,%t) 
   scs_m=scs_m_remove_gr(scs_m);
-  window_set_size(win)
+  scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);
+  xclear(win,gc_reset=%f);// just in case 
+  xset('window',win);
+  xselect();
+  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
+    scs_m.props.options('3D')(1)=%f //disable 3D block shape
+  end
+  window_set_size(win,%f,read=%f);
+  options=scs_m.props.options; // because drawobjs uses the caller options
   scs_m=drawobjs(scs_m);
 endfunction
 

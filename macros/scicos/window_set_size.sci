@@ -68,6 +68,9 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
     viewport=scs_m.props.wpar(7:8);
     wpdim = scs_m.props.wpar(9:10);
     wpos =  scs_m.props.wpar(11:12);
+    if size( scs_m.props.wpar,'*') >= 13 then 
+      %zoom=scs_m.props.wpar(13);
+    end
   else
     // compute dimensions from scs_m contents
     if popup_dim then 

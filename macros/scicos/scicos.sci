@@ -108,6 +108,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     end
     needsavetest=%t
   else
+    // printf("scicos: in backup loading\n");
     xset('window',Main_Scicos_window);
     xset('recording',0);
 
@@ -118,7 +119,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %cpr=list();needcompile=4;alreadyran=%f;%state0=list();
     else
       load(getenv('NSP_TMPDIR')+'/BackupInfo')
-      scs_m=rec_restore_gr(scs_m,inactive_windows)
+      scs_m=rec_restore_gr(scs_m,curwin,inactive_windows)
     end
     nsp_clear_queue()
     needsavetest=%f
@@ -177,13 +178,19 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       if needsavetest & ~super_block then
 	// pause ici ici ici
       end
-      needsavetest=%f
+      // open a graphic window an draw the window 
+      needsavetest=%f;
       scs_m=scs_m_remove_gr(scs_m,recursive=%f);
-      %zoom=restore(curwin,%zoom)
+      if ~or(curwin==winsid()) then
+	xclear(curwin,gc_reset=%f);
+      end
+      if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
+	scs_m.props.options('3D')(1)=%f //disable 3D block shape
+      end
+      read = size( scs_m.props.wpar,'*') >= 12;
+      window_set_size(curwin,[-1,-1],invalidate=%t,popup_dim=%t,read=read);
       scicos_set_uimanager(slevel <=1 );
-      scs_m=scs_m_remove_gr(scs_m,recursive=%f);
-      //%zoom=restore(curwin,%zoom,slevel)
-      window_set_size();
+      xselect();
       scs_m=drawobjs(scs_m,curwin);
     else
       //needed here ?
@@ -276,10 +283,16 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
             if isequal(%diagram_path_objective,super_path) then
 	      // must add after testing &%scicos_navig<>[]
               if ~or(curwin==winsid()) then
-                %zoom=restore(curwin,%zoom)
+		// a restore during navigation 
+		xset('window',curwin);
+		xselect();
+		if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
+		  scs_m.props.options('3D')(1)=%f //disable 3D block shape
+		end
+		window_set_size(curwin,%f,read=%f);
                 scicos_set_uimanager(slevel <=1 );
 		scs_m=scs_m_remove_gr(scs_m,recursive=%f);
-		window_set_size();
+		options=scs_m.props.options
 		ok=execstr('scs_m=drawobjs(scs_m,curwin)',errcatch=%t);
 		if ~ok then
 		  message(['Failed to draw diagram'])
@@ -305,6 +318,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     else
       %diagram_open=%t
       if ~or(curwin==winsid()) then
+	// printf("restore 1\n");
         %zoom=restore(curwin,%zoom)
         scicos_set_uimanager(slevel <=1 );
         scs_m=scs_m_remove_gr(scs_m,recursive=%f);
@@ -406,7 +420,8 @@ endfunction
 function scs_m=scicos_leave(scs_m)
 // quit scicos but in a state where it can be re-activated
 // -------------------------------------------------------
-  scs_m=scs_m_remove_gr(scs_m);
+  // printf("In a scicos leave \n");
+  scs_m=scs_m_remove_gr(scs_m,recursive=%t);
   ok=do_save(scs_m,file('join',[getenv('NSP_TMPDIR');'BackupSave.cos']));
   if ok then
     //need to save %cpr because the one in .cos cannot be
@@ -415,7 +430,7 @@ function scs_m=scicos_leave(scs_m)
     if ~exists('%scicos_solver') then %scicos_solver=0;end
     save(file('join',[getenv('NSP_TMPDIR');'BackupInfo']),...
 	 edited,needcompile,alreadyran, %cpr,%state0,%tcur,...
-	 %scicos_solver,inactive_windows);
+	 %scicos_solver,inactive_windows,curwin);
     //close widgets
     global scicos_widgets
     for kk=1:length(scicos_widgets)
@@ -521,7 +536,7 @@ function scilab2scicos(win,x,y,ibut)
     end
   end
   //scicos();
-  printf("\nReturn to scicos by eventhandler is disabled.\nUse -->scicos(); instead.\n");
+  printf("\nReturn to scicos by eventhandler is disabled.\ncall scicos() direcly instead.\n");
 endfunction
 
 function scs_m_out=scs_m_remove_gr(scs_m_in,recursive=%t)
@@ -542,12 +557,12 @@ function scs_m_out=scs_m_remove_gr(scs_m_in,recursive=%t)
   end
 endfunction
 
-
-function scs_m=rec_restore_gr(scs_m,inactive_windows)
-//draw the gr graphics from scs_m for inactive_windows
-//-------------------------------------------
-  options=scs_m.props.options
-  %scicos_solver=scs_m.props.tol(6)
+function scs_m=rec_restore_gr(scs_m, win, inactive_windows)
+// this function is used when scicos is reactivated 
+// after a Activate Nsp Window 
+// it must reactivate the graphics from scs_m for inactive_windows
+//
+// 
   n=size(inactive_windows(2),'*')
   for i=1:n
     wii=find(winsid()==inactive_windows(2)(i))
@@ -559,18 +574,29 @@ function scs_m=rec_restore_gr(scs_m,inactive_windows)
       super_block=%t
       curwin=inactive_windows(2)(i)
       xset('window',curwin)
-      %zoom=restore(curwin,%zoom)
-      %wdm=scs_m.props.wpar
+      xclear(curwin,gc_reset=%f);
+      if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
+	scs_m.props.options('3D')(1)=%f //disable 3D block shape
+      end
+      read = size( scs_m.props.wpar,'*') >= 12;
+      window_set_size(curwin,[-1,-1],invalidate=%f,popup_dim=%t,read=read);
       options=scs_m.props.options
-      window_set_size()
-      scs_m=do_replot(scs_m)
-      //do not store gr in rpar
-      scs_m=scs_m_remove_gr(scs_m,recursive=%t);
-      o.model.rpar=scs_m
+      // we do not want to store the graphic commands in o.model.rpar;
+      // we really draw 
+      o.model.rpar=scs_m;
+      // drawobjs(scs_m,curwin);
       scs_m=scs_m_save
       scs_m(path)=o
     end
   end
+  // top window 
+  curwin = win;
+  xset('window',curwin);
+  xclear(curwin,gc_reset=%f);
+  read = size( scs_m.props.wpar,'*') >= 12;
+  window_set_size(curwin,[-1,-1],invalidate=%f,popup_dim=%t,read=read);
+  options=scs_m.props.options
+  // scs_m=drawobjs(scs_m,curwin);
 endfunction
 
 function scicos_banner()

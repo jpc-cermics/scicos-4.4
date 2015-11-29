@@ -97,11 +97,13 @@ function scicos_show_icon(name,zoom)
     curwin=0;
   end
   xset('window',curwin);
-  options=scs_m.props.options
-  set_background();
+  %zoom=zoom;
+  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
+    scs_m.props.options('3D')(1)=%f //disable 3D block shape
+  end
   scs_m=scs_m_remove_gr(scs_m); 
-  %zoom=zoom*restore(curwin,1.0);
-  window_set_size();
+  options=scs_m.props.options
+  window_set_size(curwin,%f,read=%f);
   drawobjs(scs_m,curwin);
 endfunction
 
@@ -120,14 +122,14 @@ function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
   end
   xset('window',curwin);
   options=scs_m.props.options
-  set_background();
   scs_m=scs_m_remove_gr(scs_m);
-  %zoom=restore(curwin,1.0);
-  //for i=1:30
-  window_set_size();
-  //end
+  %zoom=1.0;
+  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
+    scs_m.props.options('3D')(1)=%f //disable 3D block shape
+  end
+  // XXX do not put extensions around the 
+  window_set_size(curwin,%f,read=%f);
   drawobjs(scs_m,curwin);
-  // reset the extension just in case 
   xexport(curwin,name,figure_background=figure_background);
   xdel(curwin);
   if ~isempty(old_curwin) then xset('window',old_curwin);end

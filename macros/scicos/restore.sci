@@ -4,6 +4,7 @@ function %zoom=restore(curwin,%zoom)
 // If the window already exists its graphic contents are cleared.
 // take care that this function uses scs_m !
 //
+  printf("enter: restore \n");
   gr_on = length(scs_m.objs) > 0 && ~(scs_m.objs(1).iskey['gr']);
   if ~or(curwin==winsid()) || gr_on then
     xclear(curwin,gc_reset=%f);
@@ -34,6 +35,7 @@ function %zoom=restore(curwin,%zoom)
     // set up defaut size 
     window_set_size()
   end
+  printf("quit: restore \n");
 endfunction
 
 function [frect, wdim, viewport, wpdim, winpos]=get_curwpar(win)
