@@ -16,7 +16,6 @@ function scs_m=scs_show(scs_m,win)
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end
   window_set_size(win,%f,read=%f);
-  options=scs_m.props.options; // because drawobjs uses the caller options
   scs_m=drawobjs(scs_m);
 endfunction
 

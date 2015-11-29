@@ -102,7 +102,6 @@ function scicos_show_icon(name,zoom)
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end
   scs_m=scs_m_remove_gr(scs_m); 
-  options=scs_m.props.options
   window_set_size(curwin,%f,read=%f);
   drawobjs(scs_m,curwin);
 endfunction
@@ -121,7 +120,6 @@ function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
     curwin=0;
   end
   xset('window',curwin);
-  options=scs_m.props.options
   scs_m=scs_m_remove_gr(scs_m);
   %zoom=1.0;
   if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required

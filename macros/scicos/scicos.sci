@@ -148,7 +148,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     palettes=palettes;
   end
 
-
   Cmenu='';%pt=[];%win=curwin;%curwpar=[];
   Select=[];Select_back=[];%ppt=[];
 
@@ -292,7 +291,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 		window_set_size(curwin,%f,read=%f);
                 scicos_set_uimanager(slevel <=1 );
 		scs_m=scs_m_remove_gr(scs_m,recursive=%f);
-		options=scs_m.props.options
 		ok=execstr('scs_m=drawobjs(scs_m,curwin)',errcatch=%t);
 		if ~ok then
 		  message(['Failed to draw diagram'])
@@ -580,7 +578,6 @@ function scs_m=rec_restore_gr(scs_m, win, inactive_windows)
       end
       read = size( scs_m.props.wpar,'*') >= 12;
       window_set_size(curwin,[-1,-1],invalidate=%f,popup_dim=%t,read=read);
-      options=scs_m.props.options
       // we do not want to store the graphic commands in o.model.rpar;
       // we really draw 
       o.model.rpar=scs_m;
@@ -595,7 +592,6 @@ function scs_m=rec_restore_gr(scs_m, win, inactive_windows)
   xclear(curwin,gc_reset=%f);
   read = size( scs_m.props.wpar,'*') >= 12;
   window_set_size(curwin,[-1,-1],invalidate=%f,popup_dim=%t,read=read);
-  options=scs_m.props.options
   // scs_m=drawobjs(scs_m,curwin);
 endfunction
 

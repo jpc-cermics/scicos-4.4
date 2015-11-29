@@ -32,7 +32,6 @@ function do_export(scs_m,fname)
     
     scs_m=scs_m_remove_gr(scs_m);
     scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);
-    options=scs_m.props.options
     %zoom=1;
     if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
       scs_m.props.options('3D')(1)=%f //disable 3D block shape
@@ -111,8 +110,6 @@ function do_export_all(scsm,fname=[],path=[],ext=[],depth=1,fb=%f)
     end
     xset('window',curwin);
     scs_m=scs_m_remove_gr(scs_m);
-    // take care that restore uses scs_m !
-    options=scs_m.props.options
     %zoom=1;
     if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
       scs_m.props.options('3D')(1)=%f //disable 3D block shape

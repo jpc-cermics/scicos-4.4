@@ -8,12 +8,13 @@ function scs_m=drawobjs(scs_m,win)
   if nargin < 2 then 
     win = xget('window');
   end
-  if ~exists('options') then 
-    options=scs_m.props.options;
-  end
   drawtitle(scs_m.props,win)
-  set_background()
   F=get_figure(win);
+  // xset('background',options.Background(1));
+  if length(F.children) > 0 then 
+    A=F.children(1);
+    A.background=scs_m.props.options.Background(1);
+  end
   if length(scs_m.objs) == 0 then
     F.invalidate[];
     return;

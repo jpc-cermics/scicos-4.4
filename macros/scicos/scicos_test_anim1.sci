@@ -125,7 +125,6 @@ function scicos_test_draw1(opengl=%f)
   load('NSP/macros/scicos_no_xor/scicos_test_anim.cos');
   %zoom=1.8;
   others=1:length(scs_m.objs);
-  options=scs_m.props.options
   xinit(opengl=opengl)
   //xselect();
   set_background()
