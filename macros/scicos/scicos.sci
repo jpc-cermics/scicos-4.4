@@ -638,3 +638,14 @@ function scicos_library_initialize()
     end
   end
 endfunction
+
+function [frect, wdim, viewport, wpdim, winpos]=get_curwpar(win)
+// XXX: a revoir pour win 
+  [_v,frect]=xgetech();
+  wdim = xget('wdim');
+  viewport=xget('viewport');
+  wpdim = xget('wpdim');
+  winpos= xget('wpos');
+endfunction
+
+
