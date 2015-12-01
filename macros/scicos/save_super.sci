@@ -253,7 +253,7 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
 	  graphics = obj.graphics; ref_graphics = ref.graphics;
 	  keys= graphics.__keys;
 	  for i=1:size(keys,'*')
-	    if ~graphics(keys(i)).equal[ref_graphics(keys(i))] then 
+	    if ~or(keys(i)==['mlist','tlist']) && ~graphics(keys(i)).equal[ref_graphics(keys(i))] then 
 	      nname= sprintf('%s.graphics.%s',temp,keys(i));
 	      txt.concatd[scicos_obj2smat(graphics(keys(i)),name=nname,tag=tag+1, ...
 					  indent=indent+1)];
@@ -326,4 +326,157 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
   txt=txt2;
 endfunction 
 
+  
+function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
+  
+  function txt=scicos_obj2api(obj,name='z',tag=0,indent=0,export=%f)
+  // returns in txt a representation of obj which 
+  // should recreate obj if executed by nsp. 
+  // Note that the generated code:
+  // -- contains calls to scicos_xxx functions when possible 
+  // -- the model are not saved 
+  // -- the code generated for blocks contains calls to the 
+  //    block define function.
+  // 
+    if export then 
+      ignore_tags = ['mlist','tlist','gr_i']
+    else
+      ignore_tags = ['mlist','tlist'];
+    end
+    H=hash(3, codegeneration='codegen',Block='block',Link='link',Text='text');
+    txt = m2s([]);
+    typ = type(obj,'short');
+    w=catenate(smat_create(indent,1,' '));
+    temp='x_'+string(tag);
+    select typ 
+     case 'h' then 
+      isref=%f;
+      if obj.iskey['type'] then 
+	typ=obj.type;
+	if  typ=='Block' then 
+	  // a block 
+	  ok=execstr('ref='+obj.gui+'(""define"");',errcatch=%t);
+	  if ~ok then lasterror();end;
+	  txt.concatd[sprintf('%s%s=%s(''define'');',w,temp,obj.gui)];
+	  graphics = obj.graphics; ref_graphics = ref.graphics;
+	  keys= graphics.__keys;
+	  for i=1:size(keys,'*')
+	    if ~or(keys(i)==ignore_tags) && ~graphics(keys(i)).equal[ref_graphics(keys(i))] then 
+	      nname= sprintf('%s.graphics.%s',temp,keys(i));
+	      txt.concatd[scicos_obj2api(graphics(keys(i)),name=nname,tag=tag+1, ...
+					  indent=indent+1,export=export)];
+	    end
+	  end
+	  // txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
+	  if obj.gui == 'SUPER_f' then 
+	    // we also need to copy the model 
+	    model= obj.model; ref_model = ref.model;
+	    keys= model.__keys;
+	    for i=1:size(keys,'*')
+	      if ~or(keys(i)==ignore_tags) && ~model(keys(i)).equal[ref_model(keys(i))] then 
+		nname= sprintf('%s.model.%s',temp,keys(i));
+		txt.concatd[scicos_obj2api(model(keys(i)),name=nname,tag=tag+1, ...
+					   indent=indent+1,export=export)];
+	      end
+	    end
+	  end
+	  txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
+	  return
+	else 
+	  // if typ is in H then use H value instead.
+	  if H.iskey[obj.type] then typ=H(obj.type);end
+	  if typ == 'scsopt' then typ = 'options'; obj.type='options'; end
+	  fun=sprintf('scicos_%s',typ);
+	  if exists(fun,'nsp-function') then
+	    ok = execstr(sprintf('ref=scicos_%s()',typ),errcatch=%t);
+	    if ~ok then lasterror();else isref=%t; end
+	    txt.concatd[sprintf('%s%s=scicos_%s();',w,temp,typ)];
+	  else
+	    txt.concatd[sprintf('%s%s=hash(%d);',w,temp,length(obj))];
+	  end
+	  // if fun== 'scicos_options' then pause;end
+	end
+      else
+	txt.concatd[sprintf('%s%s=hash(%d);',w,temp,length(obj))];
+      end
+      // we have to save each field except if isref is true and 
+      // the field is already in ref with the same value 
+      // moreover we can decide or not to save models (here we 
+      // save models by changing 'models' to 'xxmodels'
+      if typ<>'xxmodel' then 
+	keys= obj.__keys;
+	for i=1:size(keys,'*')
+	  if ~or(keys(i)==ignore_tags) then 
+	    if ~(isref && ref.iskey[keys(i)] && obj(keys(i)).equal[ref(keys(i))]) then 
+	      if validvar(keys(i)) then 
+		nname= sprintf('%s.%s',temp,keys(i));
+	      else
+		nname= sprintf('%s(''%s'')',temp,keys(i));
+	      end
+	      txt.concatd[scicos_obj2api(obj(keys(i)),name=nname,tag=tag+1, ...
+					 indent=indent+1,export=export)];
+	    end
+	  end
+	end
+      end
+      txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
+     case 'l' then
+      txt.concatd[sprintf('%s%s=list();',w,temp)];
+      for i=1:size(obj)
+	txt.concatd[scicos_obj2api(obj(i),name=temp+'('+string(i)+')',tag=tag+1,indent=indent+1,export=export)];
+      end
+      txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
+    else
+      txt1=sprint(obj,as_read=%t,name=name,indent=indent);txt1($)=txt1($)+';';
+      txt.concatd[txt1];
+    end
+    // back to def value;
+  endfunction;
+
+  // main code 
+  export = %t; // true for exporting to scicoslab 
+    
+  //format("long");
+  txt1=scicos_obj2api(obj,name=name,tag=tag,indent=indent,export=export);
+  //format();
+  // second path to remove extra \n
+  txt2=m2s([]);
+  i = 1;
+  while i <= size(txt1,'*') then 
+    str=txt1(i); 
+    if part(str,length(str))=='=' then 
+      i=i+1;str=str+txt1(i);
+    end
+    txt2.concatd[str];
+    i=i+1;
+  end
+  
+  // utilities needed for exporting to scicoslab 
+  // 
+  if export then 
+    head=["if ~exists(''%nsp'') & ~exists(''scicos_diagram'') then load(''SCI/macros/scicos/lib'');end";
+	  "needcompile=4";
+	  "if ~exists(''%nsp'') then";
+          " function opts=scicos_options()";
+	  "  opts=tlist([''scsopt'',''Background'',''Link'',''ID'',''Cmap'',''D3'',''3D'',''Grid'',''Wgrid'',''Action'',''Snap'']);"
+	  "  opts.Background=[8 1];"
+	  "  opts.Link=[1,5];"
+	  "  opts.ID= list([5 0],[4 0]);";
+	  "  opts.Cmap=[0.8 0.8 0.8]";
+	  "  opts.D3=list(%t,33);";
+	  "  opts(''3D'')=list(%t,33);";
+	  "  opts.Grid=%f;";
+	  "  opts.Wgrid=[10;10;12];";
+	  "  opts.Action=%f;";
+	  "  opts.Snap=%t;";
+	  " endfunction";
+	  " function blk=scicos_text(varargopt)";
+	  "  blk=mlist([''Text'', ''graphics'',''model'', ''gui''],scicos_graphics(),scicos_model(),'''');";
+	  " endfunction";
+	  "end"];
+    txt=[head;txt2];
+  else
+    txt=txt2;
+  end
+endfunction 
   
