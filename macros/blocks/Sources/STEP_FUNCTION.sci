@@ -46,12 +46,9 @@ function [x,y,typ]=STEP_FUNCTION(job,arg1,arg2)
 		   'odstate','rpar','ipar','opar','blocktype','firing','dep_ut','label','nzcross','nmode','equations'],..
 		  'csuper',[],[],1,-1,[],1,[],[],[],[],list(),..
 		  mlist(['diagram','props','objs'],..
-			tlist(..
-			      ['params','wpar','title','tol','tf','context','void1','options','void2','void3','doc'],..
+			tlist(['params','wpar','title','tol','tf','context','void1','options','void2','void3','doc'],..
 			      [600,450,0,0,600,450],['STEP_FUNCTION','./'],[0.0001;1.000E-06;1.000E-10;100001;0;0],14,..
-			      ' ',[],..
-			      tlist(['scsopt','3D','Background','Link','ID','Cmap'],list(%t,33),[8,1],[1,5],..
-				    list([5,0],[4,0]),[0.8,0.8,0.8]),[],[],list()),..
+			      ' ',[], scicos_options(), [],[],list()),..
 			list(..
 			     mlist(['Block','graphics','model','gui','doc'],..
 				   mlist(..

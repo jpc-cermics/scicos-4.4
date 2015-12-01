@@ -56,8 +56,7 @@ function [x,y,typ]=PULSE_SD(job,arg1,arg2)
 		    "if (W<0 | W>100) then error(''Width must be between 0 and 100'');end";
 		    "E2=modulo(E2,F)"],..
 					       void1=[],..
-					       options=tlist(["scsopt","3D","Background","Link","ID","Cmap"],list(%t,33),[8,1],[1,5],..
-						  list([5,1],[4,1]),[0.8,0.8,0.8]),..
+					       options=scicos_options(),..
 					       void2=[],..
 					       void3=[],..
 					       doc=list()))

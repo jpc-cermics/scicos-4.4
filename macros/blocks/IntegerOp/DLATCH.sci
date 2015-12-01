@@ -59,8 +59,7 @@ function scs_m=dlatch_rpar()
 					   tf=100000,..
 					   context=" ",..
 					   void1=[],..
-					   options=tlist(["scsopt","3D","Background","Link","ID","Cmap"],list(%t,33),[8,1],[1,5],..
-						  list([5,1],[4,1]),[0.8,0.8,0.8]),..
+					   options=scicos_options(),..
 					   void2=[],..
 					   void3=[],..
 					   doc=list()))

@@ -39,12 +39,10 @@ function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
     typ=newpar
    case 'define' then
     scs_m_1=scicos_diagram()
-    scs_m_1.props=tlist(..
-			["params","wpar","title","tol","tf","context","void1","options","void2","void3",..
-		    "doc"],[600,450,0,0,600,450],["EDGE_TRIGGER","./"],..
+    scs_m_1.props=tlist(["params","wpar","title","tol","tf","context","void1","options","void2","void3","doc"],..
+			[600,450,0,0,600,450],["EDGE_TRIGGER","./"],..
 			[0.0001;1.000E-06;1.000E-10;100001;0;0;0],30," ",[],..
-			tlist(["scsopt","3D","Background","Link","ID","Cmap"],list(%t,33),[8,1],[1,5],..
-			      list([5,1],[4,1]),[0.8,0.8,0.8]),[],[],list())
+			scicos_options(),[],[],list());
     scs_m_1.objs(1)=mlist(["Block","graphics","model","gui","doc"],..
 			  mlist(..
 				["graphics","orig","sz","flip","exprs","pin","pout","pein",..
