@@ -144,8 +144,7 @@ function standard_etiquette(bloc, legende, job)
 //GRAPHIQUE = 2;ORIGINE = 1;TAILLE = 2
 //macro = bloc(5)
   macro = bloc.gui
-  if ~exists("%zoom") then %zoom=1, end;
-  fz= 2*%zoom*4;
+  fz= 2*acquire("%zoom",def=1)*4;
   fnt=xget('font');
   is_flip=bloc.graphics.flip
 

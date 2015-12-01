@@ -14,11 +14,6 @@ function scmenu_open()
     %scicos_context=context;
     scs_m=sc; %cpr=cpr; edited=ed;
     options=scs_m.props.options;
-    if size(scs_m.props.wpar,'*')>12 then
-      %zoom=scs_m.props.wpar(13)
-    else
-      %zoom=1.4
-    end
     alreadyran=%f;
     if size(%cpr)==0 then
       needcompile=4;
@@ -102,12 +97,10 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
       scs_m=scs_m;
       scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
     end
-    %zoom=scs_m.props.wpar(13)
     window_set_size(curwin,%f,invalidate=%f,popup_dim=%t,read=%t);
   else
     printf("do_open calls window_set_size\n");
     // If we already have a window it's maybe not usefull to change it
-    %zoom=1.4
     window_set_size(curwin,%f,invalidate=%f,popup_dim=%t); // 
   end
   

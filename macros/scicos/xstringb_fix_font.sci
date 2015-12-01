@@ -10,8 +10,6 @@ function xstringb_fix_font(x,y,s,wo,ho,o)
     end
     %Scicos_Font_cor=%Scicos_Font_cor*%zoom/50
   end
-
-
   fsz=max(0,-1+max(find(%zoom>%Scicos_Font_cor)))
   //printf("***** fsz=%d\n",fsz);
   xset("font size",fsz)

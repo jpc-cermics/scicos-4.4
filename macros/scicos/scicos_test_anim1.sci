@@ -77,8 +77,6 @@ function scicos_test_anim2(N=100,opengl=%f,poly_d=%t);
   //xsetech(frect=[0,0,1000,1000]);
   xset('wresize',0);
   xset('wdim',1000,1000)
-
-  %zoom=1.8;
   others=1:length(scs_m.objs);
   options=scs_m.props.options
 
@@ -123,7 +121,6 @@ endfunction
 
 function scicos_test_draw1(opengl=%f)
   load('NSP/macros/scicos_no_xor/scicos_test_anim.cos');
-  %zoom=1.8;
   others=1:length(scs_m.objs);
   xinit(opengl=opengl)
   //xselect();
@@ -139,7 +136,6 @@ endfunction
 function fps=scicos_test_anim3(runtime,opengl=%f)
 // record each object then move them 
   load('NSP/macros/scicos_no_xor/scicos_test_anim.cos');
-  %zoom=1.8;
   others=1:length(scs_m.objs);
   options=scs_m.props.options
   xinit(opengl=opengl)

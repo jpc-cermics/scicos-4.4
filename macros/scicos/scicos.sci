@@ -41,7 +41,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     scicos_library_initialize()
     //
     modelica_libs=unique(modelica_libs);
-    %zoom=1.4; // default zoom value
     pal_mode=%f; //Palette edition mode
     newblocks=[]; //table of added functions in pal_mode
     ok = execstr('load(''.scicos_short'')',errcatch=%t)  //keyboard shortcuts
@@ -196,9 +195,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       //maybe because we don't store gr in rpar of sblock
       //isequal to be checked for gr object
       scs_m=user_data(1)
-      if size(user_data(1).props.wpar,'*')>12 then
-        %zoom=scs_m.props.wpar(13)
-      end
       Select=user_data(2)
       enable_undo=user_data(3)
       scs_m_save=user_data(4)
@@ -250,7 +246,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     if or(winsid()==curwin) then
       if edited then
 	%curwpar=get_curwpar();
-        %curwpar=[%curwpar,%zoom];
         if ~isequal(scs_m.props.wpar,%curwpar) then
           scs_m.props.wpar=%curwpar
         end

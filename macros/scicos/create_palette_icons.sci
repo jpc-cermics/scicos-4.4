@@ -67,7 +67,7 @@ function scicos_create_icons(lisf)
   end
 endfunction
 
-function scicos_show_icon(name,zoom)
+function scicos_show_icon(name,zoom=1.4)
 // Utility function: 
 // shows in a graphic window the icon associated 
 // to a scicos block named name. 
@@ -76,8 +76,9 @@ function scicos_show_icon(name,zoom)
 // of the tail of the pathname 
 //
 // jpc (2011)
-  if nargin <=1 then zoom=1;end 
+
   scs_m=scicos_diagram();
+  scs_m.props.zoom=zoom;
   name=file('tail',name);
   name=file('rootname',name);
   //printf('  Block ' + name );
@@ -97,7 +98,6 @@ function scicos_show_icon(name,zoom)
     curwin=0;
   end
   xset('window',curwin);
-  %zoom=zoom;
   if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end
@@ -121,7 +121,7 @@ function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
   end
   xset('window',curwin);
   scs_m=scs_m_remove_gr(scs_m);
-  %zoom=1.0;
+  scs_m.props.zoom=1.0;
   if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
     scs_m.props.options('3D')(1)=%f //disable 3D block shape
   end

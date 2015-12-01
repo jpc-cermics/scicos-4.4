@@ -1,4 +1,3 @@
-
 function params=scicos_params(varargopt)
 // updated to 4.4b7 
 // default value last keys tlist=%t,type='params' are added to simulate a tlist 
@@ -8,7 +7,7 @@ function params=scicos_params(varargopt)
   params=hash(wpar=[600,450,0,0,600,450],title= 'Untitled',...
 	      tf=tf,tol=tol,context='', void1=[],options=scicos_options(),...
 	      void2=[], void3=[],doc=list(),...
-	      params=%t, type='params',mlist=%f);
+	      params=%t,zoom=1.4, type='params',mlist=%f);
   params.merge[varargopt];
 endfunction
 

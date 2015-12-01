@@ -4,8 +4,7 @@ function scs_m=scs_show(scs_m,win)
 // It is mainly used for error message to show 
 // faulty blocks or links 
 // Copyright INRIA/Enpc
-  
-  %zoom=acquire('%zoom',def=1);
+
   if nargin <= 1 then win=1;end
   scs_m=scs_m_remove_gr(scs_m);
   scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);

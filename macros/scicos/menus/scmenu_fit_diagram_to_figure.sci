@@ -35,9 +35,10 @@ function scmenu_fit_diagram_to_figure()
    newzoom_h=r(2)/(h*(1+margins(3)+margins(4)))
    newzoom=min(newzoom_w,newzoom_h);
 
-   if newzoom~=%zoom then
-     %zoom=newzoom
+   if newzoom <> scs_m.props.zoom then
 
+     scs_m.props.zoom=newzoom
+     
      for i=1:length(scs_m.objs)
        if scs_m.objs(i).iskey['gr'] then
         scs_m.objs(i).gr.show=%f
@@ -46,8 +47,7 @@ function scmenu_fit_diagram_to_figure()
 
      window_set_size(curwin,%f,invalidate=%f,popup_dim=%f);
      // see scmenu_zoom_in
-     //  need redraw text and some blocks
-     //  with not filled text.
+     // need redraw text and some blocks with not filled text.
      [scs_m]=scmenu_redraw_zoomed_text(scs_m,F);
 
      for i=1:length(scs_m.objs)
@@ -59,5 +59,6 @@ function scmenu_fit_diagram_to_figure()
      F.invalidate[];
      edited=%t;
    end
+   
    xinfo(' ');
 endfunction

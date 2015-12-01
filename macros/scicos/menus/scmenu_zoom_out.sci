@@ -2,13 +2,7 @@ function scmenu_zoom_out()
   Cmenu=''
   xinfo('Zoom out')
   zoomfactor=1.2 
-  %zoom=%zoom/zoomfactor
-  F=get_current_figure()
-  gh=nsp_graphic_widget(curwin)
-  winsize=xget("wpdim")
-  axsize=xget("wdim")
-  viewport=xget("viewport");
-  viewport=viewport/zoomfactor-0.5*winsize*(1-1/zoomfactor)
+  scs_m.props.zoom = scs_m.props.zoom/zoomfactor;
 
   for i=1:length(scs_m.objs)
     if scs_m.objs(i).iskey['gr'] then
@@ -18,8 +12,7 @@ function scmenu_zoom_out()
 
   window_set_size(curwin,%f,invalidate=%f,popup_dim=%f);
   
-  //we need redraw text and some blocks
-  //with not filled text
+  // we need redraw text and some blocks with not filled text
   [scs_m]=scmenu_redraw_zoomed_text(scs_m,F);
 
   for i=1:length(scs_m.objs)
