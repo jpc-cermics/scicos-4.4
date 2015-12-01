@@ -29,7 +29,7 @@ function L=gtk_scicos_x_choices(desc,Li)
 	label.set_justify[GTK.JUSTIFY_LEFT]
 	label.set_alignment[0,0.5];
       end
-      label.set_line_wrap[%t]
+      // label.set_line_wrap[%t]
       labels(i)=label;
       if Li(i)(1)=='entry' then
         entry = gtkentry_new();

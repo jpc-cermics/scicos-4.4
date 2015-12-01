@@ -147,12 +147,18 @@ function [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
       message('Cannot open file '+fname)
       return
     end
-    fprint(F,scicos_ver,as_read=%t);
+    S=sprint(scicos_ver,as_read=%t,name="");
+    S=S(2:$);
+    S(1) = "scicos_ver = "+S(1);
+    fprintf(F,"%s",S);
+    fprintf(F,"\n");
     if %t then
       fprint(F,scs_m,as_read=%t);
     else
-      // A much more compact way to save
-      txt=scicos_schema2smat(scs_m,name='scs_m',indent=4);
+      // WIP: XXXX
+      // A much more compact way to save compatible with scicoslab
+      // txt=scicos_schema2smat(scs_m,name='scs_m',indent=4);
+      txt=scicos_schema2api(scs_m,name='scs_m',indent=4);
       F.put_smatrix[txt];
       F.put_smatrix[['scs_m=do_eval(scs_m)']];
     end
