@@ -71,8 +71,7 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
     ident = arg1.graphics.id
     fnt=xget('font');
     if ~isempty(ident) & ident <> ''  then
-      if ~exists("%zoom") then %zoom=1, end;
-      fz= 2*%zoom*4;
+      fz=2*acquire("%zoom",def=1)*4;
       xset('font', options.ID(1)(1), options.ID(1)(2));
       xstring(orig(1)+sz(1)/2, orig(2)+sz(2),ident,posx='center',posy='bottom', size=fz);
       xset('font', fnt(1), fnt(2));

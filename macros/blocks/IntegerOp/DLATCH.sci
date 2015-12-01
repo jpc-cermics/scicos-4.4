@@ -4,7 +4,6 @@ function [x,y,typ]=DLATCH(job,arg1,arg2)
   function dlatch_draw(orig,sz,o)
     [x,y,typ]=standard_inputs(o)
     dd=sz(1)/8,de=sz(1)*(1/2+1/8);
-    if ~exists('%zoom') then %zoom=1, end;
     w=sz(1)*(1/2-1/8);
     h=sz(2)/4;
     xstringb(orig(1)+dd,y(1)-4,'D',w,h,'fill');

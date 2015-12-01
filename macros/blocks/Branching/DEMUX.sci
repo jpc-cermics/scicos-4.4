@@ -2,8 +2,7 @@ function [x,y,typ]=DEMUX(job,arg1,arg2)
 // Copyright INRIA
   function blk_draw(sz,orig,orient,label)  
     txt="Demux";
-    if ~exists("%zoom") then %zoom=1, end;
-    fz=2*%zoom*4;
+    fz=2*acquire("%zoom",def=1)*4;
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
   endfunction
   

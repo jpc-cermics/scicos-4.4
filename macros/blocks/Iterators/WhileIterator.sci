@@ -4,7 +4,7 @@ function [x,y,typ]=WhileIterator(job,arg1,arg2)
     [x,y,typ]=standard_inputs(o) ;
     dd=sz(1)/16,de=2*sz(1)/8;
     if ~arg1.graphics.flip then dd=6*sz(1)/8;de=sz(1)/16;end;
-    if ~exists("%zoom") then %zoom=1, end;
+    zoom=acquire("%zoom",def=1);
     for k=1:size(x,"*");
       if typ(k)==1;
 	if k==1 then
@@ -13,8 +13,8 @@ function [x,y,typ]=WhileIterator(job,arg1,arg2)
 	  txt="IC";
 	end;
 	rectstr=stringbox(txt,orig(1)+dd,y(k)-4,0,1,1);
-	w=(rectstr(1,3)-rectstr(1,2))*%zoom;
-	h=(rectstr(2,2)-rectstr(2,4))*%zoom;
+	w=(rectstr(1,3)-rectstr(1,2))*zoom;
+	h=(rectstr(2,2)-rectstr(2,4))*zoom;
 	xstringb(orig(1)+dd,y(k)-4,txt,w,h,"fill");
       end;
     end;

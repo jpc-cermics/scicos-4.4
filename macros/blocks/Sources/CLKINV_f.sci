@@ -23,8 +23,7 @@ function [x,y,typ]=CLKINV_f(job,arg1,arg2)
     //identification
     ident = arg1.graphics.id
     if ~isempty(ident) && length(ident)<>0 then
-      if ~exists('%zoom') then %zoom=1;end
-      fz=2*%zoom*4;
+      fz=2*acquire("%zoom",def=1)*4;
       xstring(orig(1)+sz(1)/2,orig(2)+sz(2),ident,posx='center',posy='bottom',size=fz);
     end
    case 'getinputs' then

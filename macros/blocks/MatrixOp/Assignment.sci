@@ -132,8 +132,7 @@ function Assignment_draw(orig,sz,o)
     px='left';xp=orig(1)+sz(1)/16
   end;
   vv=evstr(arg1.graphics.exprs(3));
-  if ~exists("%zoom") then %zoom=1, end;
-  fz= 2*%zoom*4;
+  fz=2*acquire("%zoom",def=1)*4;
   for k=1:size(x,"*");
     if typ(k)==1;
       if arg1.graphics.exprs(6)=="1" then;

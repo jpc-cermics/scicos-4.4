@@ -11,7 +11,8 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
     if isempty(model.rpar) then
       model.rpar=graphics.exprs(1)
     end
-    sf = model.ipar(2)*%zoom*10;
+    zoom=acquire("%zoom",def=1);
+    sf = model.ipar(2)*zoom*10;
     xstring(graphics.orig(1), graphics.orig(2),model.rpar,size=sf);
    case 'getinputs' then
    case 'getoutputs' then

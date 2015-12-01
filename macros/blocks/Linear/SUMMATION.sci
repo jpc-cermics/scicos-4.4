@@ -6,8 +6,7 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     [x,y,typ]=standard_inputs(o) 
     dd=sz(1)/8,de=0;
     if ~arg1.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
-    if ~exists("%zoom") then %zoom=1, end;
-    fz=2*%zoom*4;
+    fz=2*acquire("%zoom",def=1)*4;
     for k=1:size(x,'*');
       if size(sgn,1) >= k then
 	if sgn(k) > 0 then;

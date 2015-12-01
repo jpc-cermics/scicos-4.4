@@ -20,7 +20,6 @@ function [x,y,typ]=Actuator(job,arg1,arg2)
     fz=1.5*acquire("%zoom",def=1)*4;
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2),"actuator",posx="center",posy= ...
 	    "bottom",size=fz);
-    //xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=4);
   endfunction
 
   

@@ -1,8 +1,7 @@
 function [x,y,typ]=OpAmp(job,arg1,arg2)
 
   function OpAmp_draw(orig,sz,orient)
-    if ~exists('%zoom') then %zoom=1;end
-    fz= 2*%zoom*4;
+    fz=2*acquire("%zoom",def=1)*4;
     if orient then;
       xx=orig(1)+[30,28,08,08,00,08,08,00,08,08,28,28]*(sz(1)/32);
       yy=orig(2)+[35,35,12,24,24,24,48,48,48,60,35,35]*(sz(2)/70);

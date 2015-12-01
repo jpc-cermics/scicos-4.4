@@ -4,7 +4,7 @@ function [x,y,typ]=ForIterator(job,arg1,arg2)
     [x,y,typ]=standard_inputs(o) ;
     dd=sz(1)/16,;
     if ~arg1.graphics.flip then dd=6*sz(1)/8,end;
-    if ~exists("%zoom") then %zoom=1, end;
+    zoom=acquire("%zoom",def=1);
     for k=1:size(x,"*");
       if typ(k)==1;
 	if k==1 & arg1.graphics.exprs(3)=="1" then
@@ -13,8 +13,8 @@ function [x,y,typ]=ForIterator(job,arg1,arg2)
 	  txt="Next i";
 	end;
 	rectstr=stringbox(txt,orig(1)+dd,y(k)-4,0,1,1);
-	w=(rectstr(1,3)-rectstr(1,2))*%zoom;
-	h=(rectstr(2,2)-rectstr(2,4))*%zoom;
+	w=(rectstr(1,3)-rectstr(1,2))*zoom;
+	h=(rectstr(2,2)-rectstr(2,4))*zoom;
 	xstringb(orig(1)+dd,y(k)-4,txt,w,h,"fill");
       end;
     end;
@@ -28,8 +28,8 @@ function [x,y,typ]=ForIterator(job,arg1,arg2)
 	txt="0:n-1";
       end;
       rectstr=stringbox(txt,orig(1)+dd,y(k)-4,0,1,1);
-      w=(rectstr(1,3)-rectstr(1,2))*%zoom;
-      h=(rectstr(2,2)-rectstr(2,4))*%zoom;
+      w=(rectstr(1,3)-rectstr(1,2))*zoom;
+      h=(rectstr(2,2)-rectstr(2,4))*zoom;
       xstringb(orig(1)+dd,y(k)-4,txt,w,h,"fill");
     end;
     xstringb(orig(1)+2*sz(1)/8,orig(2),["   For  ";"   Iterator   "],sz(1)/2,sz(2),"fill");

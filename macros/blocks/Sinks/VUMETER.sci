@@ -9,8 +9,7 @@ function [x,y,typ]=VUMETER(job,arg1,arg2)
     fnt=xget("font");
     xset("font",ipar(2),ipar(3));
     str = sprintf("%0*.*f" , ipar(5),ipar(6),0.0);
-    if ~exists("%zoom") then %zoom=1, end;
-    fz= 2*%zoom*4;
+    fz=2*acquire("%zoom",def=1)*4;
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2)/2,str,posx='center',posy='up',size=fz);
     xpoly([orig(1),orig(1)+sz(1)],[orig(2)+sz(2)/2,orig(2)+sz(2)/2],color=ipar(4));
     xset("font",fnt(1),fnt(2));

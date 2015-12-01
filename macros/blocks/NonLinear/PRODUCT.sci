@@ -20,9 +20,9 @@ function [x,y,typ]=PRODUCT(job,arg1,arg2)
     txt='Product';
     style=5;
     rectstr=stringbox(txt,orig(1),orig(2),0,style,1);
-    if ~exists('%zoom') then %zoom=1, end;
-    w=(rectstr(1,3)-rectstr(1,2))*%zoom;
-    h=(rectstr(2,2)-rectstr(2,4))*%zoom;
+    zoom =acquire("%zoom",def=1);
+    w=(rectstr(1,3)-rectstr(1,2))*zoom;
+    h=(rectstr(2,2)-rectstr(2,4))*zoom;
     xstringb(orig(1)+sz(1)/2-w/2,orig(2)-h-4,txt,w,h,'fill');
   endfunction
   

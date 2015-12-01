@@ -4,8 +4,7 @@ function [x,y,typ]=GotoTagVisibility(job,arg1,arg2)
   function blk_draw(sz,orig,orient,label)
     xstringb(orig(1),orig(2),["{"+arg1.graphics.exprs(1)+"}"],sz(1),sz(2),"fill");
     txt=["Goto Tag";"Visibility" ];
-    if ~exists("%zoom") then %zoom=1, end;
-    fz=1.5*%zoom*4;
+    fz=1.5*acquire("%zoom",def=1)*4;
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
   endfunction
   
