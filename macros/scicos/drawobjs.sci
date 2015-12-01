@@ -10,7 +10,7 @@ function scs_m=drawobjs(scs_m,win)
   end
   drawtitle(scs_m.props,win)
   F=get_figure(win);
-  // xset('background',options.Background(1));
+  // set figure background: xset('background',options.Background(1));
   if length(F.children) > 0 then 
     A=F.children(1);
     A.background=scs_m.props.options.Background(1);
@@ -23,6 +23,8 @@ function scs_m=drawobjs(scs_m,win)
   // note that drawobj will remove old graphic objects if they 
   // exists in each object
   F.draw_latter[];
+  // needed in drawobj 
+  options =  scs_m.props.options; 
   for i=1:length(scs_m.objs);
     scs_m.objs(i)=drawobj(scs_m.objs(i),F)
   end
