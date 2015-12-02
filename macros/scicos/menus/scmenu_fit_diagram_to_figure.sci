@@ -39,7 +39,9 @@ function scmenu_fit_diagram_to_figure()
    if newzoom <> scs_m.props.zoom then
      scs_m.props.zoom=newzoom;
      for i=1:length(scs_m.objs)
-       F.remove[scs_m.objs(i).gr];
+       if scs_m.objs(i).iskey['gr'] then 
+	 F.remove[scs_m.objs(i).gr];
+       end
      end
      window_set_size(curwin,%f,invalidate=%f,popup_dim=%f);
      scs_m=scs_m_remove_gr(scs_m); 

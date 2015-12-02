@@ -84,12 +84,19 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
     end
   end
   // wrect=[0,0,1,1];
-  xsetech(arect=zeros(1,4),frect=mrect,fixed=%t,clip=%f,axesflag=1,iso=%t)
-  if %t then 
+  mrect=int(mrect);
+  if scs_m.props.options.Grid then 
+    xsetech(arect=zeros(1,4),frect=mrect,fixed=%t,clip=%f,axesflag=1,iso=%t)
     F=get_current_figure();
     A=F(1);
-    A.nax=[1,50,1,50];A.auto_axis=%f;
-    xgrid();
+    x_grid=scs_m.props.options.Wgrid(1);
+    y_grid=scs_m.props.options.Wgrid(2);
+    xtics = int((mrect(3)-mrect(1))/x_grid)+1;
+    ytics = int((mrect(4)-mrect(2))/y_grid)+1;
+    A.nax=[1,xtics,1,ytics];A.auto_axis=%f;
+    xgrid(scs_m.props.options.Wgrid(3));
+  else
+    xsetech(arect=zeros(1,4),frect=mrect,fixed=%t,clip=%f,axesflag=0,iso=%t)
   end
   xflush();
   if isequal(viewport,%f) then

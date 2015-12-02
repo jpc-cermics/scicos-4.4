@@ -3,8 +3,9 @@ function [o,ok]=drawobj(o,F)
 // This function creates a graphical object 
 // associated to object o. The graphical object is 
 // inserted in figure F and stored in the 
-// gr field of the object. Note that if o.gr already 
-// existed it is removed from the figure. 
+// gr field of the object. 
+//
+// Note that if o.gr already existed it is removed from the figure. 
 //
 // if F is not given it is assumed that 
 // F=get_figure(curwin);
