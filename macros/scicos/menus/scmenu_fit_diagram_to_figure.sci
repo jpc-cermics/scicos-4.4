@@ -1,4 +1,5 @@
 function scmenu_fit_diagram_to_figure()
+  printf("enter: scmenu_fit_diagram_to_figure\n");
    Cmenu='';
    xinfo('Fit diagram to figure');
    F=get_current_figure()
@@ -36,29 +37,16 @@ function scmenu_fit_diagram_to_figure()
    newzoom=min(newzoom_w,newzoom_h);
 
    if newzoom <> scs_m.props.zoom then
-
-     scs_m.props.zoom=newzoom
-     
+     scs_m.props.zoom=newzoom;
      for i=1:length(scs_m.objs)
-       if scs_m.objs(i).iskey['gr'] then
-        scs_m.objs(i).gr.show=%f
-       end
+       F.remove[scs_m.objs(i).gr];
      end
-
      window_set_size(curwin,%f,invalidate=%f,popup_dim=%f);
-     // see scmenu_zoom_in
-     // need redraw text and some blocks with not filled text.
-     [scs_m]=scmenu_redraw_zoomed_text(scs_m,F);
-
-     for i=1:length(scs_m.objs)
-       if scs_m.objs(i).iskey['gr'] then
-        scs_m.objs(i).gr.show=%t
-       end
-     end
-
-     F.invalidate[];
+     // we need redraw text and some blocks
+     // with not filled text
+     scs_m=scs_m_remove_gr(scs_m); 
+     scs_m=drawobjs(scs_m,curwin);
      edited=%t;
    end
-   
    xinfo(' ');
 endfunction

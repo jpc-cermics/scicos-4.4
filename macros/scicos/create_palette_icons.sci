@@ -98,9 +98,6 @@ function scicos_show_icon(name,zoom=1.4)
     curwin=0;
   end
   xset('window',curwin);
-  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-    scs_m.props.options('3D')(1)=%f //disable 3D block shape
-  end
   scs_m=scs_m_remove_gr(scs_m); 
   window_set_size(curwin,%f,read=%f);
   drawobjs(scs_m,curwin);
@@ -122,9 +119,6 @@ function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
   xset('window',curwin);
   scs_m=scs_m_remove_gr(scs_m);
   scs_m.props.zoom=1.0;
-  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-    scs_m.props.options('3D')(1)=%f //disable 3D block shape
-  end
   // XXX do not put extensions around the graphics 
   window_set_size(curwin,%f,read=%f);
   drawobjs(scs_m,curwin);

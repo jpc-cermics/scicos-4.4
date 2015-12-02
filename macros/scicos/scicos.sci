@@ -182,9 +182,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       if ~or(curwin==winsid()) then
 	xclear(curwin,gc_reset=%f);
       end
-      if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-	scs_m.props.options('3D')(1)=%f //disable 3D block shape
-      end
       read = size( scs_m.props.wpar,'*') >= 12;
       window_set_size(curwin,[-1,-1],invalidate=%t,popup_dim=%t,read=read);
       scicos_set_uimanager(slevel <=1 );
@@ -280,9 +277,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 		// a restore during navigation 
 		xset('window',curwin);
 		xselect();
-		if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-		  scs_m.props.options('3D')(1)=%f //disable 3D block shape
-		end
 		window_set_size(curwin,%f,read=%f);
                 scicos_set_uimanager(slevel <=1 );
 		scs_m=scs_m_remove_gr(scs_m,recursive=%f);
@@ -312,7 +306,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       %diagram_open=%t
       if ~or(curwin==winsid()) then
 	// here on first entry in scicos 
-	printf("restore 1\n");
+	// printf("restore 1\n");
 	xset('window',curwin);
 	xselect();
 	if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required

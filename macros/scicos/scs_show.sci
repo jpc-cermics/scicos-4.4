@@ -11,9 +11,6 @@ function scs_m=scs_show(scs_m,win)
   xclear(win,gc_reset=%f);// just in case 
   xset('window',win);
   xselect();
-  if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-    scs_m.props.options('3D')(1)=%f //disable 3D block shape
-  end
   window_set_size(win,%f,read=%f);
   scs_m=drawobjs(scs_m);
 endfunction

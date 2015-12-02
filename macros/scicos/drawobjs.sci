@@ -8,6 +8,13 @@ function scs_m=drawobjs(scs_m,win)
   if nargin < 2 then 
     win = xget('window');
   end
+  %zoom = scs_m.props.zoom;
+  // add colors defined for diagram 
+  set_cmap(scs_m.props.options('Cmap')); 
+  if scs_m.props.options('3D')(1) && scs_m.props.options('3D')(2) > xget('lastpattern') then 
+    // if 3D shape color is not in colormap we set it to gray level 
+    scs_m.props.options('3D')(2) = xget('lastpattern')+3; 
+  end
   drawtitle(scs_m.props,win)
   F=get_figure(win);
   // set figure background: xset('background',options.Background(1));
