@@ -1,10 +1,10 @@
-
-function scicos_test_anim1(N=100,opengl=%f,poly_d=%t);
-  xinit(opengl=opengl);
-  xclear();
-  xsetech(frect=[0,0,10,10]);
-  //  xset('wresize',0);
-  //  xset('wdim',1000,1000)
+function scicos_test_anim1(N=10,opengl=%f,poly_d=%t);
+// a graphic demo 
+// we draw a set of object and a compound containing 
+// an other set of objects 
+// then we interactively mode the compound 
+  xinit(opengl=opengl,dim=[1000,1000]);
+  xsetech(frect=[0,0,20,20]);
   F=get_current_figure()
   F.draw_latter[];
   for i=1:N,
@@ -69,108 +69,30 @@ function scicos_test_anim1(N=100,opengl=%f,poly_d=%t);
   xdel();
 endfunction
 
-
-function scicos_test_anim2(N=100,opengl=%f,poly_d=%t);
-  // load('NSP/macros/scicos_no_xor/scicos_test_anim.cos');
-  xclear();
-  xinit(opengl=opengl);
-  //xsetech(frect=[0,0,1000,1000]);
-  xset('wresize',0);
-  xset('wdim',1000,1000)
-  others=1:length(scs_m.objs);
-  options=scs_m.props.options
-
-  // this will create a figure 
-  window_set_size()
-  F=get_current_figure();
-  F.draw_latter[];
-  Co=list();
-  for i=1:length(scs_m.objs);
-    F.start_compound[];
-    drawobj(scs_m.objs(i),F)
-    C=F.end_compound[];
-    Co(i)=C;
-    C.show=%t
-  end
-  Ob = Co(1);
-  Ob.show=%t;
-  F.draw_now[];
-  while %t then
-    rep=xclick(clearq=%t,getrelease=%t);
-    pto=[rep(2:3)];
-    pt = pto;
-    //printf("rep = %d\n",rep(3));
-    if rep(1) == 2 then break;end 
-    rep(3)=-1
-    while rep(3)==-1 ,  
-      // move loop
-      // get new position
-      rep=xgetmouse(clearq=%f,getrelease=%t,cursor=%f);
-      //printf("xgetmouse: [%f,%f,%f]\n",rep(1),rep(2),rep(3));
-      pt = rep(1:2);
-      tr= pt - pto;
-      // redraw the non moving objects.
-      // draw block shape
-      F.draw_latter[];
-      Ob.translate[tr];
-      F.draw_now[];
-      pto=pt;
-    end
-  end 
-endfunction
-
-function scicos_test_draw1(opengl=%f)
-  load('NSP/macros/scicos_no_xor/scicos_test_anim.cos');
-  others=1:length(scs_m.objs);
-  xinit(opengl=opengl)
-  //xselect();
-  set_background()
-  // this will create a figure 
+function scicos_test_draw1()
+// drawing a diagram 
+  [ok,scs_m]=do_load('NSP/toolboxes/scicos-4.4/demos/absvalue.cos');
   window_set_size();
-  F=get_current_figure();
-  F.draw_latter[];
-  drawobjs(scs_m,F),
-  F.draw_now[]; 
+  drawobjs(scs_m),
 endfunction 
 
-function fps=scicos_test_anim3(runtime,opengl=%f)
+function scicos_test_anim3(opengl=%f)
 // record each object then move them 
-  load('NSP/macros/scicos_no_xor/scicos_test_anim.cos');
-  others=1:length(scs_m.objs);
-  options=scs_m.props.options
-  xinit(opengl=opengl)
-  //xselect();
-  set_background()
-  // this will create a figure 
-  window_set_size()
+  [ok,scs_m]=do_load('NSP/toolboxes/scicos-4.4/demos/absvalue.cos');
+  xclear();
+  window_set_size();
+  scs_m=drawobjs(scs_m);
+  //realtimeinit(0.0001);
   F=get_current_figure();
-  F.draw_latter[];
-  Co=list();
-  for i=1:length(scs_m.objs);
-    F.start_compound[];
-    drawobj(scs_m.objs(i),F)
-    C=F.end_compound[];
-    Co(i)=C;
-  end
-  F.draw_now[]; 
-  xpause(0,%t);
-  tic();
-  T=0;
-  i=1;
-  while %t
-    F.draw_latter[];
+  for k=1:100
+    printf("k=%d\n",k);
+    // realtime(k);
     for j=1:length(scs_m.objs);
-      t=2*modulo(i,2)-1;
-      Co(j).translate[10*[t,t]];
+      tr=(2*rand(1,2)-1);
+      scs_m.objs(j).gr.translate[tr];
     end
-    F.draw_now[];
-    xpause(0,%t);
-    xinfo(sprintf("iterations %d",i));
-    T.add[toc()];tic();
-    if T > runtime then break;end
-    i=i+1;
+    F.draw_now[]; // we want the graphic to be updated 
   end
-  fps =i;
 endfunction 
 
 
