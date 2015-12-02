@@ -83,7 +83,6 @@ function [ok,scs_m,%cpr,edited,context]=do_import_mdl()
   end;
   window_set_size();
   scs_m=do_replot(scs_m);
-  scs_m=do_replot(scs_m);
   // protect the window against delete
   // XXX : we first have to unconnect the default delete_event.
   gh=nsp_graphic_widget(curwin);
