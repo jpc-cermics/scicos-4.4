@@ -69,13 +69,6 @@ function scicos_test_anim1(N=10,opengl=%f,poly_d=%t);
   xdel();
 endfunction
 
-function scicos_test_draw1()
-// drawing a diagram 
-  [ok,scs_m]=do_load('NSP/toolboxes/scicos-4.4/demos/absvalue.cos');
-  window_set_size();
-  drawobjs(scs_m),
-endfunction 
-
 function scicos_test_anim3(opengl=%f)
 // record each object then move them 
   [ok,scs_m]=do_load('NSP/toolboxes/scicos-4.4/demos/absvalue.cos');

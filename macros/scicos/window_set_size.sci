@@ -1,10 +1,14 @@
-function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
+function window_set_size(win,viewport=[-1,-1],invalidate=%t,popup_dim=%t,read=%f,margins=%t)
 // fix wdim adapted scs_m
-// if viewport is %t the view is centered 
+// if viewport is [-1,-1] the view is centered 
+//    else viewport gives the viewport position
 // if invalidate is %t Figure is invalidated
 // if read is %t values are read in scs_m 
-
-  printf("enter: window_set_size\n");
+// if popup_dim is %t the popup dimension is recomputed 
+// if margin is %t margins are added if margin is %f 
+//    we do not use margins around diagram 
+  
+  // printf("enter: window_set_size\n");
   
   function [wpdim]=scrolled_window_compute_size(rect,zoom)
   // utility to evaluate popup size knowing 
@@ -15,30 +19,30 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
     D=gdk_display_get_default();
     S=D.get_default_screen[]
     wdim_max= [S.get_width[] S.get_height[]];
-    wpdim = max(min(wdim,wdim_max),[400,300]);
+    wpdim = max(min(wdim,wdim_max),[0,0]);
     // printf("quit: scrolled_window_compute_size (%d,%d)\n",wpdim(1),wpdim(2));
   endfunction
   
-  function [frect,wdim]=darea_window_compute_size(rect,zoom)
+  function [frect,wdim]=darea_window_compute_size(rect,zoom,margins=%t)
   // compute proper frect and wdim for drawing area
   // when data is contained in rect (rect can be computed with 
   // dig_bound(scs_m);
-    // printf("enter: darea_compute_size\n");
+  // printf("enter: darea_compute_size\n");
     if isempty(rect) then rect=[0,0,600,400], end
-    w = (rect(3)-rect(1));
-    h = (rect(4)-rect(2));
-    j = min(1.5,max(1,1600/(zoom*w)),max(1,1200/(zoom*h)))  ;
+    w = (rect(3)-rect(1));    h = (rect(4)-rect(2));
     // amplitute correction if the user resize the window
-    ax = j;// (max(wpdim(1)/(zoom*w),j));
-    ay = j;// (max(wpdim(2)/(zoom*h),j));
-    bx = (1-1/ax)/2;
-    by = (1-1/ay)/2;
-    wdim = zoom*[ w * ax, h * ay];
-    margins=[0.02 0.02 0.02 0.02]
-    wp=w*(ax+margins(1)+margins(2))
-    hp=h*(ay+margins(3)+margins(4))
-    xmin=rect(3)-wp*(bx+(1/ax))+margins(1)*wp
-    ymin=rect(4)-hp*(by+(1/ay))+margins(3)*hp
+    j = min(1.5,max(1,1600/(zoom*w)),max(1,1200/(zoom*h)));
+    if ~margins then j=1;end
+    axy = j;
+    bx = (1-1/axy)/2;  by = (1-1/axy)/2;
+    // axy = max([axy, 600/(zoom*w),400/(zoom*h)]);
+    wdim = zoom*[ w , h]*axy;
+    // printf("wdim is: %d,%d\n",wdim(1),wdim(2));
+    xmargins=[0.02 0.02 0.02 0.02]/2
+    wp=w*(axy+xmargins(1)+xmargins(2))
+    hp=h*(axy+xmargins(3)+xmargins(4))
+    xmin=rect(3)-wp*(bx+(1/axy))+xmargins(1)*wp
+    ymin=rect(4)-hp*(by+(1/axy))+xmargins(3)*hp
     xmax=xmin+wp; ymax=ymin+hp;
     frect=[xmin ymin xmax ymax];
     // printf("quit: darea_compute_size (%d,%d),zoom=%f\n",wdim(1),wdim(2),zoom);
@@ -47,8 +51,6 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
   if ~exists('scs_m') then scs_m=hash(10,zoom=1.4);end
   if ~exists('curwin') then curwin=0;end
   if nargin < 1 then win=curwin;end
-  if nargin < 2 then viewport=%f;end
-  
   // should be done at window creation not here
   xset('window',win)
   if xget('wresize') ~= 2 then xset('wresize',2);end
@@ -62,7 +64,7 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
     // mrect=scs_m.props.wpar(1:4);
     // we recompute mrect which is not properly coded in 
     // old diagrams
-    [mrect,_wdim]=darea_window_compute_size(bounds);
+    [mrect,_wdim]=darea_window_compute_size(bounds,zoom,margins=margins);
     wdim=scs_m.props.wpar(5:6);
     viewport=scs_m.props.wpar(7:8);
     wpdim = scs_m.props.wpar(9:10);
@@ -72,7 +74,7 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
     if popup_dim then 
       [wpdim]=scrolled_window_compute_size(bounds);
     end
-    [mrect,wdim]=darea_window_compute_size(bounds);
+    [mrect,wdim]=darea_window_compute_size(bounds,zoom,margins=margins);
   end
   
   if ~isempty(bounds) then
@@ -99,25 +101,13 @@ function window_set_size(win,viewport,invalidate=%t,popup_dim=%t,read=%f)
     xsetech(arect=zeros(1,4),frect=mrect,fixed=%t,clip=%f,axesflag=0,iso=%t)
   end
   xflush();
-  if isequal(viewport,%f) then
-    // center the graphic viewport inside the graphic window
-    xset('viewport',-1,-1);
-  else
-    // use given values 
-    xset('viewport',viewport(1),viewport(2));
-  end
+  // set viewport position 
+  xset('viewport',viewport(1),viewport(2));
   if %f && invalidate then
     F=get_current_figure()
     F.invalidate[]
     F.process_updates[]
   end;
-  printf("quit: window_set_size\n");
-endfunction
-
-function test_window_set_size()
-// load_toolbox('scicos');
-  load('NSP/toolboxes/scicos-4.4/demos/absvalue.cos');
-  window_set_size()
-  scs_m=drawobjs(scs_m);
+  // printf("quit: window_set_size\n");
 endfunction
 

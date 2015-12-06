@@ -1,17 +1,9 @@
 function scmenu_zoom_out()
   Cmenu=''
   xinfo('Zoom out');
-  zoomfactor=1.2
-  F=get_current_figure();
-  for i=1:length(scs_m.objs)
-    F.remove[scs_m.objs(i).gr];
-  end
+  zoomfactor=1.2;
   scs_m.props.zoom = scs_m.props.zoom/zoomfactor;
-  window_set_size(curwin,%f,invalidate=%f,popup_dim=%f);
-  // we need redraw text and some blocks
-  // with not filled text
-  scs_m=scs_m_remove_gr(scs_m); 
-  scs_m=drawobjs(scs_m,curwin);
+  scs_m=scicos_diagram_show(scs_m,win=curwin,margins=%t,scicos_uim=%t,scicos_istop=slevel<=1,read=%f)
   edited=%t;
   xinfo(' ')
 endfunction

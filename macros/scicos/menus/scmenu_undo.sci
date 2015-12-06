@@ -1,7 +1,6 @@
 function scmenu_undo()
   Cmenu='';
   %pt=[];
-  
   if isequal(enable_undo,2) then 
     // need also to replot sub diagrams 
     %r=message(['Undo operation undoes changes in a subdiagram';
@@ -31,24 +30,10 @@ endfunction
 
 function [scs_m]=do_undo(scs_m)
 // make a undo 
-// 
-  F=get_current_figure();
-  F.draw_latter[];// drawobjs will do the draw_now 
-  for i=1:length(scs_m.objs);
-    if scs_m.objs(i).iskey['gr'] then 
-      // we already have stuffs recorded 
-      F.remove[scs_m.objs(i).gr];
-      scs_m.objs(i).delete['gr'];
-    end
-  end
-  // restore scs_m with saved version taking care 
-  // of getting rid of graphics objects in the saved 
-  // version. (Note that scs_m should be saved in scs_m_save
-  // it is useless and take memory).
-  scs_m=scs_m_save;
-  for i=1:length(scs_m.objs); scs_m.objs(i).delete['gr'];end
-  window_set_size();
-  scs_m=drawobjs(scs_m);
+  xinfo('Undo');
+  scs_m = scs_m_save;
+  scs_m=scicos_diagram_show(scs_m,win=curwin,margins=%t,scicos_uim=%t,scicos_istop=slevel<=1,read=%f);
+  xinfo(' ')
 endfunction
 
 function supers=findopenchildren(scs_m,super_path,supers)

@@ -71,20 +71,12 @@ function [ok,scs_m,%cpr,edited,context]=do_import_mdl()
   // value to return;
   context = H1;
   // draw the new diagram
-  if ~exists('curwin')
-    // we want this function to work outside main scicos
-    curwin=1000;
-  end
-  if isempty(winsid()==curwin) then
-    xset('window',curwin);
-  else
-    xclear(curwin,gc_reset=%f);
-    xselect()
-  end;
-  window_set_size();
-  scs_m=do_replot(scs_m);
-  // protect the window against delete
-  // XXX : we first have to unconnect the default delete_event.
+  // draw the new diagram 
+  curwin = acquire('curwin',def=1000);
+  read = size(scs_m.props.wpar,'*') > 12;
+  scs_m=scicos_diagram_show(scs_m,win=curwin,margins=%t,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
+  // protect the window against delete 
+  // we first have to unconnect the default delete_event.
   gh=nsp_graphic_widget(curwin);
   gh.connect_after["delete_event", scicos_delete];
   gh.connect_after["destroy",scicos_destroy];

@@ -27,6 +27,7 @@ endfunction
 function [ok,scs_m,%cpr,edited,context]=do_open(flag)
 // this function can be used ouside of scicos 
 // 
+  
   if nargin <= 0 then flag=%f;end
   context=hash(0);
   if flag then 
@@ -77,51 +78,14 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   // value to return;
   context = H1;
   // draw the new diagram 
-  if ~exists('curwin')
-    // we want this function to work outside main scicos
-    curwin=1000;
-  end
-  if isempty(winsid()==curwin) then 
-    xset('window',curwin);
-  else
-    xclear(curwin,gc_reset=%f);
-    xselect()
-  end;
-  if size(scs_m.props.wpar,'*') > 12 then
-    // should be moved in window_set_size
-    screensz=[gdk_screen_width(), gdk_screen_height()];
-    winsize=scs_m.props.wpar(9:10)
-    winpos=scs_m.props.wpar(11:12)
-    if min(winsize)>0 then
-      winpos=max(0,winpos-max(0,-screensz+winpos+winsize) )
-      scs_m=scs_m;
-      scs_m.props.wpar(11:12)=winpos //make sure window remains inside screen
-    end
-    window_set_size(curwin,%f,invalidate=%f,popup_dim=%t,read=%t);
-  else
-    printf("do_open calls window_set_size\n");
-    // If we already have a window it's maybe not usefull to change it
-    window_set_size(curwin,%f,invalidate=%f,popup_dim=%t); // 
-  end
-  
-  // be sure that colormap is updated adding diagram colors
-  if ~set_cmap(scs_m.props.options('Cmap')) then 
-    // if failed to add colors and 3D exists. set 3d color to gray.
-    if scs_m.props.options('3D')(1) then 
-      scs_m.props.options('3D')=list(%t,xget('lastpattern')+3);
-    end
-  end
-  options=scs_m.props.options
-  set_background()
-  // be sure that graphic objects are recreated 
-  // in case they were in saved file.
-  scs_m=do_replot(scs_m);
+  curwin = acquire('curwin',def=1000);
+  read = size(scs_m.props.wpar,'*') > 12;
+  scs_m=scicos_diagram_show(scs_m,win=curwin,margins=%t,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
   // protect the window against delete 
-  // XXX : we first have to unconnect the default delete_event.
+  // we first have to unconnect the default delete_event.
   gh=nsp_graphic_widget(curwin);
   gh.connect_after["delete_event", scicos_delete];
   gh.connect_after["destroy",scicos_destroy];
-  xflush();
 endfunction
 
 function [y]=scicos_delete(win, event) 
@@ -131,7 +95,7 @@ function [y]=scicos_delete(win, event)
   if y==%t then 
     printf("in delete returning true (no destroy)\n");
   else
-     printf("in delete returning false (destroy)\n");
+    printf("in delete returning false (destroy)\n");
   end
 endfunction
 

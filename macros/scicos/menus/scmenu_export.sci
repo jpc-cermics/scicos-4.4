@@ -17,40 +17,25 @@ function do_export(scs_m,fname)
 
   function do_export_gwin(scs_m)
   // export to a graphic window
-  // jpc 2011 using the restore function 
-  // the exported graphic window will have the 
-  // same size as the scicos graphic window.
-    
-    if ~isempty(winsid()) then 
-      old_curwin=xget('window')
-      curwin=max(winsid())+1
-    else
-      old_curwin=[];
-      curwin=0;
-    end
-    xset('window',curwin);
-    
-    scs_m=scs_m_remove_gr(scs_m);
+    win = window_newid();
+    if win > 0 then oldwin= xget('window');end
     scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);
-    //XX when exporting we do not want to have margins 
-    window_set_size(curwin,%f,read=%f);
-    drawobjs(scs_m,curwin);
-    if ~isempty(old_curwin) then xset('window',old_curwin);end
+    scs_m=scicos_diagram_show(scs_m,win=win,margins=%f,scicos_uim=%f,read=%f);
+    if win > 0 then xset('window',oldwin);end
   endfunction
   
   function do_export_gfile(scs_m,fname) 
   // export to a graphic file according to
-  // file extensions. This only works if scs_m 
-  // is displayed on the current window.
-  // jpc 2011 
-    created=%f;
-    if isempty( winsid()) then 
-      created=%t;
-      do_export_gwin(scs_m);
-    end
-    cwin=xget('window');
-    xexport(cwin,fname,mode='k');
-    if created then xdel(winsid());end
+  // file extensions. 
+  // XXX check drivers for eps et ps ? who is the old one 
+  // and who is the ps via cairo ? 
+    win = window_newid();
+    if win > 0 then oldwin= xget('window');end
+    scs_m.props.title(1)='Scilab Graphics of '+scs_m.props.title(1);
+    scs_m=scicos_diagram_show(scs_m,win=win,margins=%f,scicos_uim=%f,read=%f);
+    xexport(win,fname,mode='k');
+    xdel(win);
+    if win > 0 then xset('window',oldwin);end
   endfunction
   
   num=1;
@@ -97,27 +82,17 @@ function do_export_all(scsm,fname=[],path=[],ext=[],depth=1,fb=%f)
   // This will be changed when it will be possible to draw on 
   // a figure not associated to a graphic window. 
   // jpc 2011. 
-    if ~isempty(winsid()) then 
-      old_curwin=xget('window')
-      curwin=max(winsid())+1
-    else
-      old_curwin=[];
-      curwin=0;
-    end
-    xset('window',curwin);
-    scs_m=scs_m_remove_gr(scs_m);
-    //XX when exporting we do not want to have margins 
-    window_set_size(curwin,%f,read=%f);
-    drawobjs(scs_m,curwin);
+    win = window_newid();
+    if win > 0 then oldwin= xget('window');end
+    scs_m=scicos_diagram_show(scs_m,win=win,margins=%f,scicos_uim=%f,read=%f);
     if isempty(fname) 
       fname_export = file('join',[path,scs_m.props.title(1)+ext]);
     else
       fname_export = file('join',[path,fname+ext]);
     end
-    // printf("exporting %s at level %d\n",fname_export,d);
-    xexport(curwin,fname_export,mode='l',figure_background=fb);
-    xdel(curwin);
-    if ~isempty(old_curwin) then xset('window',old_curwin);end
+    xexport(win,fname_export,mode='k',figure_background=fb);
+    xdel(win);
+    if win > 0 then xset('window',oldwin);end
   endfunction
   
   function count=do_export_recursive(scsm,path,ext,fname,count,d,depth,fb);

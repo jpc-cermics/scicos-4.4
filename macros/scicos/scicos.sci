@@ -176,17 +176,13 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       if needsavetest & ~super_block then
 	// pause ici ici ici
       end
+      // we arrive here on first scicos entry 
       // open a graphic window an draw the window 
+      printf("scicos_diagram_show one\n");
       needsavetest=%f;
-      scs_m=scs_m_remove_gr(scs_m,recursive=%f);
-      if ~or(curwin==winsid()) then
-	xclear(curwin,gc_reset=%f);
-      end
       read = size( scs_m.props.wpar,'*') >= 12;
-      window_set_size(curwin,[-1,-1],invalidate=%t,popup_dim=%t,read=read);
-      scicos_set_uimanager(slevel <=1 );
-      xselect();
-      scs_m=drawobjs(scs_m,curwin);
+      scs_m = scicos_diagram_show(scs_m,win=curwin,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
+      // xselect();
     else
       //needed here ?
       //maybe because we don't store gr in rpar of sblock
@@ -275,16 +271,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	      // must add after testing &%scicos_navig<>[]
               if ~or(curwin==winsid()) then
 		// a restore during navigation 
-		xset('window',curwin);
+		read = size( scs_m.props.wpar,'*') >= 12;
+		printf("scicos_diagram_show two\n");
+		scs_m = scicos_diagram_show(scs_m,win=curwin,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
 		xselect();
-		window_set_size(curwin,%f,read=%f);
-                scicos_set_uimanager(slevel <=1 );
-		scs_m=scs_m_remove_gr(scs_m,recursive=%f);
-		ok=execstr('scs_m=drawobjs(scs_m,curwin)',errcatch=%t);
-		if ~ok then
-		  message(['Failed to draw diagram'])
-		  lasterror();
-		end
                 %scicos_navig=[]
                 Select_back=[];Select=[]
               end
@@ -307,15 +297,10 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       if ~or(curwin==winsid()) then
 	// here on first entry in scicos 
 	// printf("restore 1\n");
-	xset('window',curwin);
-	xselect();
-	if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-	  scs_m.props.options('3D')(1)=%f //disable 3D block shape
-	end
 	read = size( scs_m.props.wpar,'*') >= 12;
-	window_set_size(curwin,%f,read=read);
-        scicos_set_uimanager(slevel <=1 );
-        scs_m=scs_m_remove_gr(scs_m,recursive=%f);
+	printf("scicos_diagram_show three\n");
+	scs_m = scicos_diagram_show(scs_m,win=curwin,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
+	xselect();
         Cmenu='Replot'
         Select_back=[];Select=[]
       end
@@ -565,29 +550,19 @@ function scs_m=rec_restore_gr(scs_m, win, inactive_windows)
       scs_m_save=scs_m
       scs_m=o.model.rpar
       super_block=%t
-      curwin=inactive_windows(2)(i)
-      xset('window',curwin)
-      xclear(curwin,gc_reset=%f);
-      if ~set_cmap(scs_m.props.options('Cmap')) then // add colors if required
-	scs_m.props.options('3D')(1)=%f //disable 3D block shape
-      end
+      curwin=inactive_windows(2)(i);
       read = size( scs_m.props.wpar,'*') >= 12;
-      window_set_size(curwin,[-1,-1],invalidate=%f,popup_dim=%t,read=read);
+      scs_m=scicos_diagram_show(scs_m,win=curwin,margins=%t,scicos_uim=%f,read=read);
       // we do not want to store the graphic commands in o.model.rpar;
-      // we really draw 
       o.model.rpar=scs_m;
-      // drawobjs(scs_m,curwin);
       scs_m=scs_m_save
       scs_m(path)=o
     end
   end
   // top window 
   curwin = win;
-  xset('window',curwin);
-  xclear(curwin,gc_reset=%f);
   read = size( scs_m.props.wpar,'*') >= 12;
-  window_set_size(curwin,[-1,-1],invalidate=%f,popup_dim=%t,read=read);
-  // scs_m=drawobjs(scs_m,curwin);
+  scs_m=scicos_diagram_show(scs_m,win=curwin,margins=%t,scicos_uim=%f,read=read);
 endfunction
 
 function scicos_banner()

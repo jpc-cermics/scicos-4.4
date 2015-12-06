@@ -67,16 +67,18 @@ function scicos_create_icons(lisf)
   end
 endfunction
 
-function scicos_show_icon(name,zoom=1.4)
+function scs_m=scicos_show_icon(name,zoom=1.4)
 // Utility function: 
-// shows in a graphic window the icon associated 
-// to a scicos block named name. 
-// Note that the argument name can be a pathname, 
-// in that case the name of the block is the rootname 
-// of the tail of the pathname 
+//  shows in a graphic window the icon associated to scicos block named name. 
+//  name can be a pathname, in that case the name of the block is the rootname 
+//  of the tail of the pathname.
 //
-// jpc (2011)
+//  Note that the graphic window will have a minium size due to the
+//  presence of menus. Thus when exporting we have a too big icons 
+// 
+// jpc (2011-2015)
 
+// firts create a diagram with the named block
   scs_m=scicos_diagram();
   scs_m.props.zoom=zoom;
   name=file('tail',name);
@@ -90,39 +92,19 @@ function scicos_show_icon(name,zoom=1.4)
     blk.graphics.orig=[0,0];
     scs_m.objs(1)=blk
   end
-  if ~isempty(winsid()) then 
-    old_curwin=xget('window')
-    curwin=max(winsid())+1
-  else
-    old_curwin=[];
-    curwin=0;
-  end
-  xset('window',curwin);
-  scs_m=scs_m_remove_gr(scs_m); 
-  window_set_size(curwin,%f,read=%f);
-  drawobjs(scs_m,curwin);
+  win = window_newid();
+  scs_m=scicos_diagram_show(scs_m,win=win,margins=%f);
 endfunction
 
 function scs_m_to_graphic_file(scs_m,name,figure_background=%f)
 // export scs_m to graphic file (type given by name extension)
 // by first drawing scs_m to a graphic window and then exporting.
-// similar to what is done in export but here we have to display 
-// scs_m first.
-// jpc 2011 
-  if ~isempty(winsid()) then 
-    old_curwin=xget('window')
-    curwin=max(winsid())+1
-  else
-    old_curwin=[];
-    curwin=0;
-  end
-  xset('window',curwin);
-  scs_m=scs_m_remove_gr(scs_m);
-  scs_m.props.zoom=1.0;
-  // XXX do not put extensions around the graphics 
-  window_set_size(curwin,%f,read=%f);
-  drawobjs(scs_m,curwin);
-  xexport(curwin,name,figure_background=figure_background);
-  xdel(curwin);
-  if ~isempty(old_curwin) then xset('window',old_curwin);end
+// jpc (2011-2015)
+  win = window_newid();// fresh graphic window 
+  scs_m.props.zoom=1.4;// default 
+  scicos_diagram_show(scs_m,win=win,margins=%f);
+  xexport(win,name,figure_background=figure_background);
+  xdel(win);
+  // back to win -1 
+  if win >= 1 then xset('window',win-1);end
 endfunction

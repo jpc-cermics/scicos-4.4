@@ -293,6 +293,7 @@ function [pixbuf]=get_gdk_pixbuf(%scicos_gif,blk_name)
     icon = file('join',[%scicos_gif(jj),blk_name+'.png']) ;
     ok = execstr('pixbuf = gdk_pixbuf_new_from_file(icon);',errcatch=  %t);
     if ok then
+      // pixbuf = pixbuf.scale_simple[40,40,GDK.INTERP_NEAREST];
       break
     else
       pixbuf = pixbuf_def

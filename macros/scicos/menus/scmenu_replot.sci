@@ -2,15 +2,9 @@ function scmenu_replot()
   Cmenu=''
   %pt=[]
   Select=[]
-  // we would need also a Replot without a resize
-  for i=1:length(scs_m.objs)
-    if scs_m.objs(i).iskey['gr'] then
-      scs_m.objs(i).gr.show=%f
-    end
-  end
-  window_set_size();
-  scs_m=do_replot(scs_m);
-  edited=%t
+  scs_m=scicos_diagram_show(scs_m,win=curwin,margins=%t,scicos_uim=%t,scicos_istop=slevel<=1,read=%f);
+  edited=%t;
+  xinfo(' ')
 endfunction
 
 function scs_m=do_replot(scs_m)
