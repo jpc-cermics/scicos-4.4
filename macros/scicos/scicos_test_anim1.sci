@@ -72,9 +72,7 @@ endfunction
 function scicos_test_anim3(opengl=%f)
 // record each object then move them 
   [ok,scs_m]=do_load('NSP/toolboxes/scicos-4.4/demos/absvalue.cos');
-  xclear();
-  window_set_size();
-  scs_m=drawobjs(scs_m);
+  scs_m=scicos_diagram_show(scs_m)
   //realtimeinit(0.0001);
   F=get_current_figure();
   for k=1:100
