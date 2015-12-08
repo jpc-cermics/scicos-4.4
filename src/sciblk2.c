@@ -807,12 +807,10 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
     {
     case 0:
       /*  x'  computation */
+      /* Sciprintf("computing state derivative\n"); */
       if (Blocks->nx != 0) {
         if (nsp_hash_find (H, "xd", &Ob) == FAIL) goto err;
         scicos_scitod (Blocks->xd, Blocks->nx, 1, Ob);
-        /* res XXX */
-        if (nsp_hash_find (H, "res", &Ob) == FAIL) goto err;
-        scicos_scitod (Blocks->res, Blocks->nx, 1, Ob);
       }
       break;
     case 1:
