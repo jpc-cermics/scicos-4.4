@@ -1551,11 +1551,25 @@ endfunction
 function [ok,scicos_ver,scs_m]=update_version(scs_m)
 // Copyright INRIA
 // updates a diagram to the current scicos version 
+  function scs = do_version441_plus(scs_m)
+    scs = scs_m;
+    if ~scs.props.iskey['zoom'] then
+      if size(scs.props.wpar,'*') >= 13 then 
+	scs.props.zoom= scs.props.wpar(13);
+      else
+	scs.props.zoom=1.4;
+      end
+    end
+  endfunction
+  
   ok=%t;
   current_version = get_scicos_version()
   // guess the proper version of the diagram 
   scicos_ver = find_scicos_version(scs_m)
-  if scicos_ver==current_version then return;end 
+  if scicos_ver==current_version then 
+    scs_m = do_version441_plus(scs_m);
+    return;
+  end 
   cmd= 'scs_m_out=do_version(scs_m,scicos_ver)'
   ok=execstr(cmd,errcatch=%t)
   if ~ok then
@@ -1571,15 +1585,11 @@ function [scicos_ver]=find_scicos_version(scs_m)
 // version number in a scs_m structure.
 // 21/08/07: Alan, inital revision
 // 
-  if ~exists('scicos_ver') then
-    scicos_ver = "scicos2.2";
-  else
-    scicos_ver = scicos_ver;
-  end
+  scicos_ver=acquire('scicos_ver',def= "scicos2.2");
   if scs_m.iskey['version'] then
     if scs_m.version<>'' then
       // version is stored in the structure.
-      scicos_ver=scs_m.version
+      scicos_ver= scs_m.version
       return;
     end
     n=size(scs_m.objs);

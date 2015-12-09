@@ -79,7 +79,7 @@ function [ok,scs_m,%cpr,edited,context]=do_open(flag)
   context = H1;
   // draw the new diagram 
   curwin = acquire('curwin',def=1000);
-  read = size(scs_m.props.wpar,'*') > 12;
+  read = size(scs_m.props.wpar,'*') >= 12;
   scs_m=scicos_diagram_show(scs_m,win=curwin,margins=%t,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
   // protect the window against delete 
   // we first have to unconnect the default delete_event.

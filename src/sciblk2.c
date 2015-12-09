@@ -812,6 +812,13 @@ void scicos_sciblk4 (scicos_block *Blocks, int flag)
         if (nsp_hash_find (H, "xd", &Ob) == FAIL) goto err;
         scicos_scitod (Blocks->xd, Blocks->nx, 1, Ob);
       }
+      if ( Blocks->res != Blocks->xd ) 
+	{
+	  if (Blocks->nx != 0) {
+	    if (nsp_hash_find (H, "res", &Ob) == FAIL) goto err;
+	    scicos_scitod (Blocks->res, Blocks->nx, 1, Ob);
+	  }
+	}
       break;
     case 1:
       /* outptr */

@@ -1,10 +1,10 @@
 function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 // Copyright INRIA
-// Load a Scicos diagram or import a scicos diagram from scicoslab
+// Load a Scicos/Nsp diagram or import a Scicos diagram from scicoslab
 // keep_xstring can be set to true if during import the icons of xstringb types
 // should be kept and not re-created with define.
 
-  global %scicos_demo_mode ;
+  global %scicos_demo_mode;
   global %scicos_open_saveas_path ;
   global(%scicos_ext='.cos'); //default file extension
   if isempty(%scicos_open_saveas_path) then %scicos_open_saveas_path='', end
@@ -16,7 +16,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
   if alreadyran & typ=="diagram" then
     do_terminate(); //end current simulation
   end
-
+  
   scicos_debug(0); //set debug level to 0 for new diagram loaded
 
   current_version = get_scicos_version()
@@ -107,15 +107,15 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
   end
 
   //second pass
-  if ext=='cos'|ext=='COS' then
+  if ext=='cos' || ext=='COS' then
     if import then
       ok=execstr('sci_load(fname);',errcatch=%t)
     else
       ok=execstr('load(fname)',errcatch=%t)
     end
-  elseif ext=='cosf'|ext=='COSF' then
+  elseif ext=='cosf' || ext=='COSF' then
     ok=execstr('exec(fname)',errcatch=%t);
-  elseif ext=='xml'|ext=='XML' then
+  elseif ext=='xml' || ext=='XML' then
     printf('Opening an XML file. Please wait ...............\n')
     ok=execstr('scs_m=xml2cos(fname)',errcatch=%t)
   elseif ext=='new'
@@ -145,13 +145,9 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
       return;
     end
   end
-  //for compatibility
-  scicos_ver=find_scicos_version(scs_m)
-  if scicos_ver=='scicos2.2' then
-    if isempty(scs_m) then scs_m=x,end //for compatibility
-  end
-  //##update version
-  [ok,scicos_ver,scs_m]=update_version(scs_m)
+  if isempty(scs_m) then scs_m= get_new_scs_m();end
+  // update version
+  [ok,scicos_ver,scs_m]=update_version(scs_m);
   if ~ok then
     message('An error occured during the update of '+name+'.')
     scs_m = get_new_scs_m();
@@ -163,16 +159,16 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
     %cpr=list()
     edited=%t
   end
-
+  
   if import then
     // convert from scilab
     scs_m=do_update_scilab_schema(scs_m,keep_xstringb=keep_xstringb);
     // just in case we make a save
     scs_m.props.title=[scs_m.props.title(1)+'_nsp',path];
   else
-    scs_m.props.title=[scs_m.props.title(1),path]
+    scs_m.props.title=[scs_m.props.title(1),path];
   end
-
+  
   if ext=='xml'|ext=='XML' then
     scs_m_sav=scs_m;
     [scs_m,ok]=generating_atomic_code(scs_m)
@@ -411,6 +407,12 @@ endfunction
 // -- angle is to be changed since conventions are not the same.
 
 function scs_m=do_update_scilab_schema(scs_m,keep_xstringb=%t)
+// do not use wpar when importing from scicoslab 
+// this should be done recursively.
+  if size(scs_m.props.wpar,'*') >= 13 then 
+    scs_m.props.wpar=scs_m.props.wpar(1:2);
+  end
+  
   n=size(scs_m.objs);
   if scs_m.props.options.iskey['D3'];
     scs_m.props.options('3D')=   scs_m.props.options('D3')
