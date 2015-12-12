@@ -12,23 +12,25 @@ function scmenu_rename()
     end
   end
   if inside_sblock then
-    o=scs_m.objs(Select(1,1)).model.rpar
-    [o,edited] = do_rename(o,%f)
-    scs_m.objs(Select(1,1)).model.rpar=o
+    title=scs_m.objs(Select(1,1)).model.rpar.props.title(1);
+    [title,edited] = do_rename(title,%f)
+    if edited then 
+      scs_m.objs(Select(1,1)).model.rpar.props.title(1)=title;
+    end
   else
-    [scs_m,edited] = do_rename(scs_m,%t)
+    [title,edited] = do_rename(scs_m.props.title(1),%t);
+    if edited then scs_m.props.title(1)=title;end;
   end
 endfunction
 
-function [scs_m,edited]=do_rename(scs_m,dtitle)
+function [new,edited]=do_rename(title,draw_title)
   edited= %f;
   mess='Enter the new diagram name'
   %scs_help='Rename'
-  [ok,new]=getvalue(mess,"Name",list("str",[1,1]),scs_m.props.title(1))
+  [ok,new]=getvalue(mess,"Name",list("str",[1,1]),title);
   if ~ok then return;end
   if ~isempty(new) then
-    scs_m.props.title(1)=new;
-    if dtitle then drawtitle(scs_m.props);end 
+    if draw_title then drawtitle(new);end 
     edited=%t
   end
 endfunction

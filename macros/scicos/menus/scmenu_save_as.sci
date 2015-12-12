@@ -93,24 +93,22 @@ function [ok,scs_m]=do_SaveAs(scs_m)
   else
     %cpr=list()
   end
-  scs_m_rec=scs_m
   [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver);
-  scs_m_rec.props=scs_m.props
-  scs_m=scs_m_rec
-  clear scs_m_rec
-  drawtitle(scs_m.props)  // draw the new title
+  drawtitle(scs_m.props.title(1))  // draw the new title
 endfunction
 
-function [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
+function [ok,scs_m_new]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)
 // open the selected file
   ok=%t
   if nargin <= 2 then %cpr=list();end
   if nargin <= 3 then scicos_ver=get_scicos_version();end
   [path,name,ext]=splitfilepath(fname)
-  scs_m = scs_m;
   scs_m.props.title=[name,path]; // Change the title
+  // keep recorded graphics in returned value 
+  // we have just update the title.
+  scs_m_new = scs_m;
   // do not purge is %cpr is saved
-  if isempty(%cpr) then   scs_m=do_purge(scs_m);end
+  if isempty(%cpr) then scs_m=do_purge(scs_m);end
   scs_m=scs_m_remove_gr(scs_m);
   if ext=='cos' then
     // save in binary mode

@@ -31,8 +31,9 @@ function [%pt,scs_m,Select]=do_region2block(%pt,scs_m,fun)
   if fun.get_fname[]=='SuperBlock' then 
     scs_mb.props.title='Untitled'
   elseif fun.get_fname[]=='PAL_f' then
-    scs_mb.props.title='Palette'
-    [scs_mb,edited] = do_rename(scs_mb,%t)
+    title='Palette'
+    [new,edited] = do_rename(title,%t);
+    if edited then scs_mb.props.title=new;end
   end
   ox=rect(1);oy=rect(2)+rect(4);w=rect(3),h=rect(4)
 
@@ -643,8 +644,9 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m,fun)
   if fun.get_fname[]=='SUPER_f' then 
     reg.props.title='SuperBlock'
   elseif fun.get_fname[]=='PAL_f' then
-    reg.props.title='Palette'
-    [reg,edited] = do_rename(reg,%t)
+    title= 'Palette'
+    [new,edited] = do_rename(title,%t)
+    if edited then reg.props.title=new;end
   end
 
   sup = fun('define')

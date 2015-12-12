@@ -2,10 +2,11 @@ function scmenu_save()
   Cmenu=''
   %pt=[]
   if super_block then
+    // save a super block or navigate to top 
     r=x_choose(['Diagram';'Super Block'],..
                ['Save content of the Super Block or'
                 'the complete diagram?'],'Cancel')
-    if r==0 then
+    if r==0 then 
       return
     end
     if r==1 then
@@ -14,13 +15,11 @@ function scmenu_save()
                        '%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1']
       return
     end
-  end
-  scs_m_rec=scs_m
-  [ok,scs_m]=do_save(scs_m)
-  scs_m_rec.props=scs_m.props
-  scs_m=scs_m_rec
-  clear scs_m_rec
-  drawtitle(scs_m.props)  // draw the new title if any
+  end;
+  [ok,scs_m_new]=do_save(scs_m)
+  scs_m.props=scs_m_new.props
+  clear scs_m_new;
+  drawtitle(scs_m.props.title(1))  // draw the new title if any
   if ok&~super_block then edited=%f,end
 endfunction
 
