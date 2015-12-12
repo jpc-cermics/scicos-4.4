@@ -78,7 +78,7 @@ function [ok,scs_m]=do_SaveAs(scs_m)
       end
     end
   end
-  if ~super_block & ~pal_mode then
+  if ~super_block then
     //update %cpr data structure to make it coherent with last changes
     if needcompile==4 then
       %cpr=list()
@@ -99,11 +99,6 @@ function [ok,scs_m]=do_SaveAs(scs_m)
   scs_m=scs_m_rec
   clear scs_m_rec
   drawtitle(scs_m.props)  // draw the new title
-  if pal_mode then
-    scicos_pal=update_scicos_pal(path,scs_m.props.title(1),fname),
-    resume(scicos_pal)
-    return;
-  end
 endfunction
 
 function [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver)

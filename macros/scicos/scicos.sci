@@ -41,7 +41,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     scicos_library_initialize()
     //
     modelica_libs=unique(modelica_libs);
-    pal_mode=%f; //Palette edition mode
     newblocks=[]; //table of added functions in pal_mode
     ok = execstr('load(''.scicos_short'')',errcatch=%t)  //keyboard shortcuts
     if ~ok then

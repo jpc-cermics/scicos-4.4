@@ -13,7 +13,7 @@ function do_exit()
    case 3 then do_SaveAs();
   end
   
-  if ~super_block & ~pal_mode  then
+  if ~super_block then
     if alreadyran then do_terminate(),end
   end
 

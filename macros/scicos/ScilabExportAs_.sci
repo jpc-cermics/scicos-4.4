@@ -46,7 +46,7 @@ function [scs_m,edited]=do_ScilabExportAs()
     return
   end
 
-  if ~super_block&~pal_mode then
+  if ~super_block then
     //update %cpr data structure to make it coherent with last changes
     if needcompile==4 then
       %cpr=list()
@@ -63,13 +63,6 @@ function [scs_m,edited]=do_ScilabExportAs()
   // since the exported schema should not be overwriten 
   // by a save
   scicos_export_in_file(scs_m,%cpr,fname,scicos_ver);
-  //drawtitle(scs_m.props)  // draw the new title
-
   edited=%f
-  if pal_mode then 
-    scicos_pal=update_scicos_pal(path,scs_m.props.title(1),fname),
-    resume(scicos_pal)
-    return;
-  end
 endfunction
 

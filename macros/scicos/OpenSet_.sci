@@ -78,11 +78,8 @@ function OpenSet_()
           else
             enable_undo = %t
           end
-
-          if ~pal_mode then
-            needcompile = max(needcompile, needcompileb)
-          end
-          if or(curwin==winsid()) then xset('window',curwin);end
+	  needcompile = max(needcompile, needcompileb)
+	  if or(curwin==winsid()) then xset('window',curwin);end
           scs_m = update_redraw_obj(scs_m, %Path,o)
         end
         // note if block parameters have been modified

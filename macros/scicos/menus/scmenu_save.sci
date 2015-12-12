@@ -60,7 +60,6 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
     return;
   end
 
-  pal_mode = acquire("pal_mode",def=%f);
   super_block = acquire("super_block",def=%f);
   needcompile = acquire("needcompile", def=4);
   alreadyran= acquire("alreadyran", def = %f);
@@ -68,15 +67,13 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
 
   if scicos_ver == "" then find_scicos_version(scs_m);end
 
-  if pal_mode then scs_m=do_purge(scs_m),end
-
   // no path found or given
   if isempty(path) then
     [ok,scs_m]=do_SaveAs(scs_m)
     return
   end
   //open file
-  if ~super_block & ~pal_mode then
+  if ~super_block then
     //update %cpr data structure to make it coherent with last changes
     if needcompile==4 then
       %cpr=list()
@@ -111,6 +108,5 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
   else
     [ok,scs_m]=scicos_save_in_file(fname,scs_m,%cpr,scicos_ver);
   end
-  if pal_mode then update_scicos_pal(path,scs_m.props.title(1),fname),end
   ok=%t
 endfunction

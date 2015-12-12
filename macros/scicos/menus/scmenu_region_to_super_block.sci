@@ -32,7 +32,7 @@ function [%pt,scs_m,Select]=do_region2block(%pt,scs_m,fun)
     scs_mb.props.title='Untitled'
   elseif fun.get_fname[]=='PAL_f' then
     scs_mb.props.title='Palette'
-    [scs_mb,edited] = do_rename(scs_mb,%t,%t)
+    [scs_mb,edited] = do_rename(scs_mb,%t)
   end
   ox=rect(1);oy=rect(2)+rect(4);w=rect(3),h=rect(4)
 
@@ -257,7 +257,7 @@ function [reg,rect,prt,is_flip,Select]=get_region2(xc,yc,win,fun)
     return
   elseif win==curwin then //click dans la fenetre courante
     scs_m=scs_m
-  elseif pal_mode&win==lastwin then 
+  elseif %f & win==lastwin then 
     scs_m=scs_m_s
   elseif slevel>1 then
     execstr('scs_m=scs_m_'+string(windows(kc,1)))
@@ -644,7 +644,7 @@ function [%pt,scs_m]=do_select2block(%pt,scs_m,fun)
     reg.props.title='SuperBlock'
   elseif fun.get_fname[]=='PAL_f' then
     reg.props.title='Palette'
-    [reg,edited] = do_rename(reg,%t,%t)
+    [reg,edited] = do_rename(reg,%t)
   end
 
   sup = fun('define')
