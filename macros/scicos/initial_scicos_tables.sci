@@ -62,13 +62,11 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["Palettes"          "menuitem"  "scmenu_palettes"          "" ""]);
 
   Palette.concat[list(...
-		  ["sep0"              "separator" ""                         "" ""],
-                  ["Pal editor"        "menuitem"  "scmenu_pal_editor"        "" ""],
                   ["sep1"              "separator" ""                         "" ""],
                   ["Region to Palette" "menuitem"  "scmenu_region_to_palette" "" ""],
                   ["sep2"              "separator" ""                         "" ""],
-                  ["Load as Palette"   "menuitem"  "scmenu_load_as_palette"   "" ""],
-                  ["Save as Palette"   "menuitem"  "scmenu_save_as_palette"   "" ""])];
+                  ["Load as Palette Block"   "menuitem"  "scmenu_load_as_palette"   "" ""])];
+
 
   Edit =     list(["_Edit"                       "menu"      "scmenu_edit_menu"  ""        ""],
                   ["Undo|||gtk-undo"             "menuitem"  "scmenu_undo"       "<Ctrl>Z" ""],
@@ -431,8 +429,6 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
       'scmenu_region_to_super_block', "Press left mouse button, drag region and release (right button to cancel)";
       'Region to Palette',     "Press left mouse button, drag region and release (right button to cancel)";
       'scmenu_region_to_palette',     "Press left mouse button, drag region and release (right button to cancel)";
-      'Load as Palette',       '';
-      'scmenu_load_as_palette',       '';
       'Smart Move',            "Click object to move, drag and click (left to fix, right to cancel)";
       'Move',                  "Click object to move, drag and click (left to fix, right to cancel)";
       'Duplicate'              "Click on the object to duplicate, drag, click (left to copy, right to cancel)";

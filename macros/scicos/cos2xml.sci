@@ -1,4 +1,83 @@
 function [ok,t]=cos2xml(scs_m,name,atomic=%f)
+// conversion a scicos diagram scs_m to a string matrix with xml code 
+// 
+  
+  function xml_txt=block2xml(o,flag,t1,atomic=%f)
+  // hash table 
+    if nargin <= 1 then flag=2;end 
+    xml_txt=m2s([]);format(20);
+    x=o.__keys ; // should eliminate type tlist, mlist 
+    x1= o.type; // 
+    for i=1:size(x,'*')
+      if x(i)=='type' || x(i) == 'mlist' || x(i) == 'tlist' then 
+	// ignore 
+      elseif x(i)=='context' then
+	xml_txt.concatd[['   <'+x1+' id='''+x(i)+''' >';
+			 '      '+xml_subst(evstr('sci2exp(o.'+x(i)+',0)'));
+			 '   </'+x1+'>']];
+      elseif x1=='Link'|| (x1=='params' && x(i)<>'options') || x1=='codegeneration' then
+	xml_txt.concatd[['   <'+x1+' id='''+x(i)+''' value='''+evstr('sci2exp(o.'+x(i)+',0)')+''' />']];
+      elseif x(i)=='doc'|x(i)=='void'| x(i)=='gui' then
+	xml_txt.concatd[[' <'+x(i)+' id='''+x(i)+''' value='''+evstr('sci2exp(o.'+x(i)+',0)')+''' />']];
+      else
+	if x(i)<>'model' then
+	  xml_txt.concatd[[' <'+x1+' id='''+x(i)+''' >']];
+	end
+	// o(x(i)) is also a hash table 
+	xx=o(x(i)).__keys;
+	for j=1:size(xx,'*')
+	  if x(i)=='model' & xx(j)<>'rpar'	 
+	  elseif xx(j)=='gr_i' then
+	    xml_txt=[xml_txt;
+		     '   <'+x(i)+' id='''+xx(j)+'''>';
+		     '      '+xml_subst(evstr('sci2exp(o.'+x(i)+'.'+xx(j)+',0)'));
+		     '   </'+x(i)+'>'];
+	  elseif xx(j)=='exprs' then
+	    if flag==2 & atomic then
+	      xml_txt=[xml_txt;
+		       '   <'+x(i)+' id='''+xx(j)+'''>';
+		       '       <p>'+xml_subst(evstr('sci2exp(o.'+x(i)+'.'+xx(j)+'(1),90)'))+'</p>';
+		       '   </'+x(i)+'>'];
+	    else
+	      xml_txt=[xml_txt;
+		       '   <'+x(i)+' id='''+xx(j)+'''>';
+		       '       <p>'+xml_subst(evstr('sci2exp(o.'+x(i)+'.'+xx(j)+',90)'))+'</p>';
+		       '   </'+x(i)+'>'];
+	    end
+	  elseif xx(j)=='rpar' & flag==2 then
+	    xml_txt=[xml_txt;
+		     ' <Block  id=''diagram'' >';
+		     '      '+t1;
+		     ' </Block>'];
+	  elseif xx(j)=='rpar' then
+	    xml_txt=[xml_txt;
+		     ' <'+x1+' id=''diagram'' >';
+		     ' </'+x1+'>'];
+	  elseif xx(j)=='3D' then
+	    xml_txt=[xml_txt;
+		     '   <'+x(i)+' id='''+xx(j)+''' value='''+evstr('sci2exp(o.'+x(i)+'('+sci2exp(j)+')'+',0)')+''' />'];
+	  else
+	    xml_txt=[xml_txt;
+		     '   <'+x(i)+' id='''+xx(j)+''' value='''+xml_subst(strsubst(evstr('sci2exp(o.'+x(i)+'.'+xx(j)+',0)'),' ',''))+''' />'];
+	  end
+	end
+	if x(i)<>'model' then
+	  xml_txt=[xml_txt;
+		   ' </'+x1+'>'];
+	end
+      end
+    end
+  endfunction
+
+  function field=xml_subst(field)
+    field=strsubst(field,'&','&amp;');
+    field=strsubst(field,'<','&lt;');
+    field=strsubst(field,'>','&gt;');
+    field=strsubst(field,'""','&quot;');
+    field=strsubst(field,'''','&apos;');
+  endfunction
+
+  
   ok=%t;t=[];format(20);
   Bn='OBJ';
   tit=scs_m.props.title(1);
@@ -89,77 +168,3 @@ function [ok,t]=cos2xml(scs_m,name,atomic=%f)
   t=[head;'   '+t;tail]
 endfunction
 
-function xml_txt=block2xml(o,flag,t1,atomic=%f)
-// hash table 
-  if nargin <= 1 then flag=2;end 
-  xml_txt=m2s([]);format(20);
-  x=o.__keys ; // should eliminate type tlist, mlist 
-  x1= o.type; // 
-  for i=1:size(x,'*')
-    if x(i)=='type' || x(i) == 'mlist' || x(i) == 'tlist' then 
-      // ignore 
-    elseif x(i)=='context' then
-      xml_txt.concatd[['   <'+x1+' id='''+x(i)+''' >';
-		       '      '+xml_subst(evstr('sci2exp(o.'+x(i)+',0)'));
-		       '   </'+x1+'>']];
-    elseif x1=='Link'|| (x1=='params' && x(i)<>'options') || x1=='codegeneration' then
-      xml_txt.concatd[['   <'+x1+' id='''+x(i)+''' value='''+evstr('sci2exp(o.'+x(i)+',0)')+''' />']];
-    elseif x(i)=='doc'|x(i)=='void'| x(i)=='gui' then
-      xml_txt.concatd[[' <'+x(i)+' id='''+x(i)+''' value='''+evstr('sci2exp(o.'+x(i)+',0)')+''' />']];
-    else
-      if x(i)<>'model' then
-	xml_txt.concatd[[' <'+x1+' id='''+x(i)+''' >']];
-      end
-      // o(x(i)) is also a hash table 
-      xx=o(x(i)).__keys;
-      for j=1:size(xx,'*')
-	if x(i)=='model' & xx(j)<>'rpar'	 
-	elseif xx(j)=='gr_i' then
-	  xml_txt=[xml_txt;
-		   '   <'+x(i)+' id='''+xx(j)+'''>';
-		   '      '+xml_subst(evstr('sci2exp(o.'+x(i)+'.'+xx(j)+',0)'));
-		   '   </'+x(i)+'>'];
-	elseif xx(j)=='exprs' then
-	  if flag==2 & atomic then
-	    xml_txt=[xml_txt;
-		     '   <'+x(i)+' id='''+xx(j)+'''>';
-		     '       <p>'+xml_subst(evstr('sci2exp(o.'+x(i)+'.'+xx(j)+'(1),90)'))+'</p>';
-		     '   </'+x(i)+'>'];
-	  else
-	    xml_txt=[xml_txt;
-		     '   <'+x(i)+' id='''+xx(j)+'''>';
-		     '       <p>'+xml_subst(evstr('sci2exp(o.'+x(i)+'.'+xx(j)+',90)'))+'</p>';
-		     '   </'+x(i)+'>'];
-	  end
-	elseif xx(j)=='rpar' & flag==2 then
-	  xml_txt=[xml_txt;
-		   ' <Block  id=''diagram'' >';
-		   '      '+t1;
-		   ' </Block>'];
-	elseif xx(j)=='rpar' then
-	  xml_txt=[xml_txt;
-		   ' <'+x1+' id=''diagram'' >';
-		   ' </'+x1+'>'];
-	elseif xx(j)=='3D' then
-	  xml_txt=[xml_txt;
-		   '   <'+x(i)+' id='''+xx(j)+''' value='''+evstr('sci2exp(o.'+x(i)+'('+sci2exp(j)+')'+',0)')+''' />'];
-	else
-	  xml_txt=[xml_txt;
-		   '   <'+x(i)+' id='''+xx(j)+''' value='''+xml_subst(strsubst(evstr('sci2exp(o.'+x(i)+'.'+xx(j)+',0)'),' ',''))+''' />'];
-	end
-      end
-      if x(i)<>'model' then
-	xml_txt=[xml_txt;
-		 ' </'+x1+'>'];
-      end
-    end
-  end
-endfunction
-
-function field=xml_subst(field)
-  field=strsubst(field,'&','&amp;');
-  field=strsubst(field,'<','&lt;');
-  field=strsubst(field,'>','&gt;');
-  field=strsubst(field,'""','&quot;');
-  field=strsubst(field,'''','&apos;');
-endfunction

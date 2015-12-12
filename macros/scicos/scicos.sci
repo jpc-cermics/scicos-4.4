@@ -178,7 +178,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       end
       // we arrive here on first scicos entry 
       // open a graphic window an draw the window 
-      printf("scicos_diagram_show one\n");
+      // printf("scicos_diagram_show one\n");
       needsavetest=%f;
       read = size( scs_m.props.wpar,'*') >= 12;
       scs_m = scicos_diagram_show(scs_m,win=curwin,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
@@ -272,7 +272,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
               if ~or(curwin==winsid()) then
 		// a restore during navigation 
 		read = size( scs_m.props.wpar,'*') >= 12;
-		printf("scicos_diagram_show two\n");
+		// printf("scicos_diagram_show two\n");
 		scs_m = scicos_diagram_show(scs_m,win=curwin,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
 		xselect();
                 %scicos_navig=[]
@@ -298,7 +298,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
 	// here on first entry in scicos 
 	// printf("restore 1\n");
 	read = size( scs_m.props.wpar,'*') >= 12;
-	printf("scicos_diagram_show three\n");
+	// printf("scicos_diagram_show three\n");
 	scs_m = scicos_diagram_show(scs_m,win=curwin,scicos_uim=%t,scicos_istop=slevel<=1,read=read);
 	xselect();
         Cmenu='Replot'

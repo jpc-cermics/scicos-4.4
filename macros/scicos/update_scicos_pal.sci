@@ -5,7 +5,7 @@ function scicos_pal=update_scicos_pal(path,name,fname)
   inde=find(scicos_pal(:,1)==name);
   if size(inde,'*')>=2 then 
     message(['More than one palette named '+name;
-	     'This is not allowed, do an Pal Editor to correct'])
+	     'This is not allowed, do a Pal Editor to correct'])
     return
   end
   if ~isempty(inde) then

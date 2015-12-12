@@ -1551,6 +1551,7 @@ endfunction
 function [ok,scicos_ver,scs_m]=update_version(scs_m)
 // Copyright INRIA
 // updates a diagram to the current scicos version 
+
   function scs = do_version441_plus(scs_m)
     scs = scs_m;
     if ~scs.props.iskey['zoom'] then
@@ -1558,6 +1559,16 @@ function [ok,scicos_ver,scs_m]=update_version(scs_m)
 	scs.props.zoom= scs.props.wpar(13);
       else
 	scs.props.zoom=1.4;
+      end
+    end
+    for j=1:length(scs.objs)
+      o=scs.objs(j);
+      if o.type=='Block' then
+        omod=o.model
+	if omod.sim.equal['super'] || omod.sim.equal['csuper'] || omod.sim(1).equal['asuper'] then
+          rpar=do_version441_plus(omod.rpar);
+          scs.objs(j).model.rpar=rpar
+        end
       end
     end
   endfunction

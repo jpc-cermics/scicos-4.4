@@ -25,6 +25,7 @@ function [ok,scs_m]=do_load_as_palette(scs_m)
   // 
   blk.model.rpar.props.title='Palette: '+sc.props.title(1);
   blk.graphics.id = 'Palette: '+sc.props.title(1);
+  %pt=[0,0];
   [%pt,scs_m,needcompile]=do_placeindiagram_new(scs_m,blk);
   // herited from do_place_in_diagram 
   resume(scs_m_save,nc_save,enable_undo=%t,edited=%t);

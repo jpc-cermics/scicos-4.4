@@ -12,3 +12,7 @@ function model=scicos_model(varargopt)
   model.merge[varargopt];
 endfunction
 
+function model=update_model(model)
+  model = scicos_model(model(:));
+endfunction
+

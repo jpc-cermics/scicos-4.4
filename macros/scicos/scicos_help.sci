@@ -134,24 +134,12 @@ function H=scicos_help_menu()
   H('scmenu_palettes')=...
       [" Select the Palettes menu item to open a predefined palette."];
 
-  H('scmenu_pal_editor')=...
-      [" Pal editor allows you to define and reorder the list of palettes."];
-
   H('scmenu_load_as_palette')=...
       [" Select this Load menu item to load an ASCII or binary file";
-       " containing a saved block diagram as a palette.";
+       " containing a saved block diagram as a palette block.";
+       " A pallete block is a super block which can be used for copying";
+       " blocks or regions into the current diagram.";
        " A dialog box allows user choosing the file."];
-
-  H('scmenu_save_as_palette')=...
-      [" Select the Save as Palette menu item to save the block diagram"
-       " as a palette in a file. A dialog box allows choosing ";
-       " the file which must have a .cos or .cosf extension. The palette";
-       " takes the name of the file (without the extension).";
-       " ";
-       " If extension is "".cosf"" an ASCII  formatted save is performed";
-       " instead of binary save. It may take a while.";
-       " ";
-       " .scilab user file is updated if necessary."];
 
   H('scmenu_pal_tree')=...
       ["An alternative to Palettes menu for accessing palettes."];
