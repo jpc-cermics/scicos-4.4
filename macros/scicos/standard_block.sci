@@ -571,7 +571,6 @@ function [texte,L_out] = standard_document(objet, k)
   end
 endfunction
 
-
 function win=scicos_show_info_notebook(L)
 // Copyright Chancelier/Enpc
 // show L values in a notebook
@@ -609,17 +608,15 @@ function win=scicos_show_info_notebook(L)
   end
 
   function remove_scicos_widget(wingtkid)
-    global scicos_widgets
-    for i=1:length(scicos_widgets)
-      if wingtkid.equal[scicos_widgets(i).id] then
-        scicos_widgets(i).open=%f;break
-      end
-    end
+    // register that the window wingtkid was closed 
+    scicos_manage_widgets('close', wingtkid=wingtkid);
   endfunction
+  
   win.connect["destroy", remove_scicos_widget, list(win)];
   win.set_type_hint[GDK.WINDOW_TYPE_HINT_MENU]
   win.show[]
-  win.present[]
+  win.present[];
+  scicos_manage_widgets('register', wingtkid=win, wintype='GetInfo');
 endfunction
 
 function  vbox=scicos_show_table(cols,table)

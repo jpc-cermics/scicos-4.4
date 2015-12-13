@@ -15,7 +15,7 @@ function scs_m=drawobjs(scs_m,win)
     // if 3D shape color is not in colormap we set it to gray level 
     scs_m.props.options('3D')(2) = xget('lastpattern')+3; 
   end
-  drawtitle(scs_m.props,win)
+  drawtitle(scs_m.props.title(1),win)
   F=get_figure(win);
   // set figure background: xset('background',options.Background(1));
   if length(F.children) > 0 then 

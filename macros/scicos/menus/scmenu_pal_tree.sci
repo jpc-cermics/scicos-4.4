@@ -1,17 +1,15 @@
 function scmenu_pal_tree()
   Cmenu=''
-  scicos_widgets($+1)=hash(id=scicos_palette_treeview(),open=%t,what='PalTree');
+  scicos_manage_widgets('register', wingtkid=scicos_palette_treeview(),...
+			wintype='PalTree');
 endfunction
 
-// simple demo of treestore with pixmap
-// the treestore model have two levels
-// and is build with append.
-
 function window=scicos_palette_treeview(L)
-  if nargin <= 0 then
-    H=%scicos_pal;
-  end
-
+// a TreeView used to vizualize all the blocks 
+// and the palettes 
+//   
+  if nargin <= 0 then  H=%scicos_pal; end
+  
   function scicos_palette_tv_model(iter,model,H)
     L=H.structure;
     for i=1:length(L)
@@ -51,12 +49,7 @@ function window=scicos_palette_treeview(L)
   endfunction
 
   function remove_scicos_widget(wingtkid)
-    global scicos_widgets
-    for i=1:length(scicos_widgets)
-      if wingtkid.equal[scicos_widgets(i).id] then
-        scicos_widgets(i).open=%f;break
-      end
-    end
+    scicos_manage_widgets('close', wingtkid=wingtkid);
   endfunction
 
   function press_event_handler(tree_view,event)
@@ -162,4 +155,6 @@ function window=scicos_palette_treeview(L)
   end
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
+  // register the window 
+  scicos_manage_widgets('register', wingtkid=window, wintype='PalTree');
 endfunction

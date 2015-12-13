@@ -4,7 +4,6 @@ function [txt,L]=get_block_info(scs_m,k,ksave)
     super_path;
     super_path($+1) = ksave
   end
-  global scicos_widgets
   txt=[];
   L=list();
   o=scs_m.objs(k)
@@ -48,9 +47,7 @@ function [txt,L]=get_block_info(scs_m,k,ksave)
 	       '----------------------------------';' ']
 	end
 	if filtre(6) then 
-	  if length(L_b)<> 0 then
-            scicos_widgets($+1)=hash(id=scicos_show_info_notebook(L_b),open=%t,what='GetInfo');
-          end
+	  if length(L_b)<> 0 then scicos_show_info_notebook(L_b); end
 	end
 	for k = 1 : length(objet.objs)
 	  o1=objet.objs(k)
@@ -64,8 +61,7 @@ function [txt,L]=get_block_info(scs_m,k,ksave)
 	  end
 	  if ok then
 	    [txt_k,L_k]=get_block_info(objet,k,ksave);
-	    if length(L_k)<> 0 then
-              scicos_widgets($+1)=hash(id=scicos_show_info_notebook(L_k),open=%t,what='GetInfo');
+	    if length(L_k)<> 0 then scicos_show_info_notebook(L_k);
             end
 	    txt=[txt;' '+txt_k];
 	  end

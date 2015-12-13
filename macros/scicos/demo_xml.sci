@@ -122,12 +122,7 @@ function window=demo_xml(fname)
   endfunction
 
   function remove_scicos_widget(wingtkid)
-    global scicos_widgets
-    for i=1:length(scicos_widgets)
-      if wingtkid.equal[scicos_widgets(i).id] then
-        scicos_widgets(i).open=%f;break
-      end
-    end
+    scicos_manage_widgets('close', wingtkid=wingtkid);
   endfunction
 
   // build the toplevel widget

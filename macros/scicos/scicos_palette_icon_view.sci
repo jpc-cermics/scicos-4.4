@@ -121,12 +121,7 @@ function window=scicos_palette_icon_view(H)
   endfunction
 
   function remove_scicos_widget(wingtkid)
-    global scicos_widgets
-    for i=1:length(scicos_widgets)
-      if wingtkid.equal[scicos_widgets(i).id] then
-        scicos_widgets(i).open=%f;break
-      end
-    end
+    scicos_manage_widgets('close', wingtkid=wingtkid);
   endfunction
 
   // Icon list
@@ -141,6 +136,8 @@ function window=scicos_palette_icon_view(H)
   vbox.pack_start[scrolled_window, expand=%t,fill= %t,padding=0];
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
+  // register the new widget 
+  scicos_manage_widgets('register', wingtkid=window, wintype='IconView');
 endfunction
 
 function icon_list=scicos_build_iconlist(S,combo)

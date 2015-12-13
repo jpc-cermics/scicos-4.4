@@ -40,18 +40,8 @@ function [ok,scs_m,%cpr,edited,context]=do_import_mdl()
     inactive_windows=close_inactive_windows(inactive_windows,super_path)
   end
   //closing the initialization GUI before opening another diagram
-  global scicos_widgets
-  for i=1:length(scicos_widgets)
-    if scicos_widgets(i).what.equal['ModelicaInitialize'] then
-      if scicos_widgets(i).open==%t then
-	scicos_widgets(i).id.destroy[]
-      end
-    elseif scicos_widgets(i).what.equal['GetInfo'] then
-      if scicos_widgets(i).open==%t then
-	scicos_widgets(i).id.destroy[]
-      end
-    end
-  end
+  scicos_manage_widgets('destroy_what', wintype='ModelicaInitialize');
+  scicos_manage_widgets('destroy_what', wintype='GetInfo');
   if type(scs_m.props.context,'short')<>'s' then
     scs_m.props.context='';
   end

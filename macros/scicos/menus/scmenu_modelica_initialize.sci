@@ -29,31 +29,23 @@ function scmenu_modelica_initialize()
   compile=%t; 
 
   if (needcompile>=2) then
-      compile=%t;// needcompile=2: when context changes  
-      // needcompile=4: when model changes & it's not compiled
+    compile=%t;// needcompile=2: when context changes  
+    // needcompile=4: when model changes & it's not compiled
+  end
+  ok=%t
+  needcompile=4;
+  if compile then 
+    %Modelica_Init=%t
+    // in order to generate *_im.mo -> *_im_f.mo -> *_im.xml 
+    [bllst,connectmat,clkconnect,cor,corinv,ok]=c_pass1(scs_m);    
+    %Modelica_Init=%f
+    if ok && file("exists",xmlfile) then
+      // remove oldest modelica initialize window
+      scicos_manage_widgets('destroy_what',wintype='ModelicaInitialize');
+      // create and register a new ModelicaInitialize
+      scicos_manage_widgets('register',wingtkid=demo_xml(xmlfile), wintype='ModelicaInitialize')
     end
-    ok=%t
-    needcompile=4;
-    if compile then 
-      %Modelica_Init=%t
-      // in order to generate *_im.mo -> *_im_f.mo -> *_im.xml 
-      [bllst,connectmat,clkconnect,cor,corinv,ok]=c_pass1(scs_m);    
-      %Modelica_Init=%f
-      if ok then
-	if file("exists",xmlfile) then
-          //remove oldest modelica initialize window
-          for i=1:length(scicos_widgets)
-            if scicos_widgets(i).what.equal['ModelicaInitialize'] then
-              if scicos_widgets(i).open==%t then
-                scicos_widgets(i).id.destroy[]
-                break 
-              end
-            end
-          end
-	  scicos_widgets($+1)=hash(id=demo_xml(xmlfile),open=%t,what='ModelicaInitialize')
-	end  
-      end
-    end
+  end
 endfunction
 
 function  Doubleclick(name,last_name)

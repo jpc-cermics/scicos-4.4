@@ -6,7 +6,6 @@ endfunction
 
 function %pt=do_block_info(%pt,scs_m)
 // Copyright INRIA
-  global scicos_widgets
   L=list();
   if isempty(Select) then
     win = %win;
@@ -34,11 +33,9 @@ function %pt=do_block_info(%pt,scs_m)
       [txt,L]=get_block_info(scs_m,k)
     end
   end
+  // show info 
+  if length(L)<> 0 then scicos_show_info_notebook(L); end 
 
-  if length(L)<> 0 then
-    scicos_widgets($+1)=hash(id=scicos_show_info_notebook(L),open=%t,what='GetInfo');
-  end 
-  //x_message_modeless(txt)
 endfunction
 
 

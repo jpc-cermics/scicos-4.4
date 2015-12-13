@@ -12,18 +12,8 @@ function scmenu_new()
   if %r==2 then
     // close things related to previous diagram 
     inactive_windows=close_inactive_windows(inactive_windows,super_path)
-    global scicos_widgets
-    for i=1:length(scicos_widgets)
-      if scicos_widgets(i).what.equal['ModelicaInitialize'] then
-        if scicos_widgets(i).open==%t then
-          scicos_widgets(i).id.destroy[]
-        end
-      elseif scicos_widgets(i).what.equal['GetInfo'] then
-        if scicos_widgets(i).open==%t then
-          scicos_widgets(i).id.destroy[]
-        end
-      end
-    end
+    scicos_manage_widgets('destroy_what', wintype='ModelicaInitialize');
+    scicos_manage_widgets('destroy_what', wintype='GetInfo');
     if alreadyran then do_terminate(),end  //terminate current simulation
     clear('%scicos_solver')
     alreadyran=%f

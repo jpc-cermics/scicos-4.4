@@ -2,9 +2,8 @@ function scmenu_browser()
 // Copyright INRIA
 //
   Cmenu='';
-  if isempty(super_path) then
-    //do_browser(scs_m);
-    scicos_widgets($+1)=hash(id=do_browser(scs_m),open=%t,what='Browser');
+  if isempty(super_path) then 
+    do_browser(scs_m);
   else
     Scicos_commands=['%diagram_path_objective=[];%scicos_navig=1';
 		     'Cmenu='"scmenu_browser'";%scicos_navig=[]';
@@ -92,12 +91,7 @@ function window=do_browser(scs_m)
   endfunction
 
   function remove_scicos_widget(wingtkid)
-    global scicos_widgets
-    for i=1:length(scicos_widgets)
-      if wingtkid.equal[scicos_widgets(i).id] then
-        scicos_widgets(i).open=%f;break
-      end
-    end
+    scicos_manage_widgets('close', wingtkid=wingtkid);
   endfunction
 
   function press_event_handler(tree_view,event)
@@ -209,4 +203,6 @@ function window=do_browser(scs_m)
   end
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
+  // register the window 
+  scicos_manage_widgets('register', wingtkid=window, wintype='Browser');
 endfunction

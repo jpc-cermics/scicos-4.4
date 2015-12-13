@@ -13,7 +13,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   global %scicos_navig
   global %diagram_path_objective
   global inactive_windows
-  global scicos_widgets
   global Scicos_commands
   global(%scicos_ext='.cos'); //default file extension
 
@@ -33,7 +32,6 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     super_path=[]; // path to the currently opened superblock
     %scicos_navig=[]; // do we have to navigate
     inactive_windows=list(list(),[]);
-    scicos_widgets=list();
     Scicos_commands=[];
     //set current version of scicos
     scicos_ver=get_scicos_version();
@@ -242,7 +240,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
           scs_m.props.wpar=%curwpar
         end
       end
-      drawtitle(scs_m.props)
+      drawtitle(scs_m.props.title(1),curwin)
     end
 
     if Cmenu=='Quit' then break,end
@@ -377,9 +375,9 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
       clearglobal %tableau
       clearglobal %scicos_navig
       clearglobal %diagram_path_objective
-      close_inactive_windows(inactive_windows,[],widgets=scicos_widgets)
+      close_inactive_windows(inactive_windows,[]);
+      scicos_manage_widgets('destroy_all');
       clearglobal inactive_windows
-      clearglobal scicos_widgets
     end
     // remove the gr graphics from scs_m
     for k=1:length(scs_m.objs)
@@ -408,13 +406,8 @@ function scs_m=scicos_leave(scs_m)
     save(file('join',[getenv('NSP_TMPDIR');'BackupInfo']),...
 	 edited,needcompile,alreadyran, %cpr,%state0,%tcur,...
 	 %scicos_solver,inactive_windows,curwin);
-    //close widgets
-    global scicos_widgets
-    for kk=1:length(scicos_widgets)
-      if scicos_widgets(kk).open then
-        scicos_widgets(kk).id.destroy[]
-      end
-    end
+    // close widgets
+    scicos_manage_widgets('destroy_all');
   end
   if ~ok then
     message(['Problem saving a backup; I cannot activate nsp.';
@@ -458,7 +451,7 @@ function [x,k]=gunique(x)
   k(keq)=[]
 endfunction
 
-function inactive_windows=close_inactive_windows(inactive_windows,path,widgets=list())
+function inactive_windows=close_inactive_windows(inactive_windows,path)
 // -------------------------------------------------------------------
   DELL=[]  // inactive windows to kill
   if size(inactive_windows(2),'*')>0 then
@@ -490,11 +483,6 @@ function inactive_windows=close_inactive_windows(inactive_windows,path,widgets=l
   for kk=DELL($:-1:1)  // backward to keep indices valid
     inactive_windows(1)(kk)=null()
     inactive_windows(2)(kk)=[]
-  end
-  for kk=1:length(widgets)
-    if widgets(kk).open then
-      widgets(kk).id.destroy[]
-    end
   end
 endfunction
 
