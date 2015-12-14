@@ -1,4 +1,4 @@
-function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(scs_m,ksup,MaxBlock)
+function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=c_pass1_flat(scs_m,ksup,MaxBlock)
 // Copyright INRIA
 //
 // This function takes a hierarchical Scicos diagram and computes the
@@ -305,7 +305,7 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(s
 	
 	
 	//Analyze the superblock contents
-	[cors,corinvs,lt,cur_fictitious,scop_mat,ok,scs_m1]=scicos_flat(o.model.rpar,cur_fictitious,MaxBlock)
+	[cors,corinvs,lt,cur_fictitious,scop_mat,ok,scs_m1]=c_pass1_flat(o.model.rpar,cur_fictitious,MaxBlock)
 	if ~ok then return,end
 	scs_m.objs(k).model.rpar=scs_m1;
 	//shifting the scop_mat for regular blocks. Fady 08/11/2007
@@ -416,7 +416,7 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(s
   //----------------------Goto From Analyses--------------------------
   // Local case
   if ~isempty(loc_mat) then
-    [sco_mat,links_table]=local_case(loc_mat,from_mat,sco_mat,links_table)
+    [sco_mat,links_table]=c_pass1_flat_local(loc_mat,from_mat,sco_mat,links_table)
   end
   //scoped case
   if ~isempty(tag_exprs) then
@@ -424,11 +424,11 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(s
     synctag=tag_exprs(ind,:)
     tag_exprs(ind,:)=[];
     if ~isempty(tag_exprs) then
-      [sco_mat,links_table,scs_m,ok]=scoped_case(tag_exprs,sco_mat,links_table,scs_m,corinv)
+      [sco_mat,links_table,scs_m,ok]=c_pass1_flat_scoped(tag_exprs,sco_mat,links_table,scs_m,corinv)
     end
     if ~isempty(synctag) then
       // synchronize all the sample clock that are on that level and below.
-      [scs_m,corinv,cor,sco_mat,links_table,ok,flgcdgen,freof]=treat_sample_clk(scs_m,corinv,cor,sco_mat,links_table,flgcdgen,path)
+      [scs_m,corinv,cor,sco_mat,links_table,ok,flgcdgen,freof]=c_pass1_sample_clk(scs_m,corinv,cor,sco_mat,links_table,flgcdgen,path)
     end
     if ~ok then return; end
   end
@@ -436,4 +436,81 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=scicos_flat(s
   // function global_case in c_pass1
   //------------------------------------------------------------------------
 endfunction
+
+function [sco_mat,links_table]=c_pass1_flat_local(loc_mat,from_mat,sco_mat,links_table)
+// Fady NASSIF
+// last update 30/05/2008
+// This function treat the local case of the goto from application
+  if isempty(from_mat) then return;end 
+  for i=1:size(loc_mat,1)
+    index1=find((from_mat(:,2)=='-1') && (from_mat(:,3)==loc_mat(i,3)) &&(from_mat(:,4)==loc_mat(i,4)))
+    for j=index1
+      index2=find(links_table(:,1)==-evstr(from_mat(j,1)))
+      // 	     for k=index2
+      // 		  links_table(k,1)=-evstr(loc_mat(i,1))
+      // 	     end
+      if ~isempty(index2) then
+	links_table(index2',1)=-evstr(loc_mat(i,1))
+      end
+      index2=find(sco_mat(:,1)==from_mat(j,1))
+      sco_mat(index2',:)=[]
+    end
+  end
+endfunction
+
+function [sco_mat,links_table,scs_m,ok]=c_pass1_flat_scoped(tag_exprs,sco_mat,links_table,scs_m,corinv)
+// Fady NASSIF 
+// last update: 30/05/2008
+// this function study the scoped case in the goto/from application
+// to be modified !!!!!
+// vec=unique(tag_exprs)
+// 
+  ok = %t;
+  // Case of multiple blocks with the same tag
+  for i=1:size(tag_exprs,1)
+    index=find((tag_exprs(:,1)==tag_exprs(i,1))&(tag_exprs(:,2)==tag_exprs(i,2)))
+    if size(index,'*') > 1  then
+      message(["Error In Compilation. You cannot have multiple GotoTagVisibility";..
+	       " with the same tag value in the same scs_m"])
+      ok=%f;
+      return
+    end
+  end 
+  // -----
+  for i=1:size(tag_exprs,1)
+    index=find((sco_mat(:,2)=='1')&(sco_mat(:,3)==tag_exprs(i,1))&(sco_mat(:,4)=='2')&(sco_mat(:,5)==tag_exprs(i,2)))
+    if ~isempty(index) then
+      //------------- case of multiple goto having the same tagvisibility-----------------------------
+      if size(index,'*')>1 then
+	message(["Error in compilation";"Multiple GOTO are taged by the same GotoTagVisibility"])
+	ok=%f
+	return
+      end
+      //----------------------------------------------------------------------------------------------
+      index1=find((sco_mat(:,2)=='-1')&(sco_mat(:,3)==tag_exprs(i,1))&(sco_mat(:,5)==tag_exprs(i,2)))
+      if ~isempty(index1) then
+	for j=index1
+	  index2=find(links_table(:,1)==-evstr(sco_mat(j,1)))
+	  if ~isempty(index2) then
+	     //replace the from block by the goto. In this case the goto
+             //block will be treated as a split.
+	    links_table(index2',1)=-evstr(sco_mat(index,1))
+	  end
+	  //linking the always active blocks to the VirtualCLK0 if exists.
+	  if sco_mat(j,5)=='10' then
+	    links_table($+1,:)=[-evstr(sco_mat(index,1)) 1 -1 -1]
+	    links_table($+1,:)=[evstr(sco_mat(j,1)) 0 1 -1]
+	    scs_m.objs(corinv(evstr(sco_mat(j,1)))).model.dep_ut($)=%f;
+	  end 
+	end
+      end
+      sco_mat([index1';index'],:)=[]
+    end
+  end
+endfunction
+
+
+
+
+
 

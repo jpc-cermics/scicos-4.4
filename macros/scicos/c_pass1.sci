@@ -171,13 +171,13 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   if nargin <=1 then flgcdgen=-1, end
   freof=[];
   MaxBlock=countblocks(scs_m);
-  [cor,corinvt,links_table,cur_fictitious,sco_mat,ok,scs_m1]=scicos_flat(scs_m);
+  [cor,corinvt,links_table,cur_fictitious,sco_mat,ok,scs_m1]=c_pass1_flat(scs_m);
   if ok then
     if ~isempty(sco_mat) then
       [links_table,sco_mat,ok]=global_case(links_table,sco_mat)
       if ~isempty(find(sco_mat(:,5)==string(4))) then
         [scs_m1,corinvt,cor,sco_mat,links_table,ok,flgcdgen,freof]=...
-          treat_sample_clk(scs_m1,corinvt,cor,sco_mat,links_table,flgcdgen,[])
+          c_pass1_sample_clk(scs_m1,corinvt,cor,sco_mat,links_table,flgcdgen,[])
       end
     end
   end

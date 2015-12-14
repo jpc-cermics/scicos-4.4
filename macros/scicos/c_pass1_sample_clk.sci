@@ -1,5 +1,5 @@
 function [scs_m,corinv,cor,sco_mat,links_table,ok,flgcdgen,freof]=...
-    treat_sample_clk(scs_m,corinv,cor,sco_mat,links_table,flgcdgen,path)
+    c_pass1_sample_clk(scs_m,corinv,cor,sco_mat,links_table,flgcdgen,path)
 
   // copyright: INRIA
   // Anthor: Fady NASSIF
@@ -21,7 +21,7 @@ function [scs_m,corinv,cor,sco_mat,links_table,ok,flgcdgen,freof]=...
       mfrequ_tol= params.tol(3);
     end
     
-    m=[];den=[];off=[];count=[];m1=[];fir=[];x=treat_sample_clk;
+    m=[];den=[];off=[];count=[];m1=[];fir=[];x=c_pass1_sample_clk;
     // m1 is a vector of different frequencies or same frequencies with different offsets
     [m1,k]=ts_uni(frequ,offset);
     // k is the index.
