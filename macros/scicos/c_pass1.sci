@@ -201,7 +201,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   
   if nargin <=1 then flgcdgen=-1, end
   freof=[];
-  MaxBlock=countblocks(scs_m);
+  MaxBlock=scicos_count_blocks(scs_m);
   [cor,corinvt,links_table,cur_fictitious,sco_mat,ok,scs_m1]=c_pass1_flat(scs_m);
   if ok then
     if ~isempty(sco_mat) then

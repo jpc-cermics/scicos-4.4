@@ -65,7 +65,7 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=c_pass1_flat(
   
   if nargin <= 1 then ksup=0;end //used for recursion
   if ksup==0 then   // main scheme
-    MaxBlock=countblocks(scs_m);
+    MaxBlock=scicos_count_blocks(scs_m);
     //last created fictitious block (clock split,clock sum,super_blocks, superbloc))
     cur_fictitious=MaxBlock
     path=[];       // for delete_unconnected 
