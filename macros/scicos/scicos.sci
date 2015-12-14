@@ -417,7 +417,7 @@ function scs_m=scicos_leave(scs_m)
   // set event handlers
   AllWindows=unique([windows(:,2);inactive_windows(2)(:)])
   AllWindows=intersect(AllWindows',winsid())
-  seteventhandler('scilab2scicos',win=AllWindows);
+  seteventhandler('scicos_reactivate',win=AllWindows);
   // disable menus
   disablemenus();
   save(file('join',[getenv('NSP_TMPDIR');'AllWindows']),AllWindows);
@@ -486,7 +486,7 @@ function inactive_windows=close_inactive_windows(inactive_windows,path)
   end
 endfunction
 
-function scilab2scicos(win,x,y,ibut)
+function scicos_reactivate(win,x,y,ibut)
 //utility function for the return to scicos by event handler
 // -------------------------------------
   if ibut==-1000|ibut==-1 then return,end
@@ -500,8 +500,8 @@ function scilab2scicos(win,x,y,ibut)
       end
     end
   end
-  //scicos();
-  printf("\nReturn to scicos by eventhandler is disabled.\ncall scicos() direcly instead.\n");
+  printf("\nReturn to scicos by eventhandler activated\n");
+  scicos();
 endfunction
 
 function scs_m_out=scs_m_remove_gr(scs_m_in,recursive=%t)
