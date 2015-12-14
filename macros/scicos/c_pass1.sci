@@ -26,6 +26,148 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
 // Fady Nassif 2007. INRIA.
 // Fady Nassif 2008. INRIA.
 // 
+
+  function clkconnect=link_sample0_to_allout(allout,clkconnect)
+  // 
+    if ~isempty(clkconnect) then 
+      blk0=find(clkconnect(:,1)==0)
+    else
+      blk0=[];
+    end
+    if ~isempty(blk0) then
+      for i = blk0
+	clkconnect=[clkconnect;[allout clkconnect(i,3)*ones(size(allout,1),1) clkconnect(i,4)*ones(size(allout,1),1)]];
+      end
+    end 
+  endfunction
+
+
+  
+  function cor=update_cor_cpass1(cor,reg)
+  // 
+    n=size(cor)
+    for k=1:n
+      if type(cor(k),'short')=='l' then
+	cor(k)=update_cor_cpass1(cor(k),reg)
+      else
+	p=find(cor(k)==reg)
+	if ~isempty(p) then 
+	  cor(k)=p
+	elseif cor(k)<0 then  // GOTO FROM cases
+	  cor(k)=0
+	elseif cor(k)<>0 then
+	  cor(k)=size(reg,'*')+1
+	end
+      end
+    end
+  endfunction
+
+  
+  function Ts=remove_fictitious(Ts,K)
+  // removes fictitious blocks connected links are replaced by a single one
+  // S. Steer, R. Nikoukhah 2003. Copyright INRIA
+  //
+    count=min(Ts(:,4))
+    for i=1:size(K,'*')
+      ki=K(i);
+      v1=find(Ts(:,1)==ki);
+      if ~isempty(v1) then		
+	v=unique(Ts(v1,4));
+	Ts(v1,:)=[];
+	if size(v,'*')==1 then
+	  ind=find(Ts(:,4)==v);
+	else
+	  ind = find(bsearch(Ts(:,4),gsort(v,'g','i'),match='v')<>0);
+	end
+	if size(ind,'*')>1 then
+	  count=count-1;
+	  Ts(ind,4)=count
+	else
+	  Ts(ind,:)=[]
+	end
+      end
+    end
+    // returned value should be 0x4 
+    if isempty(Ts) then Ts=zeros(0,4),end
+  endfunction
+
+  
+  function mat=mmatfromT(Ts,nb)
+  //S. Steer, R. Nikoukhah 2003. Copyright INRIA
+    Ts(:,1)=abs(Ts(:,1));
+    K=unique(Ts(find(Ts(:,1)>nb),1)); // identificator of blocks to be removed
+    //remove superblocks port and split connections 
+    Ts=remove_fictitious(Ts,K)
+    // from connection matrix
+    Imat=zeros(0,2);
+    for u=matrix(unique(Ts(:,4)),1,-1)
+      kue=matrix(find(Ts(:,4)==u),-1,1); //identical links
+      Imat=[Imat;[kue(2:$)  kue(1).*ones(size(kue(2:$)))]];
+    end
+    mat=[Ts(Imat(:,1),1:3)  Ts(Imat(:,2),1:3)]
+  endfunction
+
+  function mat=matfromT(Ts,nb)
+  //S. Steer, R. Nikoukhah 2003. Copyright INRIA
+    if isempty(Ts) then mat=zeros(0,4);return;end
+    Ts(:,1)=abs(Ts(:,1))
+    K=unique(Ts(find(Ts(:,1)>nb),1)); // identificator of blocks to be removed
+    //remove superblocks port and split connections 
+    Ts=remove_fictitious(Ts,K)
+    // from connection matrix
+    Imat=zeros(0,2);
+    for u=matrix(unique(Ts(:,4)),1,-1)
+      kue=matrix(find(Ts(:,4)==u&Ts(:,3)==-1),-1,1); //look for outputs
+      jue=matrix(find(Ts(:,4)==u&Ts(:,3)==1),-1,1); //look for inputs
+      Imat=[Imat;[ones(size(jue)).*.kue jue.*.ones(size(kue))]];
+    end
+    mat=[Ts(Imat(:,1),1:2)  Ts(Imat(:,2),1:2)]
+  endfunction
+
+  function mat=cmatfromT(Ts,nb)
+  //S. Steer, R. Nikoukhah 2003. Copyright INRIA
+  //this function has been modified to support 
+  // CLKGOTO et CLKFROM
+  // Fady NASSIF: 11/07/2007
+    k=find(Ts(:,1)<0) //superblock ports links and CLKGOTO/CLKFROM
+    K=unique(Ts(k,1));
+    Ts=remove_fictitious(Ts,K)
+    //  if size(Ts,1)<>int(size(Ts,1)/2)*2 then disp('PB'),pause,end
+    [s,k]=gsort(Ts(:,[4,3]),'lr','i');Ts=Ts(k,:)
+    // modified to support the CLKGOTO/CLKFROM
+    //mat=[Ts(1:2:$,1:2) Ts(2:2:$,1:2)]
+    J=find(Ts(:,3)==1); //find the destination block of the link
+    v=find([Ts(:,3);-1]==-1) // find the source block of the link
+    // many destination blocks can be connected to one source block
+    // so we have to find the number of destination blocks for each source block
+    // v(2:$)-v(1:$-1)-1
+    // then create the vector I that must be compatible with the vector J.
+    I=duplicate(v(1:$-1),v(2:$)-v(1:$-1)-1); 
+    mat=[Ts(I,1:2),Ts(J,1:2)]
+    //----------------------------------
+    K=unique(Ts(Ts(:,1)>nb))
+    Imat=zeros(0,2);
+    for u=matrix(K,1,-1)
+      jue=matrix(find(mat(:,1)==u),-1,1); //look for outputs
+      kue=matrix(find(mat(:,3)==u),-1,1); //look for inputs
+      Imat=[ones(size(jue)).*.kue jue.*.ones(size(kue))];
+      mat1=[mat(Imat(:,1),1:2), mat(Imat(:,2),3:4)];
+      mat([jue;kue],:)=[];
+      mat=[mat;mat1];
+    end
+  endfunction
+
+  function [model,links_table]=adjust_sum(model,links_table,k)
+  //sum blocks have variable number of input ports, adapt the associated
+  //model data structure and input connection to take into account the
+  //actual number of connected ports
+  // Serge Steer 2003, Copyright INRIA
+    in=find(links_table(:,1)==k&links_table(:,3)==1)
+    nin=size(in,'*')
+    model.in=-ones(nin,1)
+    links_table(in,2)=(1:nin)'
+  endfunction
+    
   if nargin <=1 then flgcdgen=-1, end
   freof=[];
   MaxBlock=countblocks(scs_m);
@@ -278,141 +420,5 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
   //*** 
 endfunction
 
-function [model,links_table]=adjust_sum(model,links_table,k)
-//sum blocks have variable number of input ports, adapt the associated
-//model data structure and input connection to take into account the
-//actual number of connected ports
-// Serge Steer 2003, Copyright INRIA
-  in=find(links_table(:,1)==k&links_table(:,3)==1)
-  nin=size(in,'*')
-  model.in=-ones(nin,1)
-  links_table(in,2)=(1:nin)'
-endfunction
 
-
-function mat=mmatfromT(Ts,nb)
-//S. Steer, R. Nikoukhah 2003. Copyright INRIA
-  Ts(:,1)=abs(Ts(:,1));
-  K=unique(Ts(find(Ts(:,1)>nb),1)); // identificator of blocks to be removed
-  //remove superblocks port and split connections 
-  Ts=remove_fictitious(Ts,K)
-  // from connection matrix
-  Imat=zeros(0,2);
-  for u=matrix(unique(Ts(:,4)),1,-1)
-    kue=matrix(find(Ts(:,4)==u),-1,1); //identical links
-    Imat=[Imat;[kue(2:$)  kue(1).*ones(size(kue(2:$)))]];
-  end
-  mat=[Ts(Imat(:,1),1:3)  Ts(Imat(:,2),1:3)]
-endfunction
-
-function mat=matfromT(Ts,nb)
-//S. Steer, R. Nikoukhah 2003. Copyright INRIA
-  if isempty(Ts) then mat=zeros(0,4);return;end
-  Ts(:,1)=abs(Ts(:,1))
-  K=unique(Ts(find(Ts(:,1)>nb),1)); // identificator of blocks to be removed
-  //remove superblocks port and split connections 
-  Ts=remove_fictitious(Ts,K)
-  // from connection matrix
-  Imat=zeros(0,2);
-  for u=matrix(unique(Ts(:,4)),1,-1)
-    kue=matrix(find(Ts(:,4)==u&Ts(:,3)==-1),-1,1); //look for outputs
-    jue=matrix(find(Ts(:,4)==u&Ts(:,3)==1),-1,1); //look for inputs
-    Imat=[Imat;[ones(size(jue)).*.kue jue.*.ones(size(kue))]];
-  end
-  mat=[Ts(Imat(:,1),1:2)  Ts(Imat(:,2),1:2)]
-endfunction
-
-function mat=cmatfromT(Ts,nb)
-//S. Steer, R. Nikoukhah 2003. Copyright INRIA
-//this function has been modified to support 
-// CLKGOTO et CLKFROM
-// Fady NASSIF: 11/07/2007
-  k=find(Ts(:,1)<0) //superblock ports links and CLKGOTO/CLKFROM
-  K=unique(Ts(k,1));
-  Ts=remove_fictitious(Ts,K)
-  //  if size(Ts,1)<>int(size(Ts,1)/2)*2 then disp('PB'),pause,end
-  [s,k]=gsort(Ts(:,[4,3]),'lr','i');Ts=Ts(k,:)
-  // modified to support the CLKGOTO/CLKFROM
-  //mat=[Ts(1:2:$,1:2) Ts(2:2:$,1:2)]
-  J=find(Ts(:,3)==1); //find the destination block of the link
-  v=find([Ts(:,3);-1]==-1) // find the source block of the link
-  // many destination blocks can be connected to one source block
-  // so we have to find the number of destination blocks for each source block
-  // v(2:$)-v(1:$-1)-1
-  // then create the vector I that must be compatible with the vector J.
-  I=duplicate(v(1:$-1),v(2:$)-v(1:$-1)-1); 
-  mat=[Ts(I,1:2),Ts(J,1:2)]
-  //----------------------------------
-  K=unique(Ts(Ts(:,1)>nb))
-  Imat=zeros(0,2);
-  for u=matrix(K,1,-1)
-    jue=matrix(find(mat(:,1)==u),-1,1); //look for outputs
-    kue=matrix(find(mat(:,3)==u),-1,1); //look for inputs
-    Imat=[ones(size(jue)).*.kue jue.*.ones(size(kue))];
-    mat1=[mat(Imat(:,1),1:2), mat(Imat(:,2),3:4)];
-    mat([jue;kue],:)=[];
-    mat=[mat;mat1];
-  end
-endfunction
-
-function Ts=remove_fictitious(Ts,K)
-// removes fictitious blocks connected links are replaced by a single one
-// S. Steer, R. Nikoukhah 2003. Copyright INRIA
-//
-  count=min(Ts(:,4))
-  for i=1:size(K,'*')
-    ki=K(i);
-    v1=find(Ts(:,1)==ki);
-    if ~isempty(v1) then		
-      v=unique(Ts(v1,4));
-      Ts(v1,:)=[];
-      if size(v,'*')==1 then
-	ind=find(Ts(:,4)==v);
-      else
-	ind = find(bsearch(Ts(:,4),gsort(v,'g','i'),match='v')<>0);
-      end
-      if size(ind,'*')>1 then
-	count=count-1;
-	Ts(ind,4)=count
-      else
-	Ts(ind,:)=[]
-      end
-    end
-  end
-  // returned value should be 0x4 
-  if isempty(Ts) then Ts=zeros(0,4),end
-endfunction
-
-function cor=update_cor_cpass1(cor,reg)
-// 
-  n=size(cor)
-  for k=1:n
-    if type(cor(k),'short')=='l' then
-      cor(k)=update_cor_cpass1(cor(k),reg)
-    else
-      p=find(cor(k)==reg)
-      if ~isempty(p) then 
-	cor(k)=p
-      elseif cor(k)<0 then  // GOTO FROM cases
-	cor(k)=0
-      elseif cor(k)<>0 then
-	cor(k)=size(reg,'*')+1
-      end
-    end
-  end
-endfunction
-
-function clkconnect=link_sample0_to_allout(allout,clkconnect)
-// 
-  if ~isempty(clkconnect) then 
-    blk0=find(clkconnect(:,1)==0)
-  else
-    blk0=[];
-  end
-  if ~isempty(blk0) then
-    for i = blk0
-      clkconnect=[clkconnect;[allout clkconnect(i,3)*ones(size(allout,1),1) clkconnect(i,4)*ones(size(allout,1),1)]];
-    end
-  end 
-endfunction
 
