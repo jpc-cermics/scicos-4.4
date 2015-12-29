@@ -501,7 +501,11 @@ function scicos_reactivate(win,x,y,ibut)
     end
   end
   printf("\nReturn to scicos by eventhandler activated\n");
-  scicos();
+  // here we do not want to call scicos() directly 
+  // because eventhanlders are protected against pause or error 
+  // and we want to keep the possibility to pause scicos
+  // thus we just enqueue a call to scicos
+  nsp_enqueue_command('scicos();')
 endfunction
 
 function scs_m_out=scs_m_remove_gr(scs_m_in,recursive=%t)

@@ -48,7 +48,7 @@ function window_set_size(win,viewport=[-1,-1],invalidate=%t,popup_dim=%t,read=%f
     // printf("quit: darea_compute_size (%d,%d),zoom=%f\n",wdim(1),wdim(2),zoom);
   endfunction
   
-  if ~exists('scs_m') then scs_m=hash(10,zoom=1.4);end
+  if ~exists('scs_m') then scs_m=hash(10,props=hash(zoom=1.4, options=hash(Grid=%f)));end
   if ~exists('curwin') then curwin=0;end
   if nargin < 1 then win=curwin;end
   // should be done at window creation not here
