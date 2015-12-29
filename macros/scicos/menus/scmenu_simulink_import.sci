@@ -78,9 +78,8 @@ function scs_m = do_load_mdl(fname=[],warnings=%f,check_companion=%t)
 // Reste a faire les companion files
   scs_m=[];
   global %scicos_demo_mode ;
-  global %scicos_open_saveas_path ;
+  global(%scicos_open_saveas_path,'');
   global(%scicos_ext='.cos'); //default file extension
-  if isempty(%scicos_open_saveas_path) then %scicos_open_saveas_path='', end
   if ~exists('alreadyran') then alreadyran = %f;end
   //end current simulation if necessary
   if alreadyran then do_terminate(); end

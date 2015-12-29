@@ -21,7 +21,7 @@ endfunction
 function [ok,scs_m]=do_SaveAs(scs_m)
 //
 // Copyright INRIA
-  global %scicos_open_saveas_path ;
+  global(%scicos_open_saveas_path=''); 
   global(%scicos_ext='.cos'); //default file extension
 
   if size(scs_m.props.title,'*')<2 then
@@ -34,7 +34,6 @@ function [ok,scs_m]=do_SaveAs(scs_m)
     end
     default_name=scs_m.props.title(1)+'.'+ext
   end
-  if isempty(%scicos_open_saveas_path) then %scicos_open_saveas_path='', end
   tit=['For saving in binary file use .cos extension,';
        'for saving in ascii file use .cosf extension'];
   if %scicos_ext.equal['xml'] then
