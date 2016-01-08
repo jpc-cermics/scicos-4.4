@@ -111,12 +111,19 @@ function scs_m = do_load_mdl(fname=[],warnings=%f,check_companion=%t)
   target_fname = file('tail',fname);
   target_fname = strsubst(target_fname,file('extension',fname),'.nsp');
   target = file('join',[file('split',getenv('NSP_TMPDIR'));target_fname]);
-  cmd = [simport,"-I",pervasive,"-no-warnings","-tl","nsp",fname,"-o",target];
+
+  if %win32 then 
+    function y=dquote(s); y=sprintf("""%s""",s);endfunction
+    cmd = [dquote(simport),"-I",dquote(pervasive),"-no-warnings","-tl","nsp",dquote(fname),"-o",dquote(target)];
+  else
+    cmd = [simport,"-I",pervasive,"-no-warnings","-tl","nsp",fname,"-o",target];
+  end
   // check if we have a companion file
   // i.e a file with same name and .m suffix
   // then we automatically add the companion
   companion = strsubst(fname,file('extension',fname),'.m');
   if file('exists',companion) then
+    if %win32 then companion= dquote(companion);end
     cmd.concatr[['-ccf',companion]];
   else
     if check_companion then 
@@ -127,6 +134,7 @@ function scs_m = do_load_mdl(fname=[],warnings=%f,check_companion=%t)
       if ~isempty(Lres) && Lres(1)==1 then
 	companion=xgetfile(masks=['Matlab';'m'],open=%t);
 	if companion <> "" then
+	  if %win32 then companion= dquote(companion);end
 	  cmd.concatr[['-ccf',companion]];
 	end
       end
