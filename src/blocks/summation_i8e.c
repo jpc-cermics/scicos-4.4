@@ -34,7 +34,10 @@ void summation_i8e (scicos_block * block, int flag)
 	      return;
 	    }
 	  else
-	    y[0] = (char) v;
+	    {
+	      y[0] = (char) v;
+	    }
+	  if (ipar[0] < 0) y[0]= -y[0];
 	}
       else
 	{

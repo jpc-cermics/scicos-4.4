@@ -1159,6 +1159,7 @@ void scicos_summation_block (scicos_block * block, int flag)
 	  double *u = GetRealInPortPtrs (block, 1);
 	  y[0] = 0.0;
 	  for (j = 0; j < nu * mu; j++)   y[0] +=  u[j];
+	  if ( ipar[0] < 0 ) y[0]=-y[0];
 	}
       else
 	{

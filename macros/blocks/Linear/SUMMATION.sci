@@ -6,7 +6,8 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
     [x,y,typ]=standard_inputs(o) 
     dd=sz(1)/8,de=0;
     if ~arg1.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
-    fz=2*acquire("%zoom",def=1)*4;
+    if ~exists("%zoom") then %zoom=1, end;
+    fz=2*%zoom*4;
     for k=1:size(x,'*');
       if size(sgn,1) >= k then
 	if sgn(k) > 0 then;
@@ -57,7 +58,8 @@ function [x,y,typ]=SUMMATION(job,arg1,arg2)
 	message("Do on overflow must be 0, or 1, or 2.");
 	continue;
       end
-      if size(sgn,1)==1 then 
+      if size(sgn,1)==1 && sgn <> -1 then 
+	// sgn is here the number of inputs 
 	if sgn<1 then
 	  message('Number of inputs must be > 0')
 	  continue;

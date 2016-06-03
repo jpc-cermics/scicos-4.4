@@ -32,6 +32,7 @@ void summation_i16s (scicos_block * block, int flag)
 	  else if (v < -l)
 	    v = -l;
 	  y[0] = (SCSINT16_COP) v;
+	  if (ipar[0] < 0) y[0]= -y[0];
 	}
       else
 	{

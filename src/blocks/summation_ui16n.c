@@ -26,6 +26,8 @@ void summation_ui16n (scicos_block * block, int flag)
 	    {
 	      y[0] = y[0] + u[j];
 	    }
+	  if (ipar[0] < 0) y[0]= -y[0];
+
 	}
       else
 	{

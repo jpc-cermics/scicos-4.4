@@ -32,6 +32,7 @@ void summation_ui32s (scicos_block * block, int flag)
 	  else if (v < 0)
 	    v = 0;
 	  y[0] = (SCSUINT32_COP) v;
+	  if (ipar[0] < 0) y[0]= -y[0];
 	}
       else
 	{

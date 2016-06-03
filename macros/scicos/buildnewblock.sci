@@ -91,8 +91,11 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
   Makename=file('join',[rpat;'Makefile_'+blknam]);
   
   //@@ generation of Makefiles
+  //  Take care of the fact that here we generate 
+  //  a unix make when we are on windows and 
+  //  a windows make when we are on unix 
   if ~%win32 then //@@ unix
-    SCI = 'E:\scicoslab_43_cross'
+    SCI = 'E:\nsp';
     txt=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags);
     Makename2 = Makename+'.mak'
     ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
@@ -104,7 +107,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
     SCI = getenv('NSP');
   else 
     //@@ windows
-    SCI = '/usr/lib/scicoslab_gtk-4.3'
+    SCI = '/usr/lib/nsp';
     txt=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags);
     ierr=execstr('scicos_mputl(txt,Makename)',errcatch=%t)
     if ~ierr then
@@ -115,10 +118,9 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
     SCI = getenv('NSP');
   end
 
-  //** generate txt of makefile and get wright name
-  //   of the Makefile file
+  //** generate makefile contents 
   [Makename2,txt]=gen_make(blknam,files,filestan,libs,Makename,ldflags,cflags);
-  
+    
   //** write text of the Makefile in the file called Makename
   ierr=execstr('scicos_mputl(txt,Makename2)',errcatch=%t)
   if ~ierr then
@@ -126,7 +128,7 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
     ok=%f
     return
   end
-  
+
   //@@ compile and link if needed
   if ~silent then
 
@@ -150,13 +152,9 @@ function [ok]=buildnewblock(blknam,files,filestan,filesint,libs,rpat,ldflags,cfl
       return;
     end
     
-    //** link scicos generated code in ScicosLab
-    //libn=pathconvert(libn,%f,%t)
-    //## ierr=execstr('libnumber=link(libn)','errcatch')
-    //## ierr=execstr('link(libnumber,blknam,''c'')','errcatch')
-    //printf("buildnewblock\n");pause
+    //** link scicos generated code.
     ierr=execstr('link(libn,blknam,''c'')',errcatch=%t)
-
+    
     if ~ierr then
       ok=%f;
       x_message(['sorry link problem';catenate(lasterror())]);
@@ -388,7 +386,7 @@ function [SCode]=gen_loader(blknam,for_link,with_int)
 
   if nargin <= 1 then for_link=[], end
   if nargin <= 2 then with_int=%f, end
-
+  
   SCode=['// Script file used to load the ""compiled""'
          '// scicos block into ScicosLab'
          ''

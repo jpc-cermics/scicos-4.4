@@ -32,6 +32,7 @@ void summation_i8s (scicos_block * block, int flag)
 	  else if (v < -l)
 	    v = -l;
 	  y[0] = (char) v;
+	  if (ipar[0] < 0) y[0]= -y[0];
 	}
       else
 	{

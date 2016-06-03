@@ -34,7 +34,10 @@ void summation_ui32e (scicos_block * block, int flag)
 	      return;
 	    }
 	  else
-	    y[0] = (SCSUINT32_COP) v;
+	    {
+	      y[0] = (SCSUINT32_COP) v;
+	    }
+	  if (ipar[0] < 0) y[0]= -y[0];
 	}
       else
 	{
