@@ -7,14 +7,19 @@ endfunction
 
 function scs_m=set_model_finalize_context(scs_m)
   scs_m = scs_m;
-  if ~scs_m.props.iskey['data'] then return;end
-  fields=['prelude','workspace','preload_fcn','postload_fcn','init_fcn'];
-  context = m2s([]);
+  if scs_m.props.iskey['context'] then
+    context=scs_m.props.context;
+  else
+    context = m2s([]);
+  end
   context.concatd[sprintf('_final_simulation_time =%f',scs_m.props.tf)];
-  for i=1:size(fields,'*')
-    name = fields(i);
-    if scs_m.props.data.iskey[name] then
-      context.concatd[scs_m.props.data(name)];
+  if scs_m.props.iskey['data'] then 
+    fields=['prelude','workspace','preload_fcn','postload_fcn','init_fcn'];
+    for i=1:size(fields,'*')
+      name = fields(i);
+      if scs_m.props.data.iskey[name] then
+	context.concatd[scs_m.props.data(name)];
+      end
     end
   end
   scs_m.props.context= context;
