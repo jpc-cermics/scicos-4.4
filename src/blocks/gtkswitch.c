@@ -67,6 +67,7 @@ void scicos_gtkswitch_block (scicos_block * block, int flag)
       D->value = *ipar;
       D->changed  = FALSE;
       create_switch_controls (D,ipar[0]);
+      D->value = *ipar;
       if ( D->value == 1)
 	for (i = 0; i < mu1*nu1; i++) y[i] = u1[i];
       else
