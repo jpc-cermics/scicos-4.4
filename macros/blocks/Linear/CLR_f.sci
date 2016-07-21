@@ -104,8 +104,7 @@ function [a,b,c,d]=scicos_getabcd(num,den)
   d=num;
   for l=1:ns,
     for k=1:ne,
-      // take care of nsp order [quotient,rem]=pdiv(..)
-      [nl,dl]=pdiv(num(l,k),den),
+      [dl,nl]=pdiv(num(l,k),den),
       num(l,k)=dl,d(l,k)=nl,
     end
   end
