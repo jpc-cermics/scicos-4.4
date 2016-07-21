@@ -402,6 +402,7 @@ int scicos_main (scicos_run * sr, double *t0_in, double *tf_in,
 
 void *scicos_get_function (char *fname)
 {
+  char fname1[256];
   int (*loc) ();
   int i = 0;
   while (tabsim[i].name != (char *) NULL)
@@ -412,6 +413,9 @@ void *scicos_get_function (char *fname)
     }
   /* search if symbol is in a dynamically linked shared archive*/
   if ( nsp_link_search(fname,-1,&loc) != -1 ) return loc ;
+  /* for backward compatibility with old modnum names  */
+  sprintf(fname1,"modnum_%s",fname);
+  if ( nsp_link_search(fname1,-1,&loc) != -1 ) return loc ;
   return NULL;
 }
 
