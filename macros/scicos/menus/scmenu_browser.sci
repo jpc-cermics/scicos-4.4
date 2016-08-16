@@ -153,7 +153,7 @@ function window=do_browser(scs_m)
 
   sw = gtkscrolledwindow_new ();
   sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
-  sw.set_placement[GTK.CORNER_TOP_RIGHT]
+  sw.set_placement[GTK.CORNER_TOP_LEFT]
   hbox.pack_start[sw,expand=%t,fill=%t,padding=0];
 
   // build an unfiled model
