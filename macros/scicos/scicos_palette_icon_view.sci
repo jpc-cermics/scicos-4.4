@@ -141,9 +141,9 @@ function window=scicos_palette_icon_view(H)
 endfunction
 
 function icon_list=scicos_build_iconlist(S,combo)
-// build a new iconlist for palette described
-// by S
-
+// build a new iconlist for palette described by S
+// this function is called each time a new palette is selected.
+    
   function item_activated (icon_view,path,args)
   // double click on an item
     combo=args(1)
