@@ -120,4 +120,4 @@ libscicos.def: libscicos.dll
 	@rm -f  libscicos1.*
 
 libscicos.lib: libscicos.dll libscicos.def
-	lib.exe /machine:$(TARGET_MACHINE) /def:libscicos.def /out:libscicos.lib
+	@x86_64-w64-mingw32-lib.exe /machine:$(TARGET_MACHINE) /def:libscicos.def /out:libscicos.lib
