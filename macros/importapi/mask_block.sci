@@ -56,7 +56,7 @@ function out = mask_block(blk,sblkctx,sblkparams,sblkdesc)
   end
 
   for i=1:nevin do
-    blk0 = instantiate_block ("system/Ports/EventInput");
+    blk0 = instantiate_block ("CLKINV_f");//system/Ports/EventInput");
     params = {};
     params.concatd[{"portNumber","1"}];
     blk0 = set_block_parameters (blk0, params);
@@ -72,7 +72,7 @@ function out = mask_block(blk,sblkctx,sblkparams,sblkdesc)
   end
 
   for i=1:nevout do
-    blk0 = instantiate_block ("system/Ports/EventOutput");
+    blk0 = instantiate_block ("CLKOUTV_f");//system/Ports/EventOutput");
     params = {};
     params.concatd[{"portNumber","1"}];
     blk0 = set_block_parameters (blk0, params);
