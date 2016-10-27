@@ -10,9 +10,19 @@ function [scs_m,obj_num] = add_event_link(scs_m,from,to,points)
   sz    = graphics1.sz
   theta = graphics1.theta
   io    = graphics1.flip
-  op    = graphics1.pout
-  impi  = graphics1.pin
+  // op    = graphics1.pout
+  // impi  = graphics1.pin
   cop   = graphics1.peout
+  
+  if from(2) > length(cop) then 
+    cop(from(2),1)= 0
+    scs_m.objs(from(1)).graphics.peout = cop;
+    evtout = scs_m.objs(from(1)).model.evtout;
+    evtout(from(2),1)=1;
+    scs_m.objs(from(1)).model.evtout = evtout;
+    o1 = scs_m.objs(from(1));
+  end
+
   [xout,yout,typout]=getoutputs(o1)
 
   idx = find(typout==-1)
@@ -40,7 +50,6 @@ function [scs_m,obj_num] = add_event_link(scs_m,from,to,points)
   from_node=[from,0]
   xl=xo
   yl=yo
-
   
   kto = to(1)
   o2 = scs_m.objs(kto);
@@ -48,9 +57,19 @@ function [scs_m,obj_num] = add_event_link(scs_m,from,to,points)
   orig  = graphics2.orig
   sz    = graphics2.sz
   theta = graphics2.theta
-  ip    = graphics2.pin
-  impo  = graphics2.pout
+  // ip    = graphics2.pin
+  // impo  = graphics2.pout
   cip   = graphics2.pein
+
+  if to(2) > length(cip) then 
+    cip(to(2),1)= 0
+    scs_m.objs(to(1)).graphics.pein = cip;
+    evtin = scs_m.objs(to(1)).model.evtin;
+    evtin(to(2),1)=1;
+    scs_m.objs(to(1)).model.evtin = evtin;
+    o2 = scs_m.objs(to(1));
+  end
+  
   [xin,yin,typin] = getinputs(o2)
 
   if ~isempty(xin) then 
