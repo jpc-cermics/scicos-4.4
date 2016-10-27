@@ -28,9 +28,15 @@ endfunction
 
 function scs_m=set_model_context_data(scs_m,name,script)
   if isempty(script) then return;end
-  S=split(script,sep='\n')';
+  // if S is a string we assume that it can contain \n
+  if size(script,'*') == 1 then 
+    S=split(script,sep='\n')';
+  else
+    S=script;
+  end
   if ~scs_m.props.iskey['data'] then
     scs_m.props.data = hash(10);
   end
   scs_m.props.data(name) = S;
 endfunction
+
