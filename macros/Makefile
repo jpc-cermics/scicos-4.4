@@ -1,31 +1,13 @@
-SHELL = /bin/sh
-TOP=..
-include $(TOP)/Path.incl
+SHELL=/bin/sh
 
-SUBDIRS =  blocks scicos importapi
+include ../Path.incl
 
+# this include is needed to compile sci files 
+# include $(SCIDIR)/macros/Makefile.lib
 
-all:: 
-	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
-	for i in $(SUBDIRS) ;\
-	do \
-		(cd $$i ; echo "making all in macros/$$i..."; \
-		$(MAKE) $(MFLAGS) -s all); \
-	done
+SUBDIRS = blocks scicos importapi
 
-distclean::
-	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
-	for i in $(SUBDIRS) ;\
-	do \
-		(cd $$i ; echo "making distclean in macros/$$i..."; \
-		$(MAKE) $(MFLAGS) -s  distclean ); \
-	done
+# this include is needed to propagate make to subdirs
 
-clean::
-	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
-	for i in $(SUBDIRS) ;\
-	do \
-		(cd $$i ; echo "making clean in macros/$$i..."; \
-		$(MAKE) $(MFLAGS) -s clean ) ; \
-	done
+include ./Makefile.incl
 
