@@ -13,7 +13,7 @@ function blk = set_block_parameters(blk,params)
       // 
       value =params{i,2};
       execstr('str='+value);
-      value = catenate(str,sep='\n');
+      value = catenate(str,sep='\\n');
     else
       value =params{i,2};
     end
