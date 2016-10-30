@@ -1,9 +1,11 @@
 function [scs_m]=do_turn(%pt,scs_m,theta)
 // turn selected object by theta angle 
 //** get the mouse coord.
-  xc=%pt(1);
-  yc=%pt(2);
-  
+  if ~isempty(%pt) then 
+    xc=%pt(1);
+    yc=%pt(2);
+  end
+    
   //**--------- check Select ------------------
   SelectSize=size(Select);
   SelectSize=SelectSize(1);
