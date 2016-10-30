@@ -3,17 +3,17 @@ function blk = set_block_parameters(blk,params)
   [m,n]=size(params)
   exprs=m2s([])
   for i=1:m ;
-    // do not accept \n in names
     if params{i,1}=="nom" then
+      // do not accept \n in names
       value =strsubst(params{i,2},"\\n"," ");
       if part(value,1)=="''" then value=part(value,2:length(value));end
       n = length(value);
       if part(value,n)=="''" then value=part(value,1:n-1);end
     elseif params{i,1}=="txt" then
+      // 
       value =params{i,2};
-      if part(value,1)=="''" then value=part(value,2:length(value));end
-      n = length(value);
-      if part(value,n)=="''" then value=part(value,1:n-1);end
+      execstr('str='+value);
+      value = catenate(str,sep='\n');
     else
       value =params{i,2};
     end
