@@ -29,8 +29,8 @@ all-dirs:
 	   	IER=$$? &&\
 	   	case $$IER in\
 	    	0) ;;\
-	    	*) echo "Cannot make $@ in sub directory $$d";\
-	       	  exit $$IER;;\
+	    	*) echo "make $@ in sub directory $$i failed"; \
+	       	   case '${MFLAGS}' in *[k]*) echo "carrying on compilation (-k used)";; *) exit $$IER;;esac;\
 	   	esac;\
 	done
 
@@ -44,8 +44,8 @@ clean distclean ::
 	   	IER=$$? &&\
 	   	case $$IER in\
 	    	0) ;;\
-	    	*) echo "Cannot make $@ in sub directory $$d";\
-	       	  exit $$IER;;\
+	    	*) echo "make $@ in sub directory $$i failed"; \
+	       	   case '${MFLAGS}' in *[k]*) echo "carrying on compilation (-k used)";; *) exit $$IER;;esac;\
 	   	esac;\
 	done ); \
 	else $(MAKE) $(MFLAGS) distclean-base; \
