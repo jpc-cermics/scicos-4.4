@@ -1,6 +1,6 @@
 SHELL=/bin/sh
 
-SILENT=$(findstring s,$(MFLAGS))
+SILENT=$(findstring -s,$(MFLAGS))
 NSP=../../bin/nsp 
 
 GNUMAKEFLAGS=--no-print-dir
@@ -10,7 +10,7 @@ all:
 		$(MAKE) $(MFLAGS) all-dirs ; \
 	else \
 	  ( if test -f $(NSP); then \
-		( if test "x$(SILENT)" != "xs"; then echo "running builder"; fi && \
+		( if test "x$(SILENT)" != "x-s"; then echo "running builder"; fi && \
 		$(NSP) -nw -ns -e "exec('builder.sce');quit" -errcatch > /dev/null ) ; \
 	    else \
 	      echo "Fisrt time you run make;start nsp and run the file builder.sce"; \
@@ -24,7 +24,7 @@ all-dirs:
 	@case '${MFLAGS}' in *[ik]*) set +e;; esac; \
 	for i in $(SUBDIRS) ;\
 	do \
-		(cd $$i && if test "x$(SILENT)" != "xs"; then echo "making all in $(DIR)$$i ";fi && \
+		(cd $$i && if test "x$(SILENT)" != "x-s"; then echo "making all in $(DIR)$$i ";fi && \
 		$(MAKE) $(MFLAGS) DIR=$(DIR)$$i/ all ); \
 	   	IER=$$? &&\
 	   	case $$IER in\
@@ -39,7 +39,7 @@ clean distclean ::
 	( case '${MFLAGS}' in *[ik]*) set +e;; esac; \
 	for i in $(SUBDIRS) ; \
 	do \
-		(cd $$i && if test "x$(SILENT)" != "xs"; then echo "making $@ in $(DIR)$$i ";fi && \
+		(cd $$i && if test "x$(SILENT)" != "x-s"; then echo "making $@ in $(DIR)$$i ";fi && \
 		$(MAKE) $(MFLAGS) DIR=$(DIR)$$i/ $@ ); \
 	   	IER=$$? &&\
 	   	case $$IER in\
