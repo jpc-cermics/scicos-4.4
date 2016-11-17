@@ -1,5 +1,8 @@
 function o = set_block_mask (blk, mask, ptitle)
   [m,n]=size(mask);
+  if m*n == 0 then 
+    o = blk; return;
+  end
   params_names=m2s([])
   params_values=m2s([])
   params_prompts=m2s([])
