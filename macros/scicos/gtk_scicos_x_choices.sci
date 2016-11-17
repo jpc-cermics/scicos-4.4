@@ -71,9 +71,10 @@ function L=gtk_scicos_x_choices(desc,Li)
   function L=get_results(entries)
     L=list()
     for i=1:length(entries)
-      if type(entries(i),'string')=='GtkEntry' then
+      typ = type(entries(i),'string');
+      if typ =='GtkEntry' then
         L(i)=entries(i).get_text[]
-      elseif type(entries(i),'string')=='GtkComboBox' then
+      elseif typ =='GtkComboBox' || typ == 'GtkComboBoxText' then
         L(i)=entries(i).get_active[]+1
       end
     end
@@ -116,9 +117,10 @@ function L=gtk_scicos_x_choices(desc,Li)
   endfunction
   
   function changed_callback(entry,data)
-    if type(entry,'string')=='GtkEntry' then
+    typ = type(entry,'string');
+    if typ == 'GtkEntry' then
       Li=entry.get_text[]
-    elseif type(entry,'string')=='GtkComboBox' then
+    elseif typ =='GtkComboBox' || typ == 'GtkComboBoxText' then
       Li=entry.get_active[]+1
     end
     if ~Li.equal[data(1)]  then 
