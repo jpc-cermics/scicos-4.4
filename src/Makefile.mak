@@ -113,7 +113,7 @@ calelm/%.lo: calelm/%.c
 
 all :: $(SCICOS_GEN_LIB) 
 
-libscicos.def: libscicos.dll
+libscicos.def: $(OBJS)
 	@echo "Creation of libscicos.def"	
 	@$(CC) -shared -o libscicos1.dll $(OBJS) \
 		-Wl,--output-def,libscicos.def \
@@ -122,5 +122,5 @@ libscicos.def: libscicos.dll
 		-lgfortran ../../../bin/libnsp.dll.lib $(OTHERLIBS) $(WIN32LIBS)
 	@rm -f  libscicos1.*
 
-libscicos.lib: libscicos.dll libscicos.def
+libscicos.lib: libscicos.la libscicos.def
 	@x86_64-w64-mingw32-lib.exe /machine:$(TARGET_MACHINE) /def:libscicos.def /out:libscicos.lib
