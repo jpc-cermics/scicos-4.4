@@ -108,16 +108,16 @@ calelm/%.lo: calelm/%.c
 # we could also use 
 # pexports testdll.dll | sed "s/^_//" > testdll.def
 
-all :: $(SCICOS_GEN_LIB) 
+# all :: $(SCICOS_GEN_LIB) 
 
-libscicos.def: $(OBJS)
-	@echo "Creation of libscicos.def"	
-	@$(CC) -shared -o libscicos1.dll $(OBJS) \
-		-Wl,--output-def,libscicos.def \
-		-Wl,--export-all-symbols -Wl,--allow-multiple-definition \
-		-Wl,--enable-auto-import $(LIBS) -Xlinker --out-implib -Xlinker libscicos1.dll.a \
-		-lgfortran ../../../bin/libnsp.dll.a $(OTHERLIBS) $(WIN32LIBS)
-	@rm -f  libscicos1.*
+# libscicos.def: $(OBJS)
+# 	@echo "Creation of libscicos.def"	
+# 	@$(CC) -shared -o libscicos1.dll $(OBJS) \
+# 		-Wl,--output-def,libscicos.def \
+# 		-Wl,--export-all-symbols -Wl,--allow-multiple-definition \
+# 		-Wl,--enable-auto-import $(LIBS) -Xlinker --out-implib -Xlinker libscicos1.dll.a \
+# 		-lgfortran ../../../bin/libnsp.dll.a $(OTHERLIBS) $(WIN32LIBS)
+# 	@rm -f  libscicos1.*
 
-libscicos.lib: libscicos.la libscicos.def
-	@x86_64-w64-mingw32-lib.exe /machine:$(TARGET_MACHINE) /def:libscicos.def /out:libscicos.lib
+# libscicos.lib: libscicos.la libscicos.def
+# 	@x86_64-w64-mingw32-lib.exe /machine:$(TARGET_MACHINE) /def:libscicos.def /out:libscicos.lib
