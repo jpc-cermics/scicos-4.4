@@ -17,6 +17,8 @@ function [btn,%pt,win,Cmenu]=cosclick()
       win_tooltip.set_skip_pager_hint[%t]
       win_tooltip.set_accept_focus[%f]
     end
+    win_tooltip.set_data[id=0];
+    win_tooltip.set_data[id2=0];
     // win_tooltip.get_root_window is deprecated 
     // screen=win_tooltip.get_root_window[]
     // pos=screen.get_pointer[]
@@ -67,6 +69,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
     // pos=screen.get_pointer[]
     win_tooltip.move[pos(1)+10,pos(2)+10]
     win_tooltip.show_all[];
+    win_tooltip.set_data[id=0];
     y=%f
   endfunction
 
@@ -84,37 +87,32 @@ function [btn,%pt,win,Cmenu]=cosclick()
       str=strsubst(str,'</small></small>','</small>');
     end
     label.set_markup[catenate(str,sep="\n")];
+    win_tooltip.set_data[id2=0];
     y=%f
   endfunction
 
   //destroy block tooltip
   function win_tooltip=destroy_block_tooltip(win_tooltip)
     if ~win_tooltip.equal[[]] then
+      id = win_tooltip.get_data["id"];
+      remove_timeout(id);
+      id = win_tooltip.get_data["id2"];
+      remove_timeout(id);
       win_tooltip.destroy[]
       win_tooltip=[]
     end
   endfunction
 
   //remove timeout event source tooltip
-  function [id,id2]=remove_timeout(id,id2)
-    if ~id.equal[[]] then
-      if exists('gtk_get_major_version','function') then
-	g_source_remove(id);
-      else
-	gtk_timeout_remove(id);
-      end
-      id=[];
-    end
-    if ~id2.equal[[]] then
-      if exists('gtk_get_major_version','function') then
-	g_source_remove(id2);
-      else
-	gtk_timeout_remove(id2);
-      end
-      id2=[];
+  function remove_timeout(id)
+    if id.equal[[]] || id.equal[0] then return;end
+    if exists('gtk_get_major_version','function') then
+      g_source_remove(id);
+    else
+      gtk_timeout_remove(id);
     end
   endfunction
-
+    
   //unhilite hilited port
   function port_hilited=unhilite_port(gr_port,port_hilited)
     if port_hilited then
@@ -203,14 +201,13 @@ function [btn,%pt,win,Cmenu]=cosclick()
     gr_block=[];
     htype=[];hsize=[];hcolor=[];
     gr_port=[];
-    id=[];id2=[];
     kk_last=[];
 
     //new : motion event loop (Alan,30/05/13)
     while %t
       //switch getmotion to %f to not show the tooltip
       [btn,xc,yc,win,str]=xclick(getkey=%t,cursor=%f,getmotion=%t)
-      [id,id2]=remove_timeout(id,id2)
+      // [id,id2]=remove_timeout(id,id2)
       win_tooltip=destroy_block_tooltip(win_tooltip)
 
       if (btn~=-1) then
@@ -258,6 +255,7 @@ function [btn,%pt,win,Cmenu]=cosclick()
                 end
                 id=gtk_timeout_add(500,show_block_tooltip,list(win_tooltip))
                 id2=gtk_timeout_add(2000,add_extra_info_tooltip,list(win_tooltip,scs_m.objs(kk)))
+		win_tooltip.set_data[id=id,id2=id2];
                 kk_last=kk
               end
             else
