@@ -1628,14 +1628,15 @@ function scs_m=do_upgrade_gri(scs_m)
     o= scs_m.objs(i);
     if o.type =='Block' then
       if o.iskey['gui'] then 
-	execstr( 'obj='+o.gui+'(''define'')');
+	ok= execstr( 'obj='+o.gui+'(''define'')',errcatch=%t);
+	if ~ok then
+	  gr_i='xstringb(orig(1),orig(2),''undefined'',sz(1),sz(2),''fill'');'
+	  lasterror();
+	end;
+
 	ngri=obj.graphics.gr_i(1);
 	if type(ngri,'short')=='l' then ngri=ngri(1);end
-	if type(o.graphics.gr_i,'short')=='l' then 
-	  o.graphics.gr_i(1) = obj.graphics.gr_i(1);
-	else 
-	  o.graphics.gr_i = obj.graphics.gr_i;
-	end
+	o.graphics.gr_i(1) = ngri;
       end
       omod=o.model;
       if o.model.sim.equal['super'] | o.model.sim.equal['csuper'] then

@@ -48,8 +48,6 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
       end
     end
   endfunction
-
-
   
   function scs_m=do_update_scilab_schema(scs_m,keep_xstringb=%t)
   // do not use wpar when importing from scicoslab 
@@ -74,16 +72,31 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	gui=scs_m.objs(i).gui;
 	if ~keep then
 	  // we can change the gui
-	  ok=execstr( 'obj='+gui+'(''define'')',errcatch=%t);
-	  if ok then
-	    if type(scs_m.objs(i).graphics.gr_i,'short')=='l' then
-	      scs_m.objs(i).graphics.gr_i(1) = obj.graphics.gr_i(1);
+	  if ~exists(gui,'callable') then 
+	    guin = 'MISSING_BLOCK';
+	    cmd = sprintf('obj=%s(''define'',''%s'');',guin,gui);
+	    ok=execstr(cmd,errcatch=%t);
+	    if ~ok then lasterror();
 	    else
+	      scs_m.objs(i).gui = obj.gui;
 	      scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
+	      scs_m.objs(i).graphics.exprs = obj.graphics.exprs;
+	      scs_m.objs(i).model.rpar = obj.model.rpar;
 	    end
 	  else
-	    message([sprintf('Update of %s cannot be done, we ignore the update',gui);
-		     catenate(lasterror())]);
+	    ok=execstr( 'obj='+gui+'(''define'')',errcatch=%t);
+	    if ok then
+	      if type(scs_m.objs(i).graphics.gr_i,'short')=='l' then
+		scs_m.objs(i).graphics.gr_i(1) = obj.graphics.gr_i(1);
+	      else
+		scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
+	      end
+	    else
+	      message([sprintf('Update of %s cannot be done, we ignore the update',gui);
+		       catenate(lasterror())]);
+	      gr_i='xstringb(orig(1),orig(2),''undefined'',sz(1),sz(2),''fill'');';
+	      scs_m.objs(i).graphics.gr_i=gr_i;
+	    end
 	  end
 	end
 	//scs_m.objs(i).graphics.out_implicit = obj.graphics.out_implicit;
@@ -169,6 +182,39 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	sizes=[8,10,12,14,18,24];
 	o.model.ipar(2)=sizes(min(max(1,o.model.ipar(2)),6))/10;
 	o.graphics.exprs(3)= sci2exp(o.model.ipar(2));
+	scs_m.objs(i)=o;
+      end
+    end
+  endfunction
+  
+  function scs_m=do_subst_missing_blocks(scs_m)
+  // replace undefinde blocks by MISSING_BLOCK
+    n=size(scs_m.objs);
+    for i=1:n
+      if scs_m.objs(i).iskey['gui'] then
+	gui=scs_m.objs(i).gui;
+	if ~exists(gui,'callable') then 
+	  guin = 'MISSING_BLOCK';
+	  cmd = sprintf('obj=%s(''define'',''%s'');',guin,gui);
+	  ok=execstr(cmd,errcatch=%t);
+	  if ~ok then lasterror();
+	  else
+	    scs_m.objs(i).gui = obj.gui;
+	    scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
+	    scs_m.objs(i).graphics.exprs = obj.graphics.exprs;
+	    scs_m.objs(i).model.rpar = obj.model.rpar;
+	    printf("Warning: missing function %s, Block %s is replaced by  MISSING_BLOCK",...
+		   gui,gui); 
+	  end
+	end
+      end
+      o=scs_m.objs(i);
+      if o.type =='Block' then
+	omod=o.model;
+	if or(o.model.sim(1)==['super','asuper','csuper']) then
+	  o.model.rpar=do_subst_missing_blocks(o.model.rpar);
+	end
+	o.graphics.theta = - o.graphics.theta;
 	scs_m.objs(i)=o;
       end
     end
@@ -429,9 +475,14 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
     // just in case we make a save
     scs_m.props.title=[scs_m.props.title(1)+'_nsp',path];
   else
+    // remove undefined blocks 
+    // Note that this is also done in do_update_scilab_schema
+    scs_m=do_subst_missing_blocks(scs_m);
     scs_m.props.title=[scs_m.props.title(1),path];
   end
   
+
+    
   if ext=='xml'|ext=='XML' then
     scs_m_sav=scs_m;
     [scs_m,ok]=generating_atomic_code(scs_m)
