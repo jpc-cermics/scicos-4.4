@@ -82,6 +82,8 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	      scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
 	      scs_m.objs(i).graphics.exprs = obj.graphics.exprs;
 	      scs_m.objs(i).model.rpar = obj.model.rpar;
+	      printf("Warning: missing function %s, Block %s is replaced by  MISSING_BLOCK\n",...
+		     gui,gui); 
 	    end
 	  else
 	    ok=execstr( 'obj='+gui+'(''define'')',errcatch=%t);
@@ -203,7 +205,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	    scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
 	    scs_m.objs(i).graphics.exprs = obj.graphics.exprs;
 	    scs_m.objs(i).model.rpar = obj.model.rpar;
-	    printf("Warning: missing function %s, Block %s is replaced by  MISSING_BLOCK",...
+	    printf("Warning: missing function %s, Block %s is replaced by  MISSING_BLOCK\n",...
 		   gui,gui); 
 	  end
 	end
