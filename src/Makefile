@@ -104,6 +104,10 @@ calelm/%.lo: calelm/%.c
 	@$(LTCOMPILE) -c $< -o $@
 
 
+# this part was move in the nsp file
+# $(SCIDIR)/config/Makeso.incl which is target adapted
+# The following code is not used anymore
+#
 # temporary target to also produce the def file 
 # we could also use 
 # pexports testdll.dll | sed "s/^_//" > testdll.def
