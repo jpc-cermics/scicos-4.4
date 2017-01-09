@@ -212,6 +212,7 @@ function [sd1]=ngr_rect(action,sd,pt,pt1)
    case 'move point' then
     // move a control point
     xinfo('inside the move point')
+    ngr_objects(sd).gr.invalidate[];
     ngr_objects(sd)('data')(3:4)=max(ngr_objects(sd)('data')(3:4)+[pt(1),-pt(2)],0);
     rr= ngr_objects(sd)('data');
     if ngr_objects(sd).iskey['gr'] then
@@ -448,6 +449,7 @@ function sd1 =ngr_poly(action,sd,pt,pt1)
 	  end
        end
     end
+    ngr_objects(sd).gr.invalidate[];
     ngr_objects(sd)('x')(pt1)=ptnew(1);
     ngr_objects(sd)('y')(pt1)=ptnew(2);
     ngr_objects(sd).gr.invalidate[];
