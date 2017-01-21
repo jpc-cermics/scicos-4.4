@@ -83,9 +83,9 @@ function [y]=scicos_delete(win, event)
   y=%t; // if false then destroy is performed 
   // if true then destroy is not done 
   if y==%t then 
-    printf("in delete returning true (no destroy)\n");
+    // printf("in delete returning true (no destroy)\n");
   else
-    printf("in delete returning false (destroy)\n");
+    // printf("in delete returning false (destroy)\n");
   end
 endfunction
 
