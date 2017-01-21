@@ -84,13 +84,17 @@ function [x,y,typ]=SOM_f(job,arg1,arg2)
       labs=['down','right','up']
     end
 
-    message(['This sum block is obsolete'
-	     'parameters cannot be modified. Please replace it with new sum block';
-	     'and gain blocks in the linear palette'
-	     ' '
-	     'Input ports are located at up, side and  down positions.'
-	     'Current gains are:' 
-	     part(labs(:),1:7)+'  '+exprs(:)])
+    non_interactive = exists('getvalue') && ...
+	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
+    if ~non_interactive then 
+      message(['This sum block is obsolete'
+	       'parameters cannot be modified. Please replace it with new sum block';
+	       'and gain blocks in the linear palette'
+	       ' '
+	       'Input ports are located at up, side and  down positions.'
+	       'Current gains are:' 
+	       part(labs(:),1:7)+'  '+exprs(:)]);
+    end
    case 'define' then
     sgn=[1;1;1]
 

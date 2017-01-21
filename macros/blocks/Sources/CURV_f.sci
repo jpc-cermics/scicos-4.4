@@ -31,9 +31,16 @@ function [x,y,typ]=CURV_f(job,arg1,arg2)
     n=ipar(1)
     xx=rpar(1:n);yy=rpar(n+1:2*n)
     gc=list(rpar(2*n+1:2*n+4),ipar(2:5))
+ 
+    non_interactive = exists('getvalue') && ...
+	( getvalue.get_fname[]== 'getvalue_doc');
     while %t do
       //if or(fun == "clickin") then // cas standard
-      [xx,yy,ok,gc]=edit_curv(xx,yy,'axy',[' ',' ',' '],gc)
+      if non_interactive then 
+	ok = %t;
+      else
+	[xx,yy,ok,gc]=edit_curv(xx,yy,'axy',[' ',' ',' '],gc)
+      end
       //else
       //ok=%t
       //end // no need anymore to overload edit_curv in do_eval

@@ -16,6 +16,7 @@ function [x,y,typ]=CLSS(job,arg1,arg2)
     if size(exprs,'*')==7 then exprs=exprs([1:4 7]),end //compatibility
     if size(exprs,1) >= 5 && exprs(5,1)=="0" || exprs(5,1)=="[]" then
       // try to fix x0 dimensions
+      if ~exists('%scicos_context') then %scicos_context=hash(4);end
       Ai=evstr(exprs(1,1),%scicos_context);
       exprs(5,1)= sprintf("zeros(%d,1)",size(Ai,2));
     end

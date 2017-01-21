@@ -18,6 +18,10 @@ function [x,y,typ]=GENERAL_f(job,arg1,arg2)
     in=model.in;out=model.evtout
     nin=sum(in)
     nout=sum(out)
+    
+    non_interactive = exists('getvalue') && ...
+	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
+    
     [ok,in,out,exprs]=getvalue('Set General Zero-Crossing parameters',..
 			       ['Input size';'Number of event output'],..
 			       list('vec',1,'vec',1),exprs)
@@ -32,15 +36,18 @@ function [x,y,typ]=GENERAL_f(job,arg1,arg2)
 	  rp=-1*ones(nout1,2^(2*nin1))
 	end
 	n=size(rp,2)/2;
-	result=scicos_mdialog('routing matrix',string(1:nout1),..
-			      string(1:2^(2*nin1)),string(rp(:,:)))
-	if ~isempty(result) then
-	  rp(1:nout1,1:2*n)=evstr(result)
-	  model.nzcross=in
-	  model.rpar=rp(:)
-	  model.firing=-ones(out,1)
-	  graphics.exprs=exprs
-	  x.graphics=graphics;x.model=model
+	if non_interactive then 
+	else
+	  result=scicos_mdialog('routing matrix',string(1:nout1),..
+				string(1:2^(2*nin1)),string(rp(:,:)))
+	  if ~isempty(result) then
+	    rp(1:nout1,1:2*n)=evstr(result)
+	    model.nzcross=in
+	    model.rpar=rp(:)
+	    model.firing=-ones(out,1)
+	    graphics.exprs=exprs
+	    x.graphics=graphics;x.model=model
+	  end
 	end
       end
     end

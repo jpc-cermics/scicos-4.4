@@ -63,6 +63,10 @@ function [x,y,typ]=scifunc_block(job,arg1,arg2)
     exprs=graphics.exprs
 
     if size(exprs(1),'*')==8 then exprs(1)(9)='0';end
+
+    non_interactive = exists('getvalue') && ...
+	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
+    
     while %t do
       [ok,i,o,ci,co,xx,z,rpar,auto0,deptime,lab]=getvalue(..
 						  ['Set scifunc_block parameters';'only regular blocks supported'],..
@@ -86,8 +90,13 @@ function [x,y,typ]=scifunc_block(job,arg1,arg2)
       o=int(o(:));no=size(o,1);
       ci=int(ci(:));nci=size(ci,1);
       co=int(co(:));nco=size(co,1);
-      [ok,tt,dep_ut]=genfunc1(exprs(2),i,o,nci,nco,size(xx,1),size(z,1),..
-			      nrp,'c')
+      
+      if non_interactive then 
+	ok=%t;dep_ut=[%f,%f];tt=0;
+      else
+	[ok,tt,dep_ut]=genfunc1(exprs(2),i,o,nci,nco,size(xx,1),size(z,1),..
+				nrp,'c')
+      end
       dep_ut(2)=(1==deptime)
       if ~ok then break,end
       [model,graphics,ok]=check_io(model,graphics,i,o,ci,co)

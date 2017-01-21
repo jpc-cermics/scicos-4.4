@@ -26,7 +26,8 @@ function [x,y,typ]=PDE(job,arg1,arg2)
     model=arg1.model;  
     params_pde=label(1);
     
-    non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+    non_interactive = exists('getvalue') && ...
+	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
     
     while %t do
       if ~non_interactive then 

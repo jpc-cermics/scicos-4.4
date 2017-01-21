@@ -73,7 +73,10 @@ function [x,y,typ]=scifunc_block_m(job,arg1,arg2)
 	       'Is block always active (0:no, 1:yes)'];
     gv_types=list('mat',[-1 2],'mat',[-2 2],'vec',-1,...
 		  'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',1);
-    
+
+    non_interactive = exists('getvalue') && ...
+	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
+
     while %t do
       [ok,i,o,ci,co,xx,z,rpar,auto0,deptime,lab]=getvalue(gv_title, ...
 						  gv_titles,gv_types,exprs(1));
@@ -92,8 +95,13 @@ function [x,y,typ]=scifunc_block_m(job,arg1,arg2)
       no=size(o,1);
       ci=int(ci(:));nci=size(ci,1);
       co=int(co(:));nco=size(co,1);
-      [ok,tt,dep_ut]=genfunc2(exprs(2),i,o,nci,nco,size(xx,1),size(z,1),..
-			      nrp,'c')
+
+      if non_interactive then 
+	ok=%t;dep_ut=[%f,%f];tt=0;
+      else
+	[ok,tt,dep_ut]=genfunc2(exprs(2),i,o,nci,nco,size(xx,1),size(z,1),..
+				nrp,'c')
+      end
       dep_ut(2)=(1==deptime)
       if ~ok then break,end
       //[model,graphics,ok]=check_io(model,graphics,i,o,ci,co)

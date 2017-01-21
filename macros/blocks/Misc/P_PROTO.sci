@@ -1,7 +1,5 @@
 function [x,y,typ]=P_PROTO(job,arg1,arg2)
 //
-// WIP XXXX
-    
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -13,6 +11,10 @@ function [x,y,typ]=P_PROTO(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+
+    non_interactive = exists('getvalue') && ...
+	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
+    
     x=arg1;
     titles=['NSP function name';'Parameters';'input ports sizes';
 	    'output port sizes';'input event ports sizes';'initial discrete state';
