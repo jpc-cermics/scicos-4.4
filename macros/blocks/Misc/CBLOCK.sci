@@ -62,8 +62,16 @@ function [x,y,typ]=CBLOCK(job,arg1,arg2)
       end
 
       tt=label(2);
+      
+      // if we are extracting doc do not run CFORTR
+      standard = ~(exists('getvalue') && getvalue.get_fname[]== 'getvalue_doc');
+      
       while %t
-	[ok,tt,cancel]=CFORTR2(funam,tt)
+	if standard then 
+	  [ok,tt,cancel]=CFORTR2(funam,tt)
+	else
+	  ok=%t;cancel=%f;
+	end
 	if ~ok then
 	  if cancel then break,end
 	else

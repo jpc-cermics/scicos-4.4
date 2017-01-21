@@ -20,7 +20,12 @@ function [x,y,typ]=PAL_f(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    [x,newparameters,needcompile,edited]=scicos(arg1.model.rpar)
+    standard = ~(exists('getvalue') && getvalue.get_fname[]== 'getvalue_doc');
+    if standard then
+      [x,newparameters,needcompile,edited]=scicos(arg1.model.rpar)
+    else
+      [x,newparameters,needcompile,edited]=(arg1.model.rpar,[],-2,%f)
+    end
     id=arg1.graphics.id
     if id=='' then
       arg1.graphics.id=x.props.title(1);

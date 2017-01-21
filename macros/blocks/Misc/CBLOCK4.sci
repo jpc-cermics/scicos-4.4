@@ -118,8 +118,14 @@ function [x,y,typ]=CBLOCK4(job,arg1,arg2)
 
         libss  = graphics.exprs(1)(20)
         cflags = graphics.exprs(1)(21)
+	// if we are extracting doc do not run CFORTR
+	standard = ~(exists('getvalue') && getvalue.get_fname[]== 'getvalue_doc');
         while %t
-          [ok,tt,cancel,libss,cflags]=CC4(funam,tt,libss,cflags)
+	  if standard then 	  
+	    [ok,tt,cancel,libss,cflags]=CC4(funam,tt,libss,cflags)
+	  else
+	    ok=%t, cancel=%f;
+	  end
           if ~ok then
             if cancel then break,end
           else

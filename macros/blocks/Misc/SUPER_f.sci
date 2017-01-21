@@ -24,9 +24,14 @@ function [x,y,typ]=SUPER_f(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+    standard = ~(exists('getvalue') && getvalue.get_fname[]== 'getvalue_doc');
     y=needcompile // in case leaving with Exit
     while %t do
-      [x,newparameters,needcompile,edited]=scicos(arg1.model.rpar)
+      if standard then 
+	[x,newparameters,needcompile,edited]=scicos(arg1.model.rpar)
+      else
+	[x,newparameters,needcompile,edited]=(arg1.model.rpar,[],-2,%f)
+      end
       arg1.model.rpar=x
       [ok,arg1]=adjust_s_ports(arg1);
       if ok then

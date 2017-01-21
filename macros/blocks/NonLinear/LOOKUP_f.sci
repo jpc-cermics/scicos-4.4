@@ -16,15 +16,15 @@ function [x,y,typ]=LOOKUP_f(job,arg1,arg2)
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;rpar=model.rpar;
     n=size(rpar,'*')/2
-    xx=rpar(1:n);yy=rpar(n+1:2*n)
+    xx=rpar(1:n);yy=rpar(n+1:2*n);
+    
+    non_interactive = exists('getvalue') && ...
+	( getvalue.get_fname[] == 'setvalue' || getvalue.get_fname[] == 'getvalue_doc');
     while %t do
-      // [ln,fun]=where();  
-      //if %t (fun == "clickin") then // cas standard  
-      if %t then 
-	// xset('window',win);xsetech([0 0 1 1])
-	[xx,yy,ok]=edit_curv(xx,yy,'axy')
-      else
+      if non_interactive then 
 	ok=%t
+      else
+	[xx,yy,ok]=edit_curv(xx,yy,'axy')
       end  // no need anymore to overload edit_curv in do_eval
       if ~ok then break,end
       n=size(xx,'*')
