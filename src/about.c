@@ -1,6 +1,6 @@
 /* -*-   Encoding: utf-8  -*-  */
 /* Nsp
- * Copyright (C) 1998-2010 Jean-Philippe Chancelier Enpc/Cermics
+ * Copyright (C) 1998-2017 Jean-Philippe Chancelier Enpc/Cermics
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
@@ -41,6 +41,7 @@ void create_scicos_about(void)
     "M. Najafi",
     "F. Nassif",
     "nsp port: J.Ph Chancelier and A. Layec",
+    "simport: P. Weis et al.",
     NULL
   };
 
@@ -77,7 +78,7 @@ void create_scicos_about(void)
   gtk_show_about_dialog (NULL,/*GTK_WINDOW (window),*/
 			 "program-name", "Scicos",
 			 "version", SCICOS_VERSION,
-			 "copyright", "(C) 2004-2013 The Scicos Team",
+			 "copyright", "(C) 2004-2017 The Scicos Team",
 			 "license", license,
 			 "website", "http://www.scicos.org/",
 			 "authors", authors,
