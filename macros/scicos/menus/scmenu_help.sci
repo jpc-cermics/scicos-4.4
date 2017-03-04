@@ -1,8 +1,8 @@
 function scmenu_help()
   xinfo('Click on object or menu to get help')
-  xcursor(93)
+  //xcursor(93)
   Select=do_help(Select)
-  xcursor()
+  //xcursor()
   xinfo(' ')
   Cmenu=''
   %pt=[]
