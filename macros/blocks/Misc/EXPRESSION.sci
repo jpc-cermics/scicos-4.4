@@ -95,6 +95,10 @@ function [x,y,typ]=EXPRESSION(job,arg1,arg2)
 	execstr('exprs(2)=varnumsubst(exprs(2),'"u'"+string(ii),'"%u'"+string(ii))'),
       end
       graphics.exprs=exprs
+      if length(exprs(2)) <= 10 then 
+	expr = strsubst(exprs(2),'%u','u');
+	graphics.gr_i= sprintf('xstringb(orig(1),orig(2),[''%s''],sz(1),sz(2),''fill'');',expr);
+      end
       x.graphics=graphics
       x.model=model
       break
