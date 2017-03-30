@@ -1,7 +1,7 @@
 function M=scicos_get_in_indices(varargin)
   M=zeros(0,2);
   for i=1:length(varargin)
-    val = varagin(i);
+    val = varargin(i);
     if size(val,'*') == 1 then 
       if val == -1 then val = [-2*i+1,-2*i];
       else
@@ -18,7 +18,7 @@ endfunction
 function M=scicos_get_out_indices(varargin)
   M=zeros(0,2);
   for i=1:length(varargin)
-    val = varagin(i);
+    val = varargin(i);
     if size(val,'*') == 1 then 
       if val == -1 then val = -100 + [-2*i+1,-2*i];
       else
