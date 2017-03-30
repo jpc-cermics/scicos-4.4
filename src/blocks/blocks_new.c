@@ -1100,11 +1100,11 @@ void scicos_step_func_block (scicos_block * block, int flag)
 
 void scicos_signum_block (scicos_block * block, int flag)
 {
-  int _ng = GetNg (block);
-  double *_g = GetGPtrs (block);
-  int *_mode = GetModePtrs (block);
-  double *_u1 = GetRealInPortPtrs (block, 1);
-  double *_y1 = GetRealOutPortPtrs (block, 1);
+  int ng = GetNg (block);
+  double *g = GetGPtrs (block);
+  int *mode = GetModePtrs (block);
+  double *u1 = GetRealInPortPtrs (block, 1);
+  double *y1 = GetRealOutPortPtrs (block, 1);
   /* int phase= GetSimulationPhase(block); */
   int i, j;
 
@@ -1112,25 +1112,25 @@ void scicos_signum_block (scicos_block * block, int flag)
     {
       for (i = 0; i < GetInPortRows (block, 1); ++i)
 	{
-	  if (!areModesFixed (phase) || _ng == 0)
+	  if (!areModesFixed (phase) || ng == 0)
 	    {
-	      j = (_u1[i] < 0) ? 2 : ((_u1[i] > 0) ? 1 : 0);
+	      j = (u1[i] < 0) ? 2 : ((u1[i] > 0) ? 1 : 0);
 	    }
 	  else
 	    {
-	      j = _mode[i];
+	      j = mode[i];
 	    }
-	  _y1[i] = (j == 1) ?  1.0 : ((j == 2) ?  -1.0: 0.0);
+	  y1[i] = (j == 1) ?  1.0 : ((j == 2) ?  -1.0: 0.0);
 	}
     }
   else if (flag == 9)
     {
       for (i = 0; i < GetInPortRows (block, 1); ++i)
 	{
-	  _g[i] = _u1[i];
+	  g[i] = u1[i];
 	  if (!areModesFixed (phase))
 	    {
-	      _mode[i] =  (_g[i] < 0) ?  2 : 1;
+	      mode[i] =  (g[i] < 0) ?  2 : ((g[i] > 0 ) ? 1 : 3);
 	    }
 	}
     }
