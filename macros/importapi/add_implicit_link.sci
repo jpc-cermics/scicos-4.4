@@ -1,10 +1,19 @@
 function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
 //  nargin=argn(2)  
-  if nargin<4 then points=[],end
+  
+  if nargin<4 then points=zeros(0,2);end;
+  if isempty(points) then points=zeros(0,2);end 
+    
   if size(from,2)<>3 then error("2nd argument must be of size 3."),end
   if size(to,2)<>3 then error("3rd argument must be of size 3."),end
 
-  o1 = scs_m.objs(from(1))
+  if from(3)=="output" then from(3)="0";else from(3)="1";end 
+  if to(3)=="output" then to(3)="0";else to(3)="1";end 
+    
+  from=evstr(from);
+  to=evstr(to);
+  
+  o1 = scs_m.objs(from(1));
   graphics1=o1.graphics
   orig  = graphics1.orig
   sz    = graphics1.sz
@@ -13,6 +22,7 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
   op    = graphics1.pout
   impi  = graphics1.pin
   cop   = graphics1.peout
+
   if from(3)==0 then
     [xout,yout,typout]=getoutputs(o1)
     xp=op
@@ -57,6 +67,7 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
   ip    = graphics2.pin
   impo  = graphics2.pout
   cip   = graphics2.pein
+
   if to(3)==1 then
     [xin,yin,typin] = getinputs(o2)
     xp=ip
@@ -85,7 +96,6 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
   clr=default_color(typo)
   typ=typo
   to_node=[to]
-
   xl = [cumsum([xo;points(:,1)]')';xi];  yl = [cumsum([yo;points(:,2)]')';yi]
   lk=scicos_link(xx=xl,yy=yl,ct=[clr,typ],from=from_node,to=to_node)
   if typ==3 then
