@@ -75,8 +75,8 @@ function scicos_test_anim3(opengl=%f)
   scs_m=scicos_diagram_show(scs_m)
   //realtimeinit(0.0001);
   F=get_current_figure();
-  for k=1:100
-    printf("k=%d\n",k);
+  for k=1:10000
+    // printf("k=%d\n",k);
     // realtime(k);
     for j=1:length(scs_m.objs);
       tr=(2*rand(1,2)-1);
