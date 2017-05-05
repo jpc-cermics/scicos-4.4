@@ -216,7 +216,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	if or(o.model.sim(1)==['super','asuper','csuper']) then
 	  o.model.rpar=do_subst_missing_blocks(o.model.rpar);
 	end
-	o.graphics.theta = - o.graphics.theta;
+	o.graphics.theta = o.graphics.theta;
 	scs_m.objs(i)=o;
       end
     end
