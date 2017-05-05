@@ -1,8 +1,9 @@
 function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
 // if to is a split of id_splitXX then the split is moved
 
-//  nargin=argn(2)
-
+  if nargin<4 then points=zeros(0,2),end
+  if isempty(points) then points=zeros(0,2),end
+  
   [from,nok1]=evstr(lfrom)
   [to,nok2]=evstr(lto)
   if nok1+nok2>0 then
@@ -10,9 +11,6 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
     printf('Warning: Link %s->%s not supported.\n',sci2exp(lfrom,0),sci2exp(lto,0));
     return
   end
-
-  if nargin<4 then points=zeros(0,2),end
-  if isempty(points) then points=zeros(0,2),end
   
   o1 = scs_m.objs(from(1))
   graphics1=o1.graphics
@@ -76,7 +74,7 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
     end
     xi = xin(k); yi = yin(k); typi = typin(k);
 
-    if [xi;yi] <> [] then
+    if ~isempty([xi;yi]) then
       xxx=rotate([xi;yi],...
                  theta*%pi/180,...
                  [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);

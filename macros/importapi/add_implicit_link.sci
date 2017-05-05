@@ -1,5 +1,4 @@
 function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
-//  nargin=argn(2)  
   
   if nargin<4 then points=zeros(0,2);end;
   if isempty(points) then points=zeros(0,2);end 
@@ -31,9 +30,6 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
     xp=impi
   end
 
-  //   idx = find(typout==2)
-  //   xout=xout(idx);    yout=yout(idx);    typout=typout(idx)
-
   k=from(2)
   xo=xout(k);yo=yout(k);typo=typout(k)
 
@@ -52,11 +48,9 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
   end
   typpfrom='out'
 
-
   from_node=[from]
   xl=xo
   yl=yo
-
   
   kto = to(1)
   o2 = scs_m.objs(kto);
@@ -68,26 +62,28 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
   impo  = graphics2.pout
   cip   = graphics2.pein
 
-  if to(3)==1 then
-    [xin,yin,typin] = getinputs(o2)
-    xp=ip
-  else
-    [xin,yin,typin] = getoutputs(o2)
-    xp=impo
-  end
-
-  //    idx = find(typin==2)
-  //    xin=xin(idx);    yin=yin(idx);    typin=typin(idx)
-
+  
   k = to(2)
-  xi = xin(k); yi = yin(k); typi = typin(k);
 
-  xxx=rotate([xi;yi],...
-	     theta*%pi/180,...
-	     [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-  xi=xxx(1);
-  yi=xxx(2);
-
+  if and(orig==-1) then
+    xi=[],yi=[]
+  else
+    if to(3)==1 then
+      [xin,yin,typin] = getinputs(o2)
+      xp=ip
+    else
+      [xin,yin,typin] = getoutputs(o2)
+      xp=impo
+    end
+    xi = xin(k); yi = yin(k); typi = typin(k);
+    
+    xxx=rotate([xi;yi],...
+	       theta*%pi/180,...
+	       [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
+    xi=xxx(1);
+    yi=xxx(2);
+  end
+  
   port_number = k ;
   if xp(port_number)<>0 then
     pause,error('Selected port: '+string(k)+' of block '+string(to(1))+' is already connected.')
@@ -101,7 +97,7 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
   if typ==3 then
     lk.thick=[2 2]
   end
-
+  lk=scicos_route(lk,scs_m)
   scs_m.objs($+1) = lk ;
 
   obj_num=length(scs_m.objs)
@@ -112,5 +108,8 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
 
   scs_m.objs(from_node(1))=mark_prt(scs_m.objs(from_node(1)),from_node(2),outin(from_node(3)+1),typ,obj_num)
   scs_m.objs(to_node(1))=mark_prt(scs_m.objs(to_node(1)),to_node(2),outin(to_node(3)+1),typ,obj_num)
+  if isempty(xi) then
+    scs_m.objs(to_node(1)).graphics.orig=[xl($),yl($)]
+  end
 
 endfunction
