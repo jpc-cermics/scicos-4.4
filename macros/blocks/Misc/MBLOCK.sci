@@ -279,7 +279,7 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,funa
   end
   // name or path with .mo extension 
   [dirF,nameF,extF]=splitfilepath(funam);
-  if (extF<>'' & extF<>'.mo')|(dirF<>'./' & extF<>'.mo') then
+  if (extF<>'' & extF<>'mo')|(dirF<>'./' & extF<>'mo') then
     message("Filename extention should be ''.mo'' !")
     return;
   end
@@ -367,11 +367,11 @@ function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
 	  ' which you should edit'];
   cm = catenate(head,sep='\n');
   
-  if (extF=='' | (extF=='.mo' & ~file('exists',funam))) then
+  if (extF=='' | (extF=='mo' & ~file('exists',funam))) then
     editblk=%t;
     txt = scicos_editsmat('Modelica class edition',textmp,comment=cm);
     Quit = %t;
-  elseif (extF=='.mo' && file('exists',funam)) then
+  elseif (extF=='mo' && file('exists',funam)) then
     editblk=%f;
     txt = textmp;
   end
