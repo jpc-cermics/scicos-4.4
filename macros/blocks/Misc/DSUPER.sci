@@ -34,6 +34,13 @@ function [x,y,typ]=DSUPER(job,arg1,arg2)
     btitre=graphics.exprs(2)(2)(1)
     bitems=graphics.exprs(2)(2)(2:$)
     if isempty(exprs0) then x=arg1,return,end
+
+    if size(exprs0,'*') > 20 then 
+      printf('WIP: DSUPER cannot call getvalue since we have too many parameters\n");
+      x=arg1;
+      return;
+    end
+        
     tt='scicos_context.'+exprs0(1);
     for i=2:size(exprs0,1)
       tt=tt+',scicos_context.'+exprs0(i),
