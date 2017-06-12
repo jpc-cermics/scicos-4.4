@@ -29,7 +29,7 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
     [xout,yout,typout]=getinputs(o1)
     xp=impi
   end
-
+  
   k=from(2)
   xo=xout(k);yo=yout(k);typo=typout(k)
 
@@ -66,7 +66,12 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
   k = to(2)
 
   if and(orig==-1) then
-    xi=[],yi=[]
+    xi=[],yi=[];
+    if to(3)==1 then
+      xp=ip
+    else
+      xp=impo
+    end
   else
     if to(3)==1 then
       [xin,yin,typin] = getinputs(o2)
