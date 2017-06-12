@@ -35,7 +35,7 @@ function [x,y,typ]=DSUPER(job,arg1,arg2)
     bitems=graphics.exprs(2)(2)(2:$)
     if isempty(exprs0) then x=arg1,return,end
 
-    if size(exprs0,'*') > 20 then 
+    if size(exprs0,'*') > 19 then 
       printf('WIP: DSUPER cannot call getvalue since we have too many parameters\n");
       x=arg1;
       return;
