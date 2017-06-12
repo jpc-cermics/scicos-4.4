@@ -4,7 +4,7 @@ function selecthilite(Select, flag)
   end
   for i=1:size(Select,1)
     [junk, win, o]=get_selection(Select(i,:),0,0)
-    if ~isempty(o) then
+    if ~isempty(o) && o.iskey['gr'] then
       if o.type=='Link' then
         ogr=o.gr.children(1)
       else
