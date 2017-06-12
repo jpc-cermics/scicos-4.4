@@ -79,7 +79,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	if o.gui<>'PAL_f' then
 	  // 
 	  rpar=o.model.rpar;
-	  if flag=='XML' then
+	  if flag.equal['XML'] then
 	    graphics=o.graphics;
 	    sim=o.model.sim;
 	    %scicos_prob=%f
@@ -97,8 +97,8 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	  model=o.model
 	  if (model.sim(1)=='super' ..
 	      | (model.sim(1)=='csuper'& ~model.ipar.equal[1]) ..
-	      | (model.sim(1)=='asuper'& flag=='XML') ..
-	      | (o.gui == 'DSUPER' & flag == 'XML')) then  //exclude mask
+	      | (model.sim(1)=='asuper'& flag.equal['XML']) ..
+	      | (o.gui == 'DSUPER' & flag.equal['XML'])) then  //exclude mask
 	    sblock=rpar;
 	    [scicos_context1,ierr]=script2var(sblock.props.context,context)
 	    if ierr<>0 then
@@ -109,7 +109,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	      needcompile1=max(needcompile1,needcompile2)
 	      if ok then
 		o.model.rpar=sblock
-		if flag=='XML' then
+		if flag.equal['XML'] then
 		  if sim(1)=="asuper" then
 		    o.model.sim=sim;
 		  end
@@ -155,7 +155,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	      [ok,msg]=do_eval_report('',o.gui);
 	      return
 	    end
-	    if flag <>'XML' then
+	    if ~flag.equal['XML'] then
 	      needcompile1=max(needcompile1,needcompile) // for scifunc_block
 	      model_n=o.model
 	      if or(model.blocktype<>model_n.blocktype)|.. // type 'c','d','z','l'
@@ -187,7 +187,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	      end
 	    end
 	  end
-	  if flag=='XML' then
+	  if flag.equal['XML'] then
 	    o.graphics=graphics;
 	  end
 	end
