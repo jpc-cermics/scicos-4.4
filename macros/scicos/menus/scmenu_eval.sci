@@ -137,7 +137,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 		o.model.rpar=sblock
 		scs_m1=scs_m;
 		scs_m1.objs(%kk)=o;
-		[o,needcompile2,ok]=do_CreateAtomic(o,%kk,scs_m1)
+		[o,needcompile2,ok]=do_create_atomic(o,%kk,scs_m1)
 	      else
 		error('Compiling atomic super block fails.')
 	      end
