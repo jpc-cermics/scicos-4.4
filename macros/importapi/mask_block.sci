@@ -3,6 +3,12 @@ function out = mask_block(blk,sblkctx,sblkparams,sblkdesc)
   function rep = context_is_empty(ctx)
     rep = size(ctx,'*') == 0 || sum(length(ctx))==0;
   endfunction
+
+  if blk.gui.equal['OUT_f'] || blk.gui.equal['IN_f'] then
+    // do not mask in or out 
+    out=blk;
+    return;
+  end
   
   if context_is_empty(sblkctx) && size(sblkparams,'r')==0 then
     out = blk;
