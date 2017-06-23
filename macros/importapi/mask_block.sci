@@ -30,10 +30,9 @@ function out = mask_block(blk,sblkctx,sblkparams,sblkdesc)
   for i=1:nin do
     blk0 = instantiate_block ("IN_f");// system/Ports/Input");
     params = cell (0, 2);
-    // params.concatd[{"prt", '1'}];
     params.concatd[{"portNumber",string(i)}];
     params.concatd[{"outsize","[-1,-2]"}];
-    params.concatd[{"outtyp","""inherit"""}];
+    params.concatd[{"outtyp","-1"}];
     params.concatd[{"dept","0"}];
     blk0 = set_block_parameters (blk0, params);
     blk0 = set_block_size (blk0, [15, 10]);
@@ -49,7 +48,7 @@ function out = mask_block(blk,sblkctx,sblkparams,sblkdesc)
   for i=1:nout do
     blk0 = instantiate_block ("OUT_f");//system/Ports/Output");
     params = {};
-    params.concatd[{"portNumber","1"}];
+    params.concatd[{"portNumber",string(i)}];
     blk0 = set_block_parameters (blk0, params);
     blk0 = set_block_size (blk0, [15, 10]);
     blk0 = set_block_nin (blk0, 1);
@@ -64,7 +63,7 @@ function out = mask_block(blk,sblkctx,sblkparams,sblkdesc)
   for i=1:nevin do
     blk0 = instantiate_block ("CLKINV_f");//system/Ports/EventInput");
     params = {};
-    params.concatd[{"portNumber","1"}];
+    params.concatd[{"portNumber",string(i)}];
     blk0 = set_block_parameters (blk0, params);
     blk0 = set_block_size (blk0, [15, 10]);
     blk0 = set_block_nin (blk0, 0);
@@ -80,7 +79,7 @@ function out = mask_block(blk,sblkctx,sblkparams,sblkdesc)
   for i=1:nevout do
     blk0 = instantiate_block ("CLKOUTV_f");//system/Ports/EventOutput");
     params = {};
-    params.concatd[{"portNumber","1"}];
+    params.concatd[{"portNumber",string(i)}];
     blk0 = set_block_parameters (blk0, params);
     blk0 = set_block_size (blk0, [15, 10]);
     blk0 = set_block_nin (blk0, 0);
