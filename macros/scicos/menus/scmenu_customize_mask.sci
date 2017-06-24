@@ -18,13 +18,17 @@ function scmenu_customize_mask()
     return;
   end
   // 
-  items=o.graphics.exprs(2)(1);
-  result=x_mdialog(['Customize block GUI:';'Modify title and menu labels.'],..
-		 ['Title of the GUI';items],[o.graphics.exprs(2)(2)]);
-  if ~isempty(result) && ~isequal(items,result) then
-    o.graphics.exprs(2)(2)=result;
-    scs_m.objs(i)=o;
-    edited=%t;
+  if ~isempty(o.graphics.exprs) then 
+    items=o.graphics.exprs(2)(1);
+    result=x_mdialog(['Customize block GUI:';'Modify title and menu labels.'],..
+		     ['Title of the GUI';items],[o.graphics.exprs(2)(2)]);
+    if ~isempty(result) && ~isequal(items,result) then
+      o.graphics.exprs(2)(2)=result;
+      scs_m.objs(i)=o;
+      edited=%t;
+    else
+      edited=%f;
+    end
   else
     edited=%f;
   end
