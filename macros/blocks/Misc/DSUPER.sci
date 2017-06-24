@@ -1,6 +1,5 @@
 function [x,y,typ]=DSUPER(job,arg1,arg2)
 // Copyright INRIA
-
   
   function blk_draw(sz,orig,orient,label)
     xx=orig(1)+      [2 4 4]*(sz(1)/7);
@@ -45,11 +44,19 @@ function [x,y,typ]=DSUPER(job,arg1,arg2)
     for i=2:size(exprs0,1)
       tt=tt+',scicos_context.'+exprs0(i),
     end
-    
+    // we try to recover a multiline title 
+    // from a sci2exp
+    ok=execstr(sprintf('title=%s',btitre));
+    if ok &&  type(title,'short')=='s' then 
+      title=title(:);
+    else
+      lasterror();
+      title= btitre;
+    end
+        
     ss=graphics.exprs(2)(3)
     scicos_context=hash(10)
-    execstr('[ok,'+tt+',exprs]=getvalue(btitre,bitems,ss,exprs)')
-    
+    execstr('[ok,'+tt+',exprs]=getvalue(title,bitems,ss,exprs)')
     if ok then
       x=arg1
       %scicos_context=scicos_context;
@@ -62,7 +69,7 @@ function [x,y,typ]=DSUPER(job,arg1,arg2)
 	x.graphics.exprs(1)=exprs
 	x.model.rpar=sblock;
       else
-	message(lasterror())
+	message(["Failed to evaluate given values:","",catenate(lasterror())]);
       end
     else
       x=arg1
