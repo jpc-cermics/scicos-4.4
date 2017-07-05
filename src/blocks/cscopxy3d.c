@@ -112,7 +112,7 @@ void cscopxy3d (scicos_block * block, int flag)
             NspMatrix *Mc;
             if ((Mc=nsp_matrix_create("col",'r',1,1))== NULLMAT) goto err;
             Mc->R[0]=color[i];
-            obj=(NspObject *)nsp_polyline3d_create("pol",M,NULL,Mc,NULL,0,0,NULL);
+            obj=(NspObject *)nsp_polyline3d_create("pol",M,NULL,Mc,0,NULL,0,0,NULL);
             if (obj==NULL) goto err;
           } 
           else {
