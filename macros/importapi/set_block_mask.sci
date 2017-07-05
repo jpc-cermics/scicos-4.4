@@ -24,6 +24,13 @@ function o = set_block_mask (blk, mask, ptitle)
       new_prompt = catenate(new_prompt,sep='\n');
       params_values.concatd[string(position)];
       params_prompts.concatd[new_prompt];
+    elseif mask{i,4}(1) &&  type(mask{i,5},'short')=='s' && mask{i,5}(1)=='checkbox' then
+      if mask{i,2}.equal['''on'''] then 
+	params_values.concatd['1'];
+      else
+	params_values.concatd['0'];
+      end
+      params_prompts.concatd[mask{i,3}];
     else
       params_values.concatd[mask{i,2}];
       params_prompts.concatd[mask{i,3}];
