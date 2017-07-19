@@ -31,8 +31,8 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	    eok=execstr('[o,needcompile,ok]=do_create_atomic(o,i,scs_m)',errcatch=%t);
 	    if ~eok  then
 	      printf('Error\n')
-	      printf('An Error Occured While trying to generate\n");
-	      printf(' automatically the code for the atomic subsystem:\n"+ ...
+	      printf("An Error Occured While trying to generate\n");
+	      printf(" automatically the code for the atomic subsystem:\n"+ ...
 		     catenate(lasterror()));
 	      printf(' Please try to do it manually.\n')
 	      ok=%f;
