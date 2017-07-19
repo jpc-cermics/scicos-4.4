@@ -78,7 +78,7 @@ function scs_m = do_load_mdl(fname=[],warnings=%f,check_companion=%t)
 // Reste a faire les companion files
   scs_m=[];
   global %scicos_demo_mode ;
-  global(%scicos_open_saveas_path='');
+  global(%scicos_simport_path='');
   global(%scicos_ext='.cos'); //default file extension
   if ~exists('alreadyran') then alreadyran = %f;end
   //end current simulation if necessary
@@ -94,11 +94,15 @@ function scs_m = do_load_mdl(fname=[],warnings=%f,check_companion=%t)
     if ~isempty(%scicos_demo_mode) then
       path=file('join',[get_scicospath();"demos"]);
     else
-      path=%scicos_open_saveas_path;
+      path=%scicos_simport_path;
     end
     fname=xgetfile(masks=masks,open=%t,dir=path)
-    if fname == "" then return;end // a Cancel was executed
+    if fname == "" then return; end; // a Cancel was executed
+    // keep track of current path for next import
+    [path,name,ext]=splitfilepath(fname);
+    %scicos_simport_path=path;
   end
+  
   %scicos_demo_mode = []; //** clear the variable
   fname = stripblanks(fname)
   if fname.equal[""] then
@@ -127,7 +131,7 @@ function scs_m = do_load_mdl(fname=[],warnings=%f,check_companion=%t)
     cmd.concatr[['-ccf',companion]];
   else
     if check_companion then 
-      l1=list('combo','Answer',1,['Yes','No']);
+      l1=list('combo','Answer',2,['Yes','No']);
       title = ['Is there a Matlab companion file ';
 	       sprintf('to file %s',fname)];
       [Lres,L]=x_choices(title,list(l1),%t);
