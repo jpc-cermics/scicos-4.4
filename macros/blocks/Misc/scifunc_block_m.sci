@@ -96,15 +96,16 @@ function [x,y,typ]=scifunc_block_m(job,arg1,arg2)
       ci=int(ci(:));nci=size(ci,1);
       co=int(co(:));nco=size(co,1);
 
-      if non_interactive then 
-	ok=%t;dep_ut=[%f,%f];tt=0;
+      if %f && non_interactive then
+	// not proper evaluation of dep_ut here 
+	ok=%t;dep_ut=[%f,%f];tt=exprs(2);
       else
-	[ok,tt,dep_ut]=genfunc2(exprs(2),i,o,nci,nco,size(xx,1),size(z,1),..
-				nrp,'c')
+	[ok,tt,dep_ut]=genfunc2(exprs(2),i,o,nci,nco,size(xx,1),size(z,1),...
+				nrp,'c');
       end
-      dep_ut(2)=(1==deptime)
       if ~ok then break,end
       //[model,graphics,ok]=check_io(model,graphics,i,o,ci,co)
+      dep_ut(2)=(1==deptime)
       [model,graphics,ok]=set_io(model,graphics,list(i,it),list(o,ot),ci,co)
       if ok then
 	auto=auto0
@@ -469,7 +470,7 @@ function [ok,tt,dep_ut]=genfunc2(tt,inp,out,nci,nco,nx,nz,nrp,type_)
       head.concatd['as a function of '+depp];
     end
 
-    if isempty(txt6) then txt6=' ',end
+    if isempty(txt6) then txt6= ' ';end
     ptxtedit=scicos_txtedit(clos = 0,...
 			    typ  = "Scifunc-6",...
 			    head = head)
