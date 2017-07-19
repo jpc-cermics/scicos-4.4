@@ -326,7 +326,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
   
   global(%scicos_demo_mode=%f); // is it a demo mode 
   global(%scicos_open_saveas_path=''); // default dir 
-  global(%scicos_ext='.cos'); //default file extension
+  global(%scicos_ext='cos'); //default file extension
   
   if nargin <=0 then fname=[]; end
   if nargin <=1 then typ = "diagram";  end

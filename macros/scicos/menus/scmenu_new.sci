@@ -1,7 +1,7 @@
 function scmenu_new()
 // action associated to button new 
 // start a new diagram 
-  global(%scicos_ext='.cos'); //default file extension
+  global(%scicos_ext='cos'); //default file extension
   %scicos_ext='cos' // force
   Cmenu=''
   %r=2

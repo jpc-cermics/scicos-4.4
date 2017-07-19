@@ -22,7 +22,7 @@ function [ok,scs_m]=do_SaveAs(scs_m)
 //
 // Copyright INRIA
   global(%scicos_open_saveas_path=''); 
-  global(%scicos_ext='.cos'); //default file extension
+  global(%scicos_ext='cos'); //default file extension
 
   if size(scs_m.props.title,'*')<2 then
     default_name=''

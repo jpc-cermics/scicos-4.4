@@ -14,7 +14,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
   global %diagram_path_objective
   global inactive_windows
   global Scicos_commands
-  global(%scicos_ext='.cos'); //default file extension
+  global(%scicos_ext='cos'); //default file extension
 
   if ~exists('slevel') then slevel=0;end
   slevel = slevel +1;

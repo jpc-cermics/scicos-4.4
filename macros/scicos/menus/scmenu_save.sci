@@ -24,11 +24,10 @@ function scmenu_save()
 endfunction
 
 function [ok,scs_m]=do_save(scs_m,filenamepath)
-// saves scicos data structures scs_m and %cpr on a binary file
-// Copyright INRIA
-
+  // saves scicos data structures scs_m and %cpr on a binary file
+  // Copyright INRIA
   // select extension
-  global(%scicos_ext='.cos'); //default file extension
+  global(%scicos_ext='cos'); //default file extension
   ext=%scicos_ext;
   if ~ext.equal['cos'] && ~ext.equal['cosf'] && ~ext.equal['xml'] then
     ext='cos';
@@ -53,8 +52,8 @@ function [ok,scs_m]=do_save(scs_m,filenamepath)
     [path,name,ext]=splitfilepath(fname);
   end
 
-  if ext <> 'cos' then
-    message(['Error: do_save second argument should have a cos suffix"]);
+  if ext <> 'cos' && ext <> 'cosf' then
+    message(['Error: do_save second argument should have a cos suffix']);
     ok=%f;
     return;
   end
