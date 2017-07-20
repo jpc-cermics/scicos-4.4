@@ -200,7 +200,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 
   function message(txt)
     if exists('o') then 
-      x_message(['Error: in evaluation of block '+o.gui+': ';txt]);
+      x_message_modeless(['Error: in evaluation of block '+o.gui+': ';txt]);
     end
     resume(%scicos_prob=%t); 
   endfunction
