@@ -3,7 +3,7 @@
 extern void scicos_writeau_block (scicos_args_F2);
 void writeau (scicos_args_F2);
 
-void writeau (int *flag, int *nevprt, const const double *t, double *xd,
+void writeau (int *flag, int *nevprt, const double *t, double *xd,
 	      double *x, int *nx, double *z, int *nz, double *tvec,
 	      int *ntvec, double *rpar, int *nrpar, int *ipar, int *nipar,
 	      double **inptr, int *insz, int *nin, double **outptr,
