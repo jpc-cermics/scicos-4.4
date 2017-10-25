@@ -30,14 +30,14 @@ function window=demo_xml(fname)
       sw.set_shadow_type[GTK.SHADOW_ETCHED_IN]
       sw.set_policy[GTK.POLICY_NEVER,GTK.POLICY_AUTOMATIC]
       treeview = gtktreeview_new(model);
-      treeview.set_rules_hint[%t];
+      // treeview.set_rules_hint[%t];
       treeview.set_search_column[3];
       // give name to columns
       model = treeview.get_model[];
 
       names=['Name','Id','Kind','Fixed','Value',...
 	     'Weight','Max','Min','Nominal',...
-	     "Comment','Selection'];
+	     'Comment','Selection'];
 
       function cell_edited (cell,path_string,new_text,data)
       // callback for changed texts
@@ -55,7 +55,7 @@ function window=demo_xml(fname)
 	  end
 	end
 	if ~ok then
-	  x_message('You should enter a number");
+	  x_message("You should enter a number");
 	  return
 	end
 	model.set[iter,col,new_text];
@@ -332,7 +332,7 @@ function L=explore_model(model)
     iter=tmodel.get_iter_first[0];
     names=['Name','Id','Kind','Fixed','Value',...
 	   'Weight','Max','Min','Nominal',...
-	   "Comment','Selection'];
+	   'Comment','Selection'];
     while %t then
       L=list();
       for i=1:nc
