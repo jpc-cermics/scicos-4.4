@@ -644,7 +644,9 @@ function [sz]=getportsiz(o,prt_number,typ)
 
   select k
    case 1 then
-     in=o.model.in(prt_number)
+     ok=execstr('in=o.model.in(prt_number)',errcatch=%t);
+     if ~ok then lasterror();return;end
+     // in=o.model.in(prt_number)
      if size(o.model.in2,'*')>=size(o.model.in,'*') then
        in2=o.model.in2(prt_number)
      else
@@ -652,7 +654,8 @@ function [sz]=getportsiz(o,prt_number,typ)
      end
      sz=[in in2]
    case 2 then
-     out=o.model.out(prt_number)
+     ok=execstr('out=o.model.out(prt_number)',errcatch=%t);
+     if ~ok then lasterror();return;end
      if size(o.model.out2,'*')>=size(o.model.out,'*') then
        out2=o.model.out2(prt_number)
      else
