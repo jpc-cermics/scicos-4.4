@@ -58,7 +58,14 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
     // get obj from path 
     // obj = scs_m(scs_full_path(path));
     obj = scs_m(scs_full_path(path));
-    printf("Updates in port %d for block %s\n",p,obj.gui);
+    isz1 = obj.model.in(p);
+    p2 = min(1,size(obj.model.in2,'*'));
+    if p2 == 0 then
+      printf("Updates in  port %d for block %s: from %dx[] to %dx%d\n",p,obj.gui,isz1,sz1,sz2);
+    else
+      isz2 = obj.model.in2(p2);
+      printf("Updates in  port %d for block %s: from %dx%d to %dx%d\n",p,obj.gui,isz1,isz2,sz1,sz2);
+    end
     obj.model.in(p)=sz1;
     obj.model.in2(p)=sz2;
     scs_m(scs_full_path(path))= obj;
@@ -93,79 +100,143 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
       modele2.outtyp=[modele2.outtyp(:);ones(sz_out-sz_outtyp,1)]
     end
   endfunction
+
+  function [scs_m,from_changed,to_changed]= adjust_from_to(scs_m,from,to)
+
+    printf("Look at link %s -> %s",scs_m.objs(from(1)).gui,scs_m.objs(to(1)).gui);
+        
+    from_changed = %f;
+    to_changed = %f;
+    // check
+    scs_m.objs(from(1)).model = adjust_out2(scs_m.objs(from(1)).model);
+    scs_m.objs(to(1)).model = adjust_in2(scs_m.objs(to(1)).model);
     
-  function [scs_m]=scsm_propagate_sizes(scs_m)
+    if scs_m.objs(from(1)).model.out(from(2)) > 0 &&
+      scs_m.objs(to(1)).model.in(to(2)) > 0 &&
+      scs_m.objs(from(1)).model.out(from(2)) <> scs_m.objs(to(1)).model.in(to(2)) then
+      if ~(scs_m.objs(from(1)).gui.equal['SPLIT_f'] || scs_m.objs(to(1)).gui.equal['SPLIT_f']) then 
+	printf("(Inconsistency in/out !)");
+      end
+    end
+	
+    if scs_m.objs(from(1)).model.out(from(2)) < 0 &&
+      scs_m.objs(to(1)).model.in(to(2)) < 0 then
+      printf(" out and in are both negatives !\n");
+    elseif scs_m.objs(from(1)).model.out(from(2)) > 0 then
+      if scs_m.objs(to(1)).model.in(to(2)) <> scs_m.objs(from(1)).model.out(from(2)) then 
+	//printf("updates of objs(%d)->to(%d)\n",to(1),to(2));
+	scs_m.objs(to(1)).model.in(to(2)) = scs_m.objs(from(1)).model.out(from(2));
+	to_changed=%t;
+      end
+    else 
+      if scs_m.objs(from(1)).model.out(from(2)) <> scs_m.objs(to(1)).model.in(to(2)) then
+	//printf("updates of objs(%d)->out(%d)\n",from(1),from(2));
+	scs_m.objs(from(1)).model.out(from(2)) = scs_m.objs(to(1)).model.in(to(2));
+	from_changed=%t
+      end
+    end
+
+    if  scs_m.objs(from(1)).model.out2(from(2)) > 0 &&
+      scs_m.objs(to(1)).model.in2(to(2)) > 0 &&
+      scs_m.objs(from(1)).model.out2(from(2)) <> scs_m.objs(to(1)).model.in2(to(2)) then
+      if ~(scs_m.objs(from(1)).gui.equal['SPLIT_f'] || scs_m.objs(to(1)).gui.equal['SPLIT_f']) then 
+	printf("(Inconsistency in out2/in2 !)");
+      end
+    end
+	
+    if scs_m.objs(from(1)).model.out2(from(2)) < 0 &&
+      scs_m.objs(to(1)).model.in2(to(2)) < 0 then
+      printf(" out2 and in2 are both negatives !\n");
+    elseif scs_m.objs(from(1)).model.out2(from(2)) > 0 then
+      if  scs_m.objs(to(1)).model.in2(to(2)) <> scs_m.objs(from(1)).model.out2(from(2)) then
+	//printf("updates of objs(%d)->to(%d)\n",to(1),to(2));
+	scs_m.objs(to(1)).model.in2(to(2)) = 	scs_m.objs(from(1)).model.out2(from(2));
+	to_changed=%t;
+      end 
+    else
+      if scs_m.objs(from(1)).model.out2(from(2)) <> scs_m.objs(to(1)).model.in2(to(2)) then 
+	//printf("updates of objs(%d)->out2(%d)\n",from(1),from(2));
+	scs_m.objs(from(1)).model.out2(from(2)) = scs_m.objs(to(1)).model.in2(to(2));
+	from_changed=%t
+      end
+    end
+
+    // if splits were updated reflect in and out in the split
+    if scs_m.objs(from(1)).model.sim(1)=='lsplit' && from_changed then 
+      if scs_m.objs(from(1)).model.out(from(2)) > 0 then
+	scs_m.objs(from(1)).model.in(from(2)) = scs_m.objs(from(1)).model.out(from(2));
+	scs_m.objs(from(1)).model.in2(from(2)) = scs_m.objs(from(1)).model.out2(from(2));
+      end
+    end
+    if scs_m.objs(to(1)).model.sim(1)=='lsplit' && to_changed then
+      if scs_m.objs(to(1)).model.in(to(2)) > 0 then
+	scs_m.objs(to(1)).model.out(to(2)) = scs_m.objs(to(1)).model.in(to(2));
+	scs_m.objs(to(1)).model.out2(to(2)) = scs_m.objs(to(1)).model.in2(to(2));
+      end
+    end
+    
+    if from_changed then printf(": from was changed,")
+    elseif to_changed then printf(": to was changed,");
+    end
+    printf("\n");
+  endfunction
+  
+  function [scs_m,count]=scsm_propagate_sizes(scs_m,count=0)
     // second phase: propagate block information
     // using the links
     for i=1:length(scs_m.objs)
       o = scs_m.objs(i);
       if o.type == 'Block' && or(o.model.sim(1) ==  ['super','csuper','asuper']) then
 	printf("Enter super for block %s\n",o.gui);
-	sub_scsm=scsm_propagate_sizes(o.model.rpar);
+	[sub_scsm,count_super]=scsm_propagate_sizes(o.model.rpar);
 	printf("Quit super for block %s\n",o.gui);
-	scs_m.objs(i).model.rpar = sub_scsm;
+	if count_super <> 0 then 
+	  scs_m.objs(i).model.rpar = sub_scsm;
+	  count = count + count_super;
+	end
       elseif o.type == 'Link' && o.ct(2) == 1 then
 	// a regular Link
 	// get the from block following the splits 
 	from = o.from;
-	while %t
-	  if scs_m.objs(from(1)).model.sim(1)=='lsplit' then
-	    __link=scs_m.objs(from(1)).graphics.pin
-	    from=scs_m.objs(__link).from
+	to = o.to;
+	[scs_m,from_changed,to_changed]= adjust_from_to(scs_m,from,to);
+	if from_changed || to_changed then count = count+1;end
+	while %t then 
+	  if from_changed && scs_m.objs(from(1)).model.sim(1)=='lsplit' then 
+	    to = from;
+	    zlink=scs_m.objs(from(1)).graphics.pin
+	    from=scs_m.objs(zlink).from
+	    [scs_m,from_changed,to_changed]= adjust_from_to(scs_m,from,to);
 	  else
-	    break
+	    break;
 	  end
 	end
-	// get the to block 
-	to = o.to
-	printf("Look at link %s -> %s\n",scs_m.objs(from(1)).gui,scs_m.objs(to(1)).gui);
-	// check
-	scs_m.objs(from(1)).model = adjust_out2(scs_m.objs(from(1)).model);
-	scs_m.objs(to(1)).model = adjust_in2(scs_m.objs(to(1)).model);
-	
-	if scs_m.objs(from(1)).model.out(from(2)) > 0 &&
-	  scs_m.objs(to(1)).model.in(to(2)) > 0 &&
-	  scs_m.objs(from(1)).model.out(from(2)) <> scs_m.objs(to(1)).model.in(to(2)) then
-	  if ~(scs_m.objs(from(1)).gui.equal['SPLIT_f'] || scs_m.objs(to(1)).gui.equal['SPLIT_f']) then 
-	    printf("Inconsistency in in/out !\n");
+	// here we may have multiple to 
+	while %t then
+	  if to_changed && scs_m.objs(to(1)).model.sim(1)=='lsplit' then
+	    from = to;
+	    zlink=scs_m.objs(to(1)).graphics.pout;
+	    printf("A split with %d out\n",size(zlink,'*'));
+	    for kk=1:size(zlink,'*') do
+	      to =scs_m.objs(zlink(kk)).to;
+	      [scs_m,from_changed1,to_changed1]= adjust_from_to(scs_m,from,to);
+	      to_changed = to_changed || from_changed1;
+	    end
+	  else
+	    break;
 	  end
-	end
-	
-	if scs_m.objs(from(1)).model.out(from(2)) < 0 &&
-	  scs_m.objs(to(1)).model.in(to(2)) < 0 then
-	  printf(" out and in are both negatives !\n");
-	elseif %f && scs_m.objs(from(1)).model.out(from(2)) > 0 then
-	  //printf("updates of objs(%d)->to(%d)\n",to(1),to(2));
-	  scs_m.objs(to(1)).model.in(to(2)) = 	scs_m.objs(from(1)).model.out(from(2));
-	elseif %f then 
-	  //printf("updates of objs(%d)->out(%d)\n",from(1),from(2));
-	  scs_m.objs(from(1)).model.out(from(2)) = scs_m.objs(to(1)).model.in(to(2));
-	end
-
-	if  scs_m.objs(from(1)).model.out2(from(2)) > 0 &&
-	  scs_m.objs(to(1)).model.in2(to(2)) > 0 &&
-	  scs_m.objs(from(1)).model.out2(from(2)) <> scs_m.objs(to(1)).model.in2(to(2)) then
-	  if ~(scs_m.objs(from(1)).gui.equal['SPLIT_f'] || scs_m.objs(to(1)).gui.equal['SPLIT_f']) then 
-	    printf("Inconsistency in out2/in2 !\n");
-	  end
-	end
-	
-	if scs_m.objs(from(1)).model.out2(from(2)) < 0 &&
-	  scs_m.objs(to(1)).model.in2(to(2)) < 0 then
-	  printf(" out2 and in2 are both negatives !\n");
-	elseif %f && scs_m.objs(from(1)).model.out2(from(2)) > 0 then
-	  //printf("updates of objs(%d)->to(%d)\n",to(1),to(2));
-	  scs_m.objs(to(1)).model.in2(to(2)) = 	scs_m.objs(from(1)).model.out2(from(2));
-	elseif %f
-	  //printf("updates of objs(%d)->out2(%d)\n",from(1),from(2));
-	  scs_m.objs(from(1)).model.out2(from(2)) = scs_m.objs(to(1)).model.in2(to(2));
 	end
       end
     end
   endfunction
-
-  [scs_m]=scsm_propagate_sizes(scs_m);
   
+  while %t then 
+    [scs_m,count]=scsm_propagate_sizes(scs_m);
+    if count == 0 then break;
+    else
+      printf("new pass with %d updates\n",count);
+    end
+  end
 endfunction
 
 
