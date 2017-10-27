@@ -164,14 +164,19 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
     // if splits were updated reflect in and out in the split
     if scs_m.objs(from(1)).model.sim(1)=='lsplit' && from_changed then 
       if scs_m.objs(from(1)).model.out(from(2)) > 0 then
+	// Il faut aussi metre a jour les autres out
+	scs_m.objs(from(1)).model.out(:)=scs_m.objs(from(1)).model.out(from(2));
+	scs_m.objs(from(1)).model.out2 =  ones(size(scs_m.objs(from(1)).model.out,'*'),1);
+	scs_m.objs(from(1)).model.out2(:)=scs_m.objs(from(1)).model.out2(from(2));
 	scs_m.objs(from(1)).model.in(from(2)) = scs_m.objs(from(1)).model.out(from(2));
 	scs_m.objs(from(1)).model.in2(from(2)) = scs_m.objs(from(1)).model.out2(from(2));
       end
     end
     if scs_m.objs(to(1)).model.sim(1)=='lsplit' && to_changed then
       if scs_m.objs(to(1)).model.in(to(2)) > 0 then
-	scs_m.objs(to(1)).model.out(to(2)) = scs_m.objs(to(1)).model.in(to(2));
-	scs_m.objs(to(1)).model.out2(to(2)) = scs_m.objs(to(1)).model.in2(to(2));
+	scs_m.objs(to(1)).model.out(:) = scs_m.objs(to(1)).model.in(to(2));
+	scs_m.objs(to(1)).model.out2 = ones(size(scs_m.objs(to(1)).model.out,'*'),1);
+	scs_m.objs(to(1)).model.out2(:) = scs_m.objs(to(1)).model.in2(to(2));
       end
     end
     
@@ -180,7 +185,7 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
     end
     printf("\n");
   endfunction
-
+  
   function [scs_m,to_changed]=scsm_adjust_to_split(to)
     // propagate dimensions from to which is a split.
     // we propagate on the to side of the link
@@ -218,7 +223,7 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
       end
     end
   endfunction
-    
+
   function [scs_m,count]=scsm_propagate_sizes(scs_m,count=0)
     // second phase: propagate block information
     // using the links
@@ -231,6 +236,8 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
 	if count_super <> 0 then 
 	  scs_m.objs(i).model.rpar = sub_scsm;
 	  count = count + count_super;
+	  // adjust_s_ports: propagate information from inside
+	  // to outside we should make both direction 
 	  [ok,sbloc]=adjust_s_ports(scs_m.objs(i));
 	  scs_m.objs(i) = sbloc;	    
 	end
@@ -241,11 +248,30 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
 	to = o.to;
 	[scs_m,from_changed,to_changed]= adjust_from_to(scs_m,from,to);
 	if from_changed || to_changed then count = count+1;end
-	if from_changed && scs_m.objs(from(1)).model.sim(1)=='lsplit' then
-	  [scs_m,from_changed]=scsm_adjust_from_split(from);
+	while %t then 
+	  if from_changed && scs_m.objs(from(1)).model.sim(1)=='lsplit' then 
+	    to = from;
+	    zlink=scs_m.objs(from(1)).graphics.pin
+	    from=scs_m.objs(zlink).from
+	    [scs_m,from_changed,to_changed]= adjust_from_to(scs_m,from,to);
+	  else
+	    break;
+	  end
 	end
-	if to_changed && scs_m.objs(to(1)).model.sim(1)=='lsplit' then
-	  [scs_m,to_changed]=scsm_adjust_to_split(to);
+	// here we may have multiple to 
+	while %t then
+	  if to_changed && scs_m.objs(to(1)).model.sim(1)=='lsplit' then
+	    from = to;
+	    zlink=scs_m.objs(to(1)).graphics.pout;
+	    printf("A split with %d out\n",size(zlink,'*'));
+	    for kk=1:size(zlink,'*') do
+	      to =scs_m.objs(zlink(kk)).to;
+	      [scs_m,from_changed1,to_changed1]= adjust_from_to(scs_m,from,to);
+	      to_changed = to_changed || from_changed1;
+	    end
+	  else
+	    break;
+	  end
 	end
       end
     end
@@ -259,4 +285,5 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
     end
   end
 endfunction
+
 
