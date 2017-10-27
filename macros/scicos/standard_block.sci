@@ -520,7 +520,9 @@ function [texte,L_out] = standard_document(objet, k)
     texte = ['Object type                ',sous_type;
 	     'Object Identification      ',identification';
 	     'Object number in diagram   ',string(k)];
-
+    // XXX: faire la meme chose avec to si from n'abouti pas 
+    // jpc 2017. 
+    
     from=objet.from
     if ~%cpr.equal[list()] then
       if sous_type == 'Regular Link' then
@@ -532,7 +534,7 @@ function [texte,L_out] = standard_document(objet, k)
 	    break
 	  end
 	end
-
+	
 	cor = %cpr.cor
 	path=list()
 	for kp=1:size(super_path,'*'),path(kp)=super_path(kp);end
@@ -652,7 +654,7 @@ function  vbox=scicos_show_table(cols,table)
     model = gtkliststore_new(table);
     // create tree view */
     treeview = gtktreeview_new(model);
-    treeview.set_rules_hint[%t];
+    // treeview.set_rules_hint[%t];
     treeview.set_search_column[3];
     sw.add[treeview]
     renderer = gtkcellrenderertext_new ();
