@@ -1,5 +1,6 @@
 function  [%cpr,ok]=do_compile(scs_m)
 // Copyright INRIA
+  // scs_m = scs_m; // to be sure that c_pass2 get the right scs_m
   show_trace=%f
   if show_trace then printf('c_pass0: %s\n',string(timer())),end
   if ~exists('%scicos_solver') then %scicos_solver=0,end
@@ -10,7 +11,7 @@ function  [%cpr,ok]=do_compile(scs_m)
     do_terminate()
   end
   timer()
-  // XXX: jpc switch to 0xn nx0
+  // jpc switch to 0xn nx0
   IN=zeros_new(1,0);OUT=zeros_new(1,0);
   for i=1:length(scs_m.objs)
     if scs_m.objs(i).type =='Block' then 
@@ -44,17 +45,17 @@ function  [%cpr,ok]=do_compile(scs_m)
   if ~ok then %cpr=list(), return,end
   if size(connectmat,2)==6 then connectmat=connectmat(:,[1 2 4 5]),end
   // remove from local frame 
-  clear scs_m;
-  //scs_m=null()
+  // clear scs_m;
+  // scs_m=null()
   if ~ok then %cpr=list(),return,end
-  //newc_pass2 destroys the corinv component associated
-  //to the modelica blocks preserve it
-  //clast=corinv($)
-  //if type(clast)==15 then corinv($)=clast(1),klast=size(corinv),end
-  //%cpr=newc_pass2(bllst,connectmat,clkconnect,cor,corinv);
-  //newc_pass2 destroys the corinv component associated
-  //to the modelica blocks
-  //if type(clast)==15 then %cpr.corinv(klast)=clast,end
+  // Remark: newc_pass2 destroys the corinv component associated
+  // to the modelica blocks preserve it
+  // clast=corinv($)
+  // if type(clast)==15 then corinv($)=clast(1),klast=size(corinv),end
+  // %cpr=newc_pass2(bllst,connectmat,clkconnect,cor,corinv);
+  // newc_pass2 destroys the corinv component associated
+  // to the modelica blocks
+  // if type(clast)==15 then %cpr.corinv(klast)=clast,end
   %cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv);
   if %cpr.equal[list()] then ok=%f,end
 endfunction
