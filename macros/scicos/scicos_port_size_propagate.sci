@@ -1,39 +1,43 @@
-function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
+function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
+  if nargin <= 2 then
+    [scs_m,cpr1,needcompile,ok]=do_eval(scs_m);
+    [cpr]=do_compile(scs_m);
+  end
   //
   bp_out=zeros(0,4);
   bp_in=zeros(0,4);
-  // loop on the size informations stored in %cpr
+  // loop on the size informations stored in cpr
   // and push this information in bp
   // a raw of bp =[ block-id, port-number, size1, size2]
-  for j=1:size(%cpr.state('outtb')) do
+  for j=1:size(cpr.state('outtb')) do
     // loop on links 
-    sz = size(%cpr.state.outtb(j));
+    sz = size(cpr.state.outtb(j));
     // 
-    N = find(%cpr.sim.outlnk == j);
+    N = find(cpr.sim.outlnk == j);
     for n = N  do 
       // compute (b,p) such that n = outptr(b)+ p-1
       // pause bp
-      b = max(find( %cpr.sim.outptr <= n))
-      p = n - %cpr.sim.outptr(b) + 1;
-      // if abs(n - ( %cpr.sim.outptr(b)+ p-1)) > 0.1 then pause incoherence;end 
+      b = max(find( cpr.sim.outptr <= n))
+      p = n - cpr.sim.outptr(b) + 1;
+      // if abs(n - ( cpr.sim.outptr(b)+ p-1)) > 0.1 then pause incoherence;end 
       bp_out.concatd[[b,p,sz]];
     end
-    N = find(%cpr.sim.inplnk == j);
+    N = find(cpr.sim.inplnk == j);
     for n = N  do 
       // compute (b,p) such that n = inpptr(b)+ p-1 
-      b = max(find( %cpr.sim.inpptr <= n))
-      p = n - %cpr.sim.inpptr(b) + 1;
-      // if abs(n - ( %cpr.sim.inpptr(b)+ p-1)) > 0.1 then pause incoherence;end 
+      b = max(find( cpr.sim.inpptr <= n))
+      p = n - cpr.sim.inpptr(b) + 1;
+      // if abs(n - ( cpr.sim.inpptr(b)+ p-1)) > 0.1 then pause incoherence;end 
       bp_in.concatd[[b,p,sz]];
     end
   end
   // propagate the bp information in scs_m
   // we obtain a block from its block-id by
-  // obj = scs_m(scs_full_path(%cpr.corinv(block-id)));
+  // obj = scs_m(scs_full_path(cpr.corinv(block-id)));
   for j = 1: size(bp_out,1)
     bpj = bp_out(j,:);
     [b,p,sz1,sz2]=bpj{:}
-    path = %cpr.corinv(b);
+    path = cpr.corinv(b);
     // get obj from path 
     // obj = scs_m(scs_full_path(path));
     obj = scs_m(scs_full_path(path));
@@ -54,7 +58,7 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
   for j = 1: size(bp_in,1)
     bpj = bp_in(j,:);
     [b,p,sz1,sz2]=bpj{:}
-    path = %cpr.corinv(b);
+    path = cpr.corinv(b);
     // get obj from path 
     // obj = scs_m(scs_full_path(path));
     obj = scs_m(scs_full_path(path));
@@ -116,6 +120,8 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
       scs_m.objs(from(1)).model.out(from(2)) <> scs_m.objs(to(1)).model.in(to(2)) then
       if ~(scs_m.objs(from(1)).gui.equal['SPLIT_f'] || scs_m.objs(to(1)).gui.equal['SPLIT_f']) then 
 	printf("(Inconsistency in/out !)");
+      else
+	printf("(Inconsistency in/out with a split implied!)");
       end
     end
 	
@@ -202,7 +208,7 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
     end
     for kk=1:size(tos,1)
       if scs_m.objs(tos(kk,1)).model.sim(1)=='lsplit' then
-	[scs_m,to_changed1]=scsm_adjust_to_split(tos(kk,1));
+	[scs_m,to_changed1]=scsm_adjust_to_split(tos(kk,:));
 	to_changed = to_changed || from_changed1;
       end
     end
@@ -224,6 +230,43 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
     end
   endfunction
 
+  function fail=scsm_check_splits(scs_m)
+    // check that the splits are initiated to -1
+    fail = %f;
+    for i=1:length(scs_m.objs)
+      o = scs_m.objs(i);
+      if o.type == 'Block' && o.model.sim(1)=='lsplit' then
+	// a split
+	if or(o.model.out(:)<>-1) then fail=%t;end
+	if or(o.model.in(:)<>-1) then fail=%t;end
+	if or(o.model.out2(:)<>-1) then fail=%t;end
+	if or(o.model.in2(:)<>-1) then fail=%t;end
+	if fail then break;end;
+      elseif o.type == 'Block' && or(o.model.sim(1) ==  ['super','csuper','asuper']) then
+	fail = scsm_check_splits(scs_m.objs(i).model.rpar);
+	if fail then break;end;
+      end
+    end
+    if fail then printf("Some splits are wrongly initiated ?\n");end
+  endfunction
+
+  function scs_m=scsm_initialize_splits(scs_m)
+    // check that the splits are initiated to -1
+    for i=1:length(scs_m.objs)
+      o = scs_m.objs(i);
+      if o.type == 'Block' && o.model.sim(1)=='lsplit' then
+	// a split
+	scs_m.objs(i).model.out(:)=-1;
+	scs_m.objs(i).model.in(:)=-1;
+	scs_m.objs(i).model.in2(:)=-1;
+	scs_m.objs(i).model.out2(:)=-1;
+      elseif o.type == 'Block' && or(o.model.sim(1) ==  ['super','csuper','asuper']) then
+	model_rpar = scsm_initialize_splits(scs_m.objs(i).model.rpar);
+	scs_m.objs(i).model.rpar = model_rpar;
+      end
+    end
+  endfunction
+  
   function [scs_m,count]=scsm_propagate_sizes(scs_m,count=0)
     // second phase: propagate block information
     // using the links
@@ -248,34 +291,20 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
 	to = o.to;
 	[scs_m,from_changed,to_changed]= adjust_from_to(scs_m,from,to);
 	if from_changed || to_changed then count = count+1;end
-	while %t then 
-	  if from_changed && scs_m.objs(from(1)).model.sim(1)=='lsplit' then 
-	    to = from;
-	    zlink=scs_m.objs(from(1)).graphics.pin
-	    from=scs_m.objs(zlink).from
-	    [scs_m,from_changed,to_changed]= adjust_from_to(scs_m,from,to);
-	  else
-	    break;
-	  end
+	// we can propagate changes along the splits or wait for
+	// iterations to do the job 
+	if %t && from_changed && scs_m.objs(from(1)).model.sim(1)=='lsplit' then
+	  [scs_m,from_changed]=scsm_adjust_from_split(from);
 	end
-	// here we may have multiple to 
-	while %t then
-	  if to_changed && scs_m.objs(to(1)).model.sim(1)=='lsplit' then
-	    from = to;
-	    zlink=scs_m.objs(to(1)).graphics.pout;
-	    printf("A split with %d out\n",size(zlink,'*'));
-	    for kk=1:size(zlink,'*') do
-	      to =scs_m.objs(zlink(kk)).to;
-	      [scs_m,from_changed1,to_changed1]= adjust_from_to(scs_m,from,to);
-	      to_changed = to_changed || from_changed1;
-	    end
-	  else
-	    break;
-	  end
+	if %t && to_changed && scs_m.objs(to(1)).model.sim(1)=='lsplit' then
+	  [scs_m,to_changed]=scsm_adjust_to_split(to);
 	end
       end
     end
   endfunction
+
+  scs_m=scsm_initialize_splits(scs_m)
+  // scsm_check_splits(scs_m);
   
   while %t then 
     [scs_m,count]=scsm_propagate_sizes(scs_m);
@@ -287,3 +316,31 @@ function [scs_m]=scicos_port_size_propagate(scs_m,%cpr)
 endfunction
 
 
+function scicos_write_port_sizes(scs_m,fname,open=%t)
+  if open then 
+    F=fopen(fname,mode="w");
+  end
+  for i=1:length(scs_m.objs)
+    o = scs_m.objs(i);
+    if o.type == 'Block' && o.model.sim(1) <> 'lsplit' then
+      F.printf["// Block %s\n",o.gui];
+      if length(o.graphics.id)<>0 then
+	sb=sprintf("%s",o.graphics.id);
+      else
+	sb=sprintf("%s",o.gui);
+      end
+      for j=1:size(o.model.out,'*')
+	F.printf["parameter %s.out%s.m=%d\n",sb,string(j),o.model.out(j)];
+	F.printf["parameter %s.out%s.n=%d\n",sb,string(j),o.model.out2(j)];
+      end
+      for j=1:size(o.model.in,'*')
+	F.printf["parameter %s.in%s.m=%d\n",sb,string(j),o.model.in(j)];
+	F.printf["parameter %s.in%s.n=%d\n",sb,string(j),o.model.in2(j)];
+      end
+      if o.type == 'Block' && or(o.model.sim(1) ==  ['super','csuper','asuper']) then
+	scicos_write_port_sizes(o.model.rpar,fname,open=%f);
+      end
+    end
+  end
+  if open then F.close[];end
+endfunction
