@@ -1857,16 +1857,10 @@ void KINProcessError(KINMem kin_mem,
   if (kin_mem == NULL) {    /* We write to stderr */
 
 #ifndef NO_FPRINTF_OUTPUT
-    /*
-    fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
-    fprintf(stderr, msgfmt);
-    fprintf(stderr, "\n\n");
-    */
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
     vsprintf(msg, msgfmt, ap);
     fprintf(stderr, "%s", msg );
     fprintf(stderr, "\n\n");
-
 #endif
 
   } else {                 /* We can call ehfun */

@@ -145,7 +145,7 @@ static double xRead (DOPRI5_mem *dopri5_mem)
 {
   return dopri5_mem->x;
 }
-#endif 
+#endif
 
 int DP5_set_tstop (DOPRI5_mem *dopri5_mem, double xstop)
 {
@@ -154,7 +154,7 @@ int DP5_set_tstop (DOPRI5_mem *dopri5_mem, double xstop)
     dopri5_mem->xstop=xstop;
     return 0;
   }
-} 
+}
 
 int DP5_Get_RootInfo (DOPRI5_mem *dopri5_mem, int *jroot)
 {
@@ -261,7 +261,6 @@ static double contd5 (DOPRI5_mem *dopri5_mem, unsigned i, double x, double xold,
 
 } /* contd5 */
 
-
 static int DP5Rcheck1(DOPRI5_mem *dopri5_mem)
 {
   int  retval;
@@ -312,7 +311,7 @@ static int DP5Rcheck2(DOPRI5_mem *dopri5_mem)
 
 }
 
-static  int DP5Rcheck3(DOPRI5_mem *dopri5_mem, double toutc)
+static int DP5Rcheck3(DOPRI5_mem *dopri5_mem, double toutc)
 {
   int  retval;
   unsigned i;
@@ -1137,7 +1136,7 @@ static void faren (unsigned n, double x, double *y, double *f, void *udata)
   f[2] = y[0] + 2.0 * y[3] - amup * (y[0]+amu) / r1 - amu * (y[0]-amup) / r2;
   f[3] = y[1] - 2.0 * y[2] - amup * y[1] / r1 - amu * y[1] / r2;
   /* f[0]=f[1]=f[2]=f[3]=1; */
-} 
+}
 
 static int garen(unsigned n, double x, double *y, double *g, void *udata)
 {  
@@ -1191,5 +1190,6 @@ int mainx (void)
 
   dopri5_free (dopri5_mem);
   return 0;
-} 
-#endif 
+}
+#endif
+

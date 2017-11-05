@@ -2813,7 +2813,7 @@ realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
  *   INITROOT    (>0) if a close pair of zeros was found, and
  *   IDA_SUCCESS (=0) otherwise.
  */
-#if 0 
+#if 0
 static int IDARcheck1_orig(IDAMem IDA_mem)
 {
   int i, retval;
@@ -2986,7 +2986,6 @@ static int IDARcheck2(IDAMem IDA_mem)
  *     RTFOUND     (>0) if a root of g was found, or
  *     IDA_SUCCESS (=0) otherwise.
  */
-
 #if 0
 static int IDARcheck3_origin(IDAMem IDA_mem)
 {
@@ -3118,7 +3117,7 @@ static int IDARcheck3(IDAMem IDA_mem)
  *      IDA_SUCCESS = 0 otherwise.
  *
  */
-#if 0 
+#if 0
 static int IDARootfind_origin(IDAMem IDA_mem)
 {
   realtype alph, tmid, gfrac, maxfrac, fracint, fracsub;
@@ -3476,7 +3475,7 @@ void IDAProcessError(IDAMem IDA_mem,
                     const char *msgfmt, ...)
 {
   va_list ap;
-  char msg[256];
+  char msg[512];
 
   /* Initialize the argument pointer variable 
      (msgfmt is the last required argument to IDAProcessError) */
@@ -3486,16 +3485,10 @@ void IDAProcessError(IDAMem IDA_mem,
   if (IDA_mem == NULL) {    /* We write to stderr */
 
 #ifndef NO_FPRINTF_OUTPUT
-    /* 
-       fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
-       fprintf(stderr, msgfmt);
-       fprintf(stderr, "\n\n");
-    */
-       fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
-       vsprintf(msg, msgfmt, ap);
-       fprintf(stderr, "%s", msg);
-       fprintf(stderr, "\n\n");
-
+    fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
+    vsprintf(msg, msgfmt, ap);
+    fprintf(stderr, "%s", msg);
+    fprintf(stderr, "\n\n");
 #endif
 
   } else {                 /* We can call ehfun */

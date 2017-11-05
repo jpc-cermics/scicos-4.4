@@ -3585,7 +3585,7 @@ static int CVsldet(CVodeMem cv_mem)
  * Root finding   
  * =================================================================
  */
-#if 0 
+#if 0
 static int CVRcheck1_orig(CVodeMem cv_mem)
 {
   int i, retval;
@@ -3627,6 +3627,7 @@ static int CVRcheck1_orig(CVodeMem cv_mem)
   return(CV_SUCCESS);
 
 } 
+#endif
 
 /*
  * CVRcheck2
@@ -3648,6 +3649,7 @@ static int CVRcheck1_orig(CVodeMem cv_mem)
  *      CV_SUCCESS    =  0 otherwise.
  */
 
+#if 0
 static int CVRcheck2_orig(CVodeMem cv_mem)
 {
   int i, retval;
@@ -3697,6 +3699,7 @@ static int CVRcheck2_orig(CVodeMem cv_mem)
   return(CV_SUCCESS);
 
 }
+#endif
 
 /*
  * CVRcheck3
@@ -3709,7 +3712,7 @@ static int CVRcheck2_orig(CVodeMem cv_mem)
  *      RTFOUND =  1 if a root of g was found, or
  *      CV_SUCCESS    =  0 otherwise.
  */
-
+#if 0
 static int CVRcheck3_orig(CVodeMem cv_mem)
 {
   int i, retval, ier;
@@ -3747,6 +3750,7 @@ static int CVRcheck3_orig(CVodeMem cv_mem)
   return(RTFOUND);
 
 }
+#endif
 
 /*
  * CVRootFind
@@ -3807,6 +3811,7 @@ static int CVRcheck3_orig(CVodeMem cv_mem)
  *      CV_SUCCESS    =  0 otherwise.
  */
 
+#if 0
 static int CVRootfind_orig(CVodeMem cv_mem)
 {
   realtype alpha, tmid, gfrac, maxfrac, fracint, fracsub;
@@ -3949,7 +3954,6 @@ static int CVRootfind_orig(CVodeMem cv_mem)
   return(RTFOUND);
 }
 #endif 
-
 
 /*-----------------------------------------------------------------*/
 
@@ -4438,7 +4442,7 @@ void CVProcessError(CVodeMem cv_mem,
                     const char *msgfmt, ...)
 {
   va_list ap;
-  char msg[256];
+  char msg[512];
 
   /* Initialize the argument pointer variable 
      (msgfmt is the last required argument to CVProcessError) */
@@ -4448,16 +4452,10 @@ void CVProcessError(CVodeMem cv_mem,
   if (cv_mem == NULL) {    /* We write to stderr */
 
 #ifndef NO_FPRINTF_OUTPUT
-    /* 
-    fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
-    fprintf(stderr, msgfmt);
-    fprintf(stderr, "\n\n");
-    */
     fprintf(stderr, "\n[%s ERROR]  %s\n  ", module, fname);
     vsprintf(msg, msgfmt, ap);
     fprintf(stderr, "%s",msg);
     fprintf(stderr, "\n\n");
-
 #endif
 
   } else {                 /* We can call ehfun */

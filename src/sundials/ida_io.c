@@ -1213,4 +1213,3 @@ char *IDAGetReturnFlagName(int flag)
 
   return(name);
 }
-

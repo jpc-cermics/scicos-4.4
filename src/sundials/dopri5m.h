@@ -266,5 +266,3 @@ int  Setup_dopri5(DOPRI5_mem **dopri5_mem, unsigned n, FcnEqDiff fcn, double xst
 		  User_DP5_data **dopri5_udata);
 
 int dopri5_free (DOPRI5_mem *dopri5_mem);
-
-
