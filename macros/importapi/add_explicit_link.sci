@@ -1,6 +1,13 @@
 function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
 // if to is a split of id_splitXX then the split is moved
 
+  global(simport_target_modeler="scicos");
+
+  if simport_target_modeler=="modelicos" then
+    [scs_m,obj_num] = add_modelicos_link(scs_m,lfrom,lto,points)
+    return;
+  end
+  
   if nargin<4 then points=zeros(0,2),end
   if isempty(points) then points=zeros(0,2),end
   
@@ -28,11 +35,15 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
     printf("output port %d does not exists in block %d\n",k,from(1)),
     return;
   end
-  xo=xout(k);yo=yout(k);typo=typout(k)
+
+  printf("In add_explicit \n");
+  
+  xo=xout(k);yo=yout(k);typo=typout(k);
+  
   if ~or(typo==[1,3]) then
     error("The output port is not regular."),
   end
-
+  
   xxx=rotate([xo;yo],...
 	     theta*%pi/180,...
 	     [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
@@ -82,10 +93,10 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
       yi=xxx(2);
     end
 
-    if typo<>typi
-      error(['Selected ports don''t have the same type'
-	     'The port at the origin of the link has type '+string(typo);
-	     'the port at the end has type '+string(typin(k))+'.'])
+    if typo<>typi  then
+      error(catenate(['Selected ports don''t have the same type'
+		      'The port at the origin of the link has type '+string(typo);
+		      'the port at the end has type '+string(typin(k))+'.'],sep='\n'));
     end
   end
   port_number = k ;
@@ -96,7 +107,6 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
   clr=default_color(typo)
   typ=typo
   to_node=[to,1]
-
 
   xl = [cumsum([xo;points(:,1)]')';xi];  yl = [cumsum([yo;points(:,2)]')';yi]
   lk=scicos_link(xx=xl,yy=yl,ct=[clr,typ],from=from_node,to=to_node)
@@ -110,7 +120,6 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
   obj_num=length(scs_m.objs)
 
   //update connected blocks
-
   outin=['out','in']
 
   scs_m.objs(from_node(1))=mark_prt(scs_m.objs(from_node(1)),from_node(2),outin(from_node(3)+1),typ,obj_num)
