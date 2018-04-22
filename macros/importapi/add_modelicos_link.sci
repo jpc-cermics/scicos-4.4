@@ -45,7 +45,7 @@ function [scs_m,obj_num] = add_modelicos_link(scs_m,lfrom,lto,points)
     [scs_m,obj_num]= add_implicit_link(scs_m,lfrom,lto,points);
   else
     if or(type_out==[1,3]) then
-      printf("The output port is regular. must add a CBI_RealInput converter\n");
+      //printf("The output port is regular. must add a CBI_RealInput converter\n");
       blk = instantiate_block ('CBI_RealInput');
       blk = set_block_origin (blk,o1.graphics.orig+[40,0]);
       // blk = set_block_size(blk,[20,20]);
@@ -55,7 +55,7 @@ function [scs_m,obj_num] = add_modelicos_link(scs_m,lfrom,lto,points)
       [scs_m,obj_num]=add_implicit_link(scs_m,lfrom,string([obj_num,1]));
     end
     if or(type_in==[1,3]) then
-      printf("The input port is regular. must add a CBI_RealOutput converter\n"),
+      // printf("The input port is regular. must add a CBI_RealOutput converter\n"),
       blk = instantiate_block ('CBI_RealOutput');
       blk = set_block_origin (blk,o2.graphics.orig-[40,0]);
       // blk = set_block_size(blk,[20,20]);
