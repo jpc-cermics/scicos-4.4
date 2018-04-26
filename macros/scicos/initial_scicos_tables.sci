@@ -417,63 +417,65 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
   modelica_libs=scicospath+'/macros/blocks/'+['ModElectrical','ModHydraulics','ModLinear','ModEni'];
 
   //add TMPDIR/Modelica for generic modelica blocks
-  rpat=getenv('NSP_TMPDIR')+'/Modelica";
+  rpat=getenv('NSP_TMPDIR')+'/Modelica';
   status=execstr("file(""mkdir"",rpat)",errcatch=%t)
-
+  
   //** Scicos "xinfo" messages ===========================================
   //**
-  //** "%CmenuTypeOneVector" store the list of the commands/function to be called that require both 'Cmenu' AND '%pt'
+  //** %CmenuTypeOneVector store the list of the commands/function to be called that require both 'Cmenu' AND '%pt'
   //** menus of type 1 (require %pt)
+  
   %CmenuTypeOneVector =..
-     ['Region to Super Block', "Press left mouse button, drag region and release (right button to cancel)";
-      'scmenu_region_to_super_block', "Press left mouse button, drag region and release (right button to cancel)";
-      'Region to Palette',     "Press left mouse button, drag region and release (right button to cancel)";
-      'scmenu_region_to_palette',     "Press left mouse button, drag region and release (right button to cancel)";
-      'Smart Move',            "Click object to move, drag and click (left to fix, right to cancel)";
-      'Move',                  "Click object to move, drag and click (left to fix, right to cancel)";
-      'Duplicate'              "Click on the object to duplicate, drag, click (left to copy, right to cancel)";
-      'Align',                 "Click on an a port, click on a port of object to be moved";
-      'Link',                  "Drag, click left for final or intermediate points or right to cancel";
-      'Smart Link',            "Drag, click left for final or intermediate points or right to cancel";
-      'Delete',                "Delete: Click on the object to delete";
-      'Flip',                  "Click on block to be flipped"      ;
-      'scmenu_flip',           "Click on block to be flipped"      ;
-      'Rotate Left',           "Click on block to be turned left"  ;
-      'Rotate Right',          "Click on block to be turned right" ;
-      'Open/Set',              "Click to open block or make a link";
-      'CheckMove',             ''                                  ;
-      'CheckKeyMove',          ''                                  ;
-      'CheckSmartMove'         ''                                  ;
-      'CheckKeySmartMove',     ''                                  ;
-      'SelectLink',            ''                                  ;
-      'CtrlSelect',            ''                                  ;
-      'SelectRegion',          ''                                  ;
-      'Popup',                 ''                                  ;
-      'PlaceDropped',          ''                                  ;
-      'PlaceinDiagram',        ''                                  ;
-      'Label',                 "Click block to label";
-      'Get Info',              "Click on object  to get information on it";
-      'Resize',                "" ;
-      'Resize Top',            "" ;
-      'Block Documentation',   "Click on a block to set or get it''s documentation"]
+  ['Region to Super Block', "Press left mouse button, drag region and release (right button to cancel)";
+   'scmenu_region_to_super_block', "Press left mouse button, drag region and release (right button to cancel)";
+   'Region to Palette',     "Press left mouse button, drag region and release (right button to cancel)";
+   'scmenu_region_to_palette',     "Press left mouse button, drag region and release (right button to cancel)";
+   'Smart Move',            "Click object to move, drag and click (left to fix, right to cancel)";
+   'Move',                  "Click object to move, drag and click (left to fix, right to cancel)";
+   'Duplicate'              "Click on the object to duplicate, drag, click (left to copy, right to cancel)";
+   'Align',                 "Click on an a port, click on a port of object to be moved";
+   'Link',                  "Drag, click left for final or intermediate points or right to cancel";
+   'Smart Link',            "Drag, click left for final or intermediate points or right to cancel";
+   'Delete',                "Delete: Click on the object to delete";
+   'Flip',                  "Click on block to be flipped"      ;
+   'scmenu_flip',           "Click on block to be flipped"      ;
+   'Rotate Left',           "Click on block to be turned left"  ;
+   'Rotate Right',          "Click on block to be turned right" ;
+   'Open/Set',              "Click to open block or make a link";
+   'CheckMove',             ''                                  ;
+   'CheckKeyMove',          ''                                  ;
+   'CheckSmartMove'         ''                                  ;
+   'CheckKeySmartMove',     ''                                  ;
+   'SelectLink',            ''                                  ;
+   'CtrlSelect',            ''                                  ;
+   'SelectRegion',          ''                                  ;
+   'Popup',                 ''                                  ;
+   'PlaceDropped',          ''                                  ;
+   'PlaceinDiagram',        ''                                  ;
+   'Label',                 "Click block to label";
+   'Get Info',              "Click on object  to get information on it";
+   'Resize',                "" ;
+   'Resize Top',            "" ;
+   'Block Documentation',   "Click on a block to set or get it''s documentation"]
 
   //** "%DmenuTypeOneVector" store the list of the commands/function to be called that don't require to
   //** disable menus in the editor. Should be carrefully updated
+
   %DmenuTypeOneVector =..
-     ['CheckMove';
-      'Move';
-      'Delete';
-      'Undo';
-      'CheckSmartMove';
-      'Smart Move';
-      'SelectRegion';
-      'scmenu_paste';
-      'Fit diagram to figure';
-      'scmenu_fit_diagram_to_figure';
-      'Zoom in';
-      'scmenu_zoom_in';
-      'Zoom out';
-      'scmenu_zoom_out']
+  ['CheckMove';
+   'Move';
+   'Delete';
+   'Undo';
+   'CheckSmartMove';
+   'Smart Move';
+   'SelectRegion';
+   'scmenu_paste';
+   'Fit diagram to figure';
+   'scmenu_fit_diagram_to_figure';
+   'Zoom in';
+   'scmenu_zoom_in';
+   'Zoom out';
+   'scmenu_zoom_out']
 
   // Hash table for help strings ==============================
   %scicos_help=scicos_help();
@@ -588,13 +590,11 @@ function H1=scicos_default_palettes()
   //Modelica palette
   H_Mod=hash(10)
 
-  H_Mod.structure=list('MBLOCK', 'Modelica Electrical', 'MPBLOCK', 'Modelica Hydraulics', 'Modelica Linear', 'Modelica Test');
+  H_Mod.structure=list('Modelica Misc', 'Modelica Electrical', 'Modelica Hydraulics', 'Modelica Linear', 'Modelica Test');
 
   H2=hash(10);
 
-  H2.MBLOCK='MBLOCK';
-
-  H2.MPBLOCK='MPBLOCK';
+  H2('Modelica Misc')=list('MBLOCK','MPBLOCK');
 
   H2('Modelica Electrical')= list('Capacitor','Ground','VVsourceAC',
        'ConstantVoltage','Inductor','PotentialSensor',
