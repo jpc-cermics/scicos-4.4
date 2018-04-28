@@ -25,8 +25,6 @@ function path=save_super(scs_m,fpath='./',gr_i='',sz=[],sim='super')
 	 '    end'];
   endfunction
 
-
-
   function txt=save_csuper_set(ppath)
     if isempty(ppath) then txt=m2s([]);end 
     bl='  '
@@ -379,6 +377,14 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
 					   indent=indent+1,export=export)];
 	      end
 	    end
+	  elseif obj.gui == 'CLOCK_f' || obj.gui == 'CLOCK_c'  then
+	    // we need to keep the clock parameters which are
+	    // stored in the model
+	    path = b2m(obj.model.rpar.objs(1)==mlist('Deleted'))+2;
+	    evtdly=obj.model.rpar.objs(path); // get the evtdly block
+	    exprs= evtdly.graphics.exprs;
+	    txt.concatd[sprintf('%sexprs=%s;',w,sci2exp(exprs))];
+	    txt.concatd[sprintf('%s%s=set_block_exprs(%s,exprs);',w,temp,temp)];
 	  end
 	  txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
 	  return
