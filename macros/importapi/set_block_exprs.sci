@@ -6,8 +6,7 @@ function blk=set_block_exprs(blk,exprs)
   // the internal contents is genrated by define.
   // But we need to keep the parameters which are
   // treated in a special way in each special block
-  if blk.gr_i == 'CLOCK_f' then
+  if blk.gui == 'CLOCK_f' || blk.gui == 'CLOCK_c' then
     blk.model.rpar.objs(2).graphics.exprs = exprs ;
-    blk1.graphics.exprs = exprs;
   end
 endfunction
