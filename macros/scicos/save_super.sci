@@ -245,7 +245,7 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
 	typ=obj.type;
 	if  typ=='Block' then 
 	  // a block 
-	  ok=execstr('ref='+obj.gui+'(""define"");',errcatch=%t);
+	  ok=execstr('ref='+obj.gui+ '(""define"");',errcatch=%t);
 	  if ~ok then lasterror();end;
 	  txt.concatd[sprintf('%s%s=%s(''define'');',w,temp,obj.gui)];
 	  graphics = obj.graphics; ref_graphics = ref.graphics;
@@ -256,6 +256,12 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
 	      txt.concatd[scicos_obj2smat(graphics(keys(i)),name=nname,tag=tag+1, ...
 					  indent=indent+1)];
 	    end
+	  end
+	  model = obj.model;
+	  for key=['in','out','in2','out2','outtyp','intyp'] do
+	    nname= sprintf('%s.model.%s',temp,key);
+	    txt.concatd[scicos_obj2smat(model(key),name=nname,tag=tag+1, ...
+					indent=indent+1)];
 	  end
 	  txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
 	  return;
@@ -307,6 +313,8 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
   endfunction;
 
   // main code 
+  // need to purge diagram first since
+  obj=do_purge(obj);
   //format("long");
   txt1=scicos_obj2smat(obj,name=name,tag=tag,indent=indent);
   //format();
@@ -353,7 +361,7 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
 	typ=obj.type;
 	if  typ=='Block' then 
 	  // a block 
-	  ok=execstr('ref='+obj.gui+'(""define"");',errcatch=%t);
+	  ok=execstr('ref='+obj.gui+ '(""define"");',errcatch=%t);
 	  if ~ok then lasterror();end;
 	  txt.concatd[sprintf('%s%s=%s(''define'');',w,temp,obj.gui)];
 	  graphics = obj.graphics; ref_graphics = ref.graphics;
@@ -364,6 +372,12 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
 	      txt.concatd[scicos_obj2api(graphics(keys(i)),name=nname,tag=tag+1, ...
 					  indent=indent+1,export=export)];
 	    end
+	  end
+	  model = obj.model;
+	  for key=['in','out','in2','out2','outtyp','intyp'] do
+	    nname= sprintf('%s.model.%s',temp,key);
+	    txt.concatd[scicos_obj2api(model(key),name=nname,tag=tag+1, ...
+				       indent=indent+1,export=export)];
 	  end
 	  // txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
 	  if obj.gui == 'SUPER_f' then 
@@ -385,6 +399,9 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
 	    exprs= evtdly.graphics.exprs;
 	    txt.concatd[sprintf('%sexprs=%s;',w,sci2exp(exprs))];
 	    txt.concatd[sprintf('%s%s=set_block_exprs(%s,exprs);',w,temp,temp)];
+	  elseif obj.model.iskey['rpar'] && type(obj.model.rpar,'short')== 'h' &&
+	    obj.model.rpar.type == 'diagram' then
+	    printf('Attention %s contient un super block if faut le gerer\n',obj.gui);
 	  end
 	  txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
 	  return
@@ -433,7 +450,7 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
       end
       txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
     else
-      txt1=sprint(obj,as_read=%t,name=name,indent=indent);txt1($)=txt1($)+';';
+      txt1=sprint(obj,as_read=%t,name=name,indent=indent);txt1($)=txt1($)+ ';';
       txt.concatd[txt1];
     end
     // back to def value;
@@ -441,7 +458,9 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
 
   // main code 
   export = %t; // true for exporting to scicoslab 
-    
+
+  // need to purge diagram first since
+  obj=do_purge(obj);
   //format("long");
   txt1=scicos_obj2api(obj,name=name,tag=tag,indent=indent,export=export);
   //format();

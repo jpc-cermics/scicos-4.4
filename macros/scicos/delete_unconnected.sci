@@ -15,7 +15,7 @@ function scs_m=delete_unconnected(scs_m)
     for k=1:n  //loop on scs_m objects
       if scs_m.objs(k).type =='Block' then
         if scs_m.objs(k).gui<>'SUM_f'&scs_m.objs(k).gui<>'SOM_f' then
-	  if find(scs_m.objs(k).gui==['IFTHEL_f','ESELECT_f']) then
+	  if or(scs_m.objs(k).gui==['IFTHEL_f','ESELECT_f']) then
 	    kk=[find(scs_m.objs(k).graphics.pein==0),find(scs_m.objs(k).graphics.pin==0)]
 	    if ~isempty(kk) // a synchro block is not active, remove it
 	      [scs_m,DEL1,DELL1]=do_delete1(scs_m,k,%f)
@@ -25,7 +25,7 @@ function scs_m=delete_unconnected(scs_m)
 	    end
 	  else
 	    kk=find(scs_m.objs(k).graphics.pin==0);
-	    if ~isempty(kk) then 
+	    if ~isempty(kk) then
 	      // at least one  input port is not connected delete the
               // block
 	      if scs_m.objs(k).graphics.iskey["in_implicit"] then
@@ -56,14 +56,13 @@ function scs_m=delete_unconnected(scs_m)
     scs_m.objs($)=null();
     if length(scs_m.objs)==0 then break,end
   end
-  
   // Notify by hiliting and message edition
-  if ~isempty(DEL) then 
+  if ~isempty(DEL) && exists('path') then 
     wins=xget('window')
     // recursively show in graphic window 
     // and hilite the super blocks which lead to 
     // this scs_m 
-    if ~isempty(path) then
+    if exists('path') && ~isempty(path) then
       mxwin=max(winsid())
       for k=1:size(path,'*')
 	hilite_obj(scs_m_s.objs(path(k)))
@@ -84,7 +83,7 @@ function scs_m=delete_unconnected(scs_m)
     xset('window',wins)
     // if the blocks were in the already opened window 
     // then unhilite them.
-    if isempty(path) then 
+    if exists('path') && isempty(path) then 
       F=get_current_figure()
       for k=DEL
 	if isempty(find(k==DELL)) then unhilite_obj(scs_m_s.objs(k),warn=%t),end
