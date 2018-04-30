@@ -1,5 +1,6 @@
 function [scs_m,obj_num] = add_block(scs_m,blk,identification)
 
+  if nargin <= 2 then identification="";end
   global(simport_target_modeler="scicos");
   
   if simport_target_modeler=="modelicos" then

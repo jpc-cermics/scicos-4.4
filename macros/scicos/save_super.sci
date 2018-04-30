@@ -399,6 +399,11 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
 	    exprs= evtdly.graphics.exprs;
 	    txt.concatd[sprintf('%sexprs=%s;',w,sci2exp(exprs))];
 	    txt.concatd[sprintf('%s%s=set_block_exprs(%s,exprs);',w,temp,temp)];
+	  elseif  obj.gui == 'ENDBLK' then
+	    blk=obj.model.rpar.objs(1);
+	    exprs= blk.graphics.exprs;
+	    txt.concatd[sprintf('%sexprs=%s;',w,sci2exp(exprs))];
+	    txt.concatd[sprintf('%s%s=set_block_exprs(%s,exprs);',w,temp,temp)];
 	  elseif obj.model.iskey['rpar'] && type(obj.model.rpar,'short')== 'h' &&
 	    obj.model.rpar.type == 'diagram' then
 	    printf('Attention %s contient un super block if faut le gerer\n',obj.gui);
@@ -479,25 +484,28 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
   // utilities needed for exporting to scicoslab 
   // 
   if export then 
-    head=["if ~exists(''%nsp'') & ~exists(''scicos_diagram'') then load(''SCI/macros/scicos/lib'');end";
+    head=["// -*- mode : nsp -*-";
 	  "needcompile=4";
 	  "if ~exists(''%nsp'') then";
-          " function opts=scicos_options()";
-	  "  opts=tlist([''scsopt'',''Background'',''Link'',''ID'',''Cmap'',''D3'',''3D'',''Grid'',''Wgrid'',''Action'',''Snap'']);"
-	  "  opts.Background=[8 1];"
-	  "  opts.Link=[1,5];"
-	  "  opts.ID= list([5 0],[4 0]);";
-	  "  opts.Cmap=[0.8 0.8 0.8]";
-	  "  opts.D3=list(%t,33);";
-	  "  opts(''3D'')=list(%t,33);";
-	  "  opts.Grid=%f;";
-	  "  opts.Wgrid=[10;10;12];";
-	  "  opts.Action=%f;";
-	  "  opts.Snap=%t;";
-	  " endfunction";
-	  " function blk=scicos_text(varargopt)";
-	  "  blk=mlist([''Text'', ''graphics'',''model'', ''gui''],scicos_graphics(),scicos_model(),'''');";
-	  " endfunction";
+	  "  if ~exists(''scicos_diagram'') then load(''SCI/macros/scicos/lib'');end";
+	  "  if ~exists(''instantiate_diagram'') then load(''SCI/macros/scicosapi/lib'');end";
+	  "  if ~exists(''GAIN_f'') then exec(loadpallibs,-1);end";
+          "  function opts=scicos_options()";
+	  "    opts=tlist([''scsopt'',''Background'',''Link'',''ID'',''Cmap'',''D3'',''3D'',''Grid'',''Wgrid'',''Action'',''Snap'']);"
+	  "    opts.Background=[8 1];"
+	  "    opts.Link=[1,5];"
+	  "    opts.ID= list([5 0],[4 0]);";
+	  "    opts.Cmap=[0.8 0.8 0.8]";
+	  "    opts.D3=list(%t,33);";
+	  "    opts(''3D'')=list(%t,33);";
+	  "    opts.Grid=%f;";
+	  "    opts.Wgrid=[10;10;12];";
+	  "    opts.Action=%f;";
+	  "    opts.Snap=%t;";
+	  "  endfunction";
+	  "  function blk=scicos_text(varargopt)";
+	  "    blk=mlist([''Text'', ''graphics'',''model'', ''gui''],scicos_graphics(),scicos_model(),'''');";
+	  "  endfunction";
 	  "end"];
     txt=[head;txt2];
   else
