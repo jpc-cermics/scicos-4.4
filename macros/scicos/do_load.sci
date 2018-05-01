@@ -190,7 +190,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
   endfunction
   
   function scs_m=do_subst_missing_blocks(scs_m)
-  // replace undefinde blocks by MISSING_BLOCK
+  // replace undefined blocks by MISSING_BLOCK
     n=size(scs_m.objs);
     for i=1:n
       if scs_m.objs(i).iskey['gui'] then
@@ -205,30 +205,33 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	    scs_m.objs(i).graphics.gr_i = obj.graphics.gr_i;
 	    scs_m.objs(i).graphics.exprs = obj.graphics.exprs;
 	    scs_m.objs(i).model.rpar = obj.model.rpar;
-	    printf("Warning: missing function %s, Block %s is replaced by  MISSING_BLOCK\n",...
+	    printf("Warning: missing function %s, Block %s is replaced by MISSING_BLOCK\n",...
 		   gui,gui); 
 	  end
 	end
       end
       o=scs_m.objs(i);
       if o.type =='Block' then
-	omod=o.model;
 	if or(o.model.sim(1)==['super','asuper','csuper']) then
 	  o.model.rpar=do_subst_missing_blocks(o.model.rpar);
 	end
-	o.graphics.theta = o.graphics.theta;
+	if ~o.graphics.iskey['theta'] then
+	  // printf("Warning: theta not defined in Block %s\n",o.gui);
+	  o.graphics.theta = 0.0;
+	end
 	scs_m.objs(i)=o;
       end
     end
   endfunction
   
   function [ok,scs_m]=do_define_and_set(scs_m,flg)
+    // this function should be translated for nsp
     %mprt=funcprot()
     funcprot(0)
     getvalue=setvalue;
 
     function message(txt)
-      x_message('In block '+o.gui+': '+txt);
+      x_message("In block "+o.gui+": "+txt);
       global %scicos_prob;
       resume(%scicos_prob=%t);
     endfunction
@@ -289,7 +292,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
 	o.graphics.exprs=graphics.exprs;
 	if or(o.model.sim(1)==['super','asuper']) | ...
 	      (o.model.sim(1)=='csuper'& ~isequal(o.model.ipar,1))
-	  [ok,scs_m_1]=do_define_and_set(rpar,%t)
+	  ok = %t; //[ok,scs_m_1]=do_define_and_set(rpar,%t)
 	  if ~ok then scs_m=get_new_scs_m();
 	    return;
 	  end
