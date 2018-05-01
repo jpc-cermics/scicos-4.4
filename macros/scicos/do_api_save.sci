@@ -1,5 +1,42 @@
 function [ok,txt]=do_api_save(scs_m) 
 // This function save a diagram in API mode 
+
+  function txt = get_block_mask (blk);
+    txt = "";
+    if blk.type <> 'Block' || blk.model.sim <> "csuper" then
+      return;
+    end
+    if model.ipar<> 1 then
+      printf("get_block_mask: ipar is equal to 1\n");
+      return;
+    end;
+    if type(blk.graphics.exprs,'short')<>'l' then
+      printf("get_block_mask: exprs is not a list \n");
+      return;
+    end
+    params_values = blk.graphics.exprs(1);
+    params = blk.graphics.exprs(2);
+    params_names = params(1);
+    params_prompts = params(2)(2:$);
+    title = params(2)(1);
+    params_types = params(3);
+    txt = "";
+    params_tags =list()
+    for i=1:size(params_prompts,'*')
+      pp= split(params_prompts(i),sep='\n');
+      if size(pp,'*')<>1 then
+	for j=2:size(pp,'*')
+	  k=strindex(pp(j),':');
+	  pp(j)=part(pp(j),k+1:length(pp(j)));
+	end
+	params_tags(i)=['popup',pp(2:$)];
+	params_prompts(i)=pp(1);
+      else
+	params_tags(i)=['edit'];
+      end
+    end
+    pause get_block_mask;
+  endfunction
   
   function txt=do_api_block(o,blk_num,target="nsp")
     // returns text for a spécific block
@@ -45,7 +82,9 @@ function [ok,txt]=do_api_save(scs_m)
     txt($+1,1)='blk = set_block_ident (blk,'+sci2exp(o.graphics.id)+')';
     txt($+1,1)=sprintf('blk = set_block_origin (blk, %s);',sci2exp(o.graphics.orig,0));
     txt($+1,1)=sprintf('blk = set_block_size (blk, %s);',sci2exp(o.graphics.sz,0));
-    txt($+1,1)=sprintf('blk = set_block_theta (blk, %s);',sci2exp(o.graphics.theta));
+    if o.graphics.iskey['theta'] then 
+      txt($+1,1)=sprintf('blk = set_block_theta (blk, %s);',sci2exp(o.graphics.theta));
+    end
     txt($+1,1)=sprintf('[scsm, block_tag_%d] = add_block (scsm, blk);',blk_num);
   endfunction
   
@@ -66,7 +105,9 @@ function [ok,txt]=do_api_save(scs_m)
     txt1($+1,1)= '  ' +sprintf('scsm = instantiate_diagram ();');
     context=scs_m.props.context
     if ~isempty(context) then
-      txt1($+1,1)= '  '+sprintf('scsm = set_model_workspace(scsm,%s)',sci2exp(context,0))
+      txt2 = sprint(context,as_read=%t);
+      txt1.concatd[txt2];
+      txt1($+1,1)= '  '+sprintf('scsm = set_model_workspace(scsm,%s)','context');
     end
     txt1($+1,1)= '  '+sprintf('scsm = set_diagram_bg_color (scsm, %s);',sci2exp(col));
     txt1($+1,1)= '  '+sprintf('scsm = set_diagram_3d (scsm, %s);', sci2exp(scs_m.props.options("3D")(1)));
@@ -112,7 +153,9 @@ function [ok,txt]=do_api_save(scs_m)
     end
     context=scs_m.props.context
     if ~isempty(context) then
-      txt($+1,1)= '  '+sprintf('scsm = set_model_workspace(scsm,%s)',sci2exp(context,0))
+      txt1 = sprint(context,as_read=%t);
+      txt.concatd[txt1];
+      txt($+1,1)= '  '+sprintf('scsm = set_model_workspace(scsm,%s)','context');
     end
     if %f && type(o.graphics.gr_i,'short')<>'s' then
       cmap=get(sdf(),"color_map");
@@ -134,9 +177,13 @@ function [ok,txt]=do_api_save(scs_m)
     txt($+1,1)='blk = set_block_ident (blk,'+sci2exp(o.graphics.id)+')';
     txt($+1,1)=sprintf('blk = set_block_origin (blk, %s);',sci2exp(o.graphics.orig,0));
     txt($+1,1)=sprintf('blk = set_block_size (blk, %s);',sci2exp(o.graphics.sz,0));
-    txt($+1,1)=sprintf('blk = set_block_theta (blk, %s);',sci2exp(o.graphics.theta));
+    if o.graphics.iskey['theta'] then 
+      txt($+1,1)=sprintf('blk = set_block_theta (blk, %s);',sci2exp(o.graphics.theta));
+    end
     txt($+1,1)=sprintf('tmp_diag = subsystem_%d ()',count);
-    if flag then 
+    if flag then
+      txt1 = get_block_mask (o);
+      txt.concatd[txt1];
       // txt($+1,1)= 'blk = set_block_mask (blk, params, ""?"");';
     end
     txt($+1,1)= 'blk = fill_super_block (blk, tmp_diag);';
