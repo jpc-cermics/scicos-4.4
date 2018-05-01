@@ -407,6 +407,15 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
 	  elseif obj.model.iskey['rpar'] && type(obj.model.rpar,'short')== 'h' &&
 	    obj.model.rpar.type == 'diagram' then
 	    printf('Attention %s contient un super block if faut le gerer\n',obj.gui);
+	    model= obj.model; ref_model = ref.model;
+	    keys= model.__keys;
+	    for i=1:size(keys,'*')
+	      if ~or(keys(i)==ignore_tags) && ~model(keys(i)).equal[ref_model(keys(i))] then 
+		nname= sprintf('%s.model.%s',temp,keys(i));
+		txt.concatd[scicos_obj2api(model(keys(i)),name=nname,tag=tag+1, ...
+					   indent=indent+1,export=export)];
+	      end
+	    end
 	  end
 	  txt.concatd[sprintf('%s%s=%s;clear(''%s'');',w,name,temp,temp)];
 	  return
