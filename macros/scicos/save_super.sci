@@ -399,7 +399,8 @@ function txt=scicos_schema2api(obj,name='z',tag=0,indent=0)
 	    exprs= evtdly.graphics.exprs;
 	    txt.concatd[sprintf('%sexprs=%s;',w,sci2exp(exprs))];
 	    txt.concatd[sprintf('%s%s=set_block_exprs(%s,exprs);',w,temp,temp)];
-	  elseif  obj.gui == 'ENDBLK' then
+	  elseif or(obj.gui == ['ENDBLK', 'STEP_FUNCTION']) then
+	    // parameters are in the first internal block 
 	    blk=obj.model.rpar.objs(1);
 	    exprs= blk.graphics.exprs;
 	    txt.concatd[sprintf('%sexprs=%s;',w,sci2exp(exprs))];
