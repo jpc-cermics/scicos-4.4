@@ -7,11 +7,11 @@ function [ok,txt]=do_api_save(scs_m)
       return;
     end
     if model.ipar<> 1 then
-      printf("get_block_mask: ipar is equal to 1\n");
+      // printf("get_block_mask: ipar is equal to 1\n");
       return;
     end;
     if type(blk.graphics.exprs,'short')<>'l' then
-      printf("get_block_mask: exprs is not a list \n");
+      // printf("get_block_mask: exprs is not a list \n");
       return;
     end
     params_values = blk.graphics.exprs(1);
@@ -35,27 +35,28 @@ function [ok,txt]=do_api_save(scs_m)
 	params_tags(i)=['edit'];
       end
     end
-    pause get_block_mask;
   endfunction
   
   function txt=do_api_block(o,blk_num,target="nsp")
     // returns text for a spécific block
     // printf("In block api %s\n",o.gui);pause block;
     txt=sprintf('blk = instantiate_block (""%s"");',o.gui);
-
+    if o.gui == "scifunc_block5" then
+      // Dans ce cas exprs est une liste XXXXX 
+      pause;xxx;
+    end
     expp=o.graphics.exprs;
     ne=size(expp,'*');
     if ne > 0 then
       if target == "nsp" then
 	txt($+1,1)=sprintf('params = cell(0,2);');
-	names= 'name'+string(1:ne);
 	for i=1:ne 
           txt($+1,1)= sprintf( "params.concatd[{ ""name%0d"",%s}];",i, sci2exp(expp(i)));
 	end
 	txt($+1,1)= 'blk = set_block_parameters (blk, params);';
       else
 	txt($+1,1)=sprintf('params = struct()');
-	names= 'name'+string(1:ne);
+	names= sprintf('name%0d',(1:ne)');
 	for i=1:ne 
           txt($+1,1)= 'params.' + names(i) + '= ' +sci2exp(expp(i))
 	end
@@ -137,16 +138,13 @@ function [ok,txt]=do_api_save(scs_m)
     txt($+1,1)=sprintf('// New block %s ',o.gui);
     txt($+1,1)=sprintf('blk = instantiate_super_block ();');
     if flag && ~isempty(o.graphics.exprs) then
-      params = hash(10);
       val=o.graphics.exprs(1);
       expp=o.graphics.exprs(2)(1)
       ne=size(expp,'*');
       if ne>0 then
-	txt($+1,1)=sprintf('params = hash(10)');
-	names= 'name'+string(1:ne);
+	txt($+1,1)=sprintf('params = cell (0, 2)');
 	for i=1:ne 
-	  txt($+1,1)=sprintf('params.%s.value= '"%s'"',names(i),val(i));
-	  txt($+1,1)=sprintf('params.%s.prompt= '"%s'"',names(i),expp(i));
+	  txt($+1,1)=sprintf("params.concatd[{ ""%s"", %s}];",expp(i),sci2exp(expp(i)));
 	end
 	txt($+1,1)= 'blk = set_block_parameters (blk, params);';
       end
