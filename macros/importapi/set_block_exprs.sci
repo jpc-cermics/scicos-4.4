@@ -8,7 +8,7 @@ function blk=set_block_exprs(blk,exprs)
   // treated in a special way in each special block
   if blk.gui == 'CLOCK_f' || blk.gui == 'CLOCK_c' then
     blk.model.rpar.objs(2).graphics.exprs = exprs ;
-  elseif  blk.gui == 'ENDBLK' then
+  elseif or(blk.gui == ['ENDBLK','STEP_FUNCTION']) then
     blk.model.rpar.objs(1).graphics.exprs = exprs ;
   end
 endfunction
