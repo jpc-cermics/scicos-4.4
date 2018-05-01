@@ -10,81 +10,66 @@ function [x,y,typ]=STEP_FUNCTION(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    // paths to updatable parameters or states
-    ppath = list(1)
-    newpar=list();
-    y=0;
-    for path=ppath do
-      np=size(path,'*')
-      spath=list()
-      for k=1:np
-	spath($+1)='model'
-	spath($+1)='rpar'
-	spath($+1)='objs'
-	spath($+1)=path(k)
-      end
-      xx=arg1(spath)// get the block
-      ok=execstr('xxn='+xx.gui+'(''set'',xx)',errcatch=%t)
-      if ~ok then 
-	message(['Error: failed to set parameter block in STEP_FUNCTION';
-		 catenate(lasterror())]);
-	continue;
-      end
-      if ~xx.equal[xxn] then 
-	[needcompile]=scicos_object_check_needcompile(xx,xxn);
-	// parameter or states changed
-	arg1(spath)=xxn// Update
-	newpar(size(newpar)+1)=path // Notify modification
-	y=max(y,needcompile);
-      end
-    end
-    x=arg1
-    typ=newpar
-   case 'define' then
-    model = mlist(..
-		  ['model','sim','in','in2','intyp','out','out2','outtyp','evtin','evtout','state','dstate',..
-		   'odstate','rpar','ipar','opar','blocktype','firing','dep_ut','label','nzcross','nmode','equations'],..
-		  'csuper',[],[],1,-1,[],1,[],[],[],[],list(),..
-		  mlist(['diagram','props','objs'],..
-			tlist(['params','wpar','title','tol','tf','context','void1','options','void2','void3','doc'],..
-			      [600,450,0,0,600,450],['STEP_FUNCTION','./'],[0.0001;1.000E-06;1.000E-10;100001;0;0],14,..
-			      ' ',[], scicos_options(), [],[],list()),..
-			list(..
-			     mlist(['Block','graphics','model','gui','doc'],..
-				   mlist(..
-					 ['graphics','orig','sz','flip','exprs','pin','pout','pein','peout','gr_i','id',..
-		    'in_implicit','out_implicit'],[82.230597,652.6813],[40,40],%t,['1';'0';'1'],[],4,2,2,..
-					 list(['txt=[''Step''];';'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'');'],8),..
-					 emptystr(),[],[]),..
-				   mlist(..
-					 ['model','sim','in','in2','intyp','out','out2','outtyp','evtin','evtout','state','dstate',..
-		    'odstate','rpar','ipar','opar','blocktype','firing','dep_ut','label','nzcross','nmode','equations'],..
-					 list('step_func',4),[],[],1,1,[],1,1,1,[],..
-					 [],list(),[0;1],[],list(),'c',1,[%f,%t],emptystr(),0,0,list()),'STEP',list()),..
-			     mlist(['Link','xx','yy','id','thick','ct','from','to'],..
-				   [102.2306;102.2306;63.708992;63.708992;102.2306;102.2306],..
-				   [646.96701;622.2884;622.2884;711.98452;711.98452;698.39559],'drawlink',[0,0],[5,-1],..
-				   [1,1,0],[1,1,1]),..
-			     mlist(['Block','graphics','model','gui','doc'],..
-				   mlist(..
-					 ['graphics','orig','sz','flip','exprs','pin','pout','pein','peout','gr_i','id',..
-		    'in_implicit','out_implicit'],[150.80203,662.6813],[20,20],%t,'1',4,[],[],[],list(' ',8),..
-					 emptystr(),[],[]),..
-				   mlist(..
-					 ['model','sim','in','in2','intyp','out','out2','outtyp','evtin','evtout','state','dstate',..
-		    'odstate','rpar','ipar','opar','blocktype','firing','dep_ut','label','nzcross','nmode','equations'],..
-					 'output',-1,[],1,[],[],1,[],[],[],[],list(),[],1,list(),..
-					 'c',[],[%f,%f],emptystr(),0,0,list()),'OUT_f',list()),..
-			     mlist(['Link','xx','yy','id','thick','ct','from','to'],[130.80203;150.80203],..
-				   [672.6813;672.6813],'drawlink',[0,0],[1,1],[1,1,0],[3,1,1]))),[],list(),'h',[],[%f,%f],emptystr(),..
-		  0,0,list())
-    gr_i=[  'thick=xget(''thickness'')'
-	    'pat=xget(''pattern'')'
-	    'fnt=xget(''font'')'
-	    'xpoly(orig(1)+[0.071;0.413;0.413;0.773]*sz(1),orig(2)+[0.195;0.195;0.635;0.635]*sz(2),type='"lines"')';
-	    'xset(''thickness'',thick)'
-	    'xset(''pattern'',pat)'
-	    'xset(''font'',fnt(1),fnt(2))']
+     // The parameters are stored in the STEP block which is the first one
+     y=needcompile;
+     step_blk = arg1.model.rpar.objs(1);
+     newpar=list();
+     if step_blk.gui <> 'STEP' then
+       message(["Error: failed to set parameter block in STEP_FUNCTION";
+		"The internal diagram does not contain a STEP block at position 1"]);
+       return;
+     end
+     ok = execstr(sprintf("xxn=%s(""set"",step_blk);",step_blk.gui),errcatch=%t)
+     if ~ok then 
+       message(["Error: failed to set parameter block in STEP_FUNCTION";
+		catenate(lasterror())]);
+       continue;
+     end
+     if ~step_blk.equal[xxn] then 
+       [needcompile]=scicos_object_check_needcompile(step_blk,xxn);
+       // parameter or states changed
+       arg1.model.rpar.objs(1) = xxn;// Update the STEP block 
+       newpar = list(1); // Notify modification
+       y=max(y,needcompile);
+     end
+     x=arg1;
+     typ=newpar;
+  case 'define' then
+    
+    function scsm=block_step_function()
+      scsm=scicos_diagram();
+      x_2=STEP('define');
+      x_2.graphics.enter[pein = [2],orig = [82.2306,652.6813],pout = [4],sz = [40,40],peout= [2]];
+      scsm.objs(1)=x_2;
+      
+      x_2=scicos_link();
+      x_2.enter[to= [1,1,1],from=[1,1,0], ct=[5,-1]];
+      x_2.xx=[102.2306;102.2306;63.7090;63.7090;102.2306;102.2306];
+      x_2.yy=[646.9670;622.2884;622.2884;711.9845;711.9845;698.3956];
+      scsm.objs(2)=x_2;
+      
+      x_2=OUT_f('define');
+      x_2.graphics.enter[orig=[150.8020,662.6813],sz=[20,20],pin=[4]];
+      x_2.model.enter[in=[-1],out=[],in2=[],out2=[],outtyp=[1],intyp=[1]];
+      scsm.objs(3)=x_2;
+       
+      x_2=scicos_link();
+      x_2.enter[to=[3,1,1],from=[1,1,0],xx=[130.8020;150.8020],yy=[672.6813;672.6813]];
+      scsm.objs(4)=x_2;
+
+      props=scicos_params();
+      props.enter[zoom=[1],title=["STEP_FUNCTION","./"],tf=[14]];
+      scsm.props=props;
+    endfunction
+     
+    model = scicos_model();
+    model.enter[out=[-1],opar= ["h"],dep_ut= [%f %f],sim="csuper", firing=%f];
+    model.rpar =block_step_function();
+    gr_i=["xpoly(orig(1)+[0.071;0.413;0.413;0.773]*sz(1),orig(2)+[0.195;0.195;0.635;0.635]*sz(2),type=""lines"",color=2)"];
     x=standard_define([2 2],model,[],gr_i,'STEP_FUNCTION');
   end
 endfunction
+
+
+  
+
