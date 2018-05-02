@@ -49,11 +49,8 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
   // This function (re)-evaluates blocks in the scicos data structure
   // scs_m. The evaluation is made in a non-interactive way.
   // Copyright INRIA
-    
-    if ~exists('needcompile') then needcompile=0;
-    else
-      needcompile=needcompile;
-    end 
+
+    needcompile = acquire('needcompile',def=0);
     msg=m2s([]);
 
     // to detect that message was activated
@@ -200,7 +197,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 
   function message(txt)
     if exists('o') then 
-      x_message_modeless(['Error: in evaluation of block '+o.gui+': ';txt]);
+      x_message_modeless(["Error: in evaluation of block "+o.gui+": ";txt]);
     end
     resume(%scicos_prob=%t); 
   endfunction
@@ -234,12 +231,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
   
   // main code 
   // ----------
-  
-  if ~exists('needcompile') then 
-    needcompile=0;
-  else
-    needcompile=needcompile;
-  end 
+  needcompile = acquire('needcompile',def=0);
   
   if nargin < 2 then cpr=list(); end
   if nargin < 3 then context=hash(10);end
@@ -290,7 +282,7 @@ function [scs_m,ok]=do_silent_eval(scs_m, context)
 	  %scicos_prob=%f;
 	  %scicos_setvalue=[];
 	  eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
-	  if ~eok || %scicos_prob  then  ok=%f; continue;  end
+	  if ~eok || %scicos_prob  then  ok=%f; continue; end
 	end
 	scs_m.objs(%kk)=o;
       end
@@ -298,7 +290,7 @@ function [scs_m,ok]=do_silent_eval(scs_m, context)
   endfunction
     
   function message(txt)
-    resume(%scicos_prob=%t); 
+    resume(%scicos_prob=%t);
   endfunction
   
   function [ok,tt]=FORTR(funam,tt,i,o) ; ok=%t; endfunction
