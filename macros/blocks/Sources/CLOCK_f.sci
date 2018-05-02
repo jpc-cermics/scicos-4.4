@@ -34,11 +34,12 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    if arg1.model.rpar.objs(1)==mlist('Deleted') then
-      path = 3  //compatibility with translated blocks
-    else
-      path = 2
-    end
+     y=acquire('needcompile',def=0);
+     if arg1.model.rpar.objs(1)==mlist('Deleted') then
+       path = 3  //compatibility with translated blocks
+     else
+       path = 2
+     end
     newpar=list();
     xx=arg1.model.rpar.objs(path)// get the evtdly block
     exprs=xx.graphics.exprs
@@ -67,9 +68,8 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
       // parameter  changed
       newpar(size(newpar)+1)=path// Notify modification
     end
-    if t0_old<>t0 then needcompile=2,else needcompile=0,end
+    if t0_old<>t0 then y=max(y,2);end;
     x=arg1
-    y=needcompile
     typ=newpar
    case 'define' then
     evtdly=EVTDLY_f('define')

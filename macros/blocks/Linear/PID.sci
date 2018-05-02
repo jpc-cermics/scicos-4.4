@@ -11,6 +11,7 @@ function [x,y,typ]=PID(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     newpar=list();
     exprs=m2s(zeros(3,1));
     xx1=arg1.model.rpar.objs(3)
@@ -40,15 +41,14 @@ function [x,y,typ]=PID(job,arg1,arg2)
 	break
       end
     end
-    needcompile=0
+
     if ~(p_old==p & i_old==i & d_old==d) then
       newpar(size(newpar)+1)=3
       newpar(size(newpar)+1)=5
       newpar(size(newpar)+1)=6
-      needcompile=2
+      y=max(y,2);
     end
     x=arg1
-    y=max(y,needcompile)
     typ=newpar
    case 'define' then
     scs_m=scicos_diagram(..

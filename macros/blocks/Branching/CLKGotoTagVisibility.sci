@@ -23,6 +23,7 @@ function [x,y,typ]=CLKGotoTagVisibility(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
@@ -32,14 +33,13 @@ function [x,y,typ]=CLKGotoTagVisibility(job,arg1,arg2)
 			      list('str',-1),exprs)
       if ~ok then break,end
       if ok then
-	if model.opar<>list(tag) then needcompile=4;y=needcompile,end
+	if model.opar<>list(tag) then y=4;end;
 	graphics.exprs=exprs;
 	model.opar=list(tag);
 	x.graphics=graphics;x.model=model;
 	break
       end
     end
-    resume(needcompile)
    case 'define' then
     model=scicos_model()
     model.sim='clkgototagvisibility'

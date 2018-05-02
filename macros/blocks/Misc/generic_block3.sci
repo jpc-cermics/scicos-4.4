@@ -12,6 +12,7 @@ function [x,y,typ]=generic_block3(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1
     model=arg1.model;graphics=arg1.graphics;label=graphics.exprs
     if size(label,'*')==14 then label(9)=[],end //compatiblity
@@ -61,7 +62,7 @@ function [x,y,typ]=generic_block3(job,arg1,arg2)
 	[model,graphics,ok]=set_io(model,graphics,list(in,it),list(out,ot),ci,co)
       end
       if ok then
-	if funtyp==3 then needcompile=4;end
+	if funtyp==3 then y=4;end
 	model.sim=list(junction_name,funtyp);
 	model.state=xx
 	model.dstate=z
@@ -80,7 +81,7 @@ function [x,y,typ]=generic_block3(job,arg1,arg2)
 	break
       end
     end
-    resume(needcompile)
+
    case 'define' then
     model=scicos_model()
     junction_name='sinblk';

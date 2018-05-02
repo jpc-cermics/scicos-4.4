@@ -49,6 +49,7 @@ function [x,y,typ]=BUSIN_f(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=arg1.graphics;
     model=arg1.model;
@@ -62,7 +63,7 @@ function [x,y,typ]=BUSIN_f(job,arg1,arg2)
       if prt<=0 then
 	message('Port number must be a positive integer')
       else
-	if model.ipar<>prt then needcompile=4;y=needcompile,end
+	if model.ipar<>prt then y=4;end
 	model.ipar=prt
 	model.firing=[];model.out=-1//compatibility
 	graphics.exprs=exprs

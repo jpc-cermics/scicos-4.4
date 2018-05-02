@@ -37,7 +37,7 @@ function [x,y,typ]=ENDBLK(job,arg1,arg2)
     // we first get the pathes to updatable parameters or states
     ppath = list(1)
     newpar= list();
-    y=0;
+    y=acquire('needcompile',def=0);
     for path=ppath do
       // loop on each  updatable parameter 
       // get the path to block 

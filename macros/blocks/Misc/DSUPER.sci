@@ -24,7 +24,7 @@ function [x,y,typ]=DSUPER(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    y=needcompile // in case leaving with Exit x=arg1
+     y=acquire('needcompile',def=0);
     typ=list()
     graphics=arg1.graphics;
     if isempty(graphics.exprs) then x=arg1,return,end;
@@ -65,7 +65,7 @@ function [x,y,typ]=DSUPER(job,arg1,arg2)
       if ierr==0 then 
 	sblock=x.model.rpar
 	[sblock,%w,needcompile2,ok]=do_eval(sblock,list(),%scicos_context)
-	y=max(2,needcompile,needcompile2)
+	y=max(2,y,needcompile2)
 	x.graphics.exprs(1)=exprs
 	x.model.rpar=sblock;
       else

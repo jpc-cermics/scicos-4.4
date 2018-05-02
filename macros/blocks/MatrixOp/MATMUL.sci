@@ -12,6 +12,7 @@ function [x,y,typ]=MATMUL(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1
     graphics=x.graphics;label=graphics.exprs
     model=x.model;
@@ -121,17 +122,15 @@ function [x,y,typ]=MATMUL(job,arg1,arg2)
       end
       [model,graphics,ok]=set_io(model,graphics,list(in,it),list(out,ot),[],[])
       if ok then
-	//if model.ipar<>np then needcompile=1;end
 	label=exprs;
 	model.ipar=rule
 	model.rpar=[kmin;kmax]
 	graphics.exprs=label;
 	x.graphics=graphics;x.model=model;
-	arg1=x
+	y=4;
 	break;
       end
     end
-    //resume(needcompile)
    case 'define' then
     model=scicos_model()
     model.sim=list('matmul_m',4)

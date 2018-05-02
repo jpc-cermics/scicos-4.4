@@ -25,7 +25,7 @@ function [x,y,typ]=SUPER_f(job,arg1,arg2)
     [x,y]=standard_origin(arg1)
    case 'set' then
     standard = ~(exists('getvalue') && getvalue.get_fname[]== 'getvalue_doc');
-    y=needcompile // in case leaving with Exit
+    y=acquire('needcompile',def=0);
     while %t do
       if standard then 
 	[x,newparameters,needcompile,edited]=scicos(arg1.model.rpar)
@@ -36,7 +36,7 @@ function [x,y,typ]=SUPER_f(job,arg1,arg2)
       [ok,arg1]=adjust_s_ports(arg1);
       if ok then
 	x=arg1
-	y=needcompile
+	y=max(y,needcompile);
 	typ=newparameters
 	resume(%exit=%f); // nsp resume 
 	return;

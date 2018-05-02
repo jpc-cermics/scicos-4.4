@@ -11,11 +11,7 @@ function [x,y,typ]=BUSSELECTOR(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    if ~exists('needcompile') then
-      needcompile=0;
-    else 
-      needcompile = needcompile;
-    end
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=x.graphics;model=x.model;
     exprs=graphics.exprs
@@ -70,9 +66,7 @@ function [x,y,typ]=BUSSELECTOR(job,arg1,arg2)
 	exprs=list(outputbus,list(sci2exp(SelectedSignals(:)),[]))
       end	 
       if ~ok then continue;end
-      if ~old_SelectedSignals.equal[SelectedSignals] then 
-	needcompile=4;y=needcompile;
-      end
+      if ~old_SelectedSignals.equal[SelectedSignals] then y=4;end
       graphics.exprs=exprs;
       //model.opar=list(SelectedSignals);
       if outnb>3 & outputbus=='0' then graphics.sz=[10 40+(outnb-3)*10];
@@ -81,7 +75,6 @@ function [x,y,typ]=BUSSELECTOR(job,arg1,arg2)
       x.model=model;x.graphics=graphics;
       break;
     end
-    resume(needcompile);
    case 'define' then
     model=scicos_model()
     model.sim='busselector'

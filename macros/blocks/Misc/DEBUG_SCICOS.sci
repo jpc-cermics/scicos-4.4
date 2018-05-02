@@ -48,7 +48,7 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
     needc=~isequal(graphics.exprs,exprs)
     graphics.exprs=exprs;
     x.graphics=graphics;
-    if needc then resume(needcompile=4);end 
+    if needc then y = max(y,4);end 
     
    case 'define' then
     model=scicos_model()

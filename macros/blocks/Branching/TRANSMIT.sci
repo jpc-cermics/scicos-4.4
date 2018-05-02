@@ -12,8 +12,8 @@ function [x,y,typ]=TRANSMIT(job,arg1,arg2)
     [x,y]=standard_origin(arg1)
    case 'set' then
     x=arg1;
-    needcompile=4
-    y=needcompile;
+    y=acquire('needcompile',def=0);
+    y=max(y,4);
     if x.model.ipar(1)==1 then 
       x.model.ipar=[0,5];
     else

@@ -11,8 +11,8 @@ function [x,y,typ]=STEP_FUNC(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    y=needcompile
-    typ=list()
+     y=acquire('needcompile',def=0);
+     typ=list()
     graphics=arg1.graphics;
     exprs=graphics.exprs
     Btitre="Set block parameters"
@@ -31,7 +31,7 @@ function [x,y,typ]=STEP_FUNC(job,arg1,arg2)
 	// re-evaluate parameters using context 
 	[sblock,%w,needcompile2,ok]=do_eval(sblock,list(),context)
 	if ok then
-          y=max(2,needcompile,needcompile2)
+          y=max(2,y,needcompile2)
           x.graphics.exprs=exprs
           x.model.rpar=sblock
           break

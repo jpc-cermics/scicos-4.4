@@ -12,7 +12,8 @@ function [x,y,typ]=scifunc_block5(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    x=arg1
+     needcompile= acquire('needcompile',def=0);
+     x=arg1;
     model=arg1.model;
     graphics=arg1.graphics;
     label=graphics.exprs;
@@ -45,7 +46,7 @@ function [x,y,typ]=scifunc_block5(job,arg1,arg2)
 		  'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1,'lis',-1,...
 		  'vec',-1,'vec',-1,'lis',-1,'vec',1,'vec',1,'vec','sum(%8)',..
 		  'str',1,'str',1);
-    needcompile= acquire('needcompile',def=0);
+
     non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
     
     while %t do
@@ -99,7 +100,7 @@ function [x,y,typ]=scifunc_block5(job,arg1,arg2)
 	[ok,func_txt]=genfunc5(junction_name,label(2),ni,no,nie,noe,nx,nz,nzcr)
 	if ~ok then break;end // we have made a cancel in genfunc5 
       end
-      if ~func_txt.equal[label(2)] then needcompile=4, end
+      if ~func_txt.equal[label(2)] then y=4, end
       model.sim=list('scifunc',funtyp);
       model.state=xx
       model.dstate=z
@@ -118,7 +119,6 @@ function [x,y,typ]=scifunc_block5(job,arg1,arg2)
       x=arg1
       break
     end
-    resume(needcompile)
    case 'define' then
     model=scicos_model()
     junction_name='sciblk';

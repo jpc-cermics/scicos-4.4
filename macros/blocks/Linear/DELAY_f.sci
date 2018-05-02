@@ -65,8 +65,7 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
 	break
       end
     end
-    needcompile=0
-    y=needcompile
+    y=acquire('needcompile',def=0);
     typ=newpar
    case 'define' then
     evtdly=EVTDLY_f('define')

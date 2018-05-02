@@ -29,6 +29,7 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     // if isempty(exprs) then exprs=sci2exp(int8(0));end
     newpar=list()
     xx=arg1.model.rpar.objs(1)// get the 1/z  block
@@ -36,11 +37,11 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
     model=xx.model;
     init_old= model.odstate(1)
     while %t do
-      [ok,init,exprs0]=getvalue(['Set parameters';'The Initial Value must be 0 or 1 of type int8';..
-		    'Negatif values are considered as int8(0)';..
-		    'Positif values are considered as int8(1)'] ,..
-				['Initial Value'],..
-				list('vec',1),exprs)
+      [ok,init,exprs0]=getvalue(['Set parameters';'The Initial Value must be 0 or 1 of type int8';
+				 'Negatif values are considered as int8(0)';
+				 'Positif values are considered as int8(1)'],
+				['Initial Value'],
+				list('vec',1),exprs);
       if ~ok then break,end
       if i2m(init) <=0 then init=m2i(0,'int8');
       elseif i2m(init) >0 then init=m2i(1,'int8');
@@ -53,16 +54,14 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
 	break
       end
     end
-    needcompile=0
     if ok then
       if init_old<>init then 
         // parameter  changed
-        newpar(size(newpar)+1)=1// Notify modification
-        needcompile=2      
+        newpar(size(newpar)+1)=1;// Notify modification
+	y=max(y,2);
       end
     end
     x=arg1
-    y=needcompile
     typ=newpar
    case 'define' then
     model=scicos_model()

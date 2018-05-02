@@ -28,6 +28,7 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     newpar=list()
     xx=arg1.model.rpar.objs(2)// get the 1/z block
     exprs=xx.graphics.exprs(1)
@@ -51,14 +52,12 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
 	break
       end
     end
-    needcompile=0
     if ~init_old.equal[init] then 
       // parameter  changed
-      newpar(size(newpar)+1)=1// Notify modification
-      needcompile=2      
+      newpar(size(newpar)+1)=1;// Notify modification
+      y=max(y,2);
     end
     x=arg1
-    y=needcompile
     typ=newpar
    case 'define' then
 	scs_m=scicos_diagram(..

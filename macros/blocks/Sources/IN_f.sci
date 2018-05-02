@@ -52,6 +52,7 @@ function [x,y,typ]=IN_f(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=arg1.graphics;
     model=arg1.model;
@@ -79,7 +80,7 @@ function [x,y,typ]=IN_f(job,arg1,arg2)
       elseif ((ot<1|ot>9)&(ot<>-1)) then
 	message('Outport type must be a number between 1 and 9, or -1 for inheritance.')
       else
-	if model.ipar<>prt then needcompile=4;y=needcompile,end
+	if model.ipar<>prt then y=4;end
 	model.ipar=prt
 	model.firing=[];
 	if size(otsz,'*')==2 then

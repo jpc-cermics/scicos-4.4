@@ -41,6 +41,7 @@ function [x,y,typ]=CLKGOTO(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=arg1.graphics;
     model=arg1.model;
@@ -54,9 +55,7 @@ function [x,y,typ]=CLKGOTO(job,arg1,arg2)
       end
       tagvis=int(tagvis);
       if ok then
-	if ((model.opar<>list(tag))| (model.ipar<>tagvis)) then
-          needcompile=4;y=needcompile
-	end
+	if ((model.opar<>list(tag))| (model.ipar<>tagvis)) then y=4;end
 	model.opar=list(tag)
 	model.ipar=tagvis
 	graphics.exprs=exprs
@@ -65,7 +64,6 @@ function [x,y,typ]=CLKGOTO(job,arg1,arg2)
 	break
       end
     end
-    resume(needcompile)
    case 'define' then
     model=scicos_model()
     model.sim='clkgoto'

@@ -11,9 +11,8 @@ function [x,y,typ]=GEN_SQR(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    if ~exists('needcompile') then needcompile=0;end 
-    y=needcompile
-    arg1.model.ipar=1;
+     y=acquire('needcompile',def=0);
+     arg1.model.ipar=1;
     typ=list()
     graphics=arg1.graphics;
     exprs=graphics.exprs
@@ -39,7 +38,7 @@ function [x,y,typ]=GEN_SQR(job,arg1,arg2)
       if ierr==0 then
 	[sblock,%w,needcompile2,ok]=do_eval(sblock,list(),context)
 	if ok then
-          y=max(2,needcompile,needcompile2)
+          y=max(2,y,needcompile2)
           x.graphics.exprs=exprs
           x.model.rpar=sblock
           break

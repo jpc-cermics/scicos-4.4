@@ -11,7 +11,7 @@ function [x,y,typ]=PID2(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    y=needcompile
+     y=acquire('needcompile',def=0);
     typ=list()
     graphics=arg1.graphics;
     exprs=graphics.exprs
@@ -35,7 +35,7 @@ function [x,y,typ]=PID2(job,arg1,arg2)
       if ierr==0 then
 	[sblock,%w,needcompile2,ok]=do_eval(sblock,list(),%scicos_context)
 	if ok then
-          y=max(2,needcompile,needcompile2)
+          y=max(2,y,needcompile2);
           x.graphics.exprs=exprs
           x.model.rpar=sblock
           break

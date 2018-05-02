@@ -11,6 +11,7 @@ function [x,y,typ]=INIMPL_f(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
@@ -23,7 +24,7 @@ function [x,y,typ]=INIMPL_f(job,arg1,arg2)
       if prt<=0 then
 	message('Port number must be a positive integer')
       else
-	if model.ipar<>prt then needcompile=4;y=needcompile,end
+	if model.ipar<>prt then y=4;end
 	model.ipar=prt
 	graphics.exprs=exprs
 	x.graphics=graphics

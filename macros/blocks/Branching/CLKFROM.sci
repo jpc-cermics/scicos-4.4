@@ -41,6 +41,7 @@ function [x,y,typ]=CLKFROM(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=arg1.graphics;
     model=arg1.model;
@@ -49,7 +50,7 @@ function [x,y,typ]=CLKFROM(job,arg1,arg2)
       [ok,tag,exprs]=getvalue('Set block parameters',..
 			      'Tag',list('str',-1),exprs)
       if ~ok then break,end
-      if model.opar<>list(tag) then needcompile=4;y=needcompile,end
+      if model.opar<>list(tag) then y=4;end
       model.opar=list(tag)
       model.evtout=1
       model.firing=-1//compatibility
@@ -58,7 +59,6 @@ function [x,y,typ]=CLKFROM(job,arg1,arg2)
       x.model=model
       break
     end
-    resume(needcompile)
    case 'define' then
     model=scicos_model()
     model.sim='clkfrom'

@@ -57,7 +57,7 @@ function [x,y,typ]=scifunc_block_m(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    needcompile=0
+     y=acquire('needcompile',def=0);
     x=arg1
     model=arg1.model;graphics=arg1.graphics;
     exprs=graphics.exprs
@@ -112,7 +112,7 @@ function [x,y,typ]=scifunc_block_m(job,arg1,arg2)
 	model.state=xx
 	model.dstate=z
 	model.rpar=rpar
-	if ~model.ipar.equal[tt] then needcompile=4,end
+	if ~model.ipar.equal[tt] then y=4,end
 	model.ipar=tt
 	model.firing=auto
 	model.dep_ut=dep_ut
@@ -123,7 +123,7 @@ function [x,y,typ]=scifunc_block_m(job,arg1,arg2)
 	break
       end
     end
-    resume(needcompile)
+
    case 'define' then
     in=1
     out=1

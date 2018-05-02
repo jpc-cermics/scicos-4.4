@@ -12,6 +12,7 @@ function [x,y,typ]=nspexpr(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+    y=acquire('needcompile',def=0);
     x=arg1
     model=arg1.model;
     graphics=arg1.graphics;
@@ -40,11 +41,8 @@ function [x,y,typ]=nspexpr(job,arg1,arg2)
 		  'vec',-1,'vec',-1,'lis',-1,'vec',1,'vec',1,'vec','sum(%8)',..
 		  'str',1,'str',1);
     
-    if ~exists('needcompile') then needcompile=0;
-    else needcompile=needcompile;end
-      
-      while %t do
-	junction_name='sciblk';
+    while %t do
+      junction_name='sciblk';
 	
 	exprs=label(3);
 	[ok,%exx,exprs]=getvalue(...
@@ -76,9 +74,9 @@ function [x,y,typ]=nspexpr(job,arg1,arg2)
 		  "    blk.outptr(1)="+exprs($);
 		  "  end";
 		  "endfunction"];
-	if ~func_txt.equal[label(2)] then needcompile=4, end
-	needcompile=4,
-	
+	if ~func_txt.equal[label(2)] then y=4, end;
+	y = 4; // always compile ?
+		
 	in = ones(nu,1); 
 	in2 = ones(nu,1);
 	intyp = ones(1,nu);
@@ -119,7 +117,6 @@ function [x,y,typ]=nspexpr(job,arg1,arg2)
 	x=arg1
 	break
       end
-      resume(needcompile)
    case 'define' then
     model=scicos_model()
     junction_name='sciblk';

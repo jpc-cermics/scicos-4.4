@@ -109,6 +109,7 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=arg1.graphics;
     model=arg1.model;
@@ -123,7 +124,7 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
 	message("The |Offset| must be less than the Frequency");ok=%f
       end
       if ok then
-	if or(model.rpar(:)<>[frequ;offset]) then needcompile=4;y=needcompile,end
+	if or(model.rpar(:)<>[frequ;offset]) then y=4;end 
 	model.rpar=[frequ;offset]
 	model.evtout=1
 	model.firing=-1//compatibility
@@ -139,7 +140,6 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
 	break
       end
     end
-    resume(needcompile)
    case 'define' then
     model=scicos_model()
     model.sim='sampleclk'

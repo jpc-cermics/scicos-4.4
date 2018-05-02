@@ -31,6 +31,7 @@ function [x,y,typ]=GOTOMO(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
@@ -44,7 +45,7 @@ function [x,y,typ]=GOTOMO(job,arg1,arg2)
 	message('Tag Visibility must be between 1 and 3');ok=%f;
       end
       if ok then 
-	if ((model.ipar<>tagvis)|(model.opar<>list(tag))) then needcompile=4;y=needcompile,end
+	if ((model.ipar<>tagvis)|(model.opar<>list(tag))) then y=4;end
 	graphics.exprs=exprs;
 	model.opar=list(tag)
 	model.ipar=tagvis
@@ -54,7 +55,6 @@ function [x,y,typ]=GOTOMO(job,arg1,arg2)
 	break
       end
     end
-    resume(needcompile)
    case 'define' then
     model=scicos_model()
     model.sim='gotomo'

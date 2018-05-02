@@ -11,11 +11,7 @@ function [x,y,typ]=BUSCREATOR(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    if ~exists('needcompile') then
-      needcompile=0;
-    else 
-      needcompile = needcompile;
-    end
+     y=acquire('needcompile',def=0);
     x=arg1;
     graphics=x.graphics;model=x.model;
     exprs=graphics.exprs
@@ -86,7 +82,7 @@ function [x,y,typ]=BUSCREATOR(job,arg1,arg2)
       exprs(2)(1)=sci2exp(Signals(:))
       exprs(3)=sci2exp(inputbus)
       exprs(4)=sci2exp(InheritSignal)
-      if old_exprs<>exprs(2)(1) then needcompile=4;y=needcompile;end
+      if old_exprs<>exprs(2)(1) then y=4;end;
       graphics.exprs=exprs;
       if inputnb+inputbus>3 then 
 	graphics.sz=[10 40+(inputnb+inputbus-3)*10];
@@ -94,7 +90,6 @@ function [x,y,typ]=BUSCREATOR(job,arg1,arg2)
       x.model=model;x.graphics=graphics;
       break
     end
-    resume(needcompile);
    case 'define' then
     in=2
     model=scicos_model()

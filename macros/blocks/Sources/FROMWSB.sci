@@ -28,7 +28,7 @@ function [x,y,typ]=FROMWSB(job,arg1,arg2)
     //paths to updatable parameters or states
     ppath = list(1)
     newpar=list();
-    y=0;
+    y=acquire('needcompile',def=0);
     for path=ppath do
       np=size(path,'*')
       spath=list()

@@ -12,6 +12,7 @@ function [x,y,typ]=MATRESH(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
+     y=acquire('needcompile',def=0);
     x=arg1
     model=arg1.model;graphics=arg1.graphics;label=graphics.exprs
     if size(label,'*')==14 then label(9)=[],end //compatiblity
@@ -62,11 +63,11 @@ function [x,y,typ]=MATRESH(job,arg1,arg2)
 	graphics.exprs=label
 	arg1.graphics=graphics
 	arg1.model=model
-	x=arg1
+	x=arg1;
+	y=4;
 	break
       end
     end
-    resume(needcompile)
    case 'define' then
     model=scicos_model()
     junction_name='mat_reshape';

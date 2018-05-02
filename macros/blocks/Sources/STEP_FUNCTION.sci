@@ -11,7 +11,7 @@ function [x,y,typ]=STEP_FUNCTION(job,arg1,arg2)
     [x,y]=standard_origin(arg1)
    case 'set' then
      // The parameters are stored in the STEP block which is the first one
-     y=needcompile;
+     y=acquire('needcompile',def=0);
      step_blk = arg1.model.rpar.objs(1);
      newpar=list();
      if step_blk.gui <> 'STEP' then
