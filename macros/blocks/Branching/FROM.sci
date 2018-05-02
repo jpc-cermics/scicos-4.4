@@ -20,58 +20,58 @@ function [x,y,typ]=FROM(job,arg1,arg2)
   
   x=[];y=[];typ=[]
   select job
-   case 'plot' then
-    // do not draw the frame 
-    standard_draw(arg1,%f);
-   case 'getinputs' then
-    [x,y,typ]=standard_inputs(arg1)
-   case 'getoutputs' then
-    [x,y,typ]=standard_outputs(arg1)
-   case 'getorigin' then
-    [x,y]=standard_origin(arg1)
-   case 'set' then
-    x=arg1;
-    graphics=arg1.graphics;exprs=graphics.exprs
-    model=arg1.model;
-    if size(exprs,'*')==1 then //compatibility
-      exprs(2)='1';
-      exprs(1)=sci2exp(exprs(1),0)
-    end
-    while %t do
-      [ok,tag,BS,exprs]=getvalue('Set parameters',..
-				 ['Tag','Output Type (1=Signal 2=Bus)'],..
-				 list('gen',-1,'vec',1),exprs)
-      if ~ok then break,end
-      if BS==1 then graphics.out_implicit='E';
-      elseif BS==2 then graphics.out_implicit='B';
-      else message(' The Output Type must 1 or 2');ok=%f;
+    case 'plot' then
+      // do not draw the frame 
+      standard_draw(arg1,%f);
+    case 'getinputs' then
+      [x,y,typ]=standard_inputs(arg1)
+    case 'getoutputs' then
+      [x,y,typ]=standard_outputs(arg1)
+    case 'getorigin' then
+      [x,y]=standard_origin(arg1)
+    case 'set' then
+      y=acquire('needcompile',def=0);
+      x=arg1;
+      graphics=arg1.graphics;exprs=graphics.exprs
+      model=arg1.model;
+      if size(exprs,'*')==1 then //compatibility
+			    exprs(2)='1';
+			    exprs(1)=sci2exp(exprs(1),0)
       end
-      if ok then 
-	if model.opar<>list(tag) then needcompile=4;y=needcompile,end
-	graphics.exprs=exprs;
-	model.opar=list(tag)
-	x.model=model
-	x.graphics=graphics
-	break
+      while %t do
+	[ok,tag,BS,exprs]=getvalue('Set parameters',..
+						   ['Tag','Output Type (1=Signal 2=Bus)'],..
+						   list('gen',-1,'vec',1),exprs)
+	if ~ok then break,end
+	if BS==1 then graphics.out_implicit='E';
+	elseif BS==2 then graphics.out_implicit='B';
+	else message(' The Output Type must 1 or 2');ok=%f;
+	end
+	if ok then 
+	  if model.opar<>list(tag) then y=4,end
+	  graphics.exprs=exprs;
+	  model.opar=list(tag)
+	  x.model=model
+	  x.graphics=graphics
+	  break
+	end
       end
-    end
-    resume(needcompile)
-   case 'define' then
-    model=scicos_model()
-    model.sim='from'
-    model.in=[]
-    model.in2=[]
-    model.intyp=1
-    model.out=-1
-    model.out2=-2
-    model.outtyp=-1
-    model.ipar=[]
-    model.opar=list('A')
-    model.blocktype='c'
-    model.dep_ut=[%f %f]
-    exprs=[sci2exp('A');sci2exp(1)];
-    gr_i="blk_draw(sz,orig,orient,model.label)";
-    x=standard_define([1.5 1.5],model,exprs,gr_i,'FROM');
-    x.graphics.id="From"
+    case 'define' then
+      model=scicos_model()
+      model.sim='from'
+      model.in=[]
+      model.in2=[]
+      model.intyp=1
+      model.out=-1
+      model.out2=-2
+      model.outtyp=-1
+      model.ipar=[]
+      model.opar=list('A')
+      model.blocktype='c'
+      model.dep_ut=[%f %f]
+      exprs=[sci2exp('A');sci2exp(1)];
+      gr_i="blk_draw(sz,orig,orient,model.label)";
+      x=standard_define([1.5 1.5],model,exprs,gr_i,'FROM');
+      x.graphics.id="From"
   end
 endfunction
