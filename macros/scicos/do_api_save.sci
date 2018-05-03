@@ -36,6 +36,43 @@ function [ok,txt]=do_api_save(scs_m)
       end
     end
   endfunction
+
+  function txt=do_api_block_graphics(o) 
+    // export the graphics keys which are different from
+    // the one produced by o.gui
+    txt1=sprintf("ref_obj=%s(""define"");",o.gui);
+    ok= execstr(txt1,errcatch=%t);
+    txt=m2s([]);
+    txt($+1,1)=sprintf('blk = set_block_bg_color (blk, %s);',sci2exp(col));
+    if ~ok || ~o.graphics.pin.equal[ref_obj.graphics.pin] then 
+      txt($+1,1)=sprintf('blk = set_block_nin (blk, %d);', size( o.graphics.pin,'*'));
+    end
+    if ~ok ||~o.graphics.pout.equal[ref_obj.graphics.pout] then 
+      txt($+1,1)=sprintf('blk = set_block_nout (blk, %d);',size( o.graphics.pout,'*'));
+    end
+    if ~ok ||~o.graphics.pein.equal[ref_obj.graphics.pein] then 
+      txt($+1,1)=sprintf('blk = set_block_evtnin (blk, %d);',size( o.graphics.pein,'*'));
+    end
+    if ~ok ||~o.graphics.peout.equal[ref_obj.graphics.peout] then 
+      txt($+1,1)=sprintf('blk = set_block_evtnout (blk, %d);',size( o.graphics.peout,'*'));
+    end
+    if ~ok ||~o.graphics.flip.equal[ref_obj.graphics.flip] then 
+      txt($+1,1)=sprintf('blk = set_block_flip (blk, %s);', sci2exp(~o.graphics.flip));
+    end
+    if ~ok ||~o.graphics.id.equal[ref_obj.graphics.id] then 
+      txt($+1,1)=sprintf('blk = set_block_ident (blk, %s);',sci2exp(o.graphics.id));
+    end
+    if ~ok ||~o.graphics.orig.equal[ref_obj.graphics.orig] then 
+      txt($+1,1)=sprintf('blk = set_block_origin (blk, %s);',sci2exp(o.graphics.orig,0));
+    end
+    if ~ok ||~o.graphics.sz.equal[ref_obj.graphics.sz] then 
+      txt($+1,1)=sprintf('blk = set_block_size (blk, %s);',sci2exp(o.graphics.sz,0));
+    end
+    if o.graphics.iskey['theta'] && (~ok || ~o.graphics.theta.equal[ref_obj.graphics.theta]) then 
+      txt($+1,1)=sprintf('blk = set_block_theta (blk, %s);',sci2exp(o.graphics.theta));
+    end
+    txt($+1,1)=sprintf('[scsm, block_tag_%d] = add_block (scsm, blk);',blk_num);
+  endfunction
   
   function txt=do_api_block(o,blk_num,target="nsp")
     // returns text for a spécific block
@@ -73,20 +110,8 @@ function [ok,txt]=do_api_save(scs_m)
     else
       col=[1,1,1]
     end
-    txt($+1,1)=sprintf('blk = set_block_bg_color (blk, %s);',sci2exp(col));
-    // txt($+1,1)=sprintf('blk = set_block_fg_color (blk, %s);';
-    txt($+1,1)=sprintf('blk = set_block_nin (blk, %d);', size( o.graphics.pin,'*'));
-    txt($+1,1)=sprintf('blk = set_block_nout (blk, %d);',size( o.graphics.pout,'*'));
-    txt($+1,1)=sprintf('blk = set_block_evtnin (blk, %d);',size( o.graphics.pein,'*'));
-    txt($+1,1)=sprintf('blk = set_block_evtnout (blk, %d);',size( o.graphics.peout,'*'));
-    txt($+1,1)=sprintf('blk = set_block_flip (blk, %s);', sci2exp(~o.graphics.flip));
-    txt($+1,1)='blk = set_block_ident (blk,'+sci2exp(o.graphics.id)+')';
-    txt($+1,1)=sprintf('blk = set_block_origin (blk, %s);',sci2exp(o.graphics.orig,0));
-    txt($+1,1)=sprintf('blk = set_block_size (blk, %s);',sci2exp(o.graphics.sz,0));
-    if o.graphics.iskey['theta'] then 
-      txt($+1,1)=sprintf('blk = set_block_theta (blk, %s);',sci2exp(o.graphics.theta));
-    end
-    txt($+1,1)=sprintf('[scsm, block_tag_%d] = add_block (scsm, blk);',blk_num);
+    txt1=do_api_block_graphics(o) 
+    txt.concatd[txt1];
   endfunction
   
   function [txt,count]=do_api_model(scs_m,count)
@@ -107,7 +132,7 @@ function [ok,txt]=do_api_save(scs_m)
     context=scs_m.props.context
     if ~isempty(context) then
       txt2 = sprint(context,as_read=%t);
-      txt1.concatd[txt2];
+      txt1.concatd['  ' + txt2];
       txt1($+1,1)= '  '+sprintf('scsm = set_model_workspace(scsm,%s)','context');
     end
     txt1($+1,1)= '  '+sprintf('scsm = set_diagram_bg_color (scsm, %s);',sci2exp(col));
@@ -120,10 +145,11 @@ function [ok,txt]=do_api_save(scs_m)
     
     if size(scs_m.props.wpar,"*")>11 then
        sz=scs_m.props.wpar(9:10);pos=scs_m.props.wpar(11:12);loc=[pos,sz+pos]
-    else
-       sz=scs_m.props.wpar(1:2);pos=scs_m.props.wpar(5:6);loc=[pos,sz+pos]
+       txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
+    elseif size(scs_m.props.wpar,"*")>5
+      sz=scs_m.props.wpar(1:2);pos=scs_m.props.wpar(5:6);loc=[pos,sz+pos]
+      txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
     end
-    txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
     txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_name (scsm, %s)', sci2exp(scs_m.props.title(1),0));
     [blocks,head]= do_api_save_rec(scs_m,count);
     txt1=[txt1;'  '+blocks];
@@ -195,14 +221,28 @@ function [ok,txt]=do_api_save(scs_m)
     ok = %t;
     for %kk=1:length(scs_m.objs)
       o=scs_m.objs(%kk)
-      if o.type =='Block' || o.type =='Text' then
+      if o.type == 'Block' || o.type == 'Text' then
 	if o.gui<>'PAL_f' then
 	  model=o.model
-	  if ((model.sim(1)=='csuper'& model.ipar==1) | (o.gui == 'DSUPER' )) then
+	  if  o.gui == 'CLOCK_f' || o.gui == 'CLOCK_c' then
+	    txt=[txt;do_api_block(o,%kk)];
+	    path = b2m(o.model.rpar.objs(1)==mlist('Deleted'))+2;
+	    evtdly=o.model.rpar.objs(path); // get the evtdly block
+	    exprs= evtdly.graphics.exprs;
+	    txt.concatd[sprintf('exprs=%s;',sci2exp(exprs))];
+	    txt.concatd[sprintf('%s=set_block_exprs(%s,exprs);',"blk","blk")];
+	  elseif or(o.gui == ['ENDBLK', 'STEP_FUNCTION']) then
+	    txt=[txt;do_api_block(o,%kk)];
+	    // parameters are in the first internal block 
+	    blk=o.model.rpar.objs(1);
+	    exprs= blk.graphics.exprs;
+	    txt.concatd[sprintf('exprs=%s;',sci2exp(exprs))];
+	    txt.concatd[sprintf('%s=set_block_exprs(%s,exprs);',"blk","blk")];
+	  elseif (model.sim(1)== 'csuper' && model.ipar==1) || o.gui == 'DSUPER' then 
 	    [mtxt,count]=do_api_model(model.rpar,count)
 	    head=[head;mtxt];
 	    txt=[txt;do_api_super_block(o,count,%t,%kk)];
-	  elseif (model.sim(1)=='csuper' | model.sim(1)=='super' | o.model.sim(1)=='asuper')
+	  elseif model.sim(1)=='csuper' || model.sim(1)=='super' || o.model.sim(1)=='asuper'
 	    [mtxt,count]=do_api_model(model.rpar,count)
 	    head=[head;mtxt];
 	    txt=[txt;do_api_super_block(o,count,%f,%kk)];
@@ -239,7 +279,13 @@ function [ok,txt]=do_api_save(scs_m)
     end
   endfunction
   
-  // main job 
+  // main job
+  test=%f;
+  if type(scs_m, 'short') == 's' then
+    test = %t;
+    [ok,scs_m]=do_load(scs_m);
+    if ~ok then return;end
+  end
   ok=%t;
   
   txt=do_api_model(scs_m,0);
@@ -250,5 +296,11 @@ function [ok,txt]=do_api_save(scs_m)
 	"scsm = set_solver_parameters (scsm, tol);";
 	"scsm = evaluate_model (scsm);"];
   txt=[txt;last];
+
+  if test then
+    scicos_mputl(txt,'/tmp/schema.cosf');
+    execstr(txt);
+    scicos(scsm);
+  end
 endfunction
 

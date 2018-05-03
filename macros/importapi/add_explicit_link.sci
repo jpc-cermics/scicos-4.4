@@ -1,6 +1,8 @@
 function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
 // if to is a split of id_splitXX then the split is moved
 
+  obj_num=length(scs_m.objs)
+  
   global(simport_target_modeler="scicos");
 
   if simport_target_modeler=="modelicos" then
@@ -14,7 +16,6 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
   [from,nok1]=evstr(lfrom)
   [to,nok2]=evstr(lto)
   if nok1+nok2>0 then
-    obj_num=length(scs_m.objs)
     printf('Warning: Link %s->%s not supported.\n',sci2exp(lfrom,0),sci2exp(lto,0));
     return
   end
@@ -31,12 +32,12 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
   [xout,yout,typout]=getoutputs(o1)
 
   k=from(2)
-  if length(xout) < k then 
-    printf("output port %d does not exists in block %d\n",k,from(1)),
+  if length(xout) < k then
+    printf("Warning: output port %d does not exists in block %d\n",k,from(1)),
     return;
   end
 
-  printf("In add_explicit \n");
+  // printf("In add_explicit \n");
   
   xo=xout(k);yo=yout(k);typo=typout(k);
   
