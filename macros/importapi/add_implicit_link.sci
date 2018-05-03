@@ -9,8 +9,8 @@ function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
     if size(from,2)<>3 then from(3)="output";end
     if size(to,2)<>3 then to(3)="input";end
   else
-    if size(from,2)<>3 then error("2nd argument must be of size 3."),end
-    if size(to,2)<>3 then error("3rd argument must be of size 3."),end
+    if size(from,2)<>3 then from(3)="output";end
+    if size(to,2)<>3 then to(3)="input";end
   end
   
   if from(3)=="output" then from(3)="0";else from(3)="1";end 

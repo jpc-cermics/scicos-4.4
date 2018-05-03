@@ -224,14 +224,16 @@ function [ok,txt]=do_api_save(scs_m)
 	syy=yy(2:$)-yy(1:$-1);
 	syy=syy(1:$-1)
 	points=[sxx,syy]
-	if o.ct(2)==1 then
-	  txt($+1,1)=..
+	if or(o.ct(2)==[1,3]) then
+	  txt($+1,1)=...
 	  sprintf('[scsm,obj_num] = add_explicit_link (scsm, [block_tag_%d, ""%d""], [block_tag_%d, ""%d"" ],%s)',bf,pf,bt,pt,sci2exp(points,0));
 	elseif o.ct(2)==-1 then
 	  txt($+1,1)=..
 	  sprintf('[scsm,obj_num] = add_event_link (scsm, [block_tag_%d, ""%d""], [block_tag_%d, ""%d""],%s)',bf,pf,bt,pt,sci2exp(points,0));
 	else
-	  printf('Warning:unsupported link type\n');pause
+	  txt($+1,1)=..
+	  sprintf('[scsm,obj_num] = add_implicit_link (scsm, [block_tag_%d, ""%d""], [block_tag_%d, ""%d"" ],%s)',bf,pf,bt,pt,sci2exp(points,0));
+	  // printf('Warning:unsupported link type\n');pause
 	end
       end
     end
