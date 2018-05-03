@@ -37,7 +37,7 @@ function [ok,txt]=do_api_save(scs_m)
     end
   endfunction
 
-  function txt=do_api_block_graphics(o) 
+  function txt=do_api_block_graphics(o,blk_num) 
     // export the graphics keys which are different from
     // the one produced by o.gui
     txt1=sprintf("ref_obj=%s(""define"");",o.gui);
@@ -78,24 +78,20 @@ function [ok,txt]=do_api_save(scs_m)
     // returns text for a spécific block
     // printf("In block api %s\n",o.gui);pause block;
     txt=sprintf('blk = instantiate_block (""%s"");',o.gui);
-    if o.gui == "scifunc_block5" then
+    if o.gui == "scifunc_block5" || o.gui == "PDE" then
       // Dans ce cas exprs est une liste XXXXX 
-      pause;xxx;
+      // XXXXXX to be done 
+      params = %f;
+    else
+      params = %t;
     end
-    expp=o.graphics.exprs;
-    ne=size(expp,'*');
-    if ne > 0 then
-      if target == "nsp" then
+    if params then 
+      expp=o.graphics.exprs;
+      ne=size(expp,'*');
+      if ne > 0 then
 	txt($+1,1)=sprintf('params = cell(0,2);');
 	for i=1:ne 
-          txt($+1,1)= sprintf( "params.concatd[{ ""name%0d"",%s}];",i, sci2exp(expp(i)));
-	end
-	txt($+1,1)= 'blk = set_block_parameters (blk, params);';
-      else
-	txt($+1,1)=sprintf('params = struct()');
-	names= sprintf('name%0d',(1:ne)');
-	for i=1:ne 
-          txt($+1,1)= 'params.' + names(i) + '= ' +sci2exp(expp(i))
+	  txt($+1,1)= sprintf( "params.concatd[{ ""name%0d"",%s}];",i, sci2exp(expp(i)));
 	end
 	txt($+1,1)= 'blk = set_block_parameters (blk, params);';
       end
@@ -110,7 +106,7 @@ function [ok,txt]=do_api_save(scs_m)
     else
       col=[1,1,1]
     end
-    txt1=do_api_block_graphics(o) 
+    txt1=do_api_block_graphics(o,blk_num) 
     txt.concatd[txt1];
   endfunction
   
