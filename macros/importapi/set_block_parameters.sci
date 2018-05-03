@@ -1,5 +1,9 @@
 function blk = set_block_parameters(blk,params)
-// params is a cell array here
+  // params is a cell array here
+  if  or(blk.gui == ["scifunc_block_m","scifunc_block"]) then
+    // XXXX a revoir 
+    return;
+  end
   [m,n]=size(params)
   exprs=m2s([])
   for i=1:m ;
