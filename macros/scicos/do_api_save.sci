@@ -270,15 +270,33 @@ function [ok,txt]=do_api_save(scs_m)
 	syy=syy(1:$-1)
 	points=[sxx,syy]
 	if or(o.ct(2)==[1,3]) then
-	  txt($+1,1)=...
-	  sprintf('[scsm,obj_num] = add_explicit_link (scsm, [block_tag_%d, ""%d""], [block_tag_%d, ""%d"" ],%s)',bf,pf,bt,pt,sci2exp(points,0));
+	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
+	  txt.concatd[sprintf("[scsm,obj_num] = add_explicit_link(scsm, [block_tag_%d,""%d""], [block_tag_%d,""%d""],points);",bf,pf,bt,pt)];
 	elseif o.ct(2)==-1 then
-	  txt($+1,1)=..
-	  sprintf('[scsm,obj_num] = add_event_link (scsm, [block_tag_%d, ""%d""], [block_tag_%d, ""%d""],%s)',bf,pf,bt,pt,sci2exp(points,0));
+	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
+	  txt.concatd[sprintf('[scsm,obj_num] = add_event_link(scsm, [block_tag_%d, ""%d""], [block_tag_%d,""%d""],points)',bf,pf,bt,pt)];
 	else
-	  txt($+1,1)=..
-	  sprintf('[scsm,obj_num] = add_implicit_link (scsm, [block_tag_%d, ""%d""], [block_tag_%d, ""%d"" ],%s)',bf,pf,bt,pt,sci2exp(points,0));
-	  // printf('Warning:unsupported link type\n');pause
+	  // who is input who is output ?
+	  obj_from = scs_m.objs(bf);
+	  pout = obj_from.graphics.pout 
+	  pin = obj_from.graphics.pin
+	  if size(pout,'*') >= pf && pout(pf) == %kk then
+	    tf = 'output';
+	  else
+	    tf = 'input';
+	  end
+	  obj_to = scs_m.objs(bt);
+	  pout = obj_to.graphics.pout 
+	  pin = obj_to.graphics.pin
+	  if size(pout,'*') >= pt && pout(pt) == %kk then
+	    tt = 'output';
+	  else
+	    tt = 'input';
+	  end
+	  txt_f = sprintf("[block_tag_%d, ""%d"", ""%s""]",bf,pf,tf);
+	  txt_t = sprintf("[block_tag_%d, ""%d"", ""%s""]",bt,pt,tt);
+	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
+	  txt.concatd[sprintf('[scsm,obj_num] = add_implicit_link (scsm, %s, %s, points);',txt_f,txt_t,sci2exp(points,0))];
 	end
       end
     end
