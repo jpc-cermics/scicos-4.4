@@ -73,14 +73,16 @@ function [ok,txt]=do_api_save(scs_m)
     end
   endfunction
   
-  function txt=do_api_block(o,blk_num,target="nsp")
+  function txt=do_api_block(o,blk_num,exprs_save=%t,target="nsp")
     // returns text for a spécific block
     // printf("In block api %s\n",o.gui);pause block;
     txt=sprintf('blk = instantiate_block (""%s"");',o.gui);
     // we use exprs
-    txt1=sprint(o.graphics.exprs, name = "exprs",as_read=%t);
-    txt.concatd[txt1];
-    txt.concatd["blk=set_block_exprs(blk,exprs);"];
+    if exprs_save then
+      txt1=sprint(o.graphics.exprs, name = "exprs",as_read=%t);
+      txt.concatd[txt1];
+      txt.concatd["blk=set_block_exprs(blk,exprs);"];
+    end
     txt1=do_api_block_graphics(o,blk_num)
     txt.concatd[txt1];
     txt.concatd[sprintf('[scsm, block_tag_%d] = add_block (scsm, blk);',blk_num)];
@@ -195,14 +197,15 @@ function [ok,txt]=do_api_save(scs_m)
 	if o.gui<>'PAL_f' then
 	  model=o.model
 	  if  o.gui == 'CLOCK_f' || o.gui == 'CLOCK_c' then
-	    txt=[txt;do_api_block(o,%kk)];
+	    // exprs is to be built for CLOCK_f or CLOCK_c 
+	    txt=[txt;do_api_block(o,%kk,exprs_save=%f)];
 	    path = b2m(o.model.rpar.objs(1)==mlist('Deleted'))+2;
 	    evtdly=o.model.rpar.objs(path); // get the evtdly block
 	    exprs= evtdly.graphics.exprs;
 	    txt.concatd[sprintf('exprs=%s;',sci2exp(exprs))];
 	    txt.concatd[sprintf('%s=set_block_exprs(%s,exprs);',"blk","blk")];
 	  elseif or(o.gui == ['ENDBLK', 'STEP_FUNCTION']) then
-	    txt=[txt;do_api_block(o,%kk)];
+	    txt=[txt;do_api_block(o,%kk,exprs_save=%f)];
 	    // parameters are in the first internal block 
 	    blk=o.model.rpar.objs(1);
 	    exprs= blk.graphics.exprs;

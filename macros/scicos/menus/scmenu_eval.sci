@@ -80,7 +80,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	    graphics=o.graphics;
 	    sim=o.model.sim;
 	    %scicos_prob=%f
-	    eok=execstr('o='+o.gui+'(""define"",o);',errcatch=%t);
+	    eok=execstr('o=' + o.gui + '(""define"",o);',errcatch=%t);
 	    if ~eok || %scicos_prob then
 	      [ok,msg]=do_eval_report('Error: while defining a block:',o.gui);
 	      return
@@ -147,9 +147,9 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 	    //should we generate a message here?
 	    %scicos_prob=%f;
 	    %scicos_setvalue=[];
-	    eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
-	    if ~eok || %scicos_prob  then 
-	      [ok,msg]=do_eval_report('',o.gui);
+	    eok=execstr('o=' +o.gui+ '(''set'',o)',errcatch=%t);
+	    if ~eok || %scicos_prob  then
+	      [ok,msg]=do_eval_report('Operation set failed for: ',o.gui);
 	      return
 	    end
 	    if ~flag.equal['XML'] then
@@ -194,11 +194,12 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
     needcompile=needcompile1
     if needcompile==4 then cpr=list(),end
   endfunction
-
+  
   function message(txt)
     if exists('o') then 
-      x_message_modeless(["Error: in evaluation of block "+o.gui+": ";txt]);
+      txt = ["Error: in evaluation of block "+o.gui+": ";txt];
     end
+    x_message_modeless(txt);
     resume(%scicos_prob=%t); 
   endfunction
   
@@ -225,7 +226,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
       msg=[sprintf("Error: parameters for block %s\n",name);
 	 'are inconsistent and should be edited manually'];
     end
-    if ~message.equal[''] then msg=[message;msg];end 
+    if ~message.equal[''] then msg=[message+string(name);msg];end 
     ok=%f;
   endfunction
   
@@ -282,7 +283,7 @@ function [scs_m,ok]=do_silent_eval(scs_m, context)
 	  %scicos_prob=%f;
 	  %scicos_setvalue=[];
 	  eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
-	  if ~eok || %scicos_prob  then  ok=%f; continue; end
+	  if ~eok || %scicos_prob  then ok=%f; continue; end
 	end
 	scs_m.objs(%kk)=o;
       end
