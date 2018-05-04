@@ -71,7 +71,6 @@ function [ok,txt]=do_api_save(scs_m)
     if o.graphics.iskey['theta'] && (~ok || ~o.graphics.theta.equal[ref_obj.graphics.theta]) then 
       txt($+1,1)=sprintf('blk = set_block_theta (blk, %s);',sci2exp(o.graphics.theta));
     end
-    txt($+1,1)=sprintf('[scsm, block_tag_%d] = add_block (scsm, blk);',blk_num);
   endfunction
   
   function txt=do_api_block(o,blk_num,target="nsp")
@@ -84,44 +83,11 @@ function [ok,txt]=do_api_save(scs_m)
     txt.concatd["blk=set_block_exprs(blk,exprs);"];
     txt1=do_api_block_graphics(o,blk_num)
     txt.concatd[txt1];
-    
-    if %f then
-      if o.gui == "scifunc_block5" || o.gui == "PDE" then
-	// Dans ce cas exprs est une liste XXXXX 
-	// XXXXXX to be done 
-	params = %f;
-      else
-	params = %t;
-      end
-      if params then 
-	expp=o.graphics.exprs;
-	ne=size(expp,'*');
-	if ne > 0 then
-	  txt($+1,1)=sprintf('params = cell(0,2);');
-	  for i=1:ne 
-	    txt($+1,1)= sprintf( "params.concatd[{ ""name%0d"",%s}];",i, sci2exp(expp(i)));
-	  end
-	  txt($+1,1)= 'blk = set_block_parameters (blk, params);';
-	end
-      end
-      if %f && type(o.graphics.gr_i)<>10  then
-	cmap=get(sdf(),"color_map");
-	if isempty(o.graphics.gr_i(2)) then 
-          col=[1,1,1]
-	else
-          col=cmap( o.graphics.gr_i(2),:);
-	end
-      else
-	col=[1,1,1]
-      end
-      txt1=do_api_block_graphics(o,blk_num) 
-      txt.concatd[txt1];
-    end
+    txt.concatd[sprintf('[scsm, block_tag_%d] = add_block (scsm, blk);',blk_num)];
   endfunction
   
   function [txt,count]=do_api_model(scs_m,count)
     // returns text coding internal diagram of a super block.
-    // and 
     // printf("In api model ");pause model
     count = count+1;
 
@@ -134,11 +100,11 @@ function [ok,txt]=do_api_save(scs_m)
     end
     txt1=sprintf('function scsm=subsystem_%d () ',count);
     txt1($+1,1)= '  ' +sprintf('scsm = instantiate_diagram ();');
-    context=scs_m.props.context
-    if ~isempty(context) then
-      txt2 = sprint(context,as_read=%t);
+    if ~isempty(scs_m.props.context) then
+      // add context if present
+      txt2 = sprint(scs_m.props.context,name="context",as_read=%t);
+      txt2.concatd["scsm = set_model_workspace(scsm,context);"];
       txt1.concatd['  ' + txt2];
-      txt1($+1,1)= '  '+sprintf('scsm = set_model_workspace(scsm,%s)','context');
     end
     txt1($+1,1)= '  '+sprintf('scsm = set_diagram_bg_color (scsm, %s);',sci2exp(col));
     txt1($+1,1)= '  '+sprintf('scsm = set_diagram_3d (scsm, %s);', sci2exp(scs_m.props.options("3D")(1)));
@@ -147,7 +113,6 @@ function [ok,txt]=do_api_save(scs_m)
     else
       txt1($+1,1)= '  '+sprintf('scsm = set_diagram_zoom (scsm, 1);');
     end
-    
     if size(scs_m.props.wpar,"*")>11 then
        sz=scs_m.props.wpar(9:10);pos=scs_m.props.wpar(11:12);loc=[pos,sz+pos]
        txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
@@ -157,8 +122,8 @@ function [ok,txt]=do_api_save(scs_m)
     end
     txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_name (scsm, %s)', sci2exp(scs_m.props.title(1),0));
     [blocks,head]= do_api_save_rec(scs_m,count);
-    txt1=[txt1;'  '+blocks];
-    txt1($+1,1) = 'endfunction';
+    txt1.concatd['  '+blocks];
+    txt1.concatd['endfunction'];
     txt=[head;txt1];
   endfunction
 
