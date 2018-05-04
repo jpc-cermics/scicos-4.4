@@ -73,26 +73,24 @@ function [ok,txt]=do_api_save(scs_m)
     end
   endfunction
   
-  function txt=do_api_block(o,blk_num,exprs_save=%t,target="nsp")
+  function txt=do_api_block(o,blk_num,exprs)
     // returns text for a spécific block
     // printf("In block api %s\n",o.gui);pause block;
-    txt=sprintf('blk = instantiate_block (""%s"");',o.gui);
+    txt=sprintf('blk = instantiate_block(""%s"");',o.gui);
     // we use exprs
-    if exprs_save then
-      txt1=sprint(o.graphics.exprs, name = "exprs",as_read=%t);
-      txt.concatd[txt1];
-      txt.concatd["blk=set_block_exprs(blk,exprs);"];
-    end
+    if nargin <= 2 then exprs = o.graphics.exprs;end 
+    txt1=sprint(exprs, name = "exprs",as_read=%t);
+    txt.concatd[txt1];
+    txt.concatd["blk=set_block_exprs(blk,exprs);"];
     txt1=do_api_block_graphics(o,blk_num)
     txt.concatd[txt1];
-    txt.concatd[sprintf('[scsm, block_tag_%d] = add_block (scsm, blk);',blk_num)];
+    txt.concatd[sprintf('[scsm, block_tag_%d] = add_block(scsm, blk);',blk_num)];
   endfunction
   
   function [txt,count]=do_api_model(scs_m,count)
     // returns text coding internal diagram of a super block.
     // printf("In api model ");pause model
     count = count+1;
-
     if %f then 
       cmap=get(sdf(),"color_map");
       col=scs_m.props.options.Background(1);
@@ -110,17 +108,19 @@ function [ok,txt]=do_api_save(scs_m)
     end
     txt1($+1,1)= '  '+sprintf('scsm = set_diagram_bg_color (scsm, %s);',sci2exp(col));
     txt1($+1,1)= '  '+sprintf('scsm = set_diagram_3d (scsm, %s);', sci2exp(scs_m.props.options("3D")(1)));
-    if length(scs_m.props.wpar) >= 13 then 
-      txt1($+1,1)= '  '+sprintf('scsm = set_diagram_zoom (scsm, %f);',scs_m.props.wpar(13));
-    else
-      txt1($+1,1)= '  '+sprintf('scsm = set_diagram_zoom (scsm, 1);');
-    end
-    if size(scs_m.props.wpar,"*")>11 then
-       sz=scs_m.props.wpar(9:10);pos=scs_m.props.wpar(11:12);loc=[pos,sz+pos]
-       txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
-    elseif size(scs_m.props.wpar,"*")>5
-      sz=scs_m.props.wpar(1:2);pos=scs_m.props.wpar(5:6);loc=[pos,sz+pos]
-      txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
+    if %t then 
+      if length(scs_m.props.wpar) >= 13 then 
+	txt1($+1,1)= '  '+sprintf('scsm = set_diagram_zoom (scsm, %f);',scs_m.props.wpar(13));
+      else
+	txt1($+1,1)= '  '+sprintf('scsm = set_diagram_zoom (scsm, 1);');
+      end
+      if size(scs_m.props.wpar,"*")>11 then
+	sz=scs_m.props.wpar(9:10);pos=scs_m.props.wpar(11:12);loc=[pos,sz+pos]
+	txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
+      elseif size(scs_m.props.wpar,"*")>5
+	sz=scs_m.props.wpar(1:2);pos=scs_m.props.wpar(5:6);loc=[pos,sz+pos]
+	txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
+      end
     end
     txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_name (scsm, %s)', sci2exp(scs_m.props.title(1),0));
     [blocks,head]= do_api_save_rec(scs_m,count);
@@ -198,19 +198,15 @@ function [ok,txt]=do_api_save(scs_m)
 	  model=o.model
 	  if  o.gui == 'CLOCK_f' || o.gui == 'CLOCK_c' then
 	    // exprs is to be built for CLOCK_f or CLOCK_c 
-	    txt=[txt;do_api_block(o,%kk,exprs_save=%f)];
 	    path = b2m(o.model.rpar.objs(1)==mlist('Deleted'))+2;
 	    evtdly=o.model.rpar.objs(path); // get the evtdly block
 	    exprs= evtdly.graphics.exprs;
-	    txt.concatd[sprintf('exprs=%s;',sci2exp(exprs))];
-	    txt.concatd[sprintf('%s=set_block_exprs(%s,exprs);',"blk","blk")];
+	    txt=[txt;do_api_block(o,%kk,exprs)];
 	  elseif or(o.gui == ['ENDBLK', 'STEP_FUNCTION']) then
-	    txt=[txt;do_api_block(o,%kk,exprs_save=%f)];
 	    // parameters are in the first internal block 
 	    blk=o.model.rpar.objs(1);
 	    exprs= blk.graphics.exprs;
-	    txt.concatd[sprintf('exprs=%s;',sci2exp(exprs))];
-	    txt.concatd[sprintf('%s=set_block_exprs(%s,exprs);',"blk","blk")];
+	    txt=[txt;do_api_block(o,%kk,exprs)];
 	  elseif (model.sim(1)== 'csuper' && model.ipar==1) || o.gui == 'DSUPER' then 
 	    [mtxt,count]=do_api_model(model.rpar,count)
 	    head=[head;mtxt];
@@ -239,10 +235,14 @@ function [ok,txt]=do_api_save(scs_m)
 	points=[sxx,syy]
 	if or(o.ct(2)==[1,3]) then
 	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
-	  txt.concatd[sprintf("[scsm,obj_num] = add_explicit_link(scsm, [block_tag_%d,""%d""], [block_tag_%d,""%d""],points);",bf,pf,bt,pt)];
+	  txt_f = sprintf("[block_tag_%d, ""%d""]",bf,pf);
+	  txt_t = sprintf("[block_tag_%d, ""%d""]",bt,pt);
+	  txt.concatd[sprintf("[scsm,obj_num] = add_explicit_link(scsm,%s,%s,points);",txt_f,txt_t)];
 	elseif o.ct(2)==-1 then
 	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
-	  txt.concatd[sprintf('[scsm,obj_num] = add_event_link(scsm, [block_tag_%d, ""%d""], [block_tag_%d,""%d""],points)',bf,pf,bt,pt)];
+	  txt_f = sprintf("[block_tag_%d, ""%d""]",bf,pf);
+	  txt_t = sprintf("[block_tag_%d, ""%d""]",bt,pt);
+	  txt.concatd[sprintf("[scsm,obj_num] = add_event_link(scsm,%s,%s,points);",txt_f,txt_t)];
 	else
 	  // who is input who is output ?
 	  obj_from = scs_m.objs(bf);
@@ -264,7 +264,8 @@ function [ok,txt]=do_api_save(scs_m)
 	  txt_f = sprintf("[block_tag_%d, ""%d"", ""%s""]",bf,pf,tf);
 	  txt_t = sprintf("[block_tag_%d, ""%d"", ""%s""]",bt,pt,tt);
 	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
-	  txt.concatd[sprintf('[scsm,obj_num] = add_implicit_link (scsm, %s, %s, points);',txt_f,txt_t,sci2exp(points,0))];
+	  txt.concatd[sprintf('[scsm,obj_num] = add_implicit_link (scsm, %s, %s, points);',
+			      txt_f,txt_t,sci2exp(points,0))];
 	end
       end
     end
