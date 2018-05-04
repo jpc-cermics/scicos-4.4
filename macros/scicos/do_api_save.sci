@@ -78,36 +78,45 @@ function [ok,txt]=do_api_save(scs_m)
     // returns text for a spécific block
     // printf("In block api %s\n",o.gui);pause block;
     txt=sprintf('blk = instantiate_block (""%s"");',o.gui);
-    if o.gui == "scifunc_block5" || o.gui == "PDE" then
-      // Dans ce cas exprs est une liste XXXXX 
-      // XXXXXX to be done 
-      params = %f;
-    else
-      params = %t;
-    end
-    if params then 
-      expp=o.graphics.exprs;
-      ne=size(expp,'*');
-      if ne > 0 then
-	txt($+1,1)=sprintf('params = cell(0,2);');
-	for i=1:ne 
-	  txt($+1,1)= sprintf( "params.concatd[{ ""name%0d"",%s}];",i, sci2exp(expp(i)));
-	end
-	txt($+1,1)= 'blk = set_block_parameters (blk, params);';
-      end
-    end
-    if %f && type(o.graphics.gr_i)<>10  then
-      cmap=get(sdf(),"color_map");
-      if isempty(o.graphics.gr_i(2)) then 
-        col=[1,1,1]
-      else
-        col=cmap( o.graphics.gr_i(2),:);
-      end
-    else
-      col=[1,1,1]
-    end
-    txt1=do_api_block_graphics(o,blk_num) 
+    // we use exprs
+    txt1=sprint(o.graphics.exprs, name = "exprs",as_read=%t);
     txt.concatd[txt1];
+    txt.concatd["blk=set_block_exprs(blk,exprs);"];
+    txt1=do_api_block_graphics(o,blk_num)
+    txt.concatd[txt1];
+    
+    if %f then
+      if o.gui == "scifunc_block5" || o.gui == "PDE" then
+	// Dans ce cas exprs est une liste XXXXX 
+	// XXXXXX to be done 
+	params = %f;
+      else
+	params = %t;
+      end
+      if params then 
+	expp=o.graphics.exprs;
+	ne=size(expp,'*');
+	if ne > 0 then
+	  txt($+1,1)=sprintf('params = cell(0,2);');
+	  for i=1:ne 
+	    txt($+1,1)= sprintf( "params.concatd[{ ""name%0d"",%s}];",i, sci2exp(expp(i)));
+	  end
+	  txt($+1,1)= 'blk = set_block_parameters (blk, params);';
+	end
+      end
+      if %f && type(o.graphics.gr_i)<>10  then
+	cmap=get(sdf(),"color_map");
+	if isempty(o.graphics.gr_i(2)) then 
+          col=[1,1,1]
+	else
+          col=cmap( o.graphics.gr_i(2),:);
+	end
+      else
+	col=[1,1,1]
+      end
+      txt1=do_api_block_graphics(o,blk_num) 
+      txt.concatd[txt1];
+    end
   endfunction
   
   function [txt,count]=do_api_model(scs_m,count)

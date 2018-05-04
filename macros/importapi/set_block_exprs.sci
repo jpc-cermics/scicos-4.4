@@ -10,5 +10,16 @@ function blk=set_block_exprs(blk,exprs)
     blk.model.rpar.objs(2).graphics.exprs = exprs ;
   elseif or(blk.gui == ['ENDBLK','STEP_FUNCTION']) then
     blk.model.rpar.objs(1).graphics.exprs = exprs ;
+  else
+    blk.graphics.exprs = exprs;
+  end
+  // would it be better to try to evaluate the set parameters
+  // even if context are not propagated
+  // Noting that this is also performed at the end of api code execution
+  if %t then 
+    scs_m=scicos_diagram();
+    scs_m.objs(1)=blk;
+    [scs_m,ok]=do_silent_eval(scs_m);
+    blk = scs_m.objs(1);
   end
 endfunction

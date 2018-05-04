@@ -19,10 +19,6 @@ function blk = set_block_nin(blk,nin)
   if ~isempty(blk.graphics.pin) &  ~and(0==blk.graphics.pin) then
     error("Number of ports of connected blocks cannot be changed.")
   end
-
-  if or(blk.graphics.in_implicit=='I')  then 
-    error(sprintf("Error: %s has variable number of implicit ports",blk.gui));
-  end
   
   blk.graphics.pin=zeros(nin,1)
   if nin>size(blk.model.in,1) then
