@@ -24,12 +24,12 @@ function scmenu_context()
 endfunction
 
 function [ok,new_context]=do_context(scs_m)
-// check that context can be evaluated.
-// using herited %scicos_context as environment.
-// and then checks that scs_m evaluation works with the 
-// new context.
-//
-// inherits %scicos_context from above 
+  // check that context can be evaluated.
+  // using herited %scicos_context as environment.
+  // and then checks that scs_m evaluation works with the 
+  // new context.
+  //
+  // inherits %scicos_context from above
   if exists('%scicos_context') then
     env_context=%scicos_context;
   else
@@ -37,6 +37,14 @@ function [ok,new_context]=do_context(scs_m)
   end
   new_context='';
   context=scs_m.props.context;
+  [sc,cpr,nc,ok]=do_eval(scs_m,%cpr,env_context);
+  if ~ok then
+    message(['do_eval fails cannot edit the context';
+	     catenate(lasterror())]);
+    ok=%f;
+    return;
+  end
+  
   if type(context,'string')<>'SMat' then context='',end
   comment = ['You may enter here nsp code to define ';
 	     'symbolic parameters which can be used in block parameters definitions';
