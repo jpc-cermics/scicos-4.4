@@ -55,7 +55,7 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;
     if size(exprs,'*') <= 1 then exprs=[exprs;sci2exp(0)];end // compatibility
-    if size(exprs,'*') <= 2 then exprs=[exprs;sci2exp(0);sci2exp(0)];end // compatibility
+    if size(exprs,'*') <= 2 then exprs=[exprs;sci2exp(0)];end // compatibility
     title= 'Set gain block parameters';
     values_description=	['Gain';
 		    'Do On Overflow:\n 0=Nothing\n 1=Saturate\n 2=Error';

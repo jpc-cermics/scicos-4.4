@@ -113,7 +113,7 @@ function [ok,txt]=do_api_save(scs_m)
     if ~isempty(scs_m.props.options.Cmap) then
       txt2 = sprint[scs_m.props.options.Cmap,name = "colors",as_read=%t];
       if size(txt2,'*') > 1 then txt2(1) = txt2(1) + ' ...';end // for scicoslab
-      txt1.concatd[txt2];
+      txt1.concatd["  "+txt2];
       txt1.concatd["  scs_m = set_diagram_colors(scs_m,colors);"];
     end
     col =scs_m.props.options.Background(1);
@@ -121,7 +121,7 @@ function [ok,txt]=do_api_save(scs_m)
     col =scs_m.props.options.Link;
     txt1($+1,1)= sprintf('  scs_m = set_diagram_link_color (scs_m, [%d;%d]);',col(1),col(2));
     txt1($+1,1)= sprintf('  scs_m = set_diagram_3d (scs_m, %s);', sci2exp(scs_m.props.options("3D")(1)));
-    if %t then 
+    if %f then 
       if length(scs_m.props.wpar) >= 13 then 
 	txt1($+1,1)= sprintf('  scs_m = set_diagram_zoom (scs_m, %f);',scs_m.props.wpar(13));
       else
@@ -134,6 +134,11 @@ function [ok,txt]=do_api_save(scs_m)
 	sz=scs_m.props.wpar(1:2);pos=scs_m.props.wpar(5:6);loc=[pos,sz+pos]
 	txt1($+1,1)= sprintf('  scs_m = set_diagram_location (scs_m, %s);',sci2exp(loc,0));
       end
+    else
+      txt2=sprint(scs_m.props.wpar, name = "wpar",as_read=%t);
+      if size(txt2,'*') > 1 then txt2(1) = txt2(1) + ' ...';end; // for scicoslab
+      txt1.concatd["  "+txt2];
+      txt1.concatd["  scs_m = set_diagram_wpar (scs_m, wpar);"];
     end
     txt1($+1,1)= sprintf('  scs_m = set_diagram_name (scs_m, %s)', sci2exp(scs_m.props.title(1),0));
     [blocks,head]= do_api_save_rec(scs_m,count);
@@ -315,11 +320,15 @@ function [ok,txt]=do_api_save(scs_m)
     
   body=do_api_model(scs_m,0);
 
-  last=["scs_m = subsystem_1();"; 
-	"scs_m = set_final_time (scs_m, ""40"");";
-	"tol = [ ""auto""; ""1e-3""; ""auto""; ""40""; ""0""; ""ode45""; ""auto"" ];";
-	"scs_m = set_solver_parameters (scs_m, tol);";
-	"scs_m = evaluate_model (scs_m);"];
+  last=["scs_m = subsystem_1();";
+  	sprintf("scs_m = set_final_time (scs_m, %s);",sci2exp(scs_m.props.tf))];
+
+  txt1=sprint(scs_m.props.tol, name = "tol",as_read=%t);
+  if size(txt1,'*') > 1 then txt1(1) = txt1(1) + ' ...';end; // for scicoslab
+  last.concatd[txt1];
+  last.concatd["scs_m = set_solver_parameters (scs_m, tol);"];
+  last.concatd["scs_m = evaluate_model (scs_m);"];
+  
   txt=[head;body;last];
 
   if test then

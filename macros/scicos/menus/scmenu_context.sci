@@ -37,12 +37,13 @@ function [ok,new_context]=do_context(scs_m)
   end
   new_context='';
   context=scs_m.props.context;
-  [sc,cpr,nc,ok]=do_eval(scs_m,%cpr,env_context);
-  if ~ok then
-    message(['do_eval fails cannot edit the context';
+  [sc,ok1]=do_silent_eval(scs_m,env_context);
+  eval_fails= %f;
+  if ~ok1 then
+    eval_fails=%t
+    message(['Warning: evaluation of scicos schema fails';
+	     'maybe you have a broken context';
 	     catenate(lasterror())]);
-    ok=%f;
-    return;
   end
   
   if type(context,'string')<>'SMat' then context='',end
@@ -72,7 +73,14 @@ function [ok,new_context]=do_context(scs_m)
     end
     // check now that evaluation still works.
     scs_m.props.context=new_context;
-    [sc,cpr,nc,ok]=do_eval(scs_m,%cpr,env_context);
+    if eval_fails then
+      // do_eval was already broken on entry
+      // we accept changes which leads to correct evaluation of context
+      ok=%t;
+      return;
+    end
+    [sc,ok]=do_silent_eval(scs_m,env_context);
+    // [sc,cpr,nc,ok]=do_eval(scs_m,%cpr,env_context);
     if ok then
       break;// we can quit !
     else
