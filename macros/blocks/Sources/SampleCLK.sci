@@ -45,7 +45,7 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
     xf=40
     yf=60
     nout=1;
-
+    link_color= default_color(-1);
     if orient then
       out=[-1/14   0
            0       -1/7
@@ -54,7 +54,7 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
       dy=sz(1)/(nout+1)
       for k=1:nout
 	xfpoly(out(:,1)+ones(4,1)*(orig(1)+sz(1)-dy*k),..
-	       out(:,2)+ones(4,1)*(orig(2)),color=5,fill_color=5)
+	       out(:,2)+ones(4,1)*(orig(2)),color=link_color,fill_color=link_color)
       end
     else 
       out=[-1/14   0
@@ -64,7 +64,7 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
       dy=sz(1)/(nout+1)
       for k=1:nout
 	xfpoly(out(:,1)+ones(4,1)*(orig(1)+sz(1)-dy*k),..
-	       out(:,2)+ones(4,1)*(orig(2)+sz(2)),color=5,fill_color=5)
+	       out(:,2)+ones(4,1)*(orig(2)+sz(2)),color=link_color,fill_color=link_color)
       end
     end
 
