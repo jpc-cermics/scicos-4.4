@@ -1,9 +1,8 @@
 // A Faire :
-// unifier le save graphics entre blocks et super block
-// terminer les cas particulier de blocks qui sont des
-// super block cachés type clock etc....
-// sauver les couleurs qui ont etes sauveées par add_color
-// sauver les liens colores
+// 1/ unifier le save graphics entre blocks et super block
+// 2/ terminer les cas particulier de blocks qui sont des
+//    super block cachés type clock etc....
+// 3/ gerer les masques 
 
 function [ok,txt]=do_api_save(scs_m) 
 // This function save a diagram in API mode 
