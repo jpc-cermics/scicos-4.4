@@ -54,41 +54,31 @@ function [o,ok]=drawobj(o,F)
      //## for compatibility
      if isempty(ident) then ident=emptystr(),end
      if ident=='drawlink' then ident=emptystr(),end
-
      if ~ident.equal[emptystr()] then
        rect=[min(o.xx)+(max(o.xx)-min(o.xx))/2 min(o.yy)+(max(o.yy)-min(o.yy))/2]
-
-       //@@ compute bbox
-       //rectstr = stringbox(ident, rect(1,1), rect(1,2), 0,...
-       //                    options.ID(2)(1), options.ID(2)(2));
-       //w=(rectstr(1,3)-rectstr(1,2)) * %zoom;
-       //h=(rectstr(2,2)-rectstr(2,4)) * %zoom;
-
-       //@@ fill ident in a box
-       //xstringb(rect(1,1) - w / 2, rect(1,2) - (h*1.1) , ident , w, h,'fill') ;
-       //pause
      end
-
      // draw link 
      xpoly(o.xx,o.yy);
      C=F.children(1).children($)
-     C.color=o.ct(1)
+     // o.ct(2): -1 (event link), [1,2] (regular link), 3 (bus link)
+     // We would like ti change the link color only if the link has the
+     // default color
+     C.color= default_color(o.ct(2));
      C.thickness=max(o.thick(1),1)*max(o.thick(2),1)
-
    case 'Text' then
-    // keep track of previous hilited field 
-    if o.iskey['gr'] then 
-      ishilited=o.gr.hilited
-    end
-    // draw text 
-    ok=execstr(o.gui+'(''plot'',o)' ,errcatch=%t)
-    if ~ok then
-      message(['Error in '+ o.gui+'(''plot'',o) evaluation\n'; ...
-	       catenate(lasterror())]);
-    end
-  else 
-    // other cases.
-    ok= %f;
+     // keep track of previous hilited field 
+     if o.iskey['gr'] then 
+       ishilited=o.gr.hilited
+     end
+     // draw text 
+     ok=execstr(o.gui+'(''plot'',o)' ,errcatch=%t)
+     if ~ok then
+       message(['Error in '+ o.gui+'(''plot'',o) evaluation\n'; ...
+		catenate(lasterror())]);
+     end
+   else 
+     // other cases.
+     ok= %f;
   end
   
   if ~ok then 

@@ -14,10 +14,10 @@ function scmenu_color()
 endfunction
 
 function [scs_m,changed ]=do_color(scs_m)
-// do_color: changes the color of a link or a block.
-// Copyright INRIA
+  // do_color: changes the color of a link or a block.
+  // Copyright INRIA
   changed = %f;
-// if no selection return;
+  // if no selection return;
   if isempty(Select) || isempty(find(Select(:,2)==curwin)) then
     message('Make a selection first');
     return;
