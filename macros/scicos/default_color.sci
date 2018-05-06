@@ -1,16 +1,20 @@
 function clr=default_color(typ)
-// Copyright INRIA
-  if ~exists('options') then 
-    options=scicos_options()
-  end;
-  if typ==-1 then //event links
+  // Copyright INRIA
+  if ~exists('options') then
+    if exists('scs_m') then
+      options=scs_m.props.options;
+    else
+      options = scicos_options()
+    end
+  end
+  if typ==-1 then; //event links
     clr=options('Link')(2),
-  elseif typ==0 then  //text, block shape,
+  elseif typ==0 then; //text, block shape,
     if size(options('Background'),'*')>=2 then 
       //compatibility
       clr=options('Background')(2), 
     else
-      clr=1
+      clr=1;
     end
   elseif typ==1 | typ==2 then //regular links
     clr=options('Link')(1)
@@ -18,7 +22,7 @@ function clr=default_color(typ)
     if size(options('Link'),'*')>=3 then //compatibility
       clr=options('Link')(3), 
     else
-      clr=2
+      clr=2;
     end
   end
 endfunction
