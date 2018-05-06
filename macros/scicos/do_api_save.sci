@@ -1,3 +1,10 @@
+// A Faire :
+// unifier le save graphics entre blocks et super block
+// terminer les cas particulier de blocks qui sont des
+// super block cachés type clock etc....
+// sauver les couleurs qui ont etes sauveées par add_color
+// sauver les liens colores
+
 function [ok,txt]=do_api_save(scs_m) 
 // This function save a diagram in API mode 
 
@@ -43,7 +50,10 @@ function [ok,txt]=do_api_save(scs_m)
     txt1=sprintf("ref_obj=%s(""define"");",o.gui);
     ok= execstr(txt1,errcatch=%t);
     txt=m2s([]);
-    txt($+1,1)=sprintf('blk = set_block_bg_color (blk, %s);',sci2exp(col));
+    if type(o.graphics.gr_i,'short')=='l' && ~isempty(o.graphics.gr_i(2)) then 
+      color = o.graphics.gr_i(2);
+      txt($+1,1)=sprintf('blk = set_block_bg_color (blk, %s);',sci2exp(color));
+    end
     if ~ok || ~o.graphics.pin.equal[ref_obj.graphics.pin] then 
       txt($+1,1)=sprintf('blk = set_block_nin (blk, %d);', size( o.graphics.pin,'*'));
     end
@@ -84,45 +94,46 @@ function [ok,txt]=do_api_save(scs_m)
     txt.concatd["blk=set_block_exprs(blk,exprs);"];
     txt1=do_api_block_graphics(o,blk_num)
     txt.concatd[txt1];
-    txt.concatd[sprintf('[scsm, block_tag_%d] = add_block(scsm, blk);',blk_num)];
+    txt.concatd[sprintf('[scs_m, block_tag_%d] = add_block(scs_m, blk);',blk_num)];
   endfunction
   
   function [txt,count]=do_api_model(scs_m,count)
     // returns text coding internal diagram of a super block.
     // printf("In api model ");pause model
     count = count+1;
-    if %f then 
-      cmap=get(sdf(),"color_map");
-      col=scs_m.props.options.Background(1);
-      col=cmap( col,:);
-    else
-      col = [1,1,1];
-    end
-    txt1=sprintf('function scsm=subsystem_%d () ',count);
-    txt1($+1,1)= '  ' +sprintf('scsm = instantiate_diagram ();');
+    txt1=sprintf('function scs_m=subsystem_%d () ',count);
+    txt1($+1,1)= '  ' +sprintf('scs_m = instantiate_diagram ();');
     if ~isempty(scs_m.props.context) then
       // add context if present
       txt2 = sprint(scs_m.props.context,name="context",as_read=%t);
-      txt2.concatd["scsm = set_model_workspace(scsm,context);"];
+      txt2.concatd["scs_m = set_model_workspace(scs_m,context);"];
       txt1.concatd['  ' + txt2];
     end
-    txt1($+1,1)= '  '+sprintf('scsm = set_diagram_bg_color (scsm, %s);',sci2exp(col));
-    txt1($+1,1)= '  '+sprintf('scsm = set_diagram_3d (scsm, %s);', sci2exp(scs_m.props.options("3D")(1)));
+    if ~isempty(scs_m.props.options.Cmap) then
+      txt2 = sprint[scs_m.props.options.Cmap,name = "colors",as_read=%t];
+      txt1.concatd[txt2];
+      txt1.concatd["  scs_m = set_diagram_colors(scs_m,colors);"];
+    end
+    col =scs_m.props.options.Background(1);
+    txt1($+1,1)= sprintf('  scs_m = set_diagram_bg_color (scs_m, %s);',sci2exp(col));
+    col =scs_m.props.options.Link;
+    txt1($+1,1)= sprintf('  scs_m = set_diagram_link_color (scs_m, [%d;%d]);',col(1),col(2));
+    txt1($+1,1)= sprintf('  scs_m = set_diagram_3d (scs_m, %s);', sci2exp(scs_m.props.options("3D")(1)));
     if %t then 
       if length(scs_m.props.wpar) >= 13 then 
-	txt1($+1,1)= '  '+sprintf('scsm = set_diagram_zoom (scsm, %f);',scs_m.props.wpar(13));
+	txt1($+1,1)= sprintf('  scs_m = set_diagram_zoom (scs_m, %f);',scs_m.props.wpar(13));
       else
-	txt1($+1,1)= '  '+sprintf('scsm = set_diagram_zoom (scsm, 1);');
+	txt1($+1,1)= sprintf('  scs_m = set_diagram_zoom (scs_m, 1);');
       end
       if size(scs_m.props.wpar,"*")>11 then
 	sz=scs_m.props.wpar(9:10);pos=scs_m.props.wpar(11:12);loc=[pos,sz+pos]
-	txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
+	txt1($+1,1)= sprintf('  scs_m = set_diagram_location (scs_m, %s);',sci2exp(loc,0));
       elseif size(scs_m.props.wpar,"*")>5
 	sz=scs_m.props.wpar(1:2);pos=scs_m.props.wpar(5:6);loc=[pos,sz+pos]
-	txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_location (scsm, %s);',sci2exp(loc,0));
+	txt1($+1,1)= sprintf('  scs_m = set_diagram_location (scs_m, %s);',sci2exp(loc,0));
       end
     end
-    txt1($+1,1)= '  ' +sprintf('scsm = set_diagram_name (scsm, %s)', sci2exp(scs_m.props.title(1),0));
+    txt1($+1,1)= sprintf('  scs_m = set_diagram_name (scs_m, %s)', sci2exp(scs_m.props.title(1),0));
     [blocks,head]= do_api_save_rec(scs_m,count);
     txt1.concatd['  '+blocks];
     txt1.concatd['endfunction'];
@@ -151,19 +162,12 @@ function [ok,txt]=do_api_save(scs_m)
     if ~isempty(context) then
       txt1 = sprint(context,as_read=%t);
       txt.concatd[txt1];
-      txt($+1,1)= '  '+sprintf('scsm = set_model_workspace(scsm,%s)','context');
+      txt($+1,1)= '  '+sprintf('scs_m = set_model_workspace(scs_m,%s)','context');
     end
-    if %f && type(o.graphics.gr_i,'short')<>'s' then
-      cmap=get(sdf(),"color_map");
-      if isempty(o.graphics.gr_i(2)) then 
-	col=[1,1,1]
-      else
-	col=cmap( o.graphics.gr_i(2),:);
-      end
-    else
-      col=[1,1,1]
+    if type(o.graphics.gr_i,'short')=='l' && ~isempty(o.graphics.gr_i(2)) then 
+      color = o.graphics.gr_i(2);
+      txt($+1,1)=sprintf('blk = set_block_bg_color (blk, %s);',sci2exp(color));
     end
-    txt($+1,1)=sprintf('blk = set_block_bg_color (blk, %s);',sci2exp(col));
     // txt($+1,1)=sprintf('blk = set_block_fg_color (blk, %s);',;
     txt($+1,1)=sprintf('blk = set_block_nin (blk, %d);',size( o.graphics.pin,'*'));
     txt($+1,1)=sprintf('blk = set_block_nout (blk, %d);',size( o.graphics.pout,'*'));
@@ -183,7 +187,7 @@ function [ok,txt]=do_api_save(scs_m)
       // txt($+1,1)= 'blk = set_block_mask (blk, params, ""?"");';
     end
     txt($+1,1)= 'blk = fill_super_block (blk, tmp_diag);';
-    txt($+1,1)= sprintf('[scsm, block_tag_%d] = add_block (scsm, blk);',blk_num);
+    txt($+1,1)= sprintf('[scs_m, block_tag_%d] = add_block (scs_m, blk);',blk_num);
     
   endfunction
   
@@ -237,12 +241,12 @@ function [ok,txt]=do_api_save(scs_m)
 	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
 	  txt_f = sprintf("[block_tag_%d, ""%d""]",bf,pf);
 	  txt_t = sprintf("[block_tag_%d, ""%d""]",bt,pt);
-	  txt.concatd[sprintf("[scsm,obj_num] = add_explicit_link(scsm,%s,%s,points);",txt_f,txt_t)];
+	  txt.concatd[sprintf("[scs_m,obj_num] = add_explicit_link(scs_m,%s,%s,points);",txt_f,txt_t)];
 	elseif o.ct(2)==-1 then
 	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
 	  txt_f = sprintf("[block_tag_%d, ""%d""]",bf,pf);
 	  txt_t = sprintf("[block_tag_%d, ""%d""]",bt,pt);
-	  txt.concatd[sprintf("[scsm,obj_num] = add_event_link(scsm,%s,%s,points);",txt_f,txt_t)];
+	  txt.concatd[sprintf("[scs_m,obj_num] = add_event_link(scs_m,%s,%s,points);",txt_f,txt_t)];
 	else
 	  // who is input who is output ?
 	  obj_from = scs_m.objs(bf);
@@ -264,7 +268,7 @@ function [ok,txt]=do_api_save(scs_m)
 	  txt_f = sprintf("[block_tag_%d, ""%d"", ""%s""]",bf,pf,tf);
 	  txt_t = sprintf("[block_tag_%d, ""%d"", ""%s""]",bt,pt,tt);
 	  txt.concatd[sprintf("%s",sci2exp(points,'points'))];
-	  txt.concatd[sprintf('[scsm,obj_num] = add_implicit_link (scsm, %s, %s, points);',
+	  txt.concatd[sprintf('[scs_m,obj_num] = add_implicit_link (scs_m, %s, %s, points);',
 			      txt_f,txt_t,sci2exp(points,0))];
 	end
       end
@@ -282,17 +286,17 @@ function [ok,txt]=do_api_save(scs_m)
   
   txt=do_api_model(scs_m,0);
 
-  last=["scsm = subsystem_1();"; 
-	"scsm = set_final_time (scsm, ""40"");";
+  last=["scs_m = subsystem_1();"; 
+	"scs_m = set_final_time (scs_m, ""40"");";
 	"tol = [ ""auto""; ""1e-3""; ""auto""; ""40""; ""0""; ""ode45""; ""auto"" ];";
-	"scsm = set_solver_parameters (scsm, tol);";
-	"scsm = evaluate_model (scsm);"];
+	"scs_m = set_solver_parameters (scs_m, tol);";
+	"scs_m = evaluate_model (scs_m);"];
   txt=[txt;last];
 
   if test then
     scicos_mputl(txt,'/tmp/schema.cosf');
     execstr(txt);
-    scicos(scsm);
+    scicos(scs_m);
   end
 endfunction
 
