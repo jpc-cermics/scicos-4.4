@@ -89,6 +89,7 @@ function [ok,txt]=do_api_save(scs_m)
     // we use exprs
     if nargin <= 2 then exprs = o.graphics.exprs;end 
     txt1=sprint(exprs, name = "exprs",as_read=%t);
+    if size(txt1,'*') > 1 then txt1(1) = txt1(1) + ' ...';end // for scicoslab
     txt.concatd[txt1];
     txt.concatd["blk=set_block_exprs(blk,exprs);"];
     txt1=do_api_block_graphics(o,blk_num)
@@ -105,11 +106,13 @@ function [ok,txt]=do_api_save(scs_m)
     if ~isempty(scs_m.props.context) then
       // add context if present
       txt2 = sprint(scs_m.props.context,name="context",as_read=%t);
+      if size(txt2,'*') > 1 then txt2(1) = txt2(1) + ' ...';end // for scicoslab
       txt2.concatd["scs_m = set_model_workspace(scs_m,context);"];
       txt1.concatd['  ' + txt2];
     end
     if ~isempty(scs_m.props.options.Cmap) then
       txt2 = sprint[scs_m.props.options.Cmap,name = "colors",as_read=%t];
+      if size(txt2,'*') > 1 then txt2(1) = txt2(1) + ' ...';end // for scicoslab
       txt1.concatd[txt2];
       txt1.concatd["  scs_m = set_diagram_colors(scs_m,colors);"];
     end
@@ -160,6 +163,7 @@ function [ok,txt]=do_api_save(scs_m)
     context=scs_m.props.context
     if ~isempty(context) then
       txt1 = sprint(context,as_read=%t);
+      if size(txt1,'*') > 1 then txt1(1) = txt1(1) + ' ...';end // for scicoslab
       txt.concatd[txt1];
       txt($+1,1)= '  '+sprintf('scs_m = set_model_workspace(scs_m,%s)','context');
     end
@@ -282,15 +286,41 @@ function [ok,txt]=do_api_save(scs_m)
     if ~ok then return;end
   end
   ok=%t;
-  
-  txt=do_api_model(scs_m,0);
+
+  head =["// -*- mode : nsp -*-";
+	"needcompile=4";
+	"if ~exists(''%nsp'') then";
+	"  if ~exists(''scicos_diagram'') then load(''SCI/macros/scicos/lib'');end";
+	"  if ~exists(''instantiate_diagram'') then load(''SCI/macros/scicosapi/lib'');end";
+	"  if ~exists(''GAIN_f'') then exec(loadpallibs,-1);end";
+        "  function opts=scicos_options()";
+	"    opts=tlist([''scsopt'',''Background'',''Link'',''ID'',''Cmap'',''D3'',''3D'',''Grid'',''Wgrid'',''Action'',''Snap'']);"
+	"    opts.Background=[8 1];"
+	"    opts.Link=[1,5];"
+	"    opts.ID= list([5 0],[4 0]);";
+	"    opts.Cmap=[0.8 0.8 0.8]";
+	"    opts.D3=list(%t,33);";
+	"    opts(''3D'')=list(%t,33);";
+	"    opts.Grid=%f;";
+	"    opts.Wgrid=[10;10;12];";
+	"    opts.Action=%f;";
+	"    opts.Snap=%t;";
+	"  endfunction";
+	"  function blk=scicos_text(varargopt)";
+	"    blk=mlist([''Text'', ''graphics'',''model'', ''gui''],scicos_graphics(),scicos_model(),'''');";
+	"  endfunction";
+	"  function y=mat_create(x,z);y=[];endfunction;";
+	"  options = default_options();";
+	"end"];
+    
+  body=do_api_model(scs_m,0);
 
   last=["scs_m = subsystem_1();"; 
 	"scs_m = set_final_time (scs_m, ""40"");";
 	"tol = [ ""auto""; ""1e-3""; ""auto""; ""40""; ""0""; ""ode45""; ""auto"" ];";
 	"scs_m = set_solver_parameters (scs_m, tol);";
 	"scs_m = evaluate_model (scs_m);"];
-  txt=[txt;last];
+  txt=[head;body;last];
 
   if test then
     scicos_mputl(txt,'/tmp/schema.cosf');
