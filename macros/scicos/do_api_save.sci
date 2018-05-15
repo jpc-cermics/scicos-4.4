@@ -80,6 +80,7 @@ function [ok,txt]=do_api_save(scs_m)
     end
     if ~ok || ~o.graphics.gr_i.equal[ref_obj.graphics.gr_i] then
       txt1=sprint(o.graphics.gr_i, name = "gr_i",as_read=%t);
+      txt1=regsub(txt1,'=$','= ...'); // scicoslab compatibility
       txt.concatd[txt1];
       txt($+1,1)=sprintf('blk.graphics.gr_i = gr_i;');
     end
@@ -301,6 +302,8 @@ function [ok,txt]=do_api_save(scs_m)
   test=%f;
   if type(scs_m, 'short') == 's' then
     test = %t;
+    name = '/tmp/'+ file('rootname',file('tail',scs_m))+'.cosf';
+    printf("%s\n",name);
     [ok,scs_m]=do_load(scs_m);
     if ~ok then return;end
   end
@@ -346,9 +349,9 @@ function [ok,txt]=do_api_save(scs_m)
   txt=[head;body;last];
 
   if test then
-    scicos_mputl(txt,'/tmp/schema.cosf');
-    execstr(txt);
-    scicos(scs_m);
+    scicos_mputl(txt,name);
+    //execstr(txt);
+    //scicos(scs_m);
   end
 endfunction
 
