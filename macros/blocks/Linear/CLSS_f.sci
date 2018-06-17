@@ -60,7 +60,7 @@ function [x,y,typ]=CLSS_f(job,arg1,arg2)
     x0=0;A=-1;B=1;C=1;D=0;in=1;out=1
 
     model=scicos_model()
-    model.sim=list('csslti',1)
+    model.sim=list('csslti',0); // list('csslti',1)
     model.in=in
     model.out=out
     model.state=x0
