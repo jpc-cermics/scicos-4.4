@@ -326,6 +326,8 @@ function [ok,cancel,paramv,lab_2]=MBLOCK_get_parameters_values(param,exprs)
     execstr(getvalue_txt)
     if ~ok then cancel=%t;ok=%t; return;end;
     //restore original lab_2 if not ok
+  else
+    Lrep=list();
   end
   //put output param in the form of a list in paramv
   if ok then

@@ -375,9 +375,10 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
     TMPDIR=getenv('NSP_TMPDIR')
     //create regular block associated to all modelica blocks
     [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,TMPDIR+'/');
-
     if ~ok then
       return
+    else
+      // save(TMPDIR + '/model.bin',model);
     end
 
     blklst(nr+1)=model;
@@ -386,7 +387,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
     //modelica blocks
     corinv(nr+1)=corinvm //it may be useful to adapt function making use
     //of corinv
-
+		   
     //adjust the numbering of regular block in sco_mat
     //if modelica's blocks exist
     //Fady 08/11/2007
