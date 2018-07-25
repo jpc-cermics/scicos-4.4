@@ -229,6 +229,7 @@ function [ok, scs_m, %cpr, edited] = do_load(fname,typ,import,keep_xstringb=%f)
     %mprt=funcprot()
     funcprot(0)
     getvalue=setvalue;
+    getvalue_list=setvalue_list;
 
     function message(txt)
       x_message("In block "+o.gui+": "+txt);

@@ -1238,6 +1238,7 @@ function XX=gen_allblk_new()
 
   //@@ run 'set' job of the CBLOCK4
   getvalue=setvalue;
+  getvalue_list=setvalue_list;
   
   function message(txt)
     x_message('In block '+XX.gui+': '+txt);
@@ -1386,6 +1387,8 @@ function [XX]=gen_allblk()
 //   prot=funcprot()
 //   funcprot(0)
   getvalue=setvalue;
+  getvalue_list=setvalue_list;
+  
   function message(txt)
     x_message('In block '+XX.gui+': '+txt);
     global %scicos_prob;%scicos_prob=%t

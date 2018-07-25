@@ -138,6 +138,7 @@ function [scs_m,newparameters,needcompile,edited]=scicos(scs_m,menus)
     pixmap=%scicos_display_mode
     %scicos_gui_mode=1
     getvalue=gtk_getvalue
+    getvalue_list=gtk_getvalue_list
   else
     noldwin=size(windows,1)
     windows=[windows;slevel,curwin]

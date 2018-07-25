@@ -242,6 +242,7 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
   %win0_exists=or(winsid()==0)
   // overload some functions used in GUI
   getvalue=setvalue;
+  getvalue_list=setvalue_list;
   
   [scs_m,cpr,needcompile,ok,msg]=do_eval_rec(scs_m,cpr,context,flag);
   if ~ok && ~isempty(msg) then x_message(catenate(msg));end
@@ -327,6 +328,8 @@ function [scs_m,ok]=do_silent_eval(scs_m, context)
   %win0_exists=or(winsid()==0)
   // overload some functions used in GUI
   getvalue=setvalue;
+  getvalue_list=setvalue_list;
+  
   if nargin < 2 then context=hash(10);end
   [scs_m,ok]=do_silent_eval_rec(scs_m,context)
   if ~%win0_exists then xdel(0);end

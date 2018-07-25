@@ -62,7 +62,8 @@ function YY=gencblk4(XX,gui_path)
 
   //@@ run 'set' job of the CBLOCK4
   getvalue=setvalue
-
+  getvalue_list=setvalue_list;
+  
   function message(txt)
     x_message('In block '+YY.gui+': '+txt);
     global %scicos_prob

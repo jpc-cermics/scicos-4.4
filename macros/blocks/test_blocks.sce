@@ -4,6 +4,7 @@ Files=glob('*/*.sci');
 bugs=m2s([]);
 
 getvalue=setvalue;
+getvalue_list=setvalue_list;
 needcompile=%f
 function [ok,tt]=FORTR(funam,tt,i,o) ; ok=%t; endfunction
 function [ok,tt,cancel]=CFORTR2(funam,tt,i,o); ok=%t;cancel=%f; endfunction
