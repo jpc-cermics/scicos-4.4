@@ -490,30 +490,29 @@ function class_txt=build_classhead(funam,vinp,vout,vparam,vparamv,vpprop)
     tete3=[];
   end
   
-  tete4='  ////do not modif above this line ////'
-	//-----------------------------------------
-	
-	class_txt=[tete1;
-		   '  ////automatically generated ////';
-		   tete1b;tete2;tete3;tete4]
+  tete4= "  ////do not modif above this line ////";
+  //-----------------------------------------
+  class_txt=[tete1;
+	     "  ////automatically generated ////";
+	     tete1b;tete2;tete3;tete4]
 endfunction
 
 function [ok,tt]=MODCOM_NI(funam,tt,vinp,vout,vparam,vparamv,vpprop)
   // This is the non interactive version used in eval or load 
-  //printf('In non interactive MODCOM \n');
+  //printf("In non interactive MODCOM \n");
   ok = %t;
   // create Modelica dir if it does not exists 
-  md =file('join',[getenv('NSP_TMPDIR');'Modelica'])
-  if ~file('exists',md) then file('mkdir',md);end 
+  md =file("join",[getenv("NSP_TMPDIR");"Modelica"])
+  if ~file("exists",md) then file("mkdir",md);end 
   // fill the funam file 
-  nameF=file('root',file('tail',funam));
-  extF =file('extension',funam);
+  nameF=file("root",file("tail",funam));
+  extF =file("extension",funam);
   // tt should be a string and it was initialized to [] in the past.
-  if type(tt,'short')=='m' then tt=m2s([]);end 
-  if extF=='' then 
-    funam1=file('join',[getenv('NSP_TMPDIR');'Modelica';nameF+'.mo']);
+  if type(tt,"short")=="m" then tt=m2s([]);end 
+  if extF=="" then 
+    funam1=file("join",[getenv("NSP_TMPDIR");"Modelica";nameF+".mo"]);
     scicos_mputl(tt,funam1);
-  elseif ~file('exists',funam) then
+  elseif ~file("exists",funam) then
     funam1=funam;
     scicos_mputl(tt,funam1);
   end
