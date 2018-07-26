@@ -31,9 +31,6 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
   [ok,txt,ipar, opar]=create_modelica(blklstm,corinvm,cmmat,name,scs_m);
   if ~ok then return,end
   
-  // write txt in the file path+name+'.mo'
-  //FIXME
-  //path=pathconvert(stripblanks(path),%t,%t)
   scicos_mputl(txt,file('join',[file('split',path);name+'.mo']));
   printf('--------------------------------------------\n\r');
   printf('%s',' Main Modelica : '+path+name+'.mo'); printf('\n\r');
@@ -48,10 +45,11 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
       end
     end
   end
+
   //generating XML and Flat_Model
   // compile modelica files
   [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(path+name+'.mo',Mblocks);
-
+  
   if ~ok then 
     model=list();
     return
@@ -72,8 +70,9 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
 endfunction
 
 function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
-// Copyright INRIA
-  
+  // creates modelica code gathering all the modelica blocks contained in
+  // the scicos schema.
+    
   if exists('%Modelica_Init')==%f then 
     // Modelica_Init becomes true only in "Modelicainitialize_.sci"
     %Modelica_Init=%f;
@@ -83,7 +82,7 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
   end  
   
   Parembed=%Modelica_ParEmb & ~%Modelica_Init;
-
+  
   txt=[];tab=ascii(9)
   //  rpar=[];//will contain all parameters associated with the all modelica blocs
   opar=list();
@@ -104,24 +103,18 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
     //#########
 
     if o.equations.model<>'OutPutPort' & o.equations.model<>'InPutPort' then
-      //## retrieve the object in the scs_m structure
+      // retrieve the object corresponding to k in the scs_m structure 
       o_scsm = scs_m(scs_full_path(corinvm(k)));
-      //## 17/11/09 : Add a second call to the interfacing function (job 'compile')
-      ierr=execstr('[o_out]='+o_scsm.gui+'(""compile"",o,k);',errcatch=%t);
-      if ierr then
-        if ~isequal(o_out,[]) then
-          o=o_out
-        end
-      end
-      //## get the structure graphics
+      // second call to the interfacing function with a 'compile' job
+      exec_ok=execstr( '[o_out]=' +o_scsm.gui+ '(""compile"",o,k);',errcatch=%t);
+      if exec_ok && ~isempty(o_out) then o=o_out; end
+      // get the graphic structure
       o_gr  = o_scsm.graphics;
-      //## get the identification field or label field
-      
+      // get the identification field or label field
       id = stripblanks(o_gr.id)
       if id == '' then
         id = stripblanks(o_scsm.model.label);
       end
-
     else
       id=''
     end
@@ -133,28 +126,24 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
       np=0
     end
     P=[];
-    //** mo.parameters have size=2
-    //** it only contains parameters
+    // add default third argument if missing 
     if np<>0 then
       if size(mo.parameters)==2 then
         mo.parameters(3)=zeros(1,np)
       end
     end
-
+    // loop on parameters 
     for j=1:np
-      //## loop on number of param value
-      //## can be both scalar or array
       Parj=mo.parameters(1)(j)
       Parjv=mo.parameters(2)(j)
-      Parj_in=Parj+'_'+BlockName
+      Parj_in=Parj+'_' + BlockName
       if type(Parjv,'string')=='Mat' then 
-	// if Real/Complex	Integers are used with "fixed=true"
+	// if Real/Complex Integers are used with "fixed=true"
 	//	rpar=[rpar;matrix(Parjv,-1,1)] ;// should to be removed once modelciac is updated
         Parjv_plat=Parjv(:);
         for jj=1:size(Parjv_plat,'*')
          opar($+1)=Parjv_plat(jj)
         end
-
 	ipar(k)=ipar(k)+size(Parjv,'*')
       end
       //======================================================
@@ -182,26 +171,13 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
     Bnam = [Bnam,BlockName];
     Bnames = [Bnames, Bnam($)]
 
-    if isempty(P) then
-      models=[models;
-              '  '+mo.model+' '+tab+Bnames($)];
-    else
-      models=[models;
-              '  '+mo.model+' '+tab+Bnames($)+'('+strcat(P,', ')+')'];
-    end
-
-    //## Add gr_i identification in comments of models
-
-    if id<>'' then
-      models($)=models($)+' ""'+id+'"";'
-    else
-      models($)=models($)+';'
-    end
-
-    //rajouter les ports
+    if ~isempty(P) then str_params ="("+strcat(P,", ")+")";else str_params = "";end
+    if id<>"" then str_id = sprintf(" ""%s""",id);else str_id = "";end
+    models = [models;"  "+mo.model+" "+tab+Bnames($) + str_params + str_id + ";"];
   end
-  ipar=cumsum([1;ipar(:)])
 
+  ipar=cumsum([1;ipar(:)])
+  
   //links
   for k=1:size(cmat,1)
     from=cmat(k,1:3)
@@ -238,20 +214,20 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
          | or(blklst(to(1)).equations.model==['InPutPort','OutPutPort']) ...
     then 
       eqns=[eqns
-            '  '+n1+'.'+p1+' = '+n2+'.'+p2+';']
+            "  "+n1+"."+p1+" = "+n2+"."+p2+";"]
     else
       eqns=[eqns
-            '  connect ('+n1+'.'+p1+','+n2+'.'+p2+');']
+            "  connect ("+n1+"."+p1+","+n2+"."+p2+");"]
     end
   end
    
   txt=[txt;
-       'model '+name
+       "model "+name
        Params
        models
-       'equation'
+       "equation"
        eqns
-       'end '+name+';']
+       "end "+name+";"]
   ok=%t;
 endfunction
 
@@ -270,53 +246,48 @@ function r=validvar_modelica(s)
 endfunction
 
 function [ok,Paro]=construct_Pars(Pari,opari,Parembed)
-  Paro='';
-  if isempty(Pari) then
-    ok=%f;return
-  end  
+  // construct in Paro a string for the modelica declaration
+  // of parameter Pari having value opari. 
+  // opari is a matrix (double or integer).
+  
+  ok = %f; Paro='';
+  
+  if isempty(Pari) then return;end
+  
   C=opari;
-  [a1,b1]=size(C);
-  npi=a1*b1;
+  npi= size(C,'*');
   
-  if (type(C,'string')=='Mat') then
-    if isreal(C) then
-      par_type='Real'
-      FIXED='false'     
-    else
-      x_message("type ""Complex"" is not suported in Modelica");
-      ok=%f;return;
-    end
-  elseif (type(C,'string')=='IMat') then
-    par_type='Integer'
-    FIXED='true'
-  else 
-    //x_message("type """+string(typeof(C))+""" is not suported in Modelica");
-    x_message("type is not suported in Modelica");
-    ok=%f;return;
+  select type(C,'string')
+    case 'Mat' then
+      if ~isreal(C) then
+	x_message("type ""Complex"" is not supported in Modelica"); return;
+      end
+      par_type='Real'; FIXED='false'     
+    case 'IMat' then
+      par_type='Integer'; FIXED='true';
+    else 
+      x_message(sprintf("type ""%s"" is not supported in Modelica",type(C,"string")));
+      return;
   end
   
-  if ~Parembed then 
-    FIXED='true'
-  end
+  if ~Parembed then FIXED='true'; end
   
-  if (npi==1) then // scalar
+  if npi==1 then
+    // value is a scalar
     if par_type=='Real' then
-      // eopari=m2s(C,"%e")
       eopari=sprintf("%e",C);
     end  
     if par_type=='Integer' then
-      //eopari=m2s(C,"%d")
       eopari=sprintf("%.0f",i2m(C))
     end  
-    fixings='(fixed='+FIXED+') '
+    fixings= "(fixed=" + FIXED +") ";
   else
     if par_type=='Integer' then
-      x_message("type ""Integer array"" is not suported in Modelica");
-      ok=%f;return;
+      x_message("type ""Integer array"" is not suported in Modelica"); return;
     end
     [ok,eopari]=write_nD_format(C);
     if ~ok then return;end
-    fixings='(each fixed='+FIXED+') ';
+    fixings="(each fixed="+FIXED+") ";
     [d1,d2]=size(C);
     if (d1==1) then 
       Pari=Pari+'['+string(d2)+']'; //[d2] 
@@ -324,10 +295,9 @@ function [ok,Paro]=construct_Pars(Pari,opari,Parembed)
       Pari=Pari+'['+string(d1)+','+string(d2)+']'; //[d1,d2] 
     end            
   end
-  Paro='  parameter '+par_type+' '+Pari+ fixings+'='+eopari+ "  """+Pari+""""+';'   
+  Paro="  parameter "+par_type+" "+Pari+ fixings+"="+eopari+ "  """+Pari+""""+";"   
   ok=%t
 endfunction
-
 
 function [ok,r]=write_nD_format(x)
 // 
@@ -367,40 +337,27 @@ function [ok,r]=write_nD_format(x)
 endfunction
 
 function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(filemo,Mblocks)
-// Copyright INRIA
-  //lines(0)
-  if exists('%Modelica_Init')==%f then 
-    // Modelica_Init becomes true only in "Modelicainitialize_.sci"
-    %Modelica_Init=%f;
-  end
+  // compile a modelica file filemo with blocks definition in Mblocks
 
-  if exists('%Jacobian')==%f then 
-    %Jacobian=%t;
-  end
+  // Modelica_Init becomes true only in "Modelicainitialize_.sci"
+  if exists('%Modelica_Init')==%f then %Modelica_Init=%f;end
+  
+  if exists('%Jacobian')==%f then  %Jacobian=%t;  end
 
-  if exists('%Modelica_ParEmb')==%f then 
-    %Modelica_ParEmb=%t;
-  end
+  if exists('%Modelica_ParEmb')==%f then  %Modelica_ParEmb=%t;end
     
   running="off";
-  //FIXME
-  //try   
-  //  %_winId=TCL_GetVar("IHMLoc")  
-  //catch
-    %_winId="nothing";
-  //end
-  if (%_winId <> "nothing") then  
-    running=TCL_EvalStr("winfo exists [sciGUIName "+%_winId+"]")
-  end
   // tmpdir is a column matrix 
+
   tmpdir=file('split',TMPDIR);
   [ok,modelicac,translator,xml2modelica]=Modelica_execs();
+
   if ~ok then,
     name='';
     dep_u=%t; nipar=0;nrpar=0;nopar=0;nz=0;nx=0;nx_der=0;nx_ns=0;nin=0;nout=0;nm=0;ng=0;
     return;
   end
-
+  
   //basename in nsp is not the same as in scilab 
   //we must add file('root' 
   name=file('root',basename(filemo));
@@ -420,9 +377,9 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
   //modifications for debugging purposes  
   if exists('needcompile','all');needcompile=needcompile;else needcompile=4;end
 
-  updateC=needcompile<>0|~file("exists",Cfile)
-  updateC=updateC | %Modelica_Init
-
+  updateC=needcompile<>0|~file("exists",Cfile);
+  updateC=updateC | %Modelica_Init;
+  
   if updateC  then
     // Alan ???
     //    if ~exists('modelica_libs','all') then 
@@ -446,7 +403,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     //-----------------------just for OS limitation-------
     // used when command line is too long 
     if %win32 then, Limit=1000;else, Limit=3500;end
-    if (length(translator_libs)>Limit) then 
+    if sum(length(translator_libs)) > Limit  then 
       // FIXME this part should be tested by setting Limit to a smaller 
       // size 
       printf("%s\n",['WARNING:';..
@@ -487,22 +444,23 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     // instruction to be executed 
     //win32 case
     if %win32 then
-      instr=[""""+file('native',translator)+"""";
+      instr=[""""+file("native",translator)+"""";
 	     translator_libs;
-	     '-lib';""""+file('native',filemo)+"""";
-	     '-o';""""+file('native',Flat)+"""";
+	     "-lib";""""+file("native",filemo)+"""";
+	     "-o";""""+file("native",Flat)+"""";
 	     with_ixml;
-             '-command';'""'+name+' '+namef+'"";'];
+             "-command";""""+name+" "+namef+""";"];
     else
-      instr=[file('native',translator);
+      instr=[file("native",translator);
 	     translator_libs;
-	     '-lib';file('native',filemo);
-	     '-o';file('native',Flat);
+	     "-lib";file("native",filemo);
+	     "-o";file("native",Flat);
 	     with_ixml;
-             '-command';name+' '+namef+';'];
+             "-command";name+" "+namef+";"];
     end
+    
     if %f && %win32 then
-      instrc = file('join',[tmpdir;'gent.bat']);
+      instrc = file("join",[tmpdir;"gent.bat"]);
       scicos_mputl(instr,instrc);
       instr=instrc;
     end
@@ -510,18 +468,19 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       if ~file("exists",xmlfile) then 
 	overwrite=1;//Yes
       else
-	overwrite=x_message(['The initialization file already exists!';...
-		    'Do you want to overwrite it?'],['Yes','No'])       
+	overwrite=x_message(["The initialization file already exists!";...
+			     "Do you want to overwrite it?"],["Yes","No"])       
       end
     else     
       // do not generate the flat file when it is already generated by
       // the initialization GUI
-      if (running =="1") then 
+      if running == "1" then 
 	overwrite=2;//no
       else
 	overwrite=1;//yes
       end        
     end
+
     commandok=%t;
     if ~(overwrite==2) then 
       // run translator
@@ -735,36 +694,35 @@ function [ok]=fix_parameters(Flatxml,flag)
 endfunction
 
 function model_name=get_model_name(mo_model,id,AllNames)
-//Copyright INRIA
-// return a unique name for a modelica model
-// for the compiled modelica structure
-//
-// inputs :
-//   mo_model : a string that gives the name of the model
-//              in the modelica list (equations) of a modelica block.
-//
-//   Bnames   : vector of strings of already attribuated model names
-//
-// output :
-//   model_name : the output string of the model name
-//
+  //Copyright INRIA
+  // return a unique name for a modelica model
+  // for the compiled modelica structure
+  //
+  // inputs :
+  //   mo_model: a string that gives the name of the model
+  //              in the modelica list (equations) of a modelica block.
+  //   id: an other string concatenated to mo_model 
+  //   
+  //   Allnames: vector of strings of already attribuated model names
+  //
+  // output :
+  //   model_name : cleanID(mo_model)_cleanID(id)_xxx
+  //   where xxx is a string generated for model_name not to be in AllNames
   
   function id_out=cleanID(id)
-  // replace characters of id which are no alphabetic or digit to _
+    // utility function: replaces characters of id which are no alphabetic or digit by '_'
     T=isalnum(id);
     ida=ascii(id);
     ida(~T)=ascii('_');
     id_out=ascii(ida);
   endfunction
 
-  // pause get_model_name 
-  ido=cleanID(id);
-  mo_model=cleanID(mo_model)
+  base_name = cleanID(mo_model) + '_' +  cleanID(id);
+  model_name= base_name;
   ind = 1
-  model_name=mo_model+'_'+ido
   if ~isempty(AllNames) then
     while ~isempty(find(model_name==AllNames)) then
-      model_name=mo_model+'_'+ido+string(ind)
+      model_name= base_name + '_' + string(ind);
       ind = ind + 1
     end
   end
