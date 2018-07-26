@@ -34,6 +34,7 @@ function scmenu_modelica_initialize()
   end
   ok=%t
   needcompile=4;
+
   if compile then 
     %Modelica_Init=%t
     // in order to generate *_im.mo -> *_im_f.mo -> *_im.xml 

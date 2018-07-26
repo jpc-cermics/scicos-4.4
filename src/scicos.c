@@ -67,14 +67,16 @@ typedef struct
   double *uscale;
 } *User_KIN_data;
 
-
+extern void callf (const double *t, scicos_block * block, int *flag);
+extern void Set_Jacobian_flag (int flag);
+extern double Get_Scicos_SQUR (void);
+extern int KinJacobians0 (long int, DenseMat, N_Vector, N_Vector, void *, N_Vector, N_Vector);
 
 static int check_flag (void *flagvalue, char *funcname, int opt);
 static void cosini (double *told);
 static void cosend (double *told);
 static void cossimdaskr (double *told);
 static void cossim (double *told);
-extern void callf (const double *t, scicos_block * block, int *flag);
 static int lsodar2_simblk (const int *neq1, const double *t, double *xc,
 			   double *xcdot, void *param);
 static int lsodar2_grblk (const int *neq1, const double *t, double *xc,
@@ -114,11 +116,8 @@ static int read_id (ezxml_t *, char *, double *);
 static int Convert_number (char *, double *);
 static int CallKinsol (double *);
 
-void Set_Jacobian_flag (int flag);
-double Get_Scicos_SQUR (void);
-int KinJacobians0 (long int, DenseMat, N_Vector, N_Vector, void *,
-			  N_Vector, N_Vector);
 #if 0 
+/* unused */
 static int rhojac_ (double *a, double *lambda, double *x, double *jac,
 		    int *col, double *rpar, int *ipar);
 static int rho_ (double *, double *, double *, double *, double *, int *);
@@ -2243,6 +2242,7 @@ static void cossimdaskr(double *told)
 		      CI = SUNDIALS_ZERO;
 		      for (kk = 0; kk < *Scicos->params.neq; kk++)
 			{
+			  fprintf(stderr, "kk=%d %f %f\n",kk,Jacque_col[kk],Jacque_col[kk] - Jacque_col[kk] );
 			  if ((Jacque_col[kk] - Jacque_col[kk] != 0))
 			    {
 			      CI = -SUNDIALS_ONE;
@@ -2252,6 +2252,7 @@ static void cossimdaskr(double *told)
 			    {
 			      if (Jacque_col[kk] != 0)
 				{
+				  fprintf(stderr, "XXXX\n");
 				  CI = SUNDIALS_ONE;
 				  break;
 				}
@@ -5725,9 +5726,7 @@ int Jacobians (long int Neq, double tt, N_Vector yy, N_Vector yp,
 }
 
 /*----------------------------------------------------*/
-void Multp (A, B, R, ra, ca, rb, cb)
-  double *A, *B, *R;
-int ra, rb, ca, cb;
+static void Multp (double *A,double * B,double * R,int ra,int ca,int rb,int cb)
 {
   int i, j, k;
   /*if (ca!=rb) Sciprintf("Error: in matrix multiplication"); */
@@ -5756,18 +5755,13 @@ int ra, rb, ca, cb;
    }*/
 /* Jacobian*/
 
-
-/*----------------------------------------------------------*/
-int read_xml_initial_states (int nvar, const char *xmlfile, char **ids,
-			     double *svars)
+int read_xml_initial_states (int nvar, const char *xmlfile, char **ids, double *svars)
 {
   ezxml_t model, elements;
-  int result, i;
+  int result = 0 , i;
   double vr;
 
-  if (nvar == 0)
-    return 0;
-  result = 0;
+  if (nvar == 0) return 0;
   for (i = 0; i < nvar; i++)
     {
       if (strcmp (ids[i], "") != 0)
@@ -5776,15 +5770,14 @@ int read_xml_initial_states (int nvar, const char *xmlfile, char **ids,
 	  break;
 	}
     }
-  if (result == 0)
-    return 0;
-
+  if (result == 0) return 0;
+  
   model = ezxml_parse_file (xmlfile);
 
   if (model == NULL)
     {
-      Sciprintf ("Error: cannot find '%s'  \n", xmlfile);
-      return -1;		/* file does not existe */
+      Sciprintf ("Error: cannot find file '%s'\n", xmlfile);
+      return -1;
     }
 
   elements = ezxml_child (model, "elements");
@@ -5795,13 +5788,13 @@ int read_xml_initial_states (int nvar, const char *xmlfile, char **ids,
       if (result == 1)
 	svars[i] = vr;
       else
-	Sciprintf ("Error: cannot find \"%s\" in the XML file\n", ids[i]);
+	Sciprintf ("Error: cannot find element \"%s\" in the XML file\n", ids[i]);
     }
   ezxml_free (model);
   return 0;
 }
 
-int read_id (ezxml_t * elements, char *id, double *value)
+static int read_id (ezxml_t * elements, char *id, double *value)
 {
   char V1[100], V2[100];
   int ok, i, ln;
@@ -5839,7 +5832,7 @@ int read_id (ezxml_t * elements, char *id, double *value)
 }
 
 
-int Convert_number (char *s, double *out)
+static int Convert_number (char *s, double *out)
 {
   char *endp;
   double d;
@@ -5868,7 +5861,7 @@ int Convert_number (char *s, double *out)
     }
 }
 
-/*----------------------------------------------------------*/
+
 int write_xml_states (int nvar, const char *xmlfile, char **ids, double *x)
 {
   ezxml_t model, elements;
