@@ -46,7 +46,7 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
 	if cancel then return;end 
 	if ~ok && non_interactive then return;end 
 	if ~ok then continue;end 
-
+	
 	//============================
 	//generate second dialog box from Tparam
 	[ok,cancel,paramv,lab_2]= MBLOCK_get_parameters_values(param, exprs);
@@ -66,10 +66,14 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
 	else 
 	  [ok,tt]=MODCOM(funam,tt,in,out,param,paramv,pprop);
 	end
+	if ok &&  file('exists',funam) then
+	  // must save back the results
+	  scicos_mputl(tt,funam)
+	end
 	// here ok = %f means cancel in edition
 	break;
       end
-
+      
       if ~ok then return;end 
       // define new model 
       mo=modelica()
@@ -108,12 +112,12 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
       //label(2)=tt
       //------------------
       x.model=model
-      graphics.gr_i(1)(1)='txt=[''Modelica'';'' ' + nameF + ' ''];'
-    graphics.in_implicit =intype
-    graphics.out_implicit=outtype
-    //graphics.exprs=label
-    graphics.exprs=exprs
-    x.graphics=graphics
+      graphics.gr_i(1)(1)="txt=[""Modelica"";"" " + nameF + " ""];"
+      graphics.in_implicit =intype
+      graphics.out_implicit=outtype
+      //graphics.exprs=label
+      graphics.exprs=exprs
+      x.graphics=graphics
 
    case 'define' then
       //----------- Define
@@ -288,7 +292,7 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,funa
   ok = %t;
 endfunction
 
-function [ok,cancel,paramv,lab_2]=MBLOCK_get_parameters_values(param,exprs)
+function [ok,cancel,paramv,lab_res]=MBLOCK_get_parameters_values(param,exprs)
   // get parameters values
   // param are the labels,
   // ee=evstr(exprs.param) is also the labels by maybe in a different order
@@ -304,12 +308,13 @@ function [ok,cancel,paramv,lab_2]=MBLOCK_get_parameters_values(param,exprs)
   lab_2 = list();
   for i=1:param_sz
     I= find(exprs_param==param(i));
-    if isempty(I) || length(exprs.paramv)<=I(1) then 
+    if isempty(I) || length(exprs.paramv) < I(1) then 
       lab_2(i)= "0";
     else
       lab_2(i)= exprs.paramv(I(1));
     end
   end
+
   //generate lhs, label and rhs txt for getvalue
   if param_sz<>0 then
     // 
@@ -320,10 +325,11 @@ function [ok,cancel,paramv,lab_2]=MBLOCK_get_parameters_values(param,exprs)
     lab_txt = catenate(lab_txt,sep= ';');
     //generate main getvalue cmd
     //warning here lab_2 is a list in input and a string in output
-    getvalue_txt = '[ok, Lrep, lab_2]=getvalue_list(''Set parameters values'',[' +  ...
+    getvalue_txt = '[ok, Lrep, lab_res]=getvalue_list(''Set parameters values'',[' +  ...
 		   lab_txt+ '],' + 'list(' + rhs_txt + '),lab_2);';
     //display the second dialog box
-    execstr(getvalue_txt)
+    execstr(getvalue_txt);
+
     if ~ok then cancel=%t;ok=%t; return;end;
     //restore original lab_2 if not ok
   else
@@ -340,7 +346,7 @@ function [ok,tt]=MODCOM(funam,tt,vinp,vout,vparam,vparamv,vpprop)
   [dirF,nameF,extF]=splitfilepath(funam);
   //the new head
   class_txt_new=build_classhead(funam,vinp,vout,vparam,vparamv,vpprop)
-  
+
   if isempty(tt) then
     tete4= ["";" //     Real x(start=1), y(start=2);"]
     tete5="equation";

@@ -2242,7 +2242,6 @@ static void cossimdaskr(double *told)
 		      CI = SUNDIALS_ZERO;
 		      for (kk = 0; kk < *Scicos->params.neq; kk++)
 			{
-			  fprintf(stderr, "kk=%d %f %f\n",kk,Jacque_col[kk],Jacque_col[kk] - Jacque_col[kk] );
 			  if ((Jacque_col[kk] - Jacque_col[kk] != 0))
 			    {
 			      CI = -SUNDIALS_ONE;
@@ -2252,7 +2251,6 @@ static void cossimdaskr(double *told)
 			    {
 			      if (Jacque_col[kk] != 0)
 				{
-				  fprintf(stderr, "XXXX\n");
 				  CI = SUNDIALS_ONE;
 				  break;
 				}
