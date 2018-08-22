@@ -41,7 +41,8 @@ static int scicos_fill_state (NspHash * State, scicos_sim * scst)
 {
   int i;
   /* take care that the state names must follow the same 
-   * order as in simul44.h int the scicos_sim structure 
+   * order as in simul4.h int the scicos_sim structure 
+   * using loc we can access to x,z,ozl,iz,tevts,evtspt,pointi, outtbl
    */
   void **loc = (void **) &scst->x;
   const int nstate = 8;
@@ -501,7 +502,11 @@ static int scicos_fill_sim (NspHash * Sim, scicos_sim * scsim)
       scsim->alpha = (double *) (scsim->xprop + scsim->nx);
       scsim->beta = (double *) (scsim->alpha + scsim->nx);
       for (i = 0; i < scsim->nx; i++)
-	scsim->xprop[i] = 1;
+	{
+	  scsim->xprop[i] = 1;
+	  scsim->alpha[i] = 1;
+	  scsim->beta[i] = 0;
+	}
     }
 
   if (scsim->nmod > 0)
@@ -836,7 +841,7 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
       Blocks[kf].res_init = NULL;
       if (Blocks[kf].nx != 0)
 	{
-	  Blocks[kf].res_init = Blocks[kf].res = malloc (Blocks[kf].nx * sizeof (double));
+	  Blocks[kf].res_init = Blocks[kf].res = malloc  (Blocks[kf].nx * sizeof (double));
 	  if (Blocks[kf].res == NULL)
 	    {
 	      scicos_clear_blocks (Blocks, kf + 1);
