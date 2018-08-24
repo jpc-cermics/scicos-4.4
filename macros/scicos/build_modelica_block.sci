@@ -49,7 +49,7 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
   //generating XML and Flat_Model
   // compile modelica files
   [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(path+name+'.mo',Mblocks);
-  
+
   if ~ok then 
     model=list();
     return
@@ -59,14 +59,13 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
   //ng is the number of surfaces
   //name1 of the model+flat
   //build model data structure of the block equivalent to the implicit part
-  model=scicos_model(sim=list(name,10004),.. 
-		     in=ones(nin,1),out=ones(nout,1),..
-		     state=zeros(nx*2,1),..
-		     dstate=zeros(nz,1),..
-		     ipar=ipar,..
-		     opar=opar,..
+  model=scicos_model(sim=list(name,10004),... 
+		     in=ones(nin,1),out=ones(nout,1),...
+		     state=zeros(nx*2,1),...
+		     dstate=zeros(nz,1),...
+		     ipar=ipar,...
+		     opar=opar,...
 		     dep_ut=[dep_u %t],nzcross=ng,nmode=nm);
-  
 endfunction
 
 function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
@@ -132,7 +131,7 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
         mo.parameters(3)=zeros(1,np)
       end
     end
-    // loop on parameters 
+    // loop on parameters
     for j=1:np
       Parj=mo.parameters(1)(j)
       Parjv=mo.parameters(2)(j)
@@ -722,7 +721,7 @@ function model_name=get_model_name(mo_model,id,AllNames)
   ind = 1
   if ~isempty(AllNames) then
     while ~isempty(find(model_name==AllNames)) then
-      model_name= base_name + '_' + string(ind);
+      model_name= base_name + string(ind);
       ind = ind + 1
     end
   end
