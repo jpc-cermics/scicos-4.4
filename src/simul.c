@@ -91,7 +91,7 @@ static int scicos_fill_state (NspHash * State, scicos_sim * scst)
       if (scicos_fill_from_list ((NspList *) scst->State_elts[2], &F) == FAIL)
 	return FAIL;
       scst->noz = F.n;
-      scst->ozptr = F.ptr;
+      scst->ozh = F.ptr;
       scst->ozsz = F.sz;
       scst->oztyp = F.type;
     }
@@ -549,7 +549,7 @@ static void scicos_clear_sim (scicos_sim * scsim)
   FREE (scsim->funflag);
   FREE (scsim->funptr);
   FREE (scsim->mod);
-  FREE (scsim->ozptr);
+  FREE (scsim->ozh);
   FREE (scsim->ozsz);
   FREE (scsim->oztyp);
   
@@ -677,7 +677,7 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
       Blocks[kf].nx = scsim->xptr[kf + 1] - scsim->xptr[kf];
       Blocks[kf].ng = scsim->zcptr[kf + 1] - scsim->zcptr[kf];
       Blocks[kf].nz = scsim->zptr[kf + 1] - scsim->zptr[kf];
-      Blocks[kf].noz = scsim->oziptr[kf + 1] - scsim->oziptr[kf];
+      Blocks[kf].noz = scsim->ozptr[kf + 1] - scsim->ozptr[kf];
       Blocks[kf].nrpar = scsim->rpptr[kf + 1] - scsim->rpptr[kf];
       Blocks[kf].nipar = scsim->ipptr[kf + 1] - scsim->ipptr[kf];
       Blocks[kf].nopar = scsim->opptr[kf + 1] - scsim->opptr[kf];
@@ -704,19 +704,14 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
 		("Error: running out of memory in block allocations\n");
 	      return NULL;
 	    }
-	  /* Attention ici faut-il decaller les indices 
-	   * par rapport à scilab pour inpptr sans doute oui 
-	   * décalage d'indice ? XXXXXXX */
 
 	  for (in = 0; in < Blocks[kf].nin; in++)
 	    {
-	      int lprt = scsim->inplnk[scsim->inpptr[kf] + in - 1];
+	      int lprt = scsim->inplnk[scsim->inpptr[kf + 1 - 1] + in - 1];
 	      Blocks[kf].inptr[in] = scst->outtbptr[lprt - 1];
 	      Blocks[kf].insz[in] = scst->outtbsz[lprt - 1];
-	      Blocks[kf].insz[Blocks[kf].nin + in] =
-		scst->outtbsz[(lprt - 1) + scst->nlnk];
-	      Blocks[kf].insz[2 * Blocks[kf].nin + in] =
-		scst->outtbtyp[lprt - 1];
+	      Blocks[kf].insz[Blocks[kf].nin + in] = scst->outtbsz[lprt - 1 + scst->nlnk];
+	      Blocks[kf].insz[2 * Blocks[kf].nin + in] = scst->outtbtyp[lprt - 1];
 	    }
 
 	}
@@ -741,25 +736,18 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
 	      return NULL;
 	    }
 
-	  /* Attention ici faut-il decaller les indices 
-	   * par rapport à scilab pour outptr sans doute oui 
-	   * décalage d'indice ? XXXXXXX 
-	   */
-
 	  for (out = 0; out < Blocks[kf].nout; out++)
 	    {
-	      int lprt = scsim->outlnk[scsim->outptr[kf] + out - 1];
+	      int lprt = scsim->outlnk[scsim->outptr[kf + 1 -1] + out - 1];
 	      Blocks[kf].outptr[out] = scst->outtbptr[lprt - 1];
 	      Blocks[kf].outsz[out] = scst->outtbsz[lprt - 1];
-	      Blocks[kf].outsz[Blocks[kf].nout + out] =
-		scst->outtbsz[(lprt - 1) + scst->nlnk];
-	      Blocks[kf].outsz[2 * Blocks[kf].nout + out] =
-		scst->outtbtyp[lprt - 1];
+	      Blocks[kf].outsz[Blocks[kf].nout + out] = scst->outtbsz[lprt - 1 + scst->nlnk];
+	      Blocks[kf].outsz[2 * Blocks[kf].nout + out] = scst->outtbtyp[lprt - 1];
 	    }
 	}
 
       /* evtout */
-      Blocks[kf].nevout = scsim->clkptr[kf + 1] - scsim->clkptr[kf];
+      Blocks[kf].nevout = scsim->clkptr[kf + 2 -1] - scsim->clkptr[kf + 1 -1];
       Blocks[kf].evout = NULL;
       if (Blocks[kf].nevout != 0)
 	{
@@ -767,14 +755,13 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
 	  if (Blocks[kf].evout == NULL)
 	    {
 	      scicos_clear_blocks (Blocks, kf + 1);
-	      Scierror
-		("Error: running out of memory in block allocations\n");
+	      Scierror("Error: running out of memory in block allocations\n");
 	      return NULL;
 	    }
 	}
 
       /* z */
-      Blocks[kf].z = &(scst->z[scsim->zptr[kf] - 1]);
+      Blocks[kf].z = &(scst->z[scsim->zptr[kf + 1 - 1] - 1]);
       /* oz */
       Blocks[kf].ozsz = NULL;
       if (Blocks[kf].noz == 0)
@@ -785,28 +772,26 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
       else
 	{
 	  int i;
-	  /* XXXX pas clair */
-	  Blocks[kf].ozptr = &(scst->ozptr[scsim->oziptr[kf] - 1]);
+	  Blocks[kf].ozptr = &(scst->ozh[scsim->ozptr[kf + 1 -1] - 1]);
 	  Blocks[kf].ozsz = malloc (Blocks[kf].noz * 2 * sizeof (int));
 	  if (Blocks[kf].ozsz == NULL)
 	    {
 	      scicos_clear_blocks (Blocks, kf + 1);
-	      Scierror
-		("Error: running out of memory in block allocations\n");
+	      Scierror("Error: running out of memory in block allocations\n");
 	      return NULL;
 	    }
 
 	  for (i = 0; i < Blocks[kf].noz; i++)
 	    {
-	      Blocks[kf].ozsz[i] = scst->ozsz[(scsim->oziptr[kf] - 1) + i];
+	      Blocks[kf].ozsz[i] = scst->ozsz[(scsim->ozptr[kf + 1 - 1] - 1) + i];
 	      Blocks[kf].ozsz[i + Blocks[kf].noz] =
-		scst->ozsz[(scsim->oziptr[kf] - 1 + scst->noz) + i];
+		scst->ozsz[(scsim->ozptr[kf + 1 - 1] - 1 + scst->noz) + i];
 	    }
-	  Blocks[kf].oztyp = &(scst->oztyp[scsim->oziptr[kf] - 1]);
+	  Blocks[kf].oztyp = &(scst->oztyp[scsim->ozptr[kf + 1 - 1] - 1]);
 	}
 
-      Blocks[kf].rpar = &(scsim->rpar[scsim->rpptr[kf] - 1]);
-      Blocks[kf].ipar = &(scsim->ipar[scsim->ipptr[kf] - 1]);
+      Blocks[kf].rpar = &(scsim->rpar[scsim->rpptr[kf + 1 - 1] - 1]);
+      Blocks[kf].ipar = &(scsim->ipar[scsim->ipptr[kf + 1 - 1] - 1]);
 
       /* opar */
       if (Blocks[kf].nopar == 0)
@@ -829,8 +814,7 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
 	    }
 	  for (i = 0; i < Blocks[kf].nopar; i++)
 	    {
-	      Blocks[kf].oparsz[i] =
-		scsim->oparsz[(scsim->opptr[kf] - 1) + i];
+	      Blocks[kf].oparsz[i] = scsim->oparsz[(scsim->opptr[kf] - 1) + i];
 	      Blocks[kf].oparsz[i + Blocks[kf].nopar] =
 		scsim->oparsz[(scsim->opptr[kf] - 1 + scsim->nopar) + i];
 	    }
@@ -850,7 +834,7 @@ static void *scicos_fill_blocks (scicos_sim * scsim, scicos_sim * scst)
 	      return NULL;
 	    }
 	}
-
+      
       /* label */
       Blocks[kf].label = scsim->labels[kf];
 

@@ -118,6 +118,8 @@ static int read_id (ezxml_t *, char *, double *);
 static int Convert_number (char *, double *);
 static int CallKinsol (double *);
 
+extern void call_debug_scicos(scicos_block * block, int *flag, int flagi,int deb_blk, int before);
+
 #if 0 
 /* unused */
 static int rhojac_ (double *a, double *lambda, double *x, double *jac,
@@ -131,12 +133,12 @@ static int hfjac_ (double *, double *, int *);
 
 #define Blocks Scicos->Blocks
 
-#define alpha  Scicos->sim.alpha
-#define beta   Scicos->sim.beta
+#define sim_alpha  Scicos->sim.alpha
+#define sim_beta   Scicos->sim.beta
 #define sim_iwa Scicos->sim.iwa
-#define mod Scicos->sim.mod
+#define sim_mod Scicos->sim.mod
 #define neq    Scicos->params.neq
-#define nmod Scicos->sim.nmod
+#define sim_nmod Scicos->sim.nmod
 #define outtbsz Scicos->sim.outtbsz
 #define params_Atol Scicos->params.Atol
 #define params_curblk Scicos->params.curblk
@@ -178,6 +180,7 @@ static int hfjac_ (double *, double *, int *);
 #define sim_ordptr Scicos->sim.ordptr
 #define sim_nzord Scicos->sim.nzord
 #define sim_zord Scicos->sim.zord
+#define sim_nlnk Scicos->sim.nlnk
 
 static int *ierr;
 static double *t0, *tf;
@@ -191,9 +194,8 @@ int Jacobian_Flag;
 double CI, CJ;
 double SQuround;
 int Sfcallerid;
-static int AJacobian_block;
 
-void call_debug_scicos(scicos_block * block, int *flag, int flagi,int deb_blk, int before);
+static int AJacobian_block;
 
 scicos_run *Scicos = NULL;
 int scicos_debug_level = -1;
@@ -223,24 +225,24 @@ int scicos_main(scicos_run * sr, double *t0_in, double *tf_in,
   Scicos->params.debug_counter = 0;
   Scicos->params.aborted = FALSE;
   *ierr = 0;
-
-  sim_xd = &sim_x[sim_xptr[sim_nblk] - 1];
   neq = &sim_nx;
+  
+  sim_xd = &sim_x[sim_xptr[sim_nblk] - 1];
+
   
   for (i = 1; i <= sim_nblk; ++i)
     {
-      if (sim_funtyp[-1 + i] < 10000)
+      if (sim_funtyp[i - 1] < 10000)
 	{
-	  sim_funtyp[-1 + i] %= 1000;
+	  sim_funtyp[i - 1] %= 1000;
 	}
       else
 	{
-	  sim_funtyp[-1 + i] =
-	    sim_funtyp[-1 + i] % 1000 + 10000;
+	  sim_funtyp[i - 1] = sim_funtyp[i - 1] % 1000 + 10000;
 	}
-      ni = Scicos->sim.inpptr[i] - Scicos->sim.inpptr[-1 + i];
-      no = Scicos->sim.outptr[i] - Scicos->sim.outptr[-1 + i];
-      if (sim_funtyp[-1 + i] == 1)
+      ni = Scicos->sim.inpptr[i] - Scicos->sim.inpptr[i - 1];
+      no = Scicos->sim.outptr[i] - Scicos->sim.outptr[i - 1];
+      if (sim_funtyp[i - 1] == 1)
 	{
 	  if (ni + no > 11)
 	    {
@@ -251,10 +253,9 @@ int scicos_main(scicos_run * sr, double *t0_in, double *tf_in,
 	      return 0;
 	    }
 	}
-      else if (sim_funtyp[-1 + i] == 2
-	       || sim_funtyp[-1 + i] == 3)
+      else if (sim_funtyp[i - 1] == 2 || sim_funtyp[i - 1] == 3)
 	{
-	  /*     hard coded maxsize in scicos4.h */
+	  /*     hard coded maxsize in scicos.h */
 	  if (ni + no > SZ_SIZE)
 	    {
 	      Scierror ("Too many input/output ports for hilited block\n");
@@ -264,27 +265,22 @@ int scicos_main(scicos_run * sr, double *t0_in, double *tf_in,
 	    }
 	}
       mxtb = 0;
-      if (sim_funtyp[-1 + i] == 0)
+      if (sim_funtyp[i - 1] == 0)
 	{
 	  if (ni > 1)
 	    {
 	      for (j = 1; j <= ni; ++j)
 		{
-		  k =
-		    Scicos->sim.inplnk[-1 + Scicos->sim.inpptr[-1 + i] - 1 +
-				       j];
-		  mxtb += (outtbsz[k - 1] * outtbsz[(k - 1) + Scicos->sim.nlnk]);	/* XXX k-1 ou k ? */
+		  k = Scicos->sim.inplnk[Scicos->sim.inpptr[i - 1] - 1 + j - 1];
+		  mxtb += (outtbsz[k - 1] * outtbsz[k - 1 + sim_nlnk]);
 		}
 	    }
 	  if (no > 1)
 	    {
 	      for (j = 1; j <= no; ++j)
 		{
-		  k =
-		    Scicos->sim.outlnk[-1 + Scicos->sim.outptr[-1 + i] - 1 +
-				       j];
-		  mxtb +=
-		    (outtbsz[k - 1] * outtbsz[(k - 1) + Scicos->sim.nlnk]);
+		  k = Scicos->sim.outlnk[Scicos->sim.outptr[i - 1] - 1 + j - 1];
+		  mxtb += (outtbsz[k - 1] * outtbsz[k - 1 + sim_nlnk]);
 		}
 	    }
 	  if (mxtb > TB_SIZE)
@@ -392,7 +388,7 @@ int scicos_main(scicos_run * sr, double *t0_in, double *tf_in,
 	      *ierr = 5;
 	      return 0;
 	    }
-	  if (sim_ng > 0 && nmod > 0)
+	  if (sim_ng > 0 && sim_nmod > 0)
 	    {
 	      /* updating modes as a function of state values; this was necessary in iGUI */
 	      zdoit (t0, sim_x, sim_x + sim_nx, W);
@@ -523,11 +519,11 @@ static void cosini (double *told)
   int cur_outtb[NTYPES] = { 0, 0, 0, 0, 0, 0, 0, 0 };
   int tag[NTYPES]= {1,2,1,1,1,1,1,1};
   /* first pass to compute the sizes requested for each data type */
-  for (ii = 0; ii < Scicos->sim.nlnk; ii++)
+  for (ii = 0; ii < sim_nlnk; ii++)
     {
       pos=scicos_costype_to_int(sim_outtbtyp[ii]);
       szt_outtb[pos] = scicos_costype_size(sim_outtbtyp[ii]);
-      sz_outtb[pos] += tag[pos]*outtbsz[ii]*outtbsz[ii+Scicos->sim.nlnk];
+      sz_outtb[pos] += tag[pos]*outtbsz[ii]*outtbsz[ii+sim_nlnk];
     }
   /* second pass to allocate size for each type and set to zero */
   for (pos = 0; pos < NTYPES ; pos++)
@@ -629,10 +625,10 @@ static void cosini (double *told)
 	}
       /*comparison between outtb and arrays */
       for (pos = 0; pos < NTYPES ; pos++) cur_outtb[pos] = 0;
-      for (jj = 0; jj < Scicos->sim.nlnk; jj++)
+      for (jj = 0; jj < sim_nlnk; jj++)
 	{
 #define X(name,pos,tag,arg)						\
-	  sszz=tag*outtbsz[jj]*outtbsz[jj+Scicos->sim.nlnk];		\
+	  sszz=tag*outtbsz[jj]*outtbsz[jj+sim_nlnk];			\
 	  for( kk=0 ; kk < sszz ; kk++)					\
 	    {								\
 	      if( *(((name *) sim_outtbptr[jj]) + kk) != *(((name *) outtb[pos]) + cur_outtb[pos]+kk)) goto L30; \
@@ -647,10 +643,10 @@ static void cosini (double *told)
     L30:
       /* Save data of outtb in arrays */
       for (pos = 0; pos < NTYPES ; pos++) cur_outtb[pos] = 0;
-      for (ii = 0; ii < Scicos->sim.nlnk; ii++)	/*for each link */
+      for (ii = 0; ii < sim_nlnk; ii++)	/*for each link */
 	{
 #define X(name,pos,tag,arg)						\
-	  sszz=tag*outtbsz[ii]*outtbsz[ii+Scicos->sim.nlnk];		\
+	  sszz=tag*outtbsz[ii]*outtbsz[ii+sim_nlnk];			\
 	  for( kk=0 ; kk < sszz ; kk++)					\
 	    {								\
 	      *(((name *) outtb[pos]) + cur_outtb[pos]+kk)= *(((name *) sim_outtbptr[ii]) + kk); \
@@ -776,8 +772,7 @@ int Setup_Lsodar (int *nrwp, int *niwp, double **rhot, int **ihot,
 		  double hmax, int *iopt, int N, int ng1)
 {
   int jj;
-  int c1 = 1;
-  int c__0 = 0;
+  int c1 = 1, c0 = 0;
   double c_b14 = 0.0;
   *nrwp = (N) * Max (16, N + 9) + 22 + ng1 * 3;
   *niwp = N + 20 + ng1;		/* + ng is for change in lsodar2 to handle masking */
@@ -794,7 +789,7 @@ int Setup_Lsodar (int *nrwp, int *niwp, double **rhot, int **ihot,
       return -1;
     }
   jj = *niwp + 1;
-  nsp_iset (&jj, &c__0, *ihot, &c1);	/*set to 0  */
+  nsp_iset (&jj, &c0, *ihot, &c1);	/*set to 0  */
   jj = *nrwp + 1;
   nsp_dset (&jj, &c_b14, *rhot, &c1);	/*set to 0.0 */
 
@@ -1079,7 +1074,7 @@ static void cossim (double *told)
 	      tstop = rhotmp;
 	      t = Min (*told + params_deltat, Min (t, *tf + params_ttol));
 
-	      if (sim_ng > 0 && params_hot == 0 && nmod > 0)
+	      if (sim_ng > 0 && params_hot == 0 && sim_nmod > 0)
 		{
 		  zdoit (told, sim_x, sim_x, sim_g);
 		  if (*ierr != 0)
@@ -1832,8 +1827,8 @@ static void cossimdaskr (double *told)
   CI = 1.0;
   for (jj = 0; jj < *neq; jj++)
     {
-      alpha[jj] = CI;
-      //beta[jj]=CJ;
+      sim_alpha[jj] = CI;
+      //sim_beta[jj]=CJ;
     }
 
   if (sim_ng != 0)
@@ -1856,9 +1851,9 @@ static void cossimdaskr (double *told)
     }
 
   Mode_save = NULL;
-  if (nmod != 0)
+  if (sim_nmod != 0)
     {
-      if ((Mode_save = MALLOC (sizeof (int) * nmod)) == NULL)
+      if ((Mode_save = MALLOC (sizeof (int) * sim_nmod)) == NULL)
 	{
 	  *ierr = 10000;
 	  if (sim_ng != 0)
@@ -1874,7 +1869,7 @@ static void cossimdaskr (double *told)
       if ((tmpneq = MALLOC (*neq * sizeof (realtype))) == NULL)
 	{
 	  *ierr = 10000;
-	  if (nmod)
+	  if (sim_nmod)
 	    FREE (Mode_save);
 	  if (sim_ng != 0)
 	    FREE (jroot);
@@ -1901,7 +1896,7 @@ static void cossimdaskr (double *told)
 	  *ierr = 10000;
 	  if (*neq > 0)
 	    FREE (tmpneq);
-	  if (nmod)
+	  if (sim_nmod)
 	    FREE (Mode_save);
 	  if (sim_ng)
 	    FREE (jroot);
@@ -2094,7 +2089,7 @@ static void cossimdaskr (double *told)
 	      if (params_hot == 0)
 		{
 		  /* CIC calculation when hot==0 */
-		  if (sim_ng > 0 && nmod > 0)
+		  if (sim_ng > 0 && sim_nmod > 0)
 		    {
 		      phase = 1;
 		      zdoit (told, sim_x, sim_xd, sim_g);
@@ -2123,8 +2118,8 @@ static void cossimdaskr (double *told)
 			scicos_xproperty[jj] = SUNDIALS_ONE;
 		      if (sim_xprop[jj] == -1)
 			scicos_xproperty[jj] = SUNDIALS_ZERO;
-		      alpha[jj] = CI;
-		      beta[jj] = CJ;
+		      sim_alpha[jj] = CI;
+		      sim_beta[jj] = CJ;
 		    }
 
 		  Jacobians (*neq, (realtype) (*told), yy, yp, bidon,
@@ -2170,8 +2165,8 @@ static void cossimdaskr (double *told)
 		  CI = 1.0;
 		  for (jj = 0; jj < *neq; jj++)
 		    {
-		      alpha[jj] = CI;
-		      /* beta[jj]=CJ; */
+		      sim_alpha[jj] = CI;
+		      /* sim_beta[jj]=CJ; */
 		    }
 
 		  /*--------------------------------------------*/
@@ -2199,11 +2194,11 @@ static void cossimdaskr (double *told)
 		      return;
 		    };
 
-		  N_iters = 10 + Min (nmod * 3, 30);
+		  N_iters = 10 + Min (sim_nmod * 3, 30);
 		  for (j = 0; j <= N_iters; j++)
 		    {		/* counter to reevaluate the
 				   modes in  mode->CIC->mode->CIC-> loop
-				   do it once in the absence of mode (nmod=0) */
+				   do it once in the absence of mode (sim_nmod=0) */
 		      /* updating the modes through Flag==9, Phase==1 */
 		      if (inxsci == TRUE)
 			{
@@ -2264,11 +2259,11 @@ static void cossimdaskr (double *told)
 			}
 		      /*-------------------------------------*/
 		      /* saving the previous modes */
-		      for (jj = 0; jj < nmod; ++jj)
+		      for (jj = 0; jj < sim_nmod; ++jj)
 			{
-			  Mode_save[jj] = mod[jj];
+			  Mode_save[jj] = sim_mod[jj];
 			}
-		      if (sim_ng > 0 && nmod > 0)
+		      if (sim_ng > 0 && sim_nmod > 0)
 			{
 			  phase = 1;
 			  zdoit (told, sim_x, sim_xd, sim_g);
@@ -2280,9 +2275,9 @@ static void cossimdaskr (double *told)
 			}
 		      /*------------------------------------*/
 		      Mode_change = 0;
-		      for (jj = 0; jj < nmod; ++jj)
+		      for (jj = 0; jj < sim_nmod; ++jj)
 			{
-			  if (Mode_save[jj] != mod[jj])
+			  if (Mode_save[jj] != sim_mod[jj])
 			    {
 			      Mode_change = 1;
 			      break;
@@ -2686,7 +2681,7 @@ static void cossimdaskr (double *told)
   if (*neq > 0) FREE (tmpneq);
   if (sim_ng > 0) FREE (jroot);
   if (sim_ng > 0) FREE (zcros);
-  if (nmod > 0) FREE (Mode_save);
+  if (sim_nmod > 0) FREE (Mode_save);
 }
 
 static void cosend (double *told)
@@ -3448,7 +3443,7 @@ int simblkdaskr (realtype tres, N_Vector yy, N_Vector yp, N_Vector resval, void 
     }
   for (jj = 0; jj < *neq; jj++)
     {
-      beta[jj] = CJ;
+      sim_beta[jj] = CJ;
     }
 
   xc = (double *) NV_DATA_S (yy);
@@ -5254,7 +5249,7 @@ int Jacobians (long int Neq, realtype tt, N_Vector yy, N_Vector yp,
   CJ = (double) cj;
   for (j = 0; j < Neq; j++)
     {
-      beta[j] = CJ;
+      sim_beta[j] = CJ;
     }
 
   srur = (double) RSqrt (UNIT_ROUNDOFF);
@@ -5771,7 +5766,7 @@ simblkKinsol (N_Vector yy, N_Vector resval, void *rdata)
   
   if (phase == 1)
     {
-      if (sim_ng > 0 && nmod > 0)
+      if (sim_ng > 0 && sim_nmod > 0)
 	zdoit (&t, xc, xcdot, sim_g);
     }
   *ierr = 0;
@@ -5826,9 +5821,9 @@ CallKinsol (double *told)
   /* abstol = (realtype) params_Atol; */
 
   Mode_save = NULL;
-  if (nmod > 0)
+  if (sim_nmod > 0)
     {
-      if ((Mode_save = MALLOC (sizeof (int) * nmod)) == NULL)
+      if ((Mode_save = MALLOC (sizeof (int) * sim_nmod)) == NULL)
 	{
 	  *ierr = 10000;
 	  return -1;
@@ -5939,7 +5934,7 @@ CallKinsol (double *told)
   /*========================================================*/
   phase = 2;	// modes are fixed
   status = -1;
-  N_iters = 10 + Min (nmod * 3, 30);
+  N_iters = 10 + Min (sim_nmod * 3, 30);
   for (k = 0; k <= N_iters; k++)
     {				/* loop for mode fixin */
       /*------------KINSOL calls-----------*/
@@ -5981,12 +5976,12 @@ CallKinsol (double *told)
       /*---------end of KINSOL calls-----------*/
       if (phase == 2)
 	{
-	  for (j = 0; j < nmod; ++j)
+	  for (j = 0; j < sim_nmod; ++j)
 	    {
-	      Mode_save[j] = mod[j];
+	      Mode_save[j] = sim_mod[j];
 	    }
 
-	  if (sim_ng > 0 && nmod > 0)
+	  if (sim_ng > 0 && sim_nmod > 0)
 	    {
 	      phase = 1;	// updating the modes
 	      zdoit (told, sim_x, sim_xd, sim_g);
@@ -6000,9 +5995,9 @@ CallKinsol (double *told)
 	    }
 
 	  Mode_change = 0;
-	  for (j = 0; j < nmod; ++j)
+	  for (j = 0; j < sim_nmod; ++j)
 	    {
-	      if (Mode_save[j] != mod[j])
+	      if (Mode_save[j] != sim_mod[j])
 		{
 		  Mode_change = 1;
 		  break;
@@ -6119,15 +6114,15 @@ KinJacobians1 (long int Neq, DenseMat Jacque, N_Vector yy, N_Vector resvec,
   CI = 1.0;
   for (j = 0; j < Neq; j++)
     {
-      alpha[j] = CI;
-      beta[j] = CJ;
+      sim_alpha[j] = CI;
+      sim_beta[j] = CJ;
     }
 
   srur = (double) RSqrt (UNIT_ROUNDOFF);
 
   if (AJacobian_block > 0)
     {
-      nx = Blocks[AJacobian_block - 1].nx;	/* quant on est là cela signifie que AJacobian_block>0 */
+      nx = Blocks[AJacobian_block - 1].nx;	/* quant on est la cela signifie que AJacobian_block>0 */
       no = Blocks[AJacobian_block - 1].nout;
       ni = Blocks[AJacobian_block - 1].nin;
       y = (double **) Blocks[AJacobian_block - 1].outptr;	/*for compatibility */
