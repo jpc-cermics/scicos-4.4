@@ -283,11 +283,11 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
     if funtyp(i,1)<10000 then
       xcd0=[xcd0;0*X0]
       xc0=[xc0;X0]
-      xptr(i+1)=xptr(i)+size(ll.state,'*')
+      xptr(i+1,1)=xptr(i,1)+size(ll.state,'*')
     else
       xcd0=[xcd0;X0($/2+1:$)]
       xc0=[xc0;X0(1:$/2)]
-      xptr(i+1)=xptr(i)+size(ll.state,'*')/2
+      xptr(i+1,1)=xptr(i,1)+size(ll.state,'*')/2
     end
 
     //dstate
@@ -297,32 +297,32 @@ function [lnksz,lnktyp,inplnk,outlnk,clkptr,cliptr,inpptr,outptr,xptr,zptr,..
       xd0k=ll.dstate(:)
     end
     xd0=[xd0;xd0k]
-    zptr(i+1)=zptr(i)+size(xd0k,'*')
+    zptr(i+1,1)=zptr(i)+size(xd0k,'*')
 
     //odstate
     if type(ll.odstate,'short')=='l' then
       if ((funtyp(i,1)==5) | (funtyp(i,1)==10005)) then //sciblocks : don't extract
         if length(ll.odstate)>0 then
           oxd0($+1)=ll.odstate
-          ozptr(i+1)=ozptr(i)+1;
+          ozptr(i+1,1)=ozptr(i,1)+1;
         else
-          ozptr(i+1)=ozptr(i);
+          ozptr(i+1,1)=ozptr(i,1);
         end
       elseif ((funtyp(i,1)==4)    | (funtyp(i,1)==10004) |...
               (funtyp(i,1)==2004) | (funtyp(i,1)==12004))  //C blocks : extract
         ozsz=length(ll.odstate);
         if ozsz>0 then
           for j=1:ozsz, oxd0($+1)=ll.odstate(j), end;
-          ozptr(i+1)=ozptr(i)+ozsz;
+          ozptr(i+1,1)=ozptr(i,1)+ozsz;
         else
-          ozptr(i+1)=ozptr(i);
+          ozptr(i+1,1)=ozptr(i,1);
         end
       else
-        ozptr(i+1)=ozptr(i);
+        ozptr(i+1,1)=ozptr(i,1);
       end
     else
       //add an error message here please !
-      ozptr(i+1)=ozptr(i);
+      ozptr(i+1,1)=ozptr(i,1);
     end
 
     //mod
