@@ -567,7 +567,6 @@ cosini (double *told)
   /* Jacobian */
   AJacobian_block = 0;
 
-  /* Function Body */
   *ierr = 0;
 
   /*     initialization (flag 4) */
@@ -905,6 +904,9 @@ cossim (double *told)
   abstol = (double) Scicos->params.Atol;	/* Ith(abstol,1) = double) Atol; */
   hmax_auto = (Scicos->params.hmax > 0) ? Scicos->params.hmax : (*tf / 100.0);
 
+  if ( (Scicos->sim.noord) == 0)
+    hmax_auto = Scicos->params.deltat;
+  
   switch (Scicos->params.solver)
     {
     case 0:			/* LSODAR initialization */
@@ -934,7 +936,6 @@ cossim (double *told)
       return;
     }
 
-  /* Function Body */
   Scicos->params.halt = 0;
   *ierr = 0;
   inxsci = nsp_check_events_activated ();
@@ -1020,12 +1021,7 @@ cossim (double *told)
       if (Abs (t - *told) < Scicos->params.ttol)
 	{
 	  t = *told;
-	  /*cdoit (told);
-	   *if (*ierr != 0) {
-	   * goto err;
-	   * return;
-	   * }
-	   */
+	  cdoit (told);
 	  /*     update output part */
 	}
       if (*told > t)
@@ -1957,7 +1953,6 @@ cossimdaskr (double *told)
   while (1.0 + uround != 1.0);
   uround = uround * 2.0;
   SQuround = sqrt (uround);
-  /* Function Body */
 
   Scicos->params.halt = 0;
   *ierr = 0;
@@ -3602,7 +3597,7 @@ void
 addevs (double t, int *evtnb, int *ierr1)
 {
   static int i, j;
-  /* Function Body */
+
   *ierr1 = 0;
   if (evtspt[-1 + *evtnb] != -1)
     {
@@ -3686,7 +3681,6 @@ addevs (double t, int *evtnb, int *ierr1)
 void
 putevs (const double *t, int *evtnb, int *ierr1)
 {
-  /* Function Body */
   *ierr1 = 0;
   if (evtspt[-1 + *evtnb] != -1)
     {
@@ -3861,7 +3855,6 @@ cdoit (double *told)
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
     Sciprintf ("cdoit: %f\n", *told);
 
-  /* Function Body */
   for (j = 0; j < (Scicos->sim.ncord); j++)
     {
       kf = &Scicos->sim.cord[j];
@@ -3926,7 +3919,6 @@ ddoit (double *told)
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
     Sciprintf ("ddoit(): %f\n", *told);
 
-  /* Function Body */
   kiwa = 0;
   edoit (told, &kiwa);
   if (*ierr != 0)
@@ -4047,7 +4039,6 @@ edoit (double *told, int *kiwa)
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
     Sciprintf ("edoit(): %f\n", *told);
 
-  /* Function Body */
   kever = *pointi;
 
   *pointi = evtspt[-1 + kever];
@@ -4128,7 +4119,6 @@ odoit (const double *told, double *xt, double *xtd, double *residual)
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
     Sciprintf ("odoit(): %f\n", *told);
 
-  /* Function Body */
   kiwa = 0;
   for (jj = 0; jj < (Scicos->sim.noord); jj++)
     {
@@ -4284,7 +4274,6 @@ reinitdoit (double *told)
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
     Sciprintf ("reinitdoit(): %f\n", *told);
 
-  /* Function Body */
   kiwa = 0;
   for (jj = 0; jj < (Scicos->sim.noord); jj++)
     {
@@ -4398,7 +4387,6 @@ ozdoit (const double *told, double *xt, double *xtd, int *kiwa)
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
     Sciprintf ("ozdoit(): %f\n", *told);
 
-  /* Function Body */
   kever = *pointi;
   *pointi = evtspt[-1 + kever];
   evtspt[-1 + kever] = -1;
@@ -4478,7 +4466,6 @@ zdoit (const double *told, double *xt, double *xtd, double *g)
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
     Sciprintf ("zdoit(): %f\n", *told);
 
-  /* Function Body */
   for (i = 0; i < (Scicos->sim.ng); i++)
     {
       g[i] = 0.;
@@ -4648,7 +4635,6 @@ Jdoit (double *told, double *xt, double *xtd, double *residual, int *job)
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
     Sciprintf ("Jdoit: %f\n", *told);
 
-  /* Function Body */
   kiwa = 0;
   for (jj = 0; jj < (Scicos->sim.noord); jj++)
     {
