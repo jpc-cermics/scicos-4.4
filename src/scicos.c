@@ -2261,8 +2261,7 @@ cossimdaskr (double *told)
 			}
 
 		      /* yy->PH */
-		      flag = IDAReInit (ida_mem, simblkdaskr, (double) (*told), yy, yp, IDA_SS, reltol,
-					&abstol);
+		      flag = IDAReInit (ida_mem, simblkdaskr, (double) (*told), yy, yp, IDA_SS, reltol,	&abstol);
 		      if (check_flag (&flag, "CVodeReInit", 1))
 			{
 			  *ierr = 200 + (-flag);
@@ -2275,7 +2274,7 @@ cossimdaskr (double *told)
 
 		      flagr = IDACalcIC (ida_mem, IDA_YA_YDP_INIT, (double) (t));
 		      Scicos->params.phase = 1;
-		      flag = IDAGetConsistentIC (ida_mem, yy, yp);	/* PHI->YY */
+		      flag = IDAGetConsistentIC (ida_mem, yy, yp); /* PHI->YY */
 
 		      if (*ierr > 5)
 			{
@@ -2768,6 +2767,8 @@ cosend (double *told)
       return;
     }
 }
+
+/* call the simulation function attached to a specific block  */
 
 void
 callf (const double *t, scicos_block * block, int *flag)
@@ -3322,7 +3323,7 @@ lsodar2_simblk (const int *neq1, const double *t, double *xc, double *xcdot, voi
 	{			/* NaN checking */
 	  if ((xcdot[i] - xcdot[i] != 0))
 	    {
-	      Sciprintf ("Warning: The computing function #%d returns a NaN/Inf", i);
+	      Sciprintf ("Warning: The computing function #%d returns a NaN/Inf\n", i);
 	      nantest = 1;
 	      break;
 	    }
@@ -3380,7 +3381,7 @@ CVsimblk (double t, N_Vector yy, N_Vector yp, void *f_data)
 	{			/* NaN checking */
 	  if ((xd[i] - xd[i] != 0))
 	    {
-	      Sciprintf ("Warning: The computing function #%d returns a NaN/Inf", i);
+	      Sciprintf ("Warning: The computing function #%d returns a NaN/Inf\n", i);
 	      nantest = 1;
 	      break;
 	    }
@@ -3432,7 +3433,7 @@ CVgrblk (double t, N_Vector yy, double *gout, void *g_data)
       for (jj = 0; jj < Scicos->sim.ng; jj++)
 	if (gout[jj] - gout[jj] != 0)
 	  {
-	    Sciprintf ("Warning: The zero_crossing function #%d returns a NaN/Inf", jj);
+	    Sciprintf ("Warning: The zero_crossing function #%d returns a NaN/Inf\n", jj);
 	    nantest = 1;
 	    break;
 	  }			/* NaN checking */
@@ -3462,7 +3463,7 @@ simblkdaskr (double tres, N_Vector yy, N_Vector yp, N_Vector resval, void *rdata
   ida_data = (User_IDA_data) rdata;
   ida_mem = ida_data->ida_mem;
   IDAGetfcallerid (ida_mem, &Sfcallerid);
-
+  
   if (!areModesFixed (block))
     {
       /* Just to update mode in a very special case, i.e., when initialization using modes fails.
@@ -3502,7 +3503,7 @@ simblkdaskr (double tres, N_Vector yy, N_Vector yp, N_Vector resval, void *rdata
       // alpha[jj]=CI;
       Scicos->sim.beta[jj] = CJ;
     }
-
+  
   xc = (double *) NV_DATA_S (yy);
   xcdot = (double *) NV_DATA_S (yp);
   residual = (double *) NV_DATA_S (resval);
@@ -3521,7 +3522,7 @@ simblkdaskr (double tres, N_Vector yy, N_Vector yp, N_Vector resval, void *rdata
       for (jj = 0; jj < *Scicos->params.neq; jj++)
 	if (residual[jj] - residual[jj] != 0)
 	  {			/* NaN checking */
-	    /* Sciprintf("\nWarning: The residual function #%d returns a NaN",jj); */
+	    /* Sciprintf("Warning: The residual function #%d returns a NaN/Inf\n",jj); */
 	    nantest = 1;
 	    break;
 	  }
@@ -3550,7 +3551,7 @@ grblkdaskr (double t, N_Vector yy, N_Vector yp, double *gout, void *g_data)
 	{
 	  if (gout[jj] - gout[jj] != 0)
 	    {
-	      Sciprintf ("Warning: The zero-crossing function #%d returns a NaN", jj);
+	      Sciprintf ("Warning: The zero-crossing function #%d returns a NaN/Inf\n", jj);
 	      nantest = 1;
 	      break;
 	    }
@@ -3918,7 +3919,7 @@ ddoit (double *told)
 
   
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
-    Sciprintf ("ddoit(): %f\n", *told);
+    Sciprintf ("ddoit: %f\n", *told);
 
   kiwa = 0;
   edoit (told, &kiwa);
@@ -4037,7 +4038,7 @@ edoit (double *told, int *kiwa)
   int nord;
 
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
-    Sciprintf ("edoit(): %f\n", *told);
+    Sciprintf ("edoit: %f\n", *told);
 
   kever = *pointi;
 
@@ -4116,7 +4117,7 @@ odoit (const double *told, double *xt, double *xtd, double *residual)
   int *kf;
 
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
-    Sciprintf ("odoit(): %f\n", *told);
+    Sciprintf ("odoit: %f\n", *told);
 
   kiwa = 0;
   for (jj = 0; jj < (Scicos->sim.noord); jj++)
@@ -4175,7 +4176,7 @@ odoit (const double *told, double *xt, double *xtd, double *residual)
 	    }
 	}
     }
-
+  
   /*  update states derivatives */
   for (ii = 0; ii < (Scicos->sim.noord); ii++)
     {
@@ -4270,7 +4271,7 @@ reinitdoit (double *told)
   int *kf;
 
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
-    Sciprintf ("reinitdoit(): %f\n", *told);
+    Sciprintf ("reinitdoit: %f\n", *told);
 
   kiwa = 0;
   for (jj = 0; jj < (Scicos->sim.noord); jj++)
@@ -4382,7 +4383,7 @@ ozdoit (const double *told, double *xt, double *xtd, int *kiwa)
   int *kf;
 
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
-    Sciprintf ("ozdoit(): %f\n", *told);
+    Sciprintf ("ozdoit: %f\n", *told);
 
   kever = *pointi;
   *pointi = evtspt[-1 + kever];
@@ -4461,7 +4462,7 @@ zdoit (const double *told, double *xt, double *xtd, double *g)
   int *kf;
 
   if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
-    Sciprintf ("zdoit(): %f\n", *told);
+    Sciprintf ("zdoit: %f\n", *told);
 
   for (i = 0; i < (Scicos->sim.ng); i++)
     {
@@ -5480,7 +5481,7 @@ Jacobians (long int Neq, double tt, N_Vector yy, N_Vector yp,
   Jdoit (&ttx, xc, xcdot, &Fx[-m], &job);	/* Filling up the FX:Fu:Gx:Gu */
   if (*ierr != 0)
     {
-      Sciprintf ("error in Jacobian");
+      Sciprintf ("error in Jacobian\n");
       return -1;
     }
   /*-------------------------------------------------*/
@@ -5710,7 +5711,7 @@ write_xml_states (int nvar, const char *xmlfile, char **ids, double *x)
   if (model == NULL)
     {
       Sciprintf ("Error: cannot find '%s'  \n", xmlfile);
-      return -1;		/* file does not existe */
+      return -1;		/* file does not exist */
     }
 
   elements = ezxml_child (model, "elements");
@@ -5723,7 +5724,7 @@ write_xml_states (int nvar, const char *xmlfile, char **ids, double *x)
       if (result == 0)
 	{
 	  Sciprintf ("Error: cannot find \"%s\" in the XML file \n", ids[i]);
-	  /* err= -1; *//* Varaible does not existe */
+	  /* err= -1; *//* Variable does not exist */
 	}
     }
 
@@ -6338,7 +6339,7 @@ KinJacobians1 (long int Neq, DenseMat Jacque, N_Vector yy,
     Fx[j] = 0.0;		/* Filling up FX:Fu:Gx:Gu */
   Jdoit (&ttx, xc, xcdot, &Fx[-m], &job);	/* Filling up the FX:Fu:Gx:Gu */
   if (*block_error != 0)
-    Sciprintf ("Error: in Jacobian");
+    Sciprintf ("Error: in Jacobian\n");
   /*-------------------------------------------------*/
   Multp (Fu, Ku, RX, nx, ni, ni, no);
   Multp (RX, Gx, FuKuGx, nx, no, no, nx);
