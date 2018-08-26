@@ -43,21 +43,37 @@ int scicos_mtran (double *a, int na, double *b, int nb, int m, int n)
   return 0;
 }
 
-/* the following function can be called from Modelica 
+/* The following functions can be called from Modelica 
  * generated code 
  */
 
-double exp_(double x) 
+double exp_ (double x)
 {
-  return exp(x);
+  double Limit = 16;
+  if (x < Limit)
+    {
+      return exp (x);
+    }
+  else
+    {
+      return exp (Limit) * (x + 1 - Limit);
+    };
 }
 
-double log_(double x)
+double log_ (double x)
 {
-  return log(x);
+  double eps = 1e-10;
+  if (Abs (x) > eps)
+    {
+      return log (Abs (x));
+    }
+  else
+    {
+      return (Abs (x) / eps) + log (eps) - 1;
+    };
 }
 
-double pow_(double x, double y)
+double pow_ (double x, double y)
 {
-  return pow(x,y);
+  return exp_ (y * log_ (x));
 }
