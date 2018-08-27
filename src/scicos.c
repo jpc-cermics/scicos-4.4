@@ -1821,6 +1821,9 @@ Setup_IDA (void **ida_mem, int N, N_Vector * yy, double *x, N_Vector * yp, doubl
   return 0;
 }
 
+static void scicos_IDAErrHandler(int error_code, const char *module,
+				 const char *function, char *msg, void *data);
+
 static void
 cossimdaskr (double *told)
 {
@@ -2011,6 +2014,10 @@ cossimdaskr (double *told)
   /*     main loop on time */
   tstop = *tf + Scicos->params.ttol;
 
+  /* setup error handler */
+
+  if ( ida_mem != NULL)  IDASetErrHandlerFn(ida_mem, scicos_IDAErrHandler, NULL);
+    
   while (*told < *tf)
     {
       if (inxsci == TRUE)
@@ -2732,8 +2739,26 @@ cossimdaskr (double *told)
     FREE (zcros);
   if (nmod > 0)
     FREE (Mode_save);
-}				/* cossimdaskr_ */
+}
 
+/* scicos error handler for ida functions 
+ *
+ */
+
+static void
+scicos_IDAErrHandler(int error_code, const char *module,
+		     const char *function, char *msg, void *data)
+{
+  /* IDAMem IDA_mem = (IDAMem) data; */
+
+  if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
+    {
+      Sciprintf("%s: in module %s, function %s, %s\n",
+		(error_code == IDA_WARNING) ? "Warning" : "Error",
+		module, function, msg);
+    }
+  return;
+}
 
 static void
 cosend (double *told)
