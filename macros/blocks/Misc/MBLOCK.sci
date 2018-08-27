@@ -297,6 +297,7 @@ function [ok,cancel,paramv,lab_res]=MBLOCK_get_parameters_values(param,exprs)
   // param are the labels,
   // ee=evstr(exprs.param) is also the labels by maybe in a different order
   // exprs.paramv is a list giving th evalues (same order as ee).
+  lab_res =[];
   ok=%t;
   paramv=list();
   cancel=%f;
@@ -329,7 +330,6 @@ function [ok,cancel,paramv,lab_res]=MBLOCK_get_parameters_values(param,exprs)
 		   lab_txt+ '],' + 'list(' + rhs_txt + '),lab_2);';
     //display the second dialog box
     execstr(getvalue_txt);
-
     if ~ok then cancel=%t;ok=%t; return;end;
     //restore original lab_2 if not ok
   else
