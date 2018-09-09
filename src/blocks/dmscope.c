@@ -357,7 +357,7 @@ static void scicos_cscope_axes_update(NspAxes *axe,double t, double Ts,
     }
   if ( isinf(ymin) && tag == TRUE ) frect[1]= bounds[1];
   if ( isinf(ymax) && tag == TRUE ) frect[3]= bounds[3];
-  if ( ~isinf(Ts) )
+  if ( ! isinf(Ts) )
     {
       frect[0]= Max(0,t-Ts);
       frect[2]= t;
