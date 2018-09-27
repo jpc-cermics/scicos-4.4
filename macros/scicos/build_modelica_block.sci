@@ -11,7 +11,8 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
   
   function id_out=cleanID1(id)
   // replace characters of id which are no alphabetic or digit to _
-  // moreover if starting character is a digit it is replaced by '_'.
+    // moreover if starting character is a digit it is replaced by '_'.
+    if size(id,'*') > 1 then id = catenate(id);end
     T=isalnum(id);
     ida=ascii(id);
     ida(~T)=ascii('_');
@@ -117,6 +118,7 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
     else
       id=''
     end
+    if size(id,'*') > 1 then id = catenate(id);end
     mo=o.equations;
     BlockName=get_model_name(mo.model,id,Bnam)
     if ~isempty(mo.parameters) then
@@ -710,6 +712,7 @@ function model_name=get_model_name(mo_model,id,AllNames)
   
   function id_out=cleanID(id)
     // utility function: replaces characters of id which are no alphabetic or digit by '_'
+    if size(id,'*') > 1 then id = catenate(id);end
     T=isalnum(id);
     ida=ascii(id);
     ida(~T)=ascii('_');

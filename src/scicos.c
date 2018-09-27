@@ -21,6 +21,11 @@
  * 
  *--------------------------------------------------------------------------*/
 
+/* use error handlers in sundials 
+ * already done for IDA scicos_IDAErrHandler
+ * already done for CVide scicos_CVErrHandler
+ */
+
 #include <nsp/nsp.h>
 #include <nsp/linking.h>
 #include <nsp/graphics-new/Graphics.h>
@@ -154,7 +159,7 @@ scicos_run *Scicos = NULL;
 int scicos_debug_level = -1;
 
 int
-scicos_main (scicos_run * sr, double *t0_in, double *tf_in, double *simpar, int *flag__, int *ierr_out)
+scicos_main (scicos_run *sr, double *t0_in, double *tf_in, double *simpar, int *flag__, int *ierr_out)
 {
   int kf, mxtb, ierr0, kfun0, i, j, k, ni, no;
   double *W;
@@ -698,6 +703,9 @@ cosini (double *told)
     FREE (outtb[kk]);
 }
 
+static void
+scicos_CVErrHandler(int error_code, const char *module,
+		    const char *function, char *msg, void *data);
 
 int
 Setup_Cvode (void **cvode_mem, int solver, int N, N_Vector * y,
@@ -794,14 +802,31 @@ Setup_Cvode (void **cvode_mem, int solver, int N, N_Vector * y,
     }
 
   CVodeSetMaxNumSteps (*cvode_mem, 50000);
-
+  /* new error handler */
+  CVodeSetErrHandlerFn(*cvode_mem, scicos_CVErrHandler, NULL);
+  
   /* Set the Jacobian routine to Jac (user-supplied) 
-     flag = CVDenseSetJacFn(cvode_mem, Jac, NULL);
-     if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);  */
+   * flag = CVDenseSetJacFn(cvode_mem, Jac, NULL);
+   * if (check_flag(&flag, "CVDenseSetJacFn", 1)) return(1);  
+   */
   return 0;
 }
 
+/* scicos_CVErrHandler error handling function for scicos version 
+ */
 
+static void
+scicos_CVErrHandler(int error_code, const char *module,
+		    const char *function, char *msg, void *data)
+{
+  if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
+    {
+      Sciprintf("%s: in module %s, function %s, %s\n",
+		(error_code == CV_WARNING) ? "Warning" : "Error",
+		module, function, msg);
+    }
+  return;
+}
 
 int
 Setup_Lsodar (int *nrwp, int *niwp, double **rhot, int **ihot, double hmax, int *iopt, int N, int ng1)
@@ -3545,7 +3570,7 @@ simblkdaskr (double tres, N_Vector yy, N_Vector yp, N_Vector resval, void *rdata
     {
       nantest = 0;
       for (jj = 0; jj < *Scicos->params.neq; jj++)
-	if (residual[jj] - residual[jj] != 0)
+	if ( isnan(residual[jj] - residual[jj])) 
 	  {			/* NaN checking */
 	    /* Sciprintf("Warning: The residual function #%d returns a NaN/Inf\n",jj); */
 	    nantest = 1;
@@ -5115,7 +5140,7 @@ int C2F (funnum) (char *fname)
 int
 scicos_get_phase_simulation ()
 {
-  return Scicos->params.phase;
+  return ( Scicos != NULL) ? Scicos->params.phase : 0;
 }
 
 /* 
@@ -5144,14 +5169,15 @@ scicos_get_fcaller_id ()
 void
 scicos_do_cold_restart ()
 {
-  Scicos->params.hot = 0;
+  if ( Scicos != NULL)
+    Scicos->params.hot = 0;
   return;
 }
 
 int
 scicos_what_is_hot ()
 {
-  return Scicos->params.hot;
+  return ( Scicos != NULL) ? Scicos->params.hot : 0;
 }
 
 /* get_scicos_time : return the current
@@ -5176,7 +5202,7 @@ scicos_get_final_time ()
 int
 scicos_get_block_number ()
 {
-  return Scicos->params.curblk;
+  return ( Scicos != NULL) ? Scicos->params.curblk : -1;
 }
 
 /* set_block_number : set the current
@@ -5186,7 +5212,8 @@ scicos_get_block_number ()
 void
 scicos_set_block_number (int block_number)
 {
-  Scicos->params.curblk = block_number;
+  if ( Scicos != NULL) 
+    Scicos->params.curblk = block_number;
 }
 
 /* set_block_error : set an error number
@@ -5234,7 +5261,8 @@ scicos_get_block_error (void)
 void
 scicos_end_scicos_sim (void)
 {
-  Scicos->params.halt = 2;
+  if ( Scicos != NULL)
+    Scicos->params.halt = 2;
   return;
 }
 
@@ -5243,7 +5271,7 @@ scicos_end_scicos_sim (void)
 int *
 scicos_get_pointer_xproperty (void)
 {
-  return &Scicos->sim.xprop[-1 + xptr[Scicos->params.curblk - 1]];
+  return ( Scicos != NULL) ? &Scicos->sim.xprop[-1 + xptr[Scicos->params.curblk - 1]] : NULL;
 }
 
 /* get_Npointer_xproperty */
@@ -5251,7 +5279,7 @@ scicos_get_pointer_xproperty (void)
 int
 scicos_get_npointer_xproperty (void)
 {
-  return Blocks[Scicos->params.curblk - 1].nx;
+  return ( Scicos != NULL) ? Blocks[Scicos->params.curblk - 1].nx : 0;
 }
 
 /* set_pointer_xproperty */
@@ -5260,17 +5288,18 @@ void
 scicos_set_pointer_xproperty (int *pointer)
 {
   int i;
-  for (i = 0; i < Blocks[Scicos->params.curblk - 1].nx; i++)
-    {
-      Blocks[Scicos->params.curblk - 1].xprop[i] = pointer[i];
-    }
+  if ( Scicos != NULL)
+    for (i = 0; i < Blocks[Scicos->params.curblk - 1].nx; i++)
+      {
+	Blocks[Scicos->params.curblk - 1].xprop[i] = pointer[i];
+      }
   return;
 }
 
 char *
 scicos_get_label (int kf)
 {
-  return Blocks[kf - 1].label;
+  return ( Scicos != NULL) ? Blocks[kf - 1].label : NULL;
 }
 
 void
@@ -5292,20 +5321,17 @@ Get_Jacobian_cj (void)
   return CJ;
 }
 
-
 double
 Get_Scicos_SQUR (void)
 {
   return SQuround;
 }
 
-
 void
 scicos_set_scicos_run (scicos_run * scicos_r)
 {
   Scicos = scicos_r;
 }
-
 
 scicos_run *
 scicos_get_scicos_run (void)
@@ -5925,6 +5951,10 @@ simblkKinsol (N_Vector yy, N_Vector resval, void *rdata)
   return (Abs (*ierr));		/* ierr>0 recoverable error; ierr>0 unrecoverable error; ierr=0: ok */
 }
 
+static void
+scicos_KINErrHandler(int error_code, const char *module,
+		     const char *function, char *msg, void *data);
+
 static int
 CallKinsol (double *told)
 {
@@ -6009,6 +6039,9 @@ CallKinsol (double *told)
       KINFree (&kin_mem);
       return -1;
     }
+  
+  KINSetErrHandlerFn(kin_mem, scicos_KINErrHandler, NULL);
+
   kin_data->uscale = ysdata;
 
   /*Jacobian_Flag=0; */
@@ -6162,6 +6195,22 @@ CallKinsol (double *told)
   FREE (kin_data);
   KINFree (&kin_mem);
   return status;
+}
+
+/* scicos_CVErrHandler error handling function for scicos version 
+ */
+
+static void
+scicos_KINErrHandler(int error_code, const char *module,
+		    const char *function, char *msg, void *data)
+{
+  if ((Scicos->params.debug >= 1) && (Scicos->params.debug != 3))
+    {
+      Sciprintf("%s: in module %s, function %s, %s\n",
+		(error_code == KIN_WARNING) ? "Warning" : "Error",
+		module, function, msg);
+    }
+  return;
 }
 
 int
