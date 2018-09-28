@@ -1,4 +1,5 @@
 function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
+  
   select blk.gui
     case 'MBM_Add' then
       // blk.graphics.exprs contains
@@ -9,19 +10,28 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // and add saturation if requested
       gains = evstr(blk.graphics.exprs(2));
       if size(gains,'*') == 1 then
-	// cannot use add in that case 
-	str_gains = blk.graphics.exprs(2);
+	// cannot use add in that case we revert to a gain
+	// which will be a modelica gain since we call instantiate_block
+	old = blk;
+	str_gains = old.graphics.exprs(2);
 	blk = instantiate_block ('GAINBLK');
-	blk.graphics.sz=20*blk.graphics.sz;
+	blk = set_block_params_from(blk, old);
 	params = cell (0, 2);
 	params.concatd [ { "gain", str_gains } ];
 	params.concatd [ { "over", '0' } ];
 	params.concatd [ { "mulmethod", '1' } ];
 	blk = set_block_parameters (blk, params);
-      elseif size(gains,'*') == 2 then
-	blk.graphics.exprs= string(gains)(:);
+      elseif  size(gains,'*') == 2 then
+	params = cell (0, 2);
+	params.concatd [ { "k1", string(gains(1)) } ];
+	params.concatd [ { "k2", string(gains(2)) }];
+	blk = set_block_parameters (blk, params);
+	blk = set_block_nin (blk, 2);
+	blk = set_block_nout (blk, 1);
+	blk = set_block_evtnin (blk, 0);
+	blk = set_block_evtnout (blk, 0);
       else
-	blk= add_modelicos_mbm_add(blk);
+	blk= add_modelicos_mbm_add(blk, gains);
       end
     case 'MBC_Integrator' then
       // params.concatd [ { "x0", '0' } ];
@@ -36,17 +46,18 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // blk.graphics.exprs= blk.graphics.exprs;
     case 'IMPSPLIT_f' then
     case 'MBM_Gain' then
-      // we do not have context here 
+      // we do not have context here thus maybe we have to step back
       ok=execstr('gains ='+blk.graphics.exprs(1),errcatch=%t);
       if ~ok || size(gains,'*') <> 1 then
+	old = blk;
 	str_gains = blk.graphics.exprs(1);
 	blk = GAINBLK('define');
+	blk = set_block_params_from(blk, old);
 	params = cell (0, 2);
 	params.concatd [ { "gain", str_gains } ];
 	params.concatd [ { "over", '0' } ];
 	params.concatd [ { "mulmethod", '1' } ];
 	blk = set_block_parameters (blk, params);
-	blk.graphics.sz=20*blk.graphics.sz;
       end
   end
   blk.graphics.id = identification;
@@ -54,7 +65,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
   obj_num = string(length(scs_m.objs))
 endfunction
 
-function blk= add_modelicos_mbm_add(blk)
+function blk= add_modelicos_mbm_add(blk, gains)
   // generate a block for performing multiple additions
   // using mbm_add as basic block
   super_blk = instantiate_super_block ();
@@ -87,9 +98,21 @@ function blk= add_modelicos_mbm_add(blk)
     blk_in= set_block_parameters (blk_in, { "prt", string(i) });
     scsm.objs($+1)= blk_in;
   end
-  first=blk;
-  first.graphics.exprs= string(gains(1:2))(:);
-  first.graphics.orig = [2*xinter; top];
+  
+  first = MBM_Add('define');
+  params = cell (0, 2);
+  params.concatd [ { "k1", string(gains(1)) } ];
+  params.concatd [ { "k2", string(gains(2)) }];
+  first = set_block_parameters (first, params);
+  first = set_block_nin (first, 2);
+  first = set_block_nout (first, 1);
+  first = set_block_evtnin (first, 0);
+  first = set_block_evtnout (first, 0);
+  first = set_block_flip (first, %f);
+  first = set_block_theta (first, 0);
+  first = set_block_size (first, blk.graphics.sz);
+  first = set_block_origin (first, [2*xinter; top]);
+
   scsm.objs($+1)= first;
   to = length(scsm.objs);
   scsm = add_implicit_link(scsm,['2','1'],[string(to),'1'],[]);
@@ -97,9 +120,18 @@ function blk= add_modelicos_mbm_add(blk)
   from= to;
   for j=3:size(gains,'*') do
     new = MBM_Add('define');
+    params = cell (0, 2);
+    params.concatd [ { "k1", '1' } ];
+    params.concatd [ { "k2", string(gains(j)) }];
+    new = set_block_parameters (new, params);
+    new = set_block_nin (new, 2);
+    new = set_block_nout (new, 1);
+    new = set_block_evtnin (new, 0);
+    new = set_block_evtnout (new, 0);
+    new = set_block_flip (new, %f);
+    new = set_block_theta (new, 0);
     new = set_block_size (new, blk.graphics.sz);
     new = set_block_origin (new, [2*xinter+ 2*xinter*(j-2); top - 2*yinter*(j-2)]);
-    new.graphics.exprs=['1';string(gains(j))];
     scsm.objs($+1)= new;
     to =  length(scsm.objs);
     scsm = add_implicit_link(scsm,[string(from),'1'],[string(to),'1'],[]);
@@ -111,3 +143,4 @@ function blk= add_modelicos_mbm_add(blk)
   super_blk = fill_super_block (super_blk, scsm);
   blk = super_blk;
 endfunction
+
