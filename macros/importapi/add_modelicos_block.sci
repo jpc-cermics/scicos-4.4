@@ -12,6 +12,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
 	// cannot use add in that case 
 	str_gains = blk.graphics.exprs(2);
 	blk = instantiate_block ('GAINBLK');
+	blk.graphics.sz=20*blk.graphics.sz;
 	params = cell (0, 2);
 	params.concatd [ { "gain", str_gains } ];
 	params.concatd [ { "over", '0' } ];
@@ -34,6 +35,19 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // params.concatd [ { "C", '1' } ];
       // blk.graphics.exprs= blk.graphics.exprs;
     case 'IMPSPLIT_f' then
+    case 'MBM_Gain' then
+      // we do not have context here 
+      ok=execstr('gains ='+blk.graphics.exprs(1),errcatch=%t);
+      if ~ok || size(gains,'*') <> 1 then
+	str_gains = blk.graphics.exprs(1);
+	blk = GAINBLK('define');
+	params = cell (0, 2);
+	params.concatd [ { "gain", str_gains } ];
+	params.concatd [ { "over", '0' } ];
+	params.concatd [ { "mulmethod", '1' } ];
+	blk = set_block_parameters (blk, params);
+	blk.graphics.sz=20*blk.graphics.sz;
+      end
   end
   blk.graphics.id = identification;
   scs_m.objs($+1) = blk ; // add the object to the data structure
