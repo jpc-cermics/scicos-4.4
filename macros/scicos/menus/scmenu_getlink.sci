@@ -578,7 +578,7 @@ function [connected,xyio,typio,szio,sziotyp,tofrom]=getportblk(o,ktofrom,typ,pt)
         typtofrom='in'
       elseif (k>size(ip,'*')+size(cip,'*')) then
         port_number=k-size(ip,'*')-size(cip,'*')
-        if isempty(io_ImplIndx) then
+        if size(io_ImplIndx,'*') < port_number then
           port_number=[];
         else
           port_number=io_ImplIndx(port_number)
@@ -598,7 +598,7 @@ function [connected,xyio,typio,szio,sziotyp,tofrom]=getportblk(o,ktofrom,typ,pt)
         typtofrom='out'
       elseif (k>size(op,'*')+size(cop,'*')) then
         port_number=k-size(op,'*')-size(cop,'*')
-        if isempty(io_ImplIndx) then
+        if size(io_ImplIndx,'*') < port_number then
           port_number=[];
         else
           port_number=io_ImplIndx(port_number)
