@@ -10,7 +10,7 @@ function blk=set_block_params_from(blk,fromblk)
 
   blk.graphics.in_implicit = fromblk.graphics.in_implicit;
   blk.graphics.pin = fromblk.graphics.pin;
-  blk.model.in
+  blk.model.in= fromblk.model.in;
     
   blk.graphics.out_implicit = fromblk.graphics.out_implicit;
   blk.graphics.pout = fromblk.graphics.pout;

@@ -1,6 +1,51 @@
 function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
   
   select blk.gui
+    case 'EXPRESSION' then
+      old=blk;
+      blk = instantiate_block ('MBLOCK');
+      blk = set_block_params_from(blk, old);
+      n_in = evstr(old.graphics.exprs(1));
+      in= 'u' + string(1:n_in);
+      intype= smat_create(n_in,1,'I');
+      out=['y1'];
+      outtype=['I'];
+      param=[];
+      paramv=list();
+      pprop=[];
+      global(modelica_count=0);
+      nameF='generic'+string(modelica_count);
+      modelica_count =       modelica_count +1;
+                  
+      exprs = tlist(["MBLOCK","in","intype","out","outtype",...
+		     "param","paramv","pprop","nameF","funtxt"],...
+		    sci2exp(in(:)),...
+		    sci2exp(intype(:)),...
+		    sci2exp(out(:)),...
+		    sci2exp(outtype(:)),...
+		    sci2exp(param(:)),...
+		    list(string(0.1),string(.0001)),...
+		    sci2exp(pprop(:)),...
+		    nameF,m2s([]))
+      blk.graphics.exprs = exprs;
+      
+      modelica_expr= strsubst(old.graphics.exprs(2),"%","");
+      txt = modelica_expr;
+      modelica_expr= strsubst(modelica_expr, in, in+'.signal');
+            
+      blk.graphics.exprs.funtxt =[sprintf("model %s", nameF);
+				  sprintf("RealInput %s;",catenate(in,sep=","));                         
+				  sprintf("RealOutput %s;",out);
+				  "  equation";
+          			  sprintf("    y1.signal = %s;",modelica_expr);
+				  sprintf("end %s;", nameF)];
+      // evaluer 
+      diag = scs_m;
+      diag.objs= list(blk);
+      [diag1,ok]=do_silent_eval(diag);
+      blk = diag1.objs(1);
+      // unfortunately this will be crushed by last eval 
+      blk.graphics.gr_i(1)(1) = sprintf("txt = %s;",txt);
     case 'TrigFun' then
       name = blk.graphics.exprs;
       names=['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh']

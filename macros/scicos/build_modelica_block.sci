@@ -23,6 +23,7 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
   // get the name of the generated main modelica file
   name=stripblanks(scs_m.props.title(1))+'_im'; 
   if (name<> cleanID1(name) )
+    model=list();
     x_message('Error: '''+name+''' is not a valid name for a Modelica model.');
     ok=%f
     return
