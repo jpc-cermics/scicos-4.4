@@ -1,6 +1,16 @@
 function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
   
   select blk.gui
+    case 'TrigFun' then
+      name = blk.graphics.exprs;
+      names=['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh']
+      // to be added ,'asinh','acosh','atanh'];
+      if or(name== names) then
+	modelica_name = 'MBM_'+capitalize(name);
+	old=blk;
+	blk = instantiate_block (modelica_name);
+	blk = set_block_params_from(blk, old);
+      end
     case 'MBM_Add' then
       // blk.graphics.exprs contains
       //params.concatd [ { "Datatype", '-1' } ];
