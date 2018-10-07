@@ -1,7 +1,37 @@
 function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
-  
+
+  // names = ['SUMMATION','INTEGRAL_m','CONST_m','SPLIT_f', 'GAINBLK'];
+  // modelicos_names =['MBM_Add','MBC_Integrator','MBS_Constant', 'IMPSPLIT_f', 'MBM_Gain'];
+
   select blk.gui
+    case 'ZZRAMP' then
+      // RAMP and MBS_Ramp are different
+      // ['Slope';'Start time';'Initial output']
+      old=blk;
+      blk = instantiate_block ('MBS_Ramp');
+      blk = set_block_params_from(blk, old);
+      exprs = old.graphics.exprs;
+      // new_exprs = ZZ
+      blk.graphics.exprs = new_exprs;
+    case 'GENSIN_f' then
+      old=blk;
+      blk = instantiate_block ('MBS_Sine');
+      blk = set_block_params_from(blk, old);
+      // 
+      exprs = old.graphics.exprs;
+      // ['Magnitude';'Frequency (rad/s)';'Phase (rad)']
+      // ['Magnitude','freqHz [Hz]      ','phase [rad] ',' offset [-]','startTime [s]]
+      new_exprs = [exprs(1);exprs(2)+"/(2*%pi)";exprs(3);"0";"0"];
+      blk.graphics.exprs = new_exprs;
+    case 'TIME_f' then
+      old=blk;
+      blk = instantiate_block ('MBS_Clock');
+      blk = set_block_params_from(blk, old);
     case 'EXPRESSION' then
+      // XXXX: Attention dans le bloc expression il peut-y-avoir des
+      // paramètres il faut les récupérer et les metre en paramètres
+      // cette partie est ensuite regénérée a chaque chgt du code.
+      
       old=blk;
       blk = instantiate_block ('MBLOCK');
       blk = set_block_params_from(blk, old);
@@ -100,19 +130,23 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // params.concatd [ { "C", '1' } ];
       // blk.graphics.exprs= blk.graphics.exprs;
     case 'IMPSPLIT_f' then
-    case 'MBM_Gain' then
+      // 
+    case 'GAINBLK' then
       // we do not have context here thus maybe we have to step back
+      // This should be evaluated with the context 
       ok=execstr('gains ='+blk.graphics.exprs(1),errcatch=%t);
-      if ~ok || size(gains,'*') <> 1 then
-	old = blk;
-	str_gains = blk.graphics.exprs(1);
-	blk = GAINBLK('define');
-	blk = set_block_params_from(blk, old);
-	params = cell (0, 2);
-	params.concatd [ { "gain", str_gains } ];
-	params.concatd [ { "over", '0' } ];
-	params.concatd [ { "mulmethod", '1' } ];
-	blk = set_block_parameters (blk, params);
+      if ok then
+	if size(gains,'*') == 1 then
+	  old = blk;
+	  str_gains = blk.graphics.exprs(1);
+	  blk = MBM_Gain('define');
+	  blk = set_block_params_from(blk, old);
+	  params = cell (0, 2);
+	  params.concatd [ { "gain", str_gains } ];
+	  blk = set_block_parameters (blk, params);
+	else
+	  blk = add_modelicos_matrix_gain(blk, gains);
+	end
       end
   end
   blk.graphics.id = identification;
@@ -198,4 +232,77 @@ function blk= add_modelicos_mbm_add(blk, gains)
   super_blk = fill_super_block (super_blk, scsm);
   blk = super_blk;
 endfunction
+
+function blk= add_modelicos_matrix_gain(blk, gains)
+
+  // evaluate with context 
+
+  txt = sprintf("parameter Real G[%d,%d]={",size(gains,'r'),size(gains,'c'));
+  S=m2s([]);
+  for i=1:size(gains,'r')
+    s=sprint(gains(i,:),as_read=%t);
+    s=strsubst(s(2),['[',']'],['{','}']);
+    S.concatr[s];
+  end
+  txt = txt + catenate(S,sep=",") +"};";
+  txt.concatd[sprintf("  RealOutput y[%d];",size(gains,'r'))];
+  txt.concatd[sprintf("  RealInput u[%d];",size(gains,'c'))];
+  txt.concatd["  equation"];
+  for i=1:size(gains,'r')
+    start = sprintf("    y[%d].signal=",i);
+    S=m2s([]);
+    for j=1: size(gains,'c')
+      S.concatr[sprintf("G[%d,%d]*u[%d].signal",i,j,j)];
+    end
+    txt.concatd[start + catenate(S,sep='+') + ";"];
+  end
+
+  // Il faut un autre MBLOCK ou les dimensions des inputs et
+  // outputs peuvent etre non scalaires
+  // use a MBLOCK to perform a matricial gain
+  // Il faudrait indiquer que l'on connait les dimensions
+  // pour le compilo et les liens + loins
+    
+  old=blk;
+  blk = instantiate_block ('MBLOCK');
+  blk = set_block_params_from(blk, old);
+  in= 'u';
+  intype= 'I';
+  out=['y'];
+  outtype=['I'];
+  param=[];
+  paramv=list();
+  pprop=[];
+  global(modelica_count=0);
+  nameF='generic'+string(modelica_count);
+  modelica_count =       modelica_count +1;
+  
+  exprs = tlist(["MBLOCK","in","intype","out","outtype",...
+		 "param","paramv","pprop","nameF","funtxt"],...
+		sci2exp(in(:)),...
+		sci2exp(intype(:)),...
+		sci2exp(out(:)),...
+		sci2exp(outtype(:)),...
+		sci2exp(param(:)),...
+		list(string(0.1),string(.0001)),...
+		sci2exp(pprop(:)),...
+		nameF,m2s([]))
+  blk.graphics.exprs = exprs;
+  blk.graphics.exprs.funtxt =[sprintf("model %s", nameF);
+			      txt;
+			      sprintf("end %s;", nameF)];
+  blk.model.in = size(gains,'c');
+  blk.model.in2 = 1;
+  blk.model.out = size(gains,'r');
+  blk.model.out2 = 1;
+  // evaluer 
+  diag = scs_m;
+  diag.objs= list(blk);
+  [diag1,ok]=do_silent_eval(diag);
+  blk = diag1.objs(1);
+  // unfortunately this will be crushed by last eval 
+  // blk.graphics.gr_i(1)(1) = sprintf("txt = %s;",txt);
+endfunction
+
+
 

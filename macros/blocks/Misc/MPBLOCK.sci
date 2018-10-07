@@ -38,19 +38,19 @@ function [x,y,typ]=MPBLOCK(job,arg1,arg2)
 
     // check if this is an interactive MBLOCK('set',o);
     non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
-
+    
     while %t do
       // block parameters 
       [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,nameF,lab_1]= ...
-	  MPBLOCK_get_parameters(exprs,model,graphics);
+      MPBLOCK_get_parameters(exprs,model,graphics);
+
       if cancel then return;end 
       if ~ok && non_interactive then return;end 
       if ~ok then continue;end 
 
       //============================
       //generate second dialog box from Tparam
-      [ok,cancel,paramv,lab_2]= MPBLOCK_get_parameters_values(param, ...
-						  exprs);
+      [ok,cancel,paramv,lab_2]= MPBLOCK_get_parameters_values(param, exprs);
       if cancel then return;end
       if ~ok && non_interactive then return;end 
       if ~ok then continue;end 
@@ -71,12 +71,10 @@ function [x,y,typ]=MPBLOCK(job,arg1,arg2)
     mo.model=nameF
     mo.inputs=in;
     mo.outputs=out;
-    if ~isempty(pprop) then 
-      if max(pprop)>0 then
-	mo.parameters=list(param',paramv,pprop')
-      else
-	mo.parameters=list(param',paramv)
-      end
+    if ~isempty(pprop) && max(pprop)>0 then
+      mo.parameters=list(param',paramv,pprop')
+    else
+      mo.parameters=list(param',paramv)
     end
     model.equations=mo
     //------------------
@@ -101,11 +99,11 @@ function [x,y,typ]=MPBLOCK(job,arg1,arg2)
     end
     exprs.pprop=lab_1(6)
     exprs.nameF=lab_1(7)
-    exprs.funtxt='' // model is defined in the a package
+    exprs.funtxt=''; // model is defined in the a package
     //label(2)=tt
     //------------------
     x.model=model
-    graphics.gr_i(1)(1)='txt=['' ' + nameF1 + ' ''];'
+    graphics.gr_i(1)(1)="txt=['' " + nameF1 + " ''];"
     graphics.in_implicit =intype
     graphics.out_implicit=outtype
     //graphics.exprs=label
@@ -132,7 +130,7 @@ function [x,y,typ]=MPBLOCK(job,arg1,arg2)
 		  sci2exp(out(:)),..
 		  sci2exp(outtype(:)),..
 		  sci2exp(param(:)),..
-		  list(string(0.1),string(.0001)),...
+		  list(),...
 		  sci2exp(pprop(:)),..
 		  nameF,[])
 
@@ -141,35 +139,32 @@ function [x,y,typ]=MPBLOCK(job,arg1,arg2)
     model.dep_ut=[%t %t]
     //model.rpar=paramv;
     model.rpar=[]
-    for i=1:length(paramv)
-      model.rpar=[model.rpar;
-		  paramv(i)(:)]
+    for i=1:length(paramv) do 
+      model.rpar=[model.rpar; paramv(i)(:)]
     end
-
     mo=modelica()
     mo.model=nameF
     mo.parameters=list(param,paramv)
-    model.sim=nameF1;
     mo.inputs=in
     mo.outputs=out
+    model.sim=nameF1;
     model.in=ones(size(mo.inputs,'r'),1)
     model.out=ones(size(mo.outputs,'r'),1)
     model.equations=mo
-    gr_i=['txt=['' '+nameF1+' ''];';
-	  'xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'')'];
+    gr_i=["txt=['' "+nameF1+" ''];";
+    	  "xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'')"];
     x=standard_define([3 2],model,exprs,gr_i,'MPBLOCK');
     x.graphics.in_implicit =intype
     x.graphics.out_implicit=outtype
   end
 endfunction
 
-
 function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,nameF,lab_1]=...
       MPBLOCK_get_parameters(exprs,model,graphics)
   // get parameters 
   cancel=%f;
-  in=[],out=[],param=[],paramv=[],pprop=[];intype=[];outtype=[];funam='void';
-  lab_1=[];
+  in=[];intype=[];out=[];outtype=[];param=[];paramv=[];pprop=[];nameF='void';lab_1=[];
+
   //lab_1 = [in,intype,out,outtype,param,nameF]
   lab_1 = list(exprs.in,..       //1
 	       exprs.intype,..   //2
@@ -178,8 +173,8 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,name
 	       exprs.param,..    //5
 	       exprs.pprop,..    //6
 	       exprs.nameF)      //7
-
-  [ok,Tin,Tintype,Tout,Touttype,Tparam,pprop,Tfunam,lab_1]=..
+	      
+  [ok,Tin,Tintype,Tout,Touttype,Tparam,Tpprop,TnameF,lab_1]=..
       getvalue(['Set Modelica generic block parameters:';..
 		'The Modelica model of this block is defined in a package.';...
 		'In variable field the name of the connectors or input/output '+...
@@ -206,9 +201,12 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,name
   for var=vars
     cmd= sprintf('%s=evstr(T%s);if isempty(%s) then %s=m2s([]);else %s=stripblanks(%s);end',...
 		 var,var,var,var,var,var);
-    eok= eok && execstr(cmd,errcatch=%t);
+    ook= execstr(cmd,errcatch=%t);
+    // if ~ook then pause bug;end
+    eok= eok && ook;
   end
-  eok= eok && execstr("nameF=stripblanks(Tfunam)",errcatch=%t);
+  eok= eok && execstr("nameF=stripblanks(TnameF)",errcatch=%t);
+  pprop = Tpprop;
   if ~eok then
     // something wrong when evaluating names 
     message("Error in evaluation of variables in block MPBLOCK.")
@@ -261,6 +259,7 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,name
   end
   //check param properties
   pprop = pprop(:);
+
   if (size(param,'*')<>size(pprop,'*')) then
     message(["There is differences in";
 	       "size of param and size ";

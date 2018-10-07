@@ -742,7 +742,8 @@ function [texte] = mini_standard_document(objet)
                "<tt><small><small>Modelica block</small></small></tt>"]
         simul_fun = fonction(1);
         texte=[texte
-               "<tt><small><small>sim    "+simul_fun+"</small></small></tt>"]
+               "<tt><small><small>sim    "+simul_fun+"</small></small></tt>"];
+	texte=[texte;modele_texte(modele)];
 
       else
         if prod(size(fonction)) == 1 then

@@ -165,7 +165,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
 		~eq.outputs.equal[eqn.outputs] then
             needcompile=4
           end
-          //## if a parameters have change in a modelica block then force
+          //## if a parameter have changed in a modelica block then force
           //## the recompilation
           if ~isequal(eq.parameters,eqn.parameters) then
             param_name   = eq.parameters(1);

@@ -150,12 +150,14 @@ function [x,y,typ]=MBLOCK(job,arg1,arg2)
       for i=1:length(paramv)
 	model.rpar=[model.rpar; paramv(i)(:)]
       end
+      // mo is model.equations;
       mo=modelica()
       mo.model=nameF
       mo.parameters=list(param,paramv)
-      model.sim=list(mo.model,30004)
       mo.inputs=in
       mo.outputs=out
+      // model 
+      model.sim=list(mo.model,30004)
       model.in=ones(size(mo.inputs,'r'),1)
       model.out=ones(size(mo.outputs,'r'),1)
       model.equations=mo
@@ -206,6 +208,7 @@ function [ok,cancel,model,graphics,in,intype,out,outtype,param,paramv,pprop,funa
     eok= eok && execstr(cmd,errcatch=%t);
   end
   eok= eok && execstr("funam=stripblanks(Tfunam)",errcatch=%t);
+
   if ~eok then
     // something wrong when evaluating names 
     message("Error in evaluation of variables in block MBLOCK.")

@@ -27,6 +27,15 @@ function scs_m=set_model_finalize_context(scs_m)
   end
   scs_m.props.context= context;
   scs_m.props.remove['data'];
+  // recursively propagate
+  for k=1:length(scs_m.objs)
+    o=scs_m.objs(k)
+    if o.type == 'Block' &&  o.gui == 'SUPER_f' then
+      diagram=set_model_finalize_context(o.model.rpar)
+      o.model.rpar = diagram;
+      scs_m.objs(k)=o;
+    end
+  end
 endfunction
 
 function scs_m=set_model_context_data(scs_m,name,script)

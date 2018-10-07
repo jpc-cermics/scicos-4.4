@@ -271,16 +271,26 @@ function [scs_m,ok]=do_silent_eval(scs_m, context)
         
     for %kk=1:length(scs_m.objs)
       o=scs_m.objs(%kk)
-      if (o.type =='Block' || o.type =='Text') && o.gui<>'PAL_f' then 
-	
-	rpar=o.model.rpar;
-	model=o.model
-	if or(model.sim(1)==['super','csuper','asuper']) || o.gui == 'DSUPER' then
-	  sblock=rpar;
+      if (o.type =='Block' || o.type =='Text') && o.gui<>'PAL_f' then
+	if o.gui == 'SUPER_f' then
+	  // internal diagram
+	  sblock=o.model.rpar;
+	  [scicos_context1,ierr]=script2var(sblock.props.context,context)
+	  [sblock,lok]=do_silent_eval_rec(sblock,scicos_context1)
+	  o.model.rpar=sblock;
+	elseif or(o.model.sim(1)==['super','csuper','asuper']) || o.gui == 'DSUPER' then
+	  // evaluate block
+	  %scicos_prob=%f;
+	  %scicos_setvalue=[];
+	  eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
+	  if ~eok || %scicos_prob  then ok=%f; continue; end
+	  // internal diagram
+	  sblock=o.model.rpar;
 	  [scicos_context1,ierr]=script2var(sblock.props.context,context)
 	  [sblock,lok]=do_silent_eval_rec(sblock,scicos_context1)
 	  o.model.rpar=sblock;
 	else
+	  // evaluate the block 
 	  %scicos_prob=%f;
 	  %scicos_setvalue=[];
 	  eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
