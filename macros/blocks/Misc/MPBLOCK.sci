@@ -315,17 +315,6 @@ function [ok,cancel,paramv,lab_2]=MPBLOCK_get_parameters_values(param,exprs)
       lab_2=lab_2_tmp
     end
   end
-  // lab_2_tmp=list();ee=evstr(exprs.param);
-  // for i=1:Tparam_sz
-  //   flg=0;
-  //   I= find(ee==Tparam_lab(i));
-  //   if isempty(I) then 
-  //     lab_2_tmp(i)="0";
-  //   else
-  //     lab_2_tmp(i)=lab_2(I(1));
-  //   end
-  // end
-  // lab_2=lab_2_tmp;
   //generate lhs, label and rhs txt for getvalue
   if Tparam_sz<>0 then //if param
     lhs_txt = catenate('%v'+string(1:Tparam_sz),sep=',');
