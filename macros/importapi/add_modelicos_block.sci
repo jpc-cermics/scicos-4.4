@@ -234,9 +234,8 @@ function blk= add_modelicos_mbm_add(blk, gains)
 endfunction
 
 function blk= add_modelicos_matrix_gain(blk, gains)
-
-  // evaluate with context 
-
+  // used when gains is given by a matrix or vector
+  // we use a VMBLOCK;
   txt = sprintf("parameter Real G[%d,%d]={",size(gains,'r'),size(gains,'c'));
   S=m2s([]);
   for i=1:size(gains,'r')
@@ -257,44 +256,63 @@ function blk= add_modelicos_matrix_gain(blk, gains)
     txt.concatd[start + catenate(S,sep='+') + ";"];
   end
 
-  // Il faut un autre MBLOCK ou les dimensions des inputs et
-  // outputs peuvent etre non scalaires
-  // use a MBLOCK to perform a matricial gain
-  // Il faudrait indiquer que l'on connait les dimensions
-  // pour le compilo et les liens + loins
-    
+  // use a VMBLOCK to perform a matricial gain
+  
   old=blk;
-  blk = instantiate_block ('MBLOCK');
+  blk = instantiate_block ('VMBLOCK');
   blk = set_block_params_from(blk, old);
   in= 'u';
   intype= 'I';
+  in_r=size(gains,'c');
+  in_c=1;
   out=['y'];
   outtype=['I'];
-  param=[];
-  paramv=list();
-  pprop=[];
+  out_r=size(gains,'r');
+  out_c=1;
+  param=["G"];
+  paramv=list(gains);
+  pprop=[0];
   global(modelica_count=0);
   nameF='generic'+string(modelica_count);
   modelica_count =       modelica_count +1;
   
-  exprs = tlist(["MBLOCK","in","intype","out","outtype",...
+  exprs = tlist(["MBLOCK","in","intype","in_r","in_c","out","outtype","out_r","out_c",...
 		 "param","paramv","pprop","nameF","funtxt"],...
 		sci2exp(in(:)),...
 		sci2exp(intype(:)),...
+		sci2exp(in_r(:)),...
+		sci2exp(in_c(:)),...
 		sci2exp(out(:)),...
 		sci2exp(outtype(:)),...
+		sci2exp(out_r(:)),...
+		sci2exp(out_c(:)),...
 		sci2exp(param(:)),...
-		list(string(0.1),string(.0001)),...
+		map(paramv,sci2exp),...
 		sci2exp(pprop(:)),...
 		nameF,m2s([]))
   blk.graphics.exprs = exprs;
+  blk.graphics.in_implicit =intype;
+  blk.graphics.out_implicit=outtype;
+
   blk.graphics.exprs.funtxt =[sprintf("model %s", nameF);
 			      txt;
 			      sprintf("end %s;", nameF)];
   blk.model.in = size(gains,'c');
   blk.model.in2 = 1;
+  blk.model.intyp = 1;
   blk.model.out = size(gains,'r');
   blk.model.out2 = 1;
+  blk.model.outtyp = 1;
+
+  gr_i=["txt=[""Modelica"";""MGain""];";
+	"xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"]
+  blk=standard_define([20 20],blk.model,blk.graphics.exprs,gr_i,'VMBLOCK');
+  blk.graphics.in_implicit =intype
+  blk.graphics.out_implicit=outtype
+  
+  blk = set_block_origin (blk, old.graphics.orig);
+  blk = set_block_size (blk, old.graphics.sz);
+  
   // evaluer 
   diag = scs_m;
   diag.objs= list(blk);
@@ -302,6 +320,229 @@ function blk= add_modelicos_matrix_gain(blk, gains)
   blk = diag1.objs(1);
   // unfortunately this will be crushed by last eval 
   // blk.graphics.gr_i(1)(1) = sprintf("txt = %s;",txt);
+endfunction
+
+function super_blk= add_modelicos_to_scicos(n)
+  // from modelica to scicos for a vector
+  // since the transition between scicos to modelica is only for
+  // 1x1 signal we have to multiplex
+  
+  txt = m2s([]);
+  txt.concatd[sprintf("  RealInput u[%d];",n)];
+  txt.concatd[sprintf("  Real %s;",catenate("y"+ string(1:n),sep=","))];
+  txt.concatd["  equation"];
+  for i=1:n
+    txt.concatd[sprintf("    y%d= u[%d].signal;",i,i)];
+  end
+  
+  // use a VMBLOCK 
+  blk = instantiate_block ('VMBLOCK');
+  in= 'u';
+  intype= 'I';
+  in_r=n
+  in_c=1;
+  out= 'y'+string(1:n);
+  outtype=smat_create(1,n,'E');
+  out_r= ones(1,n);
+  out_c= ones(1,n);
+  param=[];
+  paramv=list();
+  pprop=[];
+  global(modelica_count=0);
+  nameF='generic'+string(modelica_count);
+  modelica_count =       modelica_count +1;
+  
+  exprs = tlist(["MBLOCK","in","intype","in_r","in_c","out","outtype","out_r","out_c",...
+		 "param","paramv","pprop","nameF","funtxt"],...
+		sci2exp(in(:)),...
+		sci2exp(intype(:)),...
+		sci2exp(in_r(:)),...
+		sci2exp(in_c(:)),...
+		sci2exp(out(:)),...
+		sci2exp(outtype(:)),...
+		sci2exp(out_r(:)),...
+		sci2exp(out_c(:)),...
+		sci2exp(param(:)),...
+		map(paramv,sci2exp),...
+		sci2exp(pprop(:)),...
+		nameF,m2s([]))
+  blk.graphics.exprs = exprs;
+  blk.graphics.in_implicit =intype;
+  blk.graphics.out_implicit=outtype;
+  
+  blk.graphics.exprs.funtxt =[sprintf("model %s", nameF);
+			      txt;
+			      sprintf("end %s;", nameF)];
+  blk.model.in = n;
+  blk.model.in2 = 1;
+  blk.model.intyp = 1;
+  blk.model.out = ones(n,1);
+  blk.model.out2 = ones(n,1);
+  blk.model.outtyp = ones(n,1);
+
+  gr_i=["txt=[""Modelica"";"" "+nameF+" ""];";
+	   "xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"]
+  blk=standard_define([20 20],blk.model,blk.graphics.exprs,gr_i,'VMBLOCK');
+  blk.graphics.in_implicit =intype
+  blk.graphics.out_implicit=outtype
+  
+  // evaluer
+  if exists('scs_m','callers') then diag = scs_m; else diag=scicos_diagram();end 
+  diag.objs= list(blk);
+  [diag1,ok]=do_silent_eval(diag);
+  blk = set_block_origin (blk, [60,10]);
+  
+  super_blk = instantiate_super_block ();
+  super_blk = set_block_size (super_blk, [20,20]);
+  
+  scsm= instantiate_diagram();
+  
+  blk_in = instantiate_block ('INIMPL_f');
+  blk_in = set_block_size (blk_in, [20,10]);
+  blk_in = set_block_origin (blk_in, [0;30]);
+  scsm.objs(1)= blk_in;
+
+  scsm.objs(2)=blk;
+  
+  // now a mux
+  blk_mux = MUX('define');
+  blk_mux.graphics.exprs = string(n);
+  blk_mux.model.in= ones(n,1);
+  blk_mux.model.intyp=- ones(n,1)
+  blk_mux.model.out=n;
+  blk_mux.model.outtyp=- 1;
+  gr_i="blk_draw(sz,orig,orient,model.label)";
+  blk_mux =standard_define([40 40],blk_mux.model,string(n),gr_i,'MUX')
+  blk_mux = set_block_origin (blk_mux, [120,10]);
+  scsm.objs(3) =blk_mux;
+  
+  blk_out = instantiate_block ('OUT_f');
+  blk_out = set_block_parameters (blk_out, { "prt", '1' });
+  blk_out = set_block_size (blk_out, [20,10])
+  blk_out = set_block_origin (blk_out, [200,30]);
+  scsm.objs(4)= blk_out;
+  
+  if %t then 
+  scsm = add_implicit_link(scsm,['1','1'],['2','1'],[]); 
+  for i=1:n
+    scsm = add_explicit_link(scsm,['2',string(i)],['3',string(i)],[]);
+  end
+  scsm = add_explicit_link(scsm,['3','1'],['4','1'],[]);
+  end
+  
+  super_blk = fill_super_block (super_blk, scsm);
+  
+endfunction
+
+function super_blk= add_scicos_to_modelicos(n)
+  // from modelica to scicos for a vector
+  // since the transition between scicos to modelica is only for
+  // 1x1 signal we have to multiplex
+
+  txt = m2s([]);
+  txt.concatd[sprintf("  Real %s;",catenate("u"+ string(1:n),sep=","))];
+  txt.concatd[sprintf("  RealOutput y[%d];",n)];
+  txt.concatd["  equation"];
+  for i=1:n
+    txt.concatd[sprintf("    y[%d].signal = u%d;",i,i)];
+  end
+  
+  // use a VMBLOCK 
+  blk = instantiate_block ('VMBLOCK');
+  in= 'u'+string(1:n);
+  intype= smat_create(1,n,'E');
+  in_r= ones(1,n);
+  in_c= ones(1,n);
+  out=['y'];
+  outtype=['I'];
+  out_r=n
+  out_c=1;
+  param=[];
+  paramv=list();
+  pprop=[];
+  global(modelica_count=0);
+  nameF='generic'+string(modelica_count);
+  modelica_count =       modelica_count +1;
+  
+  exprs = tlist(["MBLOCK","in","intype","in_r","in_c","out","outtype","out_r","out_c",...
+		 "param","paramv","pprop","nameF","funtxt"],...
+		sci2exp(in(:)),...
+		sci2exp(intype(:)),...
+		sci2exp(in_r(:)),...
+		sci2exp(in_c(:)),...
+		sci2exp(out(:)),...
+		sci2exp(outtype(:)),...
+		sci2exp(out_r(:)),...
+		sci2exp(out_c(:)),...
+		sci2exp(param(:)),...
+		map(paramv,sci2exp),...
+		sci2exp(pprop(:)),...
+		nameF,m2s([]))
+  blk.graphics.exprs = exprs;
+  blk.graphics.in_implicit =intype;
+  blk.graphics.out_implicit=outtype;
+  blk.graphics.exprs.funtxt =[sprintf("model %s", nameF);
+			      txt;
+			      sprintf("end %s;", nameF)];
+  blk.model.in = ones(n,1);
+  blk.model.in2 = ones(n,1);
+  blk.model.intyp = ones(n,1);
+  blk.model.out = n;
+  blk.model.out2 = 1;
+  blk.model.outtyp =1;
+
+  gr_i=["txt=[""Modelica"";"" "+nameF+" ""];";
+	"xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"]
+  blk=standard_define([20 20],blk.model,blk.graphics.exprs,gr_i,'VMBLOCK');
+  blk.graphics.in_implicit =intype
+  blk.graphics.out_implicit=outtype
+  
+  // evaluer
+  if exists('scs_m','callers') then diag = scs_m; else diag=scicos_diagram();end 
+  diag.objs= list(blk);
+  [diag1,ok]=do_silent_eval(diag);
+  blk = diag1.objs(1);
+  blk = set_block_origin (blk, [120,10]);
+  
+  super_blk = instantiate_super_block ();
+  super_blk = set_block_size (super_blk, [20,20]);
+  scsm= instantiate_diagram();
+  
+  blk_in = instantiate_block ('IN_f');
+  blk_in = set_block_size (blk_in, [20,10]);
+  blk_in = set_block_origin (blk_in, [0;30]);
+  scsm.objs(1)= blk_in;
+
+  // now a demux
+  blk2 = DEMUX('define');
+  blk2.graphics.exprs = string(n);
+  blk2.model.in=n;
+  blk2.model.intyp=-1
+  blk2.model.out=ones(n,1);
+  blk2.model.outtyp=- ones(n,1)
+  gr_i="blk_draw(sz,orig,orient,model.label)";
+  blk2 =standard_define([40 40],blk2.model,string(n),gr_i,'DEMUX')
+  blk2 = set_block_origin (blk2, [40,10]);
+  scsm.objs(2) =blk2;
+
+  scsm.objs(3)=blk;
+  
+  blk_out = instantiate_block ('OUTIMPL_f');
+  blk_out = set_block_parameters (blk_out, { "prt", '1' });
+  blk_out = set_block_size (blk_out, [20,10])
+  blk_out = set_block_origin (blk_out, [200,30]);
+  scsm.objs(4)= blk_out;
+
+  if %t then
+  for i=1:n
+    scsm = add_explicit_link(scsm,['2',string(i)],['3',string(i)],[]);
+  end
+  scsm = add_explicit_link(scsm,['1','1'],['2','1'],[]);
+  scsm = add_implicit_link(scsm,['3','1'],['4','1'],[]); 
+  end
+  
+  super_blk = fill_super_block (super_blk, scsm);
+  
 endfunction
 
 

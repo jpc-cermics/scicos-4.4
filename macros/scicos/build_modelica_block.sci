@@ -73,7 +73,6 @@ endfunction
 function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
   // creates modelica code gathering all the modelica blocks contained in
   // the scicos schema.
-    
   if exists('%Modelica_Init')==%f then 
     // Modelica_Init becomes true only in "Modelicainitialize_.sci"
     %Modelica_Init=%f;
@@ -102,7 +101,7 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
     //#########
     //## Params
     //#########
-
+    
     if o.equations.model<>'OutPutPort' & o.equations.model<>'InPutPort' then
       // retrieve the object corresponding to k in the scs_m structure 
       o_scsm = scs_m(scs_full_path(corinvm(k)));
@@ -167,12 +166,12 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
     //#########
     //## models
     //#########
-    Bnumbers=[Bnumbers k];
 
+    Bnumbers=[Bnumbers k];
     //## update list of names of modelica blocks
     Bnam = [Bnam,BlockName];
     Bnames = [Bnames, Bnam($)]
-
+    
     if ~isempty(P) then str_params ="("+strcat(P,", ")+")";else str_params = "";end
     if id<>"" then str_id = sprintf(" ""%s""",id);else str_id = "";end
     models = [models;"  "+mo.model+" "+tab+Bnames($) + str_params + str_id + ";"];
@@ -184,12 +183,13 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
   for k=1:size(cmat,1)
     from=cmat(k,1:3)
     to=cmat(k,4:6)
-    if from(1)==0 then //input port
+    if from(1)==0 then
+      //input port
       nb=nb+1
       Bnumbers=[Bnumbers nb];
-      Bnames=[Bnames,'B'+string(nb)];
-      models=[models;'  InPutPort'+' '+tab+'B'+string(nb)+';'];
-      n1='B'+string(nb)
+      Bnames=[Bnames,"B"+string(nb)];
+      models=[models;"  InPutPort"+" "+tab+"B"+string(nb)+";"];
+      n1="B"+string(nb)
     elseif from(3)==1 then
       p1=blklst(from(1)).equations.inputs(from(2))
       n1=Bnames(find(Bnumbers==from(1)))
@@ -197,23 +197,24 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
       p1=blklst(from(1)).equations.outputs(from(2))
       n1=Bnames(find(Bnumbers==from(1)))
     end
-    if to(1)==0 then //output port
+    if to(1)==0 then
+      //output port
       nb=nb+1
       Bnumbers=[Bnumbers nb];
-      Bnames=[Bnames,'B'+string(nb)];
-      models=[models;'  OutPutPort'+' '+tab+'B'+string(nb)+';'];
-      n1='B'+string(nb)
+      Bnames=[Bnames,"B"+string(nb)];
+      models=[models;"  OutPutPort"+" "+tab+"B"+string(nb)+";"];
+      n1="B"+string(nb)
     elseif to(3)==1 then
       p2=blklst(to(1)).equations.inputs(to(2))
       n2=Bnames(find(Bnumbers==to(1)))
     else
-      if size(blklst(to(1)).equations.outputs,'*')<to(2) then pause,end
+      // if size(blklst(to(1)).equations.outputs,"*")<to(2) then pause,end
       p2=blklst(to(1)).equations.outputs(to(2))
       n2=Bnames(find(Bnumbers==to(1)))
     end
 
-    if or(blklst(from(1)).equations.model==['InPutPort','OutPutPort']) ...
-         | or(blklst(to(1)).equations.model==['InPutPort','OutPutPort']) ...
+    if or(blklst(from(1)).equations.model==["InPutPort","OutPutPort"]) ...
+         | or(blklst(to(1)).equations.model==["InPutPort","OutPutPort"]) ...
     then 
       eqns=[eqns
             "  "+n1+"."+p1+" = "+n2+"."+p2+";"]
