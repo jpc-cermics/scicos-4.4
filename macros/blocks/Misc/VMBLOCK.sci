@@ -2,6 +2,9 @@ function [x,y,typ]=VMBLOCK(job,arg1,arg2)
   // Similar to MBLOCK but variables may have
   // dimensions and are declared RealOutput or RealInput instead of Real
   // to be used in Coselica
+  // Note that Explicit Outputs or Inputs must be scalars (since communication
+  // between scicos and modlica should be through scalar links
+  // XXXXX: Il faut vérifier que les arguments explicites sont scalaires
   x=[];y=[];typ=[];
   select job
     case 'plot' then
