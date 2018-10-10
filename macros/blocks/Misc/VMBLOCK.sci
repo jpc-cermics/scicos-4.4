@@ -481,7 +481,7 @@ function class_txt=vmblock_build_classhead(funam,vinp,vintype,vin_size,vout,vout
   class_txt=txt;
 endfunction
 
-function [ok,tt]=VMODCOM_NI(funam,tt,vinp,vintype,vin_size,vout,vouttype,vout_size,vparam,vparamv,vpprop)
+function [ok,tt]=VMODCOM_NI(V,tt)
   // This is the non interactive version used in eval or load 
   //printf("In non interactive MODCOM \n");
   ok = %t;
@@ -489,15 +489,15 @@ function [ok,tt]=VMODCOM_NI(funam,tt,vinp,vintype,vin_size,vout,vouttype,vout_si
   md =file("join",[getenv("NSP_TMPDIR");"Modelica"])
   if ~file("exists",md) then file("mkdir",md);end 
   // fill the funam file 
-  nameF=file("root",file("tail",funam));
-  extF =file("extension",funam);
+  nameF=file("root",file("tail",V.nameF));
+  extF =file("extension",V.nameF);
   // tt should be a string and it was initialized to [] in the past.
   if type(tt,"short")=="m" then tt=m2s([]);end 
   if extF=="" then 
     funam1=file("join",[getenv("NSP_TMPDIR");"Modelica";nameF+".mo"]);
     scicos_mputl(tt,funam1);
-  elseif ~file("exists",funam) then
-    funam1=funam;
+  elseif ~file("exists",V.nameF) then
+    funam1=V.nameF;
     scicos_mputl(tt,funam1);
   end
 endfunction
@@ -603,8 +603,4 @@ function blk= MBM_Addn_define(vect,old)
   blk.graphics.gr_i=["SUMMATION_draw(o,sz,orig);"];
   blk.gui = "MBM_Addn";
 
-  // diag = scicos_diagram();
-  // diag.objs= list(blk);
-  // [diag1,ok]=do_silent_eval(diag);
-  // blk = diag1.objs(1);
 endfunction

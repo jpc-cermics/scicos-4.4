@@ -300,70 +300,42 @@ function super_blk= add_modelicos_to_scicos(n)
   // from modelica to scicos for a vector
   // since the transition between scicos to modelica is only for
   // 1x1 signal we have to multiplex
+  if nargin <= 1 then
+    global(modelica_count=0);
+    nameF='generic'+string(modelica_count);
+    modelica_count =       modelica_count +1;
+  else
+    nameF=old.graphics.exprs.nameF;
+  end
   
-  txt = m2s([]);
+  H=hash(in=["u"], intype="I", in_r=n, in_c=1,
+	 out=["y"+string(1:n)'], outtype=smat_create(n,1,"E"), out_r=ones(n,1), out_c=ones(n,1),
+	 param=[], paramv=list(),
+	 pprop=[], nameF=nameF);
+ 
+  txt=[sprintf("model %s", nameF)];
   txt.concatd[sprintf("  RealInput u[%d];",n)];
   txt.concatd[sprintf("  Real %s;",catenate("y"+ string(1:n),sep=","))];
   txt.concatd["  equation"];
   for i=1:n
     txt.concatd[sprintf("    y%d= u[%d].signal;",i,i)];
   end
+  txt.concatd[sprintf("end %s;", nameF)];
   
-  // use a VMBLOCK 
-  blk = instantiate_block ('VMBLOCK');
-  in= 'u';
-  intype= 'I';
-  in_r=n
-  in_c=1;
-  out= 'y'+string(1:n);
-  outtype=smat_create(1,n,'E');
-  out_r= ones(1,n);
-  out_c= ones(1,n);
-  param=[];
-  paramv=list();
-  pprop=[];
-  global(modelica_count=0);
-  nameF='generic'+string(modelica_count);
-  modelica_count =       modelica_count +1;
+  H.funtxt = txt;
+  if nargin == 2 then 
+    blk = VMBLOCK_define(H,old);
+  else
+    blk = VMBLOCK_define(H);
+  end
   
-  exprs = tlist(["MBLOCK","in","intype","in_r","in_c","out","outtype","out_r","out_c",...
-		 "param","paramv","pprop","nameF","funtxt"],...
-		sci2exp(in(:)),...
-		sci2exp(intype(:)),...
-		sci2exp(in_r(:)),...
-		sci2exp(in_c(:)),...
-		sci2exp(out(:)),...
-		sci2exp(outtype(:)),...
-		sci2exp(out_r(:)),...
-		sci2exp(out_c(:)),...
-		sci2exp(param(:)),...
-		map(paramv,sci2exp),...
-		sci2exp(pprop(:)),...
-		nameF,m2s([]))
-  blk.graphics.exprs = exprs;
-  blk.graphics.in_implicit =intype;
-  blk.graphics.out_implicit=outtype;
+  blk.graphics.exprs.funtxt = txt;
   
-  blk.graphics.exprs.funtxt =[sprintf("model %s", nameF);
-			      txt;
-			      sprintf("end %s;", nameF)];
-  blk.model.in = n;
-  blk.model.in2 = 1;
-  blk.model.intyp = 1;
-  blk.model.out = ones(n,1);
-  blk.model.out2 = ones(n,1);
-  blk.model.outtyp = ones(n,1);
-
-  gr_i=["txt=[""Modelica"";"" "+nameF+" ""];";
-	   "xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"]
-  blk=standard_define([20 20],blk.model,blk.graphics.exprs,gr_i,'VMBLOCK');
-  blk.graphics.in_implicit =intype
-  blk.graphics.out_implicit=outtype
-  
-  // evaluer
-  if exists('scs_m','callers') then diag = scs_m; else diag=scicos_diagram();end 
-  diag.objs= list(blk);
-  [diag1,ok]=do_silent_eval(diag);
+  gr_i=["txt=[""Modelica"";"" "+H.nameF+" ""];";
+	"xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"];
+  blk.graphics.gr_i=list(gr_i,8);
+  blk.gui = "VMBLOCK";
+  blk = set_block_size (blk, [40,40]);
   blk = set_block_origin (blk, [60,10]);
   
   super_blk = instantiate_super_block ();
@@ -408,75 +380,46 @@ function super_blk= add_modelicos_to_scicos(n)
   
 endfunction
 
-function super_blk= add_scicos_to_modelicos(n)
+function super_blk= add_scicos_to_modelicos(n,old)
   // from modelica to scicos for a vector
   // since the transition between scicos to modelica is only for
   // 1x1 signal we have to multiplex
-
-  txt = m2s([]);
+  if nargin <= 1 then
+    global(modelica_count=0);
+    nameF='generic'+string(modelica_count);
+    modelica_count =       modelica_count +1;
+  else
+    nameF=old.graphics.exprs.nameF;
+  end
+  
+  H=hash(in=["u"+string(1:n)'], intype=smat_create(n,1,"E"), in_r=ones(n,1), in_c=ones(n,1),
+	 out=["y"], outtype=["I"], out_r= 1, out_c=1,
+	 param=[], paramv=list(),
+	 pprop=[], nameF=nameF);
+  
+  txt=[sprintf("model %s", nameF)];
   txt.concatd[sprintf("  Real %s;",catenate("u"+ string(1:n),sep=","))];
   txt.concatd[sprintf("  RealOutput y[%d];",n)];
   txt.concatd["  equation"];
   for i=1:n
     txt.concatd[sprintf("    y[%d].signal = u%d;",i,i)];
   end
-  
-  // use a VMBLOCK 
-  blk = instantiate_block ('VMBLOCK');
-  in= 'u'+string(1:n);
-  intype= smat_create(1,n,'E');
-  in_r= ones(1,n);
-  in_c= ones(1,n);
-  out=['y'];
-  outtype=['I'];
-  out_r=n
-  out_c=1;
-  param=[];
-  paramv=list();
-  pprop=[];
-  global(modelica_count=0);
-  nameF='generic'+string(modelica_count);
-  modelica_count =       modelica_count +1;
-  
-  exprs = tlist(["MBLOCK","in","intype","in_r","in_c","out","outtype","out_r","out_c",...
-		 "param","paramv","pprop","nameF","funtxt"],...
-		sci2exp(in(:)),...
-		sci2exp(intype(:)),...
-		sci2exp(in_r(:)),...
-		sci2exp(in_c(:)),...
-		sci2exp(out(:)),...
-		sci2exp(outtype(:)),...
-		sci2exp(out_r(:)),...
-		sci2exp(out_c(:)),...
-		sci2exp(param(:)),...
-		map(paramv,sci2exp),...
-		sci2exp(pprop(:)),...
-		nameF,m2s([]))
-  blk.graphics.exprs = exprs;
-  blk.graphics.in_implicit =intype;
-  blk.graphics.out_implicit=outtype;
-  blk.graphics.exprs.funtxt =[sprintf("model %s", nameF);
-			      txt;
-			      sprintf("end %s;", nameF)];
-  blk.model.in = ones(n,1);
-  blk.model.in2 = ones(n,1);
-  blk.model.intyp = ones(n,1);
-  blk.model.out = n;
-  blk.model.out2 = 1;
-  blk.model.outtyp =1;
+  txt.concatd[sprintf("end %s;", nameF)];
 
-  gr_i=["txt=[""Modelica"";"" "+nameF+" ""];";
+  H.funtxt = txt;
+  if nargin == 2 then 
+    blk = VMBLOCK_define(H,old);
+  else
+    blk = VMBLOCK_define(H);
+  end
+
+  blk.graphics.exprs.funtxt = txt;
+  gr_i=["txt=[""Modelica"";"" "+H.nameF+" ""];";
 	"xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"]
-  blk=standard_define([20 20],blk.model,blk.graphics.exprs,gr_i,'VMBLOCK');
-  blk.graphics.in_implicit =intype
-  blk.graphics.out_implicit=outtype
-  
-  // evaluer
-  if exists('scs_m','callers') then diag = scs_m; else diag=scicos_diagram();end 
-  diag.objs= list(blk);
-  [diag1,ok]=do_silent_eval(diag);
-  blk = diag1.objs(1);
-  blk = set_block_origin (blk, [120,10]);
+  blk.graphics.gr_i=list(gr_i,8);
+  blk.gui = "VMBLOCK";
+  blk = set_block_size (blk, [40,40]);
+  blk = set_block_origin (blk, [120;0]);
   
   super_blk = instantiate_super_block ();
   super_blk = set_block_size (super_blk, [20,20]);
@@ -516,7 +459,6 @@ function super_blk= add_scicos_to_modelicos(n)
   end
   
   super_blk = fill_super_block (super_blk, scsm);
-  
 endfunction
 
 
