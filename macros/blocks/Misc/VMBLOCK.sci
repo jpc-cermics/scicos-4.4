@@ -565,23 +565,25 @@ endfunction
 function blk= MBM_Addn_define(vect,old)
   // used when gains is given by a matrix or vector
   // we use a VMBLOCK;
-
-  global(modelica_count=0);
-  nameF='generic'+string(modelica_count);
-  modelica_count =       modelica_count +1;
+  if nargin <= 1 then 
+    global(modelica_count=0);
+    nameF='generic'+string(modelica_count);
+    modelica_count =       modelica_count +1;
+  else
+    nameF=old.graphics.exprs.nameF;
+  end
   n=size(vect,'*');
   H=hash(in=["u"+string(1:n)'], intype=smat_create(n,1,"I"), in_r=ones(n,1), in_c=ones(n,1),
 	 out=["y"], outtype=["I"], out_r= 1, out_c=1,
-	 param=["G"], paramv=list(vect),
+	 param=["G"], paramv=list(vect(:)'),
 	 pprop=[0], nameF=nameF);
   
   txt=[sprintf("model %s", nameF)];
-  txt.concatd[sprintf("parameter Real G[%d]=",size(vect,"*"))];
   s=sprint(vect(:)',as_read=%t);
   s=strsubst(s(2),["[","]"],["{","}"]);
-  txt = txt + catenate(s,sep=",") +";";
+  txt.concatd[sprintf("parameter Real G[%d]=%s;",size(vect,"*"),catenate(s,sep=","))];
   txt.concatd[sprintf("  RealOutput y;")]
-  txt.concatd[sprintf("  RealInput %s,",catenate("u"+string(1:n),sep=","))];
+  txt.concatd[sprintf("  RealInput %s;",catenate("u"+string(1:n),sep=","))];
   txt.concatd["  equation"];
   start = m2s([]);
   for i=1: size(vect,"*")
