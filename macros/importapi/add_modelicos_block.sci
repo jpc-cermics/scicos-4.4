@@ -236,6 +236,9 @@ endfunction
 function blk= add_modelicos_matrix_gain(blk, gains)
   // used when gains is given by a matrix or vector
   // we use a VMBLOCK;
+
+  old = blk;
+  
   txt = sprintf("parameter Real G[%d,%d]={",size(gains,'r'),size(gains,'c'));
   S=m2s([]);
   for i=1:size(gains,'r')
@@ -257,69 +260,31 @@ function blk= add_modelicos_matrix_gain(blk, gains)
   end
 
   // use a VMBLOCK to perform a matricial gain
-  
-  old=blk;
-  blk = instantiate_block ('VMBLOCK');
-  blk = set_block_params_from(blk, old);
-  in= 'u';
-  intype= 'I';
-  in_r=size(gains,'c');
-  in_c=1;
-  out=['y'];
-  outtype=['I'];
-  out_r=size(gains,'r');
-  out_c=1;
-  param=["G"];
-  paramv=list(gains);
-  pprop=[0];
   global(modelica_count=0);
   nameF='generic'+string(modelica_count);
   modelica_count =       modelica_count +1;
-  
-  exprs = tlist(["MBLOCK","in","intype","in_r","in_c","out","outtype","out_r","out_c",...
-		 "param","paramv","pprop","nameF","funtxt"],...
-		sci2exp(in(:)),...
-		sci2exp(intype(:)),...
-		sci2exp(in_r(:)),...
-		sci2exp(in_c(:)),...
-		sci2exp(out(:)),...
-		sci2exp(outtype(:)),...
-		sci2exp(out_r(:)),...
-		sci2exp(out_c(:)),...
-		sci2exp(param(:)),...
-		map(paramv,sci2exp),...
-		sci2exp(pprop(:)),...
-		nameF,m2s([]))
-  blk.graphics.exprs = exprs;
-  blk.graphics.in_implicit =intype;
-  blk.graphics.out_implicit=outtype;
 
+  H=hash(in=['u'], intype=['I'], in_r=size(gains,'c'), in_c=[1],
+	 out=['y'], outtype=['I'], out_r= size(gains,'r'), out_c=1,
+	 param=['G'], paramv=list(gains),
+	 pprop=[0], nameF=nameF);
+  blk = VMBLOCK_define(H);
+  blk.graphics.orig = old.graphics.orig;
+  blk.graphics.sz =  old.graphics.sz;
+  blk.graphics.theta = old.graphics.theta;
+  
   blk.graphics.exprs.funtxt =[sprintf("model %s", nameF);
 			      txt;
 			      sprintf("end %s;", nameF)];
-  blk.model.in = size(gains,'c');
-  blk.model.in2 = 1;
-  blk.model.intyp = 1;
-  blk.model.out = size(gains,'r');
-  blk.model.out2 = 1;
-  blk.model.outtyp = 1;
-
-  gr_i=["txt=[""Modelica"";""MGain""];";
-	"xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"]
-  blk=standard_define([20 20],blk.model,blk.graphics.exprs,gr_i,'VMBLOCK');
-  blk.graphics.in_implicit =intype
-  blk.graphics.out_implicit=outtype
   
-  blk = set_block_origin (blk, old.graphics.orig);
-  blk = set_block_size (blk, old.graphics.sz);
+  blk.graphics.gr_i=list(["txt=[""MGain""];";
+			  "xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"],8);
   
   // evaluer 
-  diag = scs_m;
+  diag = scicos_diagram();
   diag.objs= list(blk);
   [diag1,ok]=do_silent_eval(diag);
   blk = diag1.objs(1);
-  // unfortunately this will be crushed by last eval 
-  // blk.graphics.gr_i(1)(1) = sprintf("txt = %s;",txt);
 endfunction
 
 function super_blk= add_modelicos_to_scicos(n)

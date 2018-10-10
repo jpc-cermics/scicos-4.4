@@ -88,30 +88,35 @@ function o=standard_define(sz,model,label,gr_i,gui)
       end
     end
   end
+  if model.sim(1)=='super' then gui= 'SUPER_f';end
+  
+  graphics=standard_graphics(sz,model,label,gr_i=gr_i)
+  o=scicos_block(graphics=graphics,model=model,gui=gui);
+endfunction
 
+function graphics=standard_graphics(sz,model,label,gr_i=[])
+  // initialize a graphics structure from model, label and gr_i
+  // Copyright INRIA
   nin=size(model.in,1);
-  if nin>0 then pin(nin,1)=0,else pin=[],end
+  H=hash(10);H.sz=sz;H.exprs = label;
+  if nin>0 then pin(nin,1)=0; H.pin = pin;end 
   nout=size(model.out,1);
-  if nout>0 then pout(nout,1)=0,else pout=[],end
+  if nout>0 then pout(nout,1)=0; H.pout = pout;end;
   ncin=size(model.evtin,1);
-  if ncin>0 then pein(ncin,1)=0,else pein=[],end
+  if ncin>0 then pein(ncin,1)=0; H.pein = pein;end 
   ncout=size(model.evtout,1);
-  if ncout>0 then peout(ncout,1)=0,else peout=[],end
-
-  if type(gr_i,'string')<>'List' then gr_i=list(gr_i,8),end
-  if isempty(gr_i(2)) then gr_i(2)=8,end
-  if gr_i(2)==0 then gr_i(2)=[],end
-
-  graphics=scicos_graphics(sz=sz,pin=pin,pout=pout,pein=pein,peout=peout,
-  gr_i=gr_i,exprs=label)
-
-  if model.sim(1)=='super' then
-    o=scicos_block(graphics=graphics,model=model,gui='SUPER_f')
+  if ncout>0 then peout(ncout,1)=0; H.peout= peout;end
+  if model.iskey['intype'] then  H.in_implicit = model.intype(:);end
+  if model.iskey['outtype'] then  H.out_implicit = model.outtype(:);end
+  
+  if type(gr_i,'string')<>'List' then
+    gr_i=list(gr_i,8)
   else
-    // [ln,mc]=where()
-    // XXXX gui=mc(2))
-    o=scicos_block(graphics=graphics,model=model,gui=gui);
+    if length( gr_i) < 2 || isempty(gr_i(2)) then gr_i(2)=8;end 
+    if gr_i(2)==0 then gr_i(2)=[],end;
   end
+  H.gr_i = gr_i;
+  graphics=scicos_graphics(H(:));
 endfunction
 
 function standard_etiquette(bloc, legende, job)
