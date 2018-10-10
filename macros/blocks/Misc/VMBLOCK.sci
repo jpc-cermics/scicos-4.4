@@ -493,3 +493,104 @@ function [ok,tt]=VMODCOM_NI(funam,tt,vinp,vintype,vin_size,vout,vouttype,vout_si
   end
 endfunction
 
+
+
+function [x,y,typ]=MBM_Addn(job,arg1,arg2)
+// Copyright INRIA
+
+  function SUMMATION_draw(o,sz,orig)
+    [x,y,typ]=standard_inputs(o) 
+    dd=sz(1)/8,de=0;
+    if ~arg1.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
+    if ~exists("%zoom") then %zoom=1, end;
+    fz=2*%zoom*4;
+    for k=1:size(x,'*');
+      if size(sgn,1) >= k then
+	if sgn(k) > 0 then;
+	  xstring(orig(1)+dd,y(k)-4,'+',size=fz);
+	else;
+	  xstring(orig(1)+dd,y(k)-4,'-',size=fz);
+	end;
+      end;
+    end;
+    xx=sz(1)*[.8 .4 0.75 .4 .8]+orig(1)+de;
+    yy=sz(2)*[.8 .8 .5 .2 .2]+orig(2);
+    xpoly(xx,yy,type='lines');
+  endfunction
+  
+  x=[];y=[];typ=[];
+  select job
+   case 'plot' then
+    sgn=arg1.model.ipar
+    standard_draw(arg1)
+   case 'getinputs' then
+    [x,y,typ]=standard_inputs(arg1)
+   case 'getoutputs' then
+    [x,y,typ]=standard_outputs(arg1)
+   case 'getorigin' then
+    [x,y]=standard_origin(arg1)
+   case 'set' then
+    x=arg1;
+    graphics=arg1.graphics
+    model=arg1.model
+    exprs=graphics.exprs;
+    ok = execstr('value='+exprs.paramv);
+    value= list(sci2exp(value(1)));
+    
+    gv_titles='Set sum block parameters';
+    gv_names=['sign vector (of +1, -1)'];
+    gv_types = list('vec',-1);
+    [ok,sgn, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
+    if ~ok then return;end; // cancel in getvalue;
+    x= MBM_Addn_define(sgn(:),x);
+   case 'define' then
+     sgn=[1;-1];
+     x= MBM_Addn_define(sgn);
+  end
+endfunction
+
+function blk= MBM_Addn_define(vect,old)
+  // used when gains is given by a matrix or vector
+  // we use a VMBLOCK;
+
+  global(modelica_count=0);
+  nameF='generic'+string(modelica_count);
+  modelica_count =       modelica_count +1;
+  n=size(vect,'*');
+  H=hash(in=["u"+string(1:n)'], intype=smat_create(n,1,"I"), in_r=ones(n,1), in_c=ones(n,1),
+	 out=["y"], outtype=["I"], out_r= 1, out_c=1,
+	 param=["G"], paramv=list(vect),
+	 pprop=[0], nameF=nameF);
+  
+  txt=[sprintf("model %s", nameF)];
+  txt.concatd[sprintf("parameter Real G[%d]=",size(vect,"*"))];
+  s=sprint(vect(:)',as_read=%t);
+  s=strsubst(s(2),["[","]"],["{","}"]);
+  txt = txt + catenate(s,sep=",") +";";
+  txt.concatd[sprintf("  RealOutput y;")]
+  txt.concatd[sprintf("  RealInput %s,",catenate("u"+string(1:n),sep=","))];
+  txt.concatd["  equation"];
+  start = m2s([]);
+  for i=1: size(vect,"*")
+    start.concatr[sprintf("G[%d]*u%d.signal",i,i)];
+  end
+  txt.concatd["    y.signal=" + catenate(start,sep="+") + ";"];
+  txt.concatd[sprintf("end %s;", nameF)];
+
+  H.funtxt = txt;
+  if nargin == 2 then 
+    blk = VMBLOCK_define(H,old);
+  else
+    blk = VMBLOCK_define(H);
+  end
+  
+  blk.graphics.exprs.funtxt = txt;
+  blk.graphics.gr_i=["SUMMATION_draw(o,sz,orig);"];
+  blk.gui = "MBM_Addn";
+  
+  // // XXX
+  // diag = scicos_diagram();
+  // diag.objs= list(blk);
+  // [diag1,ok]=do_silent_eval(diag);
+  // blk = diag1.objs(1);
+endfunction
