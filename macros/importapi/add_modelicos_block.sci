@@ -116,7 +116,16 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
 	blk = set_block_evtnin (blk, 0);
 	blk = set_block_evtnout (blk, 0);
       else
-	blk= add_modelicos_mbm_add(blk, gains);
+	if %t then 
+	  old=blk;
+	  blk= MBM_Addn_define(gains);
+	  blk = set_block_origin (blk, old.graphics.orig);
+	  blk = set_block_size (blk, old.graphics.sz);
+	  blk = set_block_theta (blk, old.graphics.theta );
+	  blk = set_block_flip (blk, ~old.graphics.flip);
+	else
+	  blk= add_modelicos_mbm_add(blk, gains);
+	end
       end
     case 'MBC_Integrator' then
       // params.concatd [ { "x0", '0' } ];

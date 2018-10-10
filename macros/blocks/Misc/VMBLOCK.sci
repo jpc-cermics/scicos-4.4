@@ -71,6 +71,7 @@ function [x,y,typ]=VMBLOCK(job,arg1,arg2)
 endfunction
 
 function blk = VMBLOCK_define(H,old)
+
   // define a VMBLOCK given data 
   // or define the block when data have changed
   if nargin < 1 then
@@ -118,20 +119,28 @@ function blk = VMBLOCK_define(H,old)
   model.outtype= H.outtype;
   model.equations=model_equations;
   if nargin == 2 then
+    graphics = old.graphics;
+    graphics.exprs = exprs;
+    nin=size(model.in,1);
+    nin_old = size(old.graphics.pin,'*');
+    if nin >= nin_old then pin(nin,1)=0;pin(1:nin_old,1)=old.graphics.pin;end
+    if nin <  nin_old then pin=old.graphics.pin(1:nin);end
+    graphics.pin = pin;
+    nout=size(model.out,1);
+    nout_old = size(old.graphics.pout,'*');
+    if nout >= nout_old then pout(nout,1)=0;pout(1:nout_old,1)=old.graphics.pout;end
+    if nout <  nout_old then pout=old.graphics.pout(1:nout);end
+    graphics.pout = pout;
+    graphics.in_implicit = model.intype(:);
+    graphics.out_implicit = model.outtype(:);
     blk = old;
-    intypex=find(H.intype=='I'); 
-    outtypex=find(H.outtype=='I');
-    [model,graphics,ok]= set_io(model,old.graphics,list([H.in_r(:),H.in_c(:)],ones(size(H.in))),..
-						       list([H.out_r(:),H.out_c(:)],ones(size(H.out))),..
-						       [],[],intypex,outtypex);
     blk.model = model;
     blk.graphics = graphics;
-    blk.graphics.exprs = exprs;
   else
     // we could here call set_io to fix graphics
     gr_i=["txt=[""Modelica"";"" "+H.nameF+" ""];";
 	  "xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"]
-    blk=standard_define([40 40],model,exprs,gr_i,'VMBLOCK');
+    blk=standard_define([2 2],model,exprs,gr_i,'VMBLOCK');
     // standard define should incorporate that 
     blk.graphics.in_implicit =H.intype
     blk.graphics.out_implicit=H.outtype
@@ -499,38 +508,41 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
 // Copyright INRIA
 
   function SUMMATION_draw(o,sz,orig)
+    blue=xget('color','blue');
     [x,y,typ]=standard_inputs(o) 
     dd=sz(1)/8,de=0;
-    if ~arg1.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
+    if ~o.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
     if ~exists("%zoom") then %zoom=1, end;
     fz=2*%zoom*4;
     for k=1:size(x,'*');
       if size(sgn,1) >= k then
 	if sgn(k) > 0 then;
-	  xstring(orig(1)+dd,y(k)-4,'+',size=fz);
+	  xstring(orig(1)+dd,y(k)-4,'+',size=fz,color=blue);
 	else;
-	  xstring(orig(1)+dd,y(k)-4,'-',size=fz);
+	  xstring(orig(1)+dd,y(k)-4,'-',size=fz,color=blue);
 	end;
       end;
     end;
     xx=sz(1)*[.8 .4 0.75 .4 .8]+orig(1)+de;
     yy=sz(2)*[.8 .8 .5 .2 .2]+orig(2);
-    xpoly(xx,yy,type='lines');
+    xpoly(xx,yy,type='lines',color=blue);
   endfunction
   
   x=[];y=[];typ=[];
   select job
-   case 'plot' then
-    sgn=arg1.model.ipar
-    standard_draw(arg1)
+    case 'plot' then
+     paramv=arg1.graphics.exprs.paramv;
+     ok = execstr('value='+paramv);
+     sgn = value(1);
+     standard_draw(arg1);
    case 'getinputs' then
-    [x,y,typ]=standard_inputs(arg1)
+     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
-    [x,y,typ]=standard_outputs(arg1)
+     [x,y,typ]=standard_outputs(arg1)
    case 'getorigin' then
-    [x,y]=standard_origin(arg1)
+     [x,y]=standard_origin(arg1)
    case 'set' then
-    x=arg1;
+     x=arg1;
     graphics=arg1.graphics
     model=arg1.model
     exprs=graphics.exprs;
@@ -543,6 +555,7 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
     [ok,sgn, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
     if ~ok then return;end; // cancel in getvalue;
     x= MBM_Addn_define(sgn(:),x);
+
    case 'define' then
      sgn=[1;-1];
      x= MBM_Addn_define(sgn);
@@ -587,8 +600,7 @@ function blk= MBM_Addn_define(vect,old)
   blk.graphics.exprs.funtxt = txt;
   blk.graphics.gr_i=["SUMMATION_draw(o,sz,orig);"];
   blk.gui = "MBM_Addn";
-  
-  // // XXX
+
   // diag = scicos_diagram();
   // diag.objs= list(blk);
   // [diag1,ok]=do_silent_eval(diag);

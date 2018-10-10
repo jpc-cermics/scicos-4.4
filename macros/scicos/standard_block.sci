@@ -49,7 +49,7 @@ function [x,y,typ]=standard_block(job,block,arg2=[])
   x=[];y=[];typ=[];
   select job
    case 'plot' then
-    standard_draw(block)
+     standard_draw(block)
    case 'getinputs' then
     [x,y,typ]=standard_inputs(block)
    case 'getoutputs' then
