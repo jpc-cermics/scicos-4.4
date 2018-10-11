@@ -51,7 +51,7 @@ endfunction
 
 function scs_m=dflipflop_define()
   scs_m = instantiate_diagram ();
-  blk = instantiate_block("CONST_m");
+  blk = CONST_m('define')
   exprs= [ "m2i(0,''int8'')" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 0);
@@ -64,7 +64,7 @@ function scs_m=dflipflop_define()
   blk.model.evtout= mat_create(0,1);
   [scs_m, block_tag_1] = add_block(scs_m, blk);
   
-  blk = instantiate_block("IFTHEL_f");
+  blk = IFTHEL_f('define')
   exprs= [ "1";"1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
@@ -75,7 +75,7 @@ function scs_m=dflipflop_define()
   blk = set_block_size (blk, [   60,60 ]);
   [scs_m, block_tag_2] = add_block(scs_m, blk);
   
-  blk = instantiate_block("LOGICAL_OP");
+  blk = LOGICAL_OP('define')
   exprs=  [ "2"; "1"; "5"; "0" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 2);
@@ -88,7 +88,7 @@ function scs_m=dflipflop_define()
   blk.model.evtout= mat_create(0,1);
   [scs_m, block_tag_3] = add_block(scs_m, blk);
 
-  blk = instantiate_block("SAMPHOLD_m");
+  blk = SAMPHOLD_m('define')
   exprs= [ "5" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
@@ -100,7 +100,7 @@ function scs_m=dflipflop_define()
   blk.model.evtout= mat_create(0,1);
   [scs_m, block_tag_4] = add_block(scs_m, blk);
   
-  blk = instantiate_block("LOGICAL_OP");
+  blk = LOGICAL_OP('define')
   exprs=  [ "1";    "5";    "5";    "0" ];
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
@@ -113,7 +113,7 @@ function scs_m=dflipflop_define()
   blk.model.evtout= mat_create(0,1);
   [scs_m, block_tag_5] = add_block(scs_m, blk);
   
-  blk = instantiate_block("IN_f");
+  blk = IN_f('define')
   exprs=  [ "3";  "-1";  "-1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nout (blk, 1);
@@ -121,7 +121,7 @@ function scs_m=dflipflop_define()
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_6] = add_block(scs_m, blk);
   
-  blk = instantiate_block("IN_f");
+  blk = IN_f('define')
   exprs= [ "1"; "-1";  "-1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nout (blk, 1);
@@ -129,7 +129,7 @@ function scs_m=dflipflop_define()
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_7] = add_block(scs_m, blk);
   
-  blk = instantiate_block("OUT_f");
+  blk = OUT_f('define')
   exprs= [ "2" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
@@ -137,21 +137,21 @@ function scs_m=dflipflop_define()
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_8] = add_block(scs_m, blk);
   
-  blk = instantiate_block("OUT_f");
+  blk = OUT_f('define')
   exprs=  [ "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
   blk = set_block_origin (blk, [   376.4669,270.8328 ]);
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_9] = add_block(scs_m, blk);
-  blk = instantiate_block("ANDBLK");
+  blk = ANDBLK('define')
   blk = set_block_evtnin (blk, 2);
   blk = set_block_evtnout (blk, 1);
   blk = set_block_origin (blk, [   233.7304,318.7441 ]);
   blk = set_block_size (blk, [   40,40 ]);
   [scs_m, block_tag_10] = add_block(scs_m, blk);
   
-  blk = instantiate_block("EDGE_TRIGGER");
+  blk = EDGE_TRIGGER('define')
   exprs=  [ "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
@@ -160,14 +160,14 @@ function scs_m=dflipflop_define()
   blk = set_block_size (blk, [   60,40 ]);
   [scs_m, block_tag_11] = add_block(scs_m, blk);
   
-  blk = instantiate_block("IN_f");
+  blk = IN_f('define')
   exprs=  [ "2";  "-1";  "-1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nout (blk, 1);
   blk = set_block_origin (blk, [    79.5948,395.4765 ]);
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_12] = add_block(scs_m, blk);
-  blk = instantiate_block("Extract_Activation");
+  blk = Extract_Activation('define')
   blk = set_block_nin (blk, 1);
   blk = set_block_nout (blk, 0);
   blk = set_block_evtnin (blk, 0);
@@ -176,28 +176,28 @@ function scs_m=dflipflop_define()
   blk = set_block_size (blk, [   60,40 ]);
   [scs_m, block_tag_13] = add_block(scs_m, blk);
   
-  blk = instantiate_block("SUM_f");
+  blk = SUM_f('define')
   blk = set_block_nin (blk, 3);
   blk = set_block_nout (blk, 1);
   blk = set_block_origin (blk, [   200.5252,469.1317 ]);
   blk = set_block_size (blk, [   16.6667,16.6667 ]);
   [scs_m, block_tag_14] = add_block(scs_m, blk);
   
-  blk = instantiate_block("SPLIT_f");
+  blk = SPLIT_f('define')
   blk = set_block_nin (blk, 1);
   blk = set_block_nout (blk, 2);
   blk = set_block_origin (blk, [   110.2558,405.4208 ]);
   blk = set_block_size (blk, [   0.3333,0.3333 ]);
   [scs_m, block_tag_15] = add_block(scs_m, blk);
   
-  blk = instantiate_block("SPLIT_f");
+  blk = SPLIT_f('define')
   blk = set_block_nin (blk, 1);
   blk = set_block_nout (blk, 2);
   blk = set_block_origin (blk, [   222.5413,408.2166 ]);
   blk = set_block_size (blk, [   0.3333,0.3333 ]);
   [scs_m, block_tag_16] = add_block(scs_m, blk);
   
-  blk = instantiate_block("SELECT_m");
+  blk = SELECT_m('define')
   exprs= [ "5";  "2";   "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 2);
@@ -209,21 +209,21 @@ function scs_m=dflipflop_define()
   blk.model.evtout= mat_create(0,1);
   [scs_m, block_tag_17] = add_block(scs_m, blk);
   
-  blk = instantiate_block("SPLIT_f");
+  blk = SPLIT_f('define')
   blk = set_block_nin (blk, 1);
   blk = set_block_nout (blk, 2);
   blk = set_block_origin (blk, [   357.5733,280.8328 ]);
   blk = set_block_size (blk, [   0.3333,0.3333 ]);
   [scs_m, block_tag_18] = add_block(scs_m, blk);
   
-  blk = instantiate_block("SPLIT_f");
+  blk = SPLIT_f('define')
   blk = set_block_nin (blk, 1);
   blk = set_block_nout (blk, 2);
   blk = set_block_origin (blk, [   140.3452,273.4916 ]);
   Blk = set_block_size (blk, [   0.3333,0.3333 ]);
   [scs_m, block_tag_19] = add_block(scs_m, blk);
   
-  blk = instantiate_block("CLKSPLIT_f");
+  blk = CLKSPLIT_f('define')
   blk = set_block_evtnin (blk, 1);
   blk = set_block_evtnout (blk, 2);
   blk = set_block_origin (blk, [   253.7257,309.2954 ]);

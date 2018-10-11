@@ -2,7 +2,7 @@ function [x,y,typ]=Extract_Activation(job,arg1,arg2)
 
   function scs_m=extract_activation_define () 
     scs_m = instantiate_diagram ();
-    blk = instantiate_block("IFTHEL_f");
+    blk = IFTHEL_f('define')
     exprs= [ "0"; "0" ]
     blk=set_block_exprs(blk,exprs);
     blk = set_block_nin (blk, 1);
@@ -13,7 +13,7 @@ function [x,y,typ]=Extract_Activation(job,arg1,arg2)
     blk = set_block_size (blk, [   60,60 ]);
     [scs_m, block_tag_1] = add_block(scs_m, blk);
 
-    blk = instantiate_block("CLKSOMV_f");
+    blk = CLKSOMV_f('define')
     blk = set_block_bg_color (blk, 8);
     blk = set_block_evtnin (blk, 3);
     blk = set_block_evtnout (blk, 1);
@@ -21,14 +21,14 @@ function [x,y,typ]=Extract_Activation(job,arg1,arg2)
     blk = set_block_size (blk, [   16.6667,16.6667 ]);
     [scs_m, block_tag_2] = add_block(scs_m, blk);
 
-    blk = instantiate_block("IN_f");
+    blk = IN_f('define')
     exprs= [ "1";  "-1";  "-1" ]
     blk=set_block_exprs(blk,exprs);
     blk = set_block_nout (blk, 1);
     blk = set_block_origin (blk, [   102.0790,163.8221 ]);
     blk = set_block_size (blk, [   20,20 ]);
     [scs_m, block_tag_5] = add_block(scs_m, blk);
-    blk = instantiate_block("CLKOUTV_f");
+    blk = CLKOUTV_f('define')
     exprs= [ "1" ];
     blk=set_block_exprs(blk,exprs);
     blk = set_block_bg_color (blk, 8);
