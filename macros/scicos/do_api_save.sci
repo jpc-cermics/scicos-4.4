@@ -229,7 +229,7 @@ function [ok,txt]=do_api_save(scs_m)
 	    evtdly=o.model.rpar.objs(path); // get the evtdly block
 	    exprs= evtdly.graphics.exprs;
 	    txt=[txt;do_api_block(o,%kk,exprs)];
-	  elseif or(o.gui == ['ENDBLK', 'STEP_FUNCTION']) then
+	  elseif or(o.gui == ['ENDBLK', 'STEP_FUNCTION', 'EDGE_TRIGGER' ]) then
 	    // parameters are in the first internal block 
 	    blk=o.model.rpar.objs(1);
 	    exprs= blk.graphics.exprs;
@@ -242,13 +242,13 @@ function [ok,txt]=do_api_save(scs_m)
 	    // we need to build exprs
 	    exprs = DELAY_f('exprs',o);
 	    txt=[txt;do_api_block(o,%kk,exprs)];
-	  elseif or(o.gui == ['PULSE_SC','PULSE_SD','GEN_SQR','ANDBLK', 'PID2']) then
+	  elseif or(o.gui == ['PULSE_SC','PULSE_SD','GEN_SQR','ANDBLK', 'PID2', 'Extract_Activation','DFLIPFLOP']) then
 	    // already properly deal exprs 
 	    txt=[txt;do_api_block(o,%kk)];
 	    // ok : ANDBLK, PID2, PID, DELAY_f ENDBLK STEP_FUNCTION
+	    // a revoir (pb de exprs pas utilisé) 'ENDBLK', 'STEP_FUNCTION', 'EDGE_TRIGGER'
 	    // DLATCH
 	    // MCLOCK_f
-	    // DFLIPFLOP
 	    // JKFLIPFLOP
 	    // SRFLIPFLOP
 	  elseif (model.sim(1)== 'csuper' && model.ipar==1) || o.gui == 'DSUPER' then 
