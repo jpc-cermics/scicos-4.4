@@ -140,6 +140,7 @@ function [x,y,typ]=SampleCLK(job,arg1,arg2)
 	break
       end
     end
+    resume(needcompile=y);
    case 'define' then
     model=scicos_model()
     model.sim='sampleclk'
