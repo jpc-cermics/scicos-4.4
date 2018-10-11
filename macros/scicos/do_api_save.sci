@@ -118,7 +118,7 @@ function [ok,txt]=do_api_save(scs_m)
     txt.concatd[txt1];
     txt.concatd[sprintf('[scs_m, block_tag_%d] = add_block(scs_m, blk);',blk_num)];
   endfunction
-
+  
   function [txt,count]=do_api_model(scs_m,count)
     // returns text coding internal diagram of a super block.
     // printf("In api model ");pause model
@@ -234,21 +234,23 @@ function [ok,txt]=do_api_save(scs_m)
 	    blk=o.model.rpar.objs(1);
 	    exprs= blk.graphics.exprs;
 	    txt=[txt;do_api_block(o,%kk,exprs)];
-	  elseif o.gui == 'PID' then
+	  elseif or(o.gui == ['PID']) then
 	    // we need to build exprs
-	    exprs = PID('exprs',o);
+	    exprs= PID('exprs',o);
+	    txt=[txt;do_api_block(o,%kk,exprs)];
+	  elseif or(o.gui == ['DELAY_f']) then
+	    // we need to build exprs
+	    exprs = DELAY_f('exprs',o);
 	    txt=[txt;do_api_block(o,%kk,exprs)];
 	  elseif or(o.gui == ['PULSE_SC','PULSE_SD','GEN_SQR','ANDBLK', 'PID2']) then
+	    // already properly deal exprs 
 	    txt=[txt;do_api_block(o,%kk)];
-
-	    // ok : 'ANDBLK', 'PID2', 'PID' 
+	    // ok : ANDBLK, PID2, PID, DELAY_f ENDBLK STEP_FUNCTION
+	    // DLATCH
 	    // MCLOCK_f
 	    // DFLIPFLOP
-	    // DLATCH
 	    // JKFLIPFLOP
 	    // SRFLIPFLOP
-	    // DELAY_f
-	    	    	    
 	  elseif (model.sim(1)== 'csuper' && model.ipar==1) || o.gui == 'DSUPER' then 
 	    [mtxt,count]=do_api_model(model.rpar,count)
 	    head=[head;mtxt];

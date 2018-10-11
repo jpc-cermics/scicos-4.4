@@ -8,6 +8,9 @@ function [scs_m,corinv,cor,sco_mat,links_table,ok,flgcdgen,freof]=...
   // The Code generator will use the method with the fixed step
   // Scicos Simulator will use the method of variable step
 
+  // XXX ce fichier correspond a treat_sample_clk.sci et doit etre mis
+  // a jour
+  
   function [N,denom_com]=GetDenNum(v,max_v,dt)
   //Fady: 15 Dec 2008
     v=v/max_v;
