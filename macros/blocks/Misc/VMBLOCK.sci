@@ -502,20 +502,66 @@ function [ok,tt]=VMODCOM_NI(V,tt)
   end
 endfunction
 
-
-
 function [x,y,typ]=MBM_Addn(job,arg1,arg2)
-// Copyright INRIA
+  // A <<coselica>> block adding many scalar entries
+  // One remaining question is to know if we can adapt to
+  // vectorial entries at compile time.
+  
+  function blk= MBM_Addn_define(vect,old)
+    // used when gains is given by a matrix or vector
+    // we use a VMBLOCK;
+    if nargin <= 1 then 
+      global(modelica_count=0);
+      nameF='generic'+string(modelica_count);
+      modelica_count =       modelica_count +1;
+    else
+      nameF=old.graphics.exprs.nameF;
+    end
+    n=size(vect,'*');
 
+    H=hash(in=["u"+string(1:n)'], intype=smat_create(n,1,"I"), in_r=ones(n,1), in_c=ones(n,1),
+	   out=["y"], outtype=["I"], out_r= 1, out_c=1,
+	   param=["G"], paramv=list(vect(:)'),
+	   pprop=[0], nameF=nameF);
+    
+    txt=[sprintf("model %s", nameF)];
+    s=sprint(vect(:)',as_read=%t);
+    s=strsubst(s(2),["[","]"],["{","}"]);
+    txt.concatd[sprintf("parameter Real G[%d]=%s;",size(vect,"*"),catenate(s,sep=","))];
+    txt.concatd[sprintf("  RealOutput y;")]
+    txt.concatd[sprintf("  RealInput %s;",catenate("u"+string(1:n),sep=","))];
+    txt.concatd["  equation"];
+    start = m2s([]);
+    for i=1: size(vect,"*")
+      start.concatr[sprintf("G[%d]*u%d.signal",i,i)];
+    end
+    txt.concatd["    y.signal=" + catenate(start,sep="+") + ";"];
+    txt.concatd[sprintf("end %s;", nameF)];
+
+    H.funtxt = txt;
+    if nargin == 2 then 
+      blk = VMBLOCK_define(H,old);
+    else
+      blk = VMBLOCK_define(H);
+    end
+    
+    blk.graphics.exprs.funtxt = txt;
+    blk.graphics.gr_i=["SUMMATION_draw(o,sz,orig);"];
+    blk.gui = "MBM_Addn";
+
+  endfunction
+  
   function SUMMATION_draw(o,sz,orig)
+    // using summation draw
+    // should turn the square to blue triangles.
     blue=xget('color','blue');
-    [x,y,typ]=standard_inputs(o) 
+    [x,y,typ]=standard_inputs(o)
     dd=sz(1)/8,de=0;
     if ~o.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
     if ~exists("%zoom") then %zoom=1, end;
     fz=2*%zoom*4;
     for k=1:size(x,'*');
-      if size(sgn,1) >= k then
+      if size(sgn,'*') >= k then
 	if sgn(k) > 0 then;
 	  xstring(orig(1)+dd,y(k)-4,'+',size=fz,color=blue);
 	else;
@@ -562,45 +608,3 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
   end
 endfunction
 
-function blk= MBM_Addn_define(vect,old)
-  // used when gains is given by a matrix or vector
-  // we use a VMBLOCK;
-  if nargin <= 1 then 
-    global(modelica_count=0);
-    nameF='generic'+string(modelica_count);
-    modelica_count =       modelica_count +1;
-  else
-    nameF=old.graphics.exprs.nameF;
-  end
-  n=size(vect,'*');
-  H=hash(in=["u"+string(1:n)'], intype=smat_create(n,1,"I"), in_r=ones(n,1), in_c=ones(n,1),
-	 out=["y"], outtype=["I"], out_r= 1, out_c=1,
-	 param=["G"], paramv=list(vect(:)'),
-	 pprop=[0], nameF=nameF);
-  
-  txt=[sprintf("model %s", nameF)];
-  s=sprint(vect(:)',as_read=%t);
-  s=strsubst(s(2),["[","]"],["{","}"]);
-  txt.concatd[sprintf("parameter Real G[%d]=%s;",size(vect,"*"),catenate(s,sep=","))];
-  txt.concatd[sprintf("  RealOutput y;")]
-  txt.concatd[sprintf("  RealInput %s;",catenate("u"+string(1:n),sep=","))];
-  txt.concatd["  equation"];
-  start = m2s([]);
-  for i=1: size(vect,"*")
-    start.concatr[sprintf("G[%d]*u%d.signal",i,i)];
-  end
-  txt.concatd["    y.signal=" + catenate(start,sep="+") + ";"];
-  txt.concatd[sprintf("end %s;", nameF)];
-
-  H.funtxt = txt;
-  if nargin == 2 then 
-    blk = VMBLOCK_define(H,old);
-  else
-    blk = VMBLOCK_define(H);
-  end
-  
-  blk.graphics.exprs.funtxt = txt;
-  blk.graphics.gr_i=["SUMMATION_draw(o,sz,orig);"];
-  blk.gui = "MBM_Addn";
-
-endfunction

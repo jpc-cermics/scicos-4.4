@@ -6,10 +6,13 @@ function [x,y,typ]=ANDBLK(job,arg1,arg2)
     andlog.graphics.enter[orig=[194,133],sz=[60,60],flip=%t,pout=9,pein=[4;11]];
     input_port1=CLKIN_f('define')
     input_port1.graphics.enter[orig=[149,287], sz=[20,20],flip=%t,exprs='1',peout=4,ipar=1];
+    input_port1.model.ipar=1; // exprs='1'
     output_port=CLKOUT_f('define')
     output_port.graphics.enter[orig=[450,83], sz=[20,20],flip=%t,exprs='1',pein=8,ipar=1];
+    input_port1.model.ipar=1; // exprs='1'
     input_port2=CLKIN_f('define')
     input_port2.graphics.enter[orig=[141,330],sz=[20,20],flip=%t,exprs='2',peout=6,ipar=2];
+    input_port1.model.ipar=2; // exprs='2'
     ifthel=IFTHEL_f('define')
     ifthel.graphics.enter[orig=[331,137],sz=[60,60],flip=%t,pin=9, pein=12, peout=[8;0]];
     split=CLKSPLIT_f('define')
@@ -46,7 +49,7 @@ function [x,y,typ]=ANDBLK(job,arg1,arg2)
     
     x=scicos_block()
     x.gui='ANDBLK'
-    x.graphics.sz=[2,2]
+    x.graphics.sz=[20,20]
     x.graphics.gr_i=list('xstringb(orig(1),orig(2),'' ANDBLK '',sz(1),s"+...
 			 "z(2),''fill'')',8);
     x.graphics.pein=[0;0]
