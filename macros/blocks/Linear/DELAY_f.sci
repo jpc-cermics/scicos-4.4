@@ -1,73 +1,7 @@
 function [x,y,typ]=DELAY_f(job,arg1,arg2)
 // Copyright INRIA
-  x=[];y=[],typ=[]
-  select job
-   case 'plot' then
-    standard_draw(arg1)
-   case 'getinputs' then
-    [x,y,typ]=standard_inputs(arg1)
-   case 'getoutputs' then
-    [x,y,typ]=standard_outputs(arg1)
-   case 'getorigin' then
-    [x,y]=standard_origin(arg1)
-   case 'set' then
-    // paths to updatable parameters or states
-    x=arg1
-    if x.model.rpar.objs(1)==mlist('Deleted') then
-      ppath = list(4,5)  //compatibility with translated blocks
-    else
-      ppath = list(3,4)
-    end
-    newpar=list();
-    register=x.model.rpar.objs(ppath(1)) //data structure of register block
-    evtdly=x.model.rpar.objs(ppath(2)) //data structure of evtdly block
-    register_exprs=register.graphics.exprs
-    evtdly_exprs=evtdly.graphics.exprs
-    exprs=[evtdly_exprs(1);register_exprs]
-    while %t do
-      [ok,dt,z0,exprs]=getvalue(['This block implements as a discretised delay';
-		    'it is consist of a shift register and a clock';
-		    'value of the delay is given by;'
-		    'the discretisation time step multiplied by the';
-		    'number-1 of state of the register'],..
-				['Discretisation time step';
-		    'Register initial state'],list('vec',1,'vec',-1),exprs)
-      if ~ok then break,end
-      mess=[]
-      if prod(size(z0))<2 then
-	mess=[mess;'Register length must be at least 2';' ']
-	ok=%f
-      end    
-      if dt<=0 then
-	mess=[mess;'Discretisation time step must be positive';' ']
-	ok=%f
-      end
-      if ~ok then
-	message(mess);
-      else
-	//Change the clock
-	evtdly.graphics.exprs(1)=exprs(1);
-	//      evtdly.model.firing=0; //initial delay firing date
 
-	if evtdly.model.rpar<>dt then //Discretisation time step
-	  evtdly.model.rpar=dt
-	  newpar($+1)=ppath(2) // notify clock changes
-	end
-	x.model.rpar.objs(ppath(2))=evtdly
-	
-	//Change the register
-	register.graphics.exprs=exprs(2)
-	if or(register.model.dstate<>z0(:)) then //Register initial state
-	  register.model.dstate=z0(:)
-	  newpar($+1)=ppath(1) // notify register changes
-	end
-	x.model.rpar.objs(ppath(1))=register
-	break
-      end
-    end
-    y=acquire('needcompile',def=0);
-    typ=newpar
-   case 'define' then
+  function blk = DELAY_define()
     evtdly=EVTDLY_f('define')
     evtdly.graphics.orig=[243,296]
     evtdly.graphics.sz=[40,40]
@@ -125,18 +59,115 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
     diagram.objs(10)=scicos_link(xx=[263;308.6;308.6;263;263],..
 				 yy=[271.2;271.2;367;367;341.7],..
 				 ct=[5,-1],from=[8,2],to=[4,1]) 
-    x=scicos_block()
-    x.gui='DELAY_f'
-    x.graphics.sz=[2,2]
-    x.graphics.gr_i=list('xstringb(orig(1),orig(2),''Delay'',sz(1),s"+...
+    blk=scicos_block()
+    blk.gui='DELAY_f'
+    blk.graphics.sz=[2,2]
+    blk.graphics.gr_i=list('xstringb(orig(1),orig(2),''Delay'',sz(1),s"+...
 			 "z(2),''fill'')',8) 
-    x.graphics.pin=0
-    x.graphics.pout=0
-    x.model.sim='csuper'
-    x.model.in=1
-    x.model.out=1
-    x.model.blocktype='h'
-    x.model.dep_ut=[%f %f]
-    x.model.rpar=diagram
+    blk.graphics.pin=0
+    blk.graphics.pout=0
+    blk.model.sim='csuper'
+    blk.model.in=1
+    blk.model.out=1
+    blk.model.blocktype='h'
+    blk.model.dep_ut=[%f %f]
+    blk.model.rpar=diagram
+    blk.graphics.exprs =[evtdly.graphics.exprs(1);register.graphics.exprs];
+
+  endfunction
+
+  function [blk,newpar]=DELAY_f_set(blk,dt,z0,exprs)
+    // propagate values in the contained diagram
+    // paths to updatable parameters or states
+    blk.graphics.exprs  = exprs;
+    if blk.model.rpar.objs(1)==mlist('Deleted') then
+      ppath = list(4,5)  //compatibility with translated blocks
+    else
+      ppath = list(3,4)
+    end
+    newpar=list();
+    register=blk.model.rpar.objs(ppath(1)); //data structure of register block
+    evtdly=blk.model.rpar.objs(ppath(2)); //data structure of evtdly block
+    //Change the clock
+    evtdly.graphics.exprs(1)=exprs(1);
+    //      evtdly.model.firing=0; //initial delay firing date
+    if evtdly.model.rpar<>dt then
+      //Discretisation time step
+      evtdly.model.rpar=dt
+      newpar($+1)=ppath(2); // notify clock changes
+    end
+    blk.model.rpar.objs(ppath(2))=evtdly
+    //Change the register
+    register.graphics.exprs=exprs(2)
+    if or(register.model.dstate<>z0(:)) then
+      //Register initial state
+      register.model.dstate=z0(:)
+      newpar($+1)=ppath(1); // notify register changes
+    end
+    blk.model.rpar.objs(ppath(1))=register;
+  endfunction
+
+  // the function
+    
+  x=[];y=[],typ=[]
+  select job
+   case 'plot' then
+    standard_draw(arg1)
+   case 'getinputs' then
+    [x,y,typ]=standard_inputs(arg1)
+   case 'getoutputs' then
+    [x,y,typ]=standard_outputs(arg1)
+   case 'getorigin' then
+    [x,y]=standard_origin(arg1)
+   case 'set' then
+     x=arg1;
+     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+       exprs = DELAY_f('exprs',arg1);
+     else
+       exprs = arg1.graphics.exprs;
+     end
+     while %t do
+       [ok,dt,z0,exprs]=getvalue(['This block implements as a discretised delay';
+				  'it is consist of a shift register and a clock';
+				  'value of the delay is given by;'
+				  'the discretisation time step multiplied by the';
+				  'number-1 of state of the register'],...
+				 ['Discretisation time step';
+				  'Register initial state'],list('vec',1,'vec',-1),exprs)
+       if ~ok then return;end;// cancel
+       mess=[];
+       if prod(size(z0))<2 then
+	 mess=[mess;'Register length must be at least 2';' ']
+	 ok=%f;
+       end    
+       if dt<=0 then
+	 mess=[mess;'Discretisation time step must be positive';' ']
+	 ok=%f;
+       end
+       if ~ok then
+	 message(mess);
+       else
+	 break;
+       end
+     end
+     [x,newpar]=DELAY_f_set(arg1,dt,z0,exprs);
+     y=acquire('needcompile',def=0);
+     typ=newpar;
+   case 'define' then
+     x = DELAY_define();
+   case 'exprs' then
+     blk = arg1;
+     // re-creates exprs form data in diagram
+     // backwrd compatibility for old schemes.
+     if blk.model.rpar.objs(1)==mlist('Deleted') then
+       ppath = list(4,5)  //compatibility with translated blocks
+     else
+       ppath = list(3,4)
+     end
+     register=blk.model.rpar.objs(ppath(1)); //data structure of register block
+     evtdly=blk.model.rpar.objs(ppath(2)); //data structure of evtdly block
+     exprs=[evtdly.graphics.exprs(1); register.graphics.exprs];
+     x=exprs;
   end
+  
 endfunction
