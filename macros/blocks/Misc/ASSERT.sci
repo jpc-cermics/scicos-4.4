@@ -89,7 +89,7 @@ function [x,y,typ]=ASSERT(job,arg1,arg2)
       x_0.blocktype=     [ "h" ]
       x_0.ipar=     [   1 ]
       model=x_0;clear('x_0');
-      model.rpar=ASSERT_diagram();
+      model.rpar= assert_define();
       zc=0
       opar=emptystr()
       ipar=2
@@ -100,105 +100,72 @@ function [x,y,typ]=ASSERT(job,arg1,arg2)
   end
 endfunction
 
-function scs_m= ASSERT_diagram()
-  // internal diagram of block ASSERT
-  x_0=scicos_diagram();
-  x_1=scicos_params();
-  x_1.wpar=      [    56.7782,   156.5762,   517.1211,   504.7190,   630.0000 ,...
-		      478.0000,    10.0000,    56.5000,   630.0000,   479.0000 ,...
-		      465.0000,   191.0000,     1.4000,   610.0000,   365.0000 ]
-  x_1.title=      [ "ASSERT" ]
-  x_0.props=x_1;clear('x_1');
-  x_1=list();
-  x_2=IN_f('define');
-  x_2.graphics.pout=       [   3 ]
-  x_2.graphics.sz=       [   20,   20 ]
-  x_2.graphics.orig=       [   151.4286,   380.0000 ]
-  x_1(1)=x_2;clear('x_2');
-  x_2=ABS_VALUEi('define');
-  x_2.graphics.exprs=       [ "zc" ]
-  x_2.graphics.pout=       [   6 ]
-  x_2.graphics.sz=       [   40,   40 ]
-  x_2.graphics.pein= []
-  x_2.graphics.in_implicit=       [ "E" ]
-  x_2.graphics.orig=       [   230,   340 ]
-  x_2.graphics.pin=       [   3 ]
-  x_2.graphics.out_implicit=       [ "E" ]
-  x_2.graphics.peout= []
-  x_1(2)=x_2;clear('x_2');
-  x_2=scicos_link();
-  x_2.from=       [   1,   1,   0 ]
-  x_2.xx=       [   171.4286;
-		    201.4286;
-		    201.4286;
-		    221.4286 ]
-  x_2.yy=       [   390;
-		    390;
-		    360;
-		    360 ]
-  x_2.to=       [   2,   1,   1 ]
-  x_1(3)=x_2;clear('x_2');
-  x_2=generic_block3('define');
-  x_2.graphics.exprs=       [ "assertion";
-			      "4";
-			      "mat_create(0,2)";
-			      "1";
-			      "mat_create(0,2)";
-			      "1";
-			      "1";
-			      "mat_create(0,0)";
-			      "mat_create(0,0)";
-			      "mat_create(0,0)";
-			      "list()";
-			      "mat_create(0,0)";
-			      "[ipar ip2]";
-			      "list(opar)";
-			      "0";
-			      "0";
-			      "mat_create(0,0)";
-			      "n";
-			      "n" ]
-  x_2.graphics.pout= []
-  x_2.graphics.sz=       [   40,   40 ]
-  x_2.graphics.pein=       [   7 ]
-  x_2.graphics.orig=       [   370,   250 ]
-  x_2.graphics.pin= []
-  x_2.graphics.peout= []
-  x_2.graphics.gr_i(1)="xstringb(orig(1),orig(2),''ASSERTION'',sz(1),sz(2),''fill'');"
-  x_1(4)=x_2;clear('x_2');
-  x_2=IFTHEL_f('define');
-  x_2.graphics.exprs=       [ "0";
-			      "zc" ]
-  x_2.graphics.pout= []
-  x_2.graphics.sz=       [   60,   60 ]
-  x_2.graphics.pein= []
-  x_2.graphics.in_implicit=       [ "E" ]
-  x_2.graphics.orig=       [   330,   330 ]
-  x_2.graphics.pin=       [   6 ]
-  x_2.graphics.peout=       [   0;
-				7 ]
-  x_1(5)=x_2;clear('x_2');
-  x_2=scicos_link();
-  x_2.from=       [   2,   1,   0 ]
-  x_2.xx=       [   278.5714;
-		    321.4286 ]
-  x_2.yy=       [   360;
-		    360 ]
-  x_2.to=       [   5,   1,   1 ]
-  x_1(6)=x_2;clear('x_2');
-  x_2=scicos_link();
-  x_2.from=       [   5,   2,   0 ]
-  x_2.xx=       [   370;
-		    370;
-		    390;
-		    390 ]
-  x_2.yy=       [   324.2857;
-		    310.0000;
-		    310.0000;
-		    295.7143 ]
-  x_2.ct=       [    5,   -1 ]
-  x_2.to=       [   4,   1,   1 ]
-  x_1(7)=x_2;clear('x_2');
-  x_0.objs=x_1;clear('x_1');
-  scs_m=x_0;clear('x_0');
+function scs_m=assert_define () 
+  scs_m = instantiate_diagram ();
+
+  blk = IN_f('define');
+  exprs=  [ "1"; "-1"; "-1" ]
+  blk=set_block_exprs(blk,exprs);
+  blk = set_block_nout (blk, 1);
+  blk = set_block_origin (blk, [   151.4286,380.0000 ]);
+  blk = set_block_size (blk, [   20,20 ]);
+  [scs_m, block_tag_1] = add_block(scs_m, blk);
+
+  blk = ABS_VALUEi('define');
+  exprs= [ "zc" ]
+  blk=set_block_exprs(blk,exprs);
+  blk = set_block_nin (blk, 1);
+  blk = set_block_nout (blk, 1);
+  blk = set_block_origin (blk, [   230,340 ]);
+  blk = set_block_size (blk, [   40,40 ]);
+  [scs_m, block_tag_2] = add_block(scs_m, blk);
+
+  blk = generic_block3('define');
+  exprs= ...
+  [ "assertion";
+    "4";
+    "mat_create(0,2)";
+    "1";
+    "mat_create(0,2)";
+    "1";
+    "1";
+    "mat_create(0,0)";
+    "mat_create(0,0)";
+    "mat_create(0,0)";
+    "list()";
+    "mat_create(0,0)";
+    "[ipar ip2]";
+    "list(opar)";
+    "0";
+    "0";
+    "mat_create(0,0)";
+    "n";
+    "n" ]
+  blk=set_block_exprs(blk,exprs);
+  blk = set_block_nin (blk, 0);
+  blk = set_block_nout (blk, 0);
+  blk = set_block_evtnin (blk, 1);
+  blk = set_block_origin (blk, [   370,250 ]);
+  blk = set_block_size (blk, [   40,40 ]);
+  [scs_m, block_tag_4] = add_block(scs_m, blk);
+
+  blk = IFTHEL_f('define');
+  exprs=[ "0"; "zc" ]
+  blk=set_block_exprs(blk,exprs);
+  blk = set_block_nin (blk, 1);
+  blk = set_block_evtnin (blk, 0);
+  blk = set_block_evtnout (blk, 2);
+  blk = set_block_origin (blk, [   330,330 ]);
+  blk = set_block_size (blk, [   60,60 ]);
+  [scs_m, block_tag_5] = add_block(scs_m, blk);
+
+  points=[    30,     0;      0,   -30 ]
+  [scs_m,obj_num] = add_explicit_link(scs_m,[block_tag_1, "1"],[block_tag_2, "1"],points);
+  points=mat_create(0,0)
+  [scs_m,obj_num] = add_explicit_link(scs_m,[block_tag_2, "1"],[block_tag_5, "1"],points);
+  points=[          0,   -14.2857;     20.0000,          0 ]
+  [scs_m,obj_num] = add_event_link(scs_m,[block_tag_5, "2"],[block_tag_4, "1"],points);
+
+  scs_m=do_silent_eval(scs_m);
+
 endfunction
