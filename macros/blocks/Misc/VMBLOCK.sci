@@ -555,7 +555,8 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
     end
     
     blk.graphics.exprs.funtxt = txt;
-    blk.graphics.gr_i=["SUMMATION_draw(o,sz,orig);"];
+    blk.graphics('3D') = %f; // coselica options
+    blk.graphics.gr_i=list(["SUMMATION_draw(o,sz,orig);"], xget('color','blue'));
     blk.gui = "MBM_Addn";
 
   endfunction
@@ -564,9 +565,14 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
     // using summation draw
     // should turn the square to blue triangles.
     blue=xget('color','blue');
+    white=xget('color','white');
+    gray=xget('color','gray');
+
     [x,y,typ]=standard_inputs(o)
     dd=sz(1)/8,de=0;
     if ~o.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
+    xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=gray,background=white);
+    
     if ~exists("%zoom") then %zoom=1, end;
     fz=2*%zoom*4;
     for k=1:size(x,'*');
@@ -621,6 +627,47 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
   // A <<coselica>> block for non-scalar constants
 
   function blk_draw(sz,orig,orient,label)
+    blue=xget('color','blue');
+    white=xget('color','white');
+    black=xget('color','black');
+    gray=xget('color','gray');
+    red = xget('color','red');
+    if length(C) > 15 then C ="...";end
+    
+    if orient then
+      xx=orig(1);yy=orig(2);
+      ww=sz(1);hh=sz(2);
+    else
+      xx=orig(1)+sz(1);yy=orig(2);
+      ww=-sz(1);hh=sz(2);
+    end
+    // frame 
+    if orient then
+      xrect(orig(1)+sz(1)*0,orig(2)+sz(2)*1,sz(1)*1,sz(2)*1,color=blue,background=white);
+    else
+      xrect(orig(1)+sz(1)*(1-0-1),orig(2)+sz(2)*1,sz(1)*1,sz(2)*1,color=blue,background=white);
+    end
+    // label 
+    if orient then
+      xstringb(orig(1)+sz(1)*-0.25,orig(2)+sz(2)*1.05,label,sz(1)*1.5,sz(2)*0.2,"fill");
+    else
+      xstringb(orig(1)+sz(1)*(1--0.25-1.5),orig(2)+sz(2)*1.05,label,sz(1)*1.5,sz(2)*0.2,"fill");
+    end    
+    xpoly(xx+ww*[0.1;0.1],yy+hh*[0.84;0.1],color=gray);
+    xfpoly(xx+ww*[0.1;0.06;0.14;0.1],yy+hh*[0.95;0.84;0.84;0.95],color=gray,fill_color=gray);
+    xpoly(xx+ww*[0.05;0.91],yy+hh*[0.15;0.15],color=gray);
+    xfpoly(xx+ww*[0.95;0.84;0.84;0.95],yy+hh*[0.15;0.19;0.11;0.15],color=gray,fill_color=gray);
+    xpoly(xx+ww*[0.1;0.9],yy+hh*[0.5;0.5],color=black);
+    xpoly(xx+ww*[0.1;0.9],yy+hh*[0.6;0.6],color=red);
+    xpoly(xx+ww*[0.1;0.9],yy+hh*[0.3;0.3],color=blue);
+    if orient then
+       xstringb(orig(1)+sz(1)*-0.25,orig(2)+sz(2)*-0.25,"K="+C,sz(1)*1.5,sz(2)*0.2,"fill");
+    else
+       xstringb(orig(1)+sz(1)*(1--0.25-1.5),orig(2)+sz(2)*-0.25,"K="+C,sz(1)*1.5,sz(2)*0.2,"fill");
+    end
+  endfunction
+  
+  function blk_draw_old(sz,orig,orient,label)
     dx=sz(1)/5;dy=sz(2)/10;
     w=sz(1)-2*dx;h=sz(2)-2*dy;
     txt="C";
@@ -671,7 +718,8 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
     end
     
     blk.graphics.exprs.funtxt = txt;
-    blk.graphics.gr_i="blk_draw(sz,orig,orient,model.label)";	
+    blk.graphics('3D') = %f; // coselica options 
+    blk.graphics.gr_i=list("blk_draw(sz,orig,orient,model.label)",xget('color','blue'))
     blk.gui = "MBM_Constantn";
 
   endfunction
@@ -681,7 +729,7 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
     case 'plot' then
       paramv=arg1.graphics.exprs.paramv;
       ok = execstr('value='+paramv);
-      C = sci2exp(value(1));
+      C = strsubst(sci2exp(value(1)),' ','');
       standard_coselica_draw(arg1);
     case 'getinputs' then
       [x,y,typ]=standard_inputs(arg1)

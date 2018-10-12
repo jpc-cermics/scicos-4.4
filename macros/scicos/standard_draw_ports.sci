@@ -1,5 +1,7 @@
 function standard_draw_ports(o, coselica=%f)
   // function used to draw ports
+  // lock_types SL_IN=0  ,SL_OUT=1 ,SL_EVIN=2,SL_EVOUT=3 , SL_SQP=4, SL_SQM=5
+  
   xxx=0;
   nin=size(o.model.in,1);
   nout=size(o.model.out,1);
@@ -19,7 +21,11 @@ function standard_draw_ports(o, coselica=%f)
   dy=sz(2)/(nout+1)
   // select the shape to use rectangle or triangle.
   outtype=ones(1,nout);
-  if ~isempty(outporttype) then  outtype( outporttype == 'I')=4;end 
+  if coselica then
+    if ~isempty(outporttype) then  outtype( outporttype == 'I')=3;end
+  else
+    if ~isempty(outporttype) then  outtype( outporttype == 'I')=4;end
+  end
   // select the color of ports 
   colors=ones(1,nout);
   if coselica then  colors=default_color(3)*colors;end
@@ -28,8 +34,12 @@ function standard_draw_ports(o, coselica=%f)
     scicos_lock_draw([xpos_out,orig(2)+sz(2)-dy*k],xf,yf,select_face_out,outtype(k),color=colors(k)+xxx);
   end
   dy=sz(2)/(nin+1)
-  outtype= 0*ones_new(1,nin);
-  if ~isempty(inporttype) then  outtype( inporttype == 'I')=5;end 
+  outtype= 0*ones(1,nin);
+  if coselica then
+    if ~isempty(inporttype) then  outtype( inporttype == 'I')=2;end
+  else
+    if ~isempty(inporttype) then  outtype( inporttype == 'I')=5;end
+  end
   // select the color of ports 
   colors=ones(1,nin);
   if coselica then  colors=default_color(3)*colors;;end 
