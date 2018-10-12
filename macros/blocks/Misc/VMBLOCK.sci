@@ -64,9 +64,9 @@ function [x,y,typ]=VMBLOCK(job,arg1,arg2)
       exprs_values.funtxt = tt;
       x = VMBLOCK_define(exprs_values,x);
       
-   case 'define' then
-     //----------- Define
-     x= VMBLOCK_define();
+    case 'define' then
+      //----------- Define
+      x= VMBLOCK_define();
   end
 endfunction
 
@@ -361,7 +361,7 @@ function [ok,cancel,paramv,lab_res]=VMBLOCK_get_parameters_values(params,pprop,p
   
   ok = execstr("Lvm="+old_param_values,errcatch=%t);
   if ~ok then lasterror();params_oldv=m2s([]);end
-    
+  
   param_sz=size(params,'*');
   
   lab_2 = m2s([]);
@@ -409,14 +409,14 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   txt = ['model '+nameF]
   txt.concatd["  //// automatically generated ////"];
 
-  function [vsize,val] = modelica_value(v)
+  function [vsize,val] = modelica_value(v, is_parameter = %f)
     // gives strings that can be used for modelica declaration for v
     if and(size(v)==1) then
       vsize= "";
       val=sci2exp(v);
-    else
+    elseif and(size(v)<>1) || (is_parameter && size(v,2)==1) then
+      // [m,n] || [m,1]
       sz= size(v);
-      if sz(1)==1 then sz=[sz(2),1];end
       vsize=stripblanks(sci2exp(sz));
       S=m2s([]);
       for i=1:sz(1)
@@ -425,16 +425,17 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
 	S.concatr[s];
       end
       val = "{"+ catenate(S,sep=",") + "}";
-    // else
-    //   vsize= "["+ sci2exp(prod(size(v))) + "]";
-    //   val=sci2exp(v(:)');
-    //   val=strsubst(val,['[',']'],['{','}']);
+    else
+      // [1,n] -> [n]
+      vsize= "["+ sci2exp(prod(size(v))) + "]";
+      val=sci2exp(v);
+      val=strsubst(val,['[',']',';'],['{','}',',']);
     end
   endfunction
-
-  function [val] = modelica_true(vsize)
+  
+  function [val] = modelica_true(vsize, is_parameter = %f)
     // gives strings that can be used for modelica declaration for v
-    [vsize,val] = modelica_value(bmat_create(vsize(1),vsize(2)));
+    [vsize,val] = modelica_value(bmat_create(vsize(1),vsize(2)),  is_parameter = is_parameter);
     val=strsubst(val,"%t","true");
   endfunction
   
@@ -444,16 +445,16 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
     for i=1:np
       if vpprop(i)==0 then
 	// parameters
-	[vsize,sval] = modelica_value(vparamv(i));
+	[vsize,sval] = modelica_value(vparamv(i),is_parameter = %t);
 	head= sprintf("    parameter Real %s%s = %s;", vparam(i),vsize, sval);
       elseif vpprop(i)==1 then
 	// state with start value
-	[vsize,sval] = modelica_value(vparamv(i));
+	[vsize,sval] = modelica_value(vparamv(i),is_parameter = %t);
 	head= sprintf("    Real %s%s (start=%s);", vparam(i), vsize, sval);
       elseif vpprop(i)==2 then
 	// fixed state
-	[vsize,sval] = modelica_value(vparamv(i));
-	strue = modelica_true(size(vparamv(i)));
+	[vsize,sval] = modelica_value(vparamv(i),is_parameter = %t);
+	strue = modelica_true(size(vparamv(i)),is_parameter = %t);
 	head= sprintf("    Real %s%s (fixed=%s, start=%s);", vparam(i),vsize, strue, sval);
       end
       txt.concatd[head];
@@ -585,34 +586,34 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
   x=[];y=[];typ=[];
   select job
     case 'plot' then
-     paramv=arg1.graphics.exprs.paramv;
-     ok = execstr('value='+paramv);
-     sgn = value(1);
-     standard_coselica_draw(arg1);
-   case 'getinputs' then
-     [x,y,typ]=standard_inputs(arg1)
-   case 'getoutputs' then
-     [x,y,typ]=standard_outputs(arg1)
-   case 'getorigin' then
-     [x,y]=standard_origin(arg1)
-   case 'set' then
-     x=arg1;
-    graphics=arg1.graphics
-    model=arg1.model
-    exprs=graphics.exprs;
-    ok = execstr('value='+exprs.paramv);
-    value= list(sci2exp(value(1)));
-    
-    gv_titles='Set sum block parameters';
-    gv_names=['sign vector (of +1, -1)'];
-    gv_types = list('vec',-1);
-    [ok,sgn, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
-    if ~ok then return;end; // cancel in getvalue;
-    x= MBM_Addn_define(sgn(:),x);
+      paramv=arg1.graphics.exprs.paramv;
+      ok = execstr('value='+paramv);
+      sgn = value(1);
+      standard_coselica_draw(arg1);
+    case 'getinputs' then
+      [x,y,typ]=standard_inputs(arg1)
+    case 'getoutputs' then
+      [x,y,typ]=standard_outputs(arg1)
+    case 'getorigin' then
+      [x,y]=standard_origin(arg1)
+    case 'set' then
+      x=arg1;
+      graphics=arg1.graphics
+      model=arg1.model
+      exprs=graphics.exprs;
+      ok = execstr('value='+exprs.paramv);
+      value= list(sci2exp(value(1)));
+      
+      gv_titles='Set sum block parameters';
+      gv_names=['sign vector (of +1, -1)'];
+      gv_types = list('vec',-1);
+      [ok,sgn, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
+      if ~ok then return;end; // cancel in getvalue;
+      x= MBM_Addn_define(sgn(:),x);
 
-   case 'define' then
-     sgn=[1;-1];
-     x= MBM_Addn_define(sgn);
+    case 'define' then
+      sgn=[1;-1];
+      x= MBM_Addn_define(sgn);
   end
 endfunction
 
@@ -651,6 +652,10 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
 	  txt.concatd[sprintf("    y[%d,%d].signal= C[%d,%d];",i,j,i,j)];
 	end
       end
+    elseif size(C,2)==1 
+      for i=1:size(C,'*')
+	txt.concatd[sprintf("    y[%d].signal= C[%d,1];",i,i)];
+      end
     else
       for i=1:size(C,'*')
 	txt.concatd[sprintf("    y[%d].signal= C[%d];",i,i)];
@@ -678,30 +683,30 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
       ok = execstr('value='+paramv);
       C = sci2exp(value(1));
       standard_coselica_draw(arg1);
-   case 'getinputs' then
-     [x,y,typ]=standard_inputs(arg1)
-   case 'getoutputs' then
-     [x,y,typ]=standard_outputs(arg1)
-   case 'getorigin' then
-     [x,y]=standard_origin(arg1)
-   case 'set' then
-     x=arg1;
-    graphics=arg1.graphics
-    model=arg1.model
-    exprs=graphics.exprs;
-    ok = execstr('value='+exprs.paramv);
-    value= list(sci2exp(value(1)));
-    
-    gv_titles='Set sum block parameters';
-    gv_names=['sign vector (of +1, -1)'];
-    gv_types = list('vec',-1);
-    [ok,sgn, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
-    if ~ok then return;end; // cancel in getvalue;
-    x= MBM_Constantn_define(sgn(:),x);
-
-   case 'define' then
-     cte = [1,2;3,7;8,9];
-     x= MBM_Constantn_define(cte);
+    case 'getinputs' then
+      [x,y,typ]=standard_inputs(arg1)
+    case 'getoutputs' then
+      [x,y,typ]=standard_outputs(arg1)
+    case 'getorigin' then
+      [x,y]=standard_origin(arg1)
+    case 'set' then
+      x=arg1;
+      graphics=arg1.graphics
+      model=arg1.model
+      exprs=graphics.exprs;
+      ok = execstr('value='+exprs.paramv);
+      value= list(sci2exp(value(1)));
+      
+      gv_titles='Set sum block parameters';
+      gv_names=['constant'];
+      gv_types = list('vec',-1);
+      [ok,C, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
+      if ~ok then return;end; // cancel in getvalue;
+      x= MBM_Constantn_define(C,x);
+      
+    case 'define' then
+      cte = [1,2;3,7;8,9];
+      x= MBM_Constantn_define(cte);
   end
 endfunction
 
