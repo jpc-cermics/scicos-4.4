@@ -99,6 +99,7 @@ function graphics=standard_graphics(sz,model,label,gr_i=[])
   // Copyright INRIA
   nin=size(model.in,1);
   H=hash(10);H.sz=sz;H.exprs = label;
+  H.pin=[];H.pout=[];H.pein=[];H.peout=[];H.in_implicit=[]; H.out_implicit=[];
   if nin>0 then pin(nin,1)=0; H.pin = pin;end 
   nout=size(model.out,1);
   if nout>0 then pout(nout,1)=0; H.pout = pout;end;

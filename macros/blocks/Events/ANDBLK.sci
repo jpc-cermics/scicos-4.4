@@ -49,7 +49,7 @@ function [x,y,typ]=ANDBLK(job,arg1,arg2)
     
     x=scicos_block()
     x.gui='ANDBLK'
-    x.graphics.sz=[20,20]
+    x.graphics.sz=[2,2]
     x.graphics.gr_i=list('xstringb(orig(1),orig(2),'' ANDBLK '',sz(1),s"+...
 			 "z(2),''fill'')',8);
     x.graphics.pein=[0;0]

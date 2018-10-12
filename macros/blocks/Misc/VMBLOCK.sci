@@ -123,12 +123,18 @@ function blk = VMBLOCK_define(H,old)
     graphics.exprs = exprs;
     nin=size(model.in,1);
     nin_old = size(old.graphics.pin,'*');
-    if nin >= nin_old then pin(nin,1)=0;pin(1:nin_old,1)=old.graphics.pin;end
+    pin =[];
+    if nin >0 && nin >= nin_old then
+      pin(nin,1)=0;pin(1:nin_old,1)=old.graphics.pin;
+    end
     if nin <  nin_old then pin=old.graphics.pin(1:nin);end
     graphics.pin = pin;
     nout=size(model.out,1);
     nout_old = size(old.graphics.pout,'*');
-    if nout >= nout_old then pout(nout,1)=0;pout(1:nout_old,1)=old.graphics.pout;end
+    pout=[];
+    if nout >0 && nout >= nout_old then
+      pout(nout,1)=0;pout(1:nout_old,1)=old.graphics.pout;
+    end
     if nout <  nout_old then pout=old.graphics.pout(1:nout);end
     graphics.pout = pout;
     graphics.in_implicit = model.intype(:);
@@ -291,7 +297,7 @@ function [ok,tt]=VMODCOM(V,tt)
   
   [dirF,nameF,extF]=splitfilepath(V.nameF);
   //the new head
-  class_txt_new=vmblock_build_classhead(V.nameF,V.in,V.intype,[V.in_r,V.in_c],V.out,V.outtype,[V.out_r,V.out_c],V.param,V.paramv,V.pprop)
+  class_txt_new=VMBLOCK_classhead(V.nameF,V.in,V.intype,[V.in_r,V.in_c],V.out,V.outtype,[V.out_r,V.out_c],V.param,V.paramv,V.pprop)
   
   if isempty(tt) then
     tete4= ["";" //     Real x(start=1), y(start=2);"]
@@ -392,7 +398,7 @@ function [ok,cancel,paramv,lab_res]=VMBLOCK_get_parameters_values(params,pprop,p
   end
 endfunction
 
-function class_txt=vmblock_build_classhead(funam,vinp,vintype,vin_size,vout,vouttype,vout_size,vparam,vparamv,vpprop)
+function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,vout_size,vparam,vparamv,vpprop)
   // builds the head of the modelica function
   // with proper declarations for variables
 
@@ -405,22 +411,24 @@ function class_txt=vmblock_build_classhead(funam,vinp,vintype,vin_size,vout,vout
 
   function [vsize,val] = modelica_value(v)
     // gives strings that can be used for modelica declaration for v
-    if and(size(v)<>1) then
-      vsize=stripblanks(sci2exp(size(v)));
+    if and(size(v)==1) then
+      vsize= "";
+      val=sci2exp(v);
+    else
+      sz= size(v);
+      if sz(1)==1 then sz=[sz(2),1];end
+      vsize=stripblanks(sci2exp(sz));
       S=m2s([]);
-      for i=1:size(v,'r')
+      for i=1:sz(1)
 	s=sprint(v(i,:),as_read=%t);
 	s=strsubst(s(2),['[',']'],['{','}']);
 	S.concatr[s];
       end
       val = "{"+ catenate(S,sep=",") + "}";
-    elseif and(size(v)==1) then
-      vsize= "";
-      val=sci2exp(v);
-    else
-      vsize= "["+ sci2exp(prod(size(v))) + "]";
-      val=sci2exp(v(:)');
-      val=strsubst(val,['[',']'],['{','}']);
+    // else
+    //   vsize= "["+ sci2exp(prod(size(v))) + "]";
+    //   val=sci2exp(v(:)');
+    //   val=strsubst(val,['[',']'],['{','}']);
     end
   endfunction
 
@@ -605,6 +613,95 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
    case 'define' then
      sgn=[1;-1];
      x= MBM_Addn_define(sgn);
+  end
+endfunction
+
+function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
+  // A <<coselica>> block for non-scalar constants
+
+  function blk_draw(sz,orig,orient,label)
+    dx=sz(1)/5;dy=sz(2)/10;
+    w=sz(1)-2*dx;h=sz(2)-2*dy;
+    txt="C";
+    xstringb(orig(1)+dx,orig(2)+dy,txt,w,h,'fill');
+  endfunction
+  
+  function blk= MBM_Constantn_define(C,old)
+    if nargin <= 1 then 
+      global(modelica_count=0);
+      nameF='generic'+string(modelica_count);
+      modelica_count =       modelica_count +1;
+    else
+      nameF=old.graphics.exprs.nameF;
+    end
+    n=size(C,'*');
+    
+    H=hash(in=[], intype=[], in_r=[], in_c=[],
+	   out=["y"], outtype="I", out_r=size(C,1), out_c=size(C,2),
+	   param=["C"], paramv=list(C),
+	   pprop=[0], nameF=nameF);
+    
+    txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,[H.out_r,H.out_c],H.param,H.paramv,H.pprop)
+    txt.concatd["  equation"];
+    if and(size(C)==1) then
+      txt.concatd["    y.signal= C;"];
+    elseif and(size(C)<>1) then
+      for i=1:size(C,1)
+	for j=1:size(C,2)
+	  txt.concatd[sprintf("    y[%d,%d].signal= C[%d,%d];",i,j,i,j)];
+	end
+      end
+    else
+      for i=1:size(C,'*')
+	txt.concatd[sprintf("    y[%d].signal= C[%d];",i,i)];
+      end
+    end
+    txt.concatd[sprintf("end %s;", nameF)];
+    
+    H.funtxt = txt;
+    if nargin == 2 then 
+      blk = VMBLOCK_define(H,old);
+    else
+      blk = VMBLOCK_define(H);
+    end
+    
+    blk.graphics.exprs.funtxt = txt;
+    blk.graphics.gr_i="blk_draw(sz,orig,orient,model.label)";	
+    blk.gui = "MBM_Constantn";
+
+  endfunction
+  
+  x=[];y=[];typ=[];
+  select job
+    case 'plot' then
+      paramv=arg1.graphics.exprs.paramv;
+      ok = execstr('value='+paramv);
+      C = sci2exp(value(1));
+      standard_coselica_draw(arg1);
+   case 'getinputs' then
+     [x,y,typ]=standard_inputs(arg1)
+   case 'getoutputs' then
+     [x,y,typ]=standard_outputs(arg1)
+   case 'getorigin' then
+     [x,y]=standard_origin(arg1)
+   case 'set' then
+     x=arg1;
+    graphics=arg1.graphics
+    model=arg1.model
+    exprs=graphics.exprs;
+    ok = execstr('value='+exprs.paramv);
+    value= list(sci2exp(value(1)));
+    
+    gv_titles='Set sum block parameters';
+    gv_names=['sign vector (of +1, -1)'];
+    gv_types = list('vec',-1);
+    [ok,sgn, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
+    if ~ok then return;end; // cancel in getvalue;
+    x= MBM_Constantn_define(sgn(:),x);
+
+   case 'define' then
+     cte = [1,2;3,7;8,9];
+     x= MBM_Constantn_define(cte);
   end
 endfunction
 
