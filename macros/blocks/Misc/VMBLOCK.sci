@@ -580,7 +580,7 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
      paramv=arg1.graphics.exprs.paramv;
      ok = execstr('value='+paramv);
      sgn = value(1);
-     standard_draw(arg1);
+     standard_coselica_draw(arg1);
    case 'getinputs' then
      [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then

@@ -1,5 +1,5 @@
-function standard_draw_ports(o)
-// function used to draw ports 
+function standard_draw_ports(o, coselica=%f)
+  // function used to draw ports
   xxx=0;
   nin=size(o.model.in,1);
   nout=size(o.model.out,1);
@@ -22,6 +22,7 @@ function standard_draw_ports(o)
   if ~isempty(outporttype) then  outtype( outporttype == 'I')=4;end 
   // select the color of ports 
   colors=ones(1,nout);
+  if coselica then  colors=default_color(3)*colors;end
   if ~isempty(outporttype) then  colors( outporttype == 'B')=default_color(3);end 
   for k=1:nout
     scicos_lock_draw([xpos_out,orig(2)+sz(2)-dy*k],xf,yf,select_face_out,outtype(k),color=colors(k)+xxx);
@@ -31,6 +32,7 @@ function standard_draw_ports(o)
   if ~isempty(inporttype) then  outtype( inporttype == 'I')=5;end 
   // select the color of ports 
   colors=ones(1,nin);
+  if coselica then  colors=default_color(3)*colors;;end 
   if ~isempty(inporttype) then  colors( inporttype == 'B')=default_color(3);end 
   for k=1:nin
     scicos_lock_draw([xpos_in,orig(2)+sz(2)-dy*k],xf,yf,select_face_in,outtype(k),color=colors(k)+xxx);
@@ -47,4 +49,6 @@ function standard_draw_ports(o)
   end
 endfunction
 
-
+function standard_coselica_draw_ports(o)
+  standard_draw_ports(o, coselica=%t);
+endfunction

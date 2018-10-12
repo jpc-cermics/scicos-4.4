@@ -9,6 +9,19 @@ function standard_draw(o,frame,draw_ports,up,identup)
   standard_draw_new(o,frame,draw_ports,identup)
 endfunction
 
+function standard_coselica_draw(o,frame,draw_ports,up,identup)
+  // XXX: we want a blue frame and no 3D for coselica
+  if nargin <= 1 then frame=%t;  end
+  if nargin <= 2 then draw_ports= standard_coselica_draw_ports;end 
+  if nargin <= 3 then up=%f ;end 
+  if nargin <= 4 then identup=%f ;end 
+  if up then
+    // to be done
+    draw_ports=standard_draw_ports_up;
+  end
+  standard_draw_new(o,frame,draw_ports,identup)
+endfunction
+
 function standard_draw_new(o,frame,draw_ports,identup)
 // Copyright INRIA
 // modified for nsp new_graphics by jpc 
