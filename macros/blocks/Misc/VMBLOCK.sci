@@ -730,13 +730,10 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
   x=[];y=[];typ=[];
   select job
     case 'plot' then
+      // get string inside list(str);
+      xparamv=regsub(arg1.graphics.exprs.paramv,"^list\(+(.*)\)+$","\\1")
       paramv=arg1.graphics.exprs.paramv;
-      ok = execstr('value='+paramv,errcatch=%t);
-      if ok then 
-	C = strsubst(sci2exp(value(1)),' ','');
-      else
-	C = 'C';
-      end
+      C = xparamv;
       standard_coselica_draw(arg1);
     case 'getinputs' then
       [x,y,typ]=standard_inputs(arg1)
@@ -746,12 +743,10 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       x=arg1;
-      graphics=arg1.graphics
-      model=arg1.model
       // get string inside list(str);
-      xparamv=regsub(graphics.exprs.paramv,"^list\(+(.*)\)+$","\\1")
+      xparamv=regsub(arg1.graphics.exprs.paramv,"^list\(+(.*)\)+$","\\1")
       value=list(strsubst(xparamv,'list',''));
-      gv_titles='Set sum block parameters';
+      gv_titles='Set MBM_Constantn block parameters';
       gv_names=['constant'];
       gv_types = list('vec',-1);
       [ok,C, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
