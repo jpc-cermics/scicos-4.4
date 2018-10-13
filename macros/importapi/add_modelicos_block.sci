@@ -4,6 +4,27 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
   // modelicos_names =['MBM_Add','MBC_Integrator','MBS_Constant', 'IMPSPLIT_f', 'MBM_Gain'];
 
   select blk.gui
+
+    case 'CONST_m' then
+      H = acquire('%api_context',def=hash(1));
+      [ok,H1]=execstr('C ='+blk.graphics.exprs,env=H,errcatch=%t);
+      if ~ok then
+	printf("Warning: unable to evaluate ''%s'' in block CONST_m\n",blk.graphics.exprs);
+	break;
+      end
+      // If we are able to evaluate the constant, we switch to MBM_Constantn
+      // even if the constant is a scalar value.
+      old = blk;
+      blk = MBM_Constantn('define');
+      blk = set_block_params_from(blk, old);
+      // on pourrait ici faire un set_blocks_exprs 
+      exprs = old.graphics.exprs;
+      blk.graphics.exprs.paramv= sprintf("list(%s)",exprs);// sci2exp(H1.C));// exprs);
+      scs_m1 = scicos_diagram();
+      scs_m1.objs(1)= blk;
+      [scs_m1,ok]=do_silent_eval(scs_m1, H);
+      blk = scs_m1.objs(1);
+
     case 'ZZRAMP' then
       // RAMP and MBS_Ramp are different
       // ['Slope';'Start time';'Initial output']
@@ -13,6 +34,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       exprs = old.graphics.exprs;
       // new_exprs = ZZ
       blk.graphics.exprs = new_exprs;
+      
     case 'GENSIN_f' then
       old=blk;
       blk = instantiate_block ('MBS_Sine');
@@ -23,10 +45,12 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // ['Magnitude','freqHz [Hz]      ','phase [rad] ',' offset [-]','startTime [s]]
       new_exprs = [exprs(1);exprs(2)+"/(2*%pi)";exprs(3);"0";"0"];
       blk.graphics.exprs = new_exprs;
+
     case 'TIME_f' then
       old=blk;
       blk = instantiate_block ('MBS_Clock');
       blk = set_block_params_from(blk, old);
+
     case 'EXPRESSION' then
       // XXXX: Attention dans le bloc expression il peut-y-avoir des
       // paramètres il faut les récupérer et les metre en paramètres
@@ -76,6 +100,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       blk = diag1.objs(1);
       // unfortunately this will be crushed by last eval 
       blk.graphics.gr_i(1)(1) = sprintf("txt = %s;",txt);
+
     case 'TrigFun' then
       name = blk.graphics.exprs;
       names=['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh']
@@ -86,6 +111,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
 	blk = instantiate_block (modelica_name);
 	blk = set_block_params_from(blk, old);
       end
+
     case 'MBM_Add' then
       // blk.graphics.exprs contains
       //params.concatd [ { "Datatype", '-1' } ];
@@ -127,6 +153,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
 	  blk= add_modelicos_mbm_add(blk, gains);
 	end
       end
+
     case 'MBC_Integrator' then
       // params.concatd [ { "x0", '0' } ];
       // params.concatd [ { "reinit", '0' } ];
@@ -134,12 +161,15 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // params.concatd [ { "maxp", '%inf' } ];
       // params.concatd [ { "lowp", '-%inf' } ];
       blk.graphics.exprs= ['1'; blk.graphics.exprs(1)];
+
     case 'MBS_Constant' then
       // nothing to do same parameters 
       // params.concatd [ { "C", '1' } ];
       // blk.graphics.exprs= blk.graphics.exprs;
+
     case 'IMPSPLIT_f' then
       // 
+
     case 'GAINBLK' then
       // we do not have context here thus maybe we have to step back
       // This should be evaluated with the context 

@@ -30,7 +30,8 @@ function [x,y,typ]=VMBLOCK(job,arg1,arg2)
 	if ~ok && non_interactive then return;end 
 	if ~ok then continue;end
 	// block <<parameters>> values 
-	[ok,cancel,paramv,lab_2]= VMBLOCK_get_parameters_values(exprs_values.param,exprs_values.pprop, exprs.param, exprs.paramv);
+	[ok,cancel,paramv,lab_2]= VMBLOCK_get_parameters_values(exprs_values.param,exprs_values.pprop,
+								exprs.param, exprs.paramv);
 	if cancel then return;end
 	if ~ok && non_interactive then return;end 
 	if ~ok then continue;end
@@ -355,7 +356,7 @@ function [ok,cancel,paramv,lab_res]=VMBLOCK_get_parameters_values(params,pprop,p
   // ee=evstr(exprs.param) is also the labels by maybe in a different order
   // exprs.paramv is a list giving th evalues (same order as ee).
   ok=%t; cancel=%f; paramv=[]; lab_res =[];
-  
+  pause VMBLOCK_get_parameters_values
   ok = execstr("params_oldv="+params_old,errcatch=%t);
   if ~ok then lasterror();params_oldv=m2s([]);end
   
@@ -674,8 +675,8 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
     xstringb(orig(1)+dx,orig(2)+dy,txt,w,h,'fill');
   endfunction
   
-  function blk= MBM_Constantn_define(C,old)
-    if nargin <= 1 then 
+  function blk= MBM_Constantn_define(C,paramv, old)
+    if nargin <= 2 then 
       global(modelica_count=0);
       nameF='generic'+string(modelica_count);
       modelica_count =       modelica_count +1;
@@ -711,12 +712,14 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
     txt.concatd[sprintf("end %s;", nameF)];
     
     H.funtxt = txt;
-    if nargin == 2 then 
+    if nargin == 3 then 
       blk = VMBLOCK_define(H,old);
     else
       blk = VMBLOCK_define(H);
     end
-    
+    // remove leading and trainling () 
+    paramv=regsub(paramv,"^\(+(.*)\)+$","\\1")
+    blk.graphics.exprs.paramv = sprintf("list(%s)", paramv);
     blk.graphics.exprs.funtxt = txt;
     blk.graphics('3D') = %f; // coselica options 
     blk.graphics.gr_i=list("blk_draw(sz,orig,orient,model.label)",xget('color','blue'))
@@ -728,8 +731,12 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
   select job
     case 'plot' then
       paramv=arg1.graphics.exprs.paramv;
-      ok = execstr('value='+paramv);
-      C = strsubst(sci2exp(value(1)),' ','');
+      ok = execstr('value='+paramv,errcatch=%t);
+      if ok then 
+	C = strsubst(sci2exp(value(1)),' ','');
+      else
+	C = 'C';
+      end
       standard_coselica_draw(arg1);
     case 'getinputs' then
       [x,y,typ]=standard_inputs(arg1)
@@ -741,20 +748,20 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
       x=arg1;
       graphics=arg1.graphics
       model=arg1.model
-      exprs=graphics.exprs;
-      ok = execstr('value='+exprs.paramv);
-      value= list(sci2exp(value(1)));
-      
+      // get string inside list(str);
+      xparamv=regsub(graphics.exprs.paramv,"^list\(+(.*)\)+$","\\1")
+      value=list(strsubst(xparamv,'list',''));
       gv_titles='Set sum block parameters';
       gv_names=['constant'];
       gv_types = list('vec',-1);
       [ok,C, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
       if ~ok then return;end; // cancel in getvalue;
-      x= MBM_Constantn_define(C,x);
+      
+      x= MBM_Constantn_define(C,value_n,x);
       
     case 'define' then
       cte = [1,2;3,7;8,9];
-      x= MBM_Constantn_define(cte);
+      x= MBM_Constantn_define(cte,"[1,2;3,7;8,9]");
   end
 endfunction
 

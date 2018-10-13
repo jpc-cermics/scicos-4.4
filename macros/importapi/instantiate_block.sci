@@ -1,7 +1,7 @@
 function blk = instantiate_block(name)
 
-  names = ['SUMMATION','INTEGRAL_m','CONST_m','SPLIT_f'];
-  modelicos_names =['MBM_Add','MBC_Integrator','MBS_Constant', 'IMPSPLIT_f'];
+  names = ['SUMMATION','INTEGRAL_m','SPLIT_f'];
+  modelicos_names =['MBM_Add','MBC_Integrator','IMPSPLIT_f'];
   
   global(simport_target_modeler="scicos");
   

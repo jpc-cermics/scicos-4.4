@@ -10,7 +10,7 @@ function blk = fill_super_block(blk,scs_m)
       printf("         and it will work at top level\n");
     end
   end
-  blk.model.rpar=scs_m
+  blk.model.rpar=scs_m;
   [ok,blk]=adjust_s_ports(blk);
   if ~ok then printf("Error: adjust_s_ports failed\n"),end;
 endfunction
