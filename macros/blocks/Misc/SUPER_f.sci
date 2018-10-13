@@ -1,6 +1,5 @@
 function [x,y,typ]=SUPER_f(job,arg1,arg2)
-// Copyright INRIA
-  
+  // Copyright INRIA
   function blk_draw(sz,orig,orient,label)
     xx=orig(1)+      [2 4 4]*(sz(1)/7);
     yy=orig(2)+sz(2)-[2 2 6]*(sz(2)/10);

@@ -1,5 +1,6 @@
 function [x,y,typ]=CLOCK_c(job,arg1,arg2)
   // Copyright INRIA
+  // contains a diagram inside
   
   function blk_draw(sz,orig,orient,label)
     wd=xget("wdim").*[1.016,1.12];
@@ -34,14 +35,13 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       y=acquire('needcompile',def=0);
-      path = 2
+      // be sure that exprs is now in block
+      [x,changed]=CLOCK_c('upgrade',arg1);
+      if changed then y = max(y,2);end
       newpar=list();
-      xx=arg1.model.rpar.objs(path); // get the evtdly block
-      exprs=xx.graphics.exprs
-      model=xx.model;
-      t0_old=model.firing
-      dt_old= model.rpar(1)
-      model_n=model
+      exprs=x.graphics.exprs;
+      t0_old=x.model.rpar.objs(2).firing;
+      dt_old=x.model.rpar.objs(2).rpar(1);
       while %t do
 	[ok,dt,t0,exprs0]=getvalue('Set Clock block parameters',
 				   ['Period';'Init time'],list('vec',1,'vec',1),exprs)
@@ -51,22 +51,21 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
 	  ok=%f
 	end
 	if ok then
-	  xx.graphics.exprs=exprs0
-	  model.rpar=[dt;t0]
-	  model.firing=t0
-	  xx.model=model
-	  arg1.model.rpar.objs(path)=xx; // Update
+	  x.graphics.exprs=exprs0;
+	  x.model.rpar.objs(2).graphics.exprs=exprs0;
+	  x.model.rpar.objs(2).model.rpar=[dt;t0]
+	  x.model.rpar.objs(2).model.firing=t0;
 	  break
 	end
       end
-
       if ~and([t0_old dt_old]==[t0 dt]) then 
 	// parameter  changed
-	newpar(size(newpar)+1)=path// Notify modification
+	newpar(1)=path; // Notify modification
       end
       if t0_old<>t0 then y=max(y,2);end
-      x=arg1
-      typ=newpar
+      typ=newpar;
+      resume(needcompile=y);
+      
     case 'define' then
       blk_evtdly=EVTDLY_c('define')
       blk_evtdly.graphics.orig=[320,232]
@@ -114,6 +113,20 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
       x.model.firing=%f
       x.model.dep_ut=[%f %f]
       x.model.rpar=diagram
-      // x.model.ipar=1;
+      x.graphics.exprs = x.model.rpar.objs(2).graphics.exprs
+    case 'upgrade' then
+      // upgrade if necessary
+     y = %f;
+     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+       // arg1 do not have a correct exprs field
+       //compatibility with translated blocks
+       exprs =  arg1.model.rpar.objs(2).graphics.exprs;
+       x = CLOCK_c('define');
+       x.graphics.exprs = exprs;
+       x.model.rpar.objs(2).graphics.exprs = exprs;
+     else
+       x=arg1;
+       y=%f;
+     end
   end
 endfunction

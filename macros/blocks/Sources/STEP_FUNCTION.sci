@@ -1,4 +1,6 @@
 function [x,y,typ]=STEP_FUNCTION(job,arg1,arg2)
+  // contains a diagram inside
+
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -10,31 +12,37 @@ function [x,y,typ]=STEP_FUNCTION(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-     // The parameters are stored in the STEP block which is the first one
      y=acquire('needcompile',def=0);
-     step_blk = arg1.model.rpar.objs(1);
+     // be sure that exprs is now in block
+     [x,changed]=STEP_FUNCTION('upgrade',arg1);
+     if changed then y = max(y,2);end
      newpar=list();
-     if step_blk.gui <> 'STEP' then
+     exprs=x.graphics.exprs;
+     blk = x.model.rpar.objs(1);
+     blk.graphics.exprs = exprs;
+     newpar=list();
+     if blk.gui <> 'STEP' then
        message(["Error: failed to set parameter block in STEP_FUNCTION";
 		"The internal diagram does not contain a STEP block at position 1"]);
        return;
      end
-     ok = execstr(sprintf("xxn=%s(""set"",step_blk);",step_blk.gui),errcatch=%t)
+     ok = execstr(sprintf("blk_new=%s(""set"",blk);",blk.gui),errcatch=%t)
      if ~ok then 
        message(["Error: failed to set parameter block in STEP_FUNCTION";
 		catenate(lasterror())]);
        continue;
      end
-     if ~step_blk.equal[xxn] then 
-       [needcompile]=scicos_object_check_needcompile(step_blk,xxn);
+     if ~blk.equal[blk_new] then 
+       [needcompile]=scicos_object_check_needcompile(blk,blk_new);
        // parameter or states changed
-       arg1.model.rpar.objs(1) = xxn;// Update the STEP block 
+       x.model.rpar.objs(1) = blk_new;// Update the STEP block
+       x.graphics.exprs = x.model.rpar.objs(1).graphics.exprs
        newpar = list(1); // Notify modification
        y=max(y,needcompile);
      end
-     x=arg1;
      typ=newpar;
-  case 'define' then
+     resume(needcompile=y);
+   case 'define' then
     
     function scsm=block_step_function()
       scsm=scicos_diagram();
@@ -66,7 +74,22 @@ function [x,y,typ]=STEP_FUNCTION(job,arg1,arg2)
     model.enter[out=[-1],opar= ["h"],dep_ut= [%f %f],sim="csuper", firing=%f];
     model.rpar =block_step_function();
     gr_i=["xpoly(orig(1)+[0.071;0.413;0.413;0.773]*sz(1),orig(2)+[0.195;0.195;0.635;0.635]*sz(2),type=""lines"",color=2)"];
-    x=standard_define([2 2],model,[],gr_i,'STEP_FUNCTION');
+    exprs = model.rpar.objs(1).graphics.exprs;
+    x=standard_define([2 2],model,exprs,gr_i,'STEP_FUNCTION');
+    
+  case 'upgrade' then
+    // upgrade if necessary
+    y = %f;
+    if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+      // arg1 do not have a correct exprs field
+      exprs =  arg1.model.rpar.objs(1).graphics.exprs;
+      x = STEP_FUNCTION('define');
+      x.graphics.exprs = exprs;
+      x.model.rpar.objs(1).graphics.exprs = exprs;
+    else
+      x=arg1;
+      y=%f;
+    end
   end
 endfunction
 

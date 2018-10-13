@@ -1,4 +1,5 @@
 function [x,y,typ]=Sigbuilder(job,arg1,arg2)
+  // contains a diagram inside
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -10,30 +11,29 @@ function [x,y,typ]=Sigbuilder(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    //paths to updatable parameters or states
-    ppath = list(1,3)
-    newpar=list();
-    y=acquire('needcompile',def=0);
-    for path=ppath do
-      spath=list('model','rpar','objs',path);
-      xx=arg1(spath)// get the block
-      ok=execstr('xxn='+xx.gui+'(''set'',xx)',errcatch=%t);
-      if ~ok then 
-	message(['Error: failed to set parameter block in Sigbuilder';
-	         catenate(lasterror())]);
-	continue;
-      end
-      if ~xx.equal[xxn] then 
-	[needcompile]=scicos_object_check_needcompile(xx,xxn);
-	// parameter or states changed
-	arg1(spath)=xxn// Update
-	newpar(size(newpar)+1)=path // Notify modification
-	y=max(y,needcompile);
-      end
-    end
-    x=arg1
-    typ=newpar
-    resume(needcompile=y);
+     y=acquire('needcompile',def=0);
+     // be sure that exprs is now in block
+     [x,changed]= Sigbuilder('upgrade',arg1);
+     if changed then y = max(y,2);end
+     newpar=list();
+     blk=x.model.rpar.objs(1);
+     blk_new = blk;
+     ok = execstr("blk_new="+blk.gui+"(""set"",blk)", errcatch=%t);
+     if ~ok then
+       message(['Error: failed to set parameter block in Sigbuilder';
+	        catenate(lasterror())]);
+       continue;
+     end
+     if ~blk.equal[blk_new] then
+       [needcompile]=scicos_object_check_needcompile(blk,blk_new);
+       // parameter or states changed
+       x.model.rpar.objs(1) = blk_new; // Update
+       x.graphics.exprs = blk_new.graphics.exprs;
+       newpar(1)=1;// Notify modification
+       y=max(y,needcompile);
+     end
+     typ=newpar
+     resume(needcompile=y);
    case 'define' then
      // define the block
      scs_m_1=Sigbuilder_define()
@@ -46,6 +46,20 @@ function [x,y,typ]=Sigbuilder(job,arg1,arg2)
 	     'model=arg1.model;';
 	     model.rpar.objs(1).graphics.gr_i(1)];
      x=standard_define([2 2],model,[],gr_i,'Sigbuilder');
+     x.graphics.exprs = x.model.rpar.objs(1).graphics.exprs;
+   case 'upgrade' then
+     // upgrade if necessary
+     y = %f;
+     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+       // arg1 do not have a correct exprs field
+       exprs =  arg1.model.rpar.objs(1).graphics.exprs;
+       x = Sigbuilder('define');
+       x.graphics.exprs = exprs;
+       x.model.rpar.objs(1).graphics.exprs = exprs;
+     else
+       x=arg1;
+       y=%f;
+     end
   end
 endfunction
 
@@ -56,7 +70,7 @@ endfunction
 
 function scs_m=Sigbuilder_define()
   scs_m = instantiate_diagram ();
-  blk = instantiate_block("CURVE_c");
+  blk = CURVE_c('define')
   exprs= ...
   [ "3";
     "[0,1,2]";
@@ -71,7 +85,7 @@ function scs_m=Sigbuilder_define()
   blk = set_block_size (blk, [   40,40 ]);
   [scs_m, block_tag_1] = add_block(scs_m, blk);
 
-  blk = instantiate_block("OUT_f");
+  blk = OUT_f('define')
   exprs=[ "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
@@ -79,14 +93,14 @@ function scs_m=Sigbuilder_define()
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_5] = add_block(scs_m, blk);
   
-  blk = instantiate_block("CLKSPLIT_f");
+  blk = CLKSPLIT_f('define')
   blk = set_block_evtnin (blk, 1);
   blk = set_block_evtnout (blk, 2);
   blk = set_block_origin (blk, [   349.4953;565.1070 ]);
   blk = set_block_size (blk, [   0.3333,0.3333 ]);
   [scs_m, block_tag_3] = add_block(scs_m, blk);
 
-  blk = instantiate_block("CLKOUTV_f");
+  blk = CLKOUTV_f('define')
   exprs=[ "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_evtnin (blk, 1);

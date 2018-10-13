@@ -1,5 +1,7 @@
 function [x,y,typ]=PID(job,arg1,arg2)
-// Copyright INRIA
+  // Copyright INRIA
+  // contains a diagram inside
+
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -11,36 +13,32 @@ function [x,y,typ]=PID(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-     exprs= arg1.graphics.exprs;
+     y=acquire('needcompile',def=0);
+     // be sure that exprs is now in block
+     [x,changed]= PID('upgrade',arg1);
+     if changed then y = max(y,2);end
+     exprs= x.graphics.exprs;
      newpar=list();
-     exprs1=m2s(zeros(3,1));
-     xx1=arg1.model.rpar.objs(3)
-     exprs1(1)=xx1.graphics.exprs(1)
-     p_old=xx1.model.rpar;
-     xx2=arg1.model.rpar.objs(5)
-     exprs1(2)=xx2.graphics.exprs(1)
-     i_old=xx2.model.rpar;
-     xx3=arg1.model.rpar.objs(6)
-     exprs1(3)=xx3.graphics.exprs(1)
-     d_old=xx3.model.rpar;
-     if isempty(exprs) then
-       exprs = exprs1;
-     end
-     y=0;
-    while %t do
-      [ok,p,i,d,exprs0]=getvalue('Set PID parameters',..
-				 ['Proportional';'Integral';'Derivation'],list('vec',-1,'vec',-1,'vec',-1),exprs)
+     x.model.rpar.objs(3).exprs=exprs(1)
+     x.model.rpar.objs(5).exprs=exprs(2)
+     x.model.rpar.objs(6).exprs=exprs(3)
+
+     p_old=x.model.rpar.objs(3).model.rpar;
+     i_old=x.model.rpar.objs(5).model.rpar;
+     d_old=x.model.rpar.objs(6).model.rpar;
+     
+     while %t do
+      [ok,p,i,d,exprs0]=getvalue('Set PID parameters',
+				 ['Proportional';'Integral';'Derivation'],
+				 list('vec',-1,'vec',-1,'vec',-1),exprs)
       if ~ok then break,end;
-      arg1.graphics.exprs=exprs;
-      xx1.graphics.exprs=exprs0(1)
-      xx1.model.rpar=p
-      xx2.graphics.exprs=exprs0(2)
-      xx2.model.rpar=i
-      xx3.graphics.exprs=exprs0(3)
-      xx3.model.rpar=d
-      arg1.model.rpar.objs(3)=xx1
-      arg1.model.rpar.objs(5)=xx2
-      arg1.model.rpar.objs(6)=xx3	
+      x.graphics.exprs=exprs0;
+      x.model.rpar.objs(3).exprs=exprs0(1)
+      x.model.rpar.objs(5).exprs=exprs0(2)
+      x.model.rpar.objs(6).exprs=exprs0(3)
+      x.model.rpar.objs(3).model.rpar=p;
+      x.model.rpar.objs(5).model.rpar=i;
+      x.model.rpar.objs(6).model.rpar=d;
       break
     end
     
@@ -50,37 +48,33 @@ function [x,y,typ]=PID(job,arg1,arg2)
       newpar(size(newpar)+1)=6
       y=max(y,2);
     end
-    x=arg1
     typ=newpar
+    resume(needcompile=y);
    case 'define' then
+     // define the block 
      scs_m= PID_diagram("1","1","1");
-     model=scicos_model()
-     model.sim='csuper'
-     model.in=-1
-     model.in2=-2
-     model.out=-1
-     model.out2=-2
-     model.intyp=1
-     model.outtyp=1
-     model.blocktype='h'
-     model.firing=%f
-     model.dep_ut=[%f %f]
-     model.rpar=scs_m
+     model=scicos_model(sim='csuper', in=-1, in2=-2, out=-1,
+			out2=-2, intyp=1, outtyp=1, blocktype='h', firing=%f,
+			dep_ut=[%f %f], rpar=scs_m);
      gr_i=['xstringb(orig(1),orig(2),[''PID''],sz(1),sz(2),''fill'');'];
      x=standard_define([2 2],model,[],gr_i,'PID');
-   case 'exprs'
-     // for do_api_save build and return exprs
-     exprs= arg1.graphics.exprs;
-     if isempty(exprs) then
-       exprs=m2s(zeros(3,1));
-       xx1=arg1.model.rpar.objs(3)
-       exprs(1)=xx1.graphics.exprs(1)
-       xx2=arg1.model.rpar.objs(5)
-       exprs(2)=xx2.graphics.exprs(1)
-       xx3=arg1.model.rpar.objs(6)
-       exprs(3)=xx3.graphics.exprs(1)
+     exprs =[x.model.rpar.objs(3).graphics.exprs(1);
+	     x.model.rpar.objs(5).graphics.exprs(1);
+	     x.model.rpar.objs(6).graphics.exprs(1)];
+     x.graphics.exprs = exprs;
+     
+   case 'upgrade' then
+     // upgrade if necessary
+     exprs =[x.model.rpar.objs(3).graphics.exprs(1);
+	     x.model.rpar.objs(5).graphics.exprs(1);
+	     x.model.rpar.objs(6).graphics.exprs(1)];
+     x = arg1;
+     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+       y=%t;
+       x.graphics.exprs = exprs;
+     else 
+       y=%f;
      end
-     x=exprs;
   end
 endfunction
 
@@ -142,12 +136,12 @@ function scs_m= PID_diagram(pv,iv,dv)
   blk.graphics.pout=8;
   scs_m.objs(6)=blk;
   
-  scs_m.objs(7)=scicos_link(xx=[303.80876;309.73257], yy=[203.11733;203.11733], from=[5,1,0], to=[1,1,1])
-  scs_m.objs(8)=scicos_link(xx=[303.80876;310.4659],yy=[155.45067;155.45067], from=[6,1,0], to=[4,1,1])
+  scs_m.objs(7)=scicos_link(xx=[303.80;309.73],yy=[203.11;203.11], from=[5,1,0], to=[1,1,1])
+  scs_m.objs(8)=scicos_link(xx=[303.80;310.46],yy=[155.45;155.45], from=[6,1,0], to=[4,1,1])
 
-  scs_m.objs(9)=scicos_link(xx=[366.5714;382.5000;382.5000;398.4286],yy=[203;203;202;202], from=[1,1,0], to=[2,2,1])
-  scs_m.objs(10)=scicos_link(xx=[369.5714;384.0000;384.0000;398.4286],yy=[255;255;212;212],from=[3,1,0],to=[2,1,1])
-  scs_m.objs(11)=scicos_link(xx=[367.5714;383.0000;383.0000;398.4286],yy=[155;155;192;192], from=[4,1,0], to=[2,3,1])
+  scs_m.objs(9)=scicos_link(xx=[366.57;382.50;382.50;398.42],yy=[203;203;202;202], from=[1,1,0], to=[2,2,1])
+  scs_m.objs(10)=scicos_link(xx=[369.57;384.00;384.00;398.42],yy=[255;255;212;212],from=[3,1,0],to=[2,1,1])
+  scs_m.objs(11)=scicos_link(xx=[367.57;383.00;383.00;398.42],yy=[155;155;192;192], from=[4,1,0], to=[2,3,1])
   
   blk = SPLIT_f('define');
   blk.graphics.orig=[234.704;203.11733];
@@ -156,8 +150,8 @@ function scs_m= PID_diagram(pv,iv,dv)
   blk.graphics.pout=[13;14];
   scs_m.objs(12)=blk;
 
-  scs_m.objs(13)=scicos_link(xx=[234.704;246.6659], yy=[203.11733;203.11733], from=[12,1,0], to=[5,1,1])
-  scs_m.objs(14)=scicos_link(xx=[234.704;234.704;246.6659],yy=[203.11733;155.45067;155.45067],from=[12,2,0], to=[6,1,1])
+  scs_m.objs(13)=scicos_link(xx=[234.70;246.66], yy=[203.11;203.11], from=[12,1,0], to=[5,1,1])
+  scs_m.objs(14)=scicos_link(xx=[234.70;234.70;246.66],yy=[203.11;155.45;155.45],from=[12,2,0], to=[6,1,1])
 
   blk = SPLIT_f('define');
   blk.graphics.orig=[233.97067;203.11733];
@@ -166,8 +160,8 @@ function scs_m= PID_diagram(pv,iv,dv)
   blk.graphics.pout=[16;17];
   scs_m.objs(15)=blk;
   
-  scs_m.objs(16)=scicos_link(xx=[233.97067;234.704],yy=[203.11733;203.11733], from=[15,1,0], to=[12,1,1])
-  scs_m.objs(17)=scicos_link(xx=[233.97067;233.97067;312.6659],yy=[203.11733;255.91733;255.91733],from=[15,2,0], to=[3,1,1])
+  scs_m.objs(16)=scicos_link(xx=[233.97;234.70],yy=[203.11;203.11], from=[15,1,0], to=[12,1,1])
+  scs_m.objs(17)=scicos_link(xx=[233.97;233.97;312.66],yy=[203.11;255.91;255.91],from=[15,2,0], to=[3,1,1])
 
   blk = OUT_f('define');
   blk.graphics.orig=[456.5421,192.85067],...
@@ -176,16 +170,16 @@ function scs_m= PID_diagram(pv,iv,dv)
   blk.graphics.pin=19,...
   scs_m.objs(18) = blk;
     
-  scs_m.objs(19)=scicos_link(xx=[436.5421;456.5421], yy=[202.85067;202.85067], from=[2,1,0], to=[18,1,1])
+  scs_m.objs(19)=scicos_link(xx=[436.54;456.54], yy=[202.85;202.85], from=[2,1,0], to=[18,1,1])
 
   blk = IN_f('define');
-  blk.graphics.orig=[193.97067,193.11733];
+  blk.graphics.orig=[193.97,193.11];
   blk.graphics.sz=[20,20];
   blk.graphics.exprs="1";
   blk.graphics.pin=[];
   blk.graphics.pout=21;
   scs_m.objs(20) = blk;
   
-  scs_m.objs(21)=scicos_link(xx=[213.97067;233.97067], yy=[203.11733;203.11733], from=[20,1,0], to=[15,1,1])
+  scs_m.objs(21)=scicos_link(xx=[213.97;233.97], yy=[203.11;203.11], from=[20,1,0], to=[15,1,1])
   
 endfunction

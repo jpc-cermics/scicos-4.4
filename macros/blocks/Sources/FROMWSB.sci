@@ -1,4 +1,5 @@
 function [x,y,typ]=FROMWSB(job,arg1,arg2)
+  // contains a diagram inside
 
   function blk_draw(sz,orig,orient,label)  
     xstringb(orig(1),orig(2),"From workspace",sz(1),sz(2),"fill")
@@ -25,51 +26,58 @@ function [x,y,typ]=FROMWSB(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    //paths to updatable parameters or states
-    ppath = list(1)
-    newpar=list();
-    y=acquire('needcompile',def=0);
-    for path=ppath do
-      np=size(path,'*')
-      spath=list()
-      for k=1:np
-	spath($+1)='model'
-	spath($+1)='rpar'
-	spath($+1)='objs'
-	spath($+1)=path(k)
-      end
-      xx=arg1(spath)// get the block
-      ok=execstr('xxn='+xx.gui+'(''set'',xx)',errcatch=%t);
-      if ~ok then 
-	message(['Error: failed to set parameter block in FROMWSB';
-	         catenate(lasterror())]);
-	continue;
-      end
-      if ~xx.equal[xxn] then 
-	[needcompile]=scicos_object_check_needcompile(xx,xxn);
-	// parameter or states changed
-	arg1(spath)=xxn// Update
-	newpar(size(newpar)+1)=path // Notify modification
-	y=max(y,needcompile);
-      end
-    end
-    x=arg1
-    typ=newpar
+     y=acquire('needcompile',def=0);
+     // be sure that exprs is now in block
+     [x,changed]=STEP_FUNCTION('upgrade',arg1);
+     if changed then y = max(y,2);end
+     newpar=list();
+     blk = x.model.rpar.objs(1);
+     ok=execstr('blk_new='+blk.gui+'(''set'',blk)',errcatch=%t);
+     if ~ok then 
+       message(['Error: failed to set parameter block in FROMWSB';
+	        catenate(lasterror())]);
+       continue;
+     end
+     if ~blk.equal[blk_new] then 
+       [needcompile]=scicos_object_check_needcompile(blk,blk_new);
+       // parameter or states changed
+       x.model.rpar.objs(1) = blk_new;// Update
+       x.graphics.exprs = x.model.rpar.objs(1).graphics.exprs;
+       newpar(1)=1; // Notify modification
+       y=max(y,needcompile);
+     end
+     typ=newpar
+     resume(needcompile=y);
    case 'define' then
      scs_m=FROM_WSB_define()
      model=scicos_model(sim="csuper",in=[],in2=[],intyp=1,out=-1,out2=-2,outtyp=1,
 			evtin=[],evtout=[],state=[],dstate=[],odstate=list(),
 			rpar=scs_m,ipar=[],opar=list(),blocktype="h",firing=[],
 			dep_ut=[%f,%f],label="",nzcross=0,nmode=0,equations=list())
-    //## modif made by hand
-    gr_i="blk_draw(sz,orig,orient,model.label)";	
-    x=standard_define([3.5 2],model,[],gr_i,'FROMWSB');
+     //## modif made by hand
+     gr_i="blk_draw(sz,orig,orient,model.label)";
+     exprs = model.rpar.objs(1).graphics.exprs;
+     x=standard_define([3.5 2],model,exprs,gr_i,'FROMWSB');
+     
+   case 'upgrade' then
+     // upgrade if necessary
+     y = %f;
+     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+       // arg1 do not have a correct exprs field
+       exprs =  arg1.model.rpar.objs(1).graphics.exprs;
+       x = FROMWSB('define');
+       x.graphics.exprs = exprs;
+       x.model.rpar.objs(1).graphics.exprs = exprs;
+     else
+       x=arg1;
+       y=%f;
+     end
   end
 endfunction
 
 function scs_m=FROMWSB_define()
   scs_m = instantiate_diagram ();
-  blk = instantiate_block("FROMWS_c");
+  blk = FROMWS_c('define');
   exprs= [ "V", "1", "1", "0" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 0);
@@ -79,7 +87,7 @@ function scs_m=FROMWSB_define()
   blk = set_block_origin (blk, [   260.3707,261.5840 ]);
   blk = set_block_size (blk, [   70,40 ]);
   [scs_m, block_tag_1] = add_block(scs_m, blk);
-  blk = instantiate_block("OUT_f");
+  blk = OUT_f('define');
   exprs= [ "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_bg_color (blk, 8);

@@ -1,6 +1,6 @@
 function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
-// Copyright INRIA
-
+  // Copyright INRIA
+  // contains a diagram inside
   function dflipflop_draw(orig,sz,o)
     [x,y,typ]=standard_inputs(o)
     dd=sz(1)/8,de=sz(1)*(1/2+1/8);
@@ -46,6 +46,8 @@ function [x,y,typ]=DFLIPFLOP(job,arg1,arg2)
     model.ipar=1;
     gr_i=['dflipflop_draw(orig,sz,o);'];
     x=standard_define([2 3],model,[],gr_i,'DFLIPFLOP');
+   case 'upgrade' then
+     x=arg1;
   end
 endfunction
 

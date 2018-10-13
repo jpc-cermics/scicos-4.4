@@ -1,5 +1,6 @@
 function [x,y,typ]=Extract_Activation(job,arg1,arg2)
-
+  // contains a diagram inside
+  
   function scs_m=extract_activation_define () 
     scs_m = instantiate_diagram ();
     blk = IFTHEL_f('define')
@@ -67,6 +68,8 @@ function [x,y,typ]=Extract_Activation(job,arg1,arg2)
 		    scs_m,[],list(),"h",[],[%f,%f],"",0,0,list())
       gr_i='xstringb(orig(1),orig(2),[''Extract'';''Activation''],sz(1),sz(2),''fill'')';
       x=standard_define([3 2],model,[],gr_i,'Extract_Activation');
+    case 'upgrade' then
+      x=arg1;
   end
 endfunction
 

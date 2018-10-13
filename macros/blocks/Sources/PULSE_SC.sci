@@ -1,5 +1,6 @@
 function [x,y,typ]=PULSE_SC(job,arg1,arg2)
-//Generated from SuperBlock on 7-Feb-2008
+  // contains a diagram inside
+
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -59,6 +60,8 @@ function [x,y,typ]=PULSE_SC(job,arg1,arg2)
 		"y=orig(2)*ones(1,8)+sz(2)*yy;";
 		"xpolys(x'',y'');"],8)
      x=standard_define([3,2],model,exprs,gr_i,'PULSE_SC');
+   case 'upgrade' then
+     x=arg1;
   end
 endfunction
 

@@ -1,6 +1,7 @@
 function [x,y,typ]=ANDBLK(job,arg1,arg2)
-// Copyright INRIA
-
+  // Copyright INRIA
+  // contains a diagram inside
+  
   function diagram=andblock_subdiagram() 
     andlog=ANDLOG_f('define')
     andlog.graphics.enter[orig=[194,133],sz=[60,60],flip=%t,pout=9,pein=[4;11]];
@@ -61,5 +62,7 @@ function [x,y,typ]=ANDBLK(job,arg1,arg2)
     x.model.firing=%f
     x.model.dep_ut=[%f %f];
     x.model.rpar=andblock_subdiagram();
+   case 'upgrade' then
+     x= arg1;
   end
 endfunction

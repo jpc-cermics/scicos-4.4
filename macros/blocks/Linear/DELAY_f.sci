@@ -1,5 +1,6 @@
 function [x,y,typ]=DELAY_f(job,arg1,arg2)
-// Copyright INRIA
+  // Copyright INRIA
+  // contains a diagram inside
 
   function blk = DELAY_define()
     evtdly=EVTDLY_f('define')
@@ -80,25 +81,18 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
     // propagate values in the contained diagram
     // paths to updatable parameters or states
     blk.graphics.exprs  = exprs;
-    if blk.model.rpar.objs(1)==mlist('Deleted') then
-      ppath = list(4,5)  //compatibility with translated blocks
-    else
-      ppath = list(3,4)
-    end
+    ppath = list(3,4);
     newpar=list();
     register=blk.model.rpar.objs(ppath(1)); //data structure of register block
     evtdly=blk.model.rpar.objs(ppath(2)); //data structure of evtdly block
-    //Change the clock
     evtdly.graphics.exprs(1)=exprs(1);
-    //      evtdly.model.firing=0; //initial delay firing date
     if evtdly.model.rpar<>dt then
-      //Discretisation time step
-      evtdly.model.rpar=dt
+      evtdly.model.rpar=dt;  //Discretisation time step
       newpar($+1)=ppath(2); // notify clock changes
     end
     blk.model.rpar.objs(ppath(2))=evtdly
     //Change the register
-    register.graphics.exprs=exprs(2)
+    register.graphics.exprs=exprs(2:$)
     if or(register.model.dstate<>z0(:)) then
       //Register initial state
       register.model.dstate=z0(:)
@@ -108,7 +102,7 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
   endfunction
 
   // the function
-    
+  
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -120,12 +114,12 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-     x=arg1;
-     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
-       exprs = DELAY_f('exprs',arg1);
-     else
-       exprs = arg1.graphics.exprs;
-     end
+     y=acquire('needcompile',def=0);
+     // be sure that exprs is now in block
+     [x,changed]= DELAY_f('upgrade',arg1);
+     if changed then y = max(y,2);end
+     newpar=list();
+     exprs=x.graphics.exprs;
      while %t do
        [ok,dt,z0,exprs]=getvalue(['This block implements as a discretised delay';
 				  'it is consist of a shift register and a clock';
@@ -150,24 +144,34 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
 	 break;
        end
      end
-     [x,newpar]=DELAY_f_set(arg1,dt,z0,exprs);
-     y=acquire('needcompile',def=0);
+     [x,newpar]=DELAY_f_set(x,dt,z0,exprs);
      typ=newpar;
+     resume(needcompile=y);
    case 'define' then
      x = DELAY_define();
-   case 'exprs' then
-     blk = arg1;
-     // re-creates exprs form data in diagram
-     // backwrd compatibility for old schemes.
-     if blk.model.rpar.objs(1)==mlist('Deleted') then
-       ppath = list(4,5)  //compatibility with translated blocks
+   case 'upgrade' then
+     // upgrade if necessary
+     y = %f;
+     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+       // arg1 do not have a correct exprs field
+       // re-creates exprs form data in diagram
+       // backwrd compatibility for old schemes.
+       if blk.model.rpar.objs(1)==mlist('Deleted') then
+	 ppath = list(4,5)  //compatibility with translated blocks
+       else
+	 ppath = list(3,4)
+       end
+       register=blk.model.rpar.objs(ppath(1)); //data structure of register block
+       evtdly=blk.model.rpar.objs(ppath(2)); //data structure of evtdly block
+       exprs=[evtdly.graphics.exprs(1); register.graphics.exprs];
+       x = DELAY_f('define');
+       x.graphics.exprs = exprs;
+       x.model.rpar.objs(3).graphics.exprs = register.graphics.exprs;
+       x.model.rpar.objs(4).graphics.exprs = evtdly.graphics.exprs;
      else
-       ppath = list(3,4)
+       x=arg1;
+       y=%f;
      end
-     register=blk.model.rpar.objs(ppath(1)); //data structure of register block
-     evtdly=blk.model.rpar.objs(ppath(2)); //data structure of evtdly block
-     exprs=[evtdly.graphics.exprs(1); register.graphics.exprs];
-     x=exprs;
   end
   
 endfunction

@@ -1,5 +1,6 @@
 function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
-
+  // contains a diagram inside
+  
   function blk=EDGE_TRIGGER_define()
     scs_m = instantiate_diagram ();
     blk = EDGETRIGGER('define')
@@ -47,6 +48,8 @@ function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
 		  scs_m,[],list(),"h",[],[%f,%f],"",0,0,list())
     gr_i='xstringb(orig(1),orig(2),[''EDGE'';''TRIGGER''],sz(1),sz(2),''fill'')';
     blk=standard_define([2 2],model,[],gr_i,'EDGE_TRIGGER');
+    blk.graphics.exprs = blk.model.rpar.objs(1).graphics.exprs;
+    
   endfunction
   
   x=[];y=[],typ=[]
@@ -61,32 +64,41 @@ function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       y=acquire('needcompile',def=0);
-      newpar=list();
-      if arg1.graphics.iskey['exprs'] && ~isempty(arg1.graphics.exprs) then
-	arg1.model.rpar.objs(1).graphics.exprs = arg1.graphics.exprs;
-      end
-      // paths to updatable parameters or states
-      blk = arg1.model.rpar.objs(1);
-      while %t
-	ok=execstr('blk_new='+blk.gui+'(''set'',blk)',errcatch=%t);
-	if ~ok then 
-	  message(['Error: failed to set parameter block in EDGE_TRIGGER ';
-		   catenate(lasterror())]);
-	  continue;
-	end
-	if ~blk.equal[blk_new] then 
-	  [needcompile]=scicos_object_check_needcompile(blk,blk_new);
-	  // parameter or states changed
-	  arg1.model.rpar.objs(1)= blk_new;// Update
-	  newpar(1)=1; // Notify modification
-	  y=max(y,needcompile);
-	  resume(needcompile=y);
-	end
-	break;
-      end
-      x=arg1
-      typ=newpar;
+     // be sure that exprs is now in block
+     [x,changed]=EDGE_TRIGGER('upgrade',arg1);
+     if changed then y = max(y,2);end
+     newpar=list();
+     blk=x.model.rpar.objs(1);
+     blk_new = blk;
+     ok = execstr("blk_new="+blk.gui+"(""set"",blk)", errcatch=%t);
+     if ~ok then
+       message(["Error: cannot set parameters in EDGE_TRIGGER_f block";
+		catenate(lasterror())]);
+       return;
+     end
+     if ~blk.equal[blk_new] then
+       // parameter or states changed
+       x.model.rpar.objs(1) = blk_new; // Update
+       x.graphics.exprs = blk_new.graphics.exprs;
+       newpar(1)=1;// Notify modification
+     end
+     typ=newpar;
+     resume(needcompile=y);
+     
     case 'define' then
       x= EDGE_TRIGGER_define();
+    case 'upgrade' then
+      // upgrade if necessary
+      y = %f;
+      if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+	// arg1 do not have a correct exprs field
+	exprs =  arg1.model.rpar.objs(1).graphics.exprs;
+	x = EDGE_TRIGGER('define');
+	x.graphics.exprs = exprs;
+	x.model.rpar.objs(1).graphics.exprs = exprs;
+      else
+	x=arg1;
+	y=%f;
+      end
   end
 endfunction

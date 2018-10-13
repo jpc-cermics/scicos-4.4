@@ -1,5 +1,7 @@
 function [x,y,typ]=GEN_SQR(job,arg1,arg2)
   //Generated from SuperBlock on 8-Feb-2008
+  // contains a diagram inside
+  
   x=[];y=[];typ=[];
   select job
     case 'plot' then
@@ -59,6 +61,8 @@ function [x,y,typ]=GEN_SQR(job,arg1,arg2)
 		 "y=orig(2)*ones(1,10)+sz(2)*yy;";
 		 "xpolys(x'',y'');"],8)
       x=standard_define([3,2],model,exprs,gr_i,'GEN_SQR');
+    case 'upgrade' then
+      x=arg1;
   end
 endfunction
 
@@ -74,7 +78,7 @@ function scs_m=GEN_SQR_define()
     "" ];
   scs_m.props.context= context;
   // scs_m = set_model_workspace(scs_m,context);
-  blk = instantiate_block("Counter");
+  blk = Counter('define')
   exprs= [ "1"; "2"; "rule" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nout (blk, 1);
@@ -82,7 +86,7 @@ function scs_m=GEN_SQR_define()
   blk = set_block_origin (blk, [    18.2299,339.5057 ]);
   blk = set_block_size (blk, [   60,40 ]);
   [scs_m, block_tag_1] = add_block(scs_m, blk);
-  blk = instantiate_block("CONST_m");
+  blk = CONST_m('define')
   exprs= [ "Amin" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nout (blk, 1);
@@ -90,7 +94,7 @@ function scs_m=GEN_SQR_define()
   blk = set_block_size (blk, [   40,40 ]);
   blk.model.sim= list("cstblk4_m",4);
   [scs_m, block_tag_2] = add_block(scs_m, blk);
-  blk = instantiate_block("CONST_m");
+  blk = CONST_m('define')
   exprs= [ "Amax" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nout (blk, 1);
@@ -98,7 +102,7 @@ function scs_m=GEN_SQR_define()
   blk = set_block_size (blk, [   40,40 ]);
   blk.model.sim= list("cstblk4_m",4);
   [scs_m, block_tag_3] = add_block(scs_m, blk);
-  blk = instantiate_block("SELECT_m");
+  blk = SELECT_m('define')
   exprs= [ "-1"; "2"; "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 2);
@@ -107,7 +111,7 @@ function scs_m=GEN_SQR_define()
   blk = set_block_origin (blk, [   116.2695,269.4229 ]);
   blk = set_block_size (blk, [   40,40 ]);
   [scs_m, block_tag_4] = add_block(scs_m, blk);
-  blk = instantiate_block("ESELECT_f");
+  blk = ESELECT_f('define')
   exprs= [ "2"; "0"; "0" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
@@ -116,7 +120,7 @@ function scs_m=GEN_SQR_define()
   blk = set_block_origin (blk, [   106.9461,339.7496 ]);
   blk = set_block_size (blk, [   60,40 ]);
   [scs_m, block_tag_7] = add_block(scs_m, blk);
-  blk = instantiate_block("OUT_f");
+  blk = OUT_f('define')
   exprs= [ "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_bg_color (blk, 8);
@@ -124,7 +128,7 @@ function scs_m=GEN_SQR_define()
   blk = set_block_origin (blk, [   184.4024,278.7520 ]);
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_11] = add_block(scs_m, blk);
-  blk = instantiate_block("SampleCLK");
+  blk = SampleCLK('define')
   exprs= [ "F/2"; "0" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_bg_color (blk, 8);

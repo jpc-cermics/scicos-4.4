@@ -1,5 +1,6 @@
 function [x,y,typ]=PULSE_SD(job,arg1,arg2)
-//Generated from SuperBlock on 7-Feb-2008
+  // contains a diagram inside
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -46,7 +47,9 @@ function [x,y,typ]=PULSE_SD(job,arg1,arg2)
       end
     end
    case 'define' then
-    x= pulse_sd_gener();
+     x= pulse_sd_gener();
+   case 'upgrade' then
+     x= arg1;
   end
 endfunction
 

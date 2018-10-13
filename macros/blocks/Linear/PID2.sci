@@ -1,5 +1,6 @@
 function [x,y,typ]=PID2(job,arg1,arg2)
-  //Generated from PID on 5-Jan-2009
+  // contains a diagram inside
+  
   x=[];y=[];typ=[];
   select job
     case 'plot' then
@@ -13,31 +14,26 @@ function [x,y,typ]=PID2(job,arg1,arg2)
     case 'set' then
       y=acquire('needcompile',def=0);
       typ=list()
-      graphics=arg1.graphics;
-      exprs=graphics.exprs
-      Btitre=..
-      "Set PID parameters"
-      Exprs0=..
-      ["p";"i";"d"]
-      Bitems=..
-      ["Proportional";"Integral";"Derivative"]
-      Ss=..
-      list("pol",-1,"pol",-1,"pol",-1)
-      scicos_context=hash(10)
-      x=arg1
+      x=arg1;
+      exprs = x.graphics.exprs;
+      Btitre= "Set PID parameters"
+      Exprs0= ["p";"i";"d"]
+      Bitems=  ["Proportional";"Integral";"Derivative"]
+      Ss= list("pol",-1,"pol",-1,"pol",-1)
+      s_context=hash(10)
       ok=%f
       while ~ok do
-	[ok,scicos_context.p,scicos_context.i,scicos_context.d,exprs]=getvalue(Btitre,Bitems,Ss,exprs)
+	[ok,s_context.p,s_context.i,s_context.d,exprs]=getvalue(Btitre,Bitems,Ss,exprs)
 	if ~ok then return;end
-	%scicos_context=scicos_context
-	sblock=x.model.rpar
-	[%scicos_context,ierr]=script2var(sblock.props.context,%scicos_context)
+	%scicos_context=s_context
+	scsm=x.model.rpar
+	[%scicos_context,ierr]=script2var(scsm.props.context,%scicos_context)
 	if ierr==0 then
-	  [sblock,%w,needcompile2,ok]=do_eval(sblock,list(),%scicos_context)
+	  [scsm,%w,needcompile2,ok]=do_eval(scsm,list(),%scicos_context)
 	  if ok then
             y=max(2,y,needcompile2);
-            x.graphics.exprs=exprs
-            x.model.rpar=sblock
+            x.graphics.exprs=exprs;
+            x.model.rpar=scsm;
             break
 	  end
 	else
@@ -45,38 +41,21 @@ function [x,y,typ]=PID2(job,arg1,arg2)
 	  ok=%f
 	end
       end
+      resume(needcompile=y);
+      
     case 'define' then
       scs_m_1= PID_diagram("p","i","d");
-      model=scicos_model()
-      model.sim="csuper"
-      model.in=-1
-      model.in2=-2
-      model.intyp=-1
-      model.out=-1
-      model.out2=-2
-      model.outtyp=-1
-      model.evtin=[]
-      model.evtout=[]
-      model.state=[]
-      model.dstate=[]
-      model.odstate=list()
-      model.rpar=scs_m_1
-      model.ipar=1
-      model.opar=list()
-      model.blocktype="h"
-      model.firing=[]
-      model.dep_ut=[%f,%f]
-      model.label=""
-      model.nzcross=0
-      model.nmode=0
-      model.equations=list()
-      p=1
-      i=2
-      d=1
-      exprs=[sci2exp(p,0)
-	     sci2exp(i,0)
-	     sci2exp(d,0) ]
+      model=scicos_model(sim="csuper",in=-1,in2=-2,intyp=-1,out=-1,
+			 out2=-2,outtyp=-1,evtin=[],evtout=[],state=[],
+			 dstate=[],odstate=list(),rpar=scs_m_1,ipar=1,
+			 opar=list(),blocktype="h",firing=[],dep_ut=[%f,%f],
+			 label="",nzcross=0,nmode=0,	equations=list())
+      p=1; i=2; d=1;
+      exprs=[sci2exp(p,0); sci2exp(i,0); sci2exp(d,0) ]
       gr_i=list("xstringb(orig(1),orig(2),""PID"",sz(1),sz(2),''fill'');",8)
       x=standard_define([2,2],model,exprs,gr_i,'PID2');
+      x.graphics.exprs = exprs;
+    case 'upgrade' then
+      x=arg1
   end
 endfunction

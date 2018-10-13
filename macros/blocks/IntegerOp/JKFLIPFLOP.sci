@@ -1,6 +1,6 @@
 function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
-// Copyright INRIA
-  
+  // Copyright INRIA
+  // contains a diagram inside  
   function draw_jkflipflop(orig,sz,o)
     [x,y,typ]=standard_inputs(o)
     dd=sz(1)/8,de=sz(1)*(1/2+1/8);
@@ -30,12 +30,14 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
     [x,y]=standard_origin(arg1)
    case 'set' then
      y=acquire('needcompile',def=0);
-     // if isempty(exprs) then exprs=sci2exp(int8(0));end
+     // be sure that exprs is now in block
+     [x,changed]=JKFLIPFLOP('upgrade',arg1);
+     if changed then y = max(y,2);end
+     exprs=x.graphics.exprs;
+     // paths to updatable parameters or states
      newpar=list()
-     xx=arg1.model.rpar.objs(1);// get the 1/z  block
-     exprs=xx.graphics.exprs(1)
-     model=xx.model;
-     init_old= model.odstate(1)
+     blk=arg1.model.rpar.objs(2); // get the 1/z block
+     blk_new=blk;
      while %t do
        [ok,init,exprs0]=getvalue(['Set parameters';'The Initial Value must be 0 or 1 of type int8';
 				  'Negatif values are considered as int8(0)';
@@ -46,23 +48,20 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
        if i2m(init) <=0 then init=m2i(0,'int8');
        elseif i2m(init) >0 then init=m2i(1,'int8');
        end
-       if ok then 
-	 xx.graphics.exprs(1)=exprs0
-	 model.odstate(1)=init
-	 xx.model=model
-	 arg1.model.rpar.objs(1)=xx;// Update
-	 break
-       end
+       blk_new.graphics.exprs(1)=exprs0;
+       blk_new.model.odstate(1)=init;
+       break
      end
-     if ok then
-       if init_old<>init then 
-         // parameter  changed
-         newpar(size(newpar)+1)=1;// Notify modification
-	 y=max(y,2);
-       end
+     if ~blk.equal[blk_new] then 
+       // parameter  changed
+       x.model.rpar.objs(2)=blk_new;// update the block
+       x.graphics.exprs = exprs0; 
+       newpar(1)=1;// Notify modification
+       y=max(y,2);
      end
-     x=arg1
      typ=newpar
+     resume(needcompile=y);// propagate needcompile
+     
    case 'define' then
      model=scicos_model()
      model.sim='csuper'
@@ -80,6 +79,20 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
      model.rpar=diagram;
      gr_i=['draw_jkflipflop(orig,sz,o);'];
      x=standard_define([2 3],model,[],gr_i,'JKFLIPFLOP');
+     x.graphics.exprs = x.model.rpar.objs(2).graphics.exprs(1);
+   case 'upgrade' then
+     // upgrade if necessary
+     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+       // arg1 do not have a correct exprs field
+       exprs =  arg1.model.rpar.objs(2).graphics.exprs;
+       x = JKFLIPFLOP('define');
+       x.graphics.exprs = exprs(1);
+       x.model.rpar.objs(2).graphics.exprs = exprs;
+       y=%t;
+     else
+       x=arg1;
+       y=%f;
+     end
   end
 endfunction
 

@@ -1,5 +1,6 @@
 function [x,y,typ]=CLOCK_f(job,arg1,arg2)
   // Copyright INRIA
+  // contains a diagram inside
 
   function blk_draw(sz,orig,orient,label)
     wd=xget("wdim").*[1.016,1.12];
@@ -33,42 +34,38 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       y=acquire('needcompile',def=0);
-      if arg1.model.rpar.objs(1)==mlist('Deleted') then
-	path = 3;  //compatibility with translated blocks
-      else
-	path = 2
-      end
-      newpar=list();
-      xx=arg1.model.rpar.objs(path)// get the evtdly block
-	     exprs=xx.graphics.exprs
-	     model=xx.model;
-	     t0_old=model.firing
-	     dt_old= model.rpar
-	     model_n=model
-	     while %t do
-	       [ok,dt,t0,exprs0]=getvalue('Set Clock block parameters',
-					  ['Period';'Init time'],list('vec',1,'vec',1),exprs)
-	       if ~ok then break,end
-	       if dt<=0 then
-		 message('period must be positive')
-		 ok=%f
-	       end
-	       if ok then
-		 xx.graphics.exprs=exprs0
-		 model.rpar=dt
-		 model.firing=t0
-		 xx.model=model
-		 arg1.model.rpar.objs(path)=xx;// Update
-		 break
-	       end
-	     end
-	     if ~and([t0_old dt_old]==[t0 dt])|~isequal(exprs0,exprs) then 
-	       // parameter  changed
-	       newpar(size(newpar)+1)=path;// Notify modification
-	     end
-	     if t0_old<>t0 then y=max(y,2);end;
-	     x=arg1
-	     typ=newpar
+     // be sure that exprs is now in block
+     [x,changed]=CLOCK_f('upgrade',arg1);
+     if changed then y = max(y,2);end
+     newpar=list();
+     blk=x.model.rpar.objs(2);
+     blk_new = blk;
+     t0_old=x.model.rpar.objs(2).model.firing
+     dt_old=x.model.rpar.objs(2).model.rpar
+     exprs = x.graphics.exprs;
+     while %t do
+       [ok,dt,t0,exprs0]=getvalue('Set Clock block parameters',
+				  ['Period';'Init time'],list('vec',1,'vec',1),exprs)
+       if ~ok then break,end
+       if dt<=0 then
+	 message('period must be positive')
+	 ok=%f
+       end
+       if ok then
+	 x.graphics.exprs=exprs0;
+	 x.model.rpar.objs(2).graphics.exprs=exprs0;
+	 x.model.rpar.objs(2).model.rpar=dt;
+	 x.model.rpar.objs(2).model.model.firing=t0;
+	 break
+       end
+     end
+     if ~and([t0_old dt_old]==[t0 dt])|| ~isequal(exprs0,exprs) then 
+       // parameter  changed
+       newpar(size(newpar)+1)=2;// Notify modification
+     end
+     if t0_old<>t0 then y=max(y,2);end;
+     typ=newpar
+     resume(needcompile=y);
     case 'define' then
       blk_evtdly=EVTDLY_f('define')
       blk_evtdly.graphics.orig=[320,232]
@@ -116,5 +113,24 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
       x.model.firing=%f
       x.model.dep_ut=[%f %f]
       x.model.rpar=diagram
+   case 'upgrade' then
+     // upgrade CLOCK_f if necessary
+     y = %f;
+     if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+       // arg1 do not have a correct exprs field
+       //compatibility with translated blocks
+       path = 2;
+       if arg1.model.rpar.objs(1)==mlist('Deleted') then
+	 path = 3;  //compatibility with translated blocks
+       end
+       exprs =  arg1.model.rpar.objs(path).graphics.exprs;
+       x = CLOCK_f('define');
+       x.graphics.exprs = exprs;
+       // now path is 2 
+       x.model.rpar.objs(2).graphics.exprs = exprs;
+     else
+       x=arg1;
+       y=%f;
+     end
   end
 endfunction

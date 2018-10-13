@@ -1,4 +1,6 @@
 function [x,y,typ]=freq_div(job,arg1,arg2)
+  // contains a diagram inside
+  // the diagram have exprs now and upgrade method
   x=[];y=[],typ=[]
   select job
     case 'plot' then
@@ -11,37 +13,34 @@ function [x,y,typ]=freq_div(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       y=acquire('needcompile',def=0);
+      // be sure that exprs is now in block
+      [x,changed]=freq_div('upgrade',arg1);
+      if changed then y = max(y,2);end
+      exprs=x.graphics.exprs;
       // paths to updatable parameters or states
       newpar=list();
-      xx=arg1.model.rpar.objs(1);// get the first block
-      xxn=xx;
-      graphics=xx.graphics;exprs=graphics.exprs
-      model=xx.model;
+      blk=x.model.rpar.objs(1);// get the first block
+      blk_new=blk;
       while %t do
-	[ok,%ph,%df,exprs]=getvalue...
-			     ('Set frequency division block parameters',...
-			      ['Phase (0 to division factor -1)';'Division factor'],...
-			      list('vec',1,'vec',1),exprs)
+	[ok,%ph,%df,exprs]=getvalue('Set frequency division block parameters',...
+				    ['Phase (0 to division factor -1)';
+				     'Division factor'],...
+				    list('vec',1,'vec',1),exprs);
 	if ~ok then break,end
-	if ok then
-	  if %df<1 then %df=1,end
-	  %ph=abs(%ph)
-	  if %ph>%df-1 then %ph=%df-1,end
-	  graphics.exprs=exprs
-	  model.ipar=%df;
-	  model.dstate=%ph;
-	  xxn.graphics=graphics;xxn.model=model
-	  break
-	end
+	%df = max(1,%df); %ph= min(abs(%ph), %df-1);
+	blk_new.graphics.exprs=exprs;
+	blk_new.model.ipar=%df;
+	blk_new.model.dstate=%ph;
+	break;
       end
-      if ~xx.equal[xxn] then 
-	[needcompile]=scicos_object_check_needcompile(xx,xxn);
+      if ~blk.equal[blk_new] then 
+	[needcompile]=scicos_object_check_needcompile(blk,blk_new);
 	// parameter or states changed
-	arg1.model.rpar.objs(1)=xxn;// update the block
+	x.model.rpar.objs(1)=blk_new;// update the block
+	x.graphics.exprs = exprs; 
 	newpar(1) =1;// Notify modification
 	y=max(y,needcompile); 
       end
-      x=arg1
       typ=newpar
       resume(needcompile=y);// propagate needcompile
     case 'define' then
@@ -53,6 +52,20 @@ function [x,y,typ]=freq_div(job,arg1,arg2)
 		    scs_m,[],list(),"h",[],[%f,%f],"",0,0,list())
       gr_i='xstringb(orig(1),orig(2),''freq_div'',sz(1),sz(2),''fill'')';
       x=standard_define([2 2],model,[],gr_i,'freq_div');
+      x.graphics.exprs = x.model.rpar.objs(1).graphics.exprs;
+    case 'upgrade' then
+      // upgrade if necessary
+      if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+	// arg1 do not have a correct exprs field
+	exprs =  arg1.model.rpar.objs(1).graphics.exprs;
+	x = freq_div('define');
+	x.graphics.exprs = exprs;
+	x.model.rpar.objs(1).graphics.exprs = exprs;
+	y=%t;
+      else
+	x=arg1;
+	y=%f;
+      end
   end
 endfunction
 

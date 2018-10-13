@@ -1,7 +1,9 @@
 function [x,y,typ]=ASSERT(job,arg1,arg2)
-  //Generated from SuperBlock on 25 octobre 2013
-  //Modified by hand, Alan, Enpc 2013
-
+  // Generated from SuperBlock on 25 octobre 2013
+  // Modified by hand, Alan, Enpc 2013
+  // regenerated 2018, jpc
+  // contains a diagram inside
+  
   function blk_draw(sz,orig,orient,label)
     orig=arg1.graphics.orig;
     sz=arg1.graphics.sz;
@@ -97,6 +99,9 @@ function [x,y,typ]=ASSERT(job,arg1,arg2)
       exprs=[opar;sci2exp(ipar,0);sci2exp(zc,0)]
       gr_i="blk_draw(sz,orig,orient,model.label)";
       x=standard_define([2,1],model,exprs,gr_i,'ASSERT')
+
+    case 'upgrade' then
+      x=arg1;
   end
 endfunction
 

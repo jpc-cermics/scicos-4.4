@@ -1,5 +1,6 @@
 function [x,y,typ]=STEP_FUNC(job,arg1,arg2)
-//Generated from SuperBlock on 4-Feb-2011
+  // contains a diagram inside
+
   x=[];y=[];typ=[];
   select job
    case 'plot' then
@@ -43,7 +44,9 @@ function [x,y,typ]=STEP_FUNC(job,arg1,arg2)
       end
     end
    case 'define' then
-    x=step_func_define();
+     x=step_func_define();
+   case 'upgrade' then
+     x=arg1;
   end
 endfunction
 
@@ -51,12 +54,9 @@ function x=step_func_define()
   x_0=scicos_diagram();
   x_1=scicos_params();
   x_1.context=      [ " " ]
-  x_1.tf=      [   30 ]
-  x_1.Title=      [ "SuperBlock" ]
-  x_1.tol=      [   1.000e-06,   1.000e-06,   1.000e-10,   3.100e+01,           0,           0 ]
-  x_1.wpar=      [    52.8729,   510.4862,    91.3143,   404.9852,   630.0000,   430.0000 ,...
-		      0,          0,   630.0000,   430.0000,   697.0000,   178.0000 , 1.4000 ]
+
   x_0.props=x_1;clear('x_1');
+
   x_1=list();
   x_2=STEP('define');
   x_2.graphics.peout=       [   2 ]
@@ -67,6 +67,7 @@ function x=step_func_define()
   x_2.graphics.pein=       [   2 ]
   x_2.graphics.orig=       [   329.3040,   162.0107 ]
   x_1(1)=x_2;clear('x_2');
+
   x_2=scicos_link();
   x_2.xx=       [   349.3040; 349.3040; 349.9583; 307.8288; 307.8288; 307.8288; 308.5552; 349.3040; 349.3040 ]
   x_2.id=       [ "" ]
@@ -75,6 +76,7 @@ function x=step_func_define()
   x_2.to=       [   1,   1,   1 ]
   x_2.yy=       [   156.2964;144.5654;144.5654;144.5654;145.2949;224.0773;224.0773;224.0773;207.7250 ]
   x_1(2)=x_2;clear('x_2');
+
   x_2=SAMPHOLD_m('define');
   x_2.graphics.pin=       [   4 ]
   x_2.graphics.pout=       [   8 ]

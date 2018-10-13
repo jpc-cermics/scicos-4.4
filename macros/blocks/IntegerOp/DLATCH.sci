@@ -1,6 +1,7 @@
 function [x,y,typ]=DLATCH(job,arg1,arg2)
-// Copyright INRIA
-
+  // Copyright INRIA
+  // contains a diagram inside
+  // upgrade ok 
   function dlatch_draw(orig,sz,o)
     [x,y,typ]=standard_inputs(o)
     dd=sz(1)/8,de=sz(1)*(1/2+1/8);
@@ -45,6 +46,8 @@ function [x,y,typ]=DLATCH(job,arg1,arg2)
     model.rpar= dlatch_define();
     gr_i=['dlatch_draw(orig,sz,o);'];
     x=standard_define([2 3],model,[],gr_i,'DLATCH');
+   case 'upgrade' then
+     x=arg1
   end
 endfunction
 
