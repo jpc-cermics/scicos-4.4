@@ -69,6 +69,7 @@ function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
      if changed then y = max(y,2);end
      newpar=list();
      blk=x.model.rpar.objs(1);
+     blk.graphics.exprs=  x.graphics.exprs;
      blk_new = blk;
      ok = execstr("blk_new="+blk.gui+"(""set"",blk)", errcatch=%t);
      if ~ok then
@@ -93,7 +94,9 @@ function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
       if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
 	// arg1 do not have a correct exprs field
 	exprs =  arg1.model.rpar.objs(1).graphics.exprs;
-	x = EDGE_TRIGGER('define');
+	x1 = EDGE_TRIGGER('define');
+	x=arg1;
+	x.model.rpar= x1.model.rpar;
 	x.graphics.exprs = exprs;
 	x.model.rpar.objs(1).graphics.exprs = exprs;
       else

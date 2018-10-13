@@ -58,7 +58,9 @@ function [x,y,typ]=freq_div(job,arg1,arg2)
       if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
 	// arg1 do not have a correct exprs field
 	exprs =  arg1.model.rpar.objs(1).graphics.exprs;
-	x = freq_div('define');
+	x1 = freq_div('define');
+	x=arg1;
+	x.model.rpar= x1.model.rpar;
 	x.graphics.exprs = exprs;
 	x.model.rpar.objs(1).graphics.exprs = exprs;
 	y=%t;

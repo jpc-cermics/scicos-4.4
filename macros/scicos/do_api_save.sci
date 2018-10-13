@@ -215,7 +215,14 @@ function [ok,txt]=do_api_save(scs_m)
   endfunction
   
   function [txt,head]= do_api_save_rec(scs_m,count)
-    // 
+    //
+    
+    special_blocks = ["MCLOCK_f";"freq_div";"ANDBLK";"DLATCH";"SRFLIPFLOP";
+		      "DFLIPFLOP";"JKFLIPFLOP";"ASSERT";"Extract_Activation";
+		      "ENDBLK";"EDGE_TRIGGER";"PID";"PID2";"Sigbuilder";"GEN_SQR";
+		      "PULSE_SC";"PULSE_SD";"STEP_FUNC";"CLOCK_c";"CLOCK_f";
+		      "STEP_FUNCTION";"FROMWSB";"DELAY_f"];
+
     txt=m2s([]); head=m2s([]);
     ok = %t;
     for %kk=1:length(scs_m.objs)
@@ -223,34 +230,10 @@ function [ok,txt]=do_api_save(scs_m)
       if o.type == 'Block' || o.type == 'Text' then
 	if o.gui<>'PAL_f' then
 	  model=o.model
-	  if o.gui == 'CLOCK_f' || o.gui == 'CLOCK_c' then
-	    // exprs is to be built for CLOCK_f or CLOCK_c 
-	    path = b2m(o.model.rpar.objs(1)==mlist('Deleted'))+2;
-	    evtdly=o.model.rpar.objs(path); // get the evtdly block
-	    exprs= evtdly.graphics.exprs;
-	    txt=[txt;do_api_block(o,%kk,exprs)];
-	  elseif or(o.gui == ['ENDBLK', 'STEP_FUNCTION', 'EDGE_TRIGGER' ]) then
-	    // parameters are in the first internal block 
-	    blk=o.model.rpar.objs(1);
-	    exprs= blk.graphics.exprs;
-	    txt=[txt;do_api_block(o,%kk,exprs)];
-	  elseif or(o.gui == ['PID']) then
-	    // we need to build exprs
-	    exprs= PID('exprs',o);
-	    txt=[txt;do_api_block(o,%kk,exprs)];
-	  elseif or(o.gui == ['DELAY_f']) then
-	    // we need to build exprs
-	    exprs = DELAY_f('exprs',o);
-	    txt=[txt;do_api_block(o,%kk,exprs)];
-	  elseif or(o.gui == ['PULSE_SC','PULSE_SD','GEN_SQR','ANDBLK', 'PID2', 'Extract_Activation','DFLIPFLOP']) then
-	    // already properly deal exprs 
-	    txt=[txt;do_api_block(o,%kk)];
-	    // ok : ANDBLK, PID2, PID, DELAY_f ENDBLK STEP_FUNCTION
-	    // a revoir (pb de exprs pas utilisé) 'ENDBLK', 'STEP_FUNCTION', 'EDGE_TRIGGER'
-	    // DLATCH
-	    // MCLOCK_f
-	    // JKFLIPFLOP
-	    // SRFLIPFLOP
+	  if or(o.gui == special_blocks) then
+	    ok = execstr(sprintf("o=%s(''upgrade'',o)",o.gui),errcatch=%t);
+	    if ~ok then pause special_blocks_failed ;end
+	    txt=[txt;do_api_block(o,%kk)]; //, o.graphics.exprs)];
 	  elseif (model.sim(1)== 'csuper' && model.ipar==1) || o.gui == 'DSUPER' then 
 	    [mtxt,count]=do_api_model(model.rpar,count)
 	    head=[head;mtxt];

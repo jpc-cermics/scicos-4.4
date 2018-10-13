@@ -18,7 +18,9 @@ function [x,y,typ]=MCLOCK_f(job,arg1,arg2)
      [x,changed]=MCLOCK_f('upgrade',arg1);
      if changed then y = max(y,2);end
      newpar=list();
+     exprs = x.graphics.exprs;
      blk=x.model.rpar.objs(1);
+     blk.graphics.exprs = exprs;
      blk_new = blk;
      ok = execstr("blk_new="+blk.gui+"(""set"",blk)", errcatch=%t);
      if ~ok then
@@ -128,7 +130,9 @@ function [x,y,typ]=MCLOCK_f(job,arg1,arg2)
        path = 1;
        if arg1.model.rpar.objs(1)==mlist('Deleted') then path=2;end
        exprs =  arg1.model.rpar.objs(path).graphics.exprs;
-       x = MCLOCK_f('define');
+       x1 = MCLOCK_f('define');
+       x=arg1;
+       x.model.rpar= x1.model.rpar;
        x.graphics.exprs = exprs;
        // take care now path is 1 
        x.model.rpar.objs(1).graphics.exprs = exprs;

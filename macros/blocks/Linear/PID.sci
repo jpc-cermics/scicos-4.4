@@ -65,10 +65,10 @@ function [x,y,typ]=PID(job,arg1,arg2)
      
    case 'upgrade' then
      // upgrade if necessary
+     x = arg1;
      exprs =[x.model.rpar.objs(3).graphics.exprs(1);
 	     x.model.rpar.objs(5).graphics.exprs(1);
 	     x.model.rpar.objs(6).graphics.exprs(1)];
-     x = arg1;
      if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
        y=%t;
        x.graphics.exprs = exprs;

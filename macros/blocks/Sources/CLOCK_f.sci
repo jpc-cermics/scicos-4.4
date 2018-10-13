@@ -55,7 +55,7 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
 	 x.graphics.exprs=exprs0;
 	 x.model.rpar.objs(2).graphics.exprs=exprs0;
 	 x.model.rpar.objs(2).model.rpar=dt;
-	 x.model.rpar.objs(2).model.model.firing=t0;
+	 x.model.rpar.objs(2).model.firing=t0;
 	 break
        end
      end
@@ -102,17 +102,13 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
       diagram.objs(6)=scicos_link(xx=[380.71;380.71;340;340],
 				  yy=[172;302;302;277.71],
 				  ct=[5,-1],from=[4,2],to=[2,1]) 
-      x=scicos_block()
-      x.gui='CLOCK_f'
-      x.graphics.sz=[2,2]
-      x.graphics.gr_i=list("blk_draw(sz,orig,orient,model.label)",8);
+
+      model=scicos_model(sim='csuper',evtout=1,blocktype='h',firing=%f,dep_ut=[%f %f],rpar=diagram);
+      exprs = diagram.objs(2).graphics.exprs;
+      gr_i=list("blk_draw(sz,orig,orient,model.label)",8);
+      x=standard_define([2 2],model,exprs,gr_i,'CLOCK_f');
       x.graphics.peout=0
-      x.model.sim='csuper'
-      x.model.evtout=1
-      x.model.blocktype='h'
-      x.model.firing=%f
-      x.model.dep_ut=[%f %f]
-      x.model.rpar=diagram
+      
    case 'upgrade' then
      // upgrade CLOCK_f if necessary
      y = %f;
@@ -124,7 +120,9 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
 	 path = 3;  //compatibility with translated blocks
        end
        exprs =  arg1.model.rpar.objs(path).graphics.exprs;
-       x = CLOCK_f('define');
+       x1 = CLOCK_f('define');
+       x=arg1;
+       x.model.rpar= x1.model.rpar;
        x.graphics.exprs = exprs;
        // now path is 2 
        x.model.rpar.objs(2).graphics.exprs = exprs;

@@ -67,7 +67,9 @@ function [x,y,typ]=ENDBLK(job,arg1,arg2)
      if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
        // arg1 do not have a correct exprs field
        exprs =  arg1.model.rpar.objs(1).graphics.exprs;
-       x = ENDBLK('define');
+       x1 = ENDBLK('define');
+       x=arg1;
+       x.model.rpar= x1.model.rpar;
        x.graphics.exprs = exprs;
        x.model.rpar.objs(1).graphics.exprs = exprs;
      else

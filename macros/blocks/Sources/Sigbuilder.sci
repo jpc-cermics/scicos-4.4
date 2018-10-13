@@ -1,5 +1,21 @@
 function [x,y,typ]=Sigbuilder(job,arg1,arg2)
   // contains a diagram inside
+
+  function blk_draw(sz,orig,orient,label)  
+    rpar=arg1.model.rpar;n=arg1.model.ipar(1);order=arg1.model.ipar(2);;
+    xx=rpar(1:n);yy=rpar(n+1:2*n);;
+    [XX,YY,rpardummy]=Do_Spline(n,order,xx,yy);
+    xmx=max(XX);xmn=min(XX);;
+    ymx=max(YY);ymn=min(YY);;
+    dx=xmx-xmn;if dx==0 then dx=max(xmx/2,1);end;
+    xmn=xmn-dx/20;xmx=xmx+dx/20;;
+    dy=ymx-ymn;if dy==0 then dy=max(ymx/2,1);end;;
+    ymn=ymn-dy/20;ymx=ymx+dy/20;;
+    xx2=orig(1)+sz(1)*((XX-xmn)/(xmx-xmn));;
+    yy2=orig(2)+sz(2)*((YY-ymn)/(ymx-ymn));;
+    xpoly(xx2,yy2,type="lines",color=2);
+  endfunction
+
   x=[];y=[],typ=[]
   select job
    case 'plot' then
@@ -16,7 +32,9 @@ function [x,y,typ]=Sigbuilder(job,arg1,arg2)
      [x,changed]= Sigbuilder('upgrade',arg1);
      if changed then y = max(y,2);end
      newpar=list();
+     exprs = x.graphics.exprs;
      blk=x.model.rpar.objs(1);
+     blk.graphics.exprs = exprs ;
      blk_new = blk;
      ok = execstr("blk_new="+blk.gui+"(""set"",blk)", errcatch=%t);
      if ~ok then
@@ -42,9 +60,9 @@ function [x,y,typ]=Sigbuilder(job,arg1,arg2)
 			rpar=scs_m_1,ipar=[],opar=list(),blocktype="h",firing=[],
 			dep_ut=[%f,%f],label="",nzcross=0,nmode=0,equations=list())
      // we use the gr_i of the internal curve 
-     gr_i = ['arg1=arg1.model.rpar.objs(1);'
+     gr_i = list(['arg1=arg1.model.rpar.objs(1);'
 	     'model=arg1.model;';
-	     model.rpar.objs(1).graphics.gr_i(1)];
+	     model.rpar.objs(1).graphics.gr_i(1)],8);
      x=standard_define([2 2],model,[],gr_i,'Sigbuilder');
      x.graphics.exprs = x.model.rpar.objs(1).graphics.exprs;
    case 'upgrade' then
@@ -53,13 +71,31 @@ function [x,y,typ]=Sigbuilder(job,arg1,arg2)
      if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
        // arg1 do not have a correct exprs field
        exprs =  arg1.model.rpar.objs(1).graphics.exprs;
-       x = Sigbuilder('define');
+       x1 = Sigbuilder('define');
+       x=arg1;
+       x.model.rpar= x1.model.rpar;
        x.graphics.exprs = exprs;
        x.model.rpar.objs(1).graphics.exprs = exprs;
      else
        x=arg1;
        y=%f;
      end
+     
+  case 'upgrade' then
+    // upgrade if necessary
+    y = %f;
+    if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
+      // arg1 do not have a correct exprs field
+      exprs =  arg1.model.rpar.objs(1).graphics.exprs;
+      x1 = STEP_FUNCTION('define');
+      x.model.rpar= x1.model.rpar;
+      x.graphics.exprs = exprs;
+      x.model.rpar.objs(1).graphics.exprs = exprs;
+    else
+      x=arg1;
+      y=%f;
+    end
+     
   end
 endfunction
 

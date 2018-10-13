@@ -84,7 +84,9 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
      if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
        // arg1 do not have a correct exprs field
        exprs =  arg1.model.rpar.objs(2).graphics.exprs;
-       x = SRFLIPFLOP('define');
+       x1 = SRFLIPFLOP('define');
+       x=arg1;
+       x.model.rpar= x1.model.rpar;
        x.graphics.exprs = exprs(1);
        x.model.rpar.objs(2).graphics.exprs = exprs;
        y=%t;

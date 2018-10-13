@@ -40,8 +40,8 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
       if changed then y = max(y,2);end
       newpar=list();
       exprs=x.graphics.exprs;
-      t0_old=x.model.rpar.objs(2).firing;
-      dt_old=x.model.rpar.objs(2).rpar(1);
+      t0_old=x.model.rpar.objs(2).model.firing;
+      dt_old=x.model.rpar.objs(2).model.rpar(1);
       while %t do
 	[ok,dt,t0,exprs0]=getvalue('Set Clock block parameters',
 				   ['Period';'Init time'],list('vec',1,'vec',1),exprs)
@@ -60,7 +60,7 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
       end
       if ~and([t0_old dt_old]==[t0 dt]) then 
 	// parameter  changed
-	newpar(1)=path; // Notify modification
+	newpar(1)=2; // Notify modification
       end
       if t0_old<>t0 then y=max(y,2);end
       typ=newpar;
@@ -121,7 +121,9 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
        // arg1 do not have a correct exprs field
        //compatibility with translated blocks
        exprs =  arg1.model.rpar.objs(2).graphics.exprs;
-       x = CLOCK_c('define');
+       x1 = CLOCK_c('define');
+       x=arg1;
+       x.model.rpar= x1.model.rpar;
        x.graphics.exprs = exprs;
        x.model.rpar.objs(2).graphics.exprs = exprs;
      else
