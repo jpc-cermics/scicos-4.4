@@ -6,6 +6,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
   select blk.gui
 
     case 'CONST_m' then
+      // CONST_m -> MBM_Constantn (OK)
       H = acquire('%api_context',def=hash(1));
       [ok,H1]=execstr('C ='+blk.graphics.exprs,env=H,errcatch=%t);
       if ~ok then
@@ -36,6 +37,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       blk.graphics.exprs = new_exprs;
       
     case 'GENSIN_f' then
+      // GENSIN_f -> MBS_Sine
       old=blk;
       blk = instantiate_block ('MBS_Sine');
       blk = set_block_params_from(blk, old);
@@ -47,6 +49,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       blk.graphics.exprs = new_exprs;
 
     case 'TIME_f' then
+      // TIME_f -> MBS_Clock
       old=blk;
       blk = instantiate_block ('MBS_Clock');
       blk = set_block_params_from(blk, old);
