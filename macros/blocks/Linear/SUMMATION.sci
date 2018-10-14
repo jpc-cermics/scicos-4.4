@@ -1,4 +1,3 @@
-
 function [x,y,typ]=SUMMATION(job,arg1,arg2)
 // Copyright INRIA
 

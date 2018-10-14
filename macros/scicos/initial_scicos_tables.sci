@@ -152,6 +152,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["sep1"                      "separator" ""                                 "" ""],
                   ["Create Atomic"             "menuitem"  "scmenu_create_atomic"             "" ""],
                   ["Remove Atomic"             "menuitem"  "scmenu_remove_atomic"             "" ""],
+		  ["Show csuper Internal"      "menuitem"  "scmenu_show_csuper_internal"      "" ""],
                   ["sep2"                      "separator" ""                                 "" ""],
                   ["Code Generation"           "menuitem"  "scmenu_code_generation"           "" ""],
                   ["sep3"                      "separator" ""                                 "" ""],
@@ -319,6 +320,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                                   'Identification',..
                                   'Block Documentation'),..
                              'Remove Atomic',..
+			     'Show csuper Internal',..
                              'Region to Super Block',..
                              'Region to Palette',..
                              'Help|||gtk-help');
