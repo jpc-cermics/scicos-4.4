@@ -57,6 +57,8 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["Up To Parent"            "menuitem"  "scmenu_up"                      "" "gtk-go-up"],
                   ["Up To Main Diagram"      "menuitem"  "scmenu_up_to_main_diagram"      "" "gtk-goto-top"]);
 
+		  // ["show port sizes"         "menuitem"  "scmenu_show_compiled_sizes"     "" ""]);
+
   Palette =  list(["_Palette"          "menu"      "scmenu_palette_menu"      "" ""],
                   ["Pal Tree"          "menuitem"  "scmenu_pal_tree"          "" ""],
                   ["Palettes"          "menuitem"  "scmenu_palettes"          "" ""]);
@@ -152,7 +154,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["sep1"                      "separator" ""                                 "" ""],
                   ["Create Atomic"             "menuitem"  "scmenu_create_atomic"             "" ""],
                   ["Remove Atomic"             "menuitem"  "scmenu_remove_atomic"             "" ""],
-		  ["Show csuper Internal"      "menuitem"  "scmenu_show_csuper_internal"      "" ""],
+		  ["Show ''csuper'' Internals" "menuitem"  "scmenu_show_csuper_internal"      "" ""],
                   ["sep2"                      "separator" ""                                 "" ""],
                   ["Code Generation"           "menuitem"  "scmenu_code_generation"           "" ""],
                   ["sep3"                      "separator" ""                                 "" ""],
@@ -229,7 +231,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
     // make a mpopup data list
     // for block insertion from right click menu
     // the action activated is placeindiagram.
-
+    
     H=scicos_default_palettes();
     L=H.structure;
     L1=list('Pal Tree');
@@ -320,7 +322,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                                   'Identification',..
                                   'Block Documentation'),..
                              'Remove Atomic',..
-			     'Show csuper Internal',..
+			     'Show csuper Internals',..
                              'Region to Super Block',..
                              'Region to Palette',..
                              'Help|||gtk-help');

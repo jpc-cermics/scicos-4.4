@@ -1,7 +1,7 @@
 function [bllsti,ok]=do_job_compile(o,bllsti,i)
  bllst_old=bllsti
  x=[]
- isok=execstr('bllsti='+o.gui+'(""compile"",bllsti,i);',errcatch=%t);
+ isok=execstr('bllsti=' + o.gui + '(""compile"",bllsti,i);' , errcatch=%t);
  if ~isok then 
    // ignore errors for some guis
    ignore = o.gui.equal['INPUTPORT'] || o.gui.equal['OUTPUTPORT'] ||...

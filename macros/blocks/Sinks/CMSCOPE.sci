@@ -13,42 +13,32 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
    case 'set' then
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
-
-
+    gv_title= 'Set Scope parameters';
+    gv_names= [ 'Input ports sizes';
+	     'Drawing colors (>0) or mark (<0)';
+	     'Output window number (-1 for automatic)';
+	     'Output window position';
+	     'Output window sizes';
+	     'Ymin vector';
+	     'Ymax vector';
+	     'Refresh period';
+	     'Buffer size';
+	     'Accept herited events 0/1'
+	     'Name of Scope (label&Id)'];
+    gv_types = list('vec',-1,'vec',-1,'vec',1,'vec',-1,'vec',-1,...
+		 'vec','size(%1,''*'')','vec','size(%1,''*'')','vec',-1,...
+		 'vec',1,'vec',1,'str',1);
     model=arg1.model;
     //dstate=model.in
-    //pause
     while %t do
-      [ok,in,clrs,win,wpos,wdim,ymin,ymax,per,N,heritance,nom,exprs]=getvalue(..
-						  'Set Scope parameters',..
-						  ['Input ports sizes';
-		    'Drawing colors (>0) or mark (<0)';
-		    'Output window number (-1 for automatic)';
-		    'Output window position';
-		    'Output window sizes';
-		    'Ymin vector';
-		    'Ymax vector';
-		    'Refresh period';
-		    'Buffer size';
-		    'Accept herited events 0/1'
-		    'Name of Scope (label&Id)'],..
-						  list('vec',-1,'vec',-1,'vec',1,'vec',-1,'vec',-1,..
-						       'vec','size(%1,''*'')','vec','size(%1,''*'')','vec',-1,..
-						       'vec',1,'vec',1,'str',1),exprs)
-      if ~ok then break,end //user cancel modification
+      [ok,in,clrs,win,wpos,wdim,ymin,ymax,per,N,heritance,nom,exprs]= ...
+      getvalue(gv_title, gv_names, gv_types, exprs);
+      if ~ok then break,end; //user cancel modification
       mess=[]
       if size(in,'*')<=0 then
 	mess=[mess;'Block must have at least one input port';' ']
 	ok=%f
       end
-//       if min(in)<=0 then
-// 	mess=[mess;'Port sizes must be positive';' ']
-// 	ok=%f
-//       end
-//       if size(clrs,'*')<sum(in) then 
-// 	mess=[mess;'Not enough colors defined (at least '+string(sum(in))+')';' ']
-// 	ok=%f
-//       end
       if size(wpos,'*')<>0 &size(wpos,'*')<>2 then
 	mess=[mess;'Window position must be [] or a 2 vector';' ']
 	ok=%f
@@ -61,7 +51,6 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
 	mess=[mess;'Window number can''t be  < -1';' ']
 	ok=%f
       end
-
       if size(per,'*')<>size(ymin,'*') then
 	if size(per,'*')==1 then
 	  per=per*ones(1,size(ymin,'*'))
@@ -70,7 +59,6 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
 	  ok=%f
 	end
       end
-
       for i=1:1:size(per,'*')
 	if (per(i)<=0) then
 	  mess=[mess;'Refresh Period must be positive';' ']
@@ -106,7 +94,7 @@ function [x,y,typ]=CMSCOPE(job,arg1,arg2)
 	  period=per(:)';
 	  yy=[ymin(:)';ymax(:)']
 	  rpar=[0;period(:);yy(:)]
-// 	  clrs=clrs(1:sum(in))
+	  // 	  clrs=clrs(1:sum(in))
 	  ipar=[win;size(in,'*');N;wpos(:);wdim(:);in(:);clrs(:);heritance]
 	  //if prod(size(dstate))<>(sum(in)+1)*N+1 then 
 	  //dstate=-eye((sum(in)+1)*N+1,1),

@@ -176,6 +176,8 @@ function scicos_set_uimanager(is_top)
   //
   scicos_action_set_sensitivity(win,"scmenu_create_atomic",%f);
   scicos_action_set_sensitivity(win,"scmenu_remove_atomic",%f);
+  scicos_action_set_sensitivity(win,"scmenu_show_csuper_internal",%f);
+  
 endfunction
 
 function scicos_activate_action(action,args) 
@@ -375,6 +377,7 @@ function scicos_menus_select_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
     scicos_action_set_sensitivity(win,"scmenu_create_atomic",%f);
     scicos_action_set_sensitivity(win,"scmenu_remove_atomic",%f);
+    scicos_action_set_sensitivity(win,"scmenu_show_csuper_internal",%f);
     //
   elseif  sel== 'Multi' then 
     scicos_action_set_sensitivity(win,"scmenu_cut",%t);
@@ -389,6 +392,7 @@ function scicos_menus_select_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_save_block_gui",%f);
     scicos_action_set_sensitivity(win,"scmenu_create_atomic",%f);
     scicos_action_set_sensitivity(win,"scmenu_remove_atomic",%f);
+    scicos_action_set_sensitivity(win,"scmenu_show_csuper_internal",%f);
   else 
     scicos_action_set_sensitivity(win,"scmenu_cut",%t);
     scicos_action_set_sensitivity(win,"scmenu_copy",%t);
@@ -410,6 +414,8 @@ function scicos_menus_select_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_create_atomic",tag);
     tag= scicos_is_atomic(o);
     scicos_action_set_sensitivity(win,"scmenu_remove_atomic",tag);
+    tag = o.model.sim.equal['csuper'];
+    scicos_action_set_sensitivity(win,"scmenu_show_csuper_internal",tag);
   end
 endfunction
 

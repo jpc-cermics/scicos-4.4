@@ -1,4 +1,5 @@
 function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
+  // create a new diagram where sizes are replaced by result of compilation sizes 
   if nargin <= 2 then
     [scs_m,cpr1,needcompile,ok]=do_eval(scs_m);
     [cpr]=do_compile(scs_m);

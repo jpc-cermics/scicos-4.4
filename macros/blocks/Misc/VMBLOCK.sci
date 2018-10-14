@@ -356,7 +356,7 @@ function [ok,cancel,paramv,lab_res]=VMBLOCK_get_parameters_values(params,pprop,p
   // ee=evstr(exprs.param) is also the labels by maybe in a different order
   // exprs.paramv is a list giving th evalues (same order as ee).
   ok=%t; cancel=%f; paramv=[]; lab_res =[];
-  pause VMBLOCK_get_parameters_values
+  // pause VMBLOCK_get_parameters_values
   ok = execstr("params_oldv="+params_old,errcatch=%t);
   if ~ok then lasterror();params_oldv=m2s([]);end
   
@@ -402,7 +402,6 @@ endfunction
 function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,vout_size,vparam,vparamv,vpprop)
   // builds the head of the modelica function
   // with proper declarations for variables
-
   [dirF,nameF,extF]=splitfilepath(funam);
   
   np=size(vparam,'r'); // number of params
@@ -410,15 +409,15 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   txt = ['model '+nameF]
   txt.concatd["  //// automatically generated ////"];
 
-  function [vsize,val] = modelica_value(v, is_parameter = %f)
+  function [vsize,val] = modelica_value(sz, v, is_parameter = %f)
     // gives strings that can be used for modelica declaration for v
-    if and(size(v)==1) then
+    if and(sz==1) then
       vsize= "";
       val=sci2exp(v);
-    elseif and(size(v)<>1) || (is_parameter && size(v,2)==1) then
+    elseif and(sz<>1) || (is_parameter && sz(2)==1) then
       // [m,n] || [m,1]
-      sz= size(v);
       vsize=stripblanks(sci2exp(sz));
+      if sz(1) < 0 then vsize="[:]";end 
       S=m2s([]);
       for i=1:sz(1)
 	s=sprint(v(i,:),as_read=%t);
@@ -427,8 +426,9 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
       end
       val = "{"+ catenate(S,sep=",") + "}";
     else
-      // [1,n] -> [n]
-      vsize= "["+ sci2exp(prod(size(v))) + "]";
+      // 
+      vsize= "["+ sci2exp(prod(sz)) + "]";
+      if sz(2) < 0 || sz(1) < 0 then vsize= "[:]";end
       val=sci2exp(v);
       val=strsubst(val,['[',']',';'],['{','}',',']);
     end
@@ -436,7 +436,7 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   
   function [val] = modelica_true(vsize, is_parameter = %f)
     // gives strings that can be used for modelica declaration for v
-    [vsize,val] = modelica_value(bmat_create(vsize(1),vsize(2)),  is_parameter = is_parameter);
+    [vsize,val] = modelica_value(vsize, bmat_create(vsize(1),vsize(2)),  is_parameter = is_parameter);
     val=strsubst(val,"%t","true");
   endfunction
   
@@ -444,17 +444,15 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   if np<>0 then
     txt.concatd["    //parameters"];
     for i=1:np
+      [vsize,sval] = modelica_value(size(vparamv(i)),vparamv(i) ,is_parameter = %t);
       if vpprop(i)==0 then
 	// parameters
-	[vsize,sval] = modelica_value(vparamv(i),is_parameter = %t);
 	head= sprintf("    parameter Real %s%s = %s;", vparam(i),vsize, sval);
       elseif vpprop(i)==1 then
 	// state with start value
-	[vsize,sval] = modelica_value(vparamv(i),is_parameter = %t);
 	head= sprintf("    Real %s%s (start=%s);", vparam(i), vsize, sval);
       elseif vpprop(i)==2 then
 	// fixed state
-	[vsize,sval] = modelica_value(vparamv(i),is_parameter = %t);
 	strue = modelica_true(size(vparamv(i)),is_parameter = %t);
 	head= sprintf("    Real %s%s (fixed=%s, start=%s);", vparam(i),vsize, strue, sval);
       end
@@ -467,7 +465,7 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   if ni<>0 then
     txt.concatd["    // inputs "];
     for i=1:ni
-      [vsize,sval] = modelica_value(ones(vin_size(i,:)));
+      [vsize,sval] = modelica_value(vin_size(i,:),[]);
       if vintype(i)=='I' then stype = "Input"; else stype="";end;
       head= sprintf("    Real%s %s%s;",stype, vinp(i), vsize);
       txt.concatd[head];
@@ -479,7 +477,7 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   if no<>0 then
     txt.concatd["    // outputs"]
     for i=1:no
-      [vsize,sval] = modelica_value(ones(vout_size(i,:)));
+      [vsize,sval] = modelica_value(vout_size(i,:),[]);
       if vouttype(i)=='I' then stype = "Output"; else stype="";end;
       head= sprintf("    Real%s %s%s;",stype, vout(i), vsize);
       txt.concatd[head];

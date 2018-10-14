@@ -438,7 +438,7 @@ function [itype, dtype, mess] = CmType(Cmenu)
     return
   end
   if size(k,'*')>1 then //** if found more than one command
-    message('Warning '+string( size(k,'*'))+' menus have identical name '+Cmenu);
+    message("Warning "+string( size(k,"*"))+" menus have identical name "+Cmenu);
     k=k(1); //** ?
   end
   itype=1
@@ -589,7 +589,7 @@ function scicos_library_initialize()
     L(1:size(names,'*'))= initial_scicos_tables();
     for i=1:size(Enames,'*')
       if Enames(i)== %f then
-	execstr('resume('+ names(i)+'=L('+string(i)+'));');
+	execstr("resume("+ names(i)+"=L("+string(i)+"));");
       end
     end
   end
@@ -598,10 +598,10 @@ endfunction
 function [frect, wdim, viewport, wpdim, winpos]=get_curwpar(win)
 // XXX: a revoir pour win 
   [_v,frect]=xgetech();
-  wdim = xget('wdim');
-  viewport=xget('viewport');
-  wpdim = xget('wpdim');
-  winpos= xget('wpos');
+  wdim = xget("wdim");
+  viewport=xget("viewport");
+  wpdim = xget("wpdim");
+  winpos= xget("wpos");
 endfunction
 
 

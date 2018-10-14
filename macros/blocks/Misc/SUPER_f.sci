@@ -61,7 +61,7 @@ function [x,y,typ]=SUPER_f(job,arg1,arg2)
 	  if size(indx,'*')==1 then
 	    inactive_windows(1)(indx)=null();inactive_windows(2)(indx)=[]
 	  elseif size(indx,'*')>1 then
-	    disp('SUPER'),pause
+	    disp('SUPER'); pause
 	  end
 	end
       end
