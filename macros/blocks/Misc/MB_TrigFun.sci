@@ -120,5 +120,8 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
       end
     case 'define' then
       x= MB_TrigFun_define(-1,"sin");
+    //case 'compile'
+    //  pause
+    //  x=arg1;
   end
 endfunction
