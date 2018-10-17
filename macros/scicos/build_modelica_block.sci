@@ -47,7 +47,6 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
       end
     end
   end
-
   //generating XML and Flat_Model
   // compile modelica files
   [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=compile_modelica(path+name+'.mo',Mblocks);
@@ -71,8 +70,10 @@ function [model,ok]=build_modelica_block(blklstm,corinvm,cmmat,NiM,NoM,scs_m,pat
 endfunction
 
 function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
-  // creates modelica code gathering all the modelica blocks contained in
-  // the scicos schema.
+  // creates a model gathering all the modelica blocks contained in
+  // the scicos schema and the modelica links
+  // the result is a model in txt which has to be completed with libraries and
+  // with Modelica code of the generiv modleica blocks
   if exists('%Modelica_Init')==%f then 
     // Modelica_Init becomes true only in "Modelicainitialize_.sci"
     %Modelica_Init=%f;
@@ -106,7 +107,9 @@ function [ok,txt,ipar,opar]=create_modelica(blklst,corinvm,cmat,name,scs_m)
       // retrieve the object corresponding to k in the scs_m structure 
       o_scsm = scs_m(scs_full_path(corinvm(k)));
       // second call to the interfacing function with a 'compile' job
+      // printf("buil_modelica_block: Calling compile job for %s",o_scsm.gui);
       exec_ok=execstr( '[o_out]=' +o_scsm.gui+ '(""compile"",o,k);',errcatch=%t);
+      // printf(" result ok=%d in=%s out=%s\n",exec_ok,sci2exp(o.in),sci2exp(o.out));
       if exec_ok && ~isempty(o_out) then o=o_out; end
       // get the graphic structure
       o_gr  = o_scsm.graphics;
