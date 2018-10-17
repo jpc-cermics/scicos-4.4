@@ -4,23 +4,73 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
   // dessiner proprement les fonctions possibles
   // tester que le nom choisit existe dans les fonctions
 
-  function [x,y]=sin_values()
+  function [x,y,xpos,ypos]=sin_values()
+    ypos=0.1; xpos= 0.55;
     x = linspace(0,2*%pi,20); y = sin(x);
   endfunction
 
-  function [x,y]=cos_values()
+  function [x,y,xpos,ypos]=cos_values()
+    ypos=0.1; xpos= 0.55;
     x = linspace(0,2*%pi,20); y = cos(x);
   endfunction
 
-  function [x,y]=exp_values()
-    x = linspace(0,10,20); y = exp(x);
+  function [x,y,xpos,ypos]=tan_values()
+    ypos=0.5; xpos= 0.55;
+    x = linspace(-%pi/2+0.1,%pi/2-0.1,20); y = tan(x);
+  endfunction
+
+  function [x,y,xpos,ypos]=asin_values()
+    ypos=0.5; xpos= 0.55;
+    x = linspace(-1+0.02,1-0.02,20); y = asin(x);
+  endfunction
+
+  function [x,y,xpos,ypos]=acos_values()
+    ypos=0.5; xpos= 0.15;
+    x = linspace(-1+0.02,1-0.02,20); y = acos(x);
+  endfunction
+
+  function [x,y,xpos,ypos]=atan_values()
+    ypos=0.5; xpos= 0.55;
+    x = linspace(-10,10,20); y = atan(x);
+  endfunction
+
+  function [x,y,xpos,ypos]=sinh_values()
+    ypos=0.5; xpos= 0.55;
+    x = linspace(-5,5,20); y = sinh(x);
+  endfunction
+
+  function [x,y,xpos,ypos]=cosh_values()
+    ypos=0.5; xpos= 0.15;
+    x = linspace(-5,5,20); y = cosh(x);
+  endfunction
+
+  function [x,y,xpos,ypos]=tanh_values()
+    ypos=0.5; xpos= 0.55;
+    x = linspace(-5,5,20); y = tanh(x);
   endfunction
   
-  function [x,y]=abs_values()
+  function [x,y,xpos,ypos]=exp_values()
+    ypos=0.5; xpos= 0.15;
+    x = linspace(0,5,20); y = exp(x);
+  endfunction
+
+  function [x,y,xpos,ypos]=log_values()
+    ypos=0.1; xpos= 0.55;
+    x = linspace(0.2,5,20); y = log(x);
+  endfunction
+
+  function [x,y,xpos,ypos]=log10_values()
+    ypos=0.1; xpos= 0.55;
+    x = linspace(0.2,5,20); y = log(x)./log(10);
+  endfunction
+  
+  function [x,y,xpos,ypos]=abs_values()
+    ypos=0.5; xpos= 0.15;
     x = linspace(-1,1,20); y = abs(x);
   endfunction
 
-  function [x,y]=sign_values()
+  function [x,y,xpos,ypos]=sign_values()
+    ypos=0.5; xpos= 0.55;
     x = linspace(-1,1,20); y = sign(x);
   endfunction
   
@@ -48,12 +98,18 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
       xstringb(orig(1)+sz(1)*-0.25,orig(2)+sz(2)*1.05,label,sz(1)*1.5,sz(2)*0.2,"fill");
     else
       xstringb(orig(1)+sz(1)*(1--0.25-1.5),orig(2)+sz(2)*1.05,label,sz(1)*1.5,sz(2)*0.2,"fill");
-    end    
-    xpoly(xx+ww*[0.1;0.1],yy+hh*[0.84;0.1],color=gray);
-    xfpoly(xx+ww*[0.1;0.06;0.14;0.1],yy+hh*[0.95;0.84;0.84;0.95],color=gray,fill_color=gray);
-    xpoly(xx+ww*[0.05;0.91],yy+hh*[0.15;0.15],color=gray);
-    xfpoly(xx+ww*[0.95;0.84;0.84;0.95],yy+hh*[0.15;0.19;0.11;0.15],color=gray,fill_color=gray);
-    execstr(sprintf("[xv,yv] = %s_values()",C));
+    end
+    
+    execstr(sprintf("[xv,yv,xpos,ypos] = %s_values()",C));
+    //ypos=0.1;  // y-axis left 
+    //ypos=0.5;  // y-axis midle
+    xpoly(xx+ww*[ypos;ypos],yy+hh*[0.84;0.1],color=gray);
+    xfpoly(xx+ww*[ypos;ypos-0.04;ypos+0.04;ypos],yy+hh*[0.95;0.84;0.84;0.95],color=gray,fill_color=gray);
+    //xpos=0.15;// down x-axis 
+    //xpos=0.55; // midle x-axis
+    xpoly(xx+ww*[0.05;0.91],yy+hh*[xpos;xpos],color=gray);
+    xfpoly(xx+ww*[0.95;0.84;0.84;0.95],yy+hh*[xpos;xpos+0.04;xpos-0.04;xpos],color=gray,fill_color=gray);
+
     xv = 0.1 + 0.8* (xv - min(xv)) ./ (max(xv) -min(xv)) 
     yv = 0.15 + 0.8* (yv - min(yv)) ./ (max(yv) -min(yv)) 
     xpoly(xx+ww*xv,yy+hh*yv,color=blue);
