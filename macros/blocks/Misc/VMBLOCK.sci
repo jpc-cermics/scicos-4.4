@@ -125,8 +125,8 @@ function blk = VMBLOCK_define(H,old)
   model.in2=H.in_c;// must be column 
   model.out=H.out_r; // must be column 
   model.out2=H.out_c; // must be column
-  model.intype = H.intype;
-  model.outtype= H.outtype;
+  model.intyp = ones(size(model.in));
+  model.outtyp= ones(size(model.out));
   model.equations=model_equations;
   if nargin == 2 then
     graphics = old.graphics;
@@ -147,8 +147,8 @@ function blk = VMBLOCK_define(H,old)
     end
     if nout <  nout_old then pout=old.graphics.pout(1:nout);end
     graphics.pout = pout;
-    graphics.in_implicit = model.intype(:);
-    graphics.out_implicit = model.outtype(:);
+    graphics.in_implicit = H.intype(:);
+    graphics.out_implicit =H.outtype(:);
     blk = old;
     blk.model = model;
     blk.graphics = graphics;
@@ -411,7 +411,7 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   // builds the head of the modelica function
   // with proper declarations for variables
   [dirF,nameF,extF]=splitfilepath(funam);
-  
+
   np=size(vparam,'r'); // number of params
 
   txt = ['model '+nameF]
@@ -425,14 +425,18 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
     elseif and(sz<>1) || (is_parameter && sz(2)==1) then
       // [m,n] || [m,1]
       vsize=stripblanks(sci2exp(sz));
-      if sz(1) < 0 then vsize="[:]";end 
-      S=m2s([]);
-      for i=1:sz(1)
-	s=sprint(v(i,:),as_read=%t);
-	s=strsubst(s(2),['[',']'],['{','}']);
-	S.concatr[s];
+      if sz(1) < 0 then vsize="[:]";end
+      if is_parameter then 
+	S=m2s([]);
+	for i=1:sz(1)
+	  s=sprint(v(i,:),as_read=%t);
+	  s=strsubst(s(2),['[',']'],['{','}']);
+	  S.concatr[s];
+	end
+	val = "{"+ catenate(S,sep=",") + "}";
+      else
+	val=[];
       end
-      val = "{"+ catenate(S,sep=",") + "}";
     else
       // 
       vsize= "["+ sci2exp(prod(sz)) + "]";
@@ -698,7 +702,7 @@ function [x,y,typ]=MBM_Constantn(job,arg1,arg2)
 	   out=["y"], outtype="I", out_r=size(C,1), out_c=size(C,2),
 	   param=["C"], paramv=list(C),
 	   pprop=[0], nameF=nameF);
-    
+
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,[H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
     if and(size(C)==1) then
