@@ -64,7 +64,13 @@ function scs_m= scicos_dummy(scs_m)
 	o_new.model.rpar = scsm;
 	// update the block 
 	scs_m.objs(i)=o_new;
-      elseif is_modelica_block(o)
+      elseif o.gui=='IMPSPLIT_f' then
+	// 
+	o_new= DUMMY('define',o);
+	o_new.model.in = - 1;
+	o_new.model.out = [- 1;-1];
+	scs_m.objs(i)=o_new;
+      else is_modelica_block(o)
 	// 
 	o_new= DUMMY('define',o);
 	scs_m.objs(i)=o_new;
