@@ -62,7 +62,6 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=c_pass1_flat(
       end
     end
   endfunction
-  
   if nargin <= 1 then ksup=0;end //used for recursion
   if ksup==0 then   // main scheme
     MaxBlock=scicos_count_blocks(scs_m);
@@ -402,6 +401,7 @@ function  [cor,corinv,links_table,cur_fictitious,sco_mat,ok,scs_m]=c_pass1_flat(
 		   o.to(1:2),    1,   o.ct(2) ] //inputs are tagged with 1
     end
   end
+
   // Warning in case of modelica's blocks in an enabled diagram.
   // Fady 18/11/2007
   tof=find((sco_mat(:,2)=='1')& (sco_mat(:,5)=='10'))
