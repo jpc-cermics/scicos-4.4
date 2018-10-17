@@ -414,7 +414,7 @@ function scicos_menus_select_set_sensitivity(selection,win)
     scicos_action_set_sensitivity(win,"scmenu_create_atomic",tag);
     tag= scicos_is_atomic(o);
     scicos_action_set_sensitivity(win,"scmenu_remove_atomic",tag);
-    tag = o.model.sim.equal['csuper'];
+    tag = o.type=='Block' && o.model.sim(1)==['csuper'];
     scicos_action_set_sensitivity(win,"scmenu_show_csuper_internal",tag);
   end
 endfunction

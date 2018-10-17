@@ -68,6 +68,9 @@ function [x,y,typ]=VMBLOCK(job,arg1,arg2)
     case 'define' then
       //----------- Define
       x= VMBLOCK_define();
+    case 'zzcompile' then
+      pause VMBLOCK
+      x=arg1
   end
 endfunction
 
@@ -83,9 +86,15 @@ function blk = VMBLOCK_define(H,old)
   end
   // build a hash table with string expressions from H values
   exprs = hash(10);
-  if nargin == 2 then
+  if H.iskey["funtxt"] then
     exprs.funtxt = H.funtxt;
     H.delete['funtxt'];
+  else
+    funtxt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,[H.out_r,H.out_c],H.param,H.paramv,H.pprop)
+    exprs.funtxt = [funtxt;
+		    "  equation";
+		    sprintf("//  y[%d].signal= %s(u[%d].signal);",1,'sin',1);
+		    sprintf("end %s;", H.nameF)];
   end
   
   for key=(H.__keys)' do
@@ -146,12 +155,11 @@ function blk = VMBLOCK_define(H,old)
   else
     // we could here call set_io to fix graphics
     gr_i=["txt=[""Modelica"";"" "+H.nameF+" ""];";
-	  "xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"]
+	  "xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"];
     blk=standard_define([2 2],model,exprs,gr_i,'VMBLOCK');
     // standard define should incorporate that 
     blk.graphics.in_implicit =H.intype
     blk.graphics.out_implicit=H.outtype
-    blk.graphics.exprs.funtxt = m2s([]);
   end
 endfunction
 
@@ -619,6 +627,9 @@ function [x,y,typ]=MBM_Addn(job,arg1,arg2)
     case 'define' then
       sgn=[1;-1];
       x= MBM_Addn_define(sgn);
+    case 'compile'
+      pause VMBLOCK
+      x=arg1;
   end
 endfunction
 

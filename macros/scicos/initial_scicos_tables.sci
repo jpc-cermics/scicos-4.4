@@ -55,9 +55,8 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["Region to Super Block"   "menuitem"  "scmenu_region_to_super_block"   "" ""],
                   ["sep3"                    "separator" ""                               "" ""],
                   ["Up To Parent"            "menuitem"  "scmenu_up"                      "" "gtk-go-up"],
-                  ["Up To Main Diagram"      "menuitem"  "scmenu_up_to_main_diagram"      "" "gtk-goto-top"]);
-
-		  // ["show port sizes"         "menuitem"  "scmenu_show_compiled_sizes"     "" ""]);
+                  ["Up To Main Diagram"      "menuitem"  "scmenu_up_to_main_diagram"      "" "gtk-goto-top"],
+		  ["show port sizes"         "menuitem"  "scmenu_show_compiled_sizes"     "" ""]);
 
   Palette =  list(["_Palette"          "menu"      "scmenu_palette_menu"      "" ""],
                   ["Pal Tree"          "menuitem"  "scmenu_pal_tree"          "" ""],
@@ -163,8 +162,8 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                   ["Shortcuts"                 "menuitem"  "scmenu_shortcuts"                 "" ""],
                   ["sep5"                      "separator" ""                                 "" ""],
                   ["Calc"                      "menuitem"  "scmenu_calc"                      "" ""]);
-
-                  //["Force Open" "menuitem"     "menuitem"  "scmenu_force_open"               ],
+  
+  // ["Force Open" "menuitem"     "menuitem"  "scmenu_force_open"                "" ""]);
 
   Help =     list(["_Help"                    "menu"      "scmenu_help_menu"            "" ""],
                   ["Help|||gtk-help"          "menuitem"  "scmenu_help"                 "F1" ""],
@@ -322,7 +321,7 @@ function [%scicos_pal,%scicos_menu, %scicos_toolbar, %scicos_short, %scicos_help
                                   'Identification',..
                                   'Block Documentation'),..
                              'Remove Atomic',..
-			     'Show csuper Internals',..
+			     "Show ''csuper'' Internals",..
                              'Region to Super Block',..
                              'Region to Palette',..
                              'Help|||gtk-help');

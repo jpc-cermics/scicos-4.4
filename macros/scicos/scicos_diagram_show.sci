@@ -1,7 +1,8 @@
 function scs_m=scicos_diagram_show(scs_m,win=0,margins=%t,scicos_uim=%f,scicos_istop=%t,read=%f,popup_dim=%t)
-// shows a scs_m in a graphics window 
-// 
-  if ~window_exists(win) then 
+  // shows a scs_m in a graphics window 
+  //
+  if isempty(win) || size(win,'*') <> 1 then win=0;end
+  if  ~window_exists(win) then 
     xset('window',win);
   else
     // remove graphics from figure except the current axe 

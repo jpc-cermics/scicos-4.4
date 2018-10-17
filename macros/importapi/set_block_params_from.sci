@@ -20,9 +20,9 @@ function blk=set_block_params_from(blk,fromblk)
   blk.graphics.sz = fromblk.graphics.sz;
   blk.graphics.theta = fromblk.graphics.theta;
 
-  if size(fromblk.graphics.gr_i,"*") >=2 then 
+  if type(fromblk.graphics.gr_i,'short')=='l' && length(fromblk.graphics.gr_i) >=2 then
     color = fromblk.graphics.gr_i(2);
-    blk = set_block_bg_color(blk,color);
+    if ~isempty(color) then blk = set_block_bg_color(blk,color);end
   end
 
 endfunction
