@@ -3,7 +3,27 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
   // XXXX
   // dessiner proprement les fonctions possibles
   // tester que le nom choisit existe dans les fonctions
-    
+
+  function [x,y]=sin_values()
+    x = linspace(0,2*%pi,20); y = sin(x);
+  endfunction
+
+  function [x,y]=cos_values()
+    x = linspace(0,2*%pi,20); y = cos(x);
+  endfunction
+
+  function [x,y]=exp_values()
+    x = linspace(0,10,20); y = exp(x);
+  endfunction
+  
+  function [x,y]=abs_values()
+    x = linspace(-1,1,20); y = abs(x);
+  endfunction
+
+  function [x,y]=sign_values()
+    x = linspace(-1,1,20); y = sign(x);
+  endfunction
+  
   function blk_draw(sz,orig,orient,label)
     blue=xget('color','blue');
     white=xget('color','white');
@@ -33,8 +53,7 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
     xfpoly(xx+ww*[0.1;0.06;0.14;0.1],yy+hh*[0.95;0.84;0.84;0.95],color=gray,fill_color=gray);
     xpoly(xx+ww*[0.05;0.91],yy+hh*[0.15;0.15],color=gray);
     xfpoly(xx+ww*[0.95;0.84;0.84;0.95],yy+hh*[0.15;0.19;0.11;0.15],color=gray,fill_color=gray);
-    xv = linspace(0,2*%pi,20);
-    execstr(sprintf("yv = %s(xv)",C));
+    execstr(sprintf("[xv,yv] = %s_values()",C));
     xv = 0.1 + 0.8* (xv - min(xv)) ./ (max(xv) -min(xv)) 
     yv = 0.15 + 0.8* (yv - min(yv)) ./ (max(yv) -min(yv)) 
     xpoly(xx+ww*xv,yy+hh*yv,color=blue);

@@ -157,7 +157,9 @@ function [ok,txt]=do_api_save(scs_m)
 	txt1($+1,1)= sprintf('  scs_m = set_diagram_location (scs_m, %s);',sci2exp(loc,0));
       end
     else
-      txt2=sprint(scs_m.props.wpar, name = "wpar",as_read=%t);
+      wpar = scs_m.props.wpar;
+      if length(wpar) > 12 then wpar = wpar(1:12);end;
+      txt2=sprint(wpar, name = "wpar",as_read=%t);
       if size(txt2,'*') > 1 then txt2(1) = txt2(1) + ' ...';end; // for scicoslab
       txt1.concatd["  "+txt2];
       txt1.concatd["  scs_m = set_diagram_wpar (scs_m, wpar);"];
@@ -310,7 +312,7 @@ function [ok,txt]=do_api_save(scs_m)
   ok=%t;
 
   head =["// -*- mode : nsp -*-";
-	"needcompile=4";
+	"needcompile=4;";
 	"if ~exists(''%nsp'') then";
 	"  if ~exists(''scicos_diagram'') then load(''SCI/macros/scicos/lib'');end";
 	"  if ~exists(''instantiate_diagram'') then load(''SCI/macros/scicosapi/lib'');end";
@@ -342,6 +344,7 @@ function [ok,txt]=do_api_save(scs_m)
 
   txt1=sprint(scs_m.props.tol, name = "tol",as_read=%t);
   if size(txt1,'*') > 1 then txt1(1) = txt1(1) + ' ...';end; // for scicoslab
+  txt1($)=txt1($)+';';
   last.concatd[txt1];
   last.concatd["scs_m = set_solver_parameters (scs_m, tol);"];
   last.concatd["scs_m = evaluate_model (scs_m);"];
