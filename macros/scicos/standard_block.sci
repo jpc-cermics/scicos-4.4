@@ -741,7 +741,8 @@ function [texte] = mini_standard_document(objet)
 	     modele_texte(modele)];
     elseif modele.sim(1)=='csuper' then
       texte=[texte;
-             "<tt><small><small>Compiled Superblock</small></small></tt>"]
+             "<tt><small><small>Compiled Superblock</small></small></tt>";
+	     modele_texte(modele)];
     else
       if is_modelica_block(objet) then
         texte=[texte;
