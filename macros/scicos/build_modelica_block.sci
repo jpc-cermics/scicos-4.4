@@ -488,7 +488,13 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     end
 
     commandok=%t;
-    if ~(overwrite==2) then 
+    if ~(overwrite==2) then
+      // generate a makefile to help debug
+      txt = instr; txt($)=""""+txt($)+"""";
+      txt = ["#/* -*- Mode: Makefile -*- */";
+	     "all :"
+	     "\t"+ catenate(txt,sep=" ")];
+      scicos_mputl(txt,file('join',[file('split',path);'makefile.mo1']));
       // run translator
       [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
       // FIXME: translator should report errors in sp_e !
@@ -561,6 +567,11 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       scicos_mputl(instr,instrc);
       instr=instrc;
     end
+    // generate a makefile to help debug
+    txt = ["#/* -*- Mode: Makefile -*- */";
+	   "all :"
+	   "\t"+ catenate(instr,sep=" ")];
+    scicos_mputl(txt,file('join',[file('split',path);'makefile.mo2']));
     [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
     if ~ok then
       x_message(['Error:';'Modelica compilation failed ';sp_e;sp_m]);	    

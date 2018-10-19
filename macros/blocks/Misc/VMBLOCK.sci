@@ -104,7 +104,7 @@ function blk = VMBLOCK_define(H,old)
   exprs.nameF=H.nameF;
   
   // model.equations;
-  model_equations=modelica();
+  model_equations=scicos_modelica();
   model_equations.model=H.nameF;
   model_equations.parameters=list(H.param,H.paramv,H.pprop);
   model_equations.inputs=H.in

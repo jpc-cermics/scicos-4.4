@@ -754,6 +754,7 @@ function [scs_m]=add_split(scs_m,o1,typo,ks,xx,yy,d,wh,draw)
       sp.graphics.pout = [nx+1;nx+2];
       //SPLIT_f('plot',sp)
     elseif typo==2 then
+      // XXXX in and out should be by default set to -1 not 1
       sp=IMPSPLIT_f('define')
       sp.graphics.orig = d;
       sp.graphics.pin  = ks;

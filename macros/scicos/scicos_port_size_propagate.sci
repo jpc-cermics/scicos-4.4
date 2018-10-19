@@ -44,11 +44,13 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
     obj = scs_m(scs_full_path(path));
     osz1 = obj.model.out(p);
     p2 = min(1,size(obj.model.out2,'*'));
+    
+    if obj.gui == 'DUMMY' then oname = obj.graphics.exprs; else oname = obj.gui;end
     if p2 == 0 then
-      printf("Updates out port %d for block %s: from %dx[] to %dx%d\n",p,obj.gui,osz1,sz1,sz2);
+      printf("Updates out port %d for block %s: from %dx[] to %dx%d\n",p,oname,osz1,sz1,sz2);
     else
       osz2 = obj.model.out2(p2);
-      printf("Updates out port %d for block %s: from %dx%d to %dx%d\n",p,obj.gui,osz1,osz2,sz1,sz2);
+      printf("Updates out port %d for block %s: from %dx%d to %dx%d\n",p,oname,osz1,osz2,sz1,sz2);
     end
     
     obj.model.out(p)=sz1;

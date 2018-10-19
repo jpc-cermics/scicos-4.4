@@ -120,7 +120,7 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
     end
   endfunction
 
-  function txt = MB_TrigFun_funtxt(H, n, fname)
+  function txt = MB_TrigFun_funtxt(H, n, math_fname)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,[H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
     if n > 0 then 
@@ -128,16 +128,16 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
 	txt.concatd["    y.signal= u.signal;"];
       else
 	for i=1:n
-	  txt.concatd[sprintf("    y[%d].signal= %s(u[%d].signal);",i,fname,i)];
+	  txt.concatd[sprintf("    y[%d].signal= %s(u[%d].signal);",i,math_fname,i)];
 	end
       end
     else
-      txt.concatd[sprintf("    y[:].signal= %s(u[:].signal);",fname)];
+      txt.concatd[sprintf("    y[:].signal= %s(u[:].signal);",math_fname)];
     end
     txt.concatd[sprintf("end %s;", nameF)];
   endfunction
     
-  function blk= MB_TrigFun_define(n,fname, old)
+  function blk= MB_TrigFun_define(n,math_fname, old)
     if nargin <= 2 then 
       global(modelica_count=0);
       nameF='generic'+string(modelica_count);
@@ -150,17 +150,22 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
 	   out=["y"], outtype="I", out_r=[n], out_c=[1],
 	   param=[], paramv=list(), pprop=[], nameF=nameF);
 
-    H.funtxt = MB_TrigFun_funtxt(H, n, fname);
+    H.funtxt = MB_TrigFun_funtxt(H, n, math_fname);
     
-    if nargin == 3 then 
+    if nargin == 3 then
       blk = old;
       blk.graphics.exprs.funtxt = H.funtxt;
-      blk.graphics.exprs.paramv = fname;
+      blk.graphics.exprs.paramv = math_fname;
+      blk.model.sim(1) = H.nameF;
+      blk.model.equations.model = H.nameF;
     else
       blk = VMBLOCK_define(H);
       // remove leading and trainling ()
-      blk.graphics.exprs.paramv = fname;
       blk.graphics.exprs.funtxt = H.funtxt;
+      blk.graphics.exprs.paramv = math_fname;
+      blk.model.sim(1) = H.nameF;
+      blk.model.equations.model = H.nameF;
+      blk.graphics.exprs.nameF = H.nameF;
       blk.graphics('3D') = %f; // coselica options 
       blk.graphics.gr_i=list("blk_draw(sz,orig,orient,model.label)",xget('color','blue'))
       blk.gui = "MB_TrigFun";
@@ -185,6 +190,9 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       // The code is regenerated according to new dimensions and function
+      // when executing a script coming from do_api_save the classname is
+      // x.graphics.exprs.nameF
+      // we have to use this name to update 
       x=arg1;
       value=x.graphics.exprs.paramv;
       gv_titles='Set MB_TrigFun block parameters';
