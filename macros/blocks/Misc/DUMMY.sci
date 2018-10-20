@@ -116,6 +116,13 @@ endfunction
 	  o_new.model.rpar = scsm;
 	  // update the block 
 	  scs_m.objs(i)=o_new;
+	  doeval = doeval || scs_m.objs(i).model.in < 0 || scs_m.objs(i).model.out < 0;
+	  scs_m.objs(i).model.in = scs_m1.objs(i).model.in;
+	  scs_m.objs(i).model.in2 = scs_m1.objs(i).model.in2;
+	  scs_m.objs(i).model.intyp = scs_m1.objs(i).model.intyp;
+	  scs_m.objs(i).model.out = scs_m1.objs(i).model.out;
+	  scs_m.objs(i).model.out2 = scs_m1.objs(i).model.out2;
+	  scs_m.objs(i).model.outtyp = scs_m1.objs(i).model.outtyp;
 	elseif is_modelica_block(o)
 	  //
 	  doeval = doeval || scs_m.objs(i).model.in < 0 || scs_m.objs(i).model.out < 0;
@@ -129,7 +136,7 @@ endfunction
       end
     end
   endfunction
-
+  
   function scs_m = scicos_compiler_modelica_pass0(scs_m,verbose = %f)
   // This pass is used to try to fix the sizes of modelica blocks
   // this is usefull since it would most of the time to modelica errors

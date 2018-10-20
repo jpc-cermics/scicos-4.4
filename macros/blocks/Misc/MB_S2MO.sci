@@ -1,5 +1,5 @@
-function [x,y,typ]=MB_MO2S(job,arg1,arg2)
-  // convert a modelica signal of size nx1 to n-scicos signals of size 1
+function [x,y,typ]=MB_S2MO(job,arg1,arg2)
+  // converts n-scicos signals of size 1 to a modelica signal of size nx1
   // using VMBLOCK
   
   function blk_draw(o,sz,orig)
@@ -18,34 +18,34 @@ function [x,y,typ]=MB_MO2S(job,arg1,arg2)
     yy=sz(2)*[.8 .8 .5 .2 .2]+orig(2);
     xpoly(xx,yy,type='lines',color=blue);
   endfunction
-
-  function txt = MB_MO2S_funtxt(H, n ) 
+  
+  function txt = MB_S2MO_funtxt(H, n ) 
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,
 			  [H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
     for i=1:n
-      txt.concatd[sprintf("    y%d= u[%d].signal;",i,i)];
+      txt.concatd[sprintf("    u[%d].signal= y%d;",i,i)];
     end
     txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
   
-  function blk= MB_MO2S_define(n,old)
+  function blk= MB_S2MO_define(n,old)
     n1 = max(n,1);
     if nargin <= 1 then 
       global(modelica_count=0);
-      nameF='mo2s'+string(modelica_count);
+      nameF='s2mo'+string(modelica_count);
       modelica_count =       modelica_count +1;
     else
       nameF=old.graphics.exprs.nameF;
     end
     
-    H=hash(in=["u"], intype="I", in_r=n, in_c=1,
-	   out=["y"+string(1:n1)'], outtype=smat_create(n1,1,"E"),
-	   out_r=ones(n1,1), out_c=ones(n1,1),
+    H=hash(in=["u"+string(1:n1)'], intype=smat_create(n1,1,"E"),
+	   in_r=ones(n1,1), in_c=ones(n1,1),
+	   out=["u"], outtype="I", out_r=n, out_c=1,
 	   param=[], paramv=list(),
 	   pprop=[], nameF=nameF);
     
-    H.funtxt = MB_MO2S_funtxt(H,n1);
+    H.funtxt = MB_S2MO_funtxt(H,n1);
     
     if nargin == 2 then
       blk = old;
@@ -60,9 +60,9 @@ function [x,y,typ]=MB_MO2S(job,arg1,arg2)
       blk.graphics.exprs.nameF = H.nameF;
       blk.graphics('3D') = %f; // coselica options 
       blk.graphics.gr_i=list("blk_draw(o,sz,orig)",xget('color','blue'))
-      blk.gui = "MB_MO2S";
-      blk.model.in =  n ;
-      blk.model.out = ones(max(n,1),1);
+      blk.gui = "MB_S2MO";
+      blk.model.out =  n ;
+      blk.model.in = ones(max(n,1),1);
     end
   endfunction
   
@@ -78,10 +78,10 @@ function [x,y,typ]=MB_MO2S(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       x=arg1;
-      x= MB_MO2S_define(max(arg1.model.in),x);
+      x= MB_S2MO_define(max(arg1.model.in),x);
     case 'define' then
       n=-1; if nargin == 2 then n=arg1;end
-      x= MB_MO2S_define(n);
+      x= MB_S2MO_define(n);
   end
 endfunction
 
