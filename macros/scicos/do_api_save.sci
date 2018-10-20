@@ -236,6 +236,10 @@ function [ok,txt]=do_api_save(scs_m)
 	    ok = execstr(sprintf("o=%s(''upgrade'',o)",o.gui),errcatch=%t);
 	    if ~ok then pause special_blocks_failed ;end
 	    txt=[txt;do_api_block(o,%kk)]; //, o.graphics.exprs)];
+	  elseif model.sim(1)== 'csuper' && exists(o.gui,'callable') then
+	    // a super bloc for which a building function exists
+	    // we then assume that this bloc properly manage graphics.exprs
+	    txt=[txt;do_api_block(o,%kk)];
 	  elseif (model.sim(1)== 'csuper' && model.ipar==1) || o.gui == 'DSUPER' then 
 	    [mtxt,count]=do_api_model(model.rpar,count)
 	    head=[head;mtxt];

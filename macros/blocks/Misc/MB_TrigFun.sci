@@ -1,9 +1,8 @@
 function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
   // A modelica block for non-scalar trig functions
-  // XXXX
-  // dessiner proprement les fonctions possibles
-  // tester que le nom choisit existe dans les fonctions
-
+  // XXX: tester que le nom choisit existe dans les fonctions
+  //      verifier que la fonction signe existe en modelica
+  
   function [x,y,xpos,ypos]=sin_values()
     ypos=0.1; xpos= 0.55;
     x = linspace(0,2*%pi,20); y = sin(x);
@@ -134,7 +133,7 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
     else
       txt.concatd[sprintf("    y[:].signal= %s(u[:].signal);",math_fname)];
     end
-    txt.concatd[sprintf("end %s;", nameF)];
+    txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
     
   function blk= MB_TrigFun_define(n,math_fname, old)
@@ -160,7 +159,6 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
       blk.model.equations.model = H.nameF;
     else
       blk = VMBLOCK_define(H);
-      // remove leading and trainling ()
       blk.graphics.exprs.funtxt = H.funtxt;
       blk.graphics.exprs.paramv = math_fname;
       blk.model.sim(1) = H.nameF;

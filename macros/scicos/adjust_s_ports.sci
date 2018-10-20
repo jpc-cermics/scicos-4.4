@@ -16,7 +16,8 @@ function [ok,sbloc]=adjust_s_ports(sbloc)
     o=scs_m.objs(k)
     if o.type=='Block' then
       modelb=o.model
-      select o.gui
+      if o.gui == 'DUMMY' then oname = o.graphics.exprs; else oname = o.gui;end
+      select oname
 	case 'IN_f' then
 	  nin=nin+1
 	  inp=[inp o.model.ipar]

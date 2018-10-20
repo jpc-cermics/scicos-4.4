@@ -1,10 +1,26 @@
 function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
 
-  // names = ['SUMMATION','INTEGRAL_m','CONST_m','SPLIT_f', 'GAINBLK'];
-  // modelicos_names =['MBM_Add','MBC_Integrator','MBS_Constant', 'IMPSPLIT_f', 'MBM_Gain'];
+  // names = ['INTEGRAL_m','CONST_m','SPLIT_f', 'GAINBLK'];
+  // modelicos_names =['MBC_Integrator','MBS_Constant', 'IMPSPLIT_f', 'MBM_Gain'];
 
   select blk.gui
-
+    case 'SUMMATION' then
+      // XXX: the case with one entry and matrix entries should be revisited 
+      old = blk;
+      blk = MB_Addn('define');
+      blk = set_block_params_from(blk, old);
+      execstr('signs='+old.graphics.exprs(2));
+      blk.graphics.exprs.signs = signs;
+      
+    case 'EXTRACTOR' then
+      // EXTRACTOR -> CBR_Extractor (OK)
+      // we could do a CBR_Extractor_n 
+      old = blk;
+      blk = CBR_Extractor('define');
+      blk = set_block_params_from(blk, old);
+      execstr('index='+old.graphics.exprs);
+      blk.graphics.exprs = [sci2exp(m2i(index));sci2exp(m2i(-1))];
+      
     case 'CONST_m' then
       // CONST_m -> MBM_Constantn (OK)
       H = acquire('%api_context',def=hash(1));
@@ -37,6 +53,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       blk.graphics.exprs = new_exprs;
       
     case 'GENSIN_f' then
+      // a sin source 
       // GENSIN_f -> MBS_Sine
       old=blk;
       blk = instantiate_block ('MBS_Sine');
@@ -49,6 +66,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       blk.graphics.exprs = new_exprs;
 
     case 'TIME_f' then
+      // time as signal 
       // TIME_f -> MBS_Clock
       old=blk;
       blk = instantiate_block ('MBS_Clock');
@@ -58,7 +76,8 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // XXXX: Attention dans le bloc expression il peut-y-avoir des
       // paramètres il faut les récupérer et les metre en paramètres
       // cette partie est ensuite regénérée a chaque chgt du code.
-      
+      // here we should define a MB_EXPRESSION in the same spirit
+      // of MB_Constantn using VMBlock internally
       old=blk;
       blk = instantiate_block ('MBLOCK');
       blk = set_block_params_from(blk, old);
@@ -105,6 +124,9 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       blk.graphics.gr_i(1)(1) = sprintf("txt = %s;",txt);
 
     case 'TrigFun' then
+      // TrigFun uses specialized MBM blocks
+      // we could directly use the MB_TrigFun block which is to
+      // be renamed MB_MathFun and works with vectors (should be extended to matrices ?).
       name = blk.graphics.exprs;
       names=['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh']
       // to be added ,'asinh','acosh','atanh'];
@@ -114,49 +136,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
 	blk = instantiate_block (modelica_name);
 	blk = set_block_params_from(blk, old);
       end
-
-    case 'MBM_Add' then
-      // blk.graphics.exprs contains
-      //params.concatd [ { "Datatype", '-1' } ];
-      //params.concatd [ { "sgn", '[+1,-1]' } ];
-      //params.concatd [ { "satur", '0' } ];
-      // we just collect the signs. We should check th datatype
-      // and add saturation if requested
-      gains = evstr(blk.graphics.exprs(2));
-      if size(gains,'*') == 1 then
-	// cannot use add in that case we revert to a gain
-	// which will be a modelica gain since we call instantiate_block
-	old = blk;
-	str_gains = old.graphics.exprs(2);
-	blk = instantiate_block ('GAINBLK');
-	blk = set_block_params_from(blk, old);
-	params = cell (0, 2);
-	params.concatd [ { "gain", str_gains } ];
-	params.concatd [ { "over", '0' } ];
-	params.concatd [ { "mulmethod", '1' } ];
-	blk = set_block_parameters (blk, params);
-      elseif  size(gains,'*') == 2 then
-	params = cell (0, 2);
-	params.concatd [ { "k1", string(gains(1)) } ];
-	params.concatd [ { "k2", string(gains(2)) }];
-	blk = set_block_parameters (blk, params);
-	blk = set_block_nin (blk, 2);
-	blk = set_block_nout (blk, 1);
-	blk = set_block_evtnin (blk, 0);
-	blk = set_block_evtnout (blk, 0);
-      else
-	if %t then 
-	  old=blk;
-	  blk= MBM_Addn_define(gains);
-	  blk = set_block_origin (blk, old.graphics.orig);
-	  blk = set_block_size (blk, old.graphics.sz);
-	  blk = set_block_theta (blk, old.graphics.theta );
-	  blk = set_block_flip (blk, ~old.graphics.flip);
-	else
-	  blk= add_modelicos_mbm_add(blk, gains);
-	end
-      end
-
+      
     case 'MBC_Integrator' then
       // params.concatd [ { "x0", '0' } ];
       // params.concatd [ { "reinit", '0' } ];
@@ -171,8 +151,8 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // blk.graphics.exprs= blk.graphics.exprs;
 
     case 'IMPSPLIT_f' then
-      // 
-
+      // nothing to do
+      
     case 'GAINBLK' then
       // we do not have context here thus maybe we have to step back
       // This should be evaluated with the context 
@@ -329,7 +309,7 @@ function blk= add_modelicos_matrix_gain(blk, gains)
   blk = diag1.objs(1);
 endfunction
 
-function super_blk= add_modelicos_to_scicos(n)
+function super_blk= add_modelicos_to_scicos_old(n)
   // from modelica to scicos for a vector
   // since the transition between scicos to modelica is only for
   // 1x1 signal we have to multiplex
@@ -411,6 +391,13 @@ function super_blk= add_modelicos_to_scicos(n)
   
   super_blk = fill_super_block (super_blk, scsm);
   
+endfunction
+
+function blk= add_modelicos_to_scicos(n,old)
+  // from modelica to scicos for a vector
+  // since the transition between scicos to modelica is only for
+  // 1x1 signal we have to multiplex
+  blk = MB_MO2Sn('define',max(n,1));
 endfunction
 
 function super_blk= add_scicos_to_modelicos(n,old)

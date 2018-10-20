@@ -1,6 +1,6 @@
-function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
+function [scs_m]=scicos_port_size_propagate(scs_m,cpr=[],verbose=%f)
   // create a new diagram where sizes are replaced by result of compilation sizes 
-  if nargin <= 2 then
+  if cpr.equal[[]];
     [scs_m,cpr1,needcompile,ok]=do_eval(scs_m);
     [cpr]=do_compile(scs_m);
   end
@@ -44,15 +44,15 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
     obj = scs_m(scs_full_path(path));
     osz1 = obj.model.out(p);
     p2 = min(1,size(obj.model.out2,'*'));
-    
-    if obj.gui == 'DUMMY' then oname = obj.graphics.exprs; else oname = obj.gui;end
-    if p2 == 0 then
-      printf("Updates out port %d for block %s: from %dx[] to %dx%d\n",p,oname,osz1,sz1,sz2);
-    else
-      osz2 = obj.model.out2(p2);
-      printf("Updates out port %d for block %s: from %dx%d to %dx%d\n",p,oname,osz1,osz2,sz1,sz2);
+    if verbose then 
+      if obj.gui == 'DUMMY' then oname = obj.graphics.exprs; else oname = obj.gui;end
+      if p2 == 0 then
+	printf("Updates out port %d for block %s: from %dx[] to %dx%d\n",p,oname,osz1,sz1,sz2);
+      else
+	osz2 = obj.model.out2(p2);
+	printf("Updates out port %d for block %s: from %dx%d to %dx%d\n",p,oname,osz1,osz2,sz1,sz2);
+      end
     end
-    
     obj.model.out(p)=sz1;
     obj.model.out2(p)=sz2;
     scs_m(scs_full_path(path))= obj;
@@ -67,11 +67,15 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
     obj = scs_m(scs_full_path(path));
     isz1 = obj.model.in(p);
     p2 = min(1,size(obj.model.in2,'*'));
-    if p2 == 0 then
-      printf("Updates in  port %d for block %s: from %dx[] to %dx%d\n",p,obj.gui,isz1,sz1,sz2);
-    else
-      isz2 = obj.model.in2(p2);
-      printf("Updates in  port %d for block %s: from %dx%d to %dx%d\n",p,obj.gui,isz1,isz2,sz1,sz2);
+
+    if verbose then 
+      if obj.gui == 'DUMMY' then oname = obj.graphics.exprs; else oname = obj.gui;end
+      if p2 == 0 then
+	printf("Updates in  port %d for block %s: from %dx[] to %dx%d\n",p,oname,isz1,sz1,sz2);
+      else
+	isz2 = obj.model.in2(p2);
+	printf("Updates in  port %d for block %s: from %dx%d to %dx%d\n",p,oname,isz1,isz2,sz1,sz2);
+      end
     end
     obj.model.in(p)=sz1;
     obj.model.in2(p)=sz2;
@@ -110,7 +114,7 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
 
   function [scs_m,from_changed,to_changed]= adjust_from_to(scs_m,from,to)
 
-    printf("Look at link %s -> %s",scs_m.objs(from(1)).gui,scs_m.objs(to(1)).gui);
+    // printf("Look at link %s -> %s",scs_m.objs(from(1)).gui,scs_m.objs(to(1)).gui);
         
     from_changed = %f;
     to_changed = %f;
@@ -189,10 +193,14 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
       end
     end
     
-    if from_changed then printf(": from was changed,")
-    elseif to_changed then printf(": to was changed,");
+    if from_changed then
+      // printf(": from was changed,")
+    elseif to_changed then
+      // printf(": to was changed,");
     end
-    printf("\n");
+    if from_changed || to_changed then
+      //printf("\n");
+    end
   endfunction
   
   function [scs_m,to_changed]=scsm_adjust_to_split(to)
@@ -257,7 +265,7 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
     // check that the splits are initiated to -1
     for i=1:length(scs_m.objs)
       o = scs_m.objs(i);
-      if o.type == 'Block' && o.model.sim(1)=='lsplit' then
+      if o.type == 'Block' && or(o.model.sim(1)==['lsplit';'limpsplit']) then
 	// a split
 	scs_m.objs(i).model.out(:)=-1;
 	scs_m.objs(i).model.in(:)=-1;
@@ -276,14 +284,14 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
     for i=1:length(scs_m.objs)
       o = scs_m.objs(i);
       if o.type == 'Block' && or(o.model.sim(1) ==  ['super','csuper','asuper']) then
-	printf("Enter super for block %s\n",o.gui);
+	//printf("Enter super for block %s\n",o.gui);
 	[sub_scsm,count_super]=scsm_propagate_sizes(o.model.rpar);
-	printf("Quit super for block %s\n",o.gui);
+	//printf("Quit super for block %s\n",o.gui);
 	if count_super <> 0 then 
 	  scs_m.objs(i).model.rpar = sub_scsm;
 	  count = count + count_super;
 	  // adjust_s_ports: propagate information from inside
-	  // to outside we should make both direction 
+	  // to outside. we should make both direction
 	  [ok,sbloc]=adjust_s_ports(scs_m.objs(i));
 	  scs_m.objs(i) = sbloc;	    
 	end
@@ -308,16 +316,20 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr)
 
   scs_m=scsm_initialize_splits(scs_m)
   // scsm_check_splits(scs_m);
-  
+
+  pass = 0;
   while %t then 
     [scs_m,count]=scsm_propagate_sizes(scs_m);
+    pass = pass +1;
     if count == 0 then break;
     else
       printf("new pass with %d updates\n",count);
     end
+    if pass == 10 then
+      printf("stop at pass %d with uncompleted propagation\n",pass);
+    end
   end
 endfunction
-
 
 function scicos_write_port_sizes(scs_m,fname,open=%t)
   if open then 
