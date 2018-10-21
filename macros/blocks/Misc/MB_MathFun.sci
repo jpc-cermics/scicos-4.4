@@ -1,4 +1,4 @@
-function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
+function [x,y,typ]=MB_MathFun(job,arg1,arg2)
   // A modelica block for non-scalar trig functions
   // XXX: tester que le nom choisit existe dans les fonctions
   //      verifier que la fonction signe existe en modelica
@@ -119,7 +119,7 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
     end
   endfunction
 
-  function txt = MB_TrigFun_funtxt(H, n, math_fname)
+  function txt = MB_MathFun_funtxt(H, n, math_fname)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,[H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
     if n > 0 then 
@@ -136,7 +136,7 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
     txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
     
-  function blk= MB_TrigFun_define(n,math_fname, old)
+  function blk= MB_MathFun_define(n,math_fname, old)
     if nargin <= 2 then 
       global(modelica_count=0);
       nameF='generic'+string(modelica_count);
@@ -149,7 +149,7 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
 	   out=["y"], outtype="I", out_r=[n], out_c=[1],
 	   param=[], paramv=list(), pprop=[], nameF=nameF);
 
-    H.funtxt = MB_TrigFun_funtxt(H, n, math_fname);
+    H.funtxt = MB_MathFun_funtxt(H, n, math_fname);
     
     if nargin == 3 then
       blk = old;
@@ -166,7 +166,7 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
       blk.graphics.exprs.nameF = H.nameF;
       blk.graphics('3D') = %f; // coselica options 
       blk.graphics.gr_i=list("blk_draw(sz,orig,orient,model.label)",xget('color','blue'))
-      blk.gui = "MB_TrigFun";
+      blk.gui = "MB_MathFun";
       blk.model.in = -1;
       blk.model.out = -1;
     end
@@ -193,13 +193,13 @@ function [x,y,typ]=MB_TrigFun(job,arg1,arg2)
       // we have to use this name to update 
       x=arg1;
       value=x.graphics.exprs.paramv;
-      gv_titles='Set MB_TrigFun block parameters';
+      gv_titles='Set MB_MathFun block parameters';
       gv_names=['trigonometric function'];
       gv_types = list('str',-1);
       [ok,C, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
       if ~ok then return;end; // cancel in getvalue;
-      x= MB_TrigFun_define(x.model.in,value_n,x);
+      x= MB_MathFun_define(x.model.in,value_n,x);
     case 'define' then
-      x= MB_TrigFun_define(-1,"sin");
+      x= MB_MathFun_define(-1,"sin");
   end
 endfunction
