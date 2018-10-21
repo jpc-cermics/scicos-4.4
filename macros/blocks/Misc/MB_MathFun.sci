@@ -122,16 +122,17 @@ function [x,y,typ]=MB_MathFun(job,arg1,arg2)
   function txt = MB_MathFun_funtxt(H, n, math_fname)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,[H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
+    fmt = "    y[%d].signal= %s(u[%d].signal);";
     if n > 0 then 
       if n==1 then
-	txt.concatd["    y.signal= u.signal;"];
+	txt.concatd[sprintf(strsubst(fmt,"[%d]",""),math_fname)];
       else
 	for i=1:n
-	  txt.concatd[sprintf("    y[%d].signal= %s(u[%d].signal);",i,math_fname,i)];
+	  txt.concatd[sprintf(fmt,i,math_fname,i)];
 	end
       end
     else
-      txt.concatd[sprintf("    y[:].signal= %s(u[:].signal);",math_fname)];
+      txt.concatd[sprintf(strsubst(fmt,"[%d]","[:]"),math_fname)];
     end
     txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
@@ -139,7 +140,7 @@ function [x,y,typ]=MB_MathFun(job,arg1,arg2)
   function blk= MB_MathFun_define(n,math_fname, old)
     if nargin <= 2 then 
       global(modelica_count=0);
-      nameF='generic'+string(modelica_count);
+      nameF='mathfun'+string(modelica_count);
       modelica_count =       modelica_count +1;
     else
       nameF=old.graphics.exprs.nameF;
@@ -200,6 +201,14 @@ function [x,y,typ]=MB_MathFun(job,arg1,arg2)
       if ~ok then return;end; // cancel in getvalue;
       x= MB_MathFun_define(x.model.in,value_n,x);
     case 'define' then
-      x= MB_MathFun_define(-1,"sin");
+      if nargin == 2 then math_fun = arg1; else math_fun = "sin";end
+      if nargin == 3 then sz = arg2; else sz = -1;end
+      x= MB_MathFun_define(sz,math_fun);
+      x.model.in = sz;
+      x.model.in2 = 1;
+      x.model.intype = 1;
+      x.model.out = sz;
+      x.model.out2 = 1;
+      x.model.outtype = 1;
   end
 endfunction

@@ -134,21 +134,56 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       blk = diag1.objs(1);
       // unfortunately this will be crushed by last eval 
       blk.graphics.gr_i(1)(1) = sprintf("txt = %s;",txt);
+    case 'ABS_VALUEi' then
+      old= blk;
+      blk = MB_MathFun('define',"abs");
+      in_implicit =blk.graphics.in_implicit;
+      out_implicit =blk.graphics.out_implicit;
+      blk = set_block_params_from(blk, old);
+      blk.graphics.in_implicit=in_implicit;
+      blk.graphics.out_implicit=out_implicit;
 
+    case 'SIGNUM' then
+      old= blk;
+      blk = MB_MathFun('define',"sign");
+      in_implicit =blk.graphics.in_implicit;
+      out_implicit =blk.graphics.out_implicit;
+      blk = set_block_params_from(blk, old);
+      blk.graphics.in_implicit=in_implicit;
+      blk.graphics.out_implicit=out_implicit;
+    case 'LOGBLK_f' then
+      old= blk;
+      blk = MB_MathFun('define',"log");
+      in_implicit =blk.graphics.in_implicit;
+      out_implicit =blk.graphics.out_implicit;
+      blk = set_block_params_from(blk, old);
+      blk.graphics.in_implicit=in_implicit;
+      blk.graphics.out_implicit=out_implicit;
+      
     case 'TrigFun' then
       // TrigFun uses specialized MBM blocks
       // we could directly use the MB_TrigFun block which is to
       // be renamed MB_MathFun and works with vectors (should be extended to matrices ?).
-      name = blk.graphics.exprs;
-      names=['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh']
-      // to be added ,'asinh','acosh','atanh'];
-      if or(name== names) then
-	modelica_name = 'MBM_'+capitalize(name);
-	old=blk;
-	blk = instantiate_block (modelica_name);
-	blk = set_block_params_from(blk, old);
+      old= blk;
+      blk = MB_MathFun('define');
+      in_implicit =blk.graphics.in_implicit;
+      out_implicit =blk.graphics.out_implicit;
+      blk = set_block_params_from(blk, old);
+      blk.graphics.exprs.paramv = old.graphics.exprs;
+      blk.graphics.in_implicit=in_implicit;
+      blk.graphics.out_implicit=out_implicit;
+      if %f then       
+	name = blk.graphics.exprs;
+	names=['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh']
+	// to be added ,'asinh','acosh','atanh'];
+	if or(name== names) then
+	  modelica_name = 'MBM_'+capitalize(name);
+	  old=blk;
+	  blk = instantiate_block (modelica_name);
+	  blk = set_block_params_from(blk, old);
+	end
       end
-
+      
     case 'GAINBLK' then
       // we do not have context here thus maybe we have to step back
       // This should be evaluated with the context 
