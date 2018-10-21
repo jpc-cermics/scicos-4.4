@@ -1,9 +1,21 @@
 function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
 
-  // names = ['INTEGRAL_m','CONST_m','SPLIT_f']
-  // modelicos_names =['MBC_Integrator','MBS_Constant', 'IMPSPLIT_f']
+  // names = ['SPLIT_f']
+  // modelicos_names =['IMPSPLIT_f']
 
   select blk.gui
+    case 'SPLIT_f' then
+      // XXXX a revoir 
+      old = blk;
+      blk = IMPSPLIT_f('define');
+      blk = set_block_params_from(blk, old);
+      	 
+    case 'INTEGRAL_m' then
+      old = blk;
+      blk = MBC_Integrator('define');
+      blk = set_block_params_from(blk, old);
+      blk.graphics.exprs(2)= old.graphics.exprs(1);
+
     case 'SUMMATION' then
       // XXX: the case with one entry and matrix entries should be revisited 
       old = blk;
@@ -22,7 +34,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       blk.graphics.exprs = [sci2exp(m2i(index));sci2exp(m2i(-1))];
       
     case 'CONST_m' then
-      // CONST_m -> MBM_Constantn (OK)
+      // CONST_m -> MB_Constantn (OK)
       H = acquire('%api_context',def=hash(1));
       [ok,H1]=execstr('C ='+blk.graphics.exprs,env=H,errcatch=%t);
       if ~ok then
@@ -32,7 +44,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
       // If we are able to evaluate the constant, we switch to MBM_Constantn
       // even if the constant is a scalar value.
       old = blk;
-      blk = MBM_Constantn('define');
+      blk = MB_Constantn('define');
       blk = set_block_params_from(blk, old);
       // on pourrait ici faire un set_blocks_exprs 
       exprs = old.graphics.exprs;
@@ -136,23 +148,7 @@ function [scs_m,obj_num] = add_modelicos_block(scs_m,blk,identification)
 	blk = instantiate_block (modelica_name);
 	blk = set_block_params_from(blk, old);
       end
-      
-    case 'MBC_Integrator' then
-      // params.concatd [ { "x0", '0' } ];
-      // params.concatd [ { "reinit", '0' } ];
-      // params.concatd [ { "satur", '0' } ];
-      // params.concatd [ { "maxp", '%inf' } ];
-      // params.concatd [ { "lowp", '-%inf' } ];
-      blk.graphics.exprs= ['1'; blk.graphics.exprs(1)];
 
-    case 'MBS_Constant' then
-      // nothing to do same parameters 
-      // params.concatd [ { "C", '1' } ];
-      // blk.graphics.exprs= blk.graphics.exprs;
-
-    case 'IMPSPLIT_f' then
-      // nothing to do
-      
     case 'GAINBLK' then
       // we do not have context here thus maybe we have to step back
       // This should be evaluated with the context 
