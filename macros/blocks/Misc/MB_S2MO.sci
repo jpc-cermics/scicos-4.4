@@ -26,8 +26,14 @@ function [x,y,typ]=MB_S2MO(job,arg1,arg2)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,
 			  [H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
-    for i=1:n
-      txt.concatd[sprintf("    u[%d].signal= y%d;",i,i)];
+    if n < 0 then
+      txt.concatd[sprintf("    y[:].signal= u1;")];
+    elseif n== 1 then
+      txt.concatd[sprintf("    y.signal= u1;")];
+    else
+      for i=1:n
+	txt.concatd[sprintf("    y[%d].signal= u%d;",i,i)];
+      end
     end
     txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
@@ -44,7 +50,7 @@ function [x,y,typ]=MB_S2MO(job,arg1,arg2)
     
     H=hash(in=["u"+string(1:n1)'], intype=smat_create(n1,1,"E"),
 	   in_r=ones(n1,1), in_c=ones(n1,1),
-	   out=["u"], outtype="I", out_r=n, out_c=1,
+	   out=["y"], outtype="I", out_r=n, out_c=1,
 	   param=[], paramv=list(),
 	   pprop=[], nameF=nameF);
     
@@ -82,7 +88,7 @@ function [x,y,typ]=MB_S2MO(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       x=arg1;
-      x= MB_S2MO_define(max(arg1.model.in),x);
+      x= MB_S2MO_define(max(arg1.model.out),x);
     case 'define' then
       n=-1; if nargin == 2 then n=arg1;end
       x= MB_S2MO_define(n);

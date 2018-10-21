@@ -42,21 +42,19 @@ function [x,y,typ]=MB_S2MOn(job,arg1,arg2)
 	if n_new < -1 || n_new == 0 then
 	  message("Errro: length should be positive or equal to -1");
 	end
-	if n_new <> n then
-	  scsm= MB_S2MOn_define(n_new);
-	  x.model.rpar = scsm;
-	  x.graphics.exprs(1) = sci2exp(n_new);
-	  x.model.in = n_new;
-	  x.model.out = n_new;
-	  y = 4;
-	end
+	scsm= MB_S2MOn_define(n_new);
+	x.model.rpar = scsm;
+	x.graphics.exprs(1) = sci2exp(n_new);
+	x.model.in = n_new;
+	x.model.out = n_new;
+	y = 4;
 	break;
       end
       resume(needcompile=y);
     case 'define' then
       if nargin == 2 then n=arg1;else n=-1;end 
       scsm= MB_S2MOn_define(n);
-      model = scicos_model(sim="csuper",in=[-1],in2=[1],intyp=1,out=[-1],
+      model = scicos_model(sim="csuper",in=[n],in2=[1],intyp=1,out=[n],
 			   out2=[1],outtyp=1,rpar=scsm,blocktype="h");
       // model.equationns = scicos_modelica();
       gr_i=list("blk_draw(o,sz,orig,orient)",xget('color','white'));

@@ -26,8 +26,15 @@ function [x,y,typ]=MB_MO2S(job,arg1,arg2)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,
 			  [H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
-    for i=1:n
-      txt.concatd[sprintf("    y%d= u[%d].signal;",i,i)];
+
+    if n < 0 then
+      txt.concatd[sprintf("    y1= u[:].signal;")];
+    elseif n== 1 then
+      txt.concatd[sprintf("    y1= u.signal;")];
+    else
+      for i=1:n
+	txt.concatd[sprintf("    y%d= u[%d].signal;",i,i)];
+      end
     end
     txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
