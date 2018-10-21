@@ -1,24 +1,27 @@
 function [x,y,typ]=MB_MO2S(job,arg1,arg2)
   // convert a modelica signal of size nx1 to n-scicos signals of size 1
   // using VMBLOCK
-  
-  function blk_draw(o,sz,orig)
-    // using summation draw
-    // should turn the square to blue triangles.
+
+  function blk_draw(o,sz,orig,orient)
     blue=xget('color','blue');
-    white=xget('color','white');
-    gray=xget('color','gray');
-
-    [x,y,typ]=standard_inputs(o)
-    dd=sz(1)/8,de=0;
-    if ~o.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
-    xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=gray,background=white);
-    if ~exists("%zoom") then %zoom=1, end;
-    xx=sz(1)*[.8 .4 0.75 .4 .8]+orig(1)+de;
-    yy=sz(2)*[.8 .8 .5 .2 .2]+orig(2);
-    xpoly(xx,yy,type='lines',color=blue);
+    dim = sci2exp(o.model.in);
+    if orient then
+      xx=orig(1)+[0 1 0 0]*sz(1);
+      yy=orig(2)+[0 1/2 1 0]*sz(2);
+      x1=0
+    else
+      xx=orig(1)+[0   1 1 0]*sz(1);
+      yy=orig(2)+[1/2 0 1 1/2]*sz(2);
+      x1=1/2;
+    end
+    xpoly(xx,yy,type='lines',color=blue,thickness=3);
+    if orient then
+      xstring(orig(1),orig(2),dim,fill=%t,w=sz(1)/2,h=sz(2),posx='center',posy='center');
+    else
+      xstring(orig(1)+sz(1)/2,orig(2),dim,fill=%t,w=sz(1)/2,h=sz(2),posx='center',posy='center');
+    end
   endfunction
-
+  
   function txt = MB_MO2S_funtxt(H, n ) 
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,
 			  [H.out_r,H.out_c],H.param,H.paramv,H.pprop)
@@ -59,7 +62,8 @@ function [x,y,typ]=MB_MO2S(job,arg1,arg2)
       blk.model.equations.model = H.nameF;
       blk.graphics.exprs.nameF = H.nameF;
       blk.graphics('3D') = %f; // coselica options 
-      blk.graphics.gr_i=list("blk_draw(o,sz,orig)",xget('color','blue'))
+      blk.graphics.gr_i="blk_draw(o,sz,orig,orient)";
+      blk.graphics.sz=[2,2];
       blk.gui = "MB_MO2S";
       blk.model.in =  n ;
       blk.model.out = ones(max(n,1),1);
@@ -82,6 +86,7 @@ function [x,y,typ]=MB_MO2S(job,arg1,arg2)
     case 'define' then
       n=-1; if nargin == 2 then n=arg1;end
       x= MB_MO2S_define(n);
+      x.graphics.sz=[1,1];
   end
 endfunction
 

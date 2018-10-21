@@ -1,6 +1,31 @@
 function [x,y,typ]=DUMMY(job,arg1,arg2)
   // A dummy block used at compile time to check dimensions
   // XXXX attenion il lui faut les events en graphique 
+
+  function blk = DUMMY_define(old)
+    blk = scicos_block(gui='DUMMY');
+    if nargin == 1 then
+      blk.graphics = old.graphics;
+      gr_i=["txt=[arg1.graphics.exprs];";
+	    "xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"];
+      blk.graphics.gr_i = gr_i;
+      blk.graphics.exprs = old.gui;
+      blk.graphics.in_implicit = [];
+      blk.graphics.out_implicit =[];
+      
+      blk.model.dep_ut = old.model.dep_ut
+      blk.model.sim = list('dummy',4);
+      blk.model.in = old.model.in;
+      blk.model.in2 = old.model.in2;
+      blk.model.intyp = old.model.intyp;
+      blk.model.out = old.model.out;
+      blk.model.out2 = old.model.out2;
+      blk.model.outtyp = old.model.outtyp;
+    else
+      blk.graphics.sz = [2, 2];
+    end
+  endfunction
+  
   x=[];y=[];typ=[];
   select job
     case 'plot' then
@@ -15,29 +40,6 @@ function [x,y,typ]=DUMMY(job,arg1,arg2)
       x=arg1
     case 'define' then
       //----------- Define
-
-      function blk = DUMMY_define(old)
-	blk = scicos_block(gui='DUMMY');
-	if nargin == 1 then
-	  blk.graphics = old.graphics;
-	  gr_i=["txt=[arg1.graphics.exprs];";
-		"xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")"];
-	  blk.graphics.gr_i = gr_i;
-	  blk.graphics.exprs = old.gui;
-	  
-	  blk.model.dep_ut = old.model.dep_ut
-	  blk.model.sim = list('dummy',4);
-	  blk.model.in = old.model.in;
-	  blk.model.in2 = old.model.in2;
-	  blk.model.intyp = old.model.intyp;
-	  blk.model.out = old.model.out;
-	  blk.model.out2 = old.model.out2;
-	  blk.model.outtyp = old.model.outtyp;
-	else
-	  blk.graphics.sz = [2, 2];
-	end
-      endfunction
-
       if nargin == 2 then 
 	x= DUMMY_define(arg1);
       else
@@ -81,6 +83,9 @@ endfunction
 	  o_new = o;
 	  [scsm]= scicos_dummy(o.model.rpar);
 	  o_new.model.rpar = scsm;
+	  o_new.model.sim(1)= 'super';
+	  o_new.gui = 'SUPER_f';
+	  o_new.graphics.gr_i=" ";
 	  // update the block 
 	  scs_m.objs(i)=o_new;
 	elseif o.gui=='IMPSPLIT_f' then
@@ -88,6 +93,39 @@ endfunction
 	  o_new= DUMMY('define',o);
 	  o_new.model.in = - 1;
 	  o_new.model.out = [- 1;-1];
+	  scs_m.objs(i)=o_new;
+	elseif o.gui == 'INIMPL_f' then
+	  o_new = IN_f('define');
+	  o_new.graphics.flip = o.graphics.flip;
+	  o_new.graphics.id = o.graphics.id;
+	  o_new.graphics.pin = o.graphics.pin;
+	  o_new.graphics.pout = o.graphics.pout;
+	  o_new.graphics.orig = o.graphics.orig;
+	  o_new.graphics.sz = o.graphics.sz;
+	  o_new.graphics.theta = o.graphics.theta;
+	  // a do_scilent_eval will update the model
+	  // with exprs
+	  o_new.graphics.exprs = o.graphics.exprs;
+	  scsm_l = scicos_diagram();
+	  scsm_l.objs(1)=o_new;
+	  scsm_l = do_silent_eval(scsm_l);
+	  o_new = scsm_l.objs(1);
+	  scs_m.objs(i)=o_new;
+	elseif o.gui == 'OUTIMPL_f' then
+	  o_new = OUT_f('define');
+	  o_new.graphics.flip = o.graphics.flip;
+	  o_new.graphics.id = o.graphics.id;
+	  o_new.graphics.pin = o.graphics.pin;
+	  o_new.graphics.pout = o.graphics.pout;
+	  o_new.graphics.orig = o.graphics.orig;
+	  o_new.graphics.sz = o.graphics.sz;
+	  o_new.graphics.theta = o.graphics.theta;
+	  // faire un do_scilent_eval
+	  o_new.graphics.exprs = o.graphics.exprs;
+	  scsm_l = scicos_diagram();
+	  scsm_l.objs(1)=o_new;
+	  scsm_l = do_silent_eval(scsm_l);
+	  o_new = scsm_l.objs(1);
 	  scs_m.objs(i)=o_new;
 	elseif is_modelica_block(o)
 	  // 
@@ -161,8 +199,30 @@ endfunction
   if verbose then printf("silent eval pass ended\n");end
 endfunction
 
-
-
+  // test 
+  function scs_m=explode(scs_m)
+    function L= extract(scs_m1)
+      L=list();
+      for i=1:length(scs_m1.objs)
+	o = scs_m1.objs(i);
+	if o.type == 'Block' then
+	  o=disconnect_ports(o);
+	  L($+1) = o;
+	end
+      end
+    endfunction
+    new=list();
+    for i=1:length(scs_m.objs)
+      o = scs_m.objs(i);
+      if o.type == 'Block' && or(o.model.sim(1) ==  ['csuper']) then
+	L = extract(o.model.rpar);
+	new.concat[L];
+      end
+    end
+    scs_m.objs.concat[new];
+  endfunction
+  
+  
 
 
   

@@ -1,5 +1,6 @@
 function clr=default_color(typ)
   // Copyright INRIA
+  // typ = {-1: event link, 1 || 2 regular links, 3 bus }
   if ~exists('options') then
     if exists('scs_m') then
       options=scs_m.props.options;

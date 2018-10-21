@@ -3,6 +3,7 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr=[],verbose=%f)
   if cpr.equal[[]];
     [scs_m,cpr1,needcompile,ok]=do_eval(scs_m);
     [cpr]=do_compile(scs_m);
+    if cpr.equal[list()]; then return;end
   end
   //
   bp_out=zeros(0,4);
