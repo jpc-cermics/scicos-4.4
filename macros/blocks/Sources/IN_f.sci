@@ -75,7 +75,6 @@ function [x,y,typ]=IN_f(job,arg1,arg2)
 	else
 	  if x.model.ipar<>port_n then y=4;end
 	  x.model.ipar=port_n
-	  x.model.firing=[];
 	  if size(size_n,'*')==2 then
 	    x.model.out=size_n(1);
 	    x.model.out2=size_n(2)
@@ -90,18 +89,22 @@ function [x,y,typ]=IN_f(job,arg1,arg2)
       end
       resume(needcompile=y);
     case 'define' then
-      if nargin == 2 then prt=arg1; else prt=1;end 
+      // after define, no silent update needed
+      if nargin == 2 then prt=arg1; else prt=1;end
+      if nargin == 3 then out=arg2(1);out2=arg2(2);else out=-1; out2=-2;end
       model=scicos_model(sim='input', out=-1, out2=-2, outtyp=-1, ipar=prt,
 			 blocktype='c', dep_ut=[%f %f]);
       exprs=[sci2exp(prt);'-1';'-1']
       gr_i=" ";
       x=standard_define([1 1],model,exprs,gr_i,'IN_f');
+      x.model.ipar = prt;
     case 'update' then
       // build exprs if size is not 3
       x=arg1;
       outsizes = [x.model.out, x.model.out2];
       x.graphics.exprs=[x.graphics.exprs(1);sci2exp(outsizes);sci2exp(x.model.outtyp)]
+      x.model.firing=[];
       ok = execstr(sprintf("prti=int(%s);",x.graphics.exprs(1)),errcatch=%t);
-      if ok then x.model.ipar= prti;end
+      if ok then x.model.ipar= prti;else x.graphics.exprs(1)="1";x.model.ipar=1;end
   end
 endfunction

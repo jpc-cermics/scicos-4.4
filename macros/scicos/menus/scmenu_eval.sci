@@ -251,9 +251,11 @@ function [scs_m,cpr,needcompile,ok]=do_eval(scs_m,cpr,context,flag)
 endfunction
 
 function [scs_m,ok]=do_silent_eval(scs_m, context)
-// simplified version which re-evaluates 
-// without messages and without stopping at errors.
-// This is mainly used when importing 
+  // Simplified version of do_eval which evaluates scs_m 
+  // without messages and without stopping at errors.
+  // This function is mainly used when importing. 
+  // This function uses %scicos_context if it exists
+  // and an extra context can  be given as a hash table in argument context.
   
   function [scs_m,ok]=do_silent_eval_rec(scs_m,context)
   // This function (re)-evaluates blocks in the scicos data structure
@@ -345,3 +347,11 @@ function [scs_m,ok]=do_silent_eval(scs_m, context)
   if ~%win0_exists then xdel(0);end
 endfunction
 
+function [blk,ok]=do_silent_eval_block(blk, context)
+  // do_silent_eval for a unique block
+  if nargin < 2 then context=hash(10);end
+  scs_m = scicos_diagram();
+  scs_m.objs(1)=blk;
+  [scs_m,ok]=do_silent_eval(scs_m,context);
+  blk =  scs_m.objs(1);
+endfunction
