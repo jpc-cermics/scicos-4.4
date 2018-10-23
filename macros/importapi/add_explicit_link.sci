@@ -5,7 +5,7 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
   
   global(simport_target_modeler="scicos");
 
-  if simport_target_modeler=="modelicos" then
+  if %f && simport_target_modeler=="modelicos" then
     [scs_m,obj_num] = add_modelicos_link(scs_m,lfrom,lto,points)
     return;
   end
