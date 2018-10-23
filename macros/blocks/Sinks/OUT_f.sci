@@ -93,8 +93,9 @@ function [x,y,typ]=OUT_f(job,arg1,arg2)
       end
       resume(needcompile=y);
    case 'define' then
-     if nargin == 2 then prt=arg1; else prt=1;end 
-     model=scicos_model(sim='output', in=-1, in2=-2,intyp=-1,ipar=prt,
+     if nargin == 2 then prt=arg1; else prt=1;end
+     if nargin == 3 then in=arg2(1);in2=arg2(2);else in=-1; in2=-2;end
+     model=scicos_model(sim='output', in=in, in2=in2,intyp=-1,ipar=prt,
 			blocktype='c', dep_ut=[%f %f]);
      exprs=[sci2exp(prt);'-1';'-1'];
      gr_i=" "

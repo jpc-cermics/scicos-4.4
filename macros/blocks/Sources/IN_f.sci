@@ -92,7 +92,7 @@ function [x,y,typ]=IN_f(job,arg1,arg2)
       // after define, no silent update needed
       if nargin == 2 then prt=arg1; else prt=1;end
       if nargin == 3 then out=arg2(1);out2=arg2(2);else out=-1; out2=-2;end
-      model=scicos_model(sim='input', out=-1, out2=-2, outtyp=-1, ipar=prt,
+      model=scicos_model(sim='input', out=out, out2=out2, outtyp=-1, ipar=prt,
 			 blocktype='c', dep_ut=[%f %f]);
       exprs=[sci2exp(prt);'-1';'-1']
       gr_i=" ";

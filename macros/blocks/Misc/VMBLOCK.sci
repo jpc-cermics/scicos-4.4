@@ -474,7 +474,7 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   end
   
   // inputs head
-  ni=size(vinp,'r');
+  ni=size(vinp,'*');
   if ni<>0 then
     txt.concatd["    // inputs "];
     for i=1:ni
@@ -486,7 +486,7 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
   end
   
   // outputs head
-  no=size(vout,'r');
+  no=size(vout,'*');
   if no<>0 then
     txt.concatd["    // outputs"]
     for i=1:no
@@ -496,7 +496,8 @@ function class_txt=VMBLOCK_classhead(funam,vinp,vintype,vin_size,vout,vouttype,v
       txt.concatd[head];
     end
   end
-  
+  txt.concatd["  //// If you keep the next line, then the lines above will be regenerated ////"];
+  txt.concatd["  //// each time you enter the block menu edition"];
   txt.concatd["  //// do not modify above this line ////"];
   //-----------------------------------------
   class_txt=txt;
