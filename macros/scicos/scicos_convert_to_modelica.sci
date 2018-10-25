@@ -146,10 +146,10 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
     select blk.gui
       case 'SPLIT_f' then
 	// XXXX a revoir 
-	old = blk;
-	blk = IMPSPLIT_f('define');
-	blk = set_block_params_from(blk, old);
-      	scs_m.objs(i)=blk;
+	//old = blk;
+	//blk = IMPSPLIT_f('define');
+	//blk = set_block_params_from(blk, old);
+      	//scs_m.objs(i)=blk;
       case 'INTEGRAL_m' then
 	old = blk;
 	blk = MBC_Integrator('define');
@@ -356,14 +356,29 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
   function [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
     link = scs_m.objs(blk.graphics.pout);
     to_blk = scs_m.objs(link.to(1));
+    if to_blk.gui == "SPLIT_f" then
+      pause scicos_get_linked_block_to_in_with_split
+    else
+      printf("scicos_get_linked_block_to_in %s\n",to_blk.gui);
+    end
     [x_target,y_target,to_blk_type] = getinputs(to_blk);
     to_blk_type = to_blk_type(link.to(2));
     // XXXX if this is a SPLIT we have to go deeper 
   endfunction
-
+  
+  function [to_blk,to_blk_type] = scicos_get_linked_block_to_in_split(blk)
+    // blk is a split;
+    [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
+  endfunction
+  
   function [from_blk,from_blk_type] = scicos_get_linked_block_to_out(blk)
     link = scs_m.objs(blk.graphics.pin);
     from_blk = scs_m.objs(link.from(1));
+    if from_blk.gui == "SPLIT_f" then
+      pause scicos_get_linked_block_to_out_with_split
+    else
+      printf("scicos_get_linked_block_to_out %s\n",from_blk.gui);
+    end
     [x_target,y_target,from_blk_type] = getoutputs(from_blk);
     from_blk_type = from_blk_type(link.from(2));
     // XXXX if this is a SPLIT we have from go deeper 
@@ -379,16 +394,20 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
       // check to which block I am connected 
       [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
       if to_blk_type == 2 then 
-	printf("The IN_f must be converted \n");
+	// printf("The IN_f must be converted \n");
+	blk_new = INIMPL_f('define',blk.model.ipar);
+	blk_new = set_block_params_from(blk_new, blk);
+	scs_m.objs(i)=blk_new;
       end
-      scs_m.objs(i)=blk;
      case 'OUT_f' then
       // pause OUT
       [from_blk,from_blk_type] = scicos_get_linked_block_to_out(blk)
       if from_blk_type == 2 then 
-	printf("The OUT_f must be converted \n");
+	// printf("The OUT_f must be converted \n");
+	blk_new = OUTIMPL_f('define',blk.model.ipar);
+	blk_new = set_block_params_from(blk_new, blk);
+	scs_m.objs(i)=blk_new;
       end
-      scs_m.objs(i)=blk;
     else
       // convert super, csuper, asuper
       // Note that this should come in second since
@@ -397,6 +416,8 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
 	// propagate in internal schema 
 	scsm1 =  scicos_convert_inout_to_modelica(blk.model.rpar)
 	blk.model.rpar = scsm1;
+	[ok,blk]=adjust_s_ports(blk)
+	// blk = do_silent_eval_block(blk);
 	// XXXX need to update the super block inout to reflect the
         // internal changes 
 	scs_m.objs(i)=blk;
