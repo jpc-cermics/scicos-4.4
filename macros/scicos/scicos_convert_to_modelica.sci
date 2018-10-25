@@ -1,4 +1,142 @@
 function scs_m= scicos_convert_to_modelica(scs_m)
+// replace all modelica blocks by dummy and
+// changes the link so as to be standard links
+  scs_m= scicos_convert_blocks_to_modelica(scs_m);
+  // second step to eventually change the IN OUT blocks 
+  scs_m= scicos_convert_inout_to_modelica(scs_m);
+  // simplify links: in order that they always are
+  // from -> to i.e from is an output and to an input
+  scs_m= scicos_convert_links_to_modelica(scs_m);
+endfunction
+
+function scs_m= scicos_convert_links_to_modelica(scs_m)
+// rscan the links in order to adapt to block conversions 
+// simplify links: in order that they always are
+// from -> to i.e from is an output and to an input
+// XXXXX : need to recurse in super 
+  
+  scs_m = scs_m;
+  for i=1:length(scs_m.objs)
+    obj = scs_m.objs(i);
+    if obj.type == 'Link' then
+      if obj.from(3)<>0 then
+	// from is an input
+	obj.from(3)=1;
+	obj.to(3)=0;
+	obj.xx=obj.xx($:-1:1);
+	obj.yy=obj.yy($:-1:1);
+	scs_m.objs(i) = obj;
+      end
+    end
+  end
+  // second pass on links to change their types and
+  // insert type converters 
+  L=list();
+  L2=list();
+  for i=1:length(scs_m.objs)
+    obj = scs_m.objs(i);
+    
+    if obj.type == 'Link' then
+      from = obj.from;
+      to = obj.to;
+      // from is now always an output 
+      [xout,yout,typout]=getoutputs(scs_m.objs(from(1)));
+      // to is now always an input
+      [xin,yin,typin] = getinputs(scs_m.objs(to(1)));
+
+      if %f then 
+	// typin et typout 1: 'E', 2 'I', 3 'B';
+	if isempty(scs_m.objs(from(1)).graphics.out_implicit) then outtyp='E';
+	elseif length(scs_m.objs(from(1)).graphics.out_implicit) < from(2) then outtyp='E';
+	else outtyp = scs_m.objs(from(1)).graphics.out_implicit(from(2));end
+
+	if isempty(scs_m.objs(to(1)).graphics.in_implicit) then intyp='E';
+	elseif size(scs_m.objs(to(1)).graphics.in_implicit,'*') < to(2) then intyp='E';
+	else intyp = scs_m.objs(to(1)).graphics.in_implicit(to(2));end
+
+	printf("Link-%d from %s(%d,%d,%s)-> %s(%d,%d,%s) ok=%d\n",
+	       obj.ct(2),
+	       scs_m.objs(from(1)).gui,from(2),typout(from(2)),outtyp,
+	       scs_m.objs(to(1)).gui,to(2),typin(to(2)),intyp,
+	       obj.ct(2) == typin(to(2)) && obj.ct(2) == typout(from(2)))
+      end
+      
+      if typin(to(2)) == typout(from(2)) then
+	// two blocks of the same type, just update the link type
+	// we should refresh the link start and end points to adapt to
+	// the changed blocks
+	obj.xx(1) = xout(from(2));obj.yy(1) = yout(from(2));
+	obj.xx($) = xin(to(2));obj.yy($) = yin(to(2));
+	obj.ct(2) = typin(to(2));
+	scs_m.objs(i) = obj;
+      elseif typout(from(2)) == 2 then
+	// from(1) is of type 2, thus to(1) is of type 1.
+	// we insert a MO2Sn : from(1) -[type 2]-> MO2Sn -[type 1]-> to(1)
+	new = MB_MO2Sn('define');
+	new.graphics.orig = [xin(1)-30,yin(1)];
+	new.graphics.sz = [20,20];
+	// unlock scs_m.objs(to(1)) and lock the new 
+	[xnew,ynew,typnew] = getinputs(new);
+	new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
+	scs_m.objs(to(1)).graphics.pin(to(2))=0;
+	// insert new 
+	L($+1)=new;
+	// update link points
+	n=length(obj.xx);
+	if obj.yy(n-1) == obj.yy(n) then
+	  obj.xx(n)= xnew($);
+	  obj.yy(n-1:n)= ynew($);
+	else
+	  obj.xx(n)= xnew($);
+	  obj.yy(n)= ynew($);
+	end
+	obj.ct(2) = 2; 
+	obj.to=[length(scs_m.objs)+length(L),1,to(3)];
+	scs_m.objs(i) = obj;
+	// add a link
+	L2($+1)= list('explicit',[length(scs_m.objs)+length(L),1],[to(1),to(2)]);
+      else
+	// typout(from(2)) == 1 
+	// from(1) is of type 1, thus to(1) is of type 2.
+	// we insert a S2MOn : from(1) -[type 2]-> S2MOn -[type 1]-> to(1)
+	new = MB_MO2Sn('define');
+	new.graphics.orig = [xin(1)-30,yin(1)];
+	new.graphics.sz = [20,20];
+	// unlock scs_m.objs(to(1)) and lock the new 
+	[xnew,ynew,typnew] = getinputs(new);
+	new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
+	scs_m.objs(to(1)).graphics.pin(to(2))=0;
+	// insert new 
+	L($+1)=new;
+	// update link points
+	n=length(obj.xx);
+	if obj.yy(n-1) == obj.yy(n) then
+	  obj.xx(n)= xnew($);
+	  obj.yy(n-1:n)= ynew($);
+	else
+	  obj.xx(n)= xnew($);
+	  obj.yy(n)= ynew($);
+	end
+	obj.ct(2) = 1; 
+	obj.to=[length(scs_m.objs)+length(L),1,to(3)];
+	scs_m.objs(i) = obj;
+	// add a link
+	L2($+1)= list('implicit',[length(scs_m.objs)+length(L),1],[to(1),to(2)]);
+      end
+    end
+  end
+  scs_m.objs.concat[L];
+  for i=1:length(L2)
+    l= L2(i);
+    if l(1) == "explicit" then
+      scs_m=add_explicit_link(scs_m,string(l(2)),string(l(3)),[]);
+    else
+      scs_m=add_implicit_link(scs_m,string(l(2)),string(l(3)),[]);
+    end
+  end
+endfunction
+
+function scs_m= scicos_convert_blocks_to_modelica(scs_m)
   // replace all modelica blocks by dummy and
   // changes the link so as to be standard links
   scs_m = scs_m;
@@ -204,129 +342,65 @@ function scs_m= scicos_convert_to_modelica(scs_m)
 	// some asuper are directly converted to modelica 
 	if or(blk.model.sim(1) ==  ['super','csuper','asuper']) then
 	  // propagate in internal schema 
-	  scsm1 = scicos_convert_to_modelica(blk.model.rpar);
+	  scsm1 = scicos_convert_blocks_to_modelica(blk.model.rpar);
 	  blk.model.rpar = scsm1;
 	  scs_m.objs(i)=blk;
 	end
     end
   end
-  // simplify links: in order that they always are
-  // from -> to i.e from is an output and to an input
+endfunction
+
+function scs_m= scicos_convert_inout_to_modelica(scs_m)
+// replace IN_f and OUT_f if they need to be modelica converted 
+  
+  function [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
+    link = scs_m.objs(blk.graphics.pout);
+    to_blk = scs_m.objs(link.to(1));
+    [x_target,y_target,to_blk_type] = getinputs(to_blk);
+    to_blk_type = to_blk_type(link.to(2));
+    // XXXX if this is a SPLIT we have to go deeper 
+  endfunction
+
+  function [from_blk,from_blk_type] = scicos_get_linked_block_to_out(blk)
+    link = scs_m.objs(blk.graphics.pin);
+    from_blk = scs_m.objs(link.from(1));
+    [x_target,y_target,from_blk_type] = getoutputs(from_blk);
+    from_blk_type = from_blk_type(link.from(2));
+    // XXXX if this is a SPLIT we have from go deeper 
+  endfunction
+  
+  scs_m = scs_m;
   for i=1:length(scs_m.objs)
-    obj = scs_m.objs(i);
-    if obj.type == 'Link' then
-      if obj.from(3)<>0 then
-	// from is an input
-	obj.from(3)=1;
-	obj.to(3)=0;
-	obj.xx=obj.xx($:-1:1);
-	obj.yy=obj.yy($:-1:1);
-	scs_m.objs(i) = obj;
+    blk = scs_m.objs(i);
+    if blk.type <> 'Block' then continue;end
+    select blk.gui
+     case 'IN_f' then
+      // pause IN
+      // check to which block I am connected 
+      [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
+      if to_blk_type == 2 then 
+	printf("The IN_f must be converted \n");
       end
-    end
-  end
-  // second pass on links to change their types and
-  // insert type converters 
-  L=list();
-  L2=list();
-  for i=1:length(scs_m.objs)
-    obj = scs_m.objs(i);
-    if obj.type == 'Link' then
-      from = obj.from;
-      to = obj.to;
-      // from is now always an output 
-      [xout,yout,typout]=getoutputs(scs_m.objs(from(1)));
-      // to is now always an input
-      [xin,yin,typin] = getinputs(scs_m.objs(to(1)));
-
-      if %f then 
-	// typin et typout 1: 'E', 2 'I', 3 'B';
-	if isempty(scs_m.objs(from(1)).graphics.out_implicit) then outtyp='E';
-	elseif length(scs_m.objs(from(1)).graphics.out_implicit) < from(2) then outtyp='E';
-	else outtyp = scs_m.objs(from(1)).graphics.out_implicit(from(2));end
-
-	if isempty(scs_m.objs(to(1)).graphics.in_implicit) then intyp='E';
-	elseif size(scs_m.objs(to(1)).graphics.in_implicit,'*') < to(2) then intyp='E';
-	else intyp = scs_m.objs(to(1)).graphics.in_implicit(to(2));end
-
-	printf("Link-%d from %s(%d,%d,%s)-> %s(%d,%d,%s) ok=%d\n",
-	       obj.ct(2),
-	       scs_m.objs(from(1)).gui,from(2),typout(from(2)),outtyp,
-	       scs_m.objs(to(1)).gui,to(2),typin(to(2)),intyp,
-	       obj.ct(2) == typin(to(2)) && obj.ct(2) == typout(from(2)))
+      scs_m.objs(i)=blk;
+     case 'OUT_f' then
+      // pause OUT
+      [from_blk,from_blk_type] = scicos_get_linked_block_to_out(blk)
+      if from_blk_type == 2 then 
+	printf("The OUT_f must be converted \n");
       end
-      
-      if typin(to(2)) == typout(from(2)) then
-	// two blocks of the same type, just update the link type
-	// we should refresh the link start and end points to adapt to
-	// the changed blocks
-	obj.xx(1) = xout(from(2));obj.yy(1) = yout(from(2));
-	obj.xx($) = xin(to(2));obj.yy($) = yin(to(2));
-	obj.ct(2) = typin(to(2));
-	scs_m.objs(i) = obj;
-      elseif typout(from(2)) == 2 then
-	// from(1) is of type 2, thus to(1) is of type 1.
-	// we insert a MO2Sn : from(1) -[type 2]-> MO2Sn -[type 1]-> to(1)
-	new = MB_MO2Sn('define');
-	new.graphics.orig = [xin(1)-30,yin(1)];
-	new.graphics.sz = [20,20];
-	// unlock scs_m.objs(to(1)) and lock the new 
-	[xnew,ynew,typnew] = getinputs(new);
-	new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
-	scs_m.objs(to(1)).graphics.pin(to(2))=0;
-	// insert new 
-	L($+1)=new;
-	// update link points
-	n=length(obj.xx);
-	if obj.yy(n-1) == obj.yy(n) then
-	  obj.xx(n)= xnew($);
-	  obj.yy(n-1:n)= ynew($);
-	else
-	  obj.xx(n)= xnew($);
-	  obj.yy(n)= ynew($);
-	end
-	obj.ct(2) = 2; 
-	obj.to=[length(scs_m.objs)+length(L),1,to(3)];
-	scs_m.objs(i) = obj;
-	// add a link
-	L2($+1)= list('explicit',[length(scs_m.objs)+length(L),1],[to(1),to(2)]);
-      else
-	// typout(from(2)) == 1 
-	// from(1) is of type 1, thus to(1) is of type 2.
-	// we insert a S2MOn : from(1) -[type 2]-> S2MOn -[type 1]-> to(1)
-	new = MB_MO2Sn('define');
-	new.graphics.orig = [xin(1)-30,yin(1)];
-	new.graphics.sz = [20,20];
-	// unlock scs_m.objs(to(1)) and lock the new 
-	[xnew,ynew,typnew] = getinputs(new);
-	new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
-	scs_m.objs(to(1)).graphics.pin(to(2))=0;
-	// insert new 
-	L($+1)=new;
-	// update link points
-	n=length(obj.xx);
-	if obj.yy(n-1) == obj.yy(n) then
-	  obj.xx(n)= xnew($);
-	  obj.yy(n-1:n)= ynew($);
-	else
-	  obj.xx(n)= xnew($);
-	  obj.yy(n)= ynew($);
-	end
-	obj.ct(2) = 1; 
-	obj.to=[length(scs_m.objs)+length(L),1,to(3)];
-	scs_m.objs(i) = obj;
-	// add a link
-	L2($+1)= list('implicit',[length(scs_m.objs)+length(L),1],[to(1),to(2)]);
-      end
-    end
-  end
-  scs_m.objs.concat[L];
-  for i=1:length(L2)
-    l= L2(i);
-    if l(1) == "explicit" then
-      scs_m=add_explicit_link(scs_m,string(l(2)),string(l(3)),[]);
+      scs_m.objs(i)=blk;
     else
-      scs_m=add_implicit_link(scs_m,string(l(2)),string(l(3)),[]);
+      // convert super, csuper, asuper
+      // Note that this should come in second since
+      // some asuper are directly converted to modelica 
+      if or(blk.model.sim(1) ==  ['super','csuper','asuper']) then
+	// propagate in internal schema 
+	scsm1 =  scicos_convert_inout_to_modelica(blk.model.rpar)
+	blk.model.rpar = scsm1;
+	// XXXX need to update the super block inout to reflect the
+        // internal changes 
+	scs_m.objs(i)=blk;
+      end
     end
   end
 endfunction
@@ -346,7 +420,7 @@ function blk= add_scicos_to_modelicos(n,old)
 endfunction
 
 function [scs_m] = convert_links(scs_m,num)
-
+  // XXXXX unused 
   xl = [cumsum([xo;points(:,1)]')';xi];  yl = [cumsum([yo;points(:,2)]')';yi]
   lk=scicos_link(xx=xl,yy=yl,ct=[clr,typ],from=from_node,to=to_node)
   link = scs_m.objs(num);
