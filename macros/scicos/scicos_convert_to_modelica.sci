@@ -354,34 +354,43 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
 // replace IN_f and OUT_f if they need to be modelica converted 
   
   function [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
+    // find the link going from outputs of the IN_f bloc blk.
     link = scs_m.objs(blk.graphics.pout);
     to_blk = scs_m.objs(link.to(1));
     if to_blk.gui == "SPLIT_f" then
-      pause scicos_get_linked_block_to_in_with_split
+      // The split contains several outputs, one of them goes to a real block
+      objnum=-1;
+      for k=1:size(to_blk.graphics.pout,'*')
+	link1 = scs_m.objs(to_blk.graphics.pout(k));
+	to_blk1 = scs_m.objs(link1.to(1));
+	if to_blk1.gui <> "SPLIT_f" then objnum=k;break;end
+      end
+      if objnum < 0 then pause;strange;end
+      [x_target,y_target,to_blk_type] = getinputs(to_blk1);
+      to_blk_type = to_blk_type(link1.to(2));
     else
       printf("scicos_get_linked_block_to_in %s\n",to_blk.gui);
     end
     [x_target,y_target,to_blk_type] = getinputs(to_blk);
     to_blk_type = to_blk_type(link.to(2));
-    // XXXX if this is a SPLIT we have to go deeper 
   endfunction
   
-  function [to_blk,to_blk_type] = scicos_get_linked_block_to_in_split(blk)
-    // blk is a split;
-    [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
-  endfunction
-  
-  function [from_blk,from_blk_type] = scicos_get_linked_block_to_out(blk)
+  function [from_blk,from_blk_type,link] = scicos_get_linked_block_to_out(blk)
+    // find the link going to inputs of the OUT_f bloc blk.
     link = scs_m.objs(blk.graphics.pin);
+    // find the block -> OUT_F
     from_blk = scs_m.objs(link.from(1));
     if from_blk.gui == "SPLIT_f" then
-      pause scicos_get_linked_block_to_out_with_split
+      // follow up to a real block
+      blk1 = from_blk;
+      [from_blk,from_blk_type,link] = scicos_get_linked_block_to_out(blk1);
+      [x_target,y_target,from_blk_type] = getoutputs(from_blk);
+      from_blk_type = from_blk_type(link.from(2));
     else
       printf("scicos_get_linked_block_to_out %s\n",from_blk.gui);
+      [x_target,y_target,from_blk_type] = getoutputs(from_blk);
+      from_blk_type = from_blk_type(link.from(2));
     end
-    [x_target,y_target,from_blk_type] = getoutputs(from_blk);
-    from_blk_type = from_blk_type(link.from(2));
-    // XXXX if this is a SPLIT we have from go deeper 
   endfunction
   
   scs_m = scs_m;
