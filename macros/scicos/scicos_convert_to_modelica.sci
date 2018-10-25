@@ -210,43 +210,58 @@ function scs_m= scicos_convert_to_modelica(scs_m)
 	end
     end
   end
-  // scs_m = do_silent_eval(scs_m);
+  // simplify links: in order that they always are
+  // from -> to i.e from is an output and to an input
+  for i=1:length(scs_m.objs)
+    obj = scs_m.objs(i);
+    if obj.type == 'Link' then
+      if obj.from(3)<>0 then
+	// from is an input
+	obj.from(3)=1;
+	obj.to(3)=0;
+	obj.xx=obj.xx($:-1:1);
+	obj.yy=obj.yy($:-1:1);
+	scs_m.objs(i) = obj;
+      end
+    end
+  end
+  // second pass on links to change their types and
+  // insert type converters 
   L=list();
   L2=list();
   for i=1:length(scs_m.objs)
     obj = scs_m.objs(i);
     if obj.type == 'Link' then
-
       from = obj.from;
       to = obj.to;
+      // from is now always an output 
+      [xout,yout,typout]=getoutputs(scs_m.objs(from(1)));
+      // to is now always an input
+      [xin,yin,typin] = getinputs(scs_m.objs(to(1)));
 
-      if from(3)==0 then
-	[xout,yout,typout]=getoutputs(scs_m.objs(from(1)));
-      else
-	[xout,yout,typout]=getinputs(scs_m.objs(from(1)));
+      if %f then 
+	// typin et typout 1: 'E', 2 'I', 3 'B';
+	if isempty(scs_m.objs(from(1)).graphics.out_implicit) then outtyp='E';
+	elseif length(scs_m.objs(from(1)).graphics.out_implicit) < from(2) then outtyp='E';
+	else outtyp = scs_m.objs(from(1)).graphics.out_implicit(from(2));end
+
+	if isempty(scs_m.objs(to(1)).graphics.in_implicit) then intyp='E';
+	elseif size(scs_m.objs(to(1)).graphics.in_implicit,'*') < to(2) then intyp='E';
+	else intyp = scs_m.objs(to(1)).graphics.in_implicit(to(2));end
+
+	printf("Link-%d from %s(%d,%d,%s)-> %s(%d,%d,%s) ok=%d\n",
+	       obj.ct(2),
+	       scs_m.objs(from(1)).gui,from(2),typout(from(2)),outtyp,
+	       scs_m.objs(to(1)).gui,to(2),typin(to(2)),intyp,
+	       obj.ct(2) == typin(to(2)) && obj.ct(2) == typout(from(2)))
       end
-
-      if to(3)==1 then
-	[xin,yin,typin] = getinputs(scs_m.objs(to(1)));
-      else
-	[xin,yin,typin] = getoutputs(scs_m.objs(to(1)));
-      end
-      // typin et typout 1: 'E', 2 'I', 3 'B';
-      if isempty(scs_m.objs(from(1)).graphics.out_implicit) then outtyp='E';
-      elseif length(scs_m.objs(from(1)).graphics.out_implicit) < from(2) then outtyp='E';
-      else outtyp = scs_m.objs(from(1)).graphics.out_implicit(from(2));end
-
-      if isempty(scs_m.objs(to(1)).graphics.in_implicit) then intyp='E';
-      elseif size(scs_m.objs(to(1)).graphics.in_implicit,'*') < to(2) then intyp='E';
-      else intyp = scs_m.objs(to(1)).graphics.in_implicit(to(2));end
-
-      printf("Link-%d from %s(%d,%d,%s)-> %s(%d,%d,%s) ok=%d\n",
-	     obj.ct(2),
-	     scs_m.objs(from(1)).gui,from(2),typout(from(2)),outtyp,
-	     scs_m.objs(to(1)).gui,to(2),typin(to(2)),intyp,
-	     obj.ct(2) == typin(to(2)) && obj.ct(2) == typout(from(2)))
+      
       if typin(to(2)) == typout(from(2)) then
-	// two blocks of the same type, just update the link type 
+	// two blocks of the same type, just update the link type
+	// we should refresh the link start and end points to adapt to
+	// the changed blocks
+	obj.xx(1) = xout(from(2));obj.yy(1) = yout(from(2));
+	obj.xx($) = xin(to(2));obj.yy($) = yin(to(2));
 	obj.ct(2) = typin(to(2));
 	scs_m.objs(i) = obj;
       elseif typout(from(2)) == 2 then
@@ -256,15 +271,9 @@ function scs_m= scicos_convert_to_modelica(scs_m)
 	new.graphics.orig = [xin(1)-30,yin(1)];
 	new.graphics.sz = [20,20];
 	// unlock scs_m.objs(to(1)) and lock the new 
-	if to(3)==1 then
-	  [xnew,ynew,typnew] = getinputs(new);
-	  new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
-	  scs_m.objs(to(1)).graphics.pin(to(2))=0;
-	else
-	  [xnew,ynew,typnew] = getoutputs(new);
-	  new.graphics.pout(to(2))= scs_m.objs(to(1)).graphics.pout(to(2));
-	  scs_m.objs(to(1)).graphics.pout(to(2))=0;
-	end
+	[xnew,ynew,typnew] = getinputs(new);
+	new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
+	scs_m.objs(to(1)).graphics.pin(to(2))=0;
 	// insert new 
 	L($+1)=new;
 	// update link points
@@ -289,15 +298,9 @@ function scs_m= scicos_convert_to_modelica(scs_m)
 	new.graphics.orig = [xin(1)-30,yin(1)];
 	new.graphics.sz = [20,20];
 	// unlock scs_m.objs(to(1)) and lock the new 
-	if to(3)==1 then
-	  [xnew,ynew,typnew] = getinputs(new);
-	  new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
-	  scs_m.objs(to(1)).graphics.pin(to(2))=0;
-	else
-	  [xnew,ynew,typnew] = getoutputs(new);
-	  new.graphics.pout(to(2))= scs_m.objs(to(1)).graphics.pout(to(2));
-	  scs_m.objs(to(1)).graphics.pout(to(2))=0;
-	end
+	[xnew,ynew,typnew] = getinputs(new);
+	new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
+	scs_m.objs(to(1)).graphics.pin(to(2))=0;
 	// insert new 
 	L($+1)=new;
 	// update link points

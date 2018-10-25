@@ -275,13 +275,14 @@ function [x,y]=standard_origin(o)
 endfunction
 
 function [x,y,typ]=standard_outputs(o)
-//--------------------------------------------------
-// get position of inputs ports and clock inputs port for a standard block
-//  the output ports are located on the right (or left if tilded) vertical
-//    side of the block, regularly located from bottom to top
-//  the clock output ports are located on the bottom horizontal side
-//     of the block, regularly located from left to right
-// Copyright INRIA
+  // get position of output ports and clock output ports for a standard block
+  // the output ports are located on the right (or left if tilded) vertical
+  //    side of the block, regularly located from bottom to top
+  // the clock output ports are located on the bottom horizontal side
+  //     of the block, regularly located from left to right
+  // x,y,typ are row vectors of size 1x(number-of-outports + number-of-clock-outports)
+  //
+  // Copyright INRIA
   xf=60
   yf=40
   typ=[]
@@ -298,7 +299,6 @@ function [x,y,typ]=standard_outputs(o)
     xo=orig(1)
     dx=-xf/7
   end
-
 
   // output port location
   if out==0 then
