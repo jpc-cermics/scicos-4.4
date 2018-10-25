@@ -1,20 +1,19 @@
 function scs_m= scicos_convert_to_modelica(scs_m)
 // replace all modelica blocks by dummy and
-// changes the link so as to be standard links
+  // changes the link so as to be standard links
+  scs_m= scicos_normalize_links(scs_m);
   scs_m= scicos_convert_blocks_to_modelica(scs_m);
   // second step to eventually change the IN OUT blocks 
   scs_m= scicos_convert_inout_to_modelica(scs_m);
+  //
+  scs_m= scicos_convert_split_to_modelica(scs_m);
   // simplify links: in order that they always are
   // from -> to i.e from is an output and to an input
-  scs_m= scicos_convert_links_to_modelica(scs_m);
+ // scs_m= scicos_convert_links_to_modelica(scs_m);
 endfunction
 
-function scs_m= scicos_convert_links_to_modelica(scs_m)
-// rscan the links in order to adapt to block conversions 
-// simplify links: in order that they always are
-// from -> to i.e from is an output and to an input
-// XXXXX : need to recurse in super 
-  
+function scs_m= scicos_normalize_links(scs_m)
+  // be sure that links goes to from (getoutputs) to to (getinputs)
   scs_m = scs_m;
   for i=1:length(scs_m.objs)
     obj = scs_m.objs(i);
@@ -29,14 +28,27 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
       end
     end
   end
+endfunction
+
+function scs_m= scicos_convert_links_to_modelica(scs_m)
+// rscan the links in order to adapt to block conversions 
+// simplify links: in order that they always are
+// from -> to i.e from is an output and to an input
+// XXXXX : need to recurse in super 
+  
   // second pass on links to change their types and
   // insert type converters 
   L=list();
   L2=list();
   for i=1:length(scs_m.objs)
     obj = scs_m.objs(i);
-    
-    if obj.type == 'Link' then
+    if obj.type == 'Block' && or(obj.model.sim(1) ==  ['super','csuper','asuper']) then
+      // propagate in internal schema 
+      scsm1 = scicos_convert_links_to_modelica(obj.model.rpar);
+      obj.model.rpar = scsm1;
+      scs_m.objs(i)=obj;
+
+    elseif obj.type == 'Link' then
       from = obj.from;
       to = obj.to;
       // from is now always an output 
@@ -369,10 +381,9 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
       [x_target,y_target,to_blk_type] = getinputs(to_blk1);
       to_blk_type = to_blk_type(link1.to(2));
     else
-      printf("scicos_get_linked_block_to_in %s\n",to_blk.gui);
+      [x_target,y_target,to_blk_type] = getinputs(to_blk);
+      to_blk_type = to_blk_type(link.to(2));
     end
-    [x_target,y_target,to_blk_type] = getinputs(to_blk);
-    to_blk_type = to_blk_type(link.to(2));
   endfunction
   
   function [from_blk,from_blk_type,link] = scicos_get_linked_block_to_out(blk)
@@ -435,6 +446,51 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
   end
 endfunction
 
+
+function scs_m= scicos_convert_split_to_modelica(scs_m)
+// replaces SPLIT_f by IMPSPLIT_f
+  
+  function [from_blk,from_blk_type,link] = scicos_get_linked_block_to_split(blk)
+    // find the link going to inputs of the OUT_f bloc blk.
+    link = scs_m.objs(blk.graphics.pin);
+    // find the block -> OUT_F
+    from_blk = scs_m.objs(link.from(1));
+    if from_blk.gui == "SPLIT_f" then
+      // follow up to a real block
+      blk1 = from_blk;
+      [from_blk,from_blk_type,link] = scicos_get_linked_block_to_split(blk1);
+      [x_target,y_target,from_blk_type] = getoutputs(from_blk);
+      from_blk_type = from_blk_type(link.from(2));
+    else
+      printf("scicos_get_linked_block_to_split %s\n",from_blk.gui);
+      [x_target,y_target,from_blk_type] = getoutputs(from_blk);
+      from_blk_type = from_blk_type(link.from(2));
+    end
+  endfunction
+  
+  scs_m = scs_m;
+  for i=1:length(scs_m.objs)
+    blk = scs_m.objs(i);
+    if blk.type <> 'Block' then continue;end
+    select blk.gui
+      case 'SPLIT_f' then
+	[from_blk,from_blk_type,link] = scicos_get_linked_block_to_split(blk);
+	if from_blk_type == 2 then
+	  blk_new=IMPSPLIT_f('define');
+	  blk_new = set_block_params_from(blk_new, blk);
+	  scs_m.objs(i)=blk_new;
+	end
+      else
+	if or(blk.model.sim(1) ==  ['super','csuper','asuper']) then
+	  // propagate in internal schema 
+	  scsm1 =  scicos_convert_split_to_modelica(blk.model.rpar)
+	  blk.model.rpar = scsm1;
+	  scs_m.objs(i)=blk;
+	end
+    end
+  end
+endfunction
+
 function blk= add_modelicos_to_scicos(n,old)
   // from modelica to scicos for a vector
   // since the transition between scicos to modelica is only for
@@ -449,193 +505,3 @@ function blk= add_scicos_to_modelicos(n,old)
   blk = MB_S2MOn('define',max(n,1));
 endfunction
 
-function [scs_m] = convert_links(scs_m,num)
-  // XXXXX unused 
-  xl = [cumsum([xo;points(:,1)]')';xi];  yl = [cumsum([yo;points(:,2)]')';yi]
-  lk=scicos_link(xx=xl,yy=yl,ct=[clr,typ],from=from_node,to=to_node)
-  link = scs_m.objs(num);
-    
-  [from,nok1]=evstr(lfrom)
-  [to,nok2]=evstr(lto)
-  
-  if nok1+nok2>0 then
-    obj_num=length(scs_m.objs)
-    printf('Warning: Link %s->%s not supported.\n',sci2exp(lfrom,0),sci2exp(lto,0));
-    return
-  end
-  
-  o1 = scs_m.objs(from(1))
-  [xout,yout,type_out]=getoutputs(o1)
-  
-  kfrom =from(2)
-  if length(xout) < kfrom then 
-    printf("output port %d does not exists in block %d\n",kfrom,from(1)),
-    return;
-  end
-  
-  type_out=type_out(kfrom);
-  
-  o2 = scs_m.objs(to(1));
-  [xin,yin,type_in] = getinputs(o2)
-  
-  kto = to(2)
-  if length(xin) < kto then 
-    printf("inout port %d does not exists in block %d\n",kto,to(1)),
-    return;
-  end
-  type_in = type_in(kto);
-
-  if type_in == type_out then
-    // the two ports share the same type we need to generate an implicit link
-    [scs_m,obj_num]= add_implicit_link(scs_m,lfrom,lto,points);
-  else
-    if or(type_out==[1,3]) then
-      //printf("The output port is regular. must add a CBI_RealInput converter\n");
-      modelica_insize= o2.model.in(to(2));
-      if %f &&  modelica_insize == 1  then 
-	blk = instantiate_block ('CBI_RealInput');
-      else
-	blk=  add_scicos_to_modelicos(modelica_insize);
-	blk.graphics.sz=[20,20];
-      end
-      blk = set_block_origin (blk,o1.graphics.orig+[o1.graphics.sz(1),0]+[40,0]);
-      // blk = set_block_size(blk,[20,20]);
-      obj_num = obj_num+1;
-      scs_m.objs(obj_num) = blk;
-      [scs_m,obj_num_t]=add_implicit_link(scs_m,string([obj_num,1]),lto);
-      [scs_m,obj_num]=add_implicit_link(scs_m,lfrom,string([obj_num,1]));
-    end
-    if or(type_in==[1,3]) then
-      // printf("The input port is regular. must add a CBI_RealOutput converter\n"),
-      modelica_outsize= o1.model.out(from(2));
-      if %f && modelica_outsize == 1 then 
-	blk = instantiate_block ('CBI_RealOutput');
-      else
-	blk=  add_modelicos_to_scicos( modelica_outsize);
-	blk.graphics.sz=[20,20];
-      end
-      blk = set_block_origin (blk,o2.graphics.orig-[40,0]);
-      // blk = set_block_size(blk,[20,20]);
-      obj_num = obj_num+1;
-      scs_m.objs(obj_num) = blk;
-      [scs_m,obj_num_t]=add_implicit_link(scs_m,string([obj_num,1]),lto);
-      [scs_m,obj_num]=add_implicit_link(scs_m,lfrom,string([obj_num,1]));
-    end
-  end
-
-  [from,nok1]=evstr(lfrom)
-  [to,nok2]=evstr(lto)
-  if nok1+nok2>0 then
-    printf('Warning: Link %s->%s not supported.\n',sci2exp(lfrom,0),sci2exp(lto,0));
-    return
-  end
-  
-  o1 = scs_m.objs(from(1))
-  graphics1=o1.graphics
-  orig  = graphics1.orig
-  sz    = graphics1.sz
-  theta = graphics1.theta
-  io    = graphics1.flip
-  op    = graphics1.pout
-  impi  = graphics1.pin
-  cop   = graphics1.peout
-  [xout,yout,typout]=getoutputs(o1)
-
-  k=from(2)
-  if length(xout) < k then
-    printf("Warning: output port %d does not exists in block %d\n",k,from(1)),
-    return;
-  end
-
-  // printf("In add_explicit \n");
-  
-  xo=xout(k);yo=yout(k);typo=typout(k);
-  
-  if ~or(typo==[1,3]) then
-    error("The output port is not regular."),
-  end
-  
-  xxx=rotate([xo;yo],...
-	     theta*%pi/180,...
-	     [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-  xo=xxx(1);
-  yo=xxx(2);
-
-
-  // Check if selected port is already connected and get port type ('in' or 'out')
-
-  port_number=k
-  if op(port_number)<>0 then
-    printf('Warning: Selected port is already connected.\n'),pause
-  end
-  typpfrom='out'
-
-  from_node=[from,0]
-  xl=xo
-  yl=yo
-
-  kto = to(1)
-  o2 = scs_m.objs(kto);
-  graphics2 = o2.graphics;
-  orig  = graphics2.orig
-  sz    = graphics2.sz
-  theta = graphics2.theta
-  ip    = graphics2.pin
-  impo  = graphics2.pout
-  cip   = graphics2.pein
-
-  k = to(2)
-
-  if and(orig==-1) then
-    xi=[],yi=[]
-  else
-    [xin,yin,typin] = getinputs(o2)
-    if length(xin) < k then 
-      printf("inout port %d does not exists in block %d\n",k,to(1)),
-      return;
-    end
-    xi = xin(k); yi = yin(k); typi = typin(k);
-
-    if ~isempty([xi;yi]) then
-      xxx=rotate([xi;yi],...
-                 theta*%pi/180,...
-                 [orig(1)+sz(1)/2;orig(2)+sz(2)/2]);
-      xi=xxx(1);
-      yi=xxx(2);
-    end
-
-    if typo<>typi  then
-      error(catenate(['Selected ports don''t have the same type'
-		      'The port at the origin of the link has type '+string(typo);
-		      'the port at the end has type '+string(typin(k))+'.'],sep='\n'));
-    end
-  end
-  port_number = k ;
-  if ip(port_number)<>0 then
-    printf('Warning: Selected port is already connected.\n')
-  end
-
-  clr=default_color(typo)
-  typ=typo
-  to_node=[to,1]
-
-  xl = [cumsum([xo;points(:,1)]')';xi];  yl = [cumsum([yo;points(:,2)]')';yi]
-  lk=scicos_link(xx=xl,yy=yl,ct=[clr,typ],from=from_node,to=to_node)
-  if typ==3 then
-    lk.thick=[2 2]
-  end
-  
-  lk=scicos_route(lk,scs_m)
-  scs_m.objs($+1) = lk ;
-
-  obj_num=length(scs_m.objs)
-
-  //update connected blocks
-  outin=['out','in']
-
-  scs_m.objs(from_node(1))=mark_prt(scs_m.objs(from_node(1)),from_node(2),outin(from_node(3)+1),typ,obj_num)
-  scs_m.objs(to_node(1))=mark_prt(scs_m.objs(to_node(1)),to_node(2),outin(to_node(3)+1),typ,obj_num)
-  if isempty(xi) then
-    scs_m.objs(to_node(1)).graphics.orig=[xl($),yl($)]
-  end
-endfunction

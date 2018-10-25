@@ -35,6 +35,6 @@ function [x,y,typ]=IMPSPLIT_f(job,arg1,arg2)
     model.out=ones(size(mo.outputs,'*'),1)
     x=standard_define([1 1]/3,model,[],[],'IMPSPLIT_f');
     x.graphics.in_implicit=['I']
-    x.graphics.out_implicit=['I' 'I']
+    x.graphics.out_implicit=['I';'I']
   end
 endfunction

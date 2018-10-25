@@ -1,5 +1,5 @@
 function [x,y,typ] = SPLIT_f(job,arg1,arg2)
-// Copyright INRIA
+  // Copyright INRIA
   x=[];y=[],typ=[];
   select job
    case 'plot' then
