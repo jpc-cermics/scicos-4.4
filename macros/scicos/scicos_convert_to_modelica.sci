@@ -371,7 +371,6 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
     to_blk = scs_m.objs(link.to(1));
     if to_blk.gui == "SPLIT_f" then
       // The split contains several outputs, one of them goes to a real block
-      objnum=-1;
       for k=1:size(to_blk.graphics.pout,'*')
 	[to_types] = scicos_get_linked_block_to_pout(to_blk,k,to_types)
       end
@@ -379,6 +378,23 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
       [x_target,y_target,to_blk_type] = getinputs(to_blk);
       to_blk_type = to_blk_type(link.to(2));
       to_types=[to_types,to_blk_type];
+    end
+  endfunction
+
+  function [scs_m] = scicos_propagate_type_from_impin(scs_m,blk,pout)
+    // find the link going from outputs of the IN_f bloc blk.
+    link = scs_m.objs(blk.graphics.pout(pout));
+    to_blk = scs_m.objs(link.to(1));
+    if to_blk.gui == "SPLIT_f" then
+      blk_new = IMPSPLIT_f('define');
+      blk_new = set_block_params_from(blk_new, to_blk);
+      scs_m.objs(link.to(1))=blk_new;
+      // The split contains several outputs, one of them goes to a real block
+      for k=1:size(to_blk.graphics.pout,'*')
+	scs_m = scicos_propagate_type_from_impin(scs_m,to_blk,k);
+      end
+    else
+      scs_m = scs_m;
     end
   endfunction
   
@@ -415,6 +431,7 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
 	 blk_new = INIMPL_f('define',blk.model.ipar);
 	 blk_new = set_block_params_from(blk_new, blk);
 	 scs_m.objs(i)=blk_new;
+	 [scs_m] = scicos_propagate_type_from_impin(scs_m,blk_new,1);
        end
      case 'OUT_f' then
       // pause OUT
