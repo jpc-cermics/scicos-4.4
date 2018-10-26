@@ -71,6 +71,14 @@ function [x,y,typ]=MB_Addn(job,arg1,arg2)
 
     if nargin == 3 then
       blk = old;
+      it =ones(nsigns,1); ot=1;
+      in_imp= 1:nsigns; out_imp=1;
+      [model,graphics,ok]=set_io(old.model,old.graphics,...
+				 list([H.in_r,H.in_c],it),...
+				 list([H.out_r,H.out_c],ot),[],[],
+				 in_imp,out_imp);
+      blk.model = model;
+      blk.graphics=graphics;
       blk.graphics.exprs.funtxt = H.funtxt;
       blk.graphics.exprs.signs = signs;
       blk.model.sim(1) = H.nameF;
