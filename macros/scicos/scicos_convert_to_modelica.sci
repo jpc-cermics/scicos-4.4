@@ -9,7 +9,7 @@ function scs_m= scicos_convert_to_modelica(scs_m)
   scs_m= scicos_convert_split_to_modelica(scs_m);
   // simplify links: in order that they always are
   // from -> to i.e from is an output and to an input
- // scs_m= scicos_convert_links_to_modelica(scs_m);
+  //scs_m= scicos_convert_links_to_modelica(scs_m);
 endfunction
 
 function scs_m= scicos_normalize_links(scs_m)
@@ -365,24 +365,20 @@ endfunction
 function scs_m= scicos_convert_inout_to_modelica(scs_m)
 // replace IN_f and OUT_f if they need to be modelica converted 
   
-  function [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
+  function [to_types] = scicos_get_linked_block_to_pout(blk,pout,to_types)
     // find the link going from outputs of the IN_f bloc blk.
-    link = scs_m.objs(blk.graphics.pout);
+    link = scs_m.objs(blk.graphics.pout(pout));
     to_blk = scs_m.objs(link.to(1));
     if to_blk.gui == "SPLIT_f" then
       // The split contains several outputs, one of them goes to a real block
       objnum=-1;
       for k=1:size(to_blk.graphics.pout,'*')
-	link1 = scs_m.objs(to_blk.graphics.pout(k));
-	to_blk1 = scs_m.objs(link1.to(1));
-	if to_blk1.gui <> "SPLIT_f" then objnum=k;break;end
+	[to_types] = scicos_get_linked_block_to_pout(to_blk,k,to_types)
       end
-      if objnum < 0 then pause;strange;end
-      [x_target,y_target,to_blk_type] = getinputs(to_blk1);
-      to_blk_type = to_blk_type(link1.to(2));
     else
       [x_target,y_target,to_blk_type] = getinputs(to_blk);
       to_blk_type = to_blk_type(link.to(2));
+      to_types=[to_types,to_blk_type];
     end
   endfunction
   
@@ -410,15 +406,16 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
     if blk.type <> 'Block' then continue;end
     select blk.gui
      case 'IN_f' then
-      // pause IN
-      // check to which block I am connected 
-      [to_blk,to_blk_type] = scicos_get_linked_block_to_in(blk)
-      if to_blk_type == 2 then 
-	// printf("The IN_f must be converted \n");
-	blk_new = INIMPL_f('define',blk.model.ipar);
-	blk_new = set_block_params_from(blk_new, blk);
-	scs_m.objs(i)=blk_new;
-      end
+       // follows the tree of linsk from IN_f and get types
+       [to_types] = scicos_get_linked_block_to_pout(blk,1,[]);
+       if or(to_types == 2) then 
+	 // we convert IN_f and should propagate conversion for
+	 // all the SPLITS accordingly XXXXX
+	 // printf("The IN_f must be converted \n");
+	 blk_new = INIMPL_f('define',blk.model.ipar);
+	 blk_new = set_block_params_from(blk_new, blk);
+	 scs_m.objs(i)=blk_new;
+       end
      case 'OUT_f' then
       // pause OUT
       [from_blk,from_blk_type] = scicos_get_linked_block_to_out(blk)
