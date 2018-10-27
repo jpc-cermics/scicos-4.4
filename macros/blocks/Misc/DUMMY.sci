@@ -197,7 +197,7 @@ endfunction
   // make a scilent_eval to be sure that consequences of size changes are taken into account;
   scs_m = do_silent_eval(scs_m);
   if verbose then printf("silent eval pass ended\n");end
-endfunction
+  endfunction
 
   // test 
   function scs_m=explode(scs_m)

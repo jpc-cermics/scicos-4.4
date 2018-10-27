@@ -32,9 +32,9 @@ function [x,y,typ]=SOM_f(job,arg1,arg2)
   p=1 //pixel sizes ratio
   select job
    case 'plot' then
-    // no frame 
-    function noports(o) ;endfunction
-    standard_draw(arg1,%f,noports);
+     // no frame ,
+     function noports(o) ;endfunction
+     standard_draw(arg1,%f,noports);
    case 'getinputs' then
     orig=arg1.graphics.orig;
     sz=arg1.graphics.sz;

@@ -1,14 +1,13 @@
 function [x,y,typ]=MB_Addn(job,arg1,arg2)
   // A Modelica block (following coselica types i.e using RealInput/RealOutput types)
-  // used to add vectors in the SUMMATION spirit 
-
+  // used to add vectors in the SUMMATION spirit
+  
   function blk_draw(o,sz,orig)
     // using summation draw
     // should turn the square to blue triangles.
     blue=xget('color','blue');
     white=xget('color','white');
     gray=xget('color','gray');
-
     [x,y,typ]=standard_inputs(o)
     dd=sz(1)/8,de=0;
     if ~o.graphics.flip then dd=6*sz(1)/8,de=-sz(1)/8,end
@@ -40,7 +39,7 @@ function [x,y,typ]=MB_Addn(job,arg1,arg2)
     // format for instruction 
     txt_signs = strsubst(string(signs(:)),["-1","1"," "],["-","+",""]);
     txt_u = "u"+string(1:nsigns)'+"[%d].signal";
-    fmt = "    y[%d].signal= "+ catenate(txt_signs+txt_u,sep=" ");
+    fmt = "    y[%d].signal= 0.0"+ catenate(txt_signs+txt_u,sep=" ")+";";
     if dim_r ==1 then
       txt.concatd[strsubst(fmt,"[%d]","")];
     elseif dim_r > 1 then 
@@ -91,7 +90,7 @@ function [x,y,typ]=MB_Addn(job,arg1,arg2)
       blk.model.equations.model = H.nameF;
       blk.graphics.exprs.nameF = H.nameF;
       blk.graphics('3D') = %f; // coselica options 
-      blk.graphics.gr_i=list("blk_draw(o,sz,orig)",xget('color','blue'))
+      blk.graphics.gr_i="blk_draw(o,sz,orig)";
       blk.gui = "MB_Addn";
       blk.model.in = dim_r*ones(nsigns,1);
       blk.model.out = dim_r;

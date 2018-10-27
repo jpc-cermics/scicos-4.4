@@ -40,7 +40,7 @@ function [x,y,typ]=MB_Prodn(job,arg1,arg2)
     // format for instruction 
     txt_signs = strsubst(string(signs(:)),["-1","1"," "],["/","*",""]);
     txt_u = "u"+string(1:nsigns)'+"[%d].signal";
-    fmt = "    y[%d].signal= 1.0"+ catenate(txt_signs+txt_u,sep=" ");
+    fmt = "    y[%d].signal= 1.0"+ catenate(txt_signs+txt_u,sep=" ")+";";
     if dim_r ==1 then
       txt.concatd[strsubst(fmt,"[%d]","")];
     elseif dim_r > 1 then 

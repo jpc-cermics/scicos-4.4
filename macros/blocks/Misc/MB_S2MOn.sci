@@ -33,7 +33,12 @@ function [x,y,typ]=MB_S2MOn(job,arg1,arg2)
     case 'set' then
       x=arg1;
       y=acquire('needcompile',def=0);
-      exprs = arg1.graphics.exprs(1);
+      if x.model.in <> -1 then
+	// if size have been fixed we update the block accordingly
+	exprs = sci2exp(x.model.in);
+      else
+	exprs = arg1.graphics.exprs(1);
+      end
       execstr('n ='+ exprs);
       while %t do
 	[ok,n_new,exprs_new]=getvalue('Set MB_S2MOn block parameters',

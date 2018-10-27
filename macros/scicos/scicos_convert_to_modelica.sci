@@ -178,10 +178,19 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
     blk = scs_m.objs(i);
     if blk.type <> 'Block' then continue;end
     select blk.gui
-      case 'PID' then
-	// XXXXX
       case 'PID2' then
-	//XXXXX
+	old = blk;
+	blk = MBC_PID('define');
+	blk = set_block_params_from(blk, old);
+	blk.graphics.exprs= [old.graphics.exprs;'10'];
+	scs_m.objs(i)=blk;
+      case 'PID' then
+	old = blk;
+	old = PID('upgrade',old);
+	blk = MBC_PID('define');
+	blk = set_block_params_from(blk, old);
+	blk.graphics.exprs= [old.graphics.exprs;'10'];
+	scs_m.objs(i)=blk;
       case 'SPLIT_f' then
 	// XXXX a revoir 
 	//old = blk;
