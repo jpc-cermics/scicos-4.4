@@ -3,103 +3,95 @@ function [x,y,typ]=MB_MathFun(job,arg1,arg2)
   // XXX: tester que le nom choisit existe dans les fonctions
   //      verifier que la fonction signe existe en modelica
   
-  function [x,y,xpos,ypos]=sin_values()
-    ypos=0.1; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=sin_values()
+    ypos=0.1; xpos= 0.55; lpos=0.5
     x = linspace(0,2*%pi,20); y = sin(x);
   endfunction
 
-  function [x,y,xpos,ypos]=cos_values()
-    ypos=0.1; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=cos_values()
+    ypos=0.1; xpos= 0.55; lpos=0.25;
     x = linspace(0,2*%pi,20); y = cos(x);
   endfunction
 
-  function [x,y,xpos,ypos]=tan_values()
-    ypos=0.5; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=tan_values()
+    ypos=0.5; xpos= 0.55; lpos=0;
     x = linspace(-%pi/2+0.1,%pi/2-0.1,20); y = tan(x);
   endfunction
 
-  function [x,y,xpos,ypos]=asin_values()
-    ypos=0.5; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=asin_values()
+    ypos=0.5; xpos= 0.55; lpos=0;
     x = linspace(-1+0.02,1-0.02,20); y = asin(x);
   endfunction
 
-  function [x,y,xpos,ypos]=acos_values()
-    ypos=0.5; xpos= 0.15;
+  function [x,y,xpos,ypos,lpos]=acos_values()
+    ypos=0.5; xpos= 0.15; lpos=0.5;
     x = linspace(-1+0.02,1-0.02,20); y = acos(x);
   endfunction
 
-  function [x,y,xpos,ypos]=atan_values()
-    ypos=0.5; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=atan_values()
+    ypos=0.5; xpos= 0.55; lpos=0;
     x = linspace(-10,10,20); y = atan(x);
   endfunction
 
-  function [x,y,xpos,ypos]=sinh_values()
-    ypos=0.5; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=sinh_values()
+    ypos=0.5; xpos= 0.55; lpos=0;
     x = linspace(-5,5,20); y = sinh(x);
   endfunction
 
-  function [x,y,xpos,ypos]=cosh_values()
-    ypos=0.5; xpos= 0.15;
+  function [x,y,xpos,ypos,lpos]=cosh_values()
+    ypos=0.5; xpos= 0.15; lpos=0.25;
     x = linspace(-5,5,20); y = cosh(x);
   endfunction
 
-  function [x,y,xpos,ypos]=tanh_values()
-    ypos=0.5; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=tanh_values()
+    ypos=0.5; xpos= 0.55; lpos=0;
     x = linspace(-5,5,20); y = tanh(x);
   endfunction
   
-  function [x,y,xpos,ypos]=exp_values()
-    ypos=0.5; xpos= 0.15;
+  function [x,y,xpos,ypos,lpos]=exp_values()
+    ypos=0.5; xpos= 0.15; lpos=0;
     x = linspace(0,5,20); y = exp(x);
   endfunction
 
-  function [x,y,xpos,ypos]=log_values()
-    ypos=0.1; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=log_values()
+    ypos=0.1; xpos= 0.55; lpos=0;
     x = linspace(0.2,5,20); y = log(x);
   endfunction
 
-  function [x,y,xpos,ypos]=log10_values()
-    ypos=0.1; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=log10_values()
+    ypos=0.1; xpos= 0.55; lpos=0;
     x = linspace(0.2,5,20); y = log(x)./log(10);
   endfunction
   
-  function [x,y,xpos,ypos]=abs_values()
-    ypos=0.5; xpos= 0.15;
+  function [x,y,xpos,ypos,lpos]=abs_values()
+    ypos=0.5; xpos= 0.15; lpos=0.25;
     x = linspace(-1,1,20); y = abs(x);
   endfunction
 
-  function [x,y,xpos,ypos]=sign_values()
-    ypos=0.5; xpos= 0.55;
+  function [x,y,xpos,ypos,lpos]=sign_values()
+    ypos=0.5; xpos= 0.55; lpos=0;
     x = linspace(-1,1,20); y = sign(x);
   endfunction
-  
+
+  function [x,y,xpos,ypos,lpos]=sqrt_values()
+    ypos=0.1; xpos= 0.55; lpos=0;
+    x = linspace(0.05,1,20); y = sqrt(x);
+  endfunction
+    
   function blk_draw(sz,orig,orient,label)
     blue=xget('color','blue');
     white=xget('color','white');
     black=xget('color','black');
     gray=xget('color','gray');
     red = xget('color','red');
-    if orient then
-      xx=orig(1);yy=orig(2);
-      ww=sz(1);hh=sz(2);
-    else
-      xx=orig(1)+sz(1);yy=orig(2);
-      ww=-sz(1);hh=sz(2);
-    end
+    xx=orig(1);yy=orig(2);
+    ww=sz(1);hh=sz(2);
     // frame 
-    if orient then
-      xrect(orig(1)+sz(1)*0,orig(2)+sz(2)*1,sz(1)*1,sz(2)*1,color=blue,background=white);
-    else
-      xrect(orig(1)+sz(1)*(1-0-1),orig(2)+sz(2)*1,sz(1)*1,sz(2)*1,color=blue,background=white);
-    end
-    // label 
-    if orient then
-      xstringb(orig(1)+sz(1)*-0.25,orig(2)+sz(2)*1.05,label,sz(1)*1.5,sz(2)*0.2,"fill");
-    else
-      xstringb(orig(1)+sz(1)*(1--0.25-1.5),orig(2)+sz(2)*1.05,label,sz(1)*1.5,sz(2)*0.2,"fill");
-    end
-    
-    execstr(sprintf("[xv,yv,xpos,ypos] = %s_values()",C));
+    xrect(orig(1)+sz(1)*0,orig(2)+sz(2)*1,sz(1)*1,sz(2)*1,color=blue,background=white);
+    // label is above 
+    xstringb(orig(1)+sz(1)*-0.25,orig(2)+sz(2)*1.05,label,sz(1)*1.5,sz(2)*0.2,"fill");
+    // draw the icon     
+    execstr(sprintf("[xv,yv,xpos,ypos,lpos] = %s_values()",C));
     //ypos=0.1;  // y-axis left 
     //ypos=0.5;  // y-axis midle
     xpoly(xx+ww*[ypos;ypos],yy+hh*[0.84;0.1],color=gray);
@@ -108,15 +100,13 @@ function [x,y,typ]=MB_MathFun(job,arg1,arg2)
     //xpos=0.55; // midle x-axis
     xpoly(xx+ww*[0.05;0.91],yy+hh*[xpos;xpos],color=gray);
     xfpoly(xx+ww*[0.95;0.84;0.84;0.95],yy+hh*[xpos;xpos+0.04;xpos-0.04;xpos],color=gray,fill_color=gray);
-
+    
     xv = 0.1 + 0.8* (xv - min(xv)) ./ (max(xv) -min(xv)) 
     yv = 0.15 + 0.8* (yv - min(yv)) ./ (max(yv) -min(yv)) 
     xpoly(xx+ww*xv,yy+hh*yv,color=blue);
-    if orient then
-       xstringb(orig(1)+sz(1)*-0.25,orig(2)+sz(2)*-0.25,C,sz(1)*1.5,sz(2)*0.2,"fill");
-    else
-       xstringb(orig(1)+sz(1)*(1--0.25-1.5),orig(2)+sz(2)*-0.25,C,sz(1)*1.5,sz(2)*0.2,"fill");
-    end
+    // The function name
+    //xstringb(orig(1)+sz(1)*-0.25,orig(2)+sz(2)*-0.25,C,sz(1)*1.5,sz(2)*0.2,"fill");
+    xstringb(orig(1)+lpos*sz(1),orig(2)+sz(2)*3/4,C,sz(1)/2,sz(2)/4,"fill");
   endfunction
 
   function txt = MB_MathFun_funtxt(H, n, math_fname)

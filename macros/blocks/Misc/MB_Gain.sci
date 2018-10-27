@@ -1,7 +1,7 @@
 function [x,y,typ]=MB_Gain(job,arg1,arg2)
   
   function blk_draw(o,sz,orig,orient,label)
-    gain = sci2exp(o.graphics.exprs.paramv)
+    gain = o.graphics.exprs.gains;
     gain = strsubst(gain,' ','');
     if length(gain) > 6 then
       gain=part(gain,1:4)+'..'
@@ -24,17 +24,18 @@ function [x,y,typ]=MB_Gain(job,arg1,arg2)
   endfunction
   
   function txt = MB_Gain_funtxt(H)
-    G=H.paramv(1);
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],
 			  H.out,H.outtype,[H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
-    if size(G,'*') == 1 then
+    if H.in_r==1 && H.out_r == 1 then
       txt.concatd["    y.signal = G* u.signal;"];
+    elseif H.in_r==-1 && H.out_r == -2 then
+      txt.concatd["    //// will be generated later"];
     else
-      for i=1:size(G,'r')
+      for i=1:H.out_r
 	start = sprintf("    y[%d].signal=",i);
 	S=m2s([]);
-	for j=1: size(G,'c')
+	for j=1:H.in_r
 	  S.concatr[sprintf("G[%d,%d]*u[%d].signal",i,j,j)];
 	end
 	txt.concatd[start + catenate(S,sep='+') + ";"];
@@ -43,7 +44,7 @@ function [x,y,typ]=MB_Gain(job,arg1,arg2)
     txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
   
-  function blk= MB_Gain_define(G, old)
+  function blk= MB_Gain_define(Gstr, old)
     if nargin <= 1 then 
       global(modelica_count=0);
       nameF='gain'+string(modelica_count);
@@ -51,7 +52,14 @@ function [x,y,typ]=MB_Gain(job,arg1,arg2)
     else
       nameF=old.graphics.exprs.nameF;
     end
-    [m,n]=size(G);
+    context=acquire('%scicos_context',def=hash(4));
+    [ok,He] = execstr(sprintf("G=%s;",Gstr),env=context,errcatch=%t);
+    if ok then
+      G=He.G; [m,n]=size(He.G);
+    else
+      lasterror();
+      G=[]; [m,n]=(-1,-2);
+    end
     H=hash(in=["u"], intype="I", in_r=[n], in_c=[1],
 	   out=["y"], outtype="I", out_r=[m], out_c=[1],
 	   param=['G'], paramv=list(G), pprop=[0], nameF=nameF);
@@ -61,26 +69,26 @@ function [x,y,typ]=MB_Gain(job,arg1,arg2)
     if nargin == 2 then
       blk = old;
       blk.graphics.exprs.funtxt = H.funtxt;
-      blk.graphics.exprs.paramv = G;
+      blk.graphics.exprs.gains = Gstr;
       blk.model.sim(1) = H.nameF;
       blk.model.equations.model = H.nameF;
-      blk.model.in = [n];
-      blk.model.out = [m];
+      blk.model.in = [n];blk.model.in2=1;
+      blk.model.out = [m];blk.model.out2=1;
     else
       blk = VMBLOCK_define(H);
       blk.graphics.exprs.funtxt = H.funtxt;
-      blk.graphics.exprs.paramv = G;
+      blk.graphics.exprs.gains = Gstr;
       blk.model.sim(1) = H.nameF;
       blk.model.equations.model = H.nameF;
       blk.graphics.exprs.nameF = H.nameF;
       blk.graphics('3D') = %f; // coselica options 
       blk.graphics.gr_i="blk_draw(o,sz,orig,orient,model.label)";
       blk.gui = "MB_Gain";
-      blk.model.in = [n];
-      blk.model.out = [m];
+      blk.model.in = [n];blk.model.in2=1;
+      blk.model.out = [m];blk.model.out2=1;
     end
   endfunction
-
+  
   x=[];y=[];typ=[];
   select job
     case 'plot' then
@@ -98,18 +106,22 @@ function [x,y,typ]=MB_Gain(job,arg1,arg2)
       // we have to use this name to update 
       y=acquire('needcompile',def=0);
       x=arg1;
-      G=x.graphics.exprs.paramv;
+      Gstr=x.graphics.exprs.gains;
+      context=acquire('%scicos_context',def=hash(4));
+      [ok_eval,H] = execstr(sprintf("G=%s;",Gstr),env=context,errcatch=%t);
       gv_titles='Set MB_Gain block parameters';
       gv_names=['Gain'];
       gv_types = list('mat',[-1,-1]);
-      gain = strsubst(sci2exp(G),' ','');
-      [ok,G_new, value_n]=getvalue(gv_titles,gv_names,gv_types,list(gain));
+      [ok,G_new, Gstr_new]=getvalue(gv_titles,gv_names,gv_types,list(Gstr));
       if ~ok then return;end; // cancel in getvalue;
-      x= MB_Gain_define(G_new,x);
-      if ~G.equal[G_new] then y=4;end
+      x= MB_Gain_define(Gstr_new,x);
+      if ~ok_eval || ~G_new.equal[H.G] then
+	y=4;
+	x.graphics.exprs.gains =  Gstr_new;
+      end
       resume(needcompile=y);
     case 'define' then
-      if nargin == 2 then G=arg1;else G=2;end
+      if nargin == 2 then G=arg1;else G="2";end
       x= MB_Gain_define(G);
   end
 

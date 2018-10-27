@@ -809,13 +809,13 @@ endfunction
 function [x,y]=scicos_routage(x,y,forig,torig,delF,delT)
   xold=[];yold=[]
   while ~(isequal(x,xold)&isequal(y,yold))
-    del=3+6*rand()
+    // del=3+6*rand()
     xold=x;yold=y
     if size(x,1)>2 then
       m=find(((x(1:$-2)==x(3:$))&(x(2:$-1)==x(3:$)))|..
              ((y(1:$-2)==y(3:$))&(y(2:$-1)==y(3:$))))
-      if m<>[] then
-        x(m+1)=[];y(m+1)=[]
+      if ~isempty(m) then
+        x(m+1)=[];y(m+1)=[];
       end
     end
     n=size(x,1);
@@ -826,7 +826,6 @@ function [x,y]=scicos_routage(x,y,forig,torig,delF,delT)
       I=ones(1,n);Z=zeros(2,n)
       Z(:,ki)=1
       I=[I;Z]
-
       J=matrix(cumsum(I(:)),3,n)
       xnew=[];ynew=[]
       xnew(J(1,:),1)=x

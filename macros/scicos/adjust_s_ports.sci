@@ -1,6 +1,6 @@
 function [ok,sbloc]=adjust_s_ports(sbloc)
   // Copyright INRIA
-
+  
   graphics=sbloc.graphics;
   model=sbloc.model;
 
@@ -79,7 +79,6 @@ function [ok,sbloc]=adjust_s_ports(sbloc)
       end
     end
   end
-
 
   ok=%t
   mess=[]

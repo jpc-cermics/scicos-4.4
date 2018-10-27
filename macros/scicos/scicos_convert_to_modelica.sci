@@ -1,5 +1,8 @@
 function scs_m= scicos_convert_to_modelica(scs_m)
-// replace all modelica blocks by dummy and
+
+  // XXX: il faut propager les contextes
+    
+  // replace all modelica blocks by dummy and
   // changes the link so as to be standard links
   scs_m= scicos_normalize_links(scs_m);
   scs_m= scicos_convert_blocks_to_modelica(scs_m);
@@ -9,7 +12,8 @@ function scs_m= scicos_convert_to_modelica(scs_m)
   scs_m= scicos_convert_split_to_modelica(scs_m);
   // simplify links: in order that they always are
   // from -> to i.e from is an output and to an input
-  //scs_m= scicos_convert_links_to_modelica(scs_m);
+
+  scs_m= scicos_convert_links_to_modelica(scs_m);
 endfunction
 
 function scs_m= scicos_normalize_links(scs_m)
@@ -31,32 +35,28 @@ function scs_m= scicos_normalize_links(scs_m)
 endfunction
 
 function scs_m= scicos_convert_links_to_modelica(scs_m)
-// rscan the links in order to adapt to block conversions 
-// simplify links: in order that they always are
-// from -> to i.e from is an output and to an input
-// XXXXX : need to recurse in super 
-  
-  // second pass on links to change their types and
-  // insert type converters 
+  // pass on links to adapt their types to the from and to blocks
+  // inserting type converters if necessary
   L=list();
   L2=list();
+  Ln=list();
   for i=1:length(scs_m.objs)
     obj = scs_m.objs(i);
-    if obj.type == 'Block' && or(obj.model.sim(1) ==  ['super','csuper','asuper']) then
-      // propagate in internal schema 
+    if obj.type == 'Block' && or(obj.model.sim(1) ==  ['super','asuper']) then
+      // propagate in internal schema except for csuper 
       scsm1 = scicos_convert_links_to_modelica(obj.model.rpar);
       obj.model.rpar = scsm1;
       scs_m.objs(i)=obj;
-
-    elseif obj.type == 'Link' then
+      
+    elseif obj.type == 'Link' && obj.ct(2) > 0 then
       from = obj.from;
       to = obj.to;
       // from is now always an output 
       [xout,yout,typout]=getoutputs(scs_m.objs(from(1)));
       // to is now always an input
       [xin,yin,typin] = getinputs(scs_m.objs(to(1)));
-
-      if %f then 
+      
+      if %t then 
 	// typin et typout 1: 'E', 2 'I', 3 'B';
 	if isempty(scs_m.objs(from(1)).graphics.out_implicit) then outtyp='E';
 	elseif length(scs_m.objs(from(1)).graphics.out_implicit) < from(2) then outtyp='E';
@@ -75,8 +75,7 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
       
       if typin(to(2)) == typout(from(2)) then
 	// two blocks of the same type, just update the link type
-	// we should refresh the link start and end points to adapt to
-	// the changed blocks
+	// and refresh the connection positions
 	obj.xx(1) = xout(from(2));obj.yy(1) = yout(from(2));
 	obj.xx($) = xin(to(2));obj.yy($) = yin(to(2));
 	obj.ct(2) = typin(to(2));
@@ -89,49 +88,54 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
 	new.graphics.sz = [20,20];
 	// unlock scs_m.objs(to(1)) and lock the new 
 	[xnew,ynew,typnew] = getinputs(new);
-	new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
+	// lock
+	new.graphics.pin(1) = i;// scs_m.objs(to(1)).graphics.pin(to(2));
+	// unlock 
 	scs_m.objs(to(1)).graphics.pin(to(2))=0;
 	// insert new 
 	L($+1)=new;
 	// update link points
 	n=length(obj.xx);
-	if obj.yy(n-1) == obj.yy(n) then
-	  obj.xx(n)= xnew($);
-	  obj.yy(n-1:n)= ynew($);
+	if n > 2 && obj.yy(n-1) == obj.yy(n) then
+	  obj.xx(n)= xnew;
+	  obj.yy(n-1:n)= ynew;
 	else
-	  obj.xx(n)= xnew($);
-	  obj.yy(n)= ynew($);
+	  obj.xx(n)= xnew;
+	  obj.yy(n)= ynew;
 	end
 	obj.ct(2) = 2; 
 	obj.to=[length(scs_m.objs)+length(L),1,to(3)];
 	scs_m.objs(i) = obj;
+	Ln($+1)=i;//if n == 2 then Ln($+1)=i;end
 	// add a link
 	L2($+1)= list('explicit',[length(scs_m.objs)+length(L),1],[to(1),to(2)]);
       else
 	// typout(from(2)) == 1 
 	// from(1) is of type 1, thus to(1) is of type 2.
 	// we insert a S2MOn : from(1) -[type 2]-> S2MOn -[type 1]-> to(1)
-	new = MB_MO2Sn('define');
+	new = MB_S2MOn('define');
 	new.graphics.orig = [xin(1)-30,yin(1)];
 	new.graphics.sz = [20,20];
-	// unlock scs_m.objs(to(1)) and lock the new 
+	// lock the i link to port 1 of new block 
 	[xnew,ynew,typnew] = getinputs(new);
-	new.graphics.pin(to(2))= scs_m.objs(to(1)).graphics.pin(to(2));
+	new.graphics.pin(1) = i;
+	// ulock 
 	scs_m.objs(to(1)).graphics.pin(to(2))=0;
 	// insert new 
 	L($+1)=new;
 	// update link points
 	n=length(obj.xx);
-	if obj.yy(n-1) == obj.yy(n) then
-	  obj.xx(n)= xnew($);
-	  obj.yy(n-1:n)= ynew($);
+	if n > 2 && obj.yy(n-1) == obj.yy(n) then
+	  obj.xx(n)= xnew(1);
+	  obj.yy(n-1:n)= ynew(1);
 	else
-	  obj.xx(n)= xnew($);
-	  obj.yy(n)= ynew($);
+	  obj.xx(n)= xnew(1);
+	  obj.yy(n)= ynew(1);
 	end
 	obj.ct(2) = 1; 
 	obj.to=[length(scs_m.objs)+length(L),1,to(3)];
 	scs_m.objs(i) = obj;
+	Ln($+1)=i;//if n == 2 then Ln($+1)=i;end
 	// add a link
 	L2($+1)= list('implicit',[length(scs_m.objs)+length(L),1],[to(1),to(2)]);
       end
@@ -146,23 +150,46 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
       scs_m=add_implicit_link(scs_m,string(l(2)),string(l(3)),[]);
     end
   end
+  for i=1:length(Ln)
+    obj = scs_m.objs(Ln(i));
+    // improve routage 
+    delF=scs_m.objs(obj.from(1)).graphics.sz/2
+    delT=scs_m.objs(obj.to(1)).graphics.sz/2
+    forig=scs_m.objs(obj.from(1)).graphics.orig(1)+delF(1)
+    torig=scs_m.objs(obj.to(1)).graphics.orig(1)+delT(1)
+    [xx,yy]=scicos_routage(obj.xx,obj.yy,forig,torig,delF(2),delT(2))
+    obj.xx = xx; obj.yy =yy;
+    scs_m.objs(Ln(i))=obj;
+  end
 endfunction
 
 function scs_m= scicos_convert_blocks_to_modelica(scs_m)
   // replace all modelica blocks by dummy and
   // changes the link so as to be standard links
+  scicos_context=acquire('scicos_context',def=hash(10));
+  [scicos_context,ierr]=script2var(scs_m.props.context,scicos_context);
+  if ierr<>0 then 
+    msg(["Warning: Failed to evaluate a context:";catenate(lasterror())]);
+  end
+  %scicos_context=scicos_context;
+  
   scs_m = scs_m;
   for i=1:length(scs_m.objs)
     blk = scs_m.objs(i);
     if blk.type <> 'Block' then continue;end
     select blk.gui
+      case 'PID' then
+	// XXXXX
+      case 'PID2' then
+	//XXXXX
       case 'SPLIT_f' then
 	// XXXX a revoir 
 	//old = blk;
 	//blk = IMPSPLIT_f('define');
 	//blk = set_block_params_from(blk, old);
       	//scs_m.objs(i)=blk;
-      case 'INTEGRAL_m' then
+      case {'INTEGRAL_m','INTEGRAL'} then
+	// XXXX a reprendre car c'est vectoriel dans scicos
 	old = blk;
 	blk = MBC_Integrator('define');
 	blk = set_block_params_from(blk, old);
@@ -176,7 +203,31 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	execstr('signs='+old.graphics.exprs(2));
 	blk.graphics.exprs.signs = signs;
 	scs_m.objs(i)=blk;
+      case 'SUM_f' then
+	// XXX: the case with one entry and matrix entries should be revisited 
+	old = blk;
+	blk = MB_Addn('define');
+	blk = set_block_params_from(blk, old);
+	blk.graphics.exprs.signs = ones(1,size(old.model.in,'*'));
+	scs_m.objs(i)=blk;
+      case 'PRODUCT' then
+	// XXX: the case with one entry and matrix entries should be revisited 
+	old = blk;
+	blk = MB_Prodn('define');
+	blk = set_block_params_from(blk, old);
+	execstr('signs='+old.graphics.exprs(1));
+	blk.graphics.exprs.signs = signs;
+	scs_m.objs(i)=blk;
+      case 'PROD_f' then
+	// XXX: the case with one entry and matrix entries should be revisited 
+	old = blk;
+	blk = MB_Prodn('define');
+	blk = set_block_params_from(blk, old);
+	blk.graphics.exprs.signs = ones(1,size(old.model.in,'*'));
+	scs_m.objs(i)=blk;
+
       case 'EXTRACTOR' then
+	// XXXX Attention doit etre vectoriel 
 	// EXTRACTOR -> CBR_Extractor (OK)
 	// we could do a CBR_Extractor_n 
 	old = blk;
@@ -270,6 +321,15 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk.graphics.in_implicit=in_implicit;
 	blk.graphics.out_implicit=out_implicit;
 	scs_m.objs(i)=blk;
+      case 'SQRT' then
+	old= blk;
+	blk = MB_MathFun('define',"sqrt");
+	in_implicit =blk.graphics.in_implicit;
+	out_implicit =blk.graphics.out_implicit;
+	blk = set_block_params_from(blk, old);
+	blk.graphics.in_implicit=in_implicit;
+	blk.graphics.out_implicit=out_implicit;
+	scs_m.objs(i)=blk;
       case 'TrigFun' then
 	// TrigFun uses specialized MBM blocks
 	// we could directly use the MB_TrigFun block which is to
@@ -297,10 +357,8 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
       case 'GAINBLK' then
 	// we do not have context here thus maybe we have to step back
 	// This should be evaluated with the context 
-	ok=execstr('gains ='+blk.graphics.exprs(1),errcatch=%t);
-	old = blk;
-	if ok then G=gains ; else G=2;end; // XXXXXXX
-	blk = MB_Gain('define',G);
+	old=blk;
+	blk = MB_Gain('define',blk.graphics.exprs(1));
 	blk = set_block_params_from(blk, old);
 	scs_m.objs(i)=blk;
       else
@@ -398,10 +456,10 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
 	scs_m.objs(i)=blk_new;
       end
     else
-      // convert super, csuper, asuper
-      // Note that this should come in second since
-      // some asuper are directly converted to modelica 
-      if or(blk.model.sim(1) ==  ['super','csuper','asuper']) then
+      // convert super, csuper but do not convert asuper
+      // which are supposed to be globally converted.
+      // XXXX a affiner
+      if or(blk.model.sim(1) ==  ['super','asuper']) then
 	// propagate in internal schema 
 	scsm1 =  scicos_convert_inout_to_modelica(blk.model.rpar)
 	blk.model.rpar = scsm1;

@@ -1,23 +1,28 @@
 function blk=set_block_params_from(blk,fromblk,modelica = %t)
-  blk.model.evtin = fromblk.model.evtin;
-  blk.model.evtout = fromblk.model.evtout;
-  blk.model.in= fromblk.model.in;
-  blk.model.out = fromblk.model.out;
-  blk.model.in2= fromblk.model.in2;
-  blk.model.out2 = fromblk.model.out2;
 
-  blk.graphics.peout = fromblk.graphics.peout;
-  blk.graphics.pein = fromblk.graphics.pein;
-  blk.graphics.pin = fromblk.graphics.pin;
-  blk.graphics.pout = fromblk.graphics.pout;
-    
-  blk.graphics.out_implicit = fromblk.graphics.out_implicit;
-  blk.graphics.in_implicit = fromblk.graphics.in_implicit;
-
+  // Ce qui suit est trop compliqué
+  // On veut juste heriter de graphics.pin et graphics.pout de fromblk -> blk
+  
   if modelica then
-    blk.graphics.out_implicit = strsubst(blk.graphics.out_implicit, 'E','I');
-    blk.graphics.in_implicit = strsubst(blk.graphics.in_implicit, 'E','I');
+    // This could be wrong if all the in/out ports of blk are not I
+    // this should be properly set at define part 
+    blk.graphics.out_implicit = smat_create(1,size(blk.model.out,'*'),"I");
+    blk.graphics.in_implicit = smat_create(1,size(blk.model.in,'*'),"I");
   end
+  // XXX This could be removed if all the modelica blocks never set empty stuff
+  if isempty(blk.model.in2) then blk.model.in2= ones(size(blk.model.in,'*'),1);end
+  if isempty(blk.model.out2) then blk.model.out2= ones(size(blk.model.out,'*'),1);end
+  if isempty(blk.model.intyp) then blk.model.intyp= ones(size(blk.model.in,'*'),1);end
+  if isempty(blk.model.outtyp) then blk.model.outtyp= ones(size(blk.model.out,'*'),1);end
+    
+  [model, graphics, ok]=set_io(fromblk.model, fromblk.graphics,
+			       list([blk.model.in,blk.model.in2],blk.model.intyp),
+			       list([blk.model.out,blk.model.out2],blk.model.outtyp),
+			       [],[],[],[],[],[]);
+  
+  blk.graphics.pin = graphics.pin;
+  blk.graphics.pout = graphics.pout;
+  
   blk.graphics.id = fromblk.graphics.id;
   blk.graphics.flip = fromblk.graphics.flip;
   blk.graphics.orig = fromblk.graphics.orig;
