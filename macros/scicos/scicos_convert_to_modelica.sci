@@ -238,12 +238,12 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
       case 'EXTRACTOR' then
 	// XXXX Attention doit etre vectoriel 
 	// EXTRACTOR -> CBR_Extractor (OK)
-	// we could do a CBR_Extractor_n 
+	// we could do a CBR_Extractor_n
 	old = blk;
-	blk = CBR_Extractor('define');
-	blk = set_block_params_from(blk, old);
 	execstr('index='+old.graphics.exprs);
-	blk.graphics.exprs = [sci2exp(m2i(index));sci2exp(m2i(-1))];
+	blk = MB_Extractn('define',index);
+	// blk = CBR_Extractor('define');
+	blk = set_block_params_from(blk, old);
 	scs_m.objs(i)=blk;
       case 'CONST_m' then
 	// CONST_m -> MB_Constantn (OK)

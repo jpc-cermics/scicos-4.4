@@ -78,7 +78,10 @@ endfunction
     for i=1:length(scs_m.objs)
       o = scs_m.objs(i);
       if o.type == 'Block' then
-	if or(o.model.sim(1) ==  ['super','csuper','asuper']) then
+	if o.gui == 'MB_MO2Sn' || o.gui == 'MB_S2MOn' then
+	  o_new= DUMMY('define',o);
+	  scs_m.objs(i)=o_new;
+	elseif or(o.model.sim(1) ==  ['csuper','super','asuper']) then
 	  // propagate in internal schema 
 	  o_new = o;
 	  [scsm]= scicos_dummy(o.model.rpar);
@@ -146,7 +149,16 @@ endfunction
     for i=1:length(scs_m.objs)
       o = scs_m.objs(i);
       if o.type == 'Block' then
-	if or(o.model.sim(1) ==  ['super','csuper','asuper']) then
+	if o.gui == 'MB_MO2Sn' || o.gui == 'MB_S2MOn' then
+	  if scs_m1.objs(i).model.in >= 0 then
+	    o.model.in = scs_m1.objs(i).model.in;
+	    o.model.out = scs_m1.objs(i).model.out;
+	    scs_m.objs(i)=o;
+	  else
+	    // demander a l'utilisateur 
+	    message(sprintf("failed to guess the size of %s\n",o.gui));
+	  end
+	elseif or(o.model.sim(1) ==  ['super','csuper','asuper']) then
 	  // propagate in internal schema 
 	  o_new = o;
 	  [scsm,doeval1]= scicos_update_modelica_port_sizes(o.model.rpar,scs_m1.objs(i).model.rpar);
@@ -175,7 +187,7 @@ endfunction
     end
   endfunction
   
-  function scs_m = scicos_compiler_modelica_pass0(scs_m,verbose = %f)
+  function scs_m = scicos_compiler_modelica_pass0(scs_m,verbose = %f,step=10)
   // This pass is used to try to fix the sizes of modelica blocks
   // this is usefull since it would most of the time to modelica errors
   // at modelica translator/compile pass
@@ -187,42 +199,32 @@ endfunction
   end
   // replace all scicos blocks par standard block
   scs_m1 = scicos_dummy(scs_m);
+  if step <= 1 then scs_m=scs_m1;return;end
   if verbose then printf("subsitute modelica blocks pass ended\n");end
   // use this fake schema to compile to obtain sizes 
   scs_m1 = scicos_port_size_propagate(scs_m1);
+  if step <= 2 then scs_m=scs_m1;return;end
   if verbose then printf("propagate port sizes pass ended\n");end
   // propagate sizes in the original schem 
   scs_m = scicos_update_modelica_port_sizes(scs_m,scs_m1);
+  if step <= 3 then scs_m=scs_m;return;end
   if verbose then printf("update port sizes pass ended\n");end
   // make a scilent_eval to be sure that consequences of size changes are taken into account;
   scs_m = do_silent_eval(scs_m);
   if verbose then printf("silent eval pass ended\n");end
   endfunction
 
-  // test 
-  function scs_m=explode(scs_m)
-    function L= extract(scs_m1)
-      L=list();
-      for i=1:length(scs_m1.objs)
-	o = scs_m1.objs(i);
-	if o.type == 'Block' then
-	  o=disconnect_ports(o);
-	  L($+1) = o;
-	end
-      end
-    endfunction
-    new=list();
-    for i=1:length(scs_m.objs)
-      o = scs_m.objs(i);
-      if o.type == 'Block' && or(o.model.sim(1) ==  ['csuper']) then
-	L = extract(o.model.rpar);
-	new.concat[L];
-      end
+
+  function [ok,scs_m] = do_convert_and_compile(scs_m,verbose = %f,step=10)
+    ok = %t;
+    if type(scs_m,'short') == 's' then
+      [ok,scs_m]=do_load(scs_m);
     end
-    scs_m.objs.concat[new];
+    if ~ok then return;end
+    scs_m = scicos_convert_to_modelica(scs_m);
+    scs_m = scicos_compiler_modelica_pass0(scs_m,verbose = verbose );
+    do_compile(scs_m);
   endfunction
   
-  
-
-
+    
   
