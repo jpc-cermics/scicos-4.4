@@ -20,7 +20,7 @@ function [x,y,typ]=MB_Extractn(job,arg1,arg2)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,
 			  [H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
-    // format for instruction 
+    // format for instruction
     fmt = "    y[%d].signal= u[%d].signal;"
     n = size(indices,'*');
     if n == 1 then

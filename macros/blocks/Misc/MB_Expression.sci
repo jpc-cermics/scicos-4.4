@@ -78,12 +78,11 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     end
     [ok,msg, vars, params,paramv]=MB_Expression_analyse(n,expression);
     if ~ok then return;end
-    paramsv=list();for i=1:size(params,'*') do paramsv(i)=1;end
     
     if n == 1 then
       H=hash(in=["u"], intype="I", in_r= u_dim, in_c=1,
 	     out=["y"], outtype=["I"], out_r= 1, out_c=1,
-	     param=params, paramv=paramsv, pprop=zeros(size(params)), nameF=nameF);
+	     param=params, paramv=paramv, pprop=zeros(size(params)), nameF=nameF);
     else
       H=hash(in=["u"+string(1:n)'], intype=smat_create(n,1,"I"),
 	     in_r= ones(n,1), in_c=ones(n,1),
