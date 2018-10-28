@@ -21,32 +21,48 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
   
-  function [ok,msg, vars, params]=MB_Expression_analyse(n,expression)
-    ok = %t; msg = ""; vars=0; params=m2s([]);
+  function [ok,msg, vars, params, paramv]=MB_Expression_analyse(n,expression)
+    ok = %t; msg = ""; vars=0; params=m2s([]); paramv = list();
     // build the expression 
     ok=execstr(sprintf("bexp=scalexp_create(""%s"")",expression),errcatch=%t);
     if ~ok then
       message(["Erroneous expression";lasterror()]) 
       return;
     end
-    // get variables 
+    // get variables contained in expression
     vars = bexp.get_vars[];
     I=[];
     for i=1:size(vars,"*")
       ok= execstr("[a]=sscanf("""+vars(i)+""",""u%d"")",errcatch=%t)
       if ok then I=[I;i,a]; else lasterror(); end;
     end
+    // keep the params name 
     params = vars;if ~isempty(I) then params(I(:,1))=[];end
+    // vars contains the numbers which gives unames contained in expression
+    // unames = "u"+ string(vars);
     vars = sort(I(:,2),'g','i');
     if n == 1 then
       if vars($) > 8 then
 	msg="when n==1 then variable names should be, u1,...,u8";
-	ok=%f;
+	ok=%f;return;
       end
     else
       if vars($) > n then
 	msg=sprintf("n==%d, thus variables names should be, u1,...,u%d",n,n);
-	ok=%f;
+	ok=%f;return;
+      end
+    end
+    // get the param values
+    if size(params,'*')==0 then
+      paramv = list();
+    else
+      cmd = sprintf("paramv=list(%s);",catenate(params,sep=","));
+      context=acquire('%scicos_context',def=hash(4));
+      [ok,He] = execstr(cmd,env=context,errcatch=%t);
+      if ~ok then msg("Failed to evaluate parameters contained in expression");
+	ok=%f;return;
+      else
+	paramv = He.paramv;
       end
     end
   endfunction
@@ -60,7 +76,7 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     else
       nameF=old.graphics.exprs.nameF;
     end
-    [ok,msg, vars, params]=MB_Expression_analyse(n,expression);
+    [ok,msg, vars, params,paramv]=MB_Expression_analyse(n,expression);
     if ~ok then return;end
     paramsv=list();for i=1:size(params,'*') do paramsv(i)=1;end
     
