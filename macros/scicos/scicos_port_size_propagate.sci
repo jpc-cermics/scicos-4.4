@@ -1,4 +1,5 @@
 function [scs_m]=scicos_port_size_propagate(scs_m,cpr=[],verbose=%f)
+  // Copyright jpc
   // create a new diagram where sizes are replaced by result of compilation sizes 
   if cpr.equal[[]];
     [scs_m,cpr1,needcompile,ok]=do_eval(scs_m);
@@ -292,9 +293,10 @@ function [scs_m]=scicos_port_size_propagate(scs_m,cpr=[],verbose=%f)
 	  scs_m.objs(i).model.rpar = sub_scsm;
 	  count = count + count_super;
 	  // adjust_s_ports: propagate information from inside
-	  // to outside. we should make both direction
+	  // to outside. we should make both direction XXX
 	  [ok,sbloc]=adjust_s_ports(scs_m.objs(i));
-	  scs_m.objs(i) = sbloc;	    
+	  scs_m.objs(i) = sbloc;
+	  // scicos_modelica_super_adjust_ports(scs_m.objs(i));
 	end
       elseif o.type == 'Link' && o.ct(2) == 1 then
 	// a regular Link
@@ -359,4 +361,40 @@ function scicos_write_port_sizes(scs_m,fname,open=%t)
     end
   end
   if open then F.close[];end
+endfunction
+
+
+function blk=scicos_modelica_super_adjust_ports(blk)
+  // we want to be able to propagate sizes bidirectionnaly
+  // from inside to ouside and from ouside to inside
+  // collect inside informations
+  infos_out=zeros(0,5);
+  infos_in=zeros(0,5);
+  for k=1:length(blk.model.rpar)
+    o=blk.model.rpar.objs(k)
+    if o.type=='Block' then
+      if o.gui == 'DUMMY' then oname = o.graphics.exprs; else oname = o.gui;end
+      select oname
+	case {'OUTIMPL_f','OUT_f'} then
+	  info_out = [k, o.model.ipar, o.model.in, o.model.in2,o.model.intyp];
+	  infos_out = [infos_out;info_out];
+	case {'INIMPL_f', 'IN_f'} then
+	  info_in = [k, o.model.ipar, o.model.out, o.model.out2,o.model.outtyp];
+	  infos_in = [infos_in;info_in];
+      end
+    end
+  end
+  if size(blk.model.in,'*') <> size(infos_in,'r') then pause bug;end
+  if size(blk.model.out,'*') <> size(infos_out,'r') then pause bug;end
+  for k=1:size(blk.model.in,'*')
+    I=find(k== infos_in(:,2));
+    if isempty(I) then pause;bug;end
+    if blk.model.in(k) <> infos_in(I,3) then pause to_be_updated;end
+  end
+  for k=1:size(blk.model.out,'*')
+    I=find(k== infos_out(:,2));
+    if isempty(I) then pause;bug;end
+    if blk.model.out(k) <> infos_out(I,3) then pause to_be_updated;end
+  end
+  pause zz;
 endfunction

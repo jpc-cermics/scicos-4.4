@@ -8,14 +8,16 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,
 			  [H.out_r,H.out_c],H.param,H.paramv,H.pprop)
     txt.concatd["  equation"];
-    ins = "u"+string(1:size(H.in_r,'*'));
     if n == 1 then
-      ins1 = "u["+string(1:size(H.in_r,'*'))+"]";
+      u_dim=max(1,H.in_r);
+      ins = "u"+string((1:u_dim));
+      ins1 = "u["+string(1:u_dim)+"]";
       modelica_expr= strsubst(expression,ins,ins1+".signal");
     else
+      ins = "u"+string(1:size(H.in_r,'*'));
       modelica_expr= strsubst(expression,ins,ins+".signal");
     end
-    txt.concatd[sprintf("    y1.signal = %s;",modelica_expr)];
+    txt.concatd[sprintf("    y.signal = %s;",modelica_expr)];
     txt.concatd[sprintf("end %s;", H.nameF)];
   endfunction
   
@@ -49,9 +51,9 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     end
   endfunction
   
-  function [ok,msg,blk]= MB_Expression_define(n,expression,old)
+  function [ok,msg,blk]= MB_Expression_define(n,u_dim,expression,old)
     ok = %t; msg = "";blk = [];
-    if nargin <= 2 then 
+    if nargin <= 3 then 
       global(modelica_count=0);
       nameF='expression'+string(modelica_count);
       modelica_count =       modelica_count +1;
@@ -61,9 +63,9 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     [ok,msg, vars, params]=MB_Expression_analyse(n,expression);
     if ~ok then return;end
     paramsv=list();for i=1:size(params,'*') do paramsv(i)=1;end
-
+    
     if n == 1 then
-      H=hash(in=["u"], intype="I", in_r= -1, in_c=1,
+      H=hash(in=["u"], intype="I", in_r= u_dim, in_c=1,
 	     out=["y"], outtype=["I"], out_r= 1, out_c=1,
 	     param=params, paramv=paramsv, pprop=zeros(size(params)), nameF=nameF);
     else
@@ -75,7 +77,7 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     
     H.funtxt = MB_Expression_funtxt(H, n, expression);
     
-    if nargin == 3 then
+    if nargin == 4 then
       blk = old;
       if n == 1 then
 	it=1; ot = 1;
@@ -123,6 +125,7 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     case 'getorigin' then
       [x,y]=standard_origin(arg1)
     case 'set' then
+      // XXXXX si on connait la taille de l'entrée il faut controler qu'elle est compatible avec u 
       x=arg1;
       gv_title = ["Give a scalar expression using inputs u1, u2,...";
 		  "If only one input, input is vector [u1,u2,...] (max 8)";
@@ -134,7 +137,7 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
       [ok, n_new, expression_new , str]=getvalue(gv_title,gv_names,gv_types,exprs);
 						 
       if ~ok then return;end; // cancel in getvalue;
-      [ok,msg,x_new]= MB_Expression_define(n_new, expression_new,x);
+      [ok,msg,x_new]= MB_Expression_define(n_new,x.model.in, expression_new,x);
       if ~ok then
 	message(msg);return;
       end
@@ -144,7 +147,7 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
     case 'define' then
       if nargin >= 2 then n=arg1;else n=2;end
       if nargin >= 3 then expression=arg2;else expression="sin(u1)+u2";end
-      [ok,msg,x]= MB_Expression_define(n,expression);
+      [ok,msg,x]= MB_Expression_define(n,-1,expression);
   end
 endfunction
 
