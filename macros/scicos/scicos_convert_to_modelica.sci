@@ -370,6 +370,17 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = MB_Gain('define',blk.graphics.exprs(1));
 	blk = set_block_params_from(blk, old);
 	scs_m.objs(i)=blk;
+      case 'MUX' then
+	old=blk;
+	blk = MB_Mux('define',blk.model.in, blk.model.out);
+	blk = set_block_params_from(blk, old);
+	scs_m.objs(i)=blk;
+      case 'DEMUX' then
+	pause demux 
+	old=blk;
+	blk = MB_Demux('define',blk.model.out, blk.model.in);
+	blk = set_block_params_from(blk, old);
+	scs_m.objs(i)=blk;
       else
 	// convert super, csuper, asuper
 	// Note that this should come in second since

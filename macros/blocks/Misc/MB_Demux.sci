@@ -86,7 +86,8 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
     x= MB_Demux_define(max(x.model.in),signs_n,x);
    case 'define' then
     dim_or = [-1;-2];dim_ir = 0;
-    if nargin == 2 then dim_or = arg1;end;
+    if nargin >= 2 then dim_or = arg1;end;
+    if nargin >= 3 then dim_ir = arg2;end;
     if and(dim_or >= 0) then dim_ir = sum(dim_or);end
     x= MB_Demux_define(dim_or,dim_ir);
   end
