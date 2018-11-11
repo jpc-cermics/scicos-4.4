@@ -30,42 +30,44 @@ function ok=hilite_mult_objs(path,objs,mess)
   Scicos_commands=[];
   if type(path,'short')=='m' then
     for i=1:size(objs,'*')
-      append_command('%diagram_path_objective='+sci2exp(path)+';%scicos_navig=1',...
-		     'hilite_obj('+sci2exp(objs(i))+');');
+      append_command("%diagram_path_objective="+sci2exp(path)+";%scicos_navig=1",...
+		     "hilite_obj("+sci2exp(objs(i))+");");
     end
-  elseif type(path,'short')=='l' then
-    for i=1:size(objs,'*')
+  elseif type(path,"short")=="l" then
+    for i=1:size(objs,"*")
       temppath=path(objs(i))
-      if type(temppath,'short')=='m' then
+      if type(temppath,"short")=="m" then
 	temppath=check_csuper(temppath)
 	nbr_obj=temppath($)
 	temppath2=temppath(1:$-1);     
-	append_command('%diagram_path_objective='+sci2exp(temppath2)+';%scicos_navig=1',...
-		       'hilite_obj('+sci2exp(nbr_obj)+');');
-      elseif type(temppath,'short')=='l' then
+	append_command("%diagram_path_objective="+sci2exp(temppath2)+";%scicos_navig=1",...
+		       "hilite_obj("+sci2exp(nbr_obj)+");");
+      elseif type(temppath,"short")=="l" then
 	//modelica and sampleclk
 	for j=1:length(temppath)
 	  nbr_obj=temppath(j)($)
 	  temppath2=temppath(j)(1:$-1);
-	  append_command('%diagram_path_objective='+sci2exp(temppath2)+';%scicos_navig=1',...
-			 'hilite_obj('+sci2exp(nbr_obj)+');');
+	  append_command("%diagram_path_objective="+sci2exp(temppath2)+";%scicos_navig=1",...
+			 "hilite_obj("+sci2exp(nbr_obj)+");");
 	end
       else
-	message('The path must be a vector or a list of vectors');
+	message("The path must be a vector or a list of vectors");
 	ok=%f;
 	return;
       end
     end
   else
-    message('The path must be a vector or a list of vectors');
+    message("The path must be a vector or a list of vectors");
     ok=%f;
     return;
   end
-  append_command('%diagram_path_objective='+sci2exp(super_path)+';%scicos_navig=1',...
-		 'Cmenu="""";');
+  if exists('super_path') then 
+    append_command("%diagram_path_objective="+sci2exp(super_path)+";%scicos_navig=1",...
+		   "Cmenu="""";");
+  end
   if nargin==3 then
-    mess1='[""'+catenate(mess,sep='"";""')+'""]';
-    append_command('message('+mess1+');','');
+    mess1="["""+catenate(mess,sep=""";""")+"""]";
+    append_command("message("+mess1+");","");
   end
 endfunction
 
