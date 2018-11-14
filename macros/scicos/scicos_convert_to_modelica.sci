@@ -269,19 +269,19 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
       case 'PRODUCT' then
 	// XXX: the case with one entry and matrix entries should be revisited 
 	old = blk;
-	blk = MB_Prodn('define');
-	blk = set_block_params_from(blk, old);
 	execstr('signs='+old.graphics.exprs(1));
+	blk = MB_Prodn('define',-1,signs);
+	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = signs;
 	scs_m.objs(i)=blk;
       case 'PROD_f' then
 	// XXX: the case with one entry and matrix entries should be revisited 
 	old = blk;
-	blk = MB_Prodn('define');
+	signs = ones(1,size(old.model.in,'*'));
+	blk = MB_Prodn('define',-1,signs);
 	blk = set_block_params_from(blk, old);
-	blk.graphics.exprs.signs = ones(1,size(old.model.in,'*'));
+	blk.graphics.exprs.signs = signs;
 	scs_m.objs(i)=blk;
-	pause prof_f_a_finir
       case 'EXTRACTOR' then
 	// XXXX Attention doit etre vectoriel 
 	// EXTRACTOR -> CBR_Extractor (OK)
