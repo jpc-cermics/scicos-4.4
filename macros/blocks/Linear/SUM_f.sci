@@ -41,15 +41,16 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
     orient=graphics.flip
     wd=xget('wdim');
     if orient then
-      t=[%pi -%pi/2 0]
+      t=[%pi, -%pi/2, 0]
     else
-      t=[%pi %pi/2 0]
+      t=[%pi,  %pi/2, 0]
     end
-    rx=sz(1)*p/2
-    x=(rx*sin(t)+(orig(1)+rx)*ones_deprecated(t))
-    ry=sz(2)/2
-    y=ry*cos(t)+(orig(2)+ry)*ones_deprecated(t)
-    typ=ones_deprecated(x)
+    // t = t(1:size(arg1.model.in,'*'));
+    rx=sz(1)*p/2;
+    x=rx*sin(t)+(orig(1)+rx)
+    ry=sz(2)/2;
+    y=ry*cos(t)+(orig(2)+ry)
+    typ=ones(size(x));
    case 'getoutputs' then
     graphics=arg1.graphics; 
     orig=graphics.orig,
@@ -65,10 +66,10 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
       dx=-sz(1)/7
     end
     rx=sz(1)*p/2
-    x=(rx*sin(t)+(orig(1)+rx)*ones_deprecated(t))+dx
+    x=rx*sin(t)+(orig(1)+rx)*ones_deprecated(t)+dx;
     ry=sz(2)/2
-    y=ry*cos(t)+(orig(2)+ry)*ones_deprecated(t)
-    typ=ones_deprecated(x)
+    y=ry*cos(t)+(orig(2)+ry)*ones_deprecated(t);
+    typ=ones(size(x));
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then

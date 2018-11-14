@@ -7,7 +7,6 @@ function scs_m= scicos_convert_to_modelica(scs_m)
   scs_m= scicos_normalize_links(scs_m);
   // 
   scs_m= scicos_normalize_sum_f(scs_m);
-  return;
   // 
   scs_m= scicos_convert_blocks_to_modelica(scs_m);
   // second step to eventually change the IN OUT blocks 
@@ -23,6 +22,8 @@ endfunction
 function scs_m= scicos_normalize_sum_f(scs_m)
   // sum_f can have unconnected entries
   // before conversion we re-organize the links
+  // Take care that the sum block after this tranformation may 
+  // have less input ports. It will be ok when converted to modelica 
   blks = [];
   for i=1:length(scs_m.objs)
     obj = scs_m.objs(i);
@@ -45,13 +46,12 @@ function scs_m= scicos_normalize_sum_f(scs_m)
   end
   // second pass to clean
   for i=1:size(blks,'*')
-    obj = scs_m.objs(i);
-    pause 
+    obj = scs_m.objs(blks(i));
     I= find(obj.graphics.pin ==0);
     if ~isempty(I) then
-      pause www_changer_plus 
-      obj.graphics.in = obj.graphics.in(1:I(1)-1);
-      scs_m.objs(i)=obj;
+      obj.graphics.pin = obj.graphics.pin(1:I(1)-1);
+      obj.graphics.in_implicit = obj.graphics.in_implicit(1:I(1)-1);
+      scs_m.objs(blks(i))=obj;
     end
   end
 endfunction
