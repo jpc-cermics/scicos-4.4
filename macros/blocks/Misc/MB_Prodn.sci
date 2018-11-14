@@ -19,9 +19,9 @@ function [x,y,typ]=MB_Prodn(job,arg1,arg2)
     for k=1:size(x,'*');
       if size(signs,'*') >= k then
 	if signs(k) > 0 then;
-	  xstring(orig(1)+dd,y(k)-4,'+',size=fz,color=blue);
+	  xstring(orig(1)+dd,y(k)-4,'*',size=fz,color=blue);
 	else;
-	  xstring(orig(1)+dd,y(k)-4,'-',size=fz,color=blue);
+	  xstring(orig(1)+dd,y(k)-4,'/',size=fz,color=blue);
 	end;
       end;
     end;

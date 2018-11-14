@@ -166,7 +166,7 @@ endfunction
 	  o_new.model.rpar = scsm;
 	  // update the block 
 	  scs_m.objs(i)=o_new;
-	  doeval = doeval || scs_m.objs(i).model.in < 0 || scs_m.objs(i).model.out < 0;
+	  doeval = doeval || or(scs_m.objs(i).model.in < 0) || or(scs_m.objs(i).model.out < 0);
 	  scs_m.objs(i).model.in = scs_m1.objs(i).model.in;
 	  scs_m.objs(i).model.in2 = scs_m1.objs(i).model.in2;
 	  scs_m.objs(i).model.intyp = scs_m1.objs(i).model.intyp;
@@ -175,7 +175,7 @@ endfunction
 	  scs_m.objs(i).model.outtyp = scs_m1.objs(i).model.outtyp;
 	elseif is_modelica_block(o)
 	  //
-	  doeval = doeval || scs_m.objs(i).model.in < 0 || scs_m.objs(i).model.out < 0;
+	  doeval = doeval || or(scs_m.objs(i).model.in < 0) || or(scs_m.objs(i).model.out < 0);
 	  scs_m.objs(i).model.in = scs_m1.objs(i).model.in;
 	  scs_m.objs(i).model.in2 = scs_m1.objs(i).model.in2;
 	  scs_m.objs(i).model.intyp = scs_m1.objs(i).model.intyp;

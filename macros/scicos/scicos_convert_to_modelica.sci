@@ -28,7 +28,8 @@ function scs_m= scicos_normalize_sum_f(scs_m)
     obj = scs_m.objs(i);
     if obj.type == 'Link' then
       to = scs_m.objs(obj.to(1));
-      if to.gui == 'SUM_f' then
+      if to.gui == 'SUM_f' || to.gui == 'PROD_f' then
+	blks.concatd[obj.to(1)];
 	port = obj.to(2);
 	I = find( to.graphics.pin == 0);
 	if size(I,'*') == 2 then I=min(I);end
@@ -38,7 +39,6 @@ function scs_m= scicos_normalize_sum_f(scs_m)
 	  to.graphics.pin(port) = 0;
 	  scs_m.objs(obj.to(1))=to;
 	  scs_m.objs(i)=obj;
-	  blks.concatd[obj.to(1)];
 	end
       end
     end
@@ -96,7 +96,7 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
       // to is now always an input
       [xin,yin,typin] = getinputs(scs_m.objs(to(1)));
       
-      if %t then 
+      if %f then 
 	// typin et typout 1: 'E', 2 'I', 3 'B';
 	if isempty(scs_m.objs(from(1)).graphics.out_implicit) then outtyp='E';
 	elseif length(scs_m.objs(from(1)).graphics.out_implicit) < from(2) then outtyp='E';
@@ -239,6 +239,9 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
       	//scs_m.objs(i)=blk;
       case {'INTEGRAL_m','INTEGRAL'} then
 	// XXXX a reprendre car c'est vectoriel dans scicos
+	// Si l'etat initial est scalaire dimension pas connu
+	// Si etat initial vectoriel alors dimensions imposées
+	// avec ou sans ré-initialisation 
 	old = blk;
 	blk = MBC_Integrator('define');
 	blk = set_block_params_from(blk, old);
@@ -263,7 +266,6 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = signs;
 	scs_m.objs(i)=blk;
-	pause sum_f_xxx;
       case 'PRODUCT' then
 	// XXX: the case with one entry and matrix entries should be revisited 
 	old = blk;
@@ -279,7 +281,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = ones(1,size(old.model.in,'*'));
 	scs_m.objs(i)=blk;
-
+	pause prof_f_a_finir
       case 'EXTRACTOR' then
 	// XXXX Attention doit etre vectoriel 
 	// EXTRACTOR -> CBR_Extractor (OK)
@@ -409,6 +411,18 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	end
 	scs_m.objs(i)=blk;
       case 'GAINBLK' then
+	// Attention si le gain est scalaire
+	// les dimensions sont libres !
+	// we do not have context here thus maybe we have to step back
+	// This should be evaluated with the context 
+	old=blk;
+	blk = MB_Gain('define',blk.graphics.exprs(1));
+	blk = set_block_params_from(blk, old);
+	scs_m.objs(i)=blk;
+      case 'GAIN_f' then
+	// Dans GAIN_f les dimensions sont les vraies dimensions du gain
+	// il n'y a pas de promotion scalaire -> scalaire*eye();
+	pause gain_f_to_be_done
 	// we do not have context here thus maybe we have to step back
 	// This should be evaluated with the context 
 	old=blk;
@@ -488,7 +502,7 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
       [x_target,y_target,from_blk_type] = getoutputs(from_blk);
       from_blk_type = from_blk_type(link.from(2));
     else
-      printf("scicos_get_linked_block_to_out %s\n",from_blk.gui);
+      // printf("scicos_get_linked_block_to_out %s\n",from_blk.gui);
       [x_target,y_target,from_blk_type] = getoutputs(from_blk);
       from_blk_type = from_blk_type(link.from(2));
     end
@@ -554,7 +568,7 @@ function scs_m= scicos_convert_split_to_modelica(scs_m)
       [x_target,y_target,from_blk_type] = getoutputs(from_blk);
       from_blk_type = from_blk_type(link.from(2));
     else
-      printf("scicos_get_linked_block_to_split %s\n",from_blk.gui);
+      // printf("scicos_get_linked_block_to_split %s\n",from_blk.gui);
       [x_target,y_target,from_blk_type] = getoutputs(from_blk);
       from_blk_type = from_blk_type(link.from(2));
     end
