@@ -5,6 +5,10 @@ function scs_m= scicos_convert_to_modelica(scs_m)
   // replace all modelica blocks by dummy and
   // changes the link so as to be standard links
   scs_m= scicos_normalize_links(scs_m);
+  // 
+  scs_m= scicos_normalize_sum_f(scs_m);
+  return;
+  // 
   scs_m= scicos_convert_blocks_to_modelica(scs_m);
   // second step to eventually change the IN OUT blocks 
   scs_m= scicos_convert_inout_to_modelica(scs_m);
@@ -14,6 +18,42 @@ function scs_m= scicos_convert_to_modelica(scs_m)
   // from -> to i.e from is an output and to an input
 
   scs_m= scicos_convert_links_to_modelica(scs_m);
+endfunction
+
+function scs_m= scicos_normalize_sum_f(scs_m)
+  // sum_f can have unconnected entries
+  // before conversion we re-organize the links
+  blks = [];
+  for i=1:length(scs_m.objs)
+    obj = scs_m.objs(i);
+    if obj.type == 'Link' then
+      to = scs_m.objs(obj.to(1));
+      if to.gui == 'SUM_f' then
+	port = obj.to(2);
+	I = find( to.graphics.pin == 0);
+	if size(I,'*') == 2 then I=min(I);end
+	if I < port then
+	  obj.to(2) = I;
+	  to.graphics.pin(I) = to.graphics.pin(port);
+	  to.graphics.pin(port) = 0;
+	  scs_m.objs(obj.to(1))=to;
+	  scs_m.objs(i)=obj;
+	  blks.concatd[obj.to(1)];
+	end
+      end
+    end
+  end
+  // second pass to clean
+  for i=1:size(blks,'*')
+    obj = scs_m.objs(i);
+    pause 
+    I= find(obj.graphics.pin ==0);
+    if ~isempty(I) then
+      pause www_changer_plus 
+      obj.graphics.in = obj.graphics.in(1:I(1)-1);
+      scs_m.objs(i)=obj;
+    end
+  end
 endfunction
 
 function scs_m= scicos_normalize_links(scs_m)
@@ -207,18 +247,23 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
       case 'SUMMATION' then
 	// XXX: the case with one entry and matrix entries should be revisited 
 	old = blk;
-	blk = MB_Addn('define');
-	blk = set_block_params_from(blk, old);
 	execstr('signs='+old.graphics.exprs(2));
+	blk = MB_Addn('define',-1,signs);
+	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = signs;
 	scs_m.objs(i)=blk;
       case 'SUM_f' then
-	// XXX: the case with one entry and matrix entries should be revisited 
+	// XXX: the case with one entry and matrix entries should be revisited
+	// SUM_f is special : it can contain unconnected entries
+	// we thus obtain a MB_Addn with unconnected entries
+	// This should be fixed latter.
 	old = blk;
-	blk = MB_Addn('define');
+	signs = ones(1,size(old.model.in,'*'));
+	blk = MB_Addn('define',-1,signs);
 	blk = set_block_params_from(blk, old);
-	blk.graphics.exprs.signs = ones(1,size(old.model.in,'*'));
+	blk.graphics.exprs.signs = signs;
 	scs_m.objs(i)=blk;
+	pause xxx;
       case 'PRODUCT' then
 	// XXX: the case with one entry and matrix entries should be revisited 
 	old = blk;
