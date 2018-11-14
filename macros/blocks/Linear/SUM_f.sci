@@ -45,7 +45,7 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
     else
       t=[%pi,  %pi/2, 0]
     end
-    // t = t(1:size(arg1.model.in,'*'));
+    t = t(1:size(arg1.model.in,'*'));
     rx=sz(1)*p/2;
     x=rx*sin(t)+(orig(1)+rx)
     ry=sz(2)/2;

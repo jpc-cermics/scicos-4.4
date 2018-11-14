@@ -213,8 +213,7 @@ endfunction
   scs_m = do_silent_eval(scs_m);
   if verbose then printf("silent eval pass ended\n");end
   endfunction
-
-
+  
   function [ok,scs_m] = do_convert_and_compile(scs_m,verbose = %f,step=10)
     ok = %t;
     if type(scs_m,'short') == 's' then

@@ -1,21 +1,20 @@
 function scs_m= scicos_convert_to_modelica(scs_m)
-
-  // XXX: il faut propager les contextes
-    
   // replace all modelica blocks by dummy and
-  // changes the link so as to be standard links
+  // changes the link so as to have links which alwys
+  // go from link.from and to link.to.
+  //
+  // normalize links 
   scs_m= scicos_normalize_links(scs_m);
-  // 
+  // normalize SUM_f and XXXX Prof_f which can contain unconnected ports.
   scs_m= scicos_normalize_sum_f(scs_m);
-  // 
+  // introduce dummy blocks
   scs_m= scicos_convert_blocks_to_modelica(scs_m);
   // second step to eventually change the IN OUT blocks 
   scs_m= scicos_convert_inout_to_modelica(scs_m);
-  //
+  // convert the splits 
   scs_m= scicos_convert_split_to_modelica(scs_m);
-  // simplify links: in order that they always are
-  // from -> to i.e from is an output and to an input
-
+  // check that links are betwwen ports of same type and
+  // introduce converters if requested
   scs_m= scicos_convert_links_to_modelica(scs_m);
 endfunction
 
@@ -51,6 +50,7 @@ function scs_m= scicos_normalize_sum_f(scs_m)
     if ~isempty(I) then
       obj.graphics.pin = obj.graphics.pin(1:I(1)-1);
       obj.graphics.in_implicit = obj.graphics.in_implicit(1:I(1)-1);
+      obj.model.in = obj.model.in(1:I(1)-1);
       scs_m.objs(blks(i))=obj;
     end
   end
@@ -263,7 +263,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = signs;
 	scs_m.objs(i)=blk;
-	pause xxx;
+	pause sum_f_xxx;
       case 'PRODUCT' then
 	// XXX: the case with one entry and matrix entries should be revisited 
 	old = blk;
