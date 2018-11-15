@@ -31,12 +31,27 @@ function [x,y,typ]=MB_Gain(job,arg1,arg2)
       txt.concatd["    y.signal = G* u.signal;"];
     elseif H.in_r==-1 && H.out_r == -2 then
       txt.concatd["    //// will be generated later"];
+    elseif H.out_r==1 then
+      start = sprintf("    y.signal=",i);
+      S=m2s([]);
+      if H.in_r == 1 then
+	S.concatr[sprintf("G*u.signal")];
+      else
+	for j=1:H.in_r
+	  S.concatr[sprintf("G[%d]*u[%d].signal",j,j)];
+	end
+      end
+      txt.concatd[start + catenate(S,sep='+') + ";"];
     else
       for i=1:H.out_r
 	start = sprintf("    y[%d].signal=",i);
 	S=m2s([]);
-	for j=1:H.in_r
-	  S.concatr[sprintf("G[%d,%d]*u[%d].signal",i,j,j)];
+	if H.in_r == 1 then
+	  S.concatr[sprintf("G[%d,1]*u.signal",i)];
+	else
+	  for j=1:H.in_r
+	    S.concatr[sprintf("G[%d,%d]*u[%d].signal",i,j,j)];
+	  end
 	end
 	txt.concatd[start + catenate(S,sep='+') + ";"];
       end

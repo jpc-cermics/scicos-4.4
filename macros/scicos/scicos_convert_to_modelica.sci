@@ -124,7 +124,7 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
 	// from(1) is of type 2, thus to(1) is of type 1.
 	// we insert a MO2Sn : from(1) -[type 2]-> MO2Sn -[type 1]-> to(1)
 	new = MB_MO2Sn('define');
-	new.graphics.orig = [xin(1)-30,yin(1)];
+	new.graphics.orig = [xin(to(2))-30,yin(to(2))];
 	new.graphics.sz = [20,20];
 	// unlock scs_m.objs(to(1)) and lock the new 
 	[xnew,ynew,typnew] = getinputs(new);
@@ -154,7 +154,7 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
 	// from(1) is of type 1, thus to(1) is of type 2.
 	// we insert a S2MOn : from(1) -[type 2]-> S2MOn -[type 1]-> to(1)
 	new = MB_S2MOn('define');
-	new.graphics.orig = [xin(1)-30,yin(1)];
+	new.graphics.orig = [xin(to(2))-30,yin(to(2))];
 	new.graphics.sz = [20,20];
 	// lock the i link to port 1 of new block 
 	[xnew,ynew,typnew] = getinputs(new);

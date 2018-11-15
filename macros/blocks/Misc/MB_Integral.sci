@@ -13,9 +13,7 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],m2s([]),[],[],H.param,H.paramv,H.pprop)
     n = size(xinit,'*');
     if n > 1 then 
-      for i = 1:n 
-	txt.concatd[sprintf("RealOutput y[%d](signal(start=xinit[%d]));",i,i)];
-      end
+      txt.concatd[sprintf("RealOutput y[%d](signal(start=xinit[:,1]));",n)];
     else
       txt.concatd[sprintf("RealOutput y(signal(start=xinit));")];
     end
@@ -80,14 +78,14 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     end
   endfunction
   
-  function blk= MB_Integral_define(xinit_s, outmin_s,outmax_s, old)
+  function blk= MB_Integral_define(exprs, old)
     E = acquire('%scicos_context',def=hash(1));
-    [ok,E1]=execstr(sprintf('xinit =%s; outmin = %s; outmax = %s',xinit_s,outmin_s,outmax_s),env=E,errcatch=%t);
+    [ok,E1]=execstr(["xinit";"outmin"; "outmax"]+ "=" + exprs, env=E, errcatch=%t);
     if ~ok then xinit=[0];outmin=[];outmax=[];
     else
       xinit=E1.xinit; outmin=E1.outmin; outmax=E1.outmax;
     end
-    if nargin <= 3 then 
+    if nargin <= 1 then 
       global(modelica_count=0);
       nameF='integral'+string(modelica_count);
       modelica_count =       modelica_count +1;
@@ -108,16 +106,16 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     
     H.funtxt = MB_Integral_funtxt(H, xinit, outmin, outmax);
     
-    if nargin == 4 then
+    if nargin == 2 then
       blk = old;
       blk.graphics.exprs.funtxt = H.funtxt;
-      blk.graphics.exprs.params = list(n,outmin,outmax);
+      blk.graphics.exprs.exprs = exprs;
       blk.model.sim(1) = H.nameF;
       blk.model.equations.model = H.nameF;
     else
       blk = VMBLOCK_define(H);
       blk.graphics.exprs.funtxt = H.funtxt;
-      blk.graphics.exprs.params = list(n,outmin,outmax);
+      blk.graphics.exprs.exprs = exprs;
       blk.model.sim(1) = H.nameF;
       blk.model.equations.model = H.nameF;
       blk.graphics.exprs.nameF = H.nameF;
@@ -144,27 +142,59 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     case 'getorigin' then
       [x,y]=standard_origin(arg1)
     case 'set' then
-      // The code is regenerated according to new dimensions and function
-      // when executing a script coming from do_api_save the classname is
-      // x.graphics.exprs.nameF
-      // we have to use this name to update 
+      // set parameters and regenerate the code accordingly
+      // The set action is also called during translation from
+      // scicos to modelica.
+      // In that case it is possible that the model.in is > 1 and xinit
+      // is equal to one since it is possible for the Intergral_m block
+      // We need to set up xinit in that case to reflect the real dimension.
       x=arg1;
-      value=x.graphics.exprs.paramv;
-      gv_titles='Set MB_Integral block parameters';
-      gv_names=['trigonometric function'];
-      gv_types = list('str',-1);
-      [ok,C, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
-      if ~ok then return;end; // cancel in getvalue;
-      x= MB_Integral_define(x.model.in,value_n,x);
+      graphics=arg1.graphics;
+      exprs=graphics.exprs.exprs;
+      model=arg1.model;
+      pause zzzzzz_xxx
+      while %t do
+	[ok,x0,outmin,outmax,exprs_new]=getvalue('Set MB_Integral block parameters',
+						 ['Initial Condition';
+						  'Upper limit or []';'Lower limit or []'],
+						 list('mat',[-1 -1],'mat',[-1 -1],'mat',[-1 -1]),exprs);
+	if ~ok then break,end
+	// message('Upper limits must be > Lower limits')
+	// message('Inital condition x0 should be inside the limits')
+      	// rpar=[real(maxp(:));real(lowp(:))]
+	// model.nzcross=size(x0,'*')
+	// model.nmode=size(x0,'*')
+      	// model.rpar=rpar
+	// model.state=real(x0(:))
+	// model.sim=list('integral_func',4)
+	if %f then 
+	  it=[1;ones(reinit,1)]
+	  ot=1;
+	  if size(x0,"*")>1 then
+	    in=[size(x0,1)*[1;ones(reinit,1)],size(x0,2)*[1;ones(reinit,1)]]
+	    out=size(x0)
+	  else
+	    in=[-1*[1;ones(reinit,1)],-2*[1;ones(reinit,1)]]
+	    out=[-1,-2]
+	  end
+	end
+	if x.model.in > 0 && size(x0,'*')==1 then
+	  xinit=smat_create(x.model.in,1,exprs_new(1));
+	  xinit="["+catenate(xinit,sep=";")+"]";
+	  exprs_new(1)=xinit;
+	end
+	x= MB_Integral_define(exprs_new,x);
+	break;
+      end
     case 'define' then
       // ["initial_state","outmin","outmax"]
       // outmin and outmax can be []
       // The dimension of "initial_state" gives the size of the initial state
       // But when converting from scicos to modelica we have to take care
       // That in scicos dimension 1 may be promoted to higher dimensions;
-      L=list("0","[]","[]");
-      if nargin == 2 then L=arg1;end
-      x= MB_Integral_define(L(1),L(2),L(3));
+      A=["0";"[]";"[]"];
+      if nargin == 2 then A=arg1;end
+      x= MB_Integral_define(A);
   end
 endfunction
 
