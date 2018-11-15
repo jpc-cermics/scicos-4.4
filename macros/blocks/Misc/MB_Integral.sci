@@ -1,8 +1,6 @@
 function [x,y,typ]=MB_Integral(job,arg1,arg2)
   // A modelica block for non-scalar trig functions
-  // XXX: tester que le nom choisit existe dans les fonctions
-  //      verifier que la fonction signe existe en modelica
-
+  
   function blk_draw(sz,orig,orient,label)
     xpoly(orig(1)+[0.7;0.62;0.549;0.44;0.364;0.291]*sz(1),
 	  orig(2)+[0.947;0.947;0.884;0.321;0.255;0.255]*sz(2),type="lines")
@@ -10,8 +8,17 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     fz=2*acquire("%zoom",def=1)*4;
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
   endfunction
-  function txt = MB_Integral_funtxt(H, n, outmin,outmax)
-    txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,[H.out_r,H.out_c],H.param,H.paramv,H.pprop)
+  
+  function txt = MB_Integral_funtxt(H, xinit, outmin,outmax)
+    txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],m2s([]),[],[],H.param,H.paramv,H.pprop)
+    n = size(xinit,'*');
+    if n > 1 then 
+      for i = 1:n 
+	txt.concatd[sprintf("RealOutput y[%d](signal(start=xinit[%d]));",i,i)];
+      end
+    else
+      txt.concatd[sprintf("RealOutput y(signal(start=xinit));")];
+    end
     txt.concatd["  equation"];
     if ~isempty(outmin) || ~isempty(outmax) then
       fmt = "    der(%%s) = if %s then 0 else %%s;";
@@ -73,7 +80,13 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     end
   endfunction
   
-  function blk= MB_Integral_define(n, outmin,outmax, old)
+  function blk= MB_Integral_define(xinit_s, outmin_s,outmax_s, old)
+    E = acquire('%scicos_context',def=hash(1));
+    [ok,E1]=execstr(sprintf('xinit =%s; outmin = %s; outmax = %s',xinit_s,outmin_s,outmax_s),env=E,errcatch=%t);
+    if ~ok then xinit=[0];outmin=[];outmax=[];
+    else
+      xinit=E1.xinit; outmin=E1.outmin; outmax=E1.outmax;
+    end
     if nargin <= 3 then 
       global(modelica_count=0);
       nameF='integral'+string(modelica_count);
@@ -81,19 +94,19 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     else
       nameF=old.graphics.exprs.nameF;
     end
-    param=[]; paramv=list(); pprop=[];
+    param=["xinit"]; paramv=list(xinit); pprop=[0];
     if ~isempty(outmin) then
       param=["outMin"]; paramv=list(outmin); pprop=[0];
     end
     if ~isempty(outmax) then
       param=[param,"outMin"]; paramv($+1)=outmax; pprop=[pprop,0];
     end
-    
+    n = size(xinit,'*');
     H=hash(in=["u"], intype="I", in_r=[n], in_c=[1],
 	   out=["y"], outtype="I", out_r=[n], out_c=[1],
 	   param=param, paramv=paramv, pprop=pprop, nameF=nameF);
     
-    H.funtxt = MB_Integral_funtxt(H, n,  outmin,outmax);
+    H.funtxt = MB_Integral_funtxt(H, xinit, outmin, outmax);
     
     if nargin == 4 then
       blk = old;
@@ -144,15 +157,14 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
       if ~ok then return;end; // cancel in getvalue;
       x= MB_Integral_define(x.model.in,value_n,x);
     case 'define' then
-      L=list(1,[],[]);
+      // ["initial_state","outmin","outmax"]
+      // outmin and outmax can be []
+      // The dimension of "initial_state" gives the size of the initial state
+      // But when converting from scicos to modelica we have to take care
+      // That in scicos dimension 1 may be promoted to higher dimensions;
+      L=list("0","[]","[]");
       if nargin == 2 then L=arg1;end
       x= MB_Integral_define(L(1),L(2),L(3));
-      x.model.in = L(1);
-      x.model.in2 = 1;
-      x.model.intype = 1;
-      x.model.out = L(1);
-      x.model.out2 = 1;
-      x.model.outtype = 1;
   end
 endfunction
 

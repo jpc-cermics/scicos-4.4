@@ -237,7 +237,27 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	//blk = IMPSPLIT_f('define');
 	//blk = set_block_params_from(blk, old);
       	//scs_m.objs(i)=blk;
-      case {'INTEGRAL_m','INTEGRAL'} then
+      case 'INTEGRAL_m' then
+	old = blk;
+	tags = ["xinit";"reinit";"satur";"outmax";"outmin"];
+	context=acquire('%scicos_context',def=hash(4));
+	[ok,He] = execstr(tags + "=" + old.graphics.exprs,env=context,errcatch=%t);
+	if ~ok then pause INTEGRAL_m_failed;end
+	exprs_new = old.graphics.exprs(1);
+	if He.satur == 0 then
+	  exprs_new(2) = "[]";  exprs_new(3) = "[]";
+	else
+	  exprs_new(2) = old.graphics.exprs(2);
+	  exprs_new(3) = old.graphics.exprs(3);
+	end
+	blk = MB_Integral('define', exprs_new);
+	blk = set_block_params_from(blk, old);
+	if size(He.xinit,'*')== 1 then
+	  blk.model.in = -1;
+	  blk.model.out = -1;
+	end
+	scs_m.objs(i)=blk;
+      case 'INTEGRAL' then
 	// XXXX a reprendre car c'est vectoriel dans scicos
 	// Si l'etat initial est scalaire dimension pas connu
 	// Si etat initial vectoriel alors dimensions imposées
@@ -294,7 +314,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	scs_m.objs(i)=blk;
       case 'CONST_m' then
 	// CONST_m -> MB_Constantn (OK)
-	H = acquire('%api_context',def=hash(1));
+	H = acquire('%scicos_context',def=hash(1));
 	[ok,H1]=execstr('C ='+blk.graphics.exprs,env=H,errcatch=%t);
 	if ~ok then
 	  printf("Warning: unable to evaluate ''%s'' in block CONST_m\n",blk.graphics.exprs);
