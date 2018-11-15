@@ -255,7 +255,7 @@ function [ok,Paro]=construct_Pars(Pari,opari,Parembed)
   // construct in Paro a string for the modelica declaration
   // of parameter Pari having value opari. 
   // opari is a matrix (double or integer).
-  
+
   ok = %f; Paro='';
   
   if isempty(Pari) then return;end

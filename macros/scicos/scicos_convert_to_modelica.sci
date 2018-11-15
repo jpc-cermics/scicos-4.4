@@ -250,7 +250,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	  exprs_new(2) = old.graphics.exprs(2);
 	  exprs_new(3) = old.graphics.exprs(3);
 	end
-	blk = MB_Integral('define', exprs_new);
+	blk = MB_Integral('define', exprs_new(:));
 	blk = set_block_params_from(blk, old);
 	if size(He.xinit,'*')== 1 then
 	  blk.model.in = -1;

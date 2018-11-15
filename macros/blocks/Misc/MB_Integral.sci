@@ -2,6 +2,9 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
   // A modelica block for non-scalar trig functions
   
   function blk_draw(sz,orig,orient,label)
+    blue=xget('color','blue');
+    white=xget('color','white');
+    xrect(orig(1)+sz(1)*0,orig(2)+sz(2)*1,sz(1)*1,sz(2)*1,color=blue,background=white);
     xpoly(orig(1)+[0.7;0.62;0.549;0.44;0.364;0.291]*sz(1),
 	  orig(2)+[0.947;0.947;0.884;0.321;0.255;0.255]*sz(2),type="lines")
     txt="1/s";
@@ -94,10 +97,10 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     end
     param=["xinit"]; paramv=list(xinit); pprop=[0];
     if ~isempty(outmin) then
-      param=["outMin"]; paramv=list(outmin); pprop=[0];
+      param=[param,"outMin"]; paramv($+1)=outmin; pprop=[pprop,0];
     end
     if ~isempty(outmax) then
-      param=[param,"outMin"]; paramv($+1)=outmax; pprop=[pprop,0];
+      param=[param,"outMax"]; paramv($+1)=outmax; pprop=[pprop,0];
     end
     n = size(xinit,'*');
     H=hash(in=["u"], intype="I", in_r=[n], in_c=[1],
@@ -107,7 +110,7 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     H.funtxt = MB_Integral_funtxt(H, xinit, outmin, outmax);
     
     if nargin == 2 then
-      blk = old;
+      blk = VMBLOCK_define(H,old);
       blk.graphics.exprs.funtxt = H.funtxt;
       blk.graphics.exprs.exprs = exprs;
       blk.model.sim(1) = H.nameF;
@@ -131,9 +134,6 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
   select job
     case 'plot' then
       // get string inside list(str);
-      xparamv=regsub(arg1.graphics.exprs.paramv,"^list\(+(.*)\)+$","\\1")
-      paramv=arg1.graphics.exprs.paramv;
-      C = xparamv;
       standard_coselica_draw(arg1);
     case 'getinputs' then
       [x,y,typ]=standard_inputs(arg1)
@@ -152,22 +152,21 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
       graphics=arg1.graphics;
       exprs=graphics.exprs.exprs;
       model=arg1.model;
-      pause zzzzzz_xxx
       while %t do
 	[ok,x0,outmin,outmax,exprs_new]=getvalue('Set MB_Integral block parameters',
 						 ['Initial Condition';
 						  'Upper limit or []';'Lower limit or []'],
 						 list('mat',[-1 -1],'mat',[-1 -1],'mat',[-1 -1]),exprs);
 	if ~ok then break,end
-	// message('Upper limits must be > Lower limits')
-	// message('Inital condition x0 should be inside the limits')
-      	// rpar=[real(maxp(:));real(lowp(:))]
-	// model.nzcross=size(x0,'*')
-	// model.nmode=size(x0,'*')
-      	// model.rpar=rpar
-	// model.state=real(x0(:))
-	// model.sim=list('integral_func',4)
 	if %f then 
+	  message('Upper limits must be > Lower limits')
+	  message('Inital condition x0 should be inside the limits')
+      	  rpar=[real(maxp(:));real(lowp(:))]
+	  model.nzcross=size(x0,'*')
+	  model.nmode=size(x0,'*')
+      	  model.rpar=rpar
+	  model.state=real(x0(:))
+	  model.sim=list('integral_func',4)
 	  it=[1;ones(reinit,1)]
 	  ot=1;
 	  if size(x0,"*")>1 then
