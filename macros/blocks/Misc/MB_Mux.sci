@@ -70,7 +70,6 @@ function [x,y,typ]=MB_Mux(job,arg1,arg2)
   x=[];y=[];typ=[];
   select job
     case 'plot' then
-      //signs=arg1.graphics.exprs.signs;
       standard_coselica_draw(arg1);
     case 'getinputs' then
       [x,y,typ]=standard_inputs(arg1)
@@ -83,7 +82,7 @@ function [x,y,typ]=MB_Mux(job,arg1,arg2)
       exprs = sci2exp(arg1.model.in);
       x=arg1;
       while %t do
-	[ok,in,exprs_new]=getvalue('Set MUX block parameters',
+	[ok,in,exprs_new]=getvalue('Set MB_Mux block parameters',
 				   'Number of input ports or vector of sizes',list('vec',-1),exprs)
 	if ~ok then break,end
 	if size(in,'*')==1 then
@@ -99,7 +98,7 @@ function [x,y,typ]=MB_Mux(job,arg1,arg2)
 	  if size(in,'*')==0| or(in==0) then
 	    message(['MB_Mux must have at least one input port';
 		     'Size 0 is not allowed. '])
-	    ok=%f
+	    ok=%f;
 	  else
 	    if min(in) < 0 then nout=0,else nout=sum(in),end
 	    it=-ones(size(in,'*'),1)

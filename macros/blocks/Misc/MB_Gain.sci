@@ -126,7 +126,7 @@ function [x,y,typ]=MB_Gain(job,arg1,arg2)
       Gstr=x.graphics.exprs.gains;
       context=acquire('%scicos_context',def=hash(4));
       [ok_eval,H] = execstr(sprintf("G=%s;",Gstr),env=context,errcatch=%t);
-      if x.model.in > 0 && size(H.G,'*')==1 then
+      if x.model.in > 1 && size(H.G,'*')==1 then
 	// must promote the scalar gain 
 	Gstr=smat_create(x.model.in,1,Gstr);
 	Gstr="diag(["+catenate(Gstr,sep=";")+"])";

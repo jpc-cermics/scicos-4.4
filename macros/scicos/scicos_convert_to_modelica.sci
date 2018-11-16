@@ -328,7 +328,19 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	[scs_m1,ok]=do_silent_eval(scs_m1, H);
 	blk = scs_m1.objs(1);
       	scs_m.objs(i)=blk;
-	
+      case 'CONST_f' then
+	// const is given by a raw vector to be transposed
+	[ok,H1]=execstr('C ='+blk.graphics.exprs,env=%scicos_context,errcatch=%t);
+	if ~ok then
+	  printf("Warning: unable to evaluate ''%s'' in block %s\n",blk.graphics.exprs,blk.gui);
+	  break;
+	end
+	// If we are able to evaluate the constant, we switch to MBM_Constantn
+	// even if the constant is a scalar value.
+	old = blk;
+	blk = MB_Constantn('define',H1.C');
+	blk = set_block_params_from(blk, old);
+      	scs_m.objs(i)=blk;
       case 'ZZRAMP' then
 	// RAMP and MBS_Ramp are different
 	// ['Slope';'Start time';'Initial output']
@@ -448,7 +460,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
       case 'GAIN_f' then
 	// Dans GAIN_f les dimensions sont les vraies dimensions du gain
 	// il n'y a pas de promotion scalaire -> scalaire*eye();
-	// pause gain_f_to_be_done
+	// pausegain_f_to_be_done
 	// we do not have context here thus maybe we have to step back
 	// This should be evaluated with the context 
 	old=blk;
@@ -461,7 +473,6 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = set_block_params_from(blk, old);
 	scs_m.objs(i)=blk;
       case 'DEMUX' then
-	pause demux 
 	old=blk;
 	blk = MB_Demux('define',blk.model.out, blk.model.in);
 	blk = set_block_params_from(blk, old);

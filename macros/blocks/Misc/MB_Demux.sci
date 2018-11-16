@@ -2,8 +2,8 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
 // A Modelica block (following coselica types i.e using RealInput/RealOutput types)
 // used to add vectors in the SUMMATION spirit 
 
-  function blk_draw(sz,orig,orient,label)  
-    txt="Demux";
+  function blk_draw(o,sz,orig)  
+    txt="DeMux";
     fz=2*acquire("%zoom",def=1)*4;
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
   endfunction
@@ -11,16 +11,20 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
   function txt = MB_Demux_funtxt(H, dim_or, dim_ir)
     
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,
-    [H.out_r,H.out_c],H.param,H.paramv,H.pprop);
+			  [H.out_r,H.out_c],H.param,H.paramv,H.pprop);
     txt.concatd["  equation"];
-    n_demux = size(dim_or,'*');
     start = 0;
     for i=1:size(dim_or,'*')
       fmt = sprintf("    y%d[%%d].signal= u[%%d].signal;",i);
       yrange=(1:dim_or(i))';
       urange=start + (1:dim_or(i))';
       start = start + dim_or(i);
-      txt1 = sprintf(fmt,yrange,urange);
+      if size(urange,'*')== 1 then
+	fmt1 = sprintf("    y%d.signal= u[%%d].signal;",i);
+	txt1 = sprintf(fmt1,urange);
+      else
+	txt1 = sprintf(fmt,yrange,urange);
+      end
       txt.concatd[txt1];
     end
     txt.concatd[sprintf("end %s;", H.nameF)];
@@ -66,8 +70,7 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
   x=[];y=[];typ=[];
   select job
    case 'plot' then
-    signs=arg1.graphics.exprs.signs;
-    standard_coselica_draw(arg1);
+     standard_coselica_draw(arg1);
    case 'getinputs' then
     [x,y,typ]=standard_inputs(arg1)
    case 'getoutputs' then
@@ -75,15 +78,46 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
    case 'getorigin' then
     [x,y]=standard_origin(arg1)
    case 'set' then
-    x=arg1;
-    signs= x.graphics.exprs.signs;
-    value= list(sci2exp(signs));
-    gv_titles='Set sum block parameters';
-    gv_names=['sign vector (of +1, -1)'];
-    gv_types = list('vec',-1);
-    [ok,signs_n, value_n]=getvalue(gv_titles,gv_names,gv_types,value);
-    if ~ok then return;end; // cancel in getvalue;
-    x= MB_Demux_define(max(x.model.in),signs_n,x);
+     y=acquire('needcompile',def=0);
+     exprs = sci2exp(arg1.model.out);
+     x=arg1;
+     while %t do
+       [ok,out,exprs]=getvalue('Set MB_Demux block parameters',
+			       ['Number of output ports or vector of sizes'],list('vec',-1),exprs)
+      if ~ok then break,end
+      if size(out,'*')==1 then
+	out = max(out,1);
+        it=-1
+        ot=-ones(out,1)
+        oup=[-[1:out]',ones(out,1)]
+        inp=[0,1]
+        [model,graphics,ok]=set_io(model,graphics,...
+				   list(inp,it),...
+				   list(oup,ot),[],[])
+      else
+        if size(out,'*')==0| or(out==0) then
+	  message(['Block must have at least 1 and at most 31 output ports';
+		   'size 0 is not allowed'])
+	  ok=%f;
+	else
+	  if min(out)<0 then nin=0,else nin=sum(out),end
+          it=-1
+          ot=-ones(size(out,'*'),1)
+          oup=[out(:),ones(size(out,'*'),1)]
+          inp=[nin,1]
+	  [model,graphics,ok]=set_io(model,graphics,...
+				     list(inp,it),...
+				     list(oup,ot),[],[])
+	end
+      end
+      if ok then
+	x.graphics=graphics;x.model=model;
+	x= MB_DeMux_define(x.model.out,x.model.in,x);
+	break
+      end
+     end
+     y=4; // XXXX a revoir;
+     resume(needcompile=y);
    case 'define' then
     dim_or = [-1;-2];dim_ir = 0;
     if nargin >= 2 then dim_or = arg1;end;
