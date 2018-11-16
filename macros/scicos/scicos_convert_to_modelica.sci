@@ -237,12 +237,16 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	//blk = IMPSPLIT_f('define');
 	//blk = set_block_params_from(blk, old);
       	//scs_m.objs(i)=blk;
-      case 'INTEGRAL_m' then
+      case {'INTEGRAL_m','INTEGRAL'} then
+	// Attention pas de re-init pour l'instant 
 	old = blk;
 	tags = ["xinit";"reinit";"satur";"outmax";"outmin"];
-	context=acquire('%scicos_context',def=hash(4));
-	[ok,He] = execstr(tags + "=" + old.graphics.exprs,env=context,errcatch=%t);
-	if ~ok then pause INTEGRAL_m_failed;end
+	[ok,He] = execstr(tags + "=" + old.graphics.exprs,env=%scicos_context,errcatch=%t);
+	if ~ok then
+	  lasterror();
+	  printf("Warning: unable to evaluate parameters in block %s\n",blk.gui);
+	  break;
+	end
 	exprs_new = old.graphics.exprs(1);
 	if He.satur == 0 then
 	  exprs_new(2) = "[]";  exprs_new(3) = "[]";
@@ -252,20 +256,12 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	end
 	blk = MB_Integral('define', exprs_new(:));
 	blk = set_block_params_from(blk, old);
+	// Take care that when xinit is a scalar the size is unknown 
+	// in {'INTEGRAL_m','INTEGRAL'} (it should be fixed latter for MB_Integral)
 	if size(He.xinit,'*')== 1 then
 	  blk.model.in = -1;
 	  blk.model.out = -1;
 	end
-	scs_m.objs(i)=blk;
-      case 'INTEGRAL' then
-	// XXXX a reprendre car c'est vectoriel dans scicos
-	// Si l'etat initial est scalaire dimension pas connu
-	// Si etat initial vectoriel alors dimensions imposées
-	// avec ou sans ré-initialisation 
-	old = blk;
-	blk = MBC_Integrator('define');
-	blk = set_block_params_from(blk, old);
-	blk.graphics.exprs(2)= old.graphics.exprs(1);
 	scs_m.objs(i)=blk;
       case 'SUMMATION' then
 	// XXX: the case with one entry and matrix entries should be revisited 
@@ -314,10 +310,9 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	scs_m.objs(i)=blk;
       case 'CONST_m' then
 	// CONST_m -> MB_Constantn (OK)
-	H = acquire('%scicos_context',def=hash(1));
-	[ok,H1]=execstr('C ='+blk.graphics.exprs,env=H,errcatch=%t);
+	[ok,H1]=execstr('C ='+blk.graphics.exprs,env=%scicos_context,errcatch=%t);
 	if ~ok then
-	  printf("Warning: unable to evaluate ''%s'' in block CONST_m\n",blk.graphics.exprs);
+	  printf("Warning: unable to evaluate ''%s'' in block %s\n",blk.graphics.exprs,blk.gui);
 	  break;
 	end
 	// If we are able to evaluate the constant, we switch to MBM_Constantn
@@ -436,13 +431,24 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	// we do not have context here thus maybe we have to step back
 	// This should be evaluated with the context 
 	old=blk;
+	[ok,H1]=execstr('G ='+blk.graphics.exprs(1),env=%scicos_context,errcatch=%t);
+	if ~ok then
+	  lasterror();
+	  printf("Warning: unable to evaluate ''%s'' in block %s\n",blk.gui);
+	  break;
+	end
 	blk = MB_Gain('define',blk.graphics.exprs(1));
 	blk = set_block_params_from(blk, old);
+	if size(H1.G,'*')== 1 then
+	  // dimensions may be bigger than one 
+	  blk.model.in = -1;
+	  blk.model.out = -1;
+	end
 	scs_m.objs(i)=blk;
       case 'GAIN_f' then
 	// Dans GAIN_f les dimensions sont les vraies dimensions du gain
 	// il n'y a pas de promotion scalaire -> scalaire*eye();
-	pause gain_f_to_be_done
+	// pause gain_f_to_be_done
 	// we do not have context here thus maybe we have to step back
 	// This should be evaluated with the context 
 	old=blk;
