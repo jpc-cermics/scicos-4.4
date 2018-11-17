@@ -1,6 +1,5 @@
 function [x,y,typ]=GAINBLK(job,arg1,arg2)
-// Copyright INRIA
-//
+  // Copyright INRIA
 
   function blk_draw(sz,orig,orient,label)
     orig=arg1.graphics.orig;
@@ -8,11 +7,9 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     orient=arg1.graphics.flip;
     if length(arg1.graphics.exprs(1))>6 then
       gain=part(arg1.graphics.exprs(1),1:4)+'..'
-    else
+    else 
       gain=arg1.graphics.exprs(1);
     end
-    ll=length(arg1.graphics.exprs(1))
-    a=ll/(1+ll)/2
     if orient then
       xx=orig(1)+[0 1 0 0]*sz(1);
       yy=orig(2)+[0 1/2 1 0]*sz(2);
@@ -20,25 +17,24 @@ function [x,y,typ]=GAINBLK(job,arg1,arg2)
     else
       xx=orig(1)+[0   1 1 0]*sz(1);
       yy=orig(2)+[1/2 0 1 1/2]*sz(2);
-      x1=1-2*a
+      x1=1/4
     end
     gr_i=arg1.graphics.gr_i;
     if type(gr_i,'short')=='l' then
       coli=gr_i(2);
       if ~isempty(coli) then
 	xfpolys(xx',yy',coli);
+	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
       else
-	xpoly(xx,yy,type='lines');
+	xpoly(xx,yy,type='lines',color=default_color(0));
+	xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
       end
     else
-      xpoly(xx,yy,type='lines');
+      xpoly(xx,yy,type='lines',color=default_color(0));	
+      xstringb(orig(1)+x1*sz(1),orig(2),gain,(1-x1)*sz(1),sz(2));
     end
-    w=sz(1)*(4/5);
-    hf=(1/3);
-    //xrect(orig(1),orig(2)+sz(2)*(1-hf)/2+sz(2)*hf,w,hf*sz(2));
-    xstringb(orig(1),orig(2)+sz(2)*(1-hf)/2,gain,w,hf*sz(2),'fill');
   endfunction
-
+  
   x=[];y=[];typ=[];
   select job
    case 'plot' then

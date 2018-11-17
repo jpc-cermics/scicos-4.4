@@ -1,5 +1,5 @@
 function [x,y,typ]=GAINBLK_f(job,arg1,arg2)
-// Copyright INRIA
+  // Copyright INRIA
 
   function blk_draw(sz,orig,orient,label)
     orig=arg1.graphics.orig;
