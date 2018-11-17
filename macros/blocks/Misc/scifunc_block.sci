@@ -66,21 +66,21 @@ function [x,y,typ]=scifunc_block(job,arg1,arg2)
 
     non_interactive = exists('getvalue') && ...
 	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
-    
+
+    gv_title = ['Set scifunc_block parameters';'only regular blocks supported'];
+    gv_entries = ['input ports sizes';
+		  'output port sizes';
+		  'input event ports sizes';
+		  'output events ports sizes';
+		  'initial continuous state';
+		  'initial discrete state';
+		  'System parameters vector';
+		  'initial firing vector (<0 for no firing)';
+		  'is block always active (0:no, 1:yes)'  ];
+    gv_types = list('vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1,
+		    'vec',-1,'vec','sum(%4)','vec',1);
     while %t do
-      [ok,i,o,ci,co,xx,z,rpar,auto0,deptime,lab]=getvalue(..
-						  ['Set scifunc_block parameters';'only regular blocks supported'],..
-						  ['input ports sizes';
-		    'output port sizes';
-		    'input event ports sizes';
-		    'output events ports sizes';
-		    'initial continuous state';
-		    'initial discrete state';
-		    'System parameters vector';
-		    'initial firing vector (<0 for no firing)';
-		    'is block always active (0:no, 1:yes)'  ],..
-						  list('vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1,..
-						       'vec',-1,'vec','sum(%4)','vec',1),exprs(1))
+      [ok,i,o,ci,co,xx,z,rpar,auto0,deptime,lab]=getvalue(gv_title,gv_entries,gv_types,exprs(1));
       if ~ok then break,end
       exprs(1)=lab
       xx=xx(:);z=z(:);rpar=rpar(:)
@@ -92,10 +92,9 @@ function [x,y,typ]=scifunc_block(job,arg1,arg2)
       co=int(co(:));nco=size(co,1);
       
       if non_interactive then 
-	ok=%t;dep_ut=[%f,%f];tt=0;
+	ok=%t;dep_ut=[%t,%f];tt=exprs(2);
       else
-	[ok,tt,dep_ut]=genfunc1(exprs(2),i,o,nci,nco,size(xx,1),size(z,1),..
-				nrp,'c')
+	[ok,tt,dep_ut]=genfunc1(exprs(2),i,o,nci,nco,size(xx,1),size(z,1), nrp,'c')
       end
       dep_ut(2)=(1==deptime)
       if ~ok then break,end
@@ -117,35 +116,12 @@ function [x,y,typ]=scifunc_block(job,arg1,arg2)
       end
     end
    case 'define' then
-    in=1
-    out=1
-    clkin=[]
-    clkout=[]
-    x0=[]
-    z0=[]
-    typ='c'
-    auto=[]
-    rpar=[]
-
-    model=scicos_model()
-    model.sim=list('scifunc',3)
-    model.in=in
-    model.out=out
-    model.evtin=clkin
-    model.evtout=clkout
-    model.state=x0
-    model.dstate=z0
-    model.rpar=rpar
-    model.ipar=0
-    model.blocktype=typ
-    model.firing=auto
-    model.dep_ut=[%t %f]
-    
-    exprs=list([sci2exp(in);sci2exp(out);sci2exp(clkin);sci2exp(clkout);
-		strcat(sci2exp(x0));strcat(sci2exp(z0));
-		strcat(sci2exp(rpar));sci2exp(auto)],..
-	       list('y1=sin(u1)',' ',' ','y1=sin(u1)',' ',' ',' '))
-    gr_i=['xstringb(orig(1),orig(2),''Scifunc'',sz(1),sz(2),''fill'');']
-    x=standard_define([2 2],model,exprs,gr_i,'scifunc_block');
+     model=scicos_model(sim=list('scifunc',3),in = 1, out=1, dep_ut=[%t %f], ipar=0);
+     exprs=list([sci2exp(in);sci2exp(out);sci2exp(clkin);sci2exp(clkout);
+		 strcat(sci2exp(x0));strcat(sci2exp(z0));
+		 strcat(sci2exp(rpar));sci2exp(auto)],
+		list("y1=sin(u1)"," "," ","y1=sin(u1)"," "," "," "))
+     gr_i=["xstringb(orig(1),orig(2),""Scifunc"",sz(1),sz(2),""fill"");"]
+     x=standard_define([2 2],model,exprs,gr_i,"scifunc_block");
   end
 endfunction

@@ -3,13 +3,6 @@ function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
 
   obj_num=length(scs_m.objs)
   
-  global(simport_target_modeler="scicos");
-
-  if %f && simport_target_modeler=="modelicos" then
-    [scs_m,obj_num] = add_modelicos_link(scs_m,lfrom,lto,points)
-    return;
-  end
-  
   if nargin<4 then points=zeros(0,2),end
   if isempty(points) then points=zeros(0,2),end
   

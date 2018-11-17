@@ -1,18 +1,11 @@
 function [scs_m,obj_num] = add_implicit_link(scs_m,from,to,points)
 
-  global(simport_target_modeler="scicos");
-  
   if nargin<4 then points=zeros(0,2);end;
   if isempty(points) then points=zeros(0,2);end 
 
-  if simport_target_modeler == "modelicos" then
-    if size(from,2)<>3 then from(3)="output";end
-    if size(to,2)<>3 then to(3)="input";end
-  else
-    if size(from,2)<>3 then from(3)="output";end
-    if size(to,2)<>3 then to(3)="input";end
-  end
-  
+  if size(from,2)<>3 then from(3)="output";end
+  if size(to,2)<>3 then to(3)="input";end
+    
   if from(3)=="output" then from(3)="0";else from(3)="1";end 
   if to(3)=="output" then to(3)="0";else to(3)="1";end 
     
