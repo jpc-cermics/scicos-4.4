@@ -242,10 +242,15 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	//blk = set_block_params_from(blk, old);
       	//scs_m.objs(i)=blk;
       case {'INTEGRAL_m','INTEGRAL'} then
+	// 'INTEGRAL_m' ; matrice
+	// 'INTEGRAL' : vecteur colonne quelles que soit l'entrée
+	// 'INTEGRAL_f' : scalaire et pas de reinit et satur;
 	// Attention pas de re-init pour l'instant 
 	old = blk;
 	tags = ["xinit";"reinit";"satur";"outmax";"outmin"];
 	[ok,He] = execstr(tags + "=" + old.graphics.exprs,env=%scicos_context,errcatch=%t);
+	// abort conversion if re-init 
+	if He.reinit == 1 then return;end
 	if ~ok then
 	  lasterror();
 	  printf("Warning: unable to evaluate parameters in block %s\n",blk.gui);
