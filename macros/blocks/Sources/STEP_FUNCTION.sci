@@ -27,7 +27,7 @@ function [x,y,typ]=STEP_FUNCTION(job,arg1,arg2)
        return;
      end
      ok = execstr(sprintf("blk_new=%s(""set"",blk);",blk.gui),errcatch=%t)
-     if ~ok then 
+     if ~ok then
        message(["Error: failed to set parameter block in STEP_FUNCTION";
 		catenate(lasterror())]);
        continue;

@@ -119,7 +119,7 @@ function [ok,txt]=do_api_save(scs_m)
     txt.concatd[sprintf('[scs_m, block_tag_%d] = add_block(scs_m, blk);',blk_num)];
   endfunction
   
-  function [txt,count]=do_api_model(scs_m,count)
+  function [txt,count,count1]=do_api_model(scs_m,count)
     // returns text coding internal diagram of a super block.
     // printf("In api model ");pause model
     count = count+1;
@@ -165,12 +165,12 @@ function [ok,txt]=do_api_save(scs_m)
       txt1.concatd["  scs_m = set_diagram_wpar (scs_m, wpar);"];
     end
     txt1($+1,1)= sprintf('  scs_m = set_diagram_name (scs_m, %s)', sci2exp(scs_m.props.title(1),0));
-    [blocks,head]= do_api_save_rec(scs_m,count);
+    [blocks,head,count1]= do_api_save_rec(scs_m,count);
     txt1.concatd['  '+blocks];
     txt1.concatd['endfunction'];
     txt=[head;txt1];
   endfunction
-
+  
   function txt=do_api_super_block(o,count,flag,blk_num)
     //
     // printf("In super block %s\n",o.gui);pause super
@@ -216,7 +216,7 @@ function [ok,txt]=do_api_save(scs_m)
     
   endfunction
   
-  function [txt,head]= do_api_save_rec(scs_m,count)
+  function [txt,head,count]= do_api_save_rec(scs_m,count)
     //
     
     special_blocks = ["MCLOCK_f";"freq_div";"ANDBLK";"DLATCH";"SRFLIPFLOP";
@@ -241,13 +241,15 @@ function [ok,txt]=do_api_save(scs_m)
 	    // we then assume that this bloc properly manage graphics.exprs
 	    txt=[txt;do_api_block(o,%kk)];
 	  elseif (model.sim(1)== 'csuper' && model.ipar==1) || o.gui == 'DSUPER' then 
-	    [mtxt,count]=do_api_model(model.rpar,count)
+	    [mtxt,count,count1]=do_api_model(model.rpar,count)
 	    head=[head;mtxt];
 	    txt=[txt;do_api_super_block(o,count,%t,%kk)];
+	    count = count1;
 	  elseif model.sim(1)=='csuper' || model.sim(1)=='super' || o.model.sim(1)=='asuper'
-	    [mtxt,count]=do_api_model(model.rpar,count)
+	    [mtxt,count,count1]=do_api_model(model.rpar,count)
 	    head=[head;mtxt];
 	    txt=[txt;do_api_super_block(o,count,%f,%kk)];
+	    count=count1;
 	  else
 	    // a standard block 
 	    txt=[txt;do_api_block(o,%kk)];
@@ -347,8 +349,8 @@ function [ok,txt]=do_api_save(scs_m)
   	sprintf("scs_m = set_final_time (scs_m, %s);",sci2exp(scs_m.props.tf))];
 
   txt1=sprint(scs_m.props.tol, name = "tol",as_read=%t);
-  if size(txt1,'*') > 1 then txt1(1) = txt1(1) + ' ...';end; // for scicoslab
-  txt1($)=txt1($)+';';
+  if size(txt1,"*") > 1 then txt1(1) = txt1(1) + " ...";end; // for scicoslab
+  txt1($)=txt1($)+";";
   last.concatd[txt1];
   last.concatd["scs_m = set_solver_parameters (scs_m, tol);"];
   last.concatd["scs_m = evaluate_model (scs_m);"];

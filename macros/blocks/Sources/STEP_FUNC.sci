@@ -26,7 +26,7 @@ function [x,y,typ]=STEP_FUNC(job,arg1,arg2)
     while ~ok do
       [ok,context.s1,context.s2,context.s3,exprs]=getvalue(Btitre,Bitems,Ss,exprs)
       if ~ok then return;end
-      sblock=x.model.rpar
+      sblock=x.model.rpar;
       [new_context,ierr]=script2var(sblock.props.context,context)
       if ierr==0 then
 	// re-evaluate parameters using context 
