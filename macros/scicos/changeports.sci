@@ -16,7 +16,8 @@ function scs_m = changeports(scs_m, path, o_n)
 //  This code can be validate by visual inspection only : look at the
 //  results !  
 //
-  k = path($) ; //** the scs_m index of the target 
+  k = path($) ; //** the scs_m index of the target
+  curwin = acquire('curwin',def=-1);
   if or(curwin==winsid()) then
     F=get_figure(curwin);
     F.draw_latter[];
@@ -51,24 +52,24 @@ function scs_m = changeports(scs_m, path, o_n)
 endfunction
 
 function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
-//** ---- INITIALIZATION ----
-//** isolate the object that will be substituited 
+  //** ---- INITIALIZATION ----
+  //** isolate the object that will be substituited
+  curwin = acquire('curwin',def=-1);
   o = scs_m(path) ;
   options=scs_m.props.options
-  smart=options('Action')==%f //...
-  
+  smart=options('Action')==%f; //...
+			     
   //** extract the proprieties of the OLD object 
   [pin, pout, pein, peout, in_mod, out_mod] = (o.graphics.pin,  o.graphics.pout, ...
                                                o.graphics.pein, o.graphics.peout, ...
                                                o.graphics.in_implicit, o.graphics.out_implicit);
-
+  
   //** "o_n" is the NEW object 
   [pin_n, pout_n, pein_n, peout_n, in_mod_n, out_mod_n] = (o_n.graphics.pin,  o_n.graphics.pout, ...
                                                            o_n.graphics.pein, o_n.graphics.peout, ...
 							   o_n.graphics.in_implicit, o_n.graphics.out_implicit);
   //** ---------------------------------------------
   //**
-
   //** acquire the dimension of the new block input and output ports and
   //** put all the ports of the new block in unconnected [0] state  
 
@@ -351,7 +352,7 @@ function [scs_m, o_n, LinkToDel] = match_ports(scs_m, path, o_n)
 
   //** disp("Adj links"); pause
 
-   for i=1:size(InputLinkToCon,'*')
+    for i=1:size(InputLinkToCon,'*')
 
       Link_index = InputLinkToCon(i) ;
       oi = scs_m.objs(Link_index)

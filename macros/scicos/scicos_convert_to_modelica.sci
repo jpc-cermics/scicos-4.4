@@ -115,9 +115,11 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
       
       if typin(to(2)) == typout(from(2)) then
 	// two blocks of the same type, just update the link type
-	// and refresh the connection positions
-	obj.xx(1) = xout(from(2));obj.yy(1) = yout(from(2));
-	obj.xx($) = xin(to(2));obj.yy($) = yin(to(2));
+	if %f then
+	  // already done in match_ports 
+	  obj.xx(1) = xout(from(2));obj.yy(1) = yout(from(2));
+	  obj.xx($) = xin(to(2));obj.yy($) = yin(to(2));
+	end
 	obj.ct(2) = typin(to(2));
 	scs_m.objs(i) = obj;
       elseif typout(from(2)) == 2 then
@@ -223,6 +225,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = MBC_PID('define');
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs= [old.graphics.exprs;'10'];
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'PID' then
 	old = blk;
@@ -230,6 +233,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = MBC_PID('define');
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs= [old.graphics.exprs;'10'];
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'SPLIT_f' then
 	// XXXX a revoir 
@@ -262,6 +266,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	  blk.model.in = -1;
 	  blk.model.out = -1;
 	end
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'SUMMATION' then
 	// XXX: the case with one entry and matrix entries should be revisited 
@@ -270,6 +275,8 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = MB_Addn('define',-1,signs);
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = signs;
+	// port positions adjusted for blocks and links taking car of flip and rotation
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'SUM_f' then
 	// XXX: the case with one entry and matrix entries should be revisited
@@ -281,6 +288,8 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = MB_Addn('define',-1,signs);
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = signs;
+	[scs_m,blk] = match_ports(scs_m, list('objs',i), blk);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'PRODUCT' then
 	// XXX: the case with one entry and matrix entries should be revisited 
@@ -289,6 +298,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = MB_Prodn('define',-1,signs);
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = signs;
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'PROD_f' then
 	// XXX: the case with one entry and matrix entries should be revisited 
@@ -297,6 +307,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = MB_Prodn('define',-1,signs);
 	blk = set_block_params_from(blk, old);
 	blk.graphics.exprs.signs = signs;
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'EXTRACTOR' then
 	// XXXX Attention doit etre vectoriel 
@@ -307,6 +318,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = MB_Extractn('define',index);
 	// blk = CBR_Extractor('define');
 	blk = set_block_params_from(blk, old);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'CONST_m' then
 	// CONST_m -> MB_Constantn (OK)
@@ -325,8 +337,9 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk.graphics.exprs.paramv= sprintf("list(%s)",exprs);// sci2exp(H1.C));// exprs);
 	scs_m1 = scicos_diagram();
 	scs_m1.objs(1)= blk;
-	[scs_m1,ok]=do_silent_eval(scs_m1, H);
+	[scs_m1,ok]=do_silent_eval(scs_m1, H1);
 	blk = scs_m1.objs(1);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
       	scs_m.objs(i)=blk;
       case 'CONST_f' then
 	// const is given by a raw vector to be transposed
@@ -340,6 +353,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	old = blk;
 	blk = MB_Constantn('define',H1.C');
 	blk = set_block_params_from(blk, old);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
       	scs_m.objs(i)=blk;
       case 'ZZRAMP' then
 	// RAMP and MBS_Ramp are different
@@ -350,6 +364,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	exprs = old.graphics.exprs;
 	// new_exprs = ZZ
 	blk.graphics.exprs = new_exprs;
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'GENSIN_f' then
 	// a sin source 
@@ -363,6 +378,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	// ['Magnitude','freqHz [Hz]      ','phase [rad] ',' offset [-]','startTime [s]]
 	new_exprs = [exprs(1);exprs(2)+"/(2*%pi)";exprs(3);"0";"0"];
 	blk.graphics.exprs = new_exprs;
+	scs_m = match_ports(scs_m, list('objs',i), blk);
       	scs_m.objs(i)=blk;
       case 'TIME_f' then
 	// time as signal 
@@ -370,12 +386,14 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	old=blk;
 	blk = MBS_Clock('define');
 	blk = set_block_params_from(blk, old);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
       	scs_m.objs(i)=blk;
       case 'EXPRESSION' then
 	old=blk;
 	expression = strsubst(blk.graphics.exprs(2),"%u","u");
 	blk = MB_Expression('define',evstr(blk.graphics.exprs(1)),expression);
 	blk = set_block_params_from(blk, old);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'ABS_VALUEi' then
 	old= blk;
@@ -385,6 +403,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = set_block_params_from(blk, old);
 	blk.graphics.in_implicit=in_implicit;
 	blk.graphics.out_implicit=out_implicit;
+	scs_m = match_ports(scs_m, list('objs',i), blk);
       	scs_m.objs(i)=blk;
       case 'SIGNUM' then
 	old= blk;
@@ -394,6 +413,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = set_block_params_from(blk, old);
 	blk.graphics.in_implicit=in_implicit;
 	blk.graphics.out_implicit=out_implicit;
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'LOGBLK_f' then
 	old= blk;
@@ -403,6 +423,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = set_block_params_from(blk, old);
 	blk.graphics.in_implicit=in_implicit;
 	blk.graphics.out_implicit=out_implicit;
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'SQRT' then
 	old= blk;
@@ -412,6 +433,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	blk = set_block_params_from(blk, old);
 	blk.graphics.in_implicit=in_implicit;
 	blk.graphics.out_implicit=out_implicit;
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'TrigFun' then
 	// TrigFun uses specialized MBM blocks
@@ -436,6 +458,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	    blk = set_block_params_from(blk, old);
 	  end
 	end
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'GAINBLK' then
 	// Attention si le gain est scalaire
@@ -456,6 +479,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	  blk.model.in = -1;
 	  blk.model.out = -1;
 	end
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'GAIN_f' then
 	// Dans GAIN_f les dimensions sont les vraies dimensions du gain
@@ -466,16 +490,19 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	old=blk;
 	blk = MB_Gain('define',blk.graphics.exprs(1));
 	blk = set_block_params_from(blk, old);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'MUX' then
 	old=blk;
 	blk = MB_Mux('define',blk.model.in, blk.model.out);
 	blk = set_block_params_from(blk, old);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'DEMUX' then
 	old=blk;
 	blk = MB_Demux('define',blk.model.out, blk.model.in);
 	blk = set_block_params_from(blk, old);
+	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       else
 	// convert super, csuper, asuper
