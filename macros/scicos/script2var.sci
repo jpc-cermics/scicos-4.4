@@ -8,14 +8,7 @@ function [H,ierr] = script2var(txt,Hin)
 // In case of error lasterror() can be called 
 // jpc Aug 2010 
 // 
-  if nargin <= 1 then 
-    // use %scicos_context
-    if exists('%scicos_context') then 
-      Hin=%scicos_context;
-    else
-      Hin=hash(1);
-    end
-  end 
+  if nargin <= 1 then Hin = acquire('%scicos_context',def=hash(1));end
   if isempty(txt) then txt=m2s([]);end 
   ierr = 0 ;
   // protect the current window 
@@ -23,8 +16,5 @@ function [H,ierr] = script2var(txt,Hin)
   if ~isempty(I) then cwin=xget('window');end 
   [ok,H]=execstr(txt,env=Hin, errcatch=%t);
   if ~isempty(I) then xset('window',cwin);end 
-  if ~ok then
-    ierr = 1;
-    H=Hin;
-  end
+  if ~ok then ierr = 1; H=Hin; end
 endfunction 
