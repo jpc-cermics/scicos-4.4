@@ -205,16 +205,15 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
   end
 endfunction
 
-function scs_m= scicos_convert_blocks_to_modelica(scs_m)
+function scs_m= scicos_convert_blocks_to_modelica(scs_m, scicos_context = hash(10))
   // replace all modelica blocks by dummy and
   // changes the link so as to be standard links
-  scicos_context=acquire('scicos_context',def=hash(10));
   [scicos_context,ierr]=script2var(scs_m.props.context,scicos_context);
   if ierr<>0 then 
     msg(["Warning: Failed to evaluate a context:";catenate(lasterror())]);
   end
-  %scicos_context=scicos_context;
-  
+  // do_eval uses %scicos_context
+  %scicos_context = scicos_context;
   scs_m = scs_m;
   for i=1:length(scs_m.objs)
     blk = scs_m.objs(i);
@@ -248,7 +247,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	// Attention pas de re-init pour l'instant 
 	old = blk;
 	tags = ["xinit";"reinit";"satur";"outmax";"outmin"];
-	[ok,He] = execstr(tags + "=" + old.graphics.exprs,env=%scicos_context,errcatch=%t);
+	[ok,He] = execstr(tags + "=" + old.graphics.exprs,env=scicos_context,errcatch=%t);
 	// abort conversion if re-init 
 	if He.reinit == 1 then return;end
 	if ~ok then
@@ -327,7 +326,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	scs_m.objs(i)=blk;
       case 'CONST_m' then
 	// CONST_m -> MB_Constantn (OK)
-	[ok,H1]=execstr('C ='+blk.graphics.exprs,env=%scicos_context,errcatch=%t);
+	[ok,H1]=execstr('C ='+blk.graphics.exprs,env=scicos_context,errcatch=%t);
 	if ~ok then
 	  printf("Warning: unable to evaluate ''%s'' in block %s\n",blk.graphics.exprs,blk.gui);
 	  break;
@@ -348,7 +347,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
       	scs_m.objs(i)=blk;
       case 'CONST_f' then
 	// const is given by a raw vector to be transposed
-	[ok,H1]=execstr('C ='+blk.graphics.exprs,env=%scicos_context,errcatch=%t);
+	[ok,H1]=execstr('C ='+blk.graphics.exprs,env=scicos_context,errcatch=%t);
 	if ~ok then
 	  printf("Warning: unable to evaluate ''%s'' in block %s\n",blk.graphics.exprs,blk.gui);
 	  break;
@@ -471,7 +470,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	// we do not have context here thus maybe we have to step back
 	// This should be evaluated with the context 
 	old=blk;
-	[ok,H1]=execstr('G ='+blk.graphics.exprs(1),env=%scicos_context,errcatch=%t);
+	[ok,H1]=execstr('G ='+blk.graphics.exprs(1),env=scicos_context,errcatch=%t);
 	if ~ok then
 	  lasterror();
 	  printf("Warning: unable to evaluate ''%s'' in block %s\n",blk.gui);
@@ -515,7 +514,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m)
 	// some asuper are directly converted to modelica 
 	if or(blk.model.sim(1) ==  ['super','csuper','asuper']) then
 	  // propagate in internal schema 
-	  scsm1 = scicos_convert_blocks_to_modelica(blk.model.rpar);
+	  scsm1 = scicos_convert_blocks_to_modelica(blk.model.rpar,scicos_context=scicos_context);
 	  blk.model.rpar = scsm1;
 	  scs_m.objs(i)=blk;
 	end
@@ -620,7 +619,6 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
     end
   end
 endfunction
-
 
 function scs_m= scicos_convert_split_to_modelica(scs_m)
 // replaces SPLIT_f by IMPSPLIT_f

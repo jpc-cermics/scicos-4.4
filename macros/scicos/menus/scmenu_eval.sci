@@ -287,10 +287,13 @@ function [scs_m,ok]=do_silent_eval(scs_m, context)
 	  eok=execstr('o='+o.gui+'(''set'',o)',errcatch=%t);
 	  if ~eok || %scicos_prob  then ok=%f; continue; end
 	  // internal diagram
-	  sblock=o.model.rpar;
-	  [scicos_context1,ierr]=script2var(sblock.props.context,context)
-	  [sblock,lok]=do_silent_eval_rec(sblock,scicos_context1)
-	  o.model.rpar=sblock;
+	  if or(o.model.sim(1)==['super']) then 
+	    // XXX check if this is requested for super ?
+	    sblock=o.model.rpar;
+	    [scicos_context1,ierr]=script2var(sblock.props.context,context)
+	    [sblock,lok]=do_silent_eval_rec(sblock,scicos_context1)
+	    o.model.rpar=sblock;
+	  end
 	else
 	  // evaluate the block 
 	  %scicos_prob=%f;

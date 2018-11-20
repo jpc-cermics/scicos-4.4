@@ -1,5 +1,6 @@
 function s_port_names(sbloc)
-// Copyright INRIA
+  // Copyright INRIA
+
   scs_m=sbloc.model.rpar;
 
   etiquettes_in = []
@@ -16,7 +17,7 @@ function s_port_names(sbloc)
     if o.type =='Block' then
       modelb=o.model;
       ident = o.graphics.id
-      if ident<>emptystr()&ident<>m2s([]) then
+      if ident<>emptystr() & ~isempty(ident) then
 	select o.gui
 	 case 'IN_f' then
 	  inp=[inp modelb.ipar];
@@ -40,6 +41,7 @@ function s_port_names(sbloc)
       end
     end
   end
+  
   if ~isempty(inp) then
     [tmp,n_in]=sort(-inp)
     standard_etiquette(sbloc, etiquettes_in(n_in), 'in')
