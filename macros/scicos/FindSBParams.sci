@@ -1,12 +1,12 @@
 function [ok,params,param_types]=FindSBParams(scs_m,params)
-// Copyright INRIA
-// 
+  // Copyright INRIA
+  // 
 
   function [params,ok]=GetLitParam(str,flg)
-  // get variable names contained in str 
-  // flg is set to %t when the function is called 
-  // by FindSBParams
-  // 
+    // get variable names contained in str 
+    // flg is set to %t when the function is called 
+    // by FindSBParams
+    // 
     if nargin <= 1 then flg=%f;end
     ok=%t;
     // we search here the parameters called in function 
@@ -37,7 +37,7 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
   // main program 
   
   if nargin <= 1 then params=[];end 
-    
+  
   function varargout=getvalue_loc(a,b,c,d)
     global par_types
     par_types=c
@@ -53,7 +53,7 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
   Fun=scs_m.props.context;
   [%scicos_context,ierr] = script2var(Fun);
   if ierr<>0 then
-    message(['Error: context evaluation failed:\n";
+    message(["Error: context evaluation failed:\n";
 	     catenate(lasterror())])
     ok=%f;
     return;
@@ -66,40 +66,41 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
 	continue;
       end
       model=o.model;
-      if model.sim.equal['super'] | ...
-	    ( model.sim.equal['csuper'] & (model.ipar<>1)) | ...
-	    model.sim(1)=='asuper' then
-	[ok,pparams]=FindSBParams(model.rpar,params);
-	if ok then Funi='['+pparams+']';end
+      if model.sim.equal['super'] || ( model.sim.equal['csuper'] & (model.ipar<>1)) ||
+	model.sim(1)=='asuper' then
+	[ok1,pparams]=FindSBParams(model.rpar,params);
+	if ok1 then Funi='['+pparams+']';end
       else
 	if type(o.graphics.exprs,'short')=='h' && o.graphics.exprs.type =="MBLOCK" then 
 	  //modelica block
 	  Funi=[];
 	  for j=1:length(o.graphics.exprs.paramv)
 	    Funi=[Funi;
-		  '['+o.graphics.exprs.paramv(j)+']'];
+		  "["+o.graphics.exprs.paramv(j)+"]"];
 	  end
 	else
-	  if type(o.graphics.exprs,'short')=='l' then
-	    Funi='['+o.graphics.exprs(1)(:)+']';
-	  elseif type(o.graphics.exprs,'short')=='s' then 
-	    Funi='['+o.graphics.exprs(:)+']';
+	  if type(o.graphics.exprs,"short")=="l" then
+	    Funi="["+o.graphics.exprs(1)(:)+"]";
+	  elseif type(o.graphics.exprs,"short")=="s" then 
+	    Funi="["+o.graphics.exprs(:)+"]";
 	  else
 	    Funi=m2s([]);
 	  end
 	  par_types=[];
-	  execstr('blk='+o.gui+'(''define'')')
+	  execstr("blk="+o.gui+"(""define"")")
 	  // this call will fail because getvalue 
 	  // do not set varargout. but par_types 
 	  // will contain what we need.
-	  ok=execstr(o.gui+'(''set'',blk)',errcatch=%t)
+	  ok=execstr(o.gui+"(""set"",blk)",errcatch=%t)
 	  lasterror(); // do not care about message 
 	  Del=[];kk=1;
 	  for jj=1:2:length(par_types)
-	    if par_types(jj)=='str' then Del=[Del,kk],end
+	    if par_types(jj)=="str" then Del=[Del,kk],
+	    end
 	    kk=kk+1
 	  end
-	  Funi(Del)=[]
+	  if ~isempty(Del) then Funi(Del)=[];
+	  end;
 	end
       end
       Fun=[Fun;Funi]
@@ -110,22 +111,21 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
   [params,ok]=GetLitParam(Fun,%t)
   if ~ok then return;end
   for pp=params'
-    ok=execstr('typ=type(%scicos_context.'+pp+',''short'')')
+    ok=execstr("typ=type(%scicos_context."+pp+",""short"")")
     select typ 
-     case {'m','i'} 
-      param_types($+1)='mat'
-      param_types($+1)=-1
-     case {'p'}
-      param_types($+1)='pol'
-      param_types($+1)=-1
-     case {'h','l'}
-      param_types($+1)='lis'
-      param_types($+1)=-1
-    else
-      param_types($+1)='gen'
-      param_types($+1)=-1
+      case {"m","i"} 
+	param_types($+1)="mat"
+	param_types($+1)=-1
+      case {"p"}
+	param_types($+1)="pol"
+	param_types($+1)=-1
+      case {"h","l"}
+	param_types($+1)="lis"
+	param_types($+1)=-1
+      else
+	param_types($+1)="gen"
+	param_types($+1)=-1
     end
   end
-  //  clearglobal('par_types')  //recursive call, so it cannot be cleared here
 endfunction
 
