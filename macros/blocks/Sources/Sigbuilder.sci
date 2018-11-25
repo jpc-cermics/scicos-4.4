@@ -57,7 +57,7 @@ function [x,y,typ]=Sigbuilder(job,arg1,arg2)
      scs_m_1=Sigbuilder_define()
      model=scicos_model(sim="csuper",in=[],in2=[],intyp=1,out=-1,out2=[],outtyp=1,
 			evtin=[],evtout=1,state=[],dstate=[],odstate=list(),
-			rpar=scs_m_1,ipar=[],opar=list(),blocktype="h",firing=[],
+			rpar=scs_m_1,ipar=1,opar=list(),blocktype="h",firing=[],
 			dep_ut=[%f,%f],label="",nzcross=0,nmode=0,equations=list())
      // we use the gr_i of the internal curve 
      gr_i = list(['arg1=arg1.model.rpar.objs(1);'

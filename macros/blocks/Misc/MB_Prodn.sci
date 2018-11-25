@@ -91,7 +91,7 @@ function [x,y,typ]=MB_Prodn(job,arg1,arg2)
       blk.model.equations.model = H.nameF;
       blk.graphics.exprs.nameF = H.nameF;
       blk.graphics('3D') = %f; // coselica options 
-      blk.graphics.gr_i=list("blk_draw(o,sz,orig)",xget('color','blue'))
+      blk.graphics.gr_i="blk_draw(o,sz,orig)";
       blk.gui = "MB_Prodn";
       blk.model.in = dim_r*ones(nsigns,1);
       blk.model.out = dim_r;
@@ -121,8 +121,8 @@ function [x,y,typ]=MB_Prodn(job,arg1,arg2)
       x= MB_Prodn_define(max(x.model.in),signs_n,x);
     case 'define' then
       signs=[1;-1]; dim_r = -1;
-      if nargin <= 2 then dim_r= arg1;end
-      if nargin <= 3 then signs= arg2;end
+      if nargin >= 2 then dim_r= arg1;end
+      if nargin >= 3 then signs= arg2;end
       x= MB_Prodn_define(dim_r,signs);
   end
 endfunction

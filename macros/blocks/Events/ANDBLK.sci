@@ -47,21 +47,13 @@ function [x,y,typ]=ANDBLK(job,arg1,arg2)
    case 'set' then
     x=arg1
    case 'define' then
-    
-    x=scicos_block()
-    x.gui='ANDBLK'
-    x.graphics.sz=[2,2]
-    x.graphics.gr_i=list('xstringb(orig(1),orig(2),'' ANDBLK '',sz(1),s"+...
-			 "z(2),''fill'')',8);
-    x.graphics.pein=[0;0]
-    x.graphics.peout=0
-    x.model.sim='csuper'
-    x.model.evtin=[1;1]
-    x.model.evtout=1
-    x.model.blocktype='h'
-    x.model.firing=%f
-    x.model.dep_ut=[%f %f];
-    x.model.rpar=andblock_subdiagram();
+     
+     scs_m=andblock_subdiagram();
+     model = scicos_model(sim="csuper", evtin=[1;1], evtout= 1, rpar= scs_m, ipar=1, blocktype= "h",
+			  firing = %f);
+     gr_i=list('xstringb(orig(1),orig(2),'' ANDBLK '',sz(1),sz(2),''fill'')',8);
+     x=standard_define([2 2],model,[],gr_i,'ANDBLK');
+     
    case 'upgrade' then
      x= arg1;
   end

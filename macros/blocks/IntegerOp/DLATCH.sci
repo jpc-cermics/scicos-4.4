@@ -20,34 +20,24 @@ function [x,y,typ]=DLATCH(job,arg1,arg2)
   
   x=[];y=[],typ=[]
   select job
-   case 'plot' then
-    standard_draw(arg1)
-   case 'getinputs' then
-    [x,y,typ]=standard_inputs(arg1)
-   case 'getoutputs' then
-    [x,y,typ]=standard_outputs(arg1)
-   case 'getorigin' then
-    [x,y]=standard_origin(arg1)
-   case 'set' then
-    x=arg1
-   case 'define' then
-    
-    model=scicos_model()
-    model.sim='csuper'
-    model.in=[1;1]
-    model.in2=[1;1]
-    model.out=[1;1]
-    model.out2=[1;1]
-    model.intyp=[5 -1]
-    model.outtyp=[5 5]
-    model.blocktype='h'
-    model.firing=%f
-    model.dep_ut=[%t %f]
-    model.rpar= dlatch_define();
-    gr_i=['dlatch_draw(orig,sz,o);'];
-    x=standard_define([2 3],model,[],gr_i,'DLATCH');
-   case 'upgrade' then
-     x=arg1
+    case 'plot' then
+      standard_draw(arg1)
+    case 'getinputs' then
+      [x,y,typ]=standard_inputs(arg1)
+    case 'getoutputs' then
+      [x,y,typ]=standard_outputs(arg1)
+    case 'getorigin' then
+      [x,y]=standard_origin(arg1)
+    case 'set' then
+      x=arg1
+    case 'define' then
+      scs_m =  dlatch_define();
+      model = scicos_model(sim="csuper",in=[1;1], in2=[1;1], out=[1;1], out2=[1;1], intyp=[5 -1], outtyp=[5 5],
+			   blocktype='h', firing=%f, dep_ut=[%t %f], rpar= scs_m, ipar = 1);
+      gr_i=['dlatch_draw(orig,sz,o);'];
+      x=standard_define([2 3],model,[],gr_i,'DLATCH');
+    case 'upgrade' then
+      x=arg1
   end
 endfunction
 

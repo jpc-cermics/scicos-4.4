@@ -103,7 +103,7 @@ function [x,y,typ]=CLOCK_f(job,arg1,arg2)
 				  yy=[172;302;302;277.71],
 				  ct=[5,-1],from=[4,2],to=[2,1]) 
 
-      model=scicos_model(sim='csuper',evtout=1,blocktype='h',firing=%f,dep_ut=[%f %f],rpar=diagram);
+      model=scicos_model(sim='csuper',evtout=1,blocktype='h',firing=%f,dep_ut=[%f %f],rpar=diagram,ipar=1);
       exprs = diagram.objs(2).graphics.exprs;
       gr_i=list("blk_draw(sz,orig,orient,model.label)",8);
       x=standard_define([2 2],model,exprs,gr_i,'CLOCK_f');

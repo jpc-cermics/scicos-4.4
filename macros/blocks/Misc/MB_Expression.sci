@@ -87,7 +87,7 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
       H=hash(in=["u"+string(1:n)'], intype=smat_create(n,1,"I"),
 	     in_r= ones(n,1), in_c=ones(n,1),
 	     out=["y"], outtype=["I"], out_r= 1, out_c=1,
-	     param=params, paramv=paramsv, pprop=zeros(size(params)), nameF=nameF);
+	     param=params, paramv=paramv, pprop=zeros(size(params)), nameF=nameF);
     end
     
     H.funtxt = MB_Expression_funtxt(H, n, expression);

@@ -117,9 +117,10 @@ function [x,y,typ]=scifunc_block(job,arg1,arg2)
     end
    case 'define' then
      model=scicos_model(sim=list('scifunc',3),in = 1, out=1, dep_ut=[%t %f], ipar=0);
-     exprs=list([sci2exp(in);sci2exp(out);sci2exp(clkin);sci2exp(clkout);
-		 strcat(sci2exp(x0));strcat(sci2exp(z0));
-		 strcat(sci2exp(rpar));sci2exp(auto)],
+     exprs=list([sci2exp(model.in);sci2exp(model.out);
+		 sci2exp(model.evtin);sci2exp(model.evtout);
+		 strcat(sci2exp(model.state));strcat(sci2exp(model.dstate));
+		 strcat(sci2exp(model.rpar));sci2exp(model.firing)],
 		list("y1=sin(u1)"," "," ","y1=sin(u1)"," "," "," "))
      gr_i=["xstringb(orig(1),orig(2),""Scifunc"",sz(1),sz(2),""fill"");"]
      x=standard_define([2 2],model,exprs,gr_i,"scifunc_block");

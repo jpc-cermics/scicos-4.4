@@ -113,6 +113,7 @@ function [x,y,typ]=CLOCK_c(job,arg1,arg2)
       x.model.firing=%f
       x.model.dep_ut=[%f %f]
       x.model.rpar=diagram
+      x.model.ipar=1;
       x.graphics.exprs = x.model.rpar.objs(2).graphics.exprs
     case 'upgrade' then
       // upgrade if necessary

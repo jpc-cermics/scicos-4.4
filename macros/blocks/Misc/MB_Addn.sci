@@ -120,8 +120,8 @@ function [x,y,typ]=MB_Addn(job,arg1,arg2)
       x= MB_Addn_define(max(x.model.in),signs_n,x);
     case 'define' then
       signs=[1;-1]; dim_r = -1;
-      if nargin <= 2 then dim_r= arg1;end
-      if nargin <= 3 then signs= arg2;end
+      if nargin >= 2 then dim_r= arg1;end
+      if nargin >= 3 then signs= arg2;end
       x= MB_Addn_define(dim_r,signs);
   end
 endfunction

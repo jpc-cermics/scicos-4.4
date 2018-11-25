@@ -14,35 +14,31 @@ function [x,y,typ]=STEP_FUNC(job,arg1,arg2)
    case 'set' then
      y=acquire('needcompile',def=0);
      typ=list()
-    graphics=arg1.graphics;
-    exprs=graphics.exprs
-    Btitre="Set block parameters"
-    Exprs0=["s1";"s2";"s3"]
-    Bitems=["Step time";"Initial value";"Final value"]
-    Ss=list("vec",1,"vec",1,"vec",1)
-    context=hash(0);
-    x=arg1;
-    ok=%f
-    while ~ok do
-      [ok,context.s1,context.s2,context.s3,exprs]=getvalue(Btitre,Bitems,Ss,exprs)
-      if ~ok then return;end
-      sblock=x.model.rpar;
-      [new_context,ierr]=script2var(sblock.props.context,context)
-      if ierr==0 then
-	// re-evaluate parameters using context 
-	[sblock,%w,needcompile2,ok]=do_eval(sblock,list(),context)
-	if ok then
-          y=max(2,y,needcompile2)
-          x.graphics.exprs=exprs
-          x.model.rpar=sblock
-          break
-	end
-      else
-	err=lasterror();
-	if ~isempty(err) then message(err);end
-	ok=%f;
-      end
-    end
+     graphics=arg1.graphics;
+     exprs=graphics.exprs
+     Btitre="Set block parameters"
+     Exprs0=["s1";"s2";"s3"]
+     Bitems=["Step time";"Initial value";"Final value"]
+     Ss=list("vec",1,"vec",1,"vec",1)
+     context=hash(0);
+     x=arg1;
+     while %t do
+       [ok,context.s1,context.s2,context.s3,exprs]=getvalue(Btitre,Bitems,Ss,exprs)
+       if ~ok then return;end
+       sblock=x.model.rpar;
+       // XX In fact it would be better if sblock had a context
+       // that we create here.
+       // propagate new parameters using context
+       [sblock,%w,needcompile2,ok_eval]=do_eval(sblock,list(),context);
+       if ok_eval then
+         y=max(2,y,needcompile2)
+         x.graphics.exprs=exprs
+         x.model.rpar=sblock
+         break
+       end
+       err=lasterror();
+       if ~isempty(err) then message(err);end
+     end
    case 'define' then
      x=step_func_define();
    case 'upgrade' then

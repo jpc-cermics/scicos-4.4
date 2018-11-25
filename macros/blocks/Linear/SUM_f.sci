@@ -39,7 +39,6 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
     orig=graphics.orig,
     sz=graphics.sz
     orient=graphics.flip
-    wd=xget('wdim');
     if orient then
       t=[%pi, -%pi/2, 0]
     else
@@ -57,7 +56,6 @@ function [x,y,typ]=SUM_f(job,arg1,arg2)
     sz=graphics.sz
     orient=graphics.flip
     graphics=arg1.graphics
-    wd=xget('wdim');
     if orient then
       t=%pi/2
       dx=sz(1)/7

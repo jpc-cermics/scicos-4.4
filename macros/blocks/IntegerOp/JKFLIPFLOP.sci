@@ -36,7 +36,7 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
      exprs=x.graphics.exprs;
      // paths to updatable parameters or states
      newpar=list()
-     blk=arg1.model.rpar.objs(2); // get the 1/z block
+     blk=arg1.model.rpar.objs(1); // get the 1/z block
      blk_new=blk;
      while %t do
        [ok,init,exprs0]=getvalue(['Set parameters';'The Initial Value must be 0 or 1 of type int8';
@@ -45,6 +45,7 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
 				 ['Initial Value'],
 				 list('vec',1),exprs);
        if ~ok then break,end
+       if type(init,'short')=='m' then init=m2i(m,'int8');end
        if i2m(init) <=0 then init=m2i(0,'int8');
        elseif i2m(init) >0 then init=m2i(1,'int8');
        end
@@ -54,7 +55,7 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
      end
      if ~blk.equal[blk_new] then 
        // parameter  changed
-       x.model.rpar.objs(2)=blk_new;// update the block
+       x.model.rpar.objs(1)=blk_new;// update the block
        x.graphics.exprs = exprs0; 
        newpar(1)=1;// Notify modification
        y=max(y,2);
@@ -63,33 +64,24 @@ function [x,y,typ]=JKFLIPFLOP(job,arg1,arg2)
      resume(needcompile=y);// propagate needcompile
      
    case 'define' then
-     model=scicos_model()
-     model.sim='csuper'
-     model.in=[1;1;1]
-     model.in2=[1;1;1]
-     model.out=[1;1]
-     model.out2=[1;1]
-     model.intyp=[5 1 5]
-     model.outtyp=[5 5]
-     model.blocktype='h'
-     model.firing=%f
-     model.dep_ut=[%t %f]
-     // model.ipar=1 // turn to masked block
-     diagram=jklflipflop_define();
-     model.rpar=diagram;
+     scs_m = jklflipflop_define();
+     model= scicos_model(sim='csuper', in=[1;1;1], in2=[1;1;1], out=[1;1], out2=[1;1],
+			 intyp=[5 1 5],outtyp=[5 5], blocktype='h', firing=%f,
+			 dep_ut=[%t %f], ipar=1, rpar= scs_m);
      gr_i=['draw_jkflipflop(orig,sz,o);'];
      x=standard_define([2 3],model,[],gr_i,'JKFLIPFLOP');
-     x.graphics.exprs = x.model.rpar.objs(2).graphics.exprs(1);
+     x.graphics.exprs = x.model.rpar.objs(1).graphics.exprs(1);
+     
    case 'upgrade' then
      // upgrade if necessary
      if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then
        // arg1 do not have a correct exprs field
-       exprs =  arg1.model.rpar.objs(2).graphics.exprs;
+       exprs =  arg1.model.rpar.objs(1).graphics.exprs;
        x1 = JKFLIPFLOP('define');
        x=arg1;
        x.model.rpar= x1.model.rpar;
        x.graphics.exprs = exprs(1);
-       x.model.rpar.objs(2).graphics.exprs = exprs;
+       x.model.rpar.objs(1).graphics.exprs = exprs;
        y=%t;
      else
        x=arg1;
@@ -113,6 +105,7 @@ function scs_m=jklflipflop_define()
   blk = set_block_size (blk, [   40,40 ]);
   blk.model.evtout= mat_create(0,1);
   [scs_m, block_tag_1] = add_block(scs_m, blk);
+  
   blk = EDGE_TRIGGER('define');
   exprs=  [ "0" ]
   blk=set_block_exprs(blk,exprs);
@@ -121,6 +114,7 @@ function scs_m=jklflipflop_define()
   blk = set_block_origin (blk, [   292.5245,323.5489 ]);
   blk = set_block_size (blk, [   60,40 ]);
   [scs_m, block_tag_2] = add_block(scs_m, blk);
+  
   blk = LOGIC('define');
   exprs=  [ "[0;1;1;1;0;0;1;0]";  "0" ]
   blk=set_block_exprs(blk,exprs);
@@ -132,12 +126,14 @@ function scs_m=jklflipflop_define()
   blk = set_block_size (blk, [   40,40 ]);
   blk.model.evtout= mat_create(0,1);
   [scs_m, block_tag_3] = add_block(scs_m, blk);
+  
   blk = SPLIT_f('define');
   blk = set_block_nin (blk, 1);
   blk = set_block_nout (blk, 2);
   blk = set_block_origin (blk, [   368.8279,243.4507 ]);
   blk = set_block_size (blk, [   0.3333,0.3333 ]);
   [scs_m, block_tag_6] = add_block(scs_m, blk);
+  
   blk = LOGICAL_OP('define');
   exprs= [ "1";  "5";  "5";  "0" ]
   blk=set_block_exprs(blk,exprs);
@@ -156,6 +152,7 @@ function scs_m=jklflipflop_define()
   blk = set_block_origin (blk, [   368.8279;223.0647 ]);
   blk = set_block_size (blk, [   0.3333,0.3333 ]);
   [scs_m, block_tag_10] = add_block(scs_m, blk);
+  
   blk = IN_f('define');
   exprs=  [ "2";  "-1"; "-1" ]
   blk=set_block_exprs(blk,exprs);
@@ -163,6 +160,7 @@ function scs_m=jklflipflop_define()
   blk = set_block_origin (blk, [   205.8180,333.5489 ]);
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_13] = add_block(scs_m, blk);
+  
   blk = IN_f('define');
   exprs= [ "1";"-1";  "-1" ]
   blk=set_block_exprs(blk,exprs);
@@ -171,6 +169,7 @@ function scs_m=jklflipflop_define()
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_15] = add_block(scs_m, blk);
   blk = IN_f('define');
+  
   exprs= [ "3";  "-1";  "-1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nout (blk, 1);
@@ -178,13 +177,15 @@ function scs_m=jklflipflop_define()
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_17] = add_block(scs_m, blk);
   blk = OUT_f('define');
+  
   exprs=   [ "1" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);
   blk = set_block_origin (blk, [   388.8279,233.4507 ]);
   blk = set_block_size (blk, [   20,20 ]);
   [scs_m, block_tag_19] = add_block(scs_m, blk);
-  blk = OUT_f('define'); 
+  
+  blk = OUT_f('define');
   exprs=   [ "2" ]
   blk=set_block_exprs(blk,exprs);
   blk = set_block_nin (blk, 1);

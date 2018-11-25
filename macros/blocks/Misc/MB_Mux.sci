@@ -3,11 +3,11 @@ function [x,y,typ]=MB_Mux(job,arg1,arg2)
   // used to add vectors in the SUMMATION spirit 
 
   function blk_draw(o,sz,orig)  
-    txt="Mux";
+    txt="MB_Mux";
     fz=2*acquire("%zoom",def=1)*4;
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
   endfunction
-
+  
   function txt = MB_Mux_funtxt(H, dim_or, dim_ir)
     
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],H.out,H.outtype,
@@ -59,8 +59,9 @@ function [x,y,typ]=MB_Mux(job,arg1,arg2)
       blk.model.sim(1) = H.nameF;
       blk.model.equations.model = H.nameF;
       blk.graphics.exprs.nameF = H.nameF;
+      blk.graphics.sz=[0.5,2];      
       blk.graphics('3D') = %f; // coselica options 
-      blk.graphics.gr_i=list("blk_draw(o,sz,orig)",xget('color','blue'))
+      blk.graphics.gr_i="blk_draw(o,sz,orig)";
       blk.gui = "MB_Mux";
       blk.model.in = dim_ir;
       blk.model.out = dim_or;

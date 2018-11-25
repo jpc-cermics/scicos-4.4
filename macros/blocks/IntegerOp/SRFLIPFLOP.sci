@@ -44,6 +44,7 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
 				 ['Initial Value'],...
 				 list('vec',1),exprs)
        if ~ok then break,end
+       if type(init,'short')=='m' then init=m2i(init,'int8');end
        if i2m(init) <=0 then init=m2i(0,'int8');
        elseif i2m(init) >0 then init=m2i(1,'int8');
        end
@@ -63,22 +64,13 @@ function [x,y,typ]=SRFLIPFLOP(job,arg1,arg2)
 
    case 'define' then
      scs_m=srflipflop_define()
-
-     model=scicos_model()
-     model.sim='csuper'
-     model.in=[1;1]
-     model.in2=[1;1]
-     model.out=[1;1]
-     model.out2=[1;1]
-     model.intyp=[5 5]
-     model.outtyp=[5 5]
-     model.blocktype='h'
-     model.firing=%f
-     model.dep_ut=[%t %f]
-     model.rpar=scs_m
+     model=scicos_model( sim='csuper',in=[1;1], in2=[1;1], out=[1;1], out2=[1;1],
+			 intyp=[5 5], outtyp=[5 5], blocktype='h', firing=%f, dep_ut=[%t %f],
+			 rpar=scs_m, ipar =1);
      gr_i=['draw_srflipflop(orig,sz,o);'];
      x=standard_define([2 3],model,[],gr_i,'SRFLIPFLOP');
      x.graphics.exprs = x.model.rpar.objs(2).graphics.exprs(1);
+     
    case 'upgrade' then
      // upgrade if necessary
      if ~arg1.graphics.iskey['exprs'] || isempty(arg1.graphics.exprs) then

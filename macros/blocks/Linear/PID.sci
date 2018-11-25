@@ -55,7 +55,7 @@ function [x,y,typ]=PID(job,arg1,arg2)
      scs_m= PID_diagram("1","1","1");
      model=scicos_model(sim='csuper', in=-1, in2=-2, out=-1,
 			out2=-2, intyp=1, outtyp=1, blocktype='h', firing=%f,
-			dep_ut=[%f %f], rpar=scs_m);
+			dep_ut=[%f %f], ipar=1, rpar=scs_m);
      gr_i=['xstringb(orig(1),orig(2),[''PID''],sz(1),sz(2),''fill'');'];
      x=standard_define([2 2],model,[],gr_i,'PID');
      exprs =[x.model.rpar.objs(3).graphics.exprs(1);

@@ -69,10 +69,9 @@ function [x,y,typ]=STEP_FUNCTION(job,arg1,arg2)
       props.enter[zoom=[1],title=["STEP_FUNCTION","./"],tf=[14]];
       scsm.props=props;
     endfunction
-     
-    model = scicos_model();
-    model.enter[out=[-1],opar= ["h"],dep_ut= [%f %f],sim="csuper", firing=%f];
-    model.rpar =block_step_function();
+
+    scs_m =block_step_function();
+    model = scicos_model(out=[-1],opar= ["h"],dep_ut= [%f %f],sim="csuper", firing=%f,rpar=scs_m, ipar=1);
     gr_i=["xpoly(orig(1)+[0.071;0.413;0.413;0.773]*sz(1),orig(2)+[0.195;0.195;0.635;0.635]*sz(2),type=""lines"",color=2)"];
     exprs = model.rpar.objs(1).graphics.exprs;
     x=standard_define([2 2],model,exprs,gr_i,'STEP_FUNCTION');

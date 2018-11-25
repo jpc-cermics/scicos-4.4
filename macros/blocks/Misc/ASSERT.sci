@@ -79,27 +79,16 @@ function [x,y,typ]=ASSERT(job,arg1,arg2)
 	end
       end
     case 'define' then
-      x_0=scicos_model();
-      x_0.in2=     [   -2 ]
-      x_0.evtout= []
-      x_0.evtin= []
-      x_0.intyp=     [   -1 ]
-      x_0.sim=     [ "csuper" ]
-      x_0.in=     [   -1 ]
-      x_0.out2= []
-      x_0.out= []
-      x_0.blocktype=     [ "h" ]
-      x_0.ipar=     [   1 ]
-      model=x_0;clear('x_0');
-      model.rpar= assert_define();
-      zc=0
-      opar=emptystr()
-      ipar=2
-      ip2=1
-      exprs=[opar;sci2exp(ipar,0);sci2exp(zc,0)]
+      // model.ipar was set to 2 but we have two ipar
+      // model.ipar should be 1 ('csuper' + ipar == 1)
+      // the transmited ipar in exprs should be 2 
+      scs_m = assert_define();
+      model=scicos_model( in2=-2, intyp=-1, sim= "csuper", in= -1,
+			  blocktype= "h", rpar= scs_m, opar=emptystr(), ipar=1);
+      zc=0;ipar = 2 
+      exprs=[model.opar;sci2exp(ipar,0);sci2exp(zc,0)]
       gr_i="blk_draw(sz,orig,orient,model.label)";
       x=standard_define([2,1],model,exprs,gr_i,'ASSERT')
-
     case 'upgrade' then
       x=arg1;
   end

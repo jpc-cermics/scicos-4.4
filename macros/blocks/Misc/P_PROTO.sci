@@ -19,7 +19,7 @@ function [x,y,typ]=P_PROTO(job,arg1,arg2)
       titles=['NSP function name';'Parameters';'input ports sizes';
 	      'output port sizes';'input event ports sizes';'initial discrete state';
 	      'direct feedthrough (vector of 0 and 1)'];
-      types=list('str',1,'gen', 1, 'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1);
+      types=list('str',1,'gen', -1, 'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1);
       model=arg1.model;graphics=arg1.graphics;label=graphics.exprs;
       while %t do
 	[ok,nsp_func_name,params,i,o,ci,z,depu,lab]=..
@@ -30,6 +30,7 @@ function [x,y,typ]=P_PROTO(job,arg1,arg2)
 	i=int(i(:));
 	o=int(o(:));
 	ci=int(ci(:));
+	co=[];
 	dep_ut=[depu(:); 0];
 	[model,graphics,ok]=check_io(model,graphics,i,o,ci,co)
 	if ok then
@@ -40,14 +41,17 @@ function [x,y,typ]=P_PROTO(job,arg1,arg2)
             opar(params_names(i))=params_values(i)
           end
 	  y = 4;
-	  model.ipar=ascii(print(nsp_func_name))  // CA NE MARCHE PAS... JE VEUX LE CODE DE LA FONCTION
-			  model.dstate=z
-			  model.dep_ut=dep_ut
-			  arg1.model=model
-			  graphics.exprs=label
-			  arg1.graphics=graphics
-			  x=arg1
-			  break
+	  function ff(); endfunction
+	  fun = acquire(nsp_func_name,def=ff);
+	  S = sprint(fun,as_read=%t);
+	  model.ipar=ascii(catenate(S,sep=" "));
+	  model.dstate=z
+	  model.dep_ut=dep_ut
+	  arg1.model=model
+	  graphics.exprs=label
+	  arg1.graphics=graphics
+	  x=arg1
+	  break
 	end
       end
     case 'define' then

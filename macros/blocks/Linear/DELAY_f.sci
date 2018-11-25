@@ -2,7 +2,7 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
   // Copyright INRIA
   // contains a diagram inside
 
-  function blk = DELAY_define()
+  function scs_m = DELAY_define()
     evtdly=EVTDLY_f('define')
     evtdly.graphics.orig=[243,296]
     evtdly.graphics.sz=[40,40]
@@ -43,38 +43,23 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
     split.graphics.pein=7,
     split.graphics.peout=[9;10]
     
-    diagram=scicos_diagram();
-    diagram.objs(1)=input_port
-    diagram.objs(2)=output_port
-    diagram.objs(3)=register
-    diagram.objs(4)=evtdly
-    diagram.objs(5)=scicos_link(xx=[296.6;440],yy=[220;220],..
+    scs_m=scicos_diagram();
+    scs_m.objs(1)=input_port
+    scs_m.objs(2)=output_port
+    scs_m.objs(3)=register
+    scs_m.objs(4)=evtdly
+    scs_m.objs(5)=scicos_link(xx=[296.6;440],yy=[220;220],
 				from=[3,1],to=[2,1])
-    diagram.objs(6)=scicos_link(xx=[112;229.4],yy=[220;220],..
+    scs_m.objs(6)=scicos_link(xx=[112;229.4],yy=[220;220],
 				from=[1,1],to=[3,1])
-    diagram.objs(7)=scicos_link(xx=[263;263],yy=[290.3;271.2],ct=[5,-1],..
+    scs_m.objs(7)=scicos_link(xx=[263;263],yy=[290.3;271.2],ct=[5,-1],
 				from=[4,1],to=[8,1])
-    diagram.objs(8)=split
-    diagram.objs(9)=scicos_link(xx=[263;263],yy=[271.2;250.7],ct=[5,-1],..
+    scs_m.objs(8)=split
+    scs_m.objs(9)=scicos_link(xx=[263;263],yy=[271.2;250.7],ct=[5,-1],
 				from=[8,1],to=[3,1])
-    diagram.objs(10)=scicos_link(xx=[263;308.6;308.6;263;263],..
-				 yy=[271.2;271.2;367;367;341.7],..
-				 ct=[5,-1],from=[8,2],to=[4,1]) 
-    blk=scicos_block()
-    blk.gui='DELAY_f'
-    blk.graphics.sz=[2,2]
-    blk.graphics.gr_i=list('xstringb(orig(1),orig(2),''Delay'',sz(1),s"+...
-			 "z(2),''fill'')',8) 
-    blk.graphics.pin=0
-    blk.graphics.pout=0
-    blk.model.sim='csuper'
-    blk.model.in=1
-    blk.model.out=1
-    blk.model.blocktype='h'
-    blk.model.dep_ut=[%f %f]
-    blk.model.rpar=diagram
-    blk.graphics.exprs =[evtdly.graphics.exprs(1);register.graphics.exprs];
-
+    scs_m.objs(10)=scicos_link(xx=[263;308.6;308.6;263;263],
+				 yy=[271.2;271.2;367;367;341.7],
+				 ct=[5,-1],from=[8,2],to=[4,1])
   endfunction
 
   function [blk,newpar]=DELAY_f_set(blk,dt,z0,exprs)
@@ -148,7 +133,15 @@ function [x,y,typ]=DELAY_f(job,arg1,arg2)
      typ=newpar;
      resume(needcompile=y);
    case 'define' then
-     x = DELAY_define();
+     scs_m  = DELAY_define();
+     model=scicos_model(sim="csuper",in=1,out=1,
+			rpar=scs_m,ipar=1,blocktype="h",dep_ut=[%f %f]);
+     gr_i=list('xstringb(orig(1),orig(2),''Delay'',sz(1),sz(2),''fill'')',8);
+     x=standard_define([2 2],model,[],gr_i,'DELAY_f');
+     evtdly= scs_m.objs(4);
+     register= scs_m.objs(3);
+     x.graphics.exprs =[evtdly.graphics.exprs(1);register.graphics.exprs];
+  
    case 'upgrade' then
      // upgrade if necessary
      y = %f;

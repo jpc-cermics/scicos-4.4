@@ -76,7 +76,8 @@ function [x,y,typ]=generic_block2(job,arg1,arg2)
 	break
       end
     end
-
+    resume(needcompile=y);
+    
    case 'define' then
     model=scicos_model()
     junction_name='sinblk';

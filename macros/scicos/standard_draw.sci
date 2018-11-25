@@ -19,12 +19,13 @@ function standard_coselica_draw(o,frame,draw_ports,up,identup)
     // to be done
     draw_ports=standard_draw_ports_up;
   end
-  standard_draw_new(o,frame,draw_ports,identup)
+  standard_draw_new(o,frame,draw_ports,identup,coselica = %t)
 endfunction
 
-function standard_draw_new(o,frame,draw_ports,identup)
+function standard_draw_new(o,frame,draw_ports,identup,coselica = %f)
 // Copyright INRIA
-// modified for nsp new_graphics by jpc 
+  // modified for nsp new_graphics by jpc
+  if coselica then draw_box_color = xget('color','blue');else  draw_box_color =-1;end
   xf=60
   yf=40
   nin=size(o.model.in,1);
@@ -78,7 +79,7 @@ function standard_draw_new(o,frame,draw_ports,identup)
       xfpoly(xx(:,2),yy(:,2),color =color,fill_color=color,thickness=0);
     else
       // paint with coli draw with current figure color
-      xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=-1,background=coli);
+      xrect(orig(1),orig(2)+sz(2),sz(1),sz(2),color=draw_box_color,background=coli);
     end
   end
   // draw ports using the function transmited 

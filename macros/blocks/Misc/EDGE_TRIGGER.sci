@@ -1,7 +1,7 @@
 function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
   // contains a diagram inside
   
-  function blk=EDGE_TRIGGER_define()
+  function scs_m=EDGE_TRIGGER_define()
     scs_m = instantiate_diagram ();
     blk = EDGETRIGGER('define')
     exprs= [ "0" ]
@@ -42,14 +42,6 @@ function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
     [scs_m,obj_num] = add_event_link(scs_m,[block_tag_2, "1"],[block_tag_6, "1"],points);
     scs_m=do_silent_eval(scs_m);
     
-    model = mlist(["model","sim","in","in2","intyp","out","out2","outtyp","evtin","evtout",...
-		   "state","dstate","odstate","rpar","ipar","opar","blocktype",...
-		   "firing","dep_ut","label","nzcross","nmode","equations"],"csuper",-1,[],1,[],[],1,[],1,[],[],list(),...
-		  scs_m,[],list(),"h",[],[%f,%f],"",0,0,list())
-    gr_i='xstringb(orig(1),orig(2),[''EDGE'';''TRIGGER''],sz(1),sz(2),''fill'')';
-    blk=standard_define([2 2],model,[],gr_i,'EDGE_TRIGGER');
-    blk.graphics.exprs = blk.model.rpar.objs(1).graphics.exprs;
-    
   endfunction
   
   x=[];y=[],typ=[]
@@ -87,7 +79,13 @@ function [x,y,typ]=EDGE_TRIGGER(job,arg1,arg2)
      resume(needcompile=y);
      
     case 'define' then
-      x= EDGE_TRIGGER_define();
+      scs_m = EDGE_TRIGGER_define();      
+      model=scicos_model(sim="csuper",in=-1,in2=[],intyp=1,out=[],out2=[],outtyp=1,evtin=[],evtout=1,
+			 rpar=scs_m,ipar=1,blocktype="h");
+      gr_i='xstringb(orig(1),orig(2),[''EDGE'';''TRIGGER''],sz(1),sz(2),''fill'')';
+      x=standard_define([2 2],model,[],gr_i,'EDGE_TRIGGER');
+      x.graphics.exprs = x.model.rpar.objs(1).graphics.exprs;
+      
     case 'upgrade' then
       // upgrade if necessary
       y = %f;

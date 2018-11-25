@@ -92,6 +92,7 @@ function [x,y,typ]=CASCADESUM(job,arg1,arg2)
      scsm= CASCADESUM_define(sgn);
      model=scicos_model()
      model.rpar=scsm;
+     model.ipar=1;
      model.sim='csuper';
      model.in=[1;1]
      model.out=1;

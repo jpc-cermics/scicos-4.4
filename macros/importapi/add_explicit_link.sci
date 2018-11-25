@@ -1,5 +1,5 @@
 function [scs_m,obj_num] = add_explicit_link(scs_m,lfrom,lto,points)
-// if to is a split of id_splitXX then the split is moved
+  // if to is a split of id_splitXX then the split is moved
 
   obj_num=length(scs_m.objs)
   

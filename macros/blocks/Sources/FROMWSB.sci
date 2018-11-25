@@ -53,7 +53,7 @@ function [x,y,typ]=FROMWSB(job,arg1,arg2)
      scs_m=FROM_WSB_define()
      model=scicos_model(sim="csuper",in=[],in2=[],intyp=1,out=-1,out2=-2,outtyp=1,
 			evtin=[],evtout=[],state=[],dstate=[],odstate=list(),
-			rpar=scs_m,ipar=[],opar=list(),blocktype="h",firing=[],
+			rpar=scs_m,ipar=1,opar=list(),blocktype="h",firing=[],
 			dep_ut=[%f,%f],label="",nzcross=0,nmode=0,equations=list())
      //## modif made by hand
      gr_i="blk_draw(sz,orig,orient,model.label)";

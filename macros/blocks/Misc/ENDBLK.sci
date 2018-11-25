@@ -55,7 +55,7 @@ function [x,y,typ]=ENDBLK(job,arg1,arg2)
    case 'define' then
      diagram=make_end_block();
      model=scicos_model(sim="csuper",in=[],in2=[],intyp=1,out=[],out2=[],outtyp=1,evtin=[],
-			evtout=[],state=[],dstate=[],odstate=list(),rpar=diagram,ipar=[],
+			evtout=[],state=[],dstate=[],odstate=list(),rpar=diagram,ipar=1,
 			opar=list(),blocktype="h",firing=[],dep_ut=[%f,%f],label="",
 			nzcross=0,nmode=0,equations=list())
      gr_i='xstringb(orig(1),orig(2),'' END '',sz(1),sz(2),''fill'')';

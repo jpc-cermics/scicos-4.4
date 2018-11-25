@@ -3,7 +3,7 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
 // used to add vectors in the SUMMATION spirit 
 
   function blk_draw(o,sz,orig)  
-    txt="DeMux";
+    txt="MB_DeMux";
     fz=2*acquire("%zoom",def=1)*4;
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
   endfunction
@@ -38,7 +38,6 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
     else
       nameF=old.graphics.exprs.nameF;
     end
-    
     n_demux = size(dim_or,'*');
     H=hash(in=["u"], intype=smat_create(1,1,"I"),...
 	   in_r= dim_ir, in_c=ones(1,1),...
@@ -59,8 +58,9 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
       blk.model.sim(1) = H.nameF;
       blk.model.equations.model = H.nameF;
       blk.graphics.exprs.nameF = H.nameF;
+      blk.graphics.sz=[0.5,2];      
       blk.graphics('3D') = %f; // coselica options 
-      blk.graphics.gr_i=list("blk_draw(o,sz,orig)",xget('color','blue'))
+      blk.graphics.gr_i="blk_draw(o,sz,orig)";//,xget('color','blue'));
       blk.gui = "MB_Demux";
       blk.model.in = dim_ir;
       blk.model.out = dim_or;
@@ -91,7 +91,7 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
         ot=-ones(out,1)
         oup=[-[1:out]',ones(out,1)]
         inp=[0,1]
-        [model,graphics,ok]=set_io(model,graphics,...
+        [model,graphics,ok]=set_io(arg1.model,arg1.graphics,
 				   list(inp,it),...
 				   list(oup,ot),[],[])
       else
@@ -105,14 +105,14 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
           ot=-ones(size(out,'*'),1)
           oup=[out(:),ones(size(out,'*'),1)]
           inp=[nin,1]
-	  [model,graphics,ok]=set_io(model,graphics,...
+	  [model,graphics,ok]=set_io(arg1.model,arg1.graphics,
 				     list(inp,it),...
 				     list(oup,ot),[],[])
 	end
       end
       if ok then
 	x.graphics=graphics;x.model=model;
-	x= MB_DeMux_define(x.model.out,x.model.in,x);
+	x= MB_Demux_define(x.model.out,x.model.in,x);
 	break
       end
      end
