@@ -18,9 +18,7 @@ function [x,y,typ]=MISSING_BLOCK(job,arg1,arg2)
     orig  = graphics.orig  ;
     exprs = graphics.exprs ;
     
-    non_interactive = exists('getvalue') && ( getvalue.get_fname[]=='setvalue' ...
-					      || getvalue.get_fname[]=='getvalue_doc');
-					      
+    non_interactive = scicos_non_interactive();					      
     if ~non_interactive then 
       x_message(['This block should be a '+exprs+'block';
 		 'but function definition is missing']);

@@ -21,7 +21,7 @@ function [x,y,typ]=VMBLOCK(job,arg1,arg2)
       graphics=arg1.graphics
       exprs=graphics.exprs
       // check if this is an interactive MBLOCK('set',o);
-      non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+      non_interactive = scicos_non_interactive();
       
       while %t do
 	// get bloc parameters 

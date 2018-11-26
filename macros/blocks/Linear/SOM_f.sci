@@ -84,8 +84,7 @@ function [x,y,typ]=SOM_f(job,arg1,arg2)
       labs=['down','right','up']
     end
 
-    non_interactive = exists('getvalue') && ...
-	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
+    non_interactive = scicos_non_interactive();
     if ~non_interactive then 
       message(['This sum block is obsolete'
 	       'parameters cannot be modified. Please replace it with new sum block';

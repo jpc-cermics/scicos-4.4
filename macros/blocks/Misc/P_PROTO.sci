@@ -12,9 +12,7 @@ function [x,y,typ]=P_PROTO(job,arg1,arg2)
       [x,y]=standard_origin(arg1)
     case 'set' then
       y=acquire('needcompile',def=0);
-      non_interactive = exists('getvalue') && ...
-			( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
-      
+      non_interactive = scicos_non_interactive();
       x=arg1;
       titles=['NSP function name';'Parameters';'input ports sizes';
 	      'output port sizes';'input event ports sizes';'initial discrete state';

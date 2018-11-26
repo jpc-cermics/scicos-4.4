@@ -37,7 +37,7 @@ function [x,y,typ]=MPBLOCK(job,arg1,arg2)
     end
 
     // check if this is an interactive MBLOCK('set',o);
-    non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+    non_interactive = scicos_non_interactive();
     
     while %t do
       // block parameters 

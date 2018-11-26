@@ -31,9 +31,9 @@ function [x,y,typ]=CURV_f(job,arg1,arg2)
     n=ipar(1)
     xx=rpar(1:n);yy=rpar(n+1:2*n)
     gc=list(rpar(2*n+1:2*n+4),ipar(2:5))
- 
-    non_interactive = exists('getvalue') && ...
-	( getvalue.get_fname[]== 'getvalue_doc');
+
+    non_interactive = scicos_non_interactive();
+
     while %t do
       //if or(fun == "clickin") then // cas standard
       if non_interactive then 

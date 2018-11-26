@@ -17,7 +17,8 @@ function [x,y,typ]=BUSCREATOR(job,arg1,arg2)
     exprs=graphics.exprs
     old_exprs=exprs(2)(1)
     ok=%f;okk=%t
-    non_interactive = exists('getvalue') && getvalue.get_fname[]=='setvalue';
+
+    non_interactive = scicos_non_interactive();
     gv_titles=['Signals Name';'Buses Number';'Names inheritance (0=yes 1=no)']
     gv_types= list('string',1,'vec',1,'vec',1);
     while %t do

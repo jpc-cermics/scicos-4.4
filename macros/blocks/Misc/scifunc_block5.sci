@@ -47,8 +47,7 @@ function [x,y,typ]=scifunc_block5(job,arg1,arg2)
 		  'vec',-1,'vec',-1,'lis',-1,'vec',1,'vec',1,'vec','sum(%8)',..
 		  'str',1,'str',1);
 
-    non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
-    
+    non_interactive = scicos_non_interactive();
     while %t do
 
       [ok,junction_name,impli,in,it,out,ot,ci,co,xx,z,oz,...

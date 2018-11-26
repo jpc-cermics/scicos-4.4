@@ -64,9 +64,8 @@ function [x,y,typ]=scifunc_block(job,arg1,arg2)
 
     if size(exprs(1),'*')==8 then exprs(1)(9)='0';end
 
-    non_interactive = exists('getvalue') && ...
-	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
-
+    non_interactive = scicos_non_interactive();
+    
     gv_title = ['Set scifunc_block parameters';'only regular blocks supported'];
     gv_entries = ['input ports sizes';
 		  'output port sizes';

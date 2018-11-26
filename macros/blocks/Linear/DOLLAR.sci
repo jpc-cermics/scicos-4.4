@@ -17,8 +17,8 @@ function [x,y,typ]=DOLLAR(job,arg1,arg2)
     //backward compatibility
     if size(exprs,'*')<2 then exprs(2)='0';end
     
-    non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
-
+    non_interactive = scicos_non_interactive();
+    
     while %t do
       [ok,a,inh,exprs]=getvalue('Set 1/z block parameters',..
 				['initial condition';'Inherit (no:0, yes:1)'],...

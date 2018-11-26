@@ -29,8 +29,7 @@ function [x,y,typ]=TEXT_f(job,arg1,arg2)
       exprs = [exprs;'3';'1']
     end 
 
-    non_interactive = exists('getvalue') && getvalue.get_fname[]=='setvalue';
-    
+    non_interactive = scicos_non_interactive();
     while %t do
       [ok,txt,font,siz,exprs] = getvalue('Set Text block parameters',...
 					 ['Text';'Font number';'Font size'],...

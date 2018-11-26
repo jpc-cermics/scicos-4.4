@@ -74,9 +74,8 @@ function [x,y,typ]=scifunc_block_m(job,arg1,arg2)
     gv_types=list('mat',[-1 2],'mat',[-2 2],'vec',-1,...
 		  'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',-1,'vec',1);
 
-    non_interactive = exists('getvalue') && ...
-	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
-
+    non_interactive = scicos_non_interactive();
+    
     while %t do
       [ok,i,o,ci,co,xx,z,rpar,auto0,deptime,lab]=getvalue(gv_title, ...
 						  gv_titles,gv_types,exprs(1));

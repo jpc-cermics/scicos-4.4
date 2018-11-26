@@ -18,8 +18,7 @@ function [x,y,typ]=LOOKUP_f(job,arg1,arg2)
     n=size(rpar,'*')/2
     xx=rpar(1:n);yy=rpar(n+1:2*n);
     
-    non_interactive = exists('getvalue') && ...
-	( getvalue.get_fname[] == 'setvalue' || getvalue.get_fname[] == 'getvalue_doc');
+    non_interactive = scicos_non_interactive();
     while %t do
       if non_interactive then 
 	ok=%t

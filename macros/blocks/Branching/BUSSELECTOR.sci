@@ -17,7 +17,7 @@ function [x,y,typ]=BUSSELECTOR(job,arg1,arg2)
     exprs=graphics.exprs
     old_SelectedSignals=exprs(2)(1)
     
-    non_interactive = exists('getvalue') && getvalue.get_fname[]=='setvalue';
+    non_interactive = scicos_non_interactive();
     gv_titles=['Signal Selected','Output type bus (0=No 1=yes)'];
     gv_types= list('string',-1,'vec',1);
     while %t do

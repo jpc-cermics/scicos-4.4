@@ -17,8 +17,7 @@ function [x,y,typ]=DEBUG_SCICOS(job,arg1,arg2)
 	    'Inputs are block and flag, output is block.'];
     comment = catenate(head,sep='\n');
     // check if this is an interactive set.
-    non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
-    
+    non_interactive = scicos_non_interactive();
     while %t
       // loop to acquire code 
       txt = scicos_editsmat('Debug Scicos code',textmp,comment=comment);

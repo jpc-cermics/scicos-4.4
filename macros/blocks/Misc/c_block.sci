@@ -83,7 +83,8 @@ function [ok,tt]=CFORTR(funam,tt,inp,out)
   head = ['Function definition in C';
 	  'Here is a skeleton of the functions which you should edit'];
   comment = catenate(head,sep='\n');
-  non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
+
+  non_interactive = scicos_non_interactive();
   while %t
     txt = scicos_editsmat('Nsp code',textmp,comment=comment);
     if isempty(txt) then

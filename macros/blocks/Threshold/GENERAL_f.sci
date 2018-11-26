@@ -19,9 +19,7 @@ function [x,y,typ]=GENERAL_f(job,arg1,arg2)
     nin=sum(in)
     nout=sum(out)
     
-    non_interactive = exists('getvalue') && ...
-	( getvalue.get_fname[]== 'setvalue' || getvalue.get_fname[]== 'getvalue_doc');
-    
+    non_interactive = scicos_non_interactive();
     [ok,in,out,exprs]=getvalue('Set General Zero-Crossing parameters',..
 			       ['Input size';'Number of event output'],..
 			       list('vec',1,'vec',1),exprs)

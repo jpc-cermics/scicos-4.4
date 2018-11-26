@@ -16,8 +16,7 @@ function [x,y,typ]=AUTOMAT(job,arg1,arg2)
     NMode=evstr(exprs(1));
     NX=evstr(exprs(3))
 
-    non_interactive = exists('getvalue') && getvalue.get_fname[]== 'setvalue';
-    
+    non_interactive = scicos_non_interactive();
     while %t do
       CX='C1';
       MSG0='''Jump from Mode '; MSG2=':[..;M_final(Guard=In(';MSG3=').i);..]'''
