@@ -1,7 +1,6 @@
 function [ok,params,param_types]=FindSBParams(scs_m,params)
   // Copyright INRIA
-  // 
-
+  
   function [params,ok]=GetLitParam(str,flg)
     // get variable names contained in str 
     // flg is set to %t when the function is called 
@@ -12,7 +11,7 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
     // we search here the parameters called in function 
     execstr(['function get_lit_param();';str(:);'endfunction']);
     xx=macrovar(get_lit_param);
-    params=xx.called;
+    params=xx.lhs;
     if flg then
       // check that we are not using exec or load 
       excl= ['exec','load'];
@@ -37,13 +36,32 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
   // main program 
   
   if nargin <= 1 then params=[];end 
-  
-  function varargout=getvalue_loc(a,b,c,d)
+
+  function [ok,%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18,%19,%20]=...
+	   getvalue_loc(%desc,%labels,%typ,%ini)
+    // getvalue is limited with respect to the number of outputs
+    // use getvalue_list instead
+    function L=xfun(desc,list,flag) L=x_choices(desc,list,flag);endfunction
+    [ok,%L,%L2]= getvalue_internal_list(%desc,%labels,%typ,%ini,use_dialog=%f);
+    str = '['+ catenate('%'+m2s(1:length(%L))',sep=',')+']';
+    for i=1:length(%L) do execstr( '%'+m2s(i,"%.0f")+ '=%L(i)'); end
+    i =length(%L)+1; execstr( '%'+m2s(i,"%.0f")+ '=%L2;');
+    if nargout > length(%L)+2 then
+      for i=length(%L)+2:nargout-1 do execstr( '%'+m2s(i,"%.0f")+ '=[];'); end
+    end
     global par_types
-    par_types=c
+    par_types=%typ;
+  endfunction
+
+  function [ok,L,exprs]=getvalue_loc_list(%desc,%labels,%typ,%ini)
+    function L=xfun(desc,list,flag) L=x_choices(desc,list,flag);endfunction
+    [ok,L,exprs] = getvalue_internal_list(%desc,%labels,%typ,%ini,use_dialog=%f);
+    global par_types
+    par_types=%typ;
   endfunction
   
   getvalue=getvalue_loc
+  getvalue_list=getvalue_loc_list
   
   param_types=list()
   global par_types
@@ -87,20 +105,18 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
 	    Funi=m2s([]);
 	  end
 	  par_types=[];
-	  execstr("blk="+o.gui+"(""define"")")
+	  // ok = execstr("blk="+o.gui+"(""define"")",errcatch=%t);
 	  // this call will fail because getvalue 
 	  // do not set varargout. but par_types 
 	  // will contain what we need.
-	  ok=execstr(o.gui+"(""set"",blk)",errcatch=%t)
+	  ok=execstr(o.gui+"(""set"",o)",errcatch=%t);
 	  lasterror(); // do not care about message 
 	  Del=[];kk=1;
 	  for jj=1:2:length(par_types)
-	    if par_types(jj)=="str" then Del=[Del,kk],
-	    end
+	    if par_types(jj)=="str" then Del=[Del,kk]; end;
 	    kk=kk+1
 	  end
-	  if ~isempty(Del) then Funi(Del)=[];
-	  end;
+	  if ~isempty(Del) then Funi(Del)=[]; end;
 	end
       end
       Fun=[Fun;Funi]

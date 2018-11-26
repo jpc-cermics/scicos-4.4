@@ -1,5 +1,7 @@
 function do_exit()
-// Copyright INRIA
+  // Copyright INRIA
+  scs_m = acquire('scs_m',def=[]);
+  if isempty(scs_m) then return;end
   r=-1;
   if edited then
     if ~super_block then
@@ -9,8 +11,8 @@ function do_exit()
     end
   end
   select r 
-   case 2 then ok=do_save(); if ~ok then do_SaveAs(),end
-   case 3 then do_SaveAs();
+   case 2 then ok=do_save(scs_m); if ~ok then do_SaveAs(scs_m),end
+   case 3 then do_SaveAs(scs_m);
   end
   
   if ~super_block then
@@ -21,7 +23,7 @@ function do_exit()
   
   global %scicos_navig
   global inactive_windows
-
+  
   if ~isempty(%scicos_navig) then
     ii=winrem(find(windows(winrem,1)>0)) //find super block (not palette)
     if size(ii,'*')<>1 then printf('non e possibile\n'),pause,end
