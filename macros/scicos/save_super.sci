@@ -314,7 +314,8 @@ function txt=scicos_schema2smat(obj,name='z',tag=0,indent=0)
 
   // main code 
   // need to purge diagram first since
-  obj=do_purge(obj);
+  // Take care that obj is not always a diagram
+  if obj.type == 'diagram' then obj=do_purge(obj);end
   //format("long");
   txt1=scicos_obj2smat(obj,name=name,tag=tag,indent=indent);
   //format();
