@@ -21,7 +21,7 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
   end
 
   if o.type =='Block' then
-    if o.model.sim(1)=='super' | o.gui=='PAL_f' then
+    if o.model.sim(1)=='super' || o.gui=='PAL_f' then
       lastwin=curwin
       global inactive_windows
       jkk=[]
@@ -40,10 +40,15 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
         curwin=get_new_window(windows); //** need a brand new window where open the 
       end
       if %diagram_open then xset('window',curwin), end
-      if o.model.sim(1)=="super" then //## superblock
+      if o.model.sim(1)=="super" then
+	//## superblock
         ierr=execstr('[o_n,needcompile,newparameters]='+o.gui+'(''set'',o)',errcatch=%t)
-      else //## palette block
+      elseif o.gui=='PAL_f' then 
+	//## palette block
         ierr=execstr('[o_n,y,typ]='+o.gui+'(''set'',o)',errcatch=%t);
+      else
+	// we use SUPER_f set function to edit the internals of a csuper 
+	ierr=execstr('[o_n,y,typ]=SUPER_f(''set'',o)',errcatch=%t);
       end
       if ~ierr then
         printf('Error in GUI of block %s\n',o.gui);
@@ -69,8 +74,8 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       xset('window',curwin)
       //xselect()
     
-    elseif o.model.sim(1)=='csuper' && o.model.ipar.equal[1] then
-      // this is a masked superblock 
+    elseif %f && o.model.sim(1)=='csuper' && o.model.ipar.equal[1] then
+      // csuper block; similar to what we do for a block.
       %scs_help=o.gui
       ierr=execstr('[o_n,needcompile,newparameters]='+o.gui+'(''set'',o)',errcatch=%t)
       if ~ierr then
@@ -83,26 +88,12 @@ function [o,modified,newparameters,needcompile,edited]=clickin(o)
       if edited then
         o=o_n
       end
-
-    elseif o.model.sim(1)=='csuper' then
-      // ?
-      %scs_help=o.gui
-      ierr=execstr('[o_n,needcompile,newparameters]='+o.gui+'(''set'',o)',errcatch=%t)
-      if ~ierr then
-        printf('Error in GUI of block %s\n',o.gui);
-	printf("%s\n",lasterror());
-        return
-      end
-      modified=prod(size(newparameters))>0
-      edited=~and(o==o_n);
-      if edited then
-        o=o_n
-      end
-
+      
     elseif o.model.sim(1)=='asuper' then
+      // atomic super block 
       message(['This is an atomic superblock';..
                'To edit the block, you must first remove atomicity']);
-
+      
     else
       // standard block
       %scs_help=o.gui
