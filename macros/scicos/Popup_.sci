@@ -1,10 +1,10 @@
 function Popup_()
-// activated by button events in scicos window %win 
-// state_var = 1 : right click over a valid object inside the CURRENT Scicos Window
-// state_var = 2 : right click in the void of the CURRENT Scicos Window
-// state_var = 3 : right click over a valid object inside a PALETTE or NOT a CURRENT Scicos Window
-// XXX some hilight selections through popup are performed here 
-    
+  // activated by button events in scicos window %win 
+  // state_var = 1 : right click over a valid object inside the CURRENT Scicos Window
+  // state_var = 2 : right click in the void of the CURRENT Scicos Window
+  // state_var = 3 : right click over a valid object inside a PALETTE or NOT a CURRENT Scicos Window
+  // some hilight selections through popup are performed here 
+  
   state_var=0
   state_pal=0
   kc=find(%win==windows(:,2))
@@ -96,30 +96,30 @@ function Popup_()
       end
     elseif slevel>1 then
       // popup in a SuperBlock Scicos Window that is NOT the current window ----------
-      execstr('k = getobj(scs_m_'+string(windows(kc,1))+',%pt)')
+      execstr("k = getobj(scs_m_"+string(windows(kc,1))+",%pt)")
       if ~isempty(k) then
-        Select=[k,%win];
-        selecthilite(Select,%t)
-        state_var=3
+	Select=[k,%win];
+	selecthilite(Select,%t)
+	state_var=3
       else
-        //** in the void 
-        Cmenu='';%pt=[];%ppt=[];Select=[];
-        return
+	//** in the void 
+	Cmenu="";%pt=[];%ppt=[];Select=[];
+	return
       end
     else
       //** in any other case -------------------------------  
       message("This window is not an active scicos window")
-      Cmenu='';%pt=[];%ppt=[];Select=[];
+      Cmenu="";%pt=[];%ppt=[];Select=[];
       return
     end
   end
   // activate the popup.
   [Cmenu,args]=mpopup(%scicos_lhb_list(state_var))
-  if type(args,'short')=='h' then 
+  if type(args,"short")=="h" then 
     // XXX this is ugly but we need a way to transmit args
     btn=args;
   end
-  if Cmenu=='' then
+  if Cmenu=="" then
     %pt=[];%ppt=[];
     selecthilite(Select,%f);
     Select=[];

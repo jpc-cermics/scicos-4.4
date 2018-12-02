@@ -153,6 +153,7 @@ function [ok,%tcur,%cpr,alreadyran,needcompile,%state0,solver]=do_run(%cpr)
       [%cpr,ok]=do_compile(scs_m);
       ok_grs=execstr('grs=scicos_graphic_array(%cpr,scs_m);',errcatch=%t);
     end
+    
     execok=execstr('[state,t,kfun]=scicosim(%cpr.state,%tcur,tf,%cpr.sim,''start'',tolerances,grs)',errcatch=%t)
     %cpr.state=state
     if ~execok then

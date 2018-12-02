@@ -1,5 +1,5 @@
 function  [%cpr,ok]=do_compile(scs_m)
-// Copyright INRIA
+  // Copyright INRIA
   // scs_m = scs_m; // to be sure that c_pass2 get the right scs_m
   show_trace=%f
   if show_trace then printf('c_pass0: %s\n',string(timer())),end
@@ -57,5 +57,7 @@ function  [%cpr,ok]=do_compile(scs_m)
   // to the modelica blocks
   // if type(clast)==15 then %cpr.corinv(klast)=clast,end
   %cpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv);
+
   if %cpr.equal[list()] then ok=%f,end
+  
 endfunction

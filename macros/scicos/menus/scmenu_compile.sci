@@ -1,5 +1,5 @@
 function scmenu_compile()
-// Copyright INRIA
+  // Copyright INRIA
   if ~super_block then
     nc_save=4
     Cmenu="";
