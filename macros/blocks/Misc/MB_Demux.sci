@@ -93,7 +93,7 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
         inp=[0,1]
         [model,graphics,ok]=set_io(arg1.model,arg1.graphics,
 				   list(inp,it),...
-				   list(oup,ot),[],[])
+				   list(oup,ot),[],[],1,1:out);
       else
         if size(out,'*')==0| or(out==0) then
 	  message(['Block must have at least 1 and at most 31 output ports';
@@ -107,7 +107,7 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
           inp=[nin,1]
 	  [model,graphics,ok]=set_io(arg1.model,arg1.graphics,
 				     list(inp,it),...
-				     list(oup,ot),[],[])
+				     list(oup,ot),[],[],1,1:size(out,'*'))
 	end
       end
       if ok then

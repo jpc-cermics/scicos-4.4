@@ -94,7 +94,7 @@ function [x,y,typ]=MB_Mux(job,arg1,arg2)
 	  oup=[0,1]
 	  [model,graphics,ok]=set_io(arg1.model,arg1.graphics,...
 				     list(inp,it),...
-				     list(oup,ot),[],[])
+				     list(oup,ot),[],[], 1:in,1);
 	else
 	  if size(in,'*')==0| or(in==0) then
 	    message(['MB_Mux must have at least one input port';
@@ -108,7 +108,7 @@ function [x,y,typ]=MB_Mux(job,arg1,arg2)
 	    oup=[nout,1]
 	    [model,graphics,ok]=set_io(arg1.model,arg1.graphics,...
 				       list(inp,it),...
-				       list(oup,ot),[],[])
+				       list(oup,ot),[],[],1:size(in,'*'),1);
 	  end
 	end
 	if ok then
