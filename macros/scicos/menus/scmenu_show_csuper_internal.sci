@@ -8,11 +8,11 @@ endfunction
 
 function do_show_csuper_internal(o)
   ok=%t
-  if o.type =='Block' && o.model.sim(1)=='csuper' then 
-    scs_m= o.model.rpar;
-    // draw the new diagram
-    curwin = acquire('curwin',def=1000);
-    scs_m=scicos_diagram_show(scs_m,win=curwin+1,margins=%t,scicos_uim=%f,scicos_istop=%f,read=%f);
+  if o.type =='Block' && o.model.sim(1)=='csuper' then
+    %diagram_open=%f;
+    // pretend we are a super and use SUPER_f gui
+    o.model.sim(1)='super'; o.gui='SUPER_f';
+    [o,modified,newparameters,needcompile,edited]=clickin(o);
   else
     message("No diagram inside to be shown");
   end
