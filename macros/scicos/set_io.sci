@@ -4,6 +4,9 @@ function [model, graphics, ok]=set_io(model, graphics,...
 				      in_implicit, out_implicit,..
 				      in_bus, out_bus)
   // Copyright INRIA
+  // Upgrade model and graphics according to new values of parameters
+  // trying to preserve existing links
+
   if nargin <= 6 then
     in_implicit=[]
     out_implicit=[],
