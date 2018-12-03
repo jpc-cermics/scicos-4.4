@@ -127,6 +127,7 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
       blk.gui = "MB_Integral";
       blk.model.in = n;
       blk.model.out = n;
+      blk.model.dep_ut = [%f,%t];
     end
   endfunction
   

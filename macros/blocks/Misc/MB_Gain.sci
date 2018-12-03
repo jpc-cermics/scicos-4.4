@@ -103,6 +103,7 @@ function [x,y,typ]=MB_Gain(job,arg1,arg2)
       blk.gui = "MB_Gain";
       blk.model.in = [n];blk.model.in2=1;
       blk.model.out = [m];blk.model.out2=1;
+      blk.model.dep_ut = [%t,%t];
     end
   endfunction
   

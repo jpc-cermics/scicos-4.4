@@ -160,6 +160,7 @@ function [x,y,typ]=MB_MathFun(job,arg1,arg2)
       blk.gui = "MB_MathFun";
       blk.model.in = -1;
       blk.model.out = -1;
+      blk.model.dep_ut = [%t,%t];
     end
   endfunction
   

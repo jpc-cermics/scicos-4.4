@@ -64,6 +64,7 @@ function [x,y,typ]=MB_Demux(job,arg1,arg2)
       blk.gui = "MB_Demux";
       blk.model.in = dim_ir;
       blk.model.out = dim_or;
+      blk.model.dep_ut = [%t,%t];
     end
   endfunction
   

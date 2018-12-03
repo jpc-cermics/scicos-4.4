@@ -75,6 +75,7 @@ function [x,y,typ]=MB_Extractn(job,arg1,arg2)
       blk.gui = "MB_Extractn";
       blk.model.in =  dim_r
       blk.model.out = size(indices,'*');
+      blk.model.dep_ut = [%t,%t];
     end
   endfunction
   

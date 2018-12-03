@@ -99,6 +99,7 @@ function [x,y,typ]=MB_Constantn(job,arg1,arg2)
     blk.model.in2 = [];
     blk.model.out = size(C,1);
     blk.model.out2 = size(C,2);
+    blk.model.dep_ut = [%f,%t];
   endfunction
   
   x=[];y=[];typ=[];

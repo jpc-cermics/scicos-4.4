@@ -126,6 +126,7 @@ function [x,y,typ]=MB_Expression(job,arg1,arg2)
       blk.gui = "MB_Expression";
       if n == 1 then blk.model.in = -1;else blk.model.in = ones(n,1);end
       blk.model.out = 1;
+      blk.model.dep_ut = [%t,%t];
     end
   endfunction
   

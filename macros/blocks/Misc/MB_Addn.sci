@@ -94,6 +94,7 @@ function [x,y,typ]=MB_Addn(job,arg1,arg2)
       blk.gui = "MB_Addn";
       blk.model.in = dim_r*ones(nsigns,1);
       blk.model.out = dim_r;
+      blk.model.dep_ut = [%t,%t];
     end
   endfunction
   

@@ -60,7 +60,8 @@ function [x,y,typ]=MB_MO2Sn(job,arg1,arg2)
       if nargin == 2 then n=arg1;else n=-1;end 
       scsm= MB_MO2Sn_define(n);
       model = scicos_model(sim="csuper",in=[n],in2=[1],intyp=1,out=[n],
-			   out2=[1],outtyp=1,rpar=scsm,ipar=1,blocktype="h");
+			   out2=[1],outtyp=1,rpar=scsm,ipar=1,blocktype="h",
+			   dep_ut = [%t,%t]);
       // model.equationns = scicos_modelica();
       gr_i="blk_draw(o,sz,orig,orient)";
       x=standard_define([1 1],model,[],gr_i,"MB_MO2Sn");
