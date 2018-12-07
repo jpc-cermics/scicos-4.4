@@ -1,4 +1,4 @@
-function scs_m= scicos_convert_to_modelica(scs_m)
+function scs_m= scicos_convert_to_modelica(scs_m,keep_top_inout =%f)
   // replace all modelica blocks by dummy and
   // changes the link so as to have links which alwys
   // go from link.from and to link.to.
@@ -10,7 +10,7 @@ function scs_m= scicos_convert_to_modelica(scs_m)
   // introduce dummy blocks
   scs_m= scicos_convert_blocks_to_modelica(scs_m);
   // second step to eventually change the IN OUT blocks 
-  scs_m= scicos_convert_inout_to_modelica(scs_m);
+  scs_m= scicos_convert_inout_to_modelica(scs_m,keep_top_inout =keep_top_inout);
   // convert the splits 
   scs_m= scicos_convert_split_to_modelica(scs_m);
   // check that links are betwwen ports of same type and
@@ -205,9 +205,10 @@ function scs_m= scicos_convert_links_to_modelica(scs_m)
   end
 endfunction
 
-function scs_m= scicos_convert_blocks_to_modelica(scs_m, scicos_context = hash(10))
+function scs_m= scicos_convert_blocks_to_modelica(scs_m, keep_inout=%f, scicos_context = hash(10))
   // replace all modelica blocks by dummy and
   // changes the link so as to be standard links
+  // if keep_inout == %t then in/out are not replaced at top level
   [scicos_context,ierr]=script2var(scs_m.props.context,scicos_context);
   if ierr<>0 then 
     msg(["Warning: Failed to evaluate a context:";catenate(lasterror())]);
@@ -522,9 +523,10 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m, scicos_context = hash(1
   end
 endfunction
 
-function scs_m= scicos_convert_inout_to_modelica(scs_m)
-// replace IN_f and OUT_f if they need to be modelica converted 
-  
+function scs_m= scicos_convert_inout_to_modelica(scs_m, keep_top_inout = %f)
+  // replace IN_f and OUT_f if they need to be modelica converted 
+  // if keep_top is %t then the conversion is not performed for toplevel inout blocks
+  // just recursively performed on super block
   function [to_types] = scicos_get_linked_block_to_pout(blk,pout,to_types)
     // find the link going from outputs of the IN_f bloc blk.
     link = scs_m.objs(blk.graphics.pout(pout));
@@ -581,27 +583,28 @@ function scs_m= scicos_convert_inout_to_modelica(scs_m)
     blk = scs_m.objs(i);
     if blk.type <> 'Block' then continue;end
     select blk.gui
-     case 'IN_f' then
-       // follows the tree of linsk from IN_f and get types
-       [to_types] = scicos_get_linked_block_to_pout(blk,1,[]);
-       if or(to_types == 2) then 
-	 // we convert IN_f and should propagate conversion for
-	 // all the SPLITS accordingly XXXXX
-	 // printf("The IN_f must be converted \n");
-	 blk_new = INIMPL_f('define',blk.model.ipar);
-	 blk_new = set_block_params_from(blk_new, blk);
-	 scs_m.objs(i)=blk_new;
-	 [scs_m] = scicos_propagate_type_from_impin(scs_m,blk_new,1);
-       end
-     case 'OUT_f' then
-      // pause OUT
-      [from_blk,from_blk_type] = scicos_get_linked_block_to_out(blk)
-      if from_blk_type == 2 then 
-	// printf("The OUT_f must be converted \n");
-	blk_new = OUTIMPL_f('define',blk.model.ipar);
-	blk_new = set_block_params_from(blk_new, blk);
-	scs_m.objs(i)=blk_new;
-      end
+      case 'IN_f' then
+	if keep_top_inout then continue;end
+	// follows the tree of linsk from IN_f and get types
+	[to_types] = scicos_get_linked_block_to_pout(blk,1,[]);
+	if or(to_types == 2) then 
+	  // we convert IN_f and should propagate conversion for
+	  // all the SPLITS accordingly XXXXX
+	  // printf("The IN_f must be converted \n");
+	  blk_new = INIMPL_f('define',blk.model.ipar);
+	  blk_new = set_block_params_from(blk_new, blk);
+	  scs_m.objs(i)=blk_new;
+	  [scs_m] = scicos_propagate_type_from_impin(scs_m,blk_new,1);
+	end
+      case 'OUT_f' then
+	if keep_top_inout then continue;end
+	[from_blk,from_blk_type] = scicos_get_linked_block_to_out(blk)
+	if from_blk_type == 2 then 
+	  // printf("The OUT_f must be converted \n");
+	  blk_new = OUTIMPL_f('define',blk.model.ipar);
+	  blk_new = set_block_params_from(blk_new, blk);
+	  scs_m.objs(i)=blk_new;
+	end
     else
       // convert super, csuper but do not convert asuper
       // which are supposed to be globally converted.

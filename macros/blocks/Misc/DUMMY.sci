@@ -1,6 +1,6 @@
 function [x,y,typ]=DUMMY(job,arg1,arg2)
   // A dummy block used at compile time to check dimensions
-  // XXXX attenion il lui faut les events en graphique 
+  // XXXX attention il lui faut les events en graphique 
 
   function blk = DUMMY_define(old)
     blk = scicos_block(gui='DUMMY');
@@ -220,16 +220,23 @@ endfunction
     if verbose then printf("silent eval pass ended\n");end
   endfunction
   
-  function [ok,scs_m] = do_convert_and_compile(scs_m,verbose = %f,step=10)
+  function [ok,scs_m] = do_convert_and_compile(scs_m,verbose = %f, keep_top_inout=%f)
+    // The top level function
     ok = %t;
     if type(scs_m,'short') == 's' then
       [ok,scs_m]=do_load(scs_m);
     end
     if ~ok then return;end
-    scs_m = scicos_convert_to_modelica(scs_m);
+    scs_m = scicos_convert_to_modelica(scs_m, keep_top_inout = keep_top_inout);
     scs_m = scicos_compiler_modelica_pass0(scs_m,verbose = verbose );
     do_compile(scs_m);
   endfunction
   
-    
+  function [ok,scs_m]= test_segway()
+    [ok,scs_m]=do_load('segway.cos');
+    scs_msub= scs_m.objs(6).model.rpar;
+    [ok,scs_msub] = do_convert_and_compile(scs_msub, keep_top_inout =%t);
+    scs_m.objs(6).model.rpar=scs_msub;
+  endfunction
+  
   
