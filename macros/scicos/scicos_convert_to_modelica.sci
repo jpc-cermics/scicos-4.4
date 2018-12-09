@@ -236,18 +236,18 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m, keep_inout=%f, scicos_c
 	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'SPLIT_f' then
-	// XXXX a revoir 
-	//old = blk;
-	//blk = IMPSPLIT_f('define');
-	//blk = set_block_params_from(blk, old);
-      	//scs_m.objs(i)=blk;
-      case {'INTEGRAL_m','INTEGRAL'} then
-	// 'INTEGRAL_m' ; matrice
+	// SPLITS are treated elsewhere
+      case {'INTEGRAL_m','INTEGRAL','SIM_INTEGRAL'} then
+	// 'INTEGRAL_m' : matrice possible 
 	// 'INTEGRAL' : vecteur colonne quelles que soit l'entrée
 	// 'INTEGRAL_f' : scalaire et pas de reinit et satur;
 	// Attention pas de re-init pour l'instant 
 	old = blk;
-	tags = ["xinit";"reinit";"satur";"outmax";"outmin"];
+	exprs = old.graphics.exprs;
+	if blk.gui <> 'SIM_INTEGRAL' then
+	  exprs = ['0';exprs]; // initialization is not external
+	end
+	tags = ["init_is_external";"xinit";"reinit";"satur";"outmax";"outmin"];
 	[ok,He] = execstr(tags + "=" + old.graphics.exprs,env=scicos_context,errcatch=%t);
 	// abort conversion if re-init 
 	if He.reinit == 1 then return;end
@@ -256,21 +256,14 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m, keep_inout=%f, scicos_c
 	  printf("Warning: unable to evaluate parameters in block %s\n",blk.gui);
 	  break;
 	end
-	exprs_new = old.graphics.exprs(1);
-	if He.satur == 0 then
-	  exprs_new(2) = "[]";  exprs_new(3) = "[]";
-	else
-	  exprs_new(2) = old.graphics.exprs(2);
-	  exprs_new(3) = old.graphics.exprs(3);
-	end
+	exprs_new = exprs;
+	exprs_new(3)=[];// remove reinit 
+	exprs_new(4)=[];// remove satur
+	if He.satur == 0 then exprs_new(3)="[]";exprs_new(4)="[]";end
 	blk = MB_Integral('define', exprs_new(:));
 	blk = set_block_params_from(blk, old);
 	// Take care that when xinit is a scalar the size is unknown 
 	// in {'INTEGRAL_m','INTEGRAL'} (it should be fixed latter for MB_Integral)
-	if size(He.xinit,'*')== 1 then
-	  blk.model.in = -1;
-	  blk.model.out = -1;
-	end
 	scs_m = match_ports(scs_m, list('objs',i), blk);
 	scs_m.objs(i)=blk;
       case 'SUMMATION' then

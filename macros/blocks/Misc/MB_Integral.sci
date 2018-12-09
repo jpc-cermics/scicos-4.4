@@ -1,4 +1,6 @@
 function [x,y,typ]=MB_Integral(job,arg1,arg2)
+  // Attention il manque deux choses outmin/oumax mal pris en compte et
+  // faire le init avec le signal extérieur.
   // A modelica block for non-scalar trig functions
   
   function blk_draw(sz,orig,orient,label)
@@ -12,13 +14,26 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     xstring(orig(1)+sz(1)/2,orig(2)+sz(2),txt,posx="center",posy="bottom",size=fz);
   endfunction
   
-  function txt = MB_Integral_funtxt(H, xinit, outmin,outmax)
+  function txt = MB_Integral_funtxt(H, xinit, outmin,outmax, init_is_external)
     txt=VMBLOCK_classhead(H.nameF,H.in,H.intype,[H.in_r,H.in_c],m2s([]),[],[],H.param,H.paramv,H.pprop)
     n = size(xinit,'*');
-    if n > 1 then 
-      txt.concatd[sprintf("RealOutput y[%d](signal(start=xinit[:,1]));",n)];
+    if init_is_external then
+      // initialization is through an input signal 
+      if n > 1 then 
+	txt.concatd[sprintf("RealOutput y[%d];",n)];
+      else
+	txt.concatd[sprintf("RealOutput y;")];
+      end
+
+      txt.concatd["  initial equation"];
+      txt.concatd["    y.signal = exinit.signal;"];
     else
-      txt.concatd[sprintf("RealOutput y(signal(start=xinit));")];
+      // initialization is given by internal value 
+      if n > 1 then 
+	txt.concatd[sprintf("RealOutput y[%d](signal(start=xinit[:,1]));",n)];
+      else
+	txt.concatd[sprintf("RealOutput y(signal(start=xinit));")];
+      end
     end
     txt.concatd["  equation"];
     if ~isempty(outmin) || ~isempty(outmax) then
@@ -83,10 +98,10 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
   
   function blk= MB_Integral_define(exprs, old)
     E = acquire('%scicos_context',def=hash(1));
-    [ok,E1]=execstr(["xinit";"outmin"; "outmax"]+ "=" + exprs, env=E, errcatch=%t);
-    if ~ok then xinit=[0];outmin=[];outmax=[];
+    [ok,E1]=execstr(["init_is_external";"xinit";"outmax"; "outmin"]+ "=" + exprs, env=E, errcatch=%t);
+    if ~ok then init_is_external=%f;xinit=[0];outmin=[];outmax=[];
     else
-      xinit=E1.xinit; outmin=E1.outmin; outmax=E1.outmax;
+      init_is_external=E1.init_is_external;xinit=E1.xinit; outmin=E1.outmin; outmax=E1.outmax;
     end
     if nargin <= 1 then 
       global(modelica_count=0);
@@ -95,19 +110,30 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
     else
       nameF=old.graphics.exprs.nameF;
     end
-    param=["xinit"]; paramv=list(xinit); pprop=[0];
+    // parameters
+    param=m2s([]); paramv=list(); pprop=[];
+    if ~(init_is_external<>0) then
+      param=["xinit"]; paramv=list(xinit); pprop=[0];
+    end
     if ~isempty(outmin) then
-      param=[param,"outMin"]; paramv($+1)=outmin; pprop=[pprop,0];
+      param=[param;"outMin"]; paramv($+1)=outmin; pprop=[pprop;0];
     end
     if ~isempty(outmax) then
-      param=[param,"outMax"]; paramv($+1)=outmax; pprop=[pprop,0];
+      param=[param;"outMax"]; paramv($+1)=outmax; pprop=[pprop;0];
     end
+    if init_is_external<>0 then xinit= 0;end 
     n = size(xinit,'*');
-    H=hash(in=["u"], intype="I", in_r=[n], in_c=[1],
-	   out=["y"], outtype="I", out_r=[n], out_c=[1],
-	   param=param, paramv=paramv, pprop=pprop, nameF=nameF);
+    if E1.init_is_external then
+      H=hash(in=["u";"exinit"], intype=["I";"I"], in_r=[n;n], in_c=[1;1],
+	     out=["y"], outtype="I", out_r=[n], out_c=[1],
+	     param=param, paramv=paramv, pprop=pprop, nameF=nameF);
+    else
+      H=hash(in=["u"], intype="I", in_r=[n], in_c=[1],
+	     out=["y"], outtype="I", out_r=[n], out_c=[1],
+	     param=param, paramv=paramv, pprop=pprop, nameF=nameF);
+    end
     
-    H.funtxt = MB_Integral_funtxt(H, xinit, outmin, outmax);
+    H.funtxt = MB_Integral_funtxt(H, xinit, outmin, outmax, E1.init_is_external);
     
     if nargin == 2 then
       blk = VMBLOCK_define(H,old);
@@ -125,8 +151,16 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
       blk.graphics('3D') = %f; // coselica options 
       blk.graphics.gr_i= "blk_draw(sz,orig,orient,model.label)";
       blk.gui = "MB_Integral";
-      blk.model.in = n;
-      blk.model.out = n;
+      if  E1.init_is_external then 
+	blk.model.in = [-1;-1];
+	blk.model.in2 = [1;1];
+	blk.model.out = -1;
+      else
+	if n == 1 then n=-1;end
+	blk.model.in = [n];
+	blk.model.in2 = [1];
+	blk.model.out = n;
+      end
       blk.model.dep_ut = [%f,%t];
     end
   endfunction
@@ -153,46 +187,34 @@ function [x,y,typ]=MB_Integral(job,arg1,arg2)
       graphics=arg1.graphics;
       exprs=graphics.exprs.exprs;
       model=arg1.model;
+      gv_title = 'Set MB_Integral block parameters';
+      gv_names =['xinit is external';
+		 'Initial Condition';
+		 'Upper limit or []';
+		 'Lower limit or []'];
+      gv_types = list('vec',1,'mat',[-1 -1],'mat',[-1 -1],'mat',[-1 -1]);
       while %t do
-	[ok,x0,outmin,outmax,exprs_new]=getvalue('Set MB_Integral block parameters',
-						 ['Initial Condition';
-						  'Upper limit or []';'Lower limit or []'],
-						 list('mat',[-1 -1],'mat',[-1 -1],'mat',[-1 -1]),exprs);
-	if ~ok then break,end
-	if %f then 
-	  message('Upper limits must be > Lower limits')
-	  message('Inital condition x0 should be inside the limits')
-      	  rpar=[real(maxp(:));real(lowp(:))]
-	  model.nzcross=size(x0,'*')
-	  model.nmode=size(x0,'*')
-      	  model.rpar=rpar
-	  model.state=real(x0(:))
-	  model.sim=list('integral_func',4)
-	  it=[1;ones(reinit,1)]
-	  ot=1;
-	  if size(x0,"*")>1 then
-	    in=[size(x0,1)*[1;ones(reinit,1)],size(x0,2)*[1;ones(reinit,1)]]
-	    out=size(x0)
-	  else
-	    in=[-1*[1;ones(reinit,1)],-2*[1;ones(reinit,1)]]
-	    out=[-1,-2]
-	  end
-	end
-	if x.model.in > 0 && size(x0,'*')==1 then
-	  xinit=smat_create(x.model.in,1,exprs_new(1));
+	[ok,xinit_is_external,x0,outmin,outmax,exprs_new]=getvalue(gv_title, gv_names, gv_types,exprs);
+	if ~ok then break,end;
+	if x.model.in(1) > 1 && size(x0,'*')==1 then
+	  // adapt x0 to the entry size if x0 is scalar 
+	  xinit=smat_create(x.model.in(1),1,exprs_new(2));
 	  xinit="["+catenate(xinit,sep=";")+"]";
-	  exprs_new(1)=xinit;
+	  exprs_new(2)=xinit;
+	elseif x.model.in(1) > 1 && size(x0,'*') <>x.model.in(1) then
+	  message(sprintf("port size (%d) and initial condition of size (%d) are not compatible",
+			  size(x0,'*'), x.model.in(1)));
 	end
 	x= MB_Integral_define(exprs_new,x);
 	break;
       end
     case 'define' then
-      // ["initial_state","outmin","outmax"]
+      // ["init_is_external","initial_state","outmin","outmax"]
       // outmin and outmax can be []
       // The dimension of "initial_state" gives the size of the initial state
       // But when converting from scicos to modelica we have to take care
       // That in scicos dimension 1 may be promoted to higher dimensions;
-      A=["0";"[]";"[]"];
+      A=["0";"0";"[]";"[]"];
       if nargin == 2 then A=arg1;end
       x= MB_Integral_define(A);
   end
