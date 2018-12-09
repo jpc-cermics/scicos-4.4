@@ -380,7 +380,6 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
     else
       // save(TMPDIR + '/model.bin',model);
     end
-
     blklst(nr+1)=model;
 
     //make compiled modelica block refer to the set of corresponding
@@ -399,6 +398,7 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
     end
     sco_mat=[sco_mat;[string(size(blklst)) '-1' 'scicostimeclk0' '1' '10']]
   end
+
   //the buses must be treated here
   if size(busmat,1)>0
     [ok,blklst,cmat,ccmat,cor,corinv,reg,sco_mat]=BusAnalysis(blklst,cmat,ccmat,busmat,cor,corinv,reg,MaxBlock,sco_mat,scs_m);
@@ -449,7 +449,6 @@ function  [blklst,cmat,ccmat,cor,corinv,ok,flgcdgen,freof]=c_pass1(scs_m,flgcdge
       end
     end
   end
-  //*** 
 endfunction
 
 
