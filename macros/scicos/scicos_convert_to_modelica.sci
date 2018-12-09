@@ -248,7 +248,7 @@ function scs_m= scicos_convert_blocks_to_modelica(scs_m, keep_inout=%f, scicos_c
 	  exprs = ['0';exprs]; // initialization is not external
 	end
 	tags = ["init_is_external";"xinit";"reinit";"satur";"outmax";"outmin"];
-	[ok,He] = execstr(tags + "=" + old.graphics.exprs,env=scicos_context,errcatch=%t);
+	[ok,He] = execstr(tags + "=" + exprs,env=scicos_context,errcatch=%t);
 	// abort conversion if re-init 
 	if He.reinit == 1 then return;end
 	if ~ok then
