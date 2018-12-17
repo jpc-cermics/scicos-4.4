@@ -10,11 +10,12 @@ function scmenu_modelica_initialize()
   
   Cmenu=''
   name=scs_m.props.title(1);
+  name=stripblanks(name);
   if ~validvar(name) then 
     x_message([name;'is not a valid name, please change the title of the diagram.']);
     return
   end
-  name=stripblanks(name)+'_im';
+  name=name +'_im';
   TMPDIR=getenv('NSP_TMPDIR')
   mofile=file('join',[getenv('NSP_TMPDIR');name+'.mo']);
   xmlfile=file('join',[getenv('NSP_TMPDIR');name+'f_init.xml']);
@@ -47,6 +48,8 @@ function scmenu_modelica_initialize()
       scicos_manage_widgets('register',wingtkid=demo_xml(xmlfile), wintype='ModelicaInitialize')
     end
   end
+  xmlmodel = name;
+  [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
 endfunction
 
 function  Doubleclick(name,last_name)

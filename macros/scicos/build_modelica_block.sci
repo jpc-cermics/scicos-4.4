@@ -570,7 +570,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
     txt = ["#/* -*- Mode: Makefile -*- */"
 	   "all : ";
 	   catenate(["\t";instr],sep= " ")];
-    scicos_mputl(txt,file('join',[file('split',path);'Makefile_mo2']));
+    scicos_mputl(txt,file('join',[file('split',path);'makefile_mo2']));
     [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
     if ~ok then
       x_message(['Error:';'Modelica compilation failed ';sp_e;sp_m]);	    
