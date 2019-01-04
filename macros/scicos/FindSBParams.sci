@@ -11,7 +11,7 @@ function [ok,params,param_types]=FindSBParams(scs_m,params)
     // we search here the parameters called in function 
     execstr(['function get_lit_param();';str(:);'endfunction']);
     xx=macrovar(get_lit_param);
-    params=xx.lhs;
+    params=xx.called;
     if flg then
       // check that we are not using exec or load 
       excl= ['exec','load'];

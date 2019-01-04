@@ -32,9 +32,7 @@ function scmenu_create_mask()
     message('Mask can only be created for Super Blocks.')
     return;
   end
-  // A revoir 
   [ok,params,param_types]=FindSBParams(model.rpar,[])
-  // ok = %t; params=['x']; param_types=['int'];
   if ~ok then 
     message(['Error occured while masking the subsystem';
 	     'The mask will not be created']);

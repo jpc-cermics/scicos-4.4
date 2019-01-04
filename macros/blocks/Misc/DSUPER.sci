@@ -47,12 +47,11 @@ function [x,y,typ]=DSUPER(job,arg1,arg2)
       end
       // we try to recover a multiline title 
       // from a sci2exp
-      ok=execstr(sprintf("title=%s",btitre));
-      if ok &&  type(title,"short")=="s" then 
-	title=title(:);
+      ok=execstr(sprintf("title=%s",btitre),errcatch=%t);
+      if ok then
+	if type(title,"short")=="s" then title=title(:);else title= btitre;end
       else
-	lasterror();
-	title= btitre;
+	lasterror();	title= btitre;
       end
       
       ss=graphics.exprs(2)(3)
