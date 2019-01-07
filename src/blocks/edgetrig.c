@@ -45,7 +45,7 @@ void edgetrig (scicos_block * block, int flag)
       if (_ng > 0)
 	{
 	  set_block_error (-1);
-	  sciprint ("Trigger block must have discrete time input.");
+	  sciprint ("Trigger block must have discrete time input.\n");
 	  return;
 	}
     }
