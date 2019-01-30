@@ -1,5 +1,5 @@
 function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
-  // whould be called in scmenu_modelica_initialize.sci
+  // would be called in scmenu_modelica_initialize.sci
   // XXXXX A finir
   // Voir build_modelica_block pour comparer 
   global icpr;
@@ -34,7 +34,7 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
 	   "-init";"-o";
 	   Flati];
   end
-
+  
   // generate a makefile to help debug
   txt = instr; txt($)=""""+txt($)+"""";
   txt = ["#/* -*- Mode: Makefile -*- */";
@@ -53,6 +53,9 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
     ok=%f;
   end
   xpause(0,%t);
+
+  pause zzz
+
   
   if ~ok then
     x_message(['Error:';'xml2modelica failed for modelica initialization';sp_e;sp_m]);	    
@@ -122,25 +125,28 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
   mdl.dep_ut=[dep_u, %t];
   bllst(nblock)=mdl; 
   if size(connectmat,2)==6 then connectmat=connectmat(:,[1 2 4 5]),end
-  scs_m=null()
+  // scs_m=null() is very strange because scs_m can be used in c_pass2;
+  // scs_m=null()
   
   icpr=list();
-  %scicos_solver=100
+  %scicos_solver=100;
+  
+  // returns an empty list when c_pass2 is not OK 
   icpr=c_pass2(bllst,connectmat,clkconnect,cor,corinv);
-
-  if icpr==list() then 
+  
+  if icpr.equal[list()] then 
     x_message(["Error: compilation failed"]);
     return,
   end   
 
   // suppressing display blocks
   Ignore=['bouncexy','cscope','cmscope','canimxy','canimxy3d','cevscpe','cfscope','cscopexy',...
-           'cscopexy3d','cscopxy','cscopxy3d','cmatview', 'cmat3d','affich', 'affich2','BPLATFORM']
-  
+          'cscopexy3d','cscopxy','cscopxy3d','cmatview', 'cmat3d','affich', 'affich2','BPLATFORM']
+
   for i=1:length(icpr.sim.funs)
-    if type(icpr.sim.funs(i))<>13 then
-      if find(icpr.sim.funs(i)(1)==Ignore)<>[] then
-	icpr.sim.funs(i)(1)='trash';
+    if type(icpr.sim.funs(i),'short')== 's' then
+      if ~isempty(find(icpr.sim.funs(i) == Ignore)) then
+	icpr.sim.funs(i) = 'trash';
       end
     end
   end

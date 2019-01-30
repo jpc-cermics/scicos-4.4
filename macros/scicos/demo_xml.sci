@@ -376,9 +376,11 @@ function L=explore_model(model)
 endfunction
 
 function save_model(name,model)
-//------------------------------------------
-// save a model in a file in xml syntax
-//------------------------------------------
+  //------------------------------------------
+  // save a model in a file in xml syntax
+  //------------------------------------------
+  pause in_save_model
+  
   function save_elements(fd,indent,L)
     for i=1:length(L)
       elt=L(i);
