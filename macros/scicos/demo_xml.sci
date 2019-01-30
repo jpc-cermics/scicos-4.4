@@ -143,7 +143,8 @@ function window=demo_xml(fname)
     vbox = gtkvbox_new(homogeneous=%f,spacing=0);
   end
   window.add[vbox]
-  menubar=demo_xml_menubar();
+  treeview=gtktreeview_new();
+  menubar=demo_xml_menubar(treeview);
   vbox.pack_start[menubar,expand=%f,fill=%t,padding=0]
 
   if exists('gtk_get_major_version','function') then
@@ -158,7 +159,7 @@ function window=demo_xml(fname)
   sw.set_placement[GTK.CORNER_TOP_RIGHT]
   hbox.pack_start[sw,expand=%f,fill=%f,padding=0]
 
-  treeview=gtktreeview_new();
+  // treeview=gtktreeview_new();
   treeview.set_model[model=model];
 
   cell = gtkcellrenderertext_new ();
@@ -385,6 +386,7 @@ function save_model(name,model)
       fd.printf[indent+"<struct>\n"];
       fd.printf[indent+"  "+"<name>%s</name>\n",gmarkup_escape_text(elt(1))];
       fd.printf[indent+"  "+"<subnodes>\n"];
+      save_elements(fd,indent+"  ",elt(3))
       terms=elt(2);
       for j=1:length(terms)
 	terminal=terms(j);
@@ -409,7 +411,6 @@ function save_model(name,model)
 	  fd.printf[indent+"  "+"</terminal>\n"];
 	end
       end
-      save_elements(fd,indent+"  ",elt(3))
       fd.printf[indent+"  "+"</subnodes>\n"];
       fd.printf[indent+"</struct>\n"];
     end
@@ -458,9 +459,11 @@ endfunction
 
 function menuitem_response(w,args)
   printf("Menu item [%s] activated \n",args(1));
+  save_model("/tmp/test.xml", args(2).get_model[]);
+  printf("saved in %s\n","/tmp/test.xml");
 endfunction
 
-function menubar=demo_xml_menubar()
+function menubar=demo_xml_menubar(treeview)
   tearoff = %f;
   menubar = gtkmenubar_new ();
   // File Menu
@@ -470,19 +473,19 @@ function menubar=demo_xml_menubar()
     menu.append[  menuitem]
   end
   menuitem = gtkimagemenuitem_new(stock_id="gtk-open");
-  menuitem.connect["activate",menuitem_response,list("open activated")];
+  menuitem.connect["activate",menuitem_response,list("open activated",treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-close");
-  menuitem.connect["activate",menuitem_response,list("close activated")];
+  menuitem.connect["activate",menuitem_response,list("close activated",treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-save");
-  menuitem.connect["activate",menuitem_response,list("save activated")];
+  menuitem.connect["activate",menuitem_response,list("save activated",treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-save-as");
-  menuitem.connect["activate",menuitem_response,list("save-as activated")];
+  menuitem.connect["activate",menuitem_response,list("save-as activated",treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-quit");
-  menuitem.connect["activate",menuitem_response,list("quit activated")];
+  menuitem.connect["activate",menuitem_response,list("quit activated",treeview)];
   menu.append[menuitem]
 
   menuitem = gtkmenuitem_new(label="File");
