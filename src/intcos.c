@@ -86,7 +86,7 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
   scicos_run r_scicos,*Scicos;
   double tcur, tf;
   int i, rep, flag, ierr = 0;
-  const char *action_name[] = { "finish", "linear", "run", "start", NULL };
+  const char *action_name[] = { "finish", "linear", "run", "start", "Kinsol", NULL };
   NspHash *State, *Sim;
   NspMatrix *Msimpar;
   NspCells *Gr=NULL;
@@ -107,18 +107,11 @@ static int int_scicos_sim (Stack stack, int rhs, int opt, int lhs)
     return RET_BUG;
   switch (rep)
     {
-    case 0:
-      flag = 3;
-      break;
-    case 1:
-      flag = 4;
-      break;
-    case 2:
-      flag = 2;
-      break;
-    case 3:
-      flag = 1;
-      break;
+    case 0: flag = 3; break;
+    case 1: flag = 4; break;
+    case 2: flag = 2; break;
+    case 3: flag = 1; break;
+    case 4: flag = 5; break;
     }
   /* [atol  rtol ttol, deltat, scale, impl, hmax] */
   if ((Msimpar = GetRealMat (stack, 6)) == NULLMAT)
