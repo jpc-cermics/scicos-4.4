@@ -516,6 +516,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       nx_ns=0;nin=0;nout=0;nm=0;ng=0;
       return
     end
+    
     if (%Modelica_Init) then 
       //---------------------------
       printf('%s',' Init XML file : '+xmlfile); printf('\n\r');
@@ -541,6 +542,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       //	  return	         
       //	end
     end
+    
     //
     //---------------------------------------------------------------------
     if ~file("exists",Flat_functions) then,

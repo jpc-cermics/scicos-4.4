@@ -21,10 +21,11 @@
 function window=demo_xml(fname)
 
   function selection_cb(selection,args)
-  // handler activated when a row is selected
-  // in the tree view.
-  // this will change the right panel
-  // which is populated with a new treeview.
+    // handler activated when a row is selected
+    // in the tree view.
+    // this will change the right panel
+    // which is populated with a new treeview.
+    
     function demo_liststore (hbox,model)
       sw = gtkscrolledwindow_new();
       sw.set_shadow_type[GTK.SHADOW_ETCHED_IN]
@@ -37,7 +38,7 @@ function window=demo_xml(fname)
 
       names=['Name','Id','Kind','Fixed','Value',...
 	     'Weight','Max','Min','Nominal',...
-	     'Comment','Selection'];
+	     'Comment','Selection', 'Fixed_orig', 'Output'];
 
       function cell_edited (cell,path_string,new_text,data)
       // callback for changed texts
@@ -76,7 +77,7 @@ function window=demo_xml(fname)
 
       for i=1:model.get_n_columns[]
 
-	if names(i)=='Selection' || names(i)== 'Fixed' then
+	if names(i)=='Selection' || names(i)== 'XXFixed' then
 	  // boolean editable
 	  renderer = gtkcellrenderertoggle_new ();
 	  if names(i)=='Selection' then
@@ -109,8 +110,7 @@ function window=demo_xml(fname)
       hbox.pack_start[sw,expand=%t,fill=%t,padding=0]
       sw.show_all[]
     endfunction
-
-
+    
     model=args(1);
     iter=selection.get_selected[]
     if ~is(iter,%types.GtkTreeIter) then return;end
@@ -127,15 +127,14 @@ function window=demo_xml(fname)
 
   // build the toplevel widget
 
-  if nargin < 1 then
-    fname=getenv('NSP')+'/macros/scicos_no_xor/demo_xml1.xml'
-  end
   G=gmarkup(fname);
   model= demo_xml_model_from_markup(G);
+  update_model(model, "1.0", "0.0");
+  
   window = gtkwindow_new ()
   window.set_title["Modelica variables browser"]
   window.set_default_size[-1, 500]
-
+  
   window.set_border_width[8]
   if exists('gtk_get_major_version','function') then
     vbox = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=0);
@@ -164,9 +163,9 @@ function window=demo_xml(fname)
 
   cell = gtkcellrenderertext_new ();
   col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 0));
-  col.set_title["Texte"];
+  col.set_title["Model tree"];
   treeview.append_column[col];
-
+  
   sw.add[treeview]
   // ----------------
   selection = treeview.get_selection[];
@@ -175,30 +174,20 @@ function window=demo_xml(fname)
 
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
+  pause before_save
+  save_model(fname,model)
+  pause after_save
 endfunction
 
-
-
 function model= demo_xml_model_from_markup(G)
-//------------------------------------------
-// build a model from the markup object
-// In this process we will create a
-// Three column TreeStore
-// The first column contains a hierarchy
-// of <struct>  + the top level <model>
-// which keep the tree structure
-// The second column contains for each
-// struct a new model which contains
-// the <terminal> objects stored as model rows.
-// The third column is just a boolean which indicates
-// if the second column is populated.
-//------------------------------------------
-
-  function name=get_node_str_attr(G,node_name)
+  // creates a model from the markup obtained
+  // with the <model>_init.xml file
+  
+  function name=get_node_str_attr(G,node_name,default)
   // search in node G of type Gmarkup the first subnode
   // named node_name and returns the associated attribute 'value'
     L= G.children;
-    name="";
+    name=default;
     for i=1:length(L)
       elt = L(i);
       if type(elt,'short') == 'gmn' && elt.name == node_name then
@@ -241,7 +230,7 @@ function model= demo_xml_model_from_markup(G)
       end
     end
   endfunction
-
+  
   function demo_xml_store(model,iter,L)
   // store items in the model
   // recursively to keep tree stucture.
@@ -253,19 +242,20 @@ function model= demo_xml_model_from_markup(G)
 	  // elts here are supposed to be struct or terminal
 	  name=get_node_str(elt,'name')
 	  node= get_node(elt,'subnodes');
-// 	  pause demo_xml_store
+	  // 	  pause demo_xml_store
 	  if type(node,'short')=='gmn' then
 	    Ls=collect_terminal_list(node);
 	    // convert Ls(11) to booleans
-	    Ls(11) = Ls(11) =='y';
+	    Ls(11) = (Ls(11) =='y');
 	    // convert Ls(4) to booleans
-	    Ls(4) = Ls(4) <> 'false';
-// 	  pause ALAN:AVERIFIERICI/CORRECTION POUR LinearModelica
+	    // Ls(4) = Ls(4) <> 'false';
             if ~isempty(Ls(2)) then
 	      Gls = gtkliststore_new(Ls);
             end
 	  end
-	  iter1 = model.append[iter,list(name,%t,list(Gls))];
+	  // do not show OutPutPort or InPutPort entries
+	  editable = ~( strstr(name,"OutPutPort")<>0 || strstr(name,"InPutPort")<>0);
+	  iter1 = model.append[iter,list(name,editable,list(Gls))];
 	  if type(node,'short')=='gmn' then
 	    demo_xml_store(model,iter1,node.children);
 	  end
@@ -278,28 +268,56 @@ function model= demo_xml_model_from_markup(G)
   // the node selected must have subnodes
   // we collect the values in L.
     L=list()
-    for i=1:11 ; L(i)=m2s([]);end
+    for i=1:13 ; L(i)=m2s([]);end
     L1=node.children;
     for i = 1:length(L1)
       elt = L1(i);
       if type(elt,'short')== 'gmn' && elt.name == 'terminal' then
-	l=list();
-	l($+1)=get_node_str(elt,'name');
-	l($+1)=get_node_str(elt,'id');
-	l($+1)=get_node_str(elt,'kind');
-	l($+1)=get_node_str_attr(elt,'fixed');
-	l($+1)=get_node_str_attr(elt,'initial_value');
-	l($+1)="0.0"; // weight;
-	l($+1)=""; // max
-	l($+1)=""; // min
-	l($+1)="1.0"; // nominal
-	l($+1)=get_node_str_attr(elt,'comment');
-	l($+1)=get_node_str_attr(elt,'selected');
+	h=hash(10);
+	h.name =get_node_str(elt,'name');
+	h.id =get_node_str(elt,'id');
+	h.kind=get_node_str(elt,'kind');
+	h.fixed=get_node_str_attr(elt,'fixed',"-");
+	h.initial_value=get_node_str_attr(elt,'initial_value',"");
+	h.weight=get_node_str_attr(elt,'weight',"");
+	h.max=get_node_str_attr(elt,'max',"");
+	h.min=get_node_str_attr(elt,'min',"");
+	h.nominal=get_node_str_attr(elt,'nominal',"");
+	h.comment=get_node_str_attr(elt,'comment',"");
+	h.selected=get_node_str_attr(elt,'selected',"");
+	h.fixed_orig=get_node_str_attr(elt,'fixed_orig',"");
+	h.output="";
+	if type(get_node(elt,'output'),'short')== 'gmn' then h.output="out";end;
+	// change values 
+	if h.fixed == "" then h.fixed = "-";end
+	if h.fixed_orig== "" then h.fixed_orig = h.fixed;end
+	if h.weight == "" then
+	  select h.fixed
+	    case "true" then h.weight = "1.0" 
+	    case "false" then h.weight = "0.0"
+	    case {"-",""}  then h.weight= "0.0"
+	  end
+	  if h.kind == "fixed_parameter" then h.weight = "1.0";end
+	end
+	if h.selected == "" then
+	  h.selected = "n";
+	  if h.initial_value <> "" then h.selected = "y";end
+	  if or(h.kind == ["discrete_variable","input","fixed_parameter"]) then h.selected = "y";end
+	end
+	if h.initial_value == "" then h.initial_value = h.nominal;end
+	if h.initial_value == "" then h.initial_value = "0.0";end
+	select h.fixed
+	  case "true" then h.fixed = "%t";
+	  case "false" then h.fixed = "%f";
+	  case "" then h.fixed = "-";
+	end
+	l = list(h.name, h.id, h.kind, h.fixed, h.initial_value, h.weight, h.max,
+		 h.min, h.nominal, h.comment, h.selected, h.fixed_orig, h.output);
 	for j=1:length(l) ; L(j)=[L(j);l(j)];end
       end
     end
   endfunction
-
+  
   // main code
   // a fake gtkliststore to obtain its type
   Gls = gtkliststore_new(list(5))
@@ -321,26 +339,25 @@ function model= demo_xml_model_from_markup(G)
 endfunction
 
 function L=explore_model(model)
-//------------------------------------------
-// explore the treemodel and
-// get the treemodel information in
-// a recursive list
-//------------------------------------------
-
+  //------------------------------------------
+  // explore the treemodel and
+  // get the treemodel information in
+  // a recursive list
+  //------------------------------------------
   function H=get_terminal_obj(tmodel)
     H=list();
     nc=tmodel.get_n_columns[]
     iter=tmodel.get_iter_first[0];
     names=['Name','Id','Kind','Fixed','Value',...
 	   'Weight','Max','Min','Nominal',...
-	   'Comment','Selection'];
+	   'Comment','Selection','Fixed_orig', 'Output'];
     while %t then
       L=list();
       for i=1:nc
 	L(i)=  tmodel.get_value[iter,i-1];
 	if names(i)== 'Selection'
 	  if L(i) then L(i)="y" else L(i)="n";end
-	elseif names(i)== 'Fixed'
+	elseif names(i)== 'XXXFixed'
 	  if L(i) then L(i)="true" else L(i)="false";end
 	end
       end
@@ -348,19 +365,15 @@ function L=explore_model(model)
       if ~tmodel.iter_next[iter] then break;end
     end
   endfunction
-
+  
   function L=get_children(model,iter)
     L=list();
     if model.iter_has_child[iter] then
       iter1=model.iter_children[iter];
       while %t  then
 	name=model.get_value[iter1,0];
-	if model.get_value[iter1,1] then
-	  tmodel=  model.get_value[iter1,2];
-	  hmodel = get_terminal_obj(tmodel);
-	else
-	  hmodel= list();
-	end
+	tmodel=  model.get_value[iter1,2];
+	hmodel = get_terminal_obj(tmodel);
 	L1=get_children(model,iter1);
 	L($+1)=list(name,hmodel,L1);
 	if ~model.iter_next[iter1] then break;end
@@ -379,49 +392,72 @@ function save_model(name,model)
   //------------------------------------------
   // save a model in a file in xml syntax
   //------------------------------------------
-  pause in_save_model
   
-  function save_elements(fd,indent,L)
+  function save_elements(fd,t_indent,L)
     for i=1:length(L)
       elt=L(i);
-      indent=indent+"  ";
+      indent=t_indent+"  ";
       fd.printf[indent+"<struct>\n"];
-      fd.printf[indent+"  "+"<name>%s</name>\n",gmarkup_escape_text(elt(1))];
-      fd.printf[indent+"  "+"<subnodes>\n"];
-      save_elements(fd,indent+"  ",elt(3))
+      indent=indent+"  ";
+      fd.printf[indent+"<name>%s</name>\n",gmarkup_escape_text(elt(1))];
+      fd.printf[indent+"<subnodes>\n"];
+      // second level 
+      save_elements(fd,indent,elt(3))
       terms=elt(2);
+      indent=indent+"  ";
       for j=1:length(terms)
 	terminal=terms(j);
 	l= length(terminal);
 	if l<>0 then
 	  tags=["name";"kind";"id";"fixed";"initial_value";"weight";
 		"max";"min";"nominal_value";"comment";"selected"];
-	  fd.printf[indent+"  "+"<terminal>\n"];
+	  fd.printf[indent+"<terminal>\n"];
 	  // name
 	  str=tags(1);
-	  fd.printf[indent+"  "+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(1)),str];
+	  fd.printf[indent+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(1)),str];
 	  // kind
 	  str=tags(2);
-	  fd.printf[indent+"  "+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(3)),str];
+	  fd.printf[indent+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(3)),str];
 	  // id
 	  str=tags(3);
-	  fd.printf[indent+"  "+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(2)),str];
-	  for k=4:l
-	    str=tags(k);
-	    fd.printf[indent+"  "+"  <%s value=""%s""/>\n",str,terminal(k),str];
+	  fd.printf[indent+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(2)),str];
+	  // fixed
+	  str=tags(4);
+	  value = terminal(4);
+	  select value
+	    case "%t" then value = "true";
+	    case "%f" then value = "false";
+	    case "-" then  value = "false";
 	  end
-	  fd.printf[indent+"  "+"</terminal>\n"];
+	  fd.printf[indent+"  <%s value=""%s""/>\n",str,value];
+	  // initial_value
+	  str=tags(5);
+	  value = terminal(5);
+	  select value
+	    case "0." then value = "0.0";
+	  end
+	  fd.printf[indent+"  <%s value=""%s""/>\n",str,value];
+	  for k=6:l-2
+	    str=tags(k);
+	    fd.printf[indent+"  <%s value=""%s""/>\n",str,terminal(k)];
+	  end
+	  fd.printf[indent+"  <fixed_orig>%s</fixed_orig>\n",
+		    gmarkup_escape_text(terminal(l-1))];
+	  if terminal(l)=="out" then fd.printf[indent+"  <output/>\n"];end
+	    
+	  fd.printf[indent+"</terminal>\n"];
 	end
       end
+      indent=t_indent+"  ";
       fd.printf[indent+"  "+"</subnodes>\n"];
       fd.printf[indent+"</struct>\n"];
     end
   endfunction
-
+  
   L=explore_model(model);
   fd=fopen(name,mode="w");
   fd.printf["<model>\n"];
-  indent=" ";
+  indent="  ";
   fd.printf[indent+"<name>%s</name>\n",gmarkup_escape_text(L(1))];
   fd.printf[indent+"<elements>\n"];
   save_elements(fd,indent,L(2));
@@ -440,20 +476,29 @@ function save_model(name,model)
   end
   fd.printf[indent+"</equations>\n"];
   when_clauses=  model.user_data(2);
-  fd.printf[indent+"<when_clauses>\n"];
+  // count when_clauses
+  count=0;
   for i=1:length(when_clauses.children)
     elt=when_clauses.children(i);
-    if type(elt,'short')== 'gmn' then
-      fd.printf[indent+"  <when value=""%s\n", ...
-		gmarkup_escape_text(elt.attributes.value)];
-      fd.printf[indent+"  ""/>\n"];
-    end
+    if type(elt,'short')== 'gmn' then count=count+1;end
   end
-  fd.printf[indent+"</when_clauses>\n"];
+  if count > 0 then 
+    fd.printf[indent+"<when_clauses>\n"];
+    for i=1:length(when_clauses.children)
+      elt=when_clauses.children(i);
+      if type(elt,'short')== 'gmn' then
+	fd.printf[indent+"  <when value=""%s\n", ...
+		  gmarkup_escape_text(elt.attributes.value)];
+	fd.printf[indent+"  ""/>\n"];
+      end
+    end
+    fd.printf[indent+"</when_clauses>\n"];
+  else
+    fd.printf[indent+"<when_clauses/>\n"];
+  end
   fd.printf["</model>\n"];
   fd.close[];
 endfunction
-
 
 //
 // Menu demo
@@ -527,3 +572,194 @@ function menubar=demo_xml_menubar(treeview)
   menubar.append[  menuitem]
 
 endfunction
+
+function [ok, nvars, implicit_vars, parameters, capacityP]=scicos_read_incidence(fname)
+  // read data in incidence matrix
+  // <model>
+  // 	<model_info>
+  // 		...
+  // 	</model_info>
+  // 	<identifiers>
+  // 		<implicit_variable>Lorentz_.__der_Z.[4]</implicit_variable>
+  // 		<implicit_variable>Lorentz_.__der_Y.[4]</implicit_variable>
+  //             ..... 
+  // 	</identifiers>
+  // 	<implicit_relations>
+  // 		<implicit_relation>
+  // 			<implicit_variable>Lorentz_.Y.[1]</implicit_variable>
+  // 			<implicit_variable>Lorentz_.X.[1]</implicit_variable>
+  // 			<implicit_variable>Lorentz_.__der_X.[1]</implicit_variable>
+  // 		</implicit_relation>
+  // 		....
+  // 	</implicit_relations>
+  // 	<outputs>
+  // 		<output>
+  // 			<name>OutPutPort_.vo</name>
+  // 			<dependencies>
+  // 				<variable>OutPutPort_.vo</variable>
+  // 			</dependencies>
+  // 		</output>
+  // 	</outputs>
+  // </model>
+
+  // check that top-level is model return [] on the contrary
+  ok=%f;
+  parameters=m2s([]); 
+  explicit_vars=m2s([]);
+  implicit_vars=m2s([]);
+  capacityP=[];
+  
+  fname = "pipo.xml";
+  
+  G=gmarkup(fname);
+  if G.name <> "model" then ok=%f;return;end
+  L= G.children;
+  subnodes=list();
+  for i=1:length(L)
+    elt = L(i);
+    if type(elt,'short') == 'gmn' && elt.name == "identifiers"  then
+      subnodes= elt.children;
+    end
+  end
+  for i=1:length(subnodes)
+    elt = subnodes(i);
+    if type(elt,'short') == 'gmn' then
+      str = elt.children(1);
+      select elt.name
+	case "parameter" then parameters.concatd[str];
+	case "explicit_variable" then explicit_vars.concatd[str];
+	case "implicit_variable" then implicit_vars.concatd[str];
+      end
+    end
+  end
+  ok=%t
+  nvars = size(parameters,'*')+size(explicit_vars,'*')+size(implicit_vars,'*');
+endfunction
+
+// proc button_der_mode  { new_mode WindowsID }   { 
+//     global ztree
+//     global Active_Model
+//     global DispMode
+//     global der_mode
+//     global need_compile
+//     puts "XXX: Entering button_der_mode"
+//     if { $new_mode eq "free_fixed_states" }  { return }
+//     if { $new_mode eq "free_steady_states" }  { return }
+//     if { "free_$new_mode" != $der_mode } { set need_compile true }
+//     set der_mode $new_mode
+//     set DispMode_back $DispMode
+//     set DispMode "Normal"
+//     DispMode_change $WindowsID
+//     #----------------------------------------------
+//     switch $der_mode {
+// 	"fixed_states" {	
+// 	    set NewDerWeight 0
+// 	    set NewStateWeight 1
+// 	}
+// 	"steady_states" {			
+// 	    set NewDerWeight 1
+// 	    set NewStateWeight 0
+// 	}
+//     }
+//     set RootNode "root"
+//     replace_ders_in_tree $WindowsID $ztree  $RootNode $NewDerWeight $NewStateWeight
+//     #------------------------------------------------
+//     set DispMode $DispMode_back 
+//     set der_mode "free_$new_mode"
+//     DispMode_change $WindowsID
+// }
+
+function update_model(model, new_state_weight,  new_der_weight);
+  // chercher les variables qui ont des noms en
+  // __der_(zzz)
+  // 
+
+  function S=model_terminal_names(model)
+    // collect the terminal names in model
+    // which is the column 2 in terminal obj
+    S=m2s([]);
+    iter=model.get_iter_first[0];
+    // name=model.get_value[iter,0];
+    if model.iter_has_child[iter] then
+      iter1=model.iter_children[iter];
+      // printf("Exploring %s\n",model.get_value[iter1,0]);
+      while %t 
+	if model.iter_has_child[iter1] then
+	  iter2=model.iter_children[iter1];
+	  while %t  then
+	    name=model.get_value[iter2,0];
+	    S.concatd[name];
+	    if ~model.iter_next[iter2] then break;end
+	  end
+	end
+	if ~model.iter_next[iter1]  then break;end
+      end
+    end
+    I=find(strstr(S,"__der_")<>0);
+    if ~isempty(S) then S=S(I);  S=strsubst(S,"__der_","");end
+  endfunction
+
+  function model_update_states_or_der(model,names,newval,tag)
+
+    function model_update_fixed(model,iter)
+      // if weight (col 5) is 1.0 we update fixed(col 3) depending on kind
+      if or(model.get_value[iter, 2]==[ "fixed_parameter", "variable"]) then
+	if abs(evstr(model.get_value[iter,5])-1) < 1.e-8 then 
+	  model.set[iter,3,"%t"];
+	else
+	  model.set[iter,3,"%f"];
+	end
+      end
+    endfunction
+    
+    function model_update_terminal(model, newval,tag)
+      nc=model.get_n_columns[]
+      iter=model.get_iter_first[0];
+      if tag == "der" then
+	// updates weight for derivatives
+	while %t do
+	  if abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
+	  model.set[iter,5,newval];
+	  model_update_fixed(model,iter)
+	  if ~model.iter_next[iter] then break;end
+	end
+      else
+	// updates weight for states 
+	while %t do
+	  if model.get_value[iter, 11] == "-" then  model.set[iter,5,newval];end
+	  model_update_fixed(model,iter)
+	  if ~model.iter_next[iter] then break;end
+	end
+      end
+    endfunction
+
+    if tag == "der" then names = "__der_" +names;end 
+    
+    iter=model.get_iter_first[0];
+    // name=model.get_value[iter,0];
+    if model.iter_has_child[iter] then
+      iter1=model.iter_children[iter];
+      // printf("Exploring %s\n",model.get_value[iter1,0]);
+      while %t 
+	if model.iter_has_child[iter1] then
+	  iter2=model.iter_children[iter1];
+	  while %t  then
+	    name=model.get_value[iter2,0];
+	    if or(name == names) then
+	      model_update_terminal(model.get_value[iter2,2],newval,tag);
+	    end
+	    if ~model.iter_next[iter2] then break;end
+	  end
+	end
+	if ~model.iter_next[iter1]  then break;end
+      end
+    end
+  endfunction
+  S=model_terminal_names(model);
+  model_update_states_or_der(model,S,new_state_weight , "state");
+  model_update_states_or_der(model,S,new_der_weight, "der");
+endfunction
+
+
+
+
