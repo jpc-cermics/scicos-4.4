@@ -47,8 +47,8 @@ function scmenu_modelica_initialize()
       scicos_manage_widgets('register',wingtkid=demo_xml(xmlfile), wintype='ModelicaInitialize')
     end
   end
-  xmlmodel = name+'f';
-  [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
+  //xmlmodel = name+'f';
+  //[ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
 endfunction
 
 function  Doubleclick(name,last_name)

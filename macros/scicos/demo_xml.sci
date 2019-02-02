@@ -19,8 +19,85 @@
 //
 
 function window=demo_xml(fname)
+  
+  function remove_scicos_widget(wingtkid)
+    scicos_manage_widgets('close', wingtkid=wingtkid);
+  endfunction
 
-  function selection_cb(selection,args)
+  // build the toplevel widget
+
+  G=gmarkup(fname);
+  model= demo_xml_model_from_markup(G);
+  // utiliser le callback 
+  update_model(model, "1.0", "0.0");
+  
+  window = gtkwindow_new ()
+  window.set_title["Modelica variables browser"]
+  window.set_default_size[-1, 500]
+  
+  window.set_border_width[8]
+  if exists('gtk_get_major_version','function') then
+    vbox = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=0);
+  else
+    vbox = gtkvbox_new(homogeneous=%f,spacing=0);
+  end
+  window.add[vbox]
+  treeview=gtktreeview_new();
+  treeview.set_model[model=model];
+
+  menubar=demo_xml_menubar(fname,window,treeview);
+  vbox.pack_start[menubar,expand=%f,fill=%t,padding=0]
+
+  if exists('gtk_get_major_version','function') then
+    hbox1 = gtk_box_new(GTK.ORIENTATION_HORIZONTAL,spacing=8);
+  else
+    hbox1 = gtkhbox_new(homogeneous=%f,spacing=8);
+  end
+  selection = treeview.get_selection[];
+  model = treeview.get_model[];
+  selection_id= selection.connect["changed", selection_cb,list(model,hbox1)]
+  
+  hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1);
+  vbox.pack_start[hbox,expand=%f,fill=%t,padding=4];
+
+  hbox=demo_xml_combo_data()
+  vbox.pack_start[hbox,expand=%f,fill=%t,padding=0];
+  
+  vbox.pack_start[hbox1,expand=%t,fill=%t,padding=0];
+  
+  sw = gtkscrolledwindow_new ();
+  sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
+  sw.set_placement[GTK.CORNER_TOP_RIGHT]
+  hbox1.pack_start[sw,expand=%f,fill=%f,padding=0]
+
+  cell = gtkcellrenderertext_new ();
+  col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 0));
+  col.set_title["Model tree"];
+  treeview.append_column[col];
+  
+  sw.add[treeview]
+  // ----------------
+
+  window.connect["destroy", remove_scicos_widget, list(window)];
+  window.show_all[];
+
+  if %f then 
+    save_model(fname,model)
+    compile_init_modelica(name+'f',paremb=0,jaco='0');
+    method="Kinsol";Nunknowns="0";Compute_cic(method,Nunknowns);
+    // reload the xml file
+    G=gmarkup(fname);
+    model= demo_xml_model_from_markup(G);
+    selection.disconnect[selection_id];
+    treeview.set_model[model=model];
+    selection_id=selection.connect["changed", selection_cb,list(model,hbox)]
+    window.connect["destroy", remove_scicos_widget, list(window)];
+    pause after_model_update
+  end
+  
+endfunction
+
+function selection_cb(selection,args)
     // handler activated when a row is selected
     // in the tree view.
     // this will change the right panel
@@ -63,7 +140,7 @@ function window=demo_xml(fname)
       endfunction
 
       function editable_toggled (cell, path_str, data)
-      // callback for changing the boolean values
+	// callback for changing the boolean values
 	model=data(1);
 	column_number = data(2);
 	// get toggled iter */
@@ -75,9 +152,10 @@ function window=demo_xml(fname)
 	model.set[iter,column_number, val];
       endfunction
 
-      for i=1:model.get_n_columns[]
+      // The two-last columns are ignored
+      for i=1:(model.get_n_columns[]-2)
 
-	if names(i)=='Selection' || names(i)== 'XXFixed' then
+	if names(i)=='Selection' then
 	  // boolean editable
 	  renderer = gtkcellrenderertoggle_new ();
 	  if names(i)=='Selection' then
@@ -119,77 +197,8 @@ function window=demo_xml(fname)
       hbox=args(2);
       demo_liststore(hbox,Tv);
     end
-  endfunction
-
-  function remove_scicos_widget(wingtkid)
-    scicos_manage_widgets('close', wingtkid=wingtkid);
-  endfunction
-
-  // build the toplevel widget
-
-  G=gmarkup(fname);
-  model= demo_xml_model_from_markup(G);
-  update_model(model, "1.0", "0.0");
-  
-  window = gtkwindow_new ()
-  window.set_title["Modelica variables browser"]
-  window.set_default_size[-1, 500]
-  
-  window.set_border_width[8]
-  if exists('gtk_get_major_version','function') then
-    vbox = gtk_box_new(GTK.ORIENTATION_VERTICAL,spacing=0);
-  else
-    vbox = gtkvbox_new(homogeneous=%f,spacing=0);
-  end
-  window.add[vbox]
-  treeview=gtktreeview_new();
-  menubar=demo_xml_menubar(treeview);
-  vbox.pack_start[menubar,expand=%f,fill=%t,padding=0]
-  
-  if exists('gtk_get_major_version','function') then
-    hbox = gtk_box_new(GTK.ORIENTATION_HORIZONTAL,spacing=8);
-  else
-    hbox = gtkhbox_new(homogeneous=%f,spacing=8);
-  end
-  vbox.pack_start[hbox,expand=%t,fill=%t,padding=0];
-
-  sw = gtkscrolledwindow_new ();
-  sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
-  sw.set_placement[GTK.CORNER_TOP_RIGHT]
-  hbox.pack_start[sw,expand=%f,fill=%f,padding=0]
-
-  // treeview=gtktreeview_new();
-  treeview.set_model[model=model];
-
-  cell = gtkcellrenderertext_new ();
-  col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 0));
-  col.set_title["Model tree"];
-  treeview.append_column[col];
-  
-  sw.add[treeview]
-  // ----------------
-  selection = treeview.get_selection[];
-  model = treeview.get_model[];
-  selection_id= selection.connect["changed", selection_cb,list(model,hbox)]
-
-  window.connect["destroy", remove_scicos_widget, list(window)];
-  window.show_all[];
-
-  pause before_save
-  save_model(fname,model)
-  compile_init_modelica(name+'f',paremb=0,jaco='0');
-  pause after_compile_init_modelica
-  method="Kinsol";Nunknowns="0";Compute_cic(method,Nunknowns);
-  pause after_Compute_cic_starting_a_new_window
-  // reload the xml file
-  G=gmarkup(fname);
-  model= demo_xml_model_from_markup(G);
-  selection.disconnect[selection_id];
-  treeview.set_model[model=model];
-  selection_id=selection.connect["changed", selection_cb,list(model,hbox)]
-  window.connect["destroy", remove_scicos_widget, list(window)];
-  pause after_model_update
 endfunction
+
 
 function model= demo_xml_model_from_markup(G)
   // creates a model from the markup obtained
@@ -512,17 +521,51 @@ function save_model(name,model)
   fd.close[];
 endfunction
 
-//
-// Menu demo
-//
-
 function menuitem_response(w,args)
-  printf("Menu item [%s] activated \n",args(1));
-  save_model("/tmp/test.xml", args(2).get_model[]);
-  printf("saved in %s\n","/tmp/test.xml");
+  // printf("Menu item [%s] activated \n",args(1));
+  select args(1)
+    case "save" then
+      save_model(args(2), args(3).get_model[]);
+    case "save-as" then
+      // save_model(args(2), args(3).get_model[]);
+      masks=['Scicos xml';'*.xml']
+      fname=xgetfile(masks=masks,save=%t,file=fname);
+    case "quit" then window=args(2); window.destroy[];
+  end
 endfunction
 
-function menubar=demo_xml_menubar(treeview)
+function menuitem_display_response(w,args)
+  // printf("Menu item [%s] activated \n",args(1));
+endfunction
+
+function menuitem_derivatives_response(w,args)
+  // printf("Menu item [%s] activated \n",args(1));
+  new_mode = strsubst(tolower(args(1))," ","_");
+  treeview = args(2);
+  model = treeview.get_model[];
+
+  global(need_compile=%f);
+  global(der_mode="fixed_states");
+  global(DispMode="Normal");
+  
+  if or(new_mode == ["free_fixed_states","free_steady_states"]) then return;end
+  if "free_"+new_mode <> der_mode then need_compile = %t;end
+  der_mode = new_mode;
+  DispMode_back=DispMode;
+  DispMode = "Normal";
+  //     DispMode_change $WindowsID
+  select der_mode
+    case "fixed_states" then new_der_weight="0"; new_state_weight="1";
+    case "steady_states" then new_der_weight="1"; new_state_weight="0";
+  end
+  //     replace_ders_in_tree $WindowsID $ztree  $RootNode $NewDerWeight $NewStateWeight
+  DispMode = DispMode_back;
+  der_mode = "free_"+ new_mode;
+  //     DispMode_change $WindowsID
+  update_model(model , new_state_weight,  new_der_weight);
+endfunction
+
+function menubar=demo_xml_menubar(fname,window,treeview)
   tearoff = %f;
   menubar = gtkmenubar_new ();
   // File Menu
@@ -532,34 +575,33 @@ function menubar=demo_xml_menubar(treeview)
     menu.append[  menuitem]
   end
   menuitem = gtkimagemenuitem_new(stock_id="gtk-open");
-  menuitem.connect["activate",menuitem_response,list("open activated",treeview)];
+  menuitem.connect["activate",menuitem_response,list("open",treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-close");
-  menuitem.connect["activate",menuitem_response,list("close activated",treeview)];
+  menuitem.connect["activate",menuitem_response,list("close",treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-save");
-  menuitem.connect["activate",menuitem_response,list("save activated",treeview)];
+  menuitem.connect["activate",menuitem_response,list("save",fname,treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-save-as");
-  menuitem.connect["activate",menuitem_response,list("save-as activated",treeview)];
+  menuitem.connect["activate",menuitem_response,list("save-as",treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-quit");
-  menuitem.connect["activate",menuitem_response,list("quit activated",treeview)];
+  menuitem.connect["activate",menuitem_response,list("quit",window)];
   menu.append[menuitem]
-
+  
   menuitem = gtkmenuitem_new(label="File");
   menuitem.set_submenu[menu];
   menubar.append[  menuitem]
   menuitem.show[];
 
-  //  A radio-button menu
+  //  A radio-button menu for Derivatives 
   menu = gtkmenu_new ();
   if tearoff then
     menuitem = gtktearoffmenuitem_new ();
     menu.append[  menuitem]
   end
-  names=["Normal";"Simplified model";"Fixed items";
-	 "Selected";"Selected (show all)";"Changed (show all)"];
+  names=["Fixed states";"Steady states"];
   for i = 1:size(names,'*')
     if i==1 then
       menuitem = gtkradiomenuitem_new(label=names(i));
@@ -568,24 +610,49 @@ function menubar=demo_xml_menubar(treeview)
       menuitem = gtkradiomenuitem_new(group=group,label=names(i));
     end
     // callback
-    menuitem.connect["activate",menuitem_response,list(names(i))];
+    menuitem.connect["activate",menuitem_derivatives_response,list(names(i), treeview)];
     menu.append[menuitem]
-    if i == 3 then menuitem.set_sensitive[%f]; end
-    if i == 4 then menuitem.set_inconsistent[ %f]; end
   end
-
+  menuitem = gtkmenuitem_new(label="Derivatives");
+  menuitem.set_submenu[menu];
+  menubar.append[  menuitem]
+  
+  //  A radio-button menu for Display 
+  menu = gtkmenu_new ();
+  if tearoff then
+    menuitem = gtktearoffmenuitem_new ();
+    menu.append[  menuitem]
+  end
+  names=["Normal";
+	 "Simplified model";
+	 "Only Fixed items";
+	 "Selected";
+	 "Selected (show all)";
+	 "Changed (show all)"];
+  for i = 1:size(names,'*')
+    if i==1 then
+      menuitem = gtkradiomenuitem_new(label=names(i));
+      group = menuitem;
+    else
+      menuitem = gtkradiomenuitem_new(group=group,label=names(i));
+    end
+    // callback
+    menuitem.connect["activate",menuitem_display_response,list(names(i),treeview)];
+    menu.append[menuitem]
+    if i >=2 then menuitem.set_sensitive[%f]; end
+    // if i == 4 then menuitem.set_inconsistent[ %f]; end
+  end
   menuitem = gtkmenuitem_new(label="Display");
   menuitem.set_submenu[menu];
   menubar.append[  menuitem]
-
   // Help
-
   menuitem = gtkimagemenuitem_new(stock_id="gtk-help");
   menubar.append[  menuitem]
-
 endfunction
 
 function [ok, nvars, implicit_vars, parameters, capacityP]=scicos_read_incidence(fname)
+  // read_incidence exists also
+  // 
   // read data in incidence matrix
   // <model>
   // 	<model_info>
@@ -648,44 +715,9 @@ function [ok, nvars, implicit_vars, parameters, capacityP]=scicos_read_incidence
   nvars = size(parameters,'*')+size(explicit_vars,'*')+size(implicit_vars,'*');
 endfunction
 
-// proc button_der_mode  { new_mode WindowsID }   { 
-//     global ztree
-//     global Active_Model
-//     global DispMode
-//     global der_mode
-//     global need_compile
-//     puts "XXX: Entering button_der_mode"
-//     if { $new_mode eq "free_fixed_states" }  { return }
-//     if { $new_mode eq "free_steady_states" }  { return }
-//     if { "free_$new_mode" != $der_mode } { set need_compile true }
-//     set der_mode $new_mode
-//     set DispMode_back $DispMode
-//     set DispMode "Normal"
-//     DispMode_change $WindowsID
-//     #----------------------------------------------
-//     switch $der_mode {
-// 	"fixed_states" {	
-// 	    set NewDerWeight 0
-// 	    set NewStateWeight 1
-// 	}
-// 	"steady_states" {			
-// 	    set NewDerWeight 1
-// 	    set NewStateWeight 0
-// 	}
-//     }
-//     set RootNode "root"
-//     replace_ders_in_tree $WindowsID $ztree  $RootNode $NewDerWeight $NewStateWeight
-//     #------------------------------------------------
-//     set DispMode $DispMode_back 
-//     set der_mode "free_$new_mode"
-//     DispMode_change $WindowsID
-// }
-
 function update_model(model, new_state_weight,  new_der_weight);
-  // chercher les variables qui ont des noms en
-  // __der_(zzz)
-  // 
-
+  // update state and state derivatives with new_state_weight,  new_der_weight
+  
   function S=model_terminal_names(model)
     // collect the terminal names in model
     // which is the column 2 in terminal obj
@@ -814,5 +846,78 @@ function Compute_finished(ok)
   end
 endfunction
 
+function callback_solve(button,args)
+  fname = args(1);
+  treeview = args(2);
+  hbox = args(3)
+  model = treeview.get_model[];
+  selection_id = button.get_data['selection_id'];
+  selection = button.get_data['selection'];
+  
+  save_model(fname,model);
+  compile_init_modelica(name+'f',paremb=0,jaco='0');
+  method="Kinsol";Nunknowns="0";Compute_cic(method,Nunknowns);
 
+  // reload the xml file
+  G=gmarkup(fname);
+  model= demo_xml_model_from_markup(G);
+  selection.disconnect[selection_id];
+  treeview.set_model[model=model];
+  selection_id=selection.connect["changed", selection_cb,list(model,hbox)];
 
+  button.set_data[selection_id = selection_id ];
+  button.set_data[selection = selection ];
+  
+endfunction
+
+function hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1)
+  //-- text  
+  hbox = gtk_box_new("horizontal");
+  cellview = gtk_cell_view_new(text="Solver: ");
+  hbox.add[cellview];
+  //-- combo 
+  names=["Kinsol";"Ida (init)";"Fsolve";"Optim"];
+  n = size(names,'*');
+  bools=ones(n,1)>=0;
+  model = gtk_list_store_new(list(names,bools));
+  combobox = gtk_combo_box_new(model=model);
+  //XXX combobox.set_add_tearoffs[%t];
+  cell_renderer = gtk_cell_renderer_text_new ();
+  combobox.pack_start[ cell_renderer,expand= %t];
+  combobox.add_attribute[cell_renderer,"text",0];
+  combobox.set_active[0];
+  hbox.add[combobox];
+  //-- button
+  button = gtk_button_new(mnemonic="Solve");
+  button.set_data[selection_id = selection_id ];
+  button.set_data[selection = selection ];
+  button.connect[ "clicked", callback_solve, list(fname, treeview, hbox1)];
+  hbox.add[button];
+endfunction
+
+function hbox=demo_xml_combo_data()
+  //-- text  
+  hbox = gtk_box_new("horizontal");
+  names=["Equations";
+	 "Unknowns"    
+	 "Reduced"     
+	 "Diff Ste"    
+	 "Fixed Par"   
+	 "Relxd Par"   
+	 "Fixed Var"   
+	 "Relxd Var"   
+	 "Discret"     
+	 "Input"];
+  for i=1:size(names,'*')
+    // cellview = gtk_cell_view_new(text=names(i));
+    // hbox.add[cellview];
+    tmp1 = gtk_frame_new (label=names(i));
+    hbox.pack_start[ tmp1,expand=%t,fill=%t,padding=6]
+    boom =gtk_box_new("vertical",spacing=0);
+    boom.set_border_width[1];
+    tmp1.add[boom];
+    markup = " ";//<span foreground=''blue''>bleue</span>";
+    cellview = gtk_cell_view_new (markup=markup);
+    boom.add[cellview];
+  end
+endfunction
