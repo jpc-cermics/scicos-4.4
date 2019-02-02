@@ -145,7 +145,7 @@ function window=demo_xml(fname)
   treeview=gtktreeview_new();
   menubar=demo_xml_menubar(treeview);
   vbox.pack_start[menubar,expand=%f,fill=%t,padding=0]
-
+  
   if exists('gtk_get_major_version','function') then
     hbox = gtk_box_new(GTK.ORIENTATION_HORIZONTAL,spacing=8);
   else
@@ -170,13 +170,25 @@ function window=demo_xml(fname)
   // ----------------
   selection = treeview.get_selection[];
   model = treeview.get_model[];
-  selection.connect["changed", selection_cb,list(model,hbox)]
+  selection_id= selection.connect["changed", selection_cb,list(model,hbox)]
 
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
+
   pause before_save
   save_model(fname,model)
-  pause after_save
+  compile_init_modelica(name+'f',paremb=0,jaco='0');
+  pause after_compile_init_modelica
+  method="Kinsol";Nunknowns="0";Compute_cic(method,Nunknowns);
+  pause after_Compute_cic_starting_a_new_window
+  // reload the xml file
+  G=gmarkup(fname);
+  model= demo_xml_model_from_markup(G);
+  selection.disconnect[selection_id];
+  treeview.set_model[model=model];
+  selection_id=selection.connect["changed", selection_cb,list(model,hbox)]
+  window.connect["destroy", remove_scicos_widget, list(window)];
+  pause after_model_update
 endfunction
 
 function model= demo_xml_model_from_markup(G)
@@ -760,6 +772,47 @@ function update_model(model, new_state_weight,  new_der_weight);
   model_update_states_or_der(model,S,new_der_weight, "der");
 endfunction
 
+function Compute_finished(ok)
+  if ok then
+    // Compute finished with succes
+    printf("Finished solve with success\n");
+    
+    // puts "XXX: In Compute_finished with ok"
+    // set ierror $sciGUITable(win,$WindowsID,data,IERROR)
+    // $w.buttons.error configure -text "$ierror"
+    
+    // Update_Selected_in_tree  $WindowsID "Write" 	  
+    // set oldnode [$ztree selection get]
+    // remove_from_tree $WindowsID  $Active_Model; 
+    
+    // set Model_name [string range $Active_Model  4 end]     
+    // set init "_init"
+    // set ext ".xml"; 
+    // set tmpdir "$sciGUITable(win,$WindowsID,data,SCI_TMPDIR)"  
+    // set sciGUITable(win,$WindowsID,data,Scixmlfile) "$tmpdir/$Model_name$init$ext" 
+    // button_OpenXML  $WindowsID
+    
+    // clickTree $WindowsID $oldnode 
+    // $ztree selection set $oldnode  
+    // open_parent $oldnode
+    
+ else
+   // puts "XXX: In Compute_finished with not ok"
+   // set msg1 "The selected numerical solver failed to convere."
+   // set msg2 "\nYou can try again either selecting another solver or generating a code with the analytical Jacobian."
+   // set msg3 "\nThe analytical Jacobian can be activated in the <Code generation> menu."
+   // tk_messageBox -icon info -type ok -title "Simulation failure"  -message "$msg1$msg2$msg3"	
+   //  }
+   //  #if { $res eq "nok"  } { # general computing problem    }
+   //  #if { $res eq "noki" } { # when the model is not square    }
+   //  #if { $res eq "nokc" } { # error in compile of the initialization model; compile_init_modelica.sci  }
+   //  #if { $res eq "nok1" } { # bad model   }
+   //  #if { $res eq "nok2" } { # mixed Scicos/Modelica models   }
+   //  $w.buttons.compute configure -state active
+   //  $w.buttons.compute configure -text "Solve"
+   //
+  end
+endfunction
 
 
 

@@ -1,6 +1,6 @@
 function ok=Compute_cic(method, Nunknowns)
   %_winId=""; // TCL_GetVar("IHMLoc");
-  global(icpr);
+  global(icpr=list());
   
   if isempty(icpr) then 
     ok=%f; message("Compute_finished nok1 ");
@@ -30,49 +30,60 @@ function ok=Compute_cic(method, Nunknowns)
   //------------------------------
   ok = execstr("[state,t]=scicosim(state,%tcur,tf,icpr.sim,""start"",tolerances)",errcatch=%t)
   if ~ok then
-    //TCL_EvalStr("Compute_finished nok "+ %_winId); 
-    message(["Initialisation problem!(Scicosim-start) "]); return
+    lasterror();
+    message(["Initialisation problem!(Scicosim-start) "]);
+    Compute_finished(%f);
+    return;
   end  
   //--------------------------------------------------------------
   if method=="Ida (init)" then     
     //setmenu(curwin,"stop")  
-    Ida_ok=execstr("[state,t]=scicosim(state,%tcur,tf,icpr.sim,""run"",tolerances)",errcatch=%t)
+    ok=execstr("[state,t]=scicosim(state,%tcur,tf,icpr.sim,""run"",tolerances)",errcatch=%t)
     //unsetmenu(curwin,"stop")
-    if ~Ida_ok then
-      // TCL_EvalStr("Compute_finished noks "+ %_winId);
+    if ~ok then
+      lasterror();
       message(["Compute_finished noks"]);
+      Compute_finished(%f);
+      return;
     end				 
   end
   //--------------------------------------------------------------
   if method=="Kinsol" then     
-    //setmenu(curwin,"stop")  
-    ierr=execstr("[state2,t]=scicosim(state,%tcur,tf,icpr.sim,""Kinsol"",tolerances)",errcatch=%t)
-    if ierr==0 & (or(isnan(state2.x)) | or(isinf(state2.x))) then 
-      ierr=-1;
+    //setmenu(curwin,"stop")
+    ok =execstr("[state2,t]=scicosim(state,%tcur,tf,icpr.sim,""Kinsol"",tolerances)",errcatch=%t)
+    if ok && (or(isnan(state2.x)) || or(isinf(state2.x))) then 
+      ok=%f;
     end
-    if ierr==0 then 
-      state=state2;
-    end
+    // Un peu bizarre car state est pas renvoyé par icpr ? je mets icpr.state
+    if ok then icpr.state=state2; end;
     //unsetmenu(curwin,"stop")
-    if ierr<>0 then,
-      TCL_EvalStr("Compute_finished noks "+ %_winId); 
+    if ~ok then
+      lasterror();
+      message(["Compute_finished noks"]);
+      Compute_finished(%f);
+      return;
     end
   end
   //--------------------------------------------------------------
   if method=="Fsolve" then
     try
+      ok = %t;
       x0=state.x(1:nx2);
       [xres]=fsolve(x0,fsim);      
       ierr=0
       if or(isnan(xres)) | or(isinf(xres)) then 
-	ierr=-1;
+	ok = %f;
       end
-      if ierr==0 then 
+      if ok then 
 	for i=1:nx2, state.x(i)=xres(i);end       
 	fsim(xres);// just to perform an idoit to update outputs in mixed_models 
       end	
-    catch 
-      TCL_EvalStr("Compute_finished noks "+ %_winId); 
+    catch
+      ok = %f;
+      lasterror();
+      message(["Compute_finished noks"]);
+      Compute_finished(%f);
+      return;
     end
   end
   //--------------------------------------------------------------
@@ -80,16 +91,20 @@ function ok=Compute_cic(method, Nunknowns)
     try  
       x0=state.x(1:nx2);
       [f,xres]=optim(fsumsquare,x0);
-      ierr=0
+      ok = %t;
       if or(isnan(xres)) | or(isinf(xres)) then 
-	ierr=-1;
+	ok = %f 
       end
-      if ierr==0 then 
+      if ok then 
 	for i=1:nx2, state.x(i)=xres(i);end  
 	fsim(xres);// just to perform an idoit to update outputs in mixed_models 
       end
     catch
-      TCL_EvalStr("Compute_finished noks "+ %_winId); 
+      ok = %f;
+      lasterror();
+      message(["Compute_finished noks"]);
+      Compute_finished(%f);
+      return;
     end
   end
   //--------------------------------------------------------------
@@ -97,23 +112,26 @@ function ok=Compute_cic(method, Nunknowns)
     try  
       x0=state.x(1:nx2);
       [xmin,fmin,epsilo,xxls,fs] = neldermead(rand(nx2,nx2+1),Atol,1,0.5,1.5)
-
       for i=1:nx2, state.x(i)=xmin(i);end  
     catch
-      TCL_EvalStr("Compute_finished noks "+ %_winId); 
+      ok = %f;
+      lasterror();
+      message(["Compute_finished noks"]);
+      Compute_finished(%f);
+      return;
     end
   end
   //--------------------------------------------------------------
   if method=="Hompack77" then   
     try
-      ierr=execstr("[state,t]=scicosim(state,%tcur,tf,icpr.sim,""hompack77"",tolerances)",errcatch=%t)
-      if ierr<>0 then, 
-	TCL_EvalStr("Compute_finished noks "+ %_winId); 
-      end
+      [state,t]=scicosim(state,%tcur,tf,icpr.sim,"hompack77",tolerances);
     catch
-      TCL_EvalStr("Compute_finished noks "+ %_winId); 
+      ok = %f;
+      lasterror();
+      message(["Compute_finished noks"]);
+      Compute_finished(%f);
+      return;
     end
-    
   end
   //--------------------------------------------------------------
   if method=="Fsolve_Stepping" then   
@@ -136,26 +154,28 @@ function ok=Compute_cic(method, Nunknowns)
   end
   //--------------------------------------------------------------
   Err="?"
-  if Ida_ierr==0 & ierr==0 then
-    ss=fsim(state.x(1:nx2));if ss~=[] then Err=string(max(abs(ss)));else Err="0";end//using inf norm
+  if ok then
+    ss=fsim(state.x(1:nx2));
+    if ~isempty(ss) then
+      Err=string(max(abs(ss)));
+    else
+      Err="0";
+    end
   end
-  
   try 
-    if  Ida_ierr==0 then
-      //cossimdaskr is followed by a cosend in case of error
-      ierr=execstr("[state,t]=scicosim(state,%tcur,tf,icpr.sim,""finish"",tolerances)",errcatch=%t)
-      if ierr<>0 then,
-      	TCL_EvalStr("Compute_finished nok "+ %_winId); 
-	x_message("Initialisation problem in the finish phase"); return
-      end
-    end     
+    // cossimdaskr is followed by a cosend in case of error
+    [state,t]=scicosim(state,%tcur,tf,icpr.sim,"finish",tolerances);
   catch
-    TCL_EvalStr("Compute_finished nok "+ %_winId); 
-    x_message("Initialisation problem in the finish phase"); return
+    ok = %f;
+    lasterror();
+    message("Initialisation problem in the finish phase");
+    Compute_finished(%f);
+    return;
   end
-  //------------------------------
-  TCL_SetVar("sciGUITable(win,"+%_winId+",data,IERROR)",Err);
-  TCL_EvalStr("Compute_finished ok "+ %_winId); 
+  // XXXXX need a way to return Err
+  // TCL_SetVar("sciGUITable(win,"+%_winId+",data,IERROR)",Err);
+  Compute_finished(%t);
+  pause fin_Compite_cic
 endfunction
 //------------------------------------------------------------
 

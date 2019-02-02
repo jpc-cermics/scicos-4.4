@@ -1,25 +1,24 @@
 function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
   // would be called in scmenu_modelica_initialize.sci
   // XXXXX A finir
-  // Voir build_modelica_block pour comparer 
+  // Voir build_modelica_block pour comparer
+  
   global icpr;
+  ok = %f;
+
+  tmpdir =file('split',getenv('NSP_TMPDIR'));
   
-  path =file('split',TMPDIR);
-
-  ext='\*.mo'; //       ext=pathconvert(ext,%f,%t)  
-
   [ok,modelicac,translator,xml2modelica]=Modelica_execs();
-  
   if ~ok then, 
-    message("Modelica compiler are not found");
+    message("Modelica compilers are not found");
     return; 
   end
-  xmldile =file('join',[path;xmlmodel+'_init.xml']);
+  xmlfile =file('join',[tmpdir;xmlmodel+'_init.xml']);
   namei=xmlmodel+'i';
-  Flati=file('join',[path;xmlmodel+'i.mo']);
-  FlatCi=file('join',[path;xmlmodel+'i.c']);
-  incidencei=file('join',[path;xmlmodel+'i_incidence_matrix.xml']);
-  Flat_functions=file('join',[path;xmlmodel+'_functions'+'.mo']);
+  Flati=file('join',[tmpdir;xmlmodel+'i.mo']);
+  FlatCi=file('join',[tmpdir;xmlmodel+'i.c']);
+  incidencei=file('join',[tmpdir;xmlmodel+'i_incidence_matrix.xml']);
+  Flat_functions=file('join',[tmpdir;xmlmodel+'_functions'+'.mo']);
   
   // instruction to be executed 
   //win32 case
@@ -40,7 +39,7 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
   txt = ["#/* -*- Mode: Makefile -*- */";
 	 "all :"
 	 "\t"+ catenate(txt,sep=" ")];
-  scicos_mputl(txt,file('join',[path;'makefile.mo3']));
+  scicos_mputl(txt,file('join',[tmpdir;'makefile.mo3']));
   // run
   [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
   // FIXME: should report errors in sp_e !
@@ -52,10 +51,7 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
   if ~ok | (~isequal(sp_e,"") & ~isempty(sp_e)) | sum(strstr(sp_o,'ERROR'))<>0 then
     ok=%f;
   end
-  xpause(0,%t);
-
-  pause zzz
-
+  // xpause(0,%t);
   
   if ~ok then
     x_message(['Error:';'xml2modelica failed for modelica initialization';sp_e;sp_m]);	    
@@ -79,6 +75,8 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
 	   Flat_functions;
 	   "-with-init-in";
 	   """"+file('native',xmlfile)+"""";
+	   "-with-init-out";
+	   """"+file('native',xmlfile)+"""";
 	   "-o";
 	   """"+file('native',FlatCi)+""""];
   else
@@ -86,6 +84,8 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
 	   file('native',Flati);
 	   Flat_functions;
 	   "-with-init-in";
+	   file('native',xmlfile);
+	   "-with-init-out";
 	   file('native',xmlfile);
 	   "-o";
 	   file('native',FlatCi)];
@@ -97,13 +97,14 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
   txt = ["#/* -*- Mode: Makefile -*- */"
 	 "all : ";
 	 catenate(["\t";instr],sep= " ")];
-  scicos_mputl(txt,file('join',[path;'makefile_mo4']));
+  scicos_mputl(txt,file('join',[tmpdir;'makefile_mo4']));
   [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
   if ~ok then
     x_message(['Error:';'Modelica compilation failed ';sp_e;sp_m]);	    
     ok=%f;
     return
   end
+  pause zzzzzzzzzzzzzzzzzzzzzzzzzzzz
   xpause(0,%t);
   ok=Link_modelica_C(FlatCi)
   [nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=reading_incidence(incidencei)
@@ -150,5 +151,6 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
       end
     end
   end
+  // Attention c'est une fonction a appeller 
   // TCL_EvalStr("Compile_finished ok "+ %_winId); 
 endfunction
