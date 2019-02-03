@@ -494,7 +494,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
       txt = ["#/* -*- Mode: Makefile -*- */";
 	     "all :"
 	     "\t"+ catenate(txt,sep=" ")];
-      scicos_mputl(txt,file('join',[file('split',path);'makefile.mo1']));
+      scicos_mputl(txt,file('join',[file('split',path);'makefile_mo1']));
       // run translator
       [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
       // FIXME: translator should report errors in sp_e !

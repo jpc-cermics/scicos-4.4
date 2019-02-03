@@ -37,7 +37,7 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
   txt = ["#/* -*- Mode: Makefile -*- */";
 	 "all :"
 	 "\t"+ catenate(txt,sep=" ")];
-  scicos_mputl(txt,file('join',[tmpdir;'makefile.mo3']));
+  scicos_mputl(txt,file('join',[tmpdir;'makefile_mo3']));
   // run
   [ok,sp_o,sp_e,sp_m]=spawn_sync(instr);
   // FIXME: should report errors in sp_e !
