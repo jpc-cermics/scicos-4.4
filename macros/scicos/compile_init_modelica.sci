@@ -1,8 +1,6 @@
 function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
-  // would be called in scmenu_modelica_initialize.sci
-  // XXXXX A finir
-  // Voir build_modelica_block pour comparer
-  
+  // called by the solve button of Modelica initialize dialog
+  //   
   global icpr;
   ok = %f;
 
@@ -51,7 +49,7 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
   if ~ok | (~isequal(sp_e,"") & ~isempty(sp_e)) | sum(strstr(sp_o,'ERROR'))<>0 then
     ok=%f;
   end
-  // xpause(0,%t);
+  xpause(0,%t);
   
   if ~ok then
     x_message(['Error:';'xml2modelica failed for modelica initialization';sp_e;sp_m]);	    
@@ -104,7 +102,7 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
     ok=%f;
     return
   end
-  pause zzzzzzzzzzzzzzzzzzzzzzzzzzzz
+
   xpause(0,%t);
   ok=Link_modelica_C(FlatCi)
   [nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=reading_incidence(incidencei)
@@ -151,6 +149,6 @@ function [ok]=compile_init_modelica(xmlmodel,paremb=0,jaco='0')
       end
     end
   end
-  // Attention c'est une fonction a appeller 
+  // XXXXX Attention c'est une fonction a appeller 
   // TCL_EvalStr("Compile_finished ok "+ %_winId); 
 endfunction

@@ -30,7 +30,7 @@ function window=demo_xml(fname)
   model= demo_xml_model_from_markup(G);
   // utiliser le callback 
   update_model(model, "1.0", "0.0");
-  
+
   window = gtkwindow_new ()
   window.set_title["Modelica variables browser"]
   window.set_default_size[-1, 500]
@@ -74,6 +74,12 @@ function window=demo_xml(fname)
   col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 0));
   col.set_title["Model tree"];
   treeview.append_column[col];
+
+  // activated when we double-click on rows 
+  // function row_activated_cb(args)
+  //   pause  row_activated_cb
+  // endfunction
+  // treeview.connect[ "row-activated", row_activated_cb, list(treeview)];
   
   sw.add[treeview]
   // ----------------
@@ -98,115 +104,135 @@ function window=demo_xml(fname)
 endfunction
 
 function selection_cb(selection,args)
-    // handler activated when a row is selected
-    // in the tree view.
-    // this will change the right panel
-    // which is populated with a new treeview.
-    
-    function demo_liststore (hbox,model)
-      sw = gtkscrolledwindow_new();
-      sw.set_shadow_type[GTK.SHADOW_ETCHED_IN]
-      sw.set_policy[GTK.POLICY_NEVER,GTK.POLICY_AUTOMATIC]
-      treeview = gtktreeview_new(model);
-      // treeview.set_rules_hint[%t];
-      treeview.set_search_column[3];
-      // give name to columns
-      model = treeview.get_model[];
+  // handler activated when a row is selected
+  // in the tree view.
+  // this will change the right panel
+  // which is populated with a new treeview.
 
-      names=['Name','Id','Kind','Fixed','Value',...
-	     'Weight','Max','Min','Nominal',...
-	     'Comment','Selection', 'Fixed_orig', 'Output'];
-
-      function cell_edited (cell,path_string,new_text,data)
-      // callback for changed texts
-	model = data(1);
-	col = data(2);
-	path = gtktreepath_new(path_string);
-	i = path.get_indices[];
-	iter = model.get_iter[path_string];
-	// test if new_text is a valid answer
-	ok=%t;
-	if length(new_text)<>0 then
-	  ok=execstr('val='+new_text',errcatch=%t);
-	  if ok then
-	    ok= ( type(val,'short')=='m' )
-	  end
-	end
-	if ~ok then
-	  x_message("You should enter a number");
-	  return
-	end
-	model.set[iter,col,new_text];
-      endfunction
-
-      function editable_toggled (cell, path_str, data)
-	// callback for changing the boolean values
-	model=data(1);
-	column_number = data(2);
-	// get toggled iter */
-	iter=model.get_iter[path_str];
-	val = model.get_value[iter,column_number];
-	// do something with the value
-	val = ~val;
-	// set new value */
-	model.set[iter,column_number, val];
-      endfunction
-
-      // The two-last columns are ignored
-      for i=1:(model.get_n_columns[]-2)
-
-	if names(i)=='Selection' then
-	  // boolean editable
-	  renderer = gtkcellrenderertoggle_new ();
-	  if names(i)=='Selection' then
-	    renderer.connect["toggled", editable_toggled,list(model,i- 1)];
-	  end
-	  col = gtktreeviewcolumn_new(title=names(i),renderer=renderer,attrs= hash(active=i-1));
-
-	else
-	  renderer = gtkcellrenderertext_new ();
-	  if or(names(i)==['Value','Weight','Max','Min','Nominal']) then
-	    renderer.connect[  "edited",  cell_edited,list(model,i-1)]
-	    renderer.set_property['editable',%t]
-	  end
-	  col = gtktreeviewcolumn_new(title=names(i),renderer=renderer,...
-				      attrs=hash(text=i-1));
-	end
-	col.set_resizable[%t];
-	if i== 10 then
-	  col.set_sizing[ GTK.TREE_VIEW_COLUMN_FIXED]
-	  col.set_fixed_width[100]
-	end
-	treeview.append_column[col];
-      end
-
-      sw.add[treeview];
-      L=hbox.get_children[];
-      if length(L)==2 then
-	hbox.remove[L(2)];
-      end
-      hbox.pack_start[sw,expand=%t,fill=%t,padding=0]
-      sw.show_all[]
-    endfunction
-    
-    model=args(1);
-    iter=selection.get_selected[]
-    if ~is(iter,%types.GtkTreeIter) then return;end
-    if model.get_value[iter,1] then
-      Tv =  model.get_value[iter,2];
-      hbox=args(2);
-      demo_liststore(hbox,Tv);
+  function demo_empty_liststore (hbox)
+    sw = gtkscrolledwindow_new();
+    sw.set_shadow_type[GTK.SHADOW_ETCHED_IN]
+    sw.set_policy[GTK.POLICY_NEVER,GTK.POLICY_AUTOMATIC]
+    treeview = gtktreeview_new();
+    // treeview.set_rules_hint[%t];
+    treeview.set_search_column[3];
+    sw.add[treeview];
+    L=hbox.get_children[];
+    if length(L)==2 then
+      hbox.remove[L(2)];
     end
-endfunction
+    hbox.pack_start[sw,expand=%t,fill=%t,padding=0]
+    sw.show_all[]
+  endfunction
+  
+  function demo_liststore (hbox,model)
+    sw = gtkscrolledwindow_new();
+    sw.set_shadow_type[GTK.SHADOW_ETCHED_IN]
+    sw.set_policy[GTK.POLICY_NEVER,GTK.POLICY_AUTOMATIC]
+    treeview = gtktreeview_new(model);
+    // treeview.set_rules_hint[%t];
+    treeview.set_search_column[3];
+    // give name to columns
+    model = treeview.get_model[];
 
+    names=['Name','Id','Kind','Fixed','Value',...
+	   'Weight','Max','Min','Nominal',...
+	   'Comment','Selection', 'Fixed_orig', 'Output'];
+
+    function cell_edited (cell,path_string,new_text,data)
+      // callback for changed texts
+      model = data(1);
+      col = data(2);
+      path = gtktreepath_new(path_string);
+      i = path.get_indices[];
+      iter = model.get_iter[path_string];
+      // test if new_text is a valid answer
+      ok=%t;
+      if length(new_text)<>0 then
+	ok=execstr('val='+new_text',errcatch=%t);
+	if ok then
+	  ok= ( type(val,'short')=='m' )
+	end
+      end
+      if ~ok then
+	x_message("You should enter a number");
+	return
+      end
+      model.set[iter,col,new_text];
+    endfunction
+
+    function editable_toggled (cell, path_str, data)
+      // callback for changing the boolean values
+      model=data(1);
+      column_number = data(2);
+      // get toggled iter */
+      iter=model.get_iter[path_str];
+      val = model.get_value[iter,column_number];
+      // do something with the value
+      val = ~val;
+      // set new value */
+      model.set[iter,column_number, val];
+    endfunction
+
+    // The two-last columns are ignored
+    for i=1:(model.get_n_columns[]-2)
+
+      if names(i)=='Selection' then
+	// boolean editable
+	renderer = gtkcellrenderertoggle_new ();
+	if names(i)=='Selection' then
+	  renderer.connect["toggled", editable_toggled,list(model,i- 1)];
+	end
+	col = gtktreeviewcolumn_new(title=names(i),renderer=renderer,attrs= hash(active=i-1));
+
+      else
+	renderer = gtkcellrenderertext_new ();
+	if or(names(i)==['Value','Weight','Max','Min','Nominal']) then
+	  renderer.connect[  "edited",  cell_edited,list(model,i-1)]
+	  renderer.set_property['editable',%t]
+	end
+	col = gtktreeviewcolumn_new(title=names(i),renderer=renderer,...
+				    attrs=hash(text=i-1));
+      end
+      col.set_resizable[%t];
+      if i== 10 then
+	col.set_sizing[ GTK.TREE_VIEW_COLUMN_FIXED]
+	col.set_fixed_width[100]
+      end
+      treeview.append_column[col];
+    end
+
+    sw.add[treeview];
+    L=hbox.get_children[];
+    if length(L)==2 then
+      hbox.remove[L(2)];
+    end
+    hbox.pack_start[sw,expand=%t,fill=%t,padding=0]
+    sw.show_all[]
+  endfunction
+
+  model=args(1);
+  hbox =args(2);
+  iter=selection.get_selected[]
+  if ~is(iter,%types.GtkTreeIter) then return;end
+  if model.get_value[iter,1] then
+    Tv =  model.get_value[iter,2];
+  end
+  // check editable and that we have a liststore 
+  if model.get_value[iter,1] && type(Tv,'short')<> 'none' then
+    demo_liststore(hbox,Tv);
+  else
+    demo_empty_liststore(hbox);
+  end
+endfunction
 
 function model= demo_xml_model_from_markup(G)
   // creates a model from the markup obtained
   // with the <model>_init.xml file
   
   function name=get_node_str_attr(G,node_name,default)
-  // search in node G of type Gmarkup the first subnode
-  // named node_name and returns the associated attribute 'value'
+    // search in node G of type Gmarkup the first subnode
+    // named node_name and returns the associated attribute 'value'
     L= G.children;
     name=default;
     for i=1:length(L)
@@ -220,8 +246,8 @@ function model= demo_xml_model_from_markup(G)
   endfunction
 
   function name=get_node_str(G,node_name)
-  // search in node G the first subnode
-  // named node_name and returns the associated string
+    // search in node G the first subnode
+    // named node_name and returns the associated string
     L= G.children;
     name="";
     for i=1:length(L)
@@ -239,8 +265,8 @@ function model= demo_xml_model_from_markup(G)
   endfunction
 
   function node=get_node(G,node_name)
-  // search in node G of type Gmarkup the first subnode
-  // named node_name name and returns the associated string
+    // search in node G of type Gmarkup the first subnode
+    // named node_name name and returns the associated string
     L= G.children;
     node=[];
     for i=1:length(L)
@@ -253,41 +279,44 @@ function model= demo_xml_model_from_markup(G)
   endfunction
   
   function demo_xml_store(model,iter,L)
-  // store items in the model
-  // recursively to keep tree stucture.
+    // store items in the model
+    // recursively to keep tree stucture.
     if isempty(L) then return; end
     for i=1:length(L)
       elt = L(i);
-      if type(elt,'short') == 'gmn' then
-	if elt.name <> 'terminal' then
-	  // elts here are supposed to be struct or terminal
-	  name=get_node_str(elt,'name')
-	  node= get_node(elt,'subnodes');
-	  // 	  pause demo_xml_store
-	  if type(node,'short')=='gmn' then
-	    Ls=collect_terminal_list(node);
+      if type(elt,'short') == 'gmn' && elt.name == 'struct' then
+	// elts here are supposed to be struct or terminal
+	Gls = [];
+	name=get_node_str(elt,'name')
+	node= get_node(elt,'subnodes');
+	if type(node,'short')=='gmn' then
+	  Ls=collect_terminal_list(node);
+	  if size(Ls(1),'*') <> 0 then
 	    // convert Ls(11) to booleans
 	    Ls(11) = (Ls(11) =='y');
-	    // convert Ls(4) to booleans
-	    // Ls(4) = Ls(4) <> 'false';
-            if ~isempty(Ls(2)) then
-	      Gls = gtkliststore_new(Ls);
-            end
+	    Gls = gtkliststore_new(Ls);
 	  end
-	  // do not show OutPutPort or InPutPort entries
-	  editable = ~( strstr(name,"OutPutPort")<>0 || strstr(name,"InPutPort")<>0);
+	end
+	// do not show OutPutPort or InPutPort entries
+	editable = ~( strstr(name,"OutPutPort")<>0 || strstr(name,"InPutPort")<>0);
+	if type(Gls,'short') == "GtkListStore" then
 	  iter1 = model.append[iter,list(name,editable,list(Gls))];
-	  if type(node,'short')=='gmn' then
-	    demo_xml_store(model,iter1,node.children);
-	  end
+	else
+	  iter1 = model.append[iter,list(name,editable)];
+	end
+	if type(node,'short')=='gmn' then
+	  demo_xml_store(model,iter1,node.children);
 	end
       end
     end
   endfunction
-
+  
   function L=collect_terminal_list(node)
-  // the node selected must have subnodes
-  // we collect the values in L.
+    // collects the children of node of type <terminal>
+    // the values are collected in L
+    // L is a list of size 13 (for each terminal property)
+    // and each element is a column matrix of string
+    // the number of rows being the number of terminal nodes found 
     L=list()
     for i=1:13 ; L(i)=m2s([]);end
     L1=node.children;
@@ -394,8 +423,12 @@ function L=explore_model(model)
       while %t  then
 	name=model.get_value[iter1,0];
 	tmodel=  model.get_value[iter1,2];
-	hmodel = get_terminal_obj(tmodel);
 	L1=get_children(model,iter1);
+	if type(tmodel,'short') == "GtkListStore" then
+	  hmodel = get_terminal_obj(tmodel);
+	else
+	  hmodel = list();
+	end
 	L($+1)=list(name,hmodel,L1);
 	if ~model.iter_next[iter1] then break;end
       end
@@ -465,7 +498,7 @@ function save_model(name,model)
 	  fd.printf[indent+"  <fixed_orig>%s</fixed_orig>\n",
 		    gmarkup_escape_text(terminal(l-1))];
 	  if terminal(l)=="out" then fd.printf[indent+"  <output/>\n"];end
-	    
+	  
 	  fd.printf[indent+"</terminal>\n"];
 	end
       end
@@ -529,7 +562,9 @@ function menuitem_response(w,args)
     case "save-as" then
       // save_model(args(2), args(3).get_model[]);
       masks=['Scicos xml';'*.xml']
+      fname= args(2);
       fname=xgetfile(masks=masks,save=%t,file=fname);
+      save_model(fname, args(3).get_model[]);
     case "quit" then window=args(2); window.destroy[];
   end
 endfunction
@@ -584,7 +619,7 @@ function menubar=demo_xml_menubar(fname,window,treeview)
   menuitem.connect["activate",menuitem_response,list("save",fname,treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-save-as");
-  menuitem.connect["activate",menuitem_response,list("save-as",treeview)];
+  menuitem.connect["activate",menuitem_response,list("save-as",fname,treeview)];
   menu.append[menuitem]
   menuitem = gtkimagemenuitem_new(stock_id="gtk-quit");
   menuitem.connect["activate",menuitem_response,list("quit",window)];

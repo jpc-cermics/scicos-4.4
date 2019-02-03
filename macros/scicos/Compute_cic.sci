@@ -1,12 +1,14 @@
 function ok=Compute_cic(method, Nunknowns)
-  %_winId=""; // TCL_GetVar("IHMLoc");
+  // The computation part of the solve button 
+  // of the Solve button of Modelica Initialize
+
   global(icpr=list());
   
   if isempty(icpr) then 
-    ok=%f; message("Compute_finished nok1 ");
+    ok=%f; message("Error: cannot solve, icpr is empty. Compile model first");
     return
   end  
-
+  
   tolerances=scs_m.props.tol
   solver=tolerances(6)
   solver=100;
@@ -19,11 +21,14 @@ function ok=Compute_cic(method, Nunknowns)
   nx=size(state.x,"r");
   nx2=round(nx/2);
   nxModelica=evstr(Nunknowns);
-  
-  if nxModelica ~= nx2 then 
+
+  // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX A finir pour Nunknowns !
+  if %f && nxModelica ~= nx2 then 
     // TCL_EvalStr("Compute_finished nok2 "+ %_winId); 
     message(["Your model contains states defined in standard Scicos blocks.";...
-	     "Current initialization interface does not support mixed models."]); 
+	     "Current initialization interface does not support mixed models."]);
+    ok = %f;
+    pause zzz
     return
   end
   //  TCL_GettVar("sciGUITable(win,"+%_winId+",data,TOTO)",RRR);
@@ -162,6 +167,7 @@ function ok=Compute_cic(method, Nunknowns)
       Err="0";
     end
   end
+  printf("Error found: %s\n",Err);
   try 
     // cossimdaskr is followed by a cosend in case of error
     [state,t]=scicosim(state,%tcur,tf,icpr.sim,"finish",tolerances);
