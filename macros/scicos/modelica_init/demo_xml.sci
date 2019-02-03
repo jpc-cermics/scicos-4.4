@@ -87,6 +87,11 @@ function window=demo_xml(fname)
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
 
+  // XXXX : attention a changer si on tue la fenetre
+  // metre un destroy handler 
+  global(initialize_modelica_running=%t);
+  initialize_modelica_running=%t;
+  
   if %f then 
     save_model(fname,model)
     compile_init_modelica(name+'f',paremb=0,jaco='0');
@@ -565,7 +570,10 @@ function menuitem_response(w,args)
       fname= args(2);
       fname=xgetfile(masks=masks,save=%t,file=fname);
       save_model(fname, args(3).get_model[]);
-    case "quit" then window=args(2); window.destroy[];
+    case "quit"
+      then window=args(2); window.destroy[];
+      global initialize_modelica_running;
+      initialize_modelica_running=%f;
   end
 endfunction
 
