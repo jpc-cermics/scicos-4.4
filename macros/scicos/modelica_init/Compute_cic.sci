@@ -1,7 +1,40 @@
-function ok=Compute_cic(method, Nunknowns)
+function ok=Compute_cic(method, number_unknowns)
   // The computation part of the solve button 
   // of the Solve button of Modelica Initialize
 
+  function  res=fsim(xin)
+    nx=size(xin,"r");  
+    if nx==0 then res=[];return ;end
+    state1=state
+    for i=1:nx, state1.x(i)=xin(i);end  
+    ierr=execstr("[state2,t]=scicosim(state1,%tcur,tf,icpr.sim,""linear"",tolerances)",errcatch=%t)
+    res=state2.x(1:nx);
+  endfunction  
+
+  // function y=fsim2(x)
+  //   x0=x(1);x1=x(2);x2=x(3);x3=x(4);
+  //   x4=x(5);x5=x(6);x6=x(7);x7=x(8);
+  //   v0 = -x3;
+  //   v1 = -x2;
+  //   y(1) = x4+v0;	
+  //   y(2) = x6+v1;
+  //   y(3) = x7-x6;
+  //   y(4) = x5-x4;
+  //   y(5) = 1e-14-x3*x2;
+  //   y(6) = v0+x2;
+  //   y(7) = v0+abs(x1);
+  //   y(8) = v1+abs(x0);
+  //   // disp(y');
+  // endfunction
+  
+  function  res=fsim_step(xin)
+    res=fsim(xin)-(1-Lambda)*Res0;
+  endfunction  
+
+  function [xmin,fmin,epsilo,xls,fs] = neldermead(s,epsil,alpha,beta,gama)
+    // saved in the last versions
+  endfunction
+  
   global(icpr=list());
   
   if isempty(icpr) then 
@@ -20,15 +53,12 @@ function ok=Compute_cic(method, Nunknowns)
   state=icpr.state;
   nx=size(state.x,"r");
   nx2=round(nx/2);
-  nxModelica=evstr(Nunknowns);
-
-  // XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX A finir pour Nunknowns !
-  if %f && nxModelica ~= nx2 then 
+  
+  if number_unknowns ~= nx2 then 
     // TCL_EvalStr("Compute_finished nok2 "+ %_winId); 
     message(["Your model contains states defined in standard Scicos blocks.";...
 	     "Current initialization interface does not support mixed models."]);
     ok = %f;
-    pause zzz
     return
   end
   //  TCL_GettVar("sciGUITable(win,"+%_winId+",data,TOTO)",RRR);
@@ -59,8 +89,7 @@ function ok=Compute_cic(method, Nunknowns)
     if ok && (or(isnan(state2.x)) || or(isinf(state2.x))) then 
       ok=%f;
     end
-    // Un peu bizarre car state est pas renvoyé par icpr ? je mets icpr.state
-    if ok then icpr.state=state2; end;
+    if ok then state=state2; end;
     //unsetmenu(curwin,"stop")
     if ~ok then
       lasterror();
@@ -185,18 +214,7 @@ function ok=Compute_cic(method, Nunknowns)
 endfunction
 //------------------------------------------------------------
 
-function  res=fsim(xin)
-  nx=size(xin,"r");  
-  if nx==0 then res=[];return ;end
-  state1=state
-  for i=1:nx, state1.x(i)=xin(i);end  
-  ierr=execstr("[state2,t]=scicosim(state1,%tcur,tf,icpr.sim,""linear"",tolerances)",errcatch=%t)
-  res=state2.x(1:nx);
-endfunction  
 
-function  res=fsim_step(xin)
-  res=fsim(xin)-(1-Lambda)*Res0;
-endfunction  
 
 
 function  [sumsq,grad,ind]=fsumsquare(xin,ind)
@@ -224,25 +242,4 @@ function  [sumsq,grad,ind]=fsumsquare(xin,ind)
   end
 endfunction  
 
-function [xmin,fmin,epsilo,xls,fs] = neldermead(s,epsil,alpha,beta,gama)
-  // saved in the last versions
-endfunction
-
-function y=fsim2(x)
-  x0=x(1);x1=x(2);x2=x(3);x3=x(4);
-  x4=x(5);x5=x(6);x6=x(7);x7=x(8);
-
-  v0 = -x3;
-  v1 = -x2;
-  
-  y(1) = x4+v0;	
-  y(2) = x6+v1;
-  y(3) = x7-x6;
-  y(4) = x5-x4;
-  y(5) = 1e-14-x3*x2;
-  y(6) = v0+x2;
-  y(7) = v0+abs(x1);
-  y(8) = v1+abs(x0);
-  // disp(y');
-endfunction
 

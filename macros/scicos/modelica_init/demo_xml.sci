@@ -94,7 +94,8 @@ function window=demo_xml(fname)
   
   if %f then 
     save_model(fname,model)
-    compile_init_modelica(name+'f',paremb=0,jaco='0');
+    ok = compile_init_modelica(name+'f',paremb=0,jaco='0');
+    // read_incidence 
     method="Kinsol";Nunknowns="0";Compute_cic(method,Nunknowns);
     // reload the xml file
     G=gmarkup(fname);
@@ -693,47 +694,20 @@ function menubar=demo_xml_menubar(fname,window,treeview)
   menubar.append[  menuitem]
 endfunction
 
-function [ok, nvars, implicit_vars, parameters, capacityP]=scicos_read_incidence(fname)
-  // read_incidence exists also
-  // 
-  // read data in incidence matrix
+function [ok, explicit_vars, implicit_vars, parameters]=scicos_read_incidence(fname)
   // <model>
-  // 	<model_info>
-  // 		...
-  // 	</model_info>
   // 	<identifiers>
   // 		<implicit_variable>Lorentz_.__der_Z.[4]</implicit_variable>
   // 		<implicit_variable>Lorentz_.__der_Y.[4]</implicit_variable>
   //             ..... 
   // 	</identifiers>
-  // 	<implicit_relations>
-  // 		<implicit_relation>
-  // 			<implicit_variable>Lorentz_.Y.[1]</implicit_variable>
-  // 			<implicit_variable>Lorentz_.X.[1]</implicit_variable>
-  // 			<implicit_variable>Lorentz_.__der_X.[1]</implicit_variable>
-  // 		</implicit_relation>
-  // 		....
-  // 	</implicit_relations>
-  // 	<outputs>
-  // 		<output>
-  // 			<name>OutPutPort_.vo</name>
-  // 			<dependencies>
-  // 				<variable>OutPutPort_.vo</variable>
-  // 			</dependencies>
-  // 		</output>
-  // 	</outputs>
   // </model>
-
-  // check that top-level is model return [] on the contrary
   ok=%f;
-  parameters=m2s([]); 
   explicit_vars=m2s([]);
   implicit_vars=m2s([]);
-  capacityP=[];
-  
-  fname = "pipo.xml";
-  
-  G=gmarkup(fname);
+  parameters=m2s([]); 
+  G=gmarkup(fname,clean_strings=%t);
+  pause gmarkup ;
   if G.name <> "model" then ok=%f;return;end
   L= G.children;
   subnodes=list();
@@ -754,12 +728,13 @@ function [ok, nvars, implicit_vars, parameters, capacityP]=scicos_read_incidence
       end
     end
   end
-  ok=%t
-  nvars = size(parameters,'*')+size(explicit_vars,'*')+size(implicit_vars,'*');
+  ok=%t;
 endfunction
 
 function modelica_update_model(model, new_state_weight,  new_der_weight);
   // update state and state derivatives with new_state_weight,  new_der_weight
+  // this is activated when
+  // loading date + changing the menu derivatives
   
   function S=model_terminal_names(model)
     // collect the terminal names in model
@@ -848,6 +823,7 @@ function modelica_update_model(model, new_state_weight,  new_der_weight);
 endfunction
 
 function Compute_finished(ok)
+  // to be removed and dispatched
   if ok then
     // Compute finished with succes
     printf("Finished solve with success\n");
@@ -890,6 +866,10 @@ function Compute_finished(ok)
 endfunction
 
 function callback_solve(button,args)
+  // call back of the solve button
+  // calls compile_init_modelica
+  // Compute_cic
+  // Then it reloads the xml files
   fname = args(1);
   treeview = args(2);
   hbox = args(3)
@@ -898,9 +878,15 @@ function callback_solve(button,args)
   selection = button.get_data['selection'];
   
   save_model(fname,model);
-  compile_init_modelica(name+'f',paremb=0,jaco='0');
-  method="Kinsol";Nunknowns="0";Compute_cic(method,Nunknowns);
-
+  ok = compile_init_modelica(name+'f',paremb=0,jaco='0');
+  // build incidence matrix file name 
+  tmpdir =file('split',getenv('NSP_TMPDIR'));
+  im_fname =file('join',[tmpdir;name+'fi_incidence_matrix.xml']);
+  // XXXX check that im_fname exists 
+  [ok, explicit_vars, implicit_vars, parameters]=scicos_read_incidence(im_fname)
+  number_unknowns = size(implicit_vars,'*');
+  // XXX get the method selected in menus 
+  method="Kinsol";Compute_cic(method,number_unknowns);
   // reload the xml file
   G=gmarkup(fname);
   model= demo_xml_model_from_markup(G);
@@ -914,7 +900,8 @@ function callback_solve(button,args)
 endfunction
 
 function hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1)
-  //-- text  
+  // combo box for toplevel solve button
+  // 
   hbox = gtk_box_new("horizontal");
   cellview = gtk_cell_view_new(text="Solver: ");
   hbox.add[cellview];
@@ -939,7 +926,8 @@ function hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1)
 endfunction
 
 function hbox=demo_xml_combo_data()
-  //-- text  
+  // combo texts to display informations
+  // about variables
   hbox = gtk_box_new("horizontal");
   names=["Equations";
 	 "Unknowns"    
