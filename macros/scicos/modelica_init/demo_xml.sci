@@ -29,7 +29,7 @@ function window=demo_xml(fname)
   G=gmarkup(fname);
   model= demo_xml_model_from_markup(G);
   // utiliser le callback 
-  update_model(model, "1.0", "0.0");
+  modelica_update_model(model, "1.0", "0.0");
 
   window = gtkwindow_new ()
   window.set_title["Modelica variables browser"]
@@ -597,7 +597,7 @@ function menuitem_derivatives_response(w,args)
   DispMode = DispMode_back;
   der_mode = "free_"+ new_mode;
   //     DispMode_change $WindowsID
-  update_model(model , new_state_weight,  new_der_weight);
+  modelica_update_model(model , new_state_weight,  new_der_weight);
 endfunction
 
 function menubar=demo_xml_menubar(fname,window,treeview)
@@ -750,7 +750,7 @@ function [ok, nvars, implicit_vars, parameters, capacityP]=scicos_read_incidence
   nvars = size(parameters,'*')+size(explicit_vars,'*')+size(implicit_vars,'*');
 endfunction
 
-function update_model(model, new_state_weight,  new_der_weight);
+function modelica_update_model(model, new_state_weight,  new_der_weight);
   // update state and state derivatives with new_state_weight,  new_der_weight
   
   function S=model_terminal_names(model)
