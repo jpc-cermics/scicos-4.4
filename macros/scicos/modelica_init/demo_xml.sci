@@ -92,21 +92,6 @@ function window=demo_xml(fname)
   global(initialize_modelica_running=%t);
   initialize_modelica_running=%t;
   
-  if %f then 
-    save_model(fname,model)
-    ok = compile_init_modelica(name+'f',paremb=0,jaco='0');
-    // read_incidence 
-    method="Kinsol";Nunknowns="0";Compute_cic(method,Nunknowns);
-    // reload the xml file
-    G=gmarkup(fname);
-    model= demo_xml_model_from_markup(G);
-    selection.disconnect[selection_id];
-    treeview.set_model[model=model];
-    selection_id=selection.connect["changed", selection_cb,list(model,hbox)]
-    window.connect["destroy", remove_scicos_widget, list(window)];
-    pause after_model_update
-  end
-  
 endfunction
 
 function selection_cb(selection,args)
@@ -694,6 +679,8 @@ function menubar=demo_xml_menubar(fname,window,treeview)
   menubar.append[  menuitem]
 endfunction
 
+// XXXXX attention doit etre utilisé dans load xml aussi
+
 function [ok, explicit_vars, implicit_vars, parameters]=scicos_read_incidence(fname)
   // <model>
   // 	<identifiers>
@@ -951,4 +938,16 @@ function hbox=demo_xml_combo_data()
     cellview = gtk_cell_view_new (markup=markup);
     boom.add[cellview];
   end
+endfunction
+
+function get_model_info()
+  square = NEQ == NVAR
+  Unknowns=$NVAR // NVAR = $NPL+$NVL+$NDIS;
+  Fixed_Par=$NPF// kind == fixed_parameter & weight == 1 
+  Relxd_Par=$NPL // kind == fixed_parameter & $weight != 1
+  Fixed_Var=$NVF //  kind == variable & $weight == 1 
+  Relxd_Var=$NVL//  kind == variable & $weight != 1 
+  Discrete=$NDIS //  kind == discrete_variable
+  Input=$NIN //  kind == input
+  Diff_St=$NDIF //  [regexp {__der_(\w*)} Id ]
 endfunction

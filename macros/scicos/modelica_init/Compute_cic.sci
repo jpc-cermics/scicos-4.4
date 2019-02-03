@@ -2,6 +2,31 @@ function ok=Compute_cic(method, number_unknowns)
   // The computation part of the solve button 
   // of the Solve button of Modelica Initialize
 
+  function  [sumsq,grad,ind]=fsumsquare(xin,ind)
+    nx=size(xin,"r");
+    tolerances=scs_m.props.tol;
+    atol=tolerances(1);
+    rtol=tolerances(2);
+    
+    grad=[]
+    if ind==2 | ind==4 | ind==3 then 
+      res=fsim(xin);
+      sumsq=0;  for i=1:nx,sumsq=sumsq+res(i)*res(i);end
+    end
+    
+    if ind==3 | ind==4 then 
+      for j=1:nx
+	xin_p=xin;
+	ewt_j=1/(abs(xin_p(j)*rtol+atol+%eps));
+	delta_j=max(abs(xin_p(j))*%eps,1/ewt_j);
+	xin_p(j)=xin_p(j)+delta_j;
+	res_p=fsim(xin_p);
+	sumsq_p=0;  for i=1:nx,sumsq_p=sumsq_p+(res_p(i)^2-res(i)^2)/delta_j;end
+	grad(j)=sumsq_p;
+      end
+    end
+  endfunction  
+  
   function  res=fsim(xin)
     nx=size(xin,"r");  
     if nx==0 then res=[];return ;end
@@ -217,29 +242,5 @@ endfunction
 
 
 
-function  [sumsq,grad,ind]=fsumsquare(xin,ind)
-  nx=size(xin,"r");
-  tolerances=scs_m.props.tol;
-  atol=tolerances(1);
-  rtol=tolerances(2);
-  
-  grad=[]
-  if ind==2 | ind==4 | ind==3 then 
-    res=fsim(xin);
-    sumsq=0;  for i=1:nx,sumsq=sumsq+res(i)*res(i);end
-  end
-  
-  if ind==3 | ind==4 then 
-    for j=1:nx
-      xin_p=xin;
-      ewt_j=1/(abs(xin_p(j)*rtol+atol+%eps));
-      delta_j=max(abs(xin_p(j))*%eps,1/ewt_j);
-      xin_p(j)=xin_p(j)+delta_j;
-      res_p=fsim(xin_p);
-      sumsq_p=0;  for i=1:nx,sumsq_p=sumsq_p+(res_p(i)^2-res(i)^2)/delta_j;end
-      grad(j)=sumsq_p;
-    end
-  end
-endfunction  
 
 
