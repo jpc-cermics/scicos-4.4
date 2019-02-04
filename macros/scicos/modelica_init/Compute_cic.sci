@@ -235,7 +235,7 @@ function ok=Compute_cic(method, number_unknowns)
   // XXXXX need a way to return Err
   // TCL_SetVar("sciGUITable(win,"+%_winId+",data,IERROR)",Err);
   Compute_finished(%t);
-  pause fin_Compite_cic
+  pause fin_Compute_cic
 endfunction
 //------------------------------------------------------------
 

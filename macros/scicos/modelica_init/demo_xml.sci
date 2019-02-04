@@ -25,7 +25,6 @@ function window=demo_xml(fname)
   endfunction
 
   // build the toplevel widget
-
   G=gmarkup(fname);
   model= demo_xml_model_from_markup(G);
   // utiliser le callback 
@@ -694,7 +693,6 @@ function [ok, explicit_vars, implicit_vars, parameters]=scicos_read_incidence(fn
   implicit_vars=m2s([]);
   parameters=m2s([]); 
   G=gmarkup(fname,clean_strings=%t);
-  pause gmarkup ;
   if G.name <> "model" then ok=%f;return;end
   L= G.children;
   subnodes=list();
@@ -866,14 +864,29 @@ function callback_solve(button,args)
   
   save_model(fname,model);
   ok = compile_init_modelica(name+'f',paremb=0,jaco='0');
-  // build incidence matrix file name 
+  // If ok we should have a new file
+  //   fi_incidence_matrix.xml
+  // and from previous computations
+  //   f_relations.xml
+  //   f_init.xml
+  // get infos from  incidence matrix
+  //
+  // incidence et relation ont une partie commune pour
+  // <identifiers>
+  // Par contre dans init on va trouver les <terminals>
+    
   tmpdir =file('split',getenv('NSP_TMPDIR'));
   im_fname =file('join',[tmpdir;name+'fi_incidence_matrix.xml']);
   // XXXX check that im_fname exists 
   [ok, explicit_vars, implicit_vars, parameters]=scicos_read_incidence(im_fname)
+  printf("explicit_vars=%f, implicit_vars=%f, parameters=%f\n",
+	 size(explicit_vars,'*'),
+	 size(implicit_vars,'*'),
+	 size(parameters,'*'));
   number_unknowns = size(implicit_vars,'*');
   // XXX get the method selected in menus 
   method="Kinsol";Compute_cic(method,number_unknowns);
+  // now we will 
   // reload the xml file
   G=gmarkup(fname);
   model= demo_xml_model_from_markup(G);
