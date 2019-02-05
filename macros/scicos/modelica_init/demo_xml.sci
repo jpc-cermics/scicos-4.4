@@ -21,12 +21,16 @@
 function window=demo_xml(fname)
   
   function remove_scicos_widget(wingtkid)
+    global(initialize_modelica_running=%t);
+    initialize_modelica_running=%t;
+    pause in remove_scicos_widget
     scicos_manage_widgets('close', wingtkid=wingtkid);
   endfunction
-
+  
   // build the toplevel widget
   G=gmarkup(fname);
   model= demo_xml_model_from_markup(G);
+  //
   // utiliser le callback 
   modelica_update_model(model, "1.0", "0.0");
 
@@ -55,14 +59,14 @@ function window=demo_xml(fname)
   selection = treeview.get_selection[];
   model = treeview.get_model[];
   selection_id= selection.connect["changed", selection_cb,list(model,hbox1)]
-  
-  hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1);
-  vbox.pack_start[hbox,expand=%f,fill=%t,padding=4];
 
-  hbox=demo_xml_combo_data()
-  vbox.pack_start[hbox,expand=%f,fill=%t,padding=0];
+  // The horizontal box where data is displayed 
+  hbox_data=modelica_data_hbox_create()
   
+  hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1, hbox_data);
+  vbox.pack_start[hbox,expand=%f,fill=%t,padding=4];
   vbox.pack_start[hbox1,expand=%t,fill=%t,padding=0];
+  vbox.pack_start[hbox_data,expand=%f,fill=%t,padding=0];
   
   sw = gtkscrolledwindow_new ();
   sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
@@ -73,7 +77,8 @@ function window=demo_xml(fname)
   col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 0));
   col.set_title["Model tree"];
   treeview.append_column[col];
-
+  selection_cb("", list(model,hbox1));
+    
   // activated when we double-click on rows 
   // function row_activated_cb(args)
   //   pause  row_activated_cb
@@ -203,6 +208,7 @@ function selection_cb(selection,args)
 
   model=args(1);
   hbox =args(2);
+  if selection.equal[""] then demo_empty_liststore(hbox);return;end
   iter=selection.get_selected[]
   if ~is(iter,%types.GtkTreeIter) then return;end
   if model.get_value[iter,1] then
@@ -432,7 +438,7 @@ function L=explore_model(model)
   L=list(name,L1);
 endfunction
 
-function save_model(name,model)
+function modelica_save_model(name,model)
   //------------------------------------------
   // save a model in a file in xml syntax
   //------------------------------------------
@@ -548,13 +554,13 @@ function menuitem_response(w,args)
   // printf("Menu item [%s] activated \n",args(1));
   select args(1)
     case "save" then
-      save_model(args(2), args(3).get_model[]);
+      modelica_save_model(args(2), args(3).get_model[]);
     case "save-as" then
-      // save_model(args(2), args(3).get_model[]);
+      // modelica_save_model(args(2), args(3).get_model[]);
       masks=['Scicos xml';'*.xml']
       fname= args(2);
       fname=xgetfile(masks=masks,save=%t,file=fname);
-      save_model(fname, args(3).get_model[]);
+      modelica_save_model(fname, args(3).get_model[]);
     case "quit"
       then window=args(2); window.destroy[];
       global initialize_modelica_running;
@@ -678,14 +684,12 @@ function menubar=demo_xml_menubar(fname,window,treeview)
   menubar.append[  menuitem]
 endfunction
 
-// XXXXX attention doit etre utilisé dans load xml aussi
-
-function [ok, explicit_vars, implicit_vars, parameters]=scicos_read_incidence(fname)
+function [ok, explicit_vars, implicit_vars, parameters]=modelica_read_incidence(fname)
   // <model>
   // 	<identifiers>
-  // 		<implicit_variable>Lorentz_.__der_Z.[4]</implicit_variable>
-  // 		<implicit_variable>Lorentz_.__der_Y.[4]</implicit_variable>
-  //             ..... 
+  // 		<implicit_variable>xxx</implicit_variable>
+  // 		<explicit_variable>xxx</explicit_variable>
+  // 		<parameter>xxx</parameter>
   // 	</identifiers>
   // </model>
   ok=%f;
@@ -803,66 +807,24 @@ function modelica_update_model(model, new_state_weight,  new_der_weight);
     end
   endfunction
   S=model_terminal_names(model);
-  model_update_states_or_der(model,S,new_state_weight , "state");
-  model_update_states_or_der(model,S,new_der_weight, "der");
+  model_update_states_or_der(model,S,new_state_weight,"state");
+  model_update_states_or_der(model,S,new_der_weight,"der");
 endfunction
 
-function Compute_finished(ok)
-  // to be removed and dispatched
-  if ok then
-    // Compute finished with succes
-    printf("Finished solve with success\n");
-    
-    // puts "XXX: In Compute_finished with ok"
-    // set ierror $sciGUITable(win,$WindowsID,data,IERROR)
-    // $w.buttons.error configure -text "$ierror"
-    
-    // Update_Selected_in_tree  $WindowsID "Write" 	  
-    // set oldnode [$ztree selection get]
-    // remove_from_tree $WindowsID  $Active_Model; 
-    
-    // set Model_name [string range $Active_Model  4 end]     
-    // set init "_init"
-    // set ext ".xml"; 
-    // set tmpdir "$sciGUITable(win,$WindowsID,data,SCI_TMPDIR)"  
-    // set sciGUITable(win,$WindowsID,data,Scixmlfile) "$tmpdir/$Model_name$init$ext" 
-    // button_OpenXML  $WindowsID
-    
-    // clickTree $WindowsID $oldnode 
-    // $ztree selection set $oldnode  
-    // open_parent $oldnode
-    
- else
-   // puts "XXX: In Compute_finished with not ok"
-   // set msg1 "The selected numerical solver failed to convere."
-   // set msg2 "\nYou can try again either selecting another solver or generating a code with the analytical Jacobian."
-   // set msg3 "\nThe analytical Jacobian can be activated in the <Code generation> menu."
-   // tk_messageBox -icon info -type ok -title "Simulation failure"  -message "$msg1$msg2$msg3"	
-   //  }
-   //  #if { $res eq "nok"  } { # general computing problem    }
-   //  #if { $res eq "noki" } { # when the model is not square    }
-   //  #if { $res eq "nokc" } { # error in compile of the initialization model; compile_init_modelica.sci  }
-   //  #if { $res eq "nok1" } { # bad model   }
-   //  #if { $res eq "nok2" } { # mixed Scicos/Modelica models   }
-   //  $w.buttons.compute configure -state active
-   //  $w.buttons.compute configure -text "Solve"
-   //
-  end
-endfunction
-
-function callback_solve(button,args)
+function modelica_solve_init(button,args)
   // call back of the solve button
   // calls compile_init_modelica
   // Compute_cic
   // Then it reloads the xml files
   fname = args(1);
   treeview = args(2);
-  hbox = args(3)
+  hbox = args(3);
+  hbox_data = args(4);
   model = treeview.get_model[];
   selection_id = button.get_data['selection_id'];
   selection = button.get_data['selection'];
   
-  save_model(fname,model);
+  modelica_save_model(fname,model);
   ok = compile_init_modelica(name+'f',paremb=0,jaco='0');
   // If ok we should have a new file
   //   fi_incidence_matrix.xml
@@ -878,28 +840,27 @@ function callback_solve(button,args)
   tmpdir =file('split',getenv('NSP_TMPDIR'));
   im_fname =file('join',[tmpdir;name+'fi_incidence_matrix.xml']);
   // XXXX check that im_fname exists 
-  [ok, explicit_vars, implicit_vars, parameters]=scicos_read_incidence(im_fname)
-  printf("explicit_vars=%f, implicit_vars=%f, parameters=%f\n",
-	 size(explicit_vars,'*'),
-	 size(implicit_vars,'*'),
-	 size(parameters,'*'));
-  number_unknowns = size(implicit_vars,'*');
+  [ok, explicit_vars, implicit_vars, parameters]=modelica_read_incidence(im_fname)
+  nimpvars = size(implicit_vars,'*');
   // XXX get the method selected in menus 
-  method="Kinsol";Compute_cic(method,number_unknowns);
-  // now we will 
-  // reload the xml file
-  G=gmarkup(fname);
+  method="Kinsol";
+  ok=modelica_init_call_solver(method,nimpvars);
+  if ~ok then return;end
+  // reload values from xml file and update the associated combo
+  modelica_data_hbox_populate(fname,hbox_data,nimpvars);
+  // reload the xml file and update model
+  G=gmarkup(fname,clean_strings=%t);
+
   model= demo_xml_model_from_markup(G);
+  // XXX do we need update model ?
   selection.disconnect[selection_id];
   treeview.set_model[model=model];
   selection_id=selection.connect["changed", selection_cb,list(model,hbox)];
-
   button.set_data[selection_id = selection_id ];
   button.set_data[selection = selection ];
-  
 endfunction
 
-function hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1)
+function hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1, hbox_data)
   // combo box for toplevel solve button
   // 
   hbox = gtk_box_new("horizontal");
@@ -921,11 +882,11 @@ function hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1)
   button = gtk_button_new(mnemonic="Solve");
   button.set_data[selection_id = selection_id ];
   button.set_data[selection = selection ];
-  button.connect[ "clicked", callback_solve, list(fname, treeview, hbox1)];
+  button.connect[ "clicked", modelica_solve_init, list(fname, treeview, hbox1, hbox_data)];
   hbox.add[button];
 endfunction
 
-function hbox=demo_xml_combo_data()
+function hbox=modelica_data_hbox_create()
   // combo texts to display informations
   // about variables
   hbox = gtk_box_new("horizontal");
@@ -947,20 +908,63 @@ function hbox=demo_xml_combo_data()
     boom =gtk_box_new("vertical",spacing=0);
     boom.set_border_width[1];
     tmp1.add[boom];
-    markup = " ";//<span foreground=''blue''>bleue</span>";
+    markup = "0";//<span foreground=''blue''>bleue</span>";
     cellview = gtk_cell_view_new (markup=markup);
     boom.add[cellview];
   end
 endfunction
 
-function get_model_info()
-  square = NEQ == NVAR
-  Unknowns=$NVAR // NVAR = $NPL+$NVL+$NDIS;
-  Fixed_Par=$NPF// kind == fixed_parameter & weight == 1 
-  Relxd_Par=$NPL // kind == fixed_parameter & $weight != 1
-  Fixed_Var=$NVF //  kind == variable & $weight == 1 
-  Relxd_Var=$NVL//  kind == variable & $weight != 1 
-  Discrete=$NDIS //  kind == discrete_variable
-  Input=$NIN //  kind == input
-  Diff_St=$NDIF //  [regexp {__der_(\w*)} Id ]
+function modelica_data_hbox_populate(fname,hbox_data,nimpvars)
+  // update hbox data reading xml file
+  
+  G=gmarkup(fname,clean_strings=%t);
+  L=G.collect["equation"];
+  n_equations = length(L);
+  // printf("Found %d equations\n",n_equations);
+  L=G.collect["terminal"];
+  // printf("Found %d terminals\n",length(L));
+  
+  Fixed_Par=0
+  Relxd_Par=0;
+  Fixed_Var=0;
+  Relxd_Var=0;
+  Discrete=0;
+  Input=0;
+  Diff_St=0;
+  
+  for i=1:length(L)
+    terminal= L(i);
+    childs = terminal.children;
+    name = childs(1).children(1);
+    kind = childs(2).children(1);
+    id = childs(3).children(1);
+    fixed = childs(4).attributes('value');
+    weight = childs(6).attributes('value');
+    // printf(" name = %s, kind = %s, id = %s, fixed = %s, weight=%s\n",name,kind,id,fixed,weight);
+    select kind
+      case "fixed_parameter" then
+	if abs(evstr(weight) -1) < 1.e-8 then Fixed_Par=Fixed_Par+1;else Relxd_Par=Relxd_Par+1;end
+      case "variable"
+	if abs(evstr(weight) -1) < 1.e-8 then Fixed_Var=Fixed_Var+1;else Relxd_Var=Relxd_Var+1;end
+      case "discrete_variable" then Discrete=Discrete+1;
+      case "input" then Input=Input+1;
+    end
+    if strstr(name,"__der_")<>0 then Diff_St=Diff_St+1;end
+  end
+  nvars = Relxd_Par+Relxd_Var+Discrete;
+  values = list(n_equations, nvars,nimpvars,Diff_St, Fixed_Par,Relxd_Par,Fixed_Var,Relxd_Var,Discrete,Input);
+  // re-explore the hbox and fixe the text value
+  L=hbox_data.get_children[];
+  for i=1:length(L)
+    frame = L(i);
+    label=frame.get_label[];
+    L1=frame.get_children[];
+    box = L1(1);
+    L2= box.get_children[]
+    cellview = L2(1);
+    cellview.set_name["poo"];
+    cells=cellview.get_cells[]
+    cell = cells(1);
+    cell.set_property['text',string(values(i))];
+  end
 endfunction

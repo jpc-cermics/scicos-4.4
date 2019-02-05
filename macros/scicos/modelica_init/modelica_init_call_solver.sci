@@ -1,7 +1,14 @@
-function ok=Compute_cic(method, number_unknowns)
+function ok=modelica_init_call_solver(method, number_unknowns)
   // The computation part of the solve button 
   // of the Solve button of Modelica Initialize
 
+  function error_message(method)
+    message([sprintf("The numerical solver [%s]failed to converge.",method);
+	     "You can try again either selecting another solver or ";
+	     "generating a code with the analytical Jacobian."
+	     "The analytical Jacobian can be activated in the <Code generation> menu."]);
+  endfunction
+    
   function  [sumsq,grad,ind]=fsumsquare(xin,ind)
     nx=size(xin,"r");
     tolerances=scs_m.props.tol;
@@ -80,7 +87,6 @@ function ok=Compute_cic(method, number_unknowns)
   nx2=round(nx/2);
   
   if number_unknowns ~= nx2 then 
-    // TCL_EvalStr("Compute_finished nok2 "+ %_winId); 
     message(["Your model contains states defined in standard Scicos blocks.";...
 	     "Current initialization interface does not support mixed models."]);
     ok = %f;
@@ -91,8 +97,7 @@ function ok=Compute_cic(method, number_unknowns)
   ok = execstr("[state,t]=scicosim(state,%tcur,tf,icpr.sim,""start"",tolerances)",errcatch=%t)
   if ~ok then
     lasterror();
-    message(["Initialisation problem!(Scicosim-start) "]);
-    Compute_finished(%f);
+    message(["Initialisation problem! (Scicosim-start) "]);
     return;
   end  
   //--------------------------------------------------------------
@@ -102,8 +107,7 @@ function ok=Compute_cic(method, number_unknowns)
     //unsetmenu(curwin,"stop")
     if ~ok then
       lasterror();
-      message(["Compute_finished noks"]);
-      Compute_finished(%f);
+      error_message(method);
       return;
     end				 
   end
@@ -118,8 +122,7 @@ function ok=Compute_cic(method, number_unknowns)
     //unsetmenu(curwin,"stop")
     if ~ok then
       lasterror();
-      message(["Compute_finished noks"]);
-      Compute_finished(%f);
+      error_message(method)
       return;
     end
   end
@@ -140,8 +143,7 @@ function ok=Compute_cic(method, number_unknowns)
     catch
       ok = %f;
       lasterror();
-      message(["Compute_finished noks"]);
-      Compute_finished(%f);
+      error_message(method)
       return;
     end
   end
@@ -161,8 +163,7 @@ function ok=Compute_cic(method, number_unknowns)
     catch
       ok = %f;
       lasterror();
-      message(["Compute_finished noks"]);
-      Compute_finished(%f);
+      error_message(method)
       return;
     end
   end
@@ -175,8 +176,7 @@ function ok=Compute_cic(method, number_unknowns)
     catch
       ok = %f;
       lasterror();
-      message(["Compute_finished noks"]);
-      Compute_finished(%f);
+      error_message(method)
       return;
     end
   end
@@ -187,8 +187,7 @@ function ok=Compute_cic(method, number_unknowns)
     catch
       ok = %f;
       lasterror();
-      message(["Compute_finished noks"]);
-      Compute_finished(%f);
+      error_message(method)
       return;
     end
   end
@@ -229,15 +228,11 @@ function ok=Compute_cic(method, number_unknowns)
     ok = %f;
     lasterror();
     message("Initialisation problem in the finish phase");
-    Compute_finished(%f);
     return;
   end
-  // XXXXX need a way to return Err
-  // TCL_SetVar("sciGUITable(win,"+%_winId+",data,IERROR)",Err);
-  Compute_finished(%t);
-  pause fin_Compute_cic
+  ok=%t;
 endfunction
-//------------------------------------------------------------
+
 
 
 
