@@ -22,8 +22,7 @@ function window=demo_xml(fname)
   
   function remove_scicos_widget(wingtkid)
     global(initialize_modelica_running=%t);
-    initialize_modelica_running=%t;
-    pause in remove_scicos_widget
+    initialize_modelica_running=%f;
     scicos_manage_widgets('close', wingtkid=wingtkid);
   endfunction
   
