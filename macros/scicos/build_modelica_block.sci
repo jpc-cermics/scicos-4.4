@@ -355,6 +355,7 @@ function [ok,name,nipar,nrpar,nopar,nz,nx,nx_der,nx_ns,nin,nout,nm,ng,dep_u]=com
   // we must detect here if scicos_initialize is active 
   global(initialize_modelica_running=%f);
   // tmpdir is a column matrix 
+
   tmpdir=file('split',TMPDIR);
   [ok,modelicac,translator,xml2modelica]=Modelica_execs();
 

@@ -69,7 +69,7 @@ function window=demo_xml(fname)
   
   sw = gtkscrolledwindow_new ();
   sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
-  sw.set_placement[GTK.CORNER_TOP_RIGHT]
+  sw.set_placement[GTK.CORNER_TOP_LEFT]
   hbox1.pack_start[sw,expand=%f,fill=%f,padding=0]
 
   cell = gtkcellrenderertext_new ();
@@ -966,4 +966,5 @@ function modelica_data_hbox_populate(fname,hbox_data,nimpvars)
     cell = cells(1);
     cell.set_property['text',string(values(i))];
   end
+  xpause(0,%t);
 endfunction
