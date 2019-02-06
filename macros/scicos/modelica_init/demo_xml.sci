@@ -32,7 +32,7 @@ function window=demo_xml(fname)
   //
   // utiliser le callback 
   modelica_update_model(model, "1.0", "0.0");
-  
+
   window = gtkwindow_new ()
   window.set_title["Modelica variables browser"]
   window.set_default_size[-1, 500]
@@ -129,7 +129,7 @@ function selection_cb(selection,args)
     treeview.set_search_column[3];
     // give name to columns
     model = treeview.get_model[];
-
+    
     names=['Name','Id','Kind','Fixed','Value',...
 	   'Weight','Max','Min','Nominal',...
 	   'Comment','Selection', 'Fixed_orig', 'Output'];
@@ -357,6 +357,9 @@ function model= demo_xml_model_from_markup(G)
 	  case "false" then h.fixed = "%f";
 	  case "" then h.fixed = "-";
 	end
+	// names=['Name','Id','Kind','Fixed','Value',...
+	//       'Weight','Max','Min','Nominal',...
+	//       'Comment','Selection', 'Fixed_orig', 'Output'];
 	l = list(h.name, h.id, h.kind, h.fixed, h.initial_value, h.weight, h.max,
 		 h.min, h.nominal, h.comment, h.selected, h.fixed_orig, h.output);
 	for j=1:length(l) ; L(j)=[L(j);l(j)];end
@@ -458,6 +461,7 @@ function modelica_save_model(name,model)
 	terminal=terms(j);
 	l= length(terminal);
 	if l<>0 then
+	  // take care that the write order is not the same
 	  tags=["name";"id";"kind";"fixed";"initial_value";"weight";
 		"max";"min";"nominal_value";"comment";"selected"];
 	  fd.printf[indent+"<terminal>\n"];
@@ -465,10 +469,10 @@ function modelica_save_model(name,model)
 	  str=tags(1);
 	  fd.printf[indent+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(1)),str];
 	  // kind
-	  str=tags(2);
+	  str=tags(3);
 	  fd.printf[indent+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(3)),str];
 	  // id
-	  str=tags(3);
+	  str=tags(2);
 	  fd.printf[indent+"  <%s>%s</%s>\n",str,gmarkup_escape_text(terminal(2)),str];
 	  // fixed
 	  str=tags(4);
@@ -596,6 +600,7 @@ function menuitem_derivatives_response(w,args)
   der_mode = "free_"+ new_mode;
   //     DispMode_change $WindowsID
   modelica_update_model(model , new_state_weight,  new_der_weight);
+  
 endfunction
 
 function menubar=demo_xml_menubar(fname,window,treeview)
@@ -719,95 +724,127 @@ function [ok, explicit_vars, implicit_vars, parameters]=modelica_read_incidence(
   ok=%t;
 endfunction
 
+function S=modelica_model_collect_names(model)
+  //------------------------------------------
+  // explore the treemodel and
+  // get the treemodel information in
+  // a recursive list
+  //------------------------------------------
+
+  function S=get_terminal_name(tmodel)
+    S=m2s([]);
+    nc=tmodel.get_n_columns[]
+    iter=tmodel.get_iter_first[0];
+    while %t then
+      // name is first 
+      name = tmodel.get_value[iter,0];
+      S.concatd[name];
+      if ~tmodel.iter_next[iter] then break;end
+    end
+  endfunction
+  
+  function S=get_children(model,iter)
+    S=m2s([])
+    if model.iter_has_child[iter] then
+      iter1=model.iter_children[iter];
+      while %t  then
+	name=model.get_value[iter1,0];
+	tmodel=  model.get_value[iter1,2];
+	L1=get_children(model,iter1);
+	if type(tmodel,'short') == "GtkListStore" then
+	  names= get_terminal_name(tmodel);
+	else
+	  names=m2s([]);
+	end
+	S.concatd[names];
+	if ~model.iter_next[iter1] then break;end
+      end
+    end
+  endfunction
+  // name of modelica model
+  iter=model.get_iter_first[0];
+  name=model.get_value[iter,0];
+  S=get_children(model,iter);
+endfunction
+
+function modelica_model_update_states_or_der(model,names,newval,tag)
+
+  // names=['Name','Id','Kind','Fixed','Value',...
+  // 	 'Weight','Max','Min','Nominal',...
+  // 	 'Comment','Selection', 'Fixed_orig', 'Output'];
+
+  function model_update_fixed(model,iter)
+    // if weight (col 6) is 1.0 we update fixed(col 4) depending on kind (col 3)
+    if or(model.get_value[iter, 2]==[ "fixed_parameter", "variable"]) then
+      if abs(evstr(model.get_value[iter,5])-1) < 1.e-8 then 
+	model.set[iter,3,"%t"];
+      else
+	model.set[iter,3,"%f"];
+      end
+    end
+  endfunction
+  
+  function model_update_terminal(model, names, newval,tag)
+    //nc=model.get_n_columns[]
+    iter=model.get_iter_first[0];
+    if tag == "der" then
+      // updates weight for derivatives
+      while %t do
+	if or(model.get_value[iter,0]==names) then
+	  // printf("update %s %s\n",model.get_value[iter,0],newval)
+	  if abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
+	  model.set[iter,5,newval];
+	  model_update_fixed(model,iter)
+	end
+	if ~model.iter_next[iter] then break;end
+      end
+    else
+      // updates weight for states 
+      while %t do
+	if or(model.get_value[iter,0]==names) then
+	  // printf("update %s\n",model.get_value[iter,0])
+	  if model.get_value[iter, 11] == "-" then  model.set[iter,5,newval];end
+	  model_update_fixed(model,iter)
+	end
+	if ~model.iter_next[iter] then break;end
+      end
+    end
+  endfunction
+
+  function update_children(model,iter,names,newval,tag)
+    S=m2s([])
+    if model.iter_has_child[iter] then
+      iter1=model.iter_children[iter];
+      while %t  then
+	name=model.get_value[iter1,0];
+	tmodel=  model.get_value[iter1,2];
+	update_children(model,iter1,names,newval,tag);
+	if type(tmodel,'short') == "GtkListStore" then
+	  model_update_terminal(tmodel,names,newval,tag);
+	end
+	if ~model.iter_next[iter1] then break;end
+      end
+    end
+  endfunction
+  
+  // name of modelica model
+  iter=model.get_iter_first[0];
+  name=model.get_value[iter,0];
+  update_children(model,iter,names,newval,tag);
+endfunction
+
 function modelica_update_model(model, new_state_weight,  new_der_weight);
   // update state and state derivatives with new_state_weight,  new_der_weight
   // this is activated when
   // loading date + changing the menu derivatives
   
-  function S=model_terminal_names(model)
-    // collect the terminal names in model
-    // which is the column 2 in terminal obj
-    S=m2s([]);
-    iter=model.get_iter_first[0];
-    // name=model.get_value[iter,0];
-    if model.iter_has_child[iter] then
-      iter1=model.iter_children[iter];
-      // printf("Exploring %s\n",model.get_value[iter1,0]);
-      while %t 
-	if model.iter_has_child[iter1] then
-	  iter2=model.iter_children[iter1];
-	  while %t  then
-	    name=model.get_value[iter2,0];
-	    S.concatd[name];
-	    if ~model.iter_next[iter2] then break;end
-	  end
-	end
-	if ~model.iter_next[iter1]  then break;end
-      end
-    end
-    I=find(strstr(S,"__der_")<>0);
-    if ~isempty(S) then S=S(I);  S=strsubst(S,"__der_","");end
-  endfunction
+  S=modelica_model_collect_names(model)
+  I=find(strstr(S,"__der_")<>0);
+  if ~isempty(S) then S=S(I);  S=strsubst(S,"__der_","");end
+  if isempty(S) then return;end
+  modelica_model_update_states_or_der(model,S,new_state_weight,"state");
+  modelica_model_update_states_or_der(model,"__der_" + S,new_der_weight,"der");
 
-  function model_update_states_or_der(model,names,newval,tag)
-
-    function model_update_fixed(model,iter)
-      // if weight (col 5) is 1.0 we update fixed(col 3) depending on kind
-      if or(model.get_value[iter, 2]==[ "fixed_parameter", "variable"]) then
-	if abs(evstr(model.get_value[iter,5])-1) < 1.e-8 then 
-	  model.set[iter,3,"%t"];
-	else
-	  model.set[iter,3,"%f"];
-	end
-      end
-    endfunction
-    
-    function model_update_terminal(model, newval,tag)
-      nc=model.get_n_columns[]
-      iter=model.get_iter_first[0];
-      if tag == "der" then
-	// updates weight for derivatives
-	while %t do
-	  if abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
-	  model.set[iter,5,newval];
-	  model_update_fixed(model,iter)
-	  if ~model.iter_next[iter] then break;end
-	end
-      else
-	// updates weight for states 
-	while %t do
-	  if model.get_value[iter, 11] == "-" then  model.set[iter,5,newval];end
-	  model_update_fixed(model,iter)
-	  if ~model.iter_next[iter] then break;end
-	end
-      end
-    endfunction
-
-    if tag == "der" then names = "__der_" +names;end 
-    
-    iter=model.get_iter_first[0];
-    // name=model.get_value[iter,0];
-    if model.iter_has_child[iter] then
-      iter1=model.iter_children[iter];
-      // printf("Exploring %s\n",model.get_value[iter1,0]);
-      while %t 
-	if model.iter_has_child[iter1] then
-	  iter2=model.iter_children[iter1];
-	  while %t  then
-	    name=model.get_value[iter2,0];
-	    if or(name == names) then
-	      model_update_terminal(model.get_value[iter2,2],newval,tag);
-	    end
-	    if ~model.iter_next[iter2] then break;end
-	  end
-	end
-	if ~model.iter_next[iter1]  then break;end
-      end
-    end
-  endfunction
-  S=model_terminal_names(model);
-  model_update_states_or_der(model,S,new_state_weight,"state");
-  model_update_states_or_der(model,S,new_der_weight,"der");
 endfunction
 
 function modelica_solve_init(button,args)
