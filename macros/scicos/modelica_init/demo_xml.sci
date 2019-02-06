@@ -32,7 +32,7 @@ function window=demo_xml(fname)
   //
   // utiliser le callback 
   modelica_update_model(model, "1.0", "0.0");
-
+  
   window = gtkwindow_new ()
   window.set_title["Modelica variables browser"]
   window.set_default_size[-1, 500]
@@ -61,6 +61,7 @@ function window=demo_xml(fname)
 
   // The horizontal box where data is displayed 
   hbox_data=modelica_data_hbox_create()
+  modelica_data_hbox_populate(fname,hbox_data,model,-1);
   
   hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1, hbox_data);
   vbox.pack_start[hbox,expand=%f,fill=%t,padding=4];
@@ -393,6 +394,7 @@ function L=explore_model(model)
     H=list();
     nc=tmodel.get_n_columns[]
     iter=tmodel.get_iter_first[0];
+    // take care that names must be in same order
     names=['Name','Id','Kind','Fixed','Value',...
 	   'Weight','Max','Min','Nominal',...
 	   'Comment','Selection','Fixed_orig', 'Output'];
@@ -402,8 +404,6 @@ function L=explore_model(model)
 	L(i)=  tmodel.get_value[iter,i-1];
 	if names(i)== 'Selection'
 	  if L(i) then L(i)="y" else L(i)="n";end
-	elseif names(i)== 'XXXFixed'
-	  if L(i) then L(i)="true" else L(i)="false";end
 	end
       end
       H($+1)=L;
@@ -458,7 +458,7 @@ function modelica_save_model(name,model)
 	terminal=terms(j);
 	l= length(terminal);
 	if l<>0 then
-	  tags=["name";"kind";"id";"fixed";"initial_value";"weight";
+	  tags=["name";"id";"kind";"fixed";"initial_value";"weight";
 		"max";"min";"nominal_value";"comment";"selected"];
 	  fd.printf[indent+"<terminal>\n"];
 	  // name
@@ -845,13 +845,12 @@ function modelica_solve_init(button,args)
   method="Kinsol";
   ok=modelica_init_call_solver(method,nimpvars);
   if ~ok then return;end
-  // reload values from xml file and update the associated combo
-  modelica_data_hbox_populate(fname,hbox_data,nimpvars);
   // reload the xml file and update model
   G=gmarkup(fname,clean_strings=%t);
-
   model= demo_xml_model_from_markup(G);
   // XXX do we need update model ?
+  // reload values from xml file and update the associated combo
+  modelica_data_hbox_populate(fname,hbox_data,model,nimpvars);
   selection.disconnect[selection_id];
   treeview.set_model[model=model];
   selection_id=selection.connect["changed", selection_cb,list(model,hbox)];
@@ -913,45 +912,74 @@ function hbox=modelica_data_hbox_create()
   end
 endfunction
 
-function modelica_data_hbox_populate(fname,hbox_data,nimpvars)
-  // update hbox data reading xml file
+function modelica_data_hbox_populate(fname,hbox_data,model,nimpvars)
+
+  function H=explore_terminal(L,H)
+    tags=["name";"id";"kind";"fixed";"initial_value";"weight";
+	  "max";"min";"nominal_value";"comment";"selected"];
+    H=H;
+    if isempty(L) then return;end
+    name = L(find(tags=="name"));
+    weight = L(find(tags=="weight"));
+    select L(find(tags=="kind"))
+      case "fixed_parameter" then
+	if abs(evstr(weight) -1) < 1.e-8 then H.Fixed_Par=H.Fixed_Par+1;else H.Relxd_Par=H.Relxd_Par+1;end
+      case "variable"
+	if abs(evstr(weight) -1) < 1.e-8 then H.Fixed_Var=H.Fixed_Var+1;else H.Relxd_Var=H.Relxd_Var+1;end
+      case "discrete_variable" then H.Discrete=H.Discrete+1;
+      case "input" then H.Input=H.Input+1;
+    end
+    if strstr(name,"__der_")<>0 then H.Diff_St=H.Diff_St+1;end
+  endfunction
   
+  function H=explore_elements(L,H)
+    for i=1:length(L)
+      elt=L(i);
+      for j=1:length(elt(2))
+	H=explore_terminal(elt(2)(j),H);
+      end
+      H=explore_elements(elt(3),H);
+    end
+  endfunction
+  
+  // update hbox data reading xml file
+  H=hash(10, Fixed_Par=0, Relxd_Par=0, Fixed_Var=0, Relxd_Var=0, Discrete=0, Input=0, Diff_St=0);
+
   G=gmarkup(fname,clean_strings=%t);
   L=G.collect["equation"];
   n_equations = length(L);
-  // printf("Found %d equations\n",n_equations);
-  L=G.collect["terminal"];
-  // printf("Found %d terminals\n",length(L));
   
-  Fixed_Par=0
-  Relxd_Par=0;
-  Fixed_Var=0;
-  Relxd_Var=0;
-  Discrete=0;
-  Input=0;
-  Diff_St=0;
-  
-  for i=1:length(L)
-    terminal= L(i);
-    childs = terminal.children;
-    name = childs(1).children(1);
-    kind = childs(2).children(1);
-    id = childs(3).children(1);
-    fixed = childs(4).attributes('value');
-    weight = childs(6).attributes('value');
-    // printf(" name = %s, kind = %s, id = %s, fixed = %s, weight=%s\n",name,kind,id,fixed,weight);
-    select kind
-      case "fixed_parameter" then
-	if abs(evstr(weight) -1) < 1.e-8 then Fixed_Par=Fixed_Par+1;else Relxd_Par=Relxd_Par+1;end
-      case "variable"
-	if abs(evstr(weight) -1) < 1.e-8 then Fixed_Var=Fixed_Var+1;else Relxd_Var=Relxd_Var+1;end
-      case "discrete_variable" then Discrete=Discrete+1;
-      case "input" then Input=Input+1;
+  if %f then 
+    // printf("Found %d equations\n",n_equations);
+    L=G.collect["terminal"];
+    // printf("Found %d terminals\n",length(L));
+    for i=1:length(L)
+      terminal= L(i);
+      childs = terminal.children;
+      name = childs(1).children(1);
+      kind = childs(2).children(1);
+      id = childs(3).children(1);
+      fixed = childs(4).attributes('value');
+      weight = childs(6).attributes('value');
+      // printf(" name = %s, kind = %s, id = %s, fixed = %s, weight=%s\n",name,kind,id,fixed,weight);
+      select kind
+	case "fixed_parameter" then
+	  if abs(evstr(weight) -1) < 1.e-8 then H.Fixed_Par=H.Fixed_Par+1;else H.Relxd_Par=H.Relxd_Par+1;end
+	case "variable"
+	  if abs(evstr(weight) -1) < 1.e-8 then H.Fixed_Var=H.Fixed_Var+1;else H.Relxd_Var=H.Relxd_Var+1;end
+	case "discrete_variable" then H.Discrete=H.Discrete+1;
+	case "input" then H.Input=H.Input+1;
+      end
+      if strstr(name,"__der_")<>0 then H.Diff_St=H.Diff_St+1;end
     end
-    if strstr(name,"__der_")<>0 then Diff_St=Diff_St+1;end
+  else
+    // same job but we use the model
+    L=explore_model(model);
+    // L(1) is name 
+    H=explore_elements(L(2),H);
   end
-  nvars = Relxd_Par+Relxd_Var+Discrete;
-  values = list(n_equations, nvars,nimpvars,Diff_St, Fixed_Par,Relxd_Par,Fixed_Var,Relxd_Var,Discrete,Input);
+  nvars = H.Relxd_Par+H.Relxd_Var+H.Discrete;
+  values = list(n_equations, nvars,nimpvars,H.Diff_St, H.Fixed_Par,H.Relxd_Par,H.Fixed_Var,H.Relxd_Var,H.Discrete,H.Input);
   // re-explore the hbox and fixe the text value
   L=hbox_data.get_children[];
   for i=1:length(L)
@@ -964,7 +992,8 @@ function modelica_data_hbox_populate(fname,hbox_data,nimpvars)
     cellview.set_name["poo"];
     cells=cellview.get_cells[]
     cell = cells(1);
-    cell.set_property['text',string(values(i))];
+    if values(i) < 0 then str = "?";else str=string(values(i));end
+    cell.set_property['text',str];
   end
   xpause(0,%t);
 endfunction
