@@ -441,6 +441,7 @@ function L=explore_model(model)
 endfunction
 
 function modelica_save_model(name,model)
+
   //------------------------------------------
   // save a model in a file in xml syntax
   //------------------------------------------
@@ -478,13 +479,13 @@ function modelica_save_model(name,model)
 	  str=tags(4);
 	  value = terminal(4);
 	  // change value for fixed
-	  if or(tags(3)==[ "fixed_parameter", "variable"]) then
-	    if abs(evstr(tags(6))-1) < 1.e-8 then value = "%t";else value = "%f";end;
+	  if or(terminal(3)==[ "fixed_parameter", "variable"]) then
+	    if abs(evstr(terminal(6))-1) < 1.e-8 then value = "%t";else value = "%f";end;
 	  end
 	  select value
 	    case "%t" then value = "true";
 	    case "%f" then value = "false";
-	    case {"-",""} then  value = "";
+	    case {"-",""} then  value = "-";
 	  end
 	  fd.printf[indent+"  <%s value=""%s""/>\n",str,value];
 	  // initial_value
@@ -796,7 +797,8 @@ function modelica_model_update_states_or_der(model,names,newval,tag)
       while %t do
 	if or(model.get_value[iter,0]==names) then
 	  // printf("update %s %s\n",model.get_value[iter,0],newval)
-	  if abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
+	  // XXXX quand on ecrit pas quand on lit
+	  // if abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
 	  model.set[iter,5,newval];
 	  //model_update_fixed(model,iter)
 	end
