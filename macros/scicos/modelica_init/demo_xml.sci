@@ -21,6 +21,8 @@
 function window=demo_xml(fname)
   
   function remove_scicos_widget(wingtkid)
+    // unset global variable telling that
+    // initialize gui is running.
     global(initialize_modelica_running=%t);
     initialize_modelica_running=%f;
     scicos_manage_widgets('close', wingtkid=wingtkid);
@@ -90,9 +92,7 @@ function window=demo_xml(fname)
 
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
-
-  // XXXX : attention a changer si on tue la fenetre
-  // metre un destroy handler 
+  
   global(initialize_modelica_running=%t);
   initialize_modelica_running=%t;
   
@@ -597,14 +597,14 @@ function menuitem_derivatives_response(w,args)
   DispMode = "Normal";
   //     DispMode_change $WindowsID
   select der_mode
-    case "fixed_states" then new_der_weight="0"; new_state_weight="1";
-    case "steady_states" then new_der_weight="1"; new_state_weight="0";
+    case "fixed_states" then new_der_weight="0.0"; new_state_weight="1.0";
+    case "steady_states" then new_der_weight="1.0"; new_state_weight="0.0";
   end
   //     replace_ders_in_tree $WindowsID $ztree  $RootNode $NewDerWeight $NewStateWeight
   DispMode = DispMode_back;
   der_mode = "free_"+ new_mode;
   //     DispMode_change $WindowsID
-  modelica_update_model(model , new_state_weight,  new_der_weight);
+  modelica_update_model(model , new_state_weight,  new_der_weight,flag=%t);
   
 endfunction
 
@@ -772,7 +772,7 @@ function S=modelica_model_collect_names(model)
   S=get_children(model,iter);
 endfunction
 
-function modelica_model_update_states_or_der(model,names,newval,tag)
+function modelica_model_update_states_or_der(model,names,newval,tag,flag=%f)
 
   // names=['Name','Id','Kind','Fixed','Value',...
   // 	 'Weight','Max','Min','Nominal',...
@@ -789,7 +789,7 @@ function modelica_model_update_states_or_der(model,names,newval,tag)
     end
   endfunction
   
-  function model_update_terminal(model, names, newval,tag)
+  function model_update_terminal(model, names, newval,tag,flag=%f)
     //nc=model.get_n_columns[]
     iter=model.get_iter_first[0];
     if tag == "der" then
@@ -797,8 +797,8 @@ function modelica_model_update_states_or_der(model,names,newval,tag)
       while %t do
 	if or(model.get_value[iter,0]==names) then
 	  // printf("update %s %s\n",model.get_value[iter,0],newval)
-	  // XXXX quand on ecrit pas quand on lit
-	  // if abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
+	  // reset value to zero 
+	  if flag && abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
 	  model.set[iter,5,newval];
 	  //model_update_fixed(model,iter)
 	end
@@ -817,7 +817,7 @@ function modelica_model_update_states_or_der(model,names,newval,tag)
     end
   endfunction
 
-  function update_children(model,iter,names,newval,tag)
+  function update_children(model,iter,names,newval,tag,flag=%f)
     S=m2s([])
     if model.iter_has_child[iter] then
       iter1=model.iter_children[iter];
@@ -826,20 +826,20 @@ function modelica_model_update_states_or_der(model,names,newval,tag)
 	tmodel=  model.get_value[iter1,2];
 	update_children(model,iter1,names,newval,tag);
 	if type(tmodel,'short') == "GtkListStore" then
-	  model_update_terminal(tmodel,names,newval,tag);
+	  model_update_terminal(tmodel,names,newval,tag,flag=flag);
 	end
 	if ~model.iter_next[iter1] then break;end
       end
-    end
+     end
   endfunction
   
   // name of modelica model
   iter=model.get_iter_first[0];
   name=model.get_value[iter,0];
-  update_children(model,iter,names,newval,tag);
+  update_children(model,iter,names,newval,tag,flag=flag);
 endfunction
 
-function modelica_update_model(model, new_state_weight,  new_der_weight);
+function modelica_update_model(model, new_state_weight,  new_der_weight, flag=%f);
   // update state and state derivatives with new_state_weight,  new_der_weight
   // this is activated when
   // loading date + changing the menu derivatives
@@ -848,8 +848,8 @@ function modelica_update_model(model, new_state_weight,  new_der_weight);
   I=find(strstr(S,"__der_")<>0);
   if ~isempty(S) then S=S(I);  S=strsubst(S,"__der_","");end
   if isempty(S) then return;end
-  modelica_model_update_states_or_der(model,S,new_state_weight,"state");
-  modelica_model_update_states_or_der(model,"__der_" + S,new_der_weight,"der");
+  modelica_model_update_states_or_der(model,S,new_state_weight,"state",flag=flag);
+  modelica_model_update_states_or_der(model,"__der_" + S,new_der_weight,"der",flag=flag);
 
 endfunction
 
