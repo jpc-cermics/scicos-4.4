@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Jean-Philippe Chancelier Cermics/Enpc
+// Copyright (C) 2019 Jean-Philippe Chancelier Cermics/Enpc
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -477,10 +477,14 @@ function modelica_save_model(name,model)
 	  // fixed
 	  str=tags(4);
 	  value = terminal(4);
+	  // change value for fixed
+	  if or(tags(3)==[ "fixed_parameter", "variable"]) then
+	    if abs(evstr(tags(6))-1) < 1.e-8 then value = "%t";else value = "%f";end;
+	  end
 	  select value
 	    case "%t" then value = "true";
 	    case "%f" then value = "false";
-	    case "-" then  value = "false";
+	    case {"-",""} then  value = "";
 	  end
 	  fd.printf[indent+"  <%s value=""%s""/>\n",str,value];
 	  // initial_value
@@ -794,7 +798,7 @@ function modelica_model_update_states_or_der(model,names,newval,tag)
 	  // printf("update %s %s\n",model.get_value[iter,0],newval)
 	  if abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
 	  model.set[iter,5,newval];
-	  model_update_fixed(model,iter)
+	  //model_update_fixed(model,iter)
 	end
 	if ~model.iter_next[iter] then break;end
       end
@@ -803,8 +807,8 @@ function modelica_model_update_states_or_der(model,names,newval,tag)
       while %t do
 	if or(model.get_value[iter,0]==names) then
 	  // printf("update %s\n",model.get_value[iter,0])
-	  if model.get_value[iter, 11] == "-" then  model.set[iter,5,newval];end
-	  model_update_fixed(model,iter)
+	  model.set[iter,5,newval];
+	  // model_update_fixed(model,iter)
 	end
 	if ~model.iter_next[iter] then break;end
       end
