@@ -24,12 +24,11 @@ function [x,y,typ]=PENDULUM_ANIM(job,arg1,arg2)
     x=arg1;
     graphics=arg1.graphics;exprs=graphics.exprs
     model=arg1.model;dstate=model.dstate
+    p_names =  ['Pendulum length';'Cart size (square side)';'Slope';
+		'Xmin';'Xmax';  'Ymin'; 'Ymax' ];
+    p_types =  list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1);
     while %t do
-      [ok,plen,csiz,phi,xmin,xmax,ymin,ymax,exprs]=getvalue(..
-						  'Set Scope parameters',..
-						  ['Pendulum length';'Cart size (square side)';'Slope';
-		    'Xmin';'Xmax';  'Ymin'; 'Ymax' ],..
-						  list('vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1,'vec',1),exprs)
+      [ok,plen,csiz,phi,xmin,xmax,ymin,ymax,exprs]=getvalue('Set Scope parameters',p_names, p_types,exprs);
       if ~ok then break,end
       mess=[]
       if plen<=0|csiz<=0 then

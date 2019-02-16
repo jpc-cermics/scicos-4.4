@@ -307,11 +307,12 @@ int scicos_get_scsptr(NspObject *obj, scicos_funflag *funflag, void **funptr)
 {
   if (IsString(obj)) {
     void *fptr=scicos_get_function (((NspSMatrix *) obj)->S[0]);
-    if (fptr == NULL) {
-      Sciprintf("Info: Searching block simulation function \"%s\": %s\n",
-               ((NspSMatrix *) obj)->S[0],
-               (fptr != NULL) ? "found": "not found, assuming macro");
-    }
+    if (0 && fptr == NULL)
+      {
+	Sciprintf("Info: Searching block simulation function \"%s\": %s\n",
+		  ((NspSMatrix *) obj)->S[0],
+		  (fptr != NULL) ? "found": "not found, assuming macro");
+      }
     if (fptr!=NULL) {
       /* a hard code function given by its adress */
       *funflag = fun_pointer;
