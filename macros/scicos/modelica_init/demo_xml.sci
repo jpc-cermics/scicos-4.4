@@ -864,6 +864,13 @@ function modelica_solve_init(button,args)
   treeview = args(2);
   hbox = args(3);
   hbox_data = args(4);
+  combo = args(5);
+  methods = combo.user_data;
+  selected = combo.get_active[]+1;
+  method = methods(selected);
+  cellview = args(6);
+  cell = cellview.get_cells[];
+    
   model = treeview.get_model[];
   selection_id = button.get_data['selection_id'];
   selection = button.get_data['selection'];
@@ -883,10 +890,11 @@ function modelica_solve_init(button,args)
   if ~file('exists',im_fname) then return;end
   [ok, explicit_vars, implicit_vars, parameters]=modelica_read_incidence(im_fname)
   nimpvars = size(implicit_vars,'*');
-  // XXX get the method selected in menus 
-  method="Kinsol";
-  ok=modelica_init_call_solver(method,nimpvars);
+  [ok,err]=modelica_init_call_solver(method,nimpvars);
   if ~ok then return;end
+  // fill the text of numerical error
+  cell(1).set_property['text',err];
+  xpause(0,%t);
   // reload the xml file and update model
   G=gmarkup(fname,clean_strings=%t);
   model= demo_xml_model_from_markup(G);
@@ -912,18 +920,29 @@ function hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1, hbox
   bools=ones(n,1)>=0;
   model = gtk_list_store_new(list(names,bools));
   combobox = gtk_combo_box_new(model=model);
+  combobox.user_data = names;
   //XXX combobox.set_add_tearoffs[%t];
   cell_renderer = gtk_cell_renderer_text_new ();
   combobox.pack_start[ cell_renderer,expand= %t];
   combobox.add_attribute[cell_renderer,"text",0];
   combobox.set_active[0];
-  hbox.add[combobox];
+  hbox.pack_start[combobox, expand=%f,fill=%t,padding=6];
   //-- button
   button = gtk_button_new(mnemonic="Solve");
   button.set_data[selection_id = selection_id ];
   button.set_data[selection = selection ];
-  button.connect[ "clicked", modelica_solve_init, list(fname, treeview, hbox1, hbox_data)];
-  hbox.add[button];
+  hbox.pack_start[button, expand=%f,fill=%t,padding=6];
+  // text data for storing numerical error
+  name=["Solver error"];
+  frame = gtk_frame_new (label=name);
+  hbox.pack_start[frame, expand=%f,fill=%t,padding=6];
+  boom =gtk_box_new("vertical",spacing=0);
+  boom.set_border_width[1];
+  frame.add[boom];
+  markup = "";//<span foreground=''blue''>bleue</span>";
+  cellview = gtk_cell_view_new (markup=markup);
+  boom.add[cellview];
+  button.connect[ "clicked", modelica_solve_init, list(fname, treeview, hbox1, hbox_data, combobox, cellview)];
 endfunction
 
 function hbox=modelica_data_hbox_create()

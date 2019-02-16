@@ -1,4 +1,4 @@
-function ok=modelica_init_call_solver(method, number_unknowns)
+function [ok,err]=modelica_init_call_solver(method, number_unknowns)
   // The computation part of the solve button 
   // of the Solve button of Modelica Initialize
 
@@ -73,6 +73,8 @@ function ok=modelica_init_call_solver(method, number_unknowns)
     ok=%f; message("Error: cannot solve, icpr is empty. Compile model first");
     return
   end  
+
+  err="?"
   
   tolerances=scs_m.props.tol
   solver=tolerances(6)
@@ -211,16 +213,16 @@ function ok=modelica_init_call_solver(method, number_unknowns)
   if method=="Sundials_Stepping" then 
   end
   //--------------------------------------------------------------
-  Err="?"
+  err="?"
   if ok then
     ss=fsim(state.x(1:nx2));
     if ~isempty(ss) then
-      Err=string(max(abs(ss)));
+      err=string(max(abs(ss)));
     else
-      Err="0";
+      err="0";
     end
   end
-  printf("Solved: numerical error found is [%s]\n",Err);
+  // printf("Solved: numerical error found is [%s]\n",Err);
   try 
     // cossimdaskr is followed by a cosend in case of error
     [state,t]=scicosim(state,%tcur,tf,icpr.sim,"finish",tolerances);
