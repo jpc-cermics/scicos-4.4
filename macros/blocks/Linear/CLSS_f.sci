@@ -16,24 +16,34 @@ function [x,y,typ]=CLSS_f(job,arg1,arg2)
     if size(exprs,'*')==7 then exprs=exprs([1:4 7]),end //compatibility
     model=arg1.model;
     while %t do
-      [ok,A,B,C,D,x0,exprs]=getvalue('Set continuous linear system parameters',..
+      [ok,A,B,C,D,x0,exprs]=getvalue('Set continuous linear system parameters',...
 				     ['A matrix';
-		    'B matrix';
-		    'C matrix';
-		    'D matrix';
-		    'Initial state'],..
-				     list('mat',[-1,-1],..
-					  'mat',['size(%1,2)','-1'],..
-					  'mat',['-1','size(%1,2)'],..
-					  'mat',[-1 -1],..
-					  'vec','size(%1,2)'),..
+				      'B matrix';
+				      'C matrix';
+				      'D matrix';
+				      'Initial state'],...
+				     list('mat',[-1,-1],...
+					  'mat',['size(%1,2)','-1'],...
+					  'mat',['-1','size(%1,2)'],...
+					  'mat',[-1 -1],...
+					  'vec','size(%1,2)'),...
 				     exprs)
       if ~ok then break,end
       out=size(C,1);if out==0 then out=[],end
       in=size(B,2);if in==0 then in=[],end
       [ms,ns]=size(A)
-      if ms<>ns then
-	message('A matrix must be square')
+      okD=%t
+      if size(D,'*')<>size(C,1)*size(B,2) then
+	if size(D,'*')==1 then
+	  D=ones_deprecated(C*B)*D
+	elseif  size(D,'*')==0 then
+	  D=zeros_deprecated(C*B)
+	else
+	  okD=%f
+	end
+      end
+      if ms<>ns|~okD then
+	message('A matrix is not square or D has wrong dimension')
       else
 	[model,graphics,ok]=check_io(model,graphics,in,out,[],[])
 	if ok then
@@ -60,7 +70,7 @@ function [x,y,typ]=CLSS_f(job,arg1,arg2)
     x0=0;A=-1;B=1;C=1;D=0;in=1;out=1
 
     model=scicos_model()
-    model.sim=list('csslti',0); // list('csslti',1)
+    model.sim= list('csslti',0);
     model.in=in
     model.out=out
     model.state=x0
