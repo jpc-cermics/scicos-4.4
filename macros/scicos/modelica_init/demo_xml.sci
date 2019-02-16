@@ -741,8 +741,9 @@ function S=modelica_model_collect_names(model)
     nc=tmodel.get_n_columns[]
     iter=tmodel.get_iter_first[0];
     while %t then
-      // name is first 
-      name = tmodel.get_value[iter,0];
+      // name is first, id is second
+      // and id is in fact the real name 
+      name = tmodel.get_value[iter,1];
       S.concatd[name];
       if ~tmodel.iter_next[iter] then break;end
     end
@@ -755,13 +756,14 @@ function S=modelica_model_collect_names(model)
       while %t  then
 	name=model.get_value[iter1,0];
 	tmodel=  model.get_value[iter1,2];
-	L1=get_children(model,iter1);
+	cnames=get_children(model,iter1);
+	if ~isempty(cnames) then S.concatd[cnames];end
 	if type(tmodel,'short') == "GtkListStore" then
 	  names= get_terminal_name(tmodel);
 	else
 	  names=m2s([]);
 	end
-	S.concatd[names];
+	if ~isempty(names) then S.concatd[names];end
 	if ~model.iter_next[iter1] then break;end
       end
     end
@@ -795,7 +797,7 @@ function modelica_model_update_states_or_der(model,names,newval,tag,flag=%f)
     if tag == "der" then
       // updates weight for derivatives
       while %t do
-	if or(model.get_value[iter,0]==names) then
+	if or(model.get_value[iter,1]==names) then
 	  // printf("update %s %s\n",model.get_value[iter,0],newval)
 	  // reset value to zero 
 	  if flag && abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
@@ -807,7 +809,7 @@ function modelica_model_update_states_or_der(model,names,newval,tag,flag=%f)
     else
       // updates weight for states 
       while %t do
-	if or(model.get_value[iter,0]==names) then
+	if or(model.get_value[iter,1]==names) then
 	  // printf("update %s\n",model.get_value[iter,0])
 	  model.set[iter,5,newval];
 	  // model_update_fixed(model,iter)
@@ -875,13 +877,10 @@ function modelica_solve_init(button,args)
   //   f_init.xml
   // get infos from  incidence matrix
   //
-  // incidence et relation ont une partie commune pour
-  // <identifiers>
-  // Par contre dans init on va trouver les <terminals>
-    
+  if ~ok then;return;end
   tmpdir =file('split',getenv('NSP_TMPDIR'));
   im_fname =file('join',[tmpdir;name+'fi_incidence_matrix.xml']);
-  // XXXX check that im_fname exists 
+  if ~file('exists',im_fname) then return;end
   [ok, explicit_vars, implicit_vars, parameters]=modelica_read_incidence(im_fname)
   nimpvars = size(implicit_vars,'*');
   // XXX get the method selected in menus 

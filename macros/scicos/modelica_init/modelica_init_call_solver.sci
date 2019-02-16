@@ -220,7 +220,7 @@ function ok=modelica_init_call_solver(method, number_unknowns)
       Err="0";
     end
   end
-  printf("Error found: %s\n",Err);
+  printf("Solved: numerical error found is [%s]\n",Err);
   try 
     // cossimdaskr is followed by a cosend in case of error
     [state,t]=scicosim(state,%tcur,tf,icpr.sim,"finish",tolerances);
