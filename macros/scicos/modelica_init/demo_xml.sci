@@ -29,12 +29,10 @@ function window=demo_xml(fname)
   endfunction
   
   // build the toplevel widget
-  G=gmarkup(fname);
+  G=gmarkup(fname,clean_strings=%t);
   model= demo_xml_model_from_markup(G);
-  //
   // utiliser le callback 
-  modelica_update_model(model, "1.0", "0.0");
-
+  
   window = gtkwindow_new ()
   window.set_title["Modelica variables browser"]
   window.set_default_size[-1, 500]
@@ -49,7 +47,10 @@ function window=demo_xml(fname)
   treeview=gtktreeview_new();
   treeview.set_model[model=model];
 
-  menubar=demo_xml_menubar(fname,window,treeview);
+  // The horizontal box where data is displayed 
+  hbox_data=modelica_data_hbox_create();
+  
+  menubar=demo_xml_menubar(fname,window,treeview, hbox_data);
   vbox.pack_start[menubar,expand=%f,fill=%t,padding=0]
 
   if exists('gtk_get_major_version','function') then
@@ -59,12 +60,16 @@ function window=demo_xml(fname)
   end
   selection = treeview.get_selection[];
   model = treeview.get_model[];
-  selection_id= selection.connect["changed", selection_cb,list(model,hbox1)]
+  selection_id= selection.connect["changed", selection_cb,list(model,hbox1, hbox_data)]
 
-  // The horizontal box where data is displayed 
-  hbox_data=modelica_data_hbox_create()
-  modelica_data_hbox_populate(fname,hbox_data,model,-1);
-  
+  [nvars, n_equations, n_diff_states]= modelica_data_hbox_populate(model, hbox_data, -1);
+  if nvars <> n_equations && n_diff_states<> 0 then
+    // The number of equations does not match the number of variables + relaxed parameters + discrete variables.
+    // since we have differential states we fix the states 
+    modelica_update_model(model, "1.0", "0.0");
+    modelica_data_hbox_populate(model, hbox_data,  -1);
+  end
+    
   hbox=demo_xml_combo(fname,selection,selection_id, treeview, hbox1, hbox_data);
   vbox.pack_start[hbox,expand=%f,fill=%t,padding=4];
   vbox.pack_start[hbox1,expand=%t,fill=%t,padding=0];
@@ -74,12 +79,12 @@ function window=demo_xml(fname)
   sw.set_policy[GTK.POLICY_NEVER, GTK.POLICY_AUTOMATIC]
   sw.set_placement[GTK.CORNER_TOP_LEFT]
   hbox1.pack_start[sw,expand=%f,fill=%f,padding=0]
-
+  
   cell = gtkcellrenderertext_new ();
   col  = gtktreeviewcolumn_new (renderer=cell,attrs=hash(text= 0));
   col.set_title["Model tree"];
   treeview.append_column[col];
-  selection_cb("", list(model,hbox1));
+  selection_cb("", list(model,hbox1, hbox_data));
     
   // activated when we double-click on rows 
   // function row_activated_cb(args)
@@ -92,6 +97,7 @@ function window=demo_xml(fname)
 
   window.connect["destroy", remove_scicos_widget, list(window)];
   window.show_all[];
+  window.grab_focus[];
   
   global(initialize_modelica_running=%t);
   initialize_modelica_running=%t;
@@ -120,27 +126,29 @@ function selection_cb(selection,args)
     sw.show_all[]
   endfunction
   
-  function demo_liststore (hbox,model)
+  function demo_liststore (hbox,lmodel,hbox_data,model)
     sw = gtkscrolledwindow_new();
     sw.set_shadow_type[GTK.SHADOW_ETCHED_IN]
     sw.set_policy[GTK.POLICY_NEVER,GTK.POLICY_AUTOMATIC]
-    treeview = gtktreeview_new(model);
+    treeview = gtktreeview_new(lmodel);
     // treeview.set_rules_hint[%t];
     treeview.set_search_column[3];
     // give name to columns
-    model = treeview.get_model[];
+    lmodel = treeview.get_model[];
     
     names=['Name','Id','Kind','Fixed','Value',...
 	   'Weight','Max','Min','Nominal',...
 	   'Comment','Selection', 'Fixed_orig', 'Output'];
-
+    
     function cell_edited (cell,path_string,new_text,data)
       // callback for changed texts
-      model = data(1);
+      lmodel = data(1);
       col = data(2);
+      hbox_data = data(3);
+      model = data(4);
       path = gtktreepath_new(path_string);
       i = path.get_indices[];
-      iter = model.get_iter[path_string];
+      iter = lmodel.get_iter[path_string];
       // test if new_text is a valid answer
       ok=%t;
       if length(new_text)<>0 then
@@ -153,37 +161,41 @@ function selection_cb(selection,args)
 	x_message("You should enter a number");
 	return
       end
-      model.set[iter,col,new_text];
+      lmodel.set[iter,col,new_text];
+      modelica_data_hbox_populate(model, hbox_data,  -1);
     endfunction
 
     function editable_toggled (cell, path_str, data)
       // callback for changing the boolean values
-      model=data(1);
+      lmodel=data(1);
       column_number = data(2);
+      hbox_data = data(3);
+      model = data(4);
       // get toggled iter */
-      iter=model.get_iter[path_str];
-      val = model.get_value[iter,column_number];
+      iter=lmodel.get_iter[path_str];
+      val = lmodel.get_value[iter,column_number];
       // do something with the value
       val = ~val;
       // set new value */
-      model.set[iter,column_number, val];
+      lmodel.set[iter,column_number, val];
+      modelica_data_hbox_populate(model, hbox_data,  -1);
     endfunction
 
     // The two-last columns are ignored
-    for i=1:(model.get_n_columns[]-2)
+    for i=1:(lmodel.get_n_columns[]-2)
 
       if names(i)=='Selection' then
 	// boolean editable
 	renderer = gtkcellrenderertoggle_new ();
 	if names(i)=='Selection' then
-	  renderer.connect["toggled", editable_toggled,list(model,i- 1)];
+	  renderer.connect["toggled", editable_toggled,list(lmodel,i- 1, hbox_data, model)];
 	end
 	col = gtktreeviewcolumn_new(title=names(i),renderer=renderer,attrs= hash(active=i-1));
 
       else
 	renderer = gtkcellrenderertext_new ();
 	if or(names(i)==['Value','Weight','Max','Min','Nominal']) then
-	  renderer.connect[  "edited",  cell_edited,list(model,i-1)]
+	  renderer.connect[  "edited",  cell_edited,list(lmodel,i-1, hbox_data, model)]
 	  renderer.set_property['editable',%t]
 	end
 	col = gtktreeviewcolumn_new(title=names(i),renderer=renderer,...
@@ -196,7 +208,7 @@ function selection_cb(selection,args)
       end
       treeview.append_column[col];
     end
-
+    
     sw.add[treeview];
     L=hbox.get_children[];
     if length(L)==2 then
@@ -205,9 +217,10 @@ function selection_cb(selection,args)
     hbox.pack_start[sw,expand=%t,fill=%t,padding=0]
     sw.show_all[]
   endfunction
-
+  
   model=args(1);
   hbox =args(2);
+  hbox_data = args(3);
   if selection.equal[""] then demo_empty_liststore(hbox);return;end
   iter=selection.get_selected[]
   if ~is(iter,%types.GtkTreeIter) then return;end
@@ -216,7 +229,7 @@ function selection_cb(selection,args)
   end
   // check editable and that we have a liststore 
   if model.get_value[iter,1] && type(Tv,'short')<> 'none' then
-    demo_liststore(hbox,Tv);
+    demo_liststore(hbox,Tv,hbox_data,model);
   else
     demo_empty_liststore(hbox);
   end
@@ -383,8 +396,10 @@ function model= demo_xml_model_from_markup(G)
   // since it contains extra-data needed for
   // xml-saving the model
   equations=get_node(G,'equations')
+  // number of equations
+  n_equations = length(equations.children);
   whenode=get_node(G,'when_clauses')
-  model.user_data=list(equations,whenode)
+  model.user_data=list(equations,whenode, n_equations)
 endfunction
 
 function L=explore_model(model)
@@ -585,30 +600,36 @@ function menuitem_derivatives_response(w,args)
   new_mode = strsubst(tolower(args(1))," ","_");
   treeview = args(2);
   model = treeview.get_model[];
+  hbox_data = args(3);
 
+  if ~w.get_active[] then return;end
+  
   global(need_compile=%f);
-  global(der_mode="fixed_states");
+  global(der_mode="unset");
   global(DispMode="Normal");
   
-  if or(new_mode == ["free_fixed_states","free_steady_states"]) then return;end
-  if "free_"+new_mode <> der_mode then need_compile = %t;end
+  if new_mode == der_mode then
+    return;
+  else
+    need_compile = %t;
+  end 
   der_mode = new_mode;
   DispMode_back=DispMode;
   DispMode = "Normal";
-  //     DispMode_change $WindowsID
   select der_mode
     case "fixed_states" then new_der_weight="0.0"; new_state_weight="1.0";
     case "steady_states" then new_der_weight="1.0"; new_state_weight="0.0";
+    case "set_weights_to_0.0" then new_der_weight="0.0"; new_state_weight="0.0";
   end
   //     replace_ders_in_tree $WindowsID $ztree  $RootNode $NewDerWeight $NewStateWeight
   DispMode = DispMode_back;
-  der_mode = "free_"+ new_mode;
   //     DispMode_change $WindowsID
   modelica_update_model(model , new_state_weight,  new_der_weight,flag=%t);
-  
+  // update the displayed data.
+  modelica_data_hbox_populate(model, hbox_data,  -1);
 endfunction
 
-function menubar=demo_xml_menubar(fname,window,treeview)
+function menubar=demo_xml_menubar(fname,window,treeview, hbox_data)
   tearoff = %f;
   menubar = gtkmenubar_new ();
   // File Menu
@@ -644,7 +665,7 @@ function menubar=demo_xml_menubar(fname,window,treeview)
     menuitem = gtktearoffmenuitem_new ();
     menu.append[  menuitem]
   end
-  names=["Fixed states";"Steady states"];
+  names=["Fixed states";"Steady states";"Set weights to 0.0"];
   for i = 1:size(names,'*')
     if i==1 then
       menuitem = gtkradiomenuitem_new(label=names(i));
@@ -653,7 +674,7 @@ function menubar=demo_xml_menubar(fname,window,treeview)
       menuitem = gtkradiomenuitem_new(group=group,label=names(i));
     end
     // callback
-    menuitem.connect["activate",menuitem_derivatives_response,list(names(i), treeview)];
+    menuitem.connect["activate",menuitem_derivatives_response,list(names(i), treeview, hbox_data)];
     menu.append[menuitem]
   end
   menuitem = gtkmenuitem_new(label="Derivatives");
@@ -774,84 +795,84 @@ function S=modelica_model_collect_names(model)
   S=get_children(model,iter);
 endfunction
 
-function modelica_model_update_states_or_der(model,names,newval,tag,flag=%f)
-
-  // names=['Name','Id','Kind','Fixed','Value',...
-  // 	 'Weight','Max','Min','Nominal',...
-  // 	 'Comment','Selection', 'Fixed_orig', 'Output'];
-
-  function model_update_fixed(model,iter)
-    // if weight (col 6) is 1.0 we update fixed(col 4) depending on kind (col 3)
-    if or(model.get_value[iter, 2]==[ "fixed_parameter", "variable"]) then
-      if abs(evstr(model.get_value[iter,5])-1) < 1.e-8 then 
-	model.set[iter,3,"%t"];
-      else
-	model.set[iter,3,"%f"];
-      end
-    end
-  endfunction
-  
-  function model_update_terminal(model, names, newval,tag,flag=%f)
-    //nc=model.get_n_columns[]
-    iter=model.get_iter_first[0];
-    if tag == "der" then
-      // updates weight for derivatives
-      while %t do
-	if or(model.get_value[iter,1]==names) then
-	  // printf("update %s %s\n",model.get_value[iter,0],newval)
-	  // reset value to zero 
-	  if flag && abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
-	  model.set[iter,5,newval];
-	  //model_update_fixed(model,iter)
-	end
-	if ~model.iter_next[iter] then break;end
-      end
-    else
-      // updates weight for states 
-      while %t do
-	if or(model.get_value[iter,1]==names) then
-	  // printf("update %s\n",model.get_value[iter,0])
-	  model.set[iter,5,newval];
-	  // model_update_fixed(model,iter)
-	end
-	if ~model.iter_next[iter] then break;end
-      end
-    end
-  endfunction
-
-  function update_children(model,iter,names,newval,tag,flag=%f)
-    S=m2s([])
-    if model.iter_has_child[iter] then
-      iter1=model.iter_children[iter];
-      while %t  then
-	name=model.get_value[iter1,0];
-	tmodel=  model.get_value[iter1,2];
-	update_children(model,iter1,names,newval,tag);
-	if type(tmodel,'short') == "GtkListStore" then
-	  model_update_terminal(tmodel,names,newval,tag,flag=flag);
-	end
-	if ~model.iter_next[iter1] then break;end
-      end
-     end
-  endfunction
-  
-  // name of modelica model
-  iter=model.get_iter_first[0];
-  name=model.get_value[iter,0];
-  update_children(model,iter,names,newval,tag,flag=flag);
-endfunction
-
 function modelica_update_model(model, new_state_weight,  new_der_weight, flag=%f);
   // update state and state derivatives with new_state_weight,  new_der_weight
   // this is activated when
   // loading date + changing the menu derivatives
   
-  S=modelica_model_collect_names(model)
-  I=find(strstr(S,"__der_")<>0);
-  if ~isempty(S) then S=S(I);  S=strsubst(S,"__der_","");end
-  if isempty(S) then return;end
-  modelica_model_update_states_or_der(model,S,new_state_weight,"state",flag=flag);
-  modelica_model_update_states_or_der(model,"__der_" + S,new_der_weight,"der",flag=flag);
+  function modelica_model_update_states_or_der(model,names,newval,tag,flag=%f)
+
+    // names=['Name','Id','Kind','Fixed','Value',...
+    // 	 'Weight','Max','Min','Nominal',...
+    // 	 'Comment','Selection', 'Fixed_orig', 'Output'];
+
+    function model_update_fixed(model,iter)
+      // if weight (col 6) is 1.0 we update fixed(col 4) depending on kind (col 3)
+      if or(model.get_value[iter, 2]==[ "fixed_parameter", "variable"]) then
+	if abs(evstr(model.get_value[iter,5])-1) < 1.e-8 then 
+	  model.set[iter,3,"%t"];
+	else
+	  model.set[iter,3,"%f"];
+	end
+      end
+    endfunction
+    
+    function model_update_terminal(model, names, newval,tag,flag=%f)
+      //nc=model.get_n_columns[]
+      iter=model.get_iter_first[0];
+      if tag == "der" then
+	// updates weight for derivatives
+	while %t do
+	  if or(model.get_value[iter,1]==names) then
+	    // printf("update derivetive %s with weight=%s\n",model.get_value[iter,1],newval)
+	    // reset value to zero 
+	    if flag && abs(evstr(newval) - 1.0) < 1.e-8 then model.set[iter,4,"0.0"];end
+	    model.set[iter,5,newval];
+	    //model_update_fixed(model,iter)
+	  end
+	  if ~model.iter_next[iter] then break;end
+	end
+      else
+	// updates weight for states 
+	while %t do
+	  if or(model.get_value[iter,1]==names) then
+	    // printf("update state %s tp %s\n",model.get_value[iter,1],newval)
+	    model.set[iter,5,newval];
+	    // model_update_fixed(model,iter)
+	  end
+	  if ~model.iter_next[iter] then break;end
+	end
+      end
+    endfunction
+
+    function update_children(model,iter,names,newval,tag,flag=%f)
+      S=m2s([])
+      if model.iter_has_child[iter] then
+	iter1=model.iter_children[iter];
+	while %t  then
+	  name=model.get_value[iter1,0];
+	  tmodel=  model.get_value[iter1,2];
+	  update_children(model,iter1,names,newval,tag);
+	  if type(tmodel,'short') == "GtkListStore" then
+	    model_update_terminal(tmodel,names,newval,tag,flag=flag);
+	  end
+	  if ~model.iter_next[iter1] then break;end
+	end
+      end
+    endfunction
+    
+    // name of modelica model
+    iter=model.get_iter_first[0];
+    name=model.get_value[iter,0];
+    update_children(model,iter,names,newval,tag,flag=flag);
+  endfunction
+  
+  Sder=modelica_model_collect_names(model)
+  I=find(strstr(Sder,"__der_")<>0);
+  if ~isempty(Sder) then Sder=Sder(I);  States=strsubst(Sder,"__der_","");end
+  if isempty(Sder) then return;end
+  modelica_model_update_states_or_der(model,States,new_state_weight,"state",flag=flag);
+  modelica_model_update_states_or_der(model,Sder,new_der_weight,"der",flag=flag);
 
 endfunction
 
@@ -898,12 +919,11 @@ function modelica_solve_init(button,args)
   // reload the xml file and update model
   G=gmarkup(fname,clean_strings=%t);
   model= demo_xml_model_from_markup(G);
-  // XXX do we need update model ?
   // reload values from xml file and update the associated combo
-  modelica_data_hbox_populate(fname,hbox_data,model,nimpvars);
+  modelica_data_hbox_populate(model, hbox_data, nimpvars);
   selection.disconnect[selection_id];
   treeview.set_model[model=model];
-  selection_id=selection.connect["changed", selection_cb,list(model,hbox)];
+  selection_id=selection.connect["changed", selection_cb,list(model,hbox,hbox_data)];
   button.set_data[selection_id = selection_id ];
   button.set_data[selection = selection ];
 endfunction
@@ -968,13 +988,14 @@ function hbox=modelica_data_hbox_create()
     boom.set_border_width[1];
     tmp1.add[boom];
     markup = "0";//<span foreground=''blue''>bleue</span>";
-    cellview = gtk_cell_view_new (markup=markup);
-    boom.add[cellview];
+    label = gtk_label_new(str=markup);
+    boom.add[label];
   end
 endfunction
 
-function modelica_data_hbox_populate(fname,hbox_data,model,nimpvars)
-
+function [nvars, n_equations, n_diff_states] = modelica_data_hbox_populate(model, hbox_data, nimpvars)
+  // re-explore model to get informations and display them
+    
   function H=explore_terminal(L,H)
     tags=["name";"id";"kind";"fixed";"initial_value";"weight";
 	  "max";"min";"nominal_value";"comment";"selected"];
@@ -1005,56 +1026,31 @@ function modelica_data_hbox_populate(fname,hbox_data,model,nimpvars)
   
   // update hbox data reading xml file
   H=hash(10, Fixed_Par=0, Relxd_Par=0, Fixed_Var=0, Relxd_Var=0, Discrete=0, Input=0, Diff_St=0);
-
-  G=gmarkup(fname,clean_strings=%t);
-  L=G.collect["equation"];
-  n_equations = length(L);
   
-  if %f then 
-    // printf("Found %d equations\n",n_equations);
-    L=G.collect["terminal"];
-    // printf("Found %d terminals\n",length(L));
-    for i=1:length(L)
-      terminal= L(i);
-      childs = terminal.children;
-      name = childs(1).children(1);
-      kind = childs(2).children(1);
-      id = childs(3).children(1);
-      fixed = childs(4).attributes('value');
-      weight = childs(6).attributes('value');
-      // printf(" name = %s, kind = %s, id = %s, fixed = %s, weight=%s\n",name,kind,id,fixed,weight);
-      select kind
-	case "fixed_parameter" then
-	  if abs(evstr(weight) -1) < 1.e-8 then H.Fixed_Par=H.Fixed_Par+1;else H.Relxd_Par=H.Relxd_Par+1;end
-	case "variable"
-	  if abs(evstr(weight) -1) < 1.e-8 then H.Fixed_Var=H.Fixed_Var+1;else H.Relxd_Var=H.Relxd_Var+1;end
-	case "discrete_variable" then H.Discrete=H.Discrete+1;
-	case "input" then H.Input=H.Input+1;
-      end
-      if strstr(name,"__der_")<>0 then H.Diff_St=H.Diff_St+1;end
-    end
-  else
-    // same job but we use the model
-    L=explore_model(model);
-    // L(1) is name 
-    H=explore_elements(L(2),H);
-  end
+  // same job but we use the model
+  L=explore_model(model);
+  // L(1) is name 
+  H=explore_elements(L(2),H);
   nvars = H.Relxd_Par+H.Relxd_Var+H.Discrete;
-  values = list(n_equations, nvars,nimpvars,H.Diff_St, H.Fixed_Par,H.Relxd_Par,H.Fixed_Var,H.Relxd_Var,H.Discrete,H.Input);
-  // re-explore the hbox and fixe the text value
+
+  n_equations = model.user_data(3);
+  n_diff_states = H.Diff_St;
+  values = list(n_equations, nvars, nimpvars,H.Diff_St, H.Fixed_Par,H.Relxd_Par,H.Fixed_Var,H.Relxd_Var,H.Discrete,H.Input);
+  // re-explore the hbox and fix the text value
   L=hbox_data.get_children[];
   for i=1:length(L)
     frame = L(i);
     label=frame.get_label[];
     L1=frame.get_children[];
     box = L1(1);
-    L2= box.get_children[]
-    cellview = L2(1);
-    cellview.set_name["poo"];
-    cells=cellview.get_cells[]
-    cell = cells(1);
-    if values(i) < 0 then str = "?";else str=string(values(i));end
-    cell.set_property['text',str];
+    L2= box.get_children[];
+    label = L2(1);
+    if values(i) < 0 then
+      str = "?";
+    else
+      str=string(values(i));
+    end
+    label.set_markup[str];
   end
   xpause(0,%t);
 endfunction
