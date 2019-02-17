@@ -1,11 +1,206 @@
-scicos_ver=
-[ "scicos4.4" ]
-H__0=hash_create(11);
+scicos_ver = [ "scicos4.4.1" ]
+H__0=hash_create(17);
+  H__1=hash_create(37);
+    H__1('void3')= []
+    H__1('type')=
+    [ "params" ]
+    H__1('mlist')=
+    [  %f ]
+    H__1('zoom')=
+    [   1.4000 ]
+    H__1('context')=
+    [ "//set sampling time";
+      "Tsampl=3e-3";
+      "";
+      "//set parameters";
+      "ABC=[10.1,28.1,8/3]";
+      "Y0=[5.1, 4.99, 5.01, 5.011]";
+      "Z0=[20.1, 19.99, 20.01, 20.011]";
+      "";
+      "//set initial conditions";
+      "ci1=[5.5;5.49;5.51;5.511]";
+      "ci2=[5;4.99;5.01;5.011]";
+      "ci3=[20;19.99;20.01;20.011]";
+      "";
+      "//set colors for scopes";
+      "vcol=[1;3;5;9]";
+      "";
+      "//set end simulation time";
+      "Tfin=30" ]
+    L__2=list();
+     L__2(1)=
+     [ "This diagram was a part of modnum toolbox.";
+       "This is given to Scicos for the purpose of";
+       "CANIMXY3D scope.";
+       "";
+       "Author : Alan Layec." ]
+    H__1('doc')=L__2;clear('L__2');
+    H__1('params')=
+    [  %t ]
+    H__1('title')=
+    [ "Lorentz_Modelica" ,...
+  "/usr/local/src/nsp2-trunk-gtk3/toolboxes/scicos-4.4/demos/MBlock/" ]
+    H__1('tf')=
+    [   15000 ]
+    H__1('wpar')=
+    [     54,    -36,    695,    374 ]
+    H__1('tlist')=
+    [  %t ]
+    H__1('tol')=
+    [   1.000e-04;
+        1.000e-06;
+        1.000e-10;
+        1.000e+05;
+                0;
+        1.000e+02;
+                0 ]
+    H__2=hash_create(37);
+      H__2('tlist')=
+      [  %t ]
+      H__2('type')=
+      [ "options" ]
+      L__3=list();
+       L__3(1)=
+       [  %t ]
+       
+       L__3(2)=
+       [   33 ]
+      H__2('3D')=L__3;clear('L__3');
+      H__2('Action')=
+      [  %f ]
+      H__2('Cmap')=
+      [   0.8000,   0.8000,   0.8000 ]
+      H__2('Grid')=
+      [  %f ]
+      H__2('Background')=
+      [   8,   1 ]
+      H__2('Wgrid')=
+      [   10;
+          10;
+          12 ]
+      L__3=list();
+       L__3(1)=
+       [   5,   1,   2,   1 ]
+       
+       L__3(2)=
+       [    4,    1,   10,    1 ]
+      H__2('ID')=L__3;clear('L__3');
+      H__2('Snap')=
+      [  %t ]
+      L__3=list();
+       L__3(1)=
+       [  %t ]
+       
+       L__3(2)=
+       [   33 ]
+      H__2('D3')=L__3;clear('L__3');
+      H__2('Link')=
+      [   1,   5 ]
+    H__1('options')=H__2;clear('H__2');
+    H__1('void1')= []
+    H__1('void2')= []
+  H__0('props')=H__1;clear('H__1');
   L__1=list();
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')=
+       [   1;
+           1;
+           1 ]
+       H__3('evtout')= []
+       H__3('evtin')=
+       [   1 ]
+       H__3('intyp')=
+       [   1;
+           1;
+           1 ]
+       L__4=list();
+        L__4(1)=
+        [ "cmscope" ]
+        
+        L__4(2)=
+        [   4 ]
+       H__3('sim')=L__4;clear('L__4');
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   4;
+           4;
+           4 ]
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "d" ]
+       H__3('state')= []
+       H__3('ipar')=
+       [      1;
+              3;
+             50;
+             -1;
+             -1;
+            400;
+            400;
+              4;
+              4;
+              4;
+              1;
+              3;
+              5;
+              9;
+              1;
+              3;
+              5;
+              9;
+              1;
+              3;
+              5;
+              9;
+              0 ]
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')=
+       [     0;
+            15;
+            15;
+            15;
+           -25;
+            25;
+           -25;
+            25;
+             0;
+            50 ]
+       H__3('label')=
+       [ "2D Scope" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -26,7 +221,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')= []
        H__3('sz')=
        [   40,   40 ]
@@ -52,131 +247,537 @@ H__0=hash_create(11);
        [  %t ]
        H__3('peout')= []
        H__3('out_implicit')= m2s([])
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       H__3('out2')= []
-       H__3('evtout')= []
-       L__4=list();
-        L__4(1)=
-        [ "cmscope" ]
-        
-        L__4(2)=
-        [   4 ]
-        H__3('sim')=L__4;
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')=
-       [   1;
-           1;
-           1 ]
-       H__3('firing')= []
-       H__3('evtin')=
-       [   1 ]
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "d" ]
-       H__3('label')=
-       [ "2D Scope" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   4;
-           4;
-           4 ]
-       H__3('intyp')=
-       [   1;
-           1;
-           1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')=
-       [      1;
-              3;
-             50;
-             -1;
-             -1;
-            400;
-            400;
-              4;
-              4;
-              4;
-              1;
-              3;
-              5;
-              9;
-              1;
-              3;
-              5;
-              9;
-              1;
-              3;
-              5;
-              9;
-              0 ]
-       H__3('rpar')=
-       [     0;
-            15;
-            15;
-            15;
-           -25;
-            25;
-           -25;
-            25;
-             0;
-            50 ]
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "CMSCOPE" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(1)=H__2;
+   L__1(1)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')=
+       [   1 ]
+       H__3('nzcross')=
+       [   0 ]
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "csuper" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')= []
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('label')=
+       [ "" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('evtin')= []
+       H__3('blocktype')=
+       [ "h" ]
+       H__3('mlist')=
+       [  %t ]
+       H__4=hash_create(17);
+         H__5=hash_create(37);
+           H__5('void3')= []
+           H__5('type')=
+           [ "params" ]
+           H__5('mlist')=
+           [  %f ]
+           H__5('zoom')=
+           [   1.4000 ]
+           H__5('context')= []
+           L__6=list();
+           H__5('doc')=L__6;clear('L__6');
+           H__5('params')=
+           [  %t ]
+           H__5('title')=
+           [ "Untitled" ]
+           H__5('tf')=
+           [   100000 ]
+           H__5('wpar')=
+           [   600,   450,     0,     0,   600,   450 ]
+           H__5('tlist')=
+           [  %t ]
+           H__5('tol')=
+           [   1.000e-04,   1.000e-06,   1.000e-10,   1.000e+05,           0 ,...
+            0 ]
+           H__6=hash_create(37);
+             H__6('tlist')=
+             [  %t ]
+             H__6('type')=
+             [ "options" ]
+             L__7=list();
+              L__7(1)=
+              [  %t ]
+              
+              L__7(2)=
+              [   33 ]
+             H__6('3D')=L__7;clear('L__7');
+             H__6('Action')=
+             [  %f ]
+             H__6('Cmap')=
+             [   0.8000,   0.8000,   0.8000 ]
+             H__6('Grid')=
+             [  %f ]
+             H__6('Background')=
+             [   8,   1 ]
+             H__6('Link')=
+             [   1,   5 ]
+             L__7=list();
+              L__7(1)=
+              [   5,   1,   2,   1 ]
+              
+              L__7(2)=
+              [    4,    1,   10,    1 ]
+             H__6('ID')=L__7;clear('L__7');
+             H__6('Snap')=
+             [  %t ]
+             L__7=list();
+              L__7(1)=
+              [  %t ]
+              
+              L__7(2)=
+              [   33 ]
+             H__6('D3')=L__7;clear('L__7');
+             H__6('Wgrid')=
+             [   10;
+                 10;
+                 12 ]
+           H__5('options')=H__6;clear('H__6');
+           H__5('void1')= []
+           H__5('void2')= []
+         H__4('props')=H__5;clear('H__5');
+         L__5=list();
+          H__6=hash_create(17);
+            H__7=hash_create(59);
+              H__7('in2')= []
+              H__7('evtout')= []
+              H__7('nzcross')=
+              [   0 ]
+              H__7('intyp')=
+              [   1 ]
+              H__7('sim')=
+              [ "output" ]
+              H__7('type')=
+              [ "model" ]
+              H__7('in')= []
+              H__7('out2')= []
+              L__8=list();
+              H__7('equations')=L__8;clear('L__8');
+              H__7('outtyp')=
+              [   1 ]
+              L__8=list();
+              H__7('opar')=L__8;clear('L__8');
+              L__8=list();
+              H__7('odstate')=L__8;clear('L__8');
+              H__7('out')= []
+              H__7('dep_ut')=
+              [  %f,  %f ]
+              H__7('dstate')= []
+              H__7('nmode')=
+              [   0 ]
+              H__7('label')=
+              [ "" ]
+              H__7('state')= []
+              H__7('ipar')=
+              [   1 ]
+              H__7('tlist')=
+              [  %t ]
+              H__7('evtin')=
+              [   1 ]
+              H__7('blocktype')=
+              [ "d" ]
+              H__7('mlist')=
+              [  %t ]
+              H__7('rpar')= []
+              H__7('firing')= []
+            H__6('model')=H__7;clear('H__7');
+            L__7=list();
+            H__6('doc')=L__7;clear('L__7');
+            H__6('type')=
+            [ "Block" ]
+            H__6('mlist')=
+            [  %t ]
+            H__6('tlist')=
+            [  %t ]
+            H__7=hash_create(37);
+              H__7('tlist')=
+              [  %t ]
+              H__7('type')=
+              [ "graphics" ]
+              H__7('exprs')=
+              [ "1" ]
+              L__8=list();
+               L__8(1)=
+               [ " " ]
+               
+               L__8(2)=
+               [   8 ]
+              H__7('gr_i')=L__8;clear('L__8');
+              H__7('pout')= []
+              H__7('sz')=
+              [   20,   20 ]
+              H__7('theta')=
+              [   0 ]
+              H__7('flip')=
+              [  %t ]
+              H__7('pein')=
+              [   5 ]
+              H__7('in_implicit')= []
+              H__7('orig')=
+              [   399,   162 ]
+              H__7('pin')= []
+              H__7('mlist')=
+              [  %t ]
+              H__7('out_implicit')= []
+              H__7('peout')= []
+              H__7('id')=
+              [ "" ]
+            H__6('graphics')=H__7;clear('H__7');
+            H__6('gui')=
+            [ "CLKOUT_f" ]
+          L__5(1)=H__6;clear('H__6');
+          
+          H__6=hash_create(17);
+            H__7=hash_create(59);
+              H__7('in2')= []
+              H__7('evtout')=
+              [   1 ]
+              H__7('nzcross')=
+              [   0 ]
+              H__7('intyp')=
+              [   1 ]
+              H__7('sim')=
+              [ "evtdly" ]
+              H__7('type')=
+              [ "model" ]
+              H__7('in')= []
+              H__7('out2')= []
+              L__8=list();
+              H__7('equations')=L__8;clear('L__8');
+              H__7('outtyp')=
+              [   1 ]
+              L__8=list();
+              H__7('opar')=L__8;clear('L__8');
+              L__8=list();
+              H__7('odstate')=L__8;clear('L__8');
+              H__7('out')= []
+              H__7('dep_ut')=
+              [  %f,  %f ]
+              H__7('dstate')= []
+              H__7('nmode')=
+              [   0 ]
+              H__7('label')=
+              [ "" ]
+              H__7('state')= []
+              H__7('ipar')= []
+              H__7('tlist')=
+              [  %t ]
+              H__7('evtin')=
+              [   1 ]
+              H__7('blocktype')=
+              [ "d" ]
+              H__7('mlist')=
+              [  %t ]
+              H__7('rpar')=
+              [   0.003000 ]
+              H__7('firing')=
+              [   0 ]
+            H__6('model')=H__7;clear('H__7');
+            L__7=list();
+            H__6('doc')=L__7;clear('L__7');
+            H__6('type')=
+            [ "Block" ]
+            H__6('mlist')=
+            [  %t ]
+            H__6('tlist')=
+            [  %t ]
+            H__7=hash_create(37);
+              H__7('tlist')=
+              [  %t ]
+              H__7('type')=
+              [ "graphics" ]
+              H__7('exprs')=
+              [ "Tsampl";
+                "0" ]
+              L__8=list();
+               L__8(1)=
+               [ "dt=o.model.rpar;";
+                 "txt=[''Delay'';string(dt)];";
+                 "xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'');" ]
+               
+               L__8(2)=
+               [   8 ]
+              H__7('gr_i')=L__8;clear('L__8');
+              H__7('pout')= []
+              H__7('sz')=
+              [   40,   40 ]
+              H__7('theta')=
+              [   0 ]
+              H__7('flip')=
+              [  %t ]
+              H__7('pein')=
+              [   6 ]
+              H__7('in_implicit')= []
+              H__7('orig')=
+              [   320,   232 ]
+              H__7('pin')= []
+              H__7('mlist')=
+              [  %t ]
+              H__7('out_implicit')= []
+              H__7('peout')=
+              [   3 ]
+              H__7('id')=
+              [ "" ]
+            H__6('graphics')=H__7;clear('H__7');
+            H__6('gui')=
+            [ "EVTDLY_f" ]
+          L__5(2)=H__6;clear('H__6');
+          
+          H__6=hash_create(23);
+            H__6('type')=
+            [ "Link" ]
+            H__6('to')=
+            [   4,   1 ]
+            H__6('id')=
+            [ "drawlink" ]
+            H__6('from')=
+            [   2,   1 ]
+            H__6('mlist')=
+            [  %t ]
+            H__6('thick')=
+            [   0,   0 ]
+            H__6('yy')=
+            [   226.2900;
+                172.0000;
+                172.0000 ]
+            H__6('tlist')=
+            [  %t ]
+            H__6('xx')=
+            [   340.0000;
+                340.0000;
+                380.7100 ]
+            H__6('ct')=
+            [    5,   -1 ]
+          L__5(3)=H__6;clear('H__6');
+          
+          H__6=hash_create(17);
+            H__7=hash_create(59);
+              H__7('in2')= []
+              H__7('evtout')=
+              [   1;
+                  1 ]
+              H__7('evtin')=
+              [   1 ]
+              H__7('intyp')=
+              [   1 ]
+              H__7('sim')=
+              [ "split" ]
+              H__7('type')=
+              [ "model" ]
+              H__7('in')= []
+              H__7('out2')= []
+              L__8=list();
+              H__7('equations')=L__8;clear('L__8');
+              H__7('outtyp')=
+              [   1 ]
+              L__8=list();
+              H__7('odstate')=L__8;clear('L__8');
+              H__7('out')= []
+              H__7('dep_ut')=
+              [  %f,  %f ]
+              H__7('dstate')= []
+              H__7('nmode')=
+              [   0 ]
+              H__7('firing')=
+              [  %f,  %f,  %f ]
+              H__7('blocktype')=
+              [ "d" ]
+              H__7('state')= []
+              H__7('ipar')= []
+              H__7('tlist')=
+              [  %t ]
+              H__7('nzcross')=
+              [   0 ]
+              L__8=list();
+              H__7('opar')=L__8;clear('L__8');
+              H__7('mlist')=
+              [  %t ]
+              H__7('rpar')= []
+              H__7('label')=
+              [ "" ]
+            H__6('model')=H__7;clear('H__7');
+            L__7=list();
+            H__6('doc')=L__7;clear('L__7');
+            H__6('type')=
+            [ "Block" ]
+            H__6('mlist')=
+            [  %t ]
+            H__6('tlist')=
+            [  %t ]
+            H__7=hash_create(37);
+              H__7('tlist')=
+              [  %t ]
+              H__7('type')=
+              [ "graphics" ]
+              H__7('exprs')= []
+              L__8=list();
+               L__8(1)= []
+               
+               L__8(2)=
+               [   8 ]
+              H__7('gr_i')=L__8;clear('L__8');
+              H__7('pout')= []
+              H__7('sz')=
+              [   0.3333,   0.3333 ]
+              H__7('theta')=
+              [   0 ]
+              H__7('flip')=
+              [  %t ]
+              H__7('pein')=
+              [   3 ]
+              H__7('in_implicit')= []
+              H__7('id')=
+              [ "" ]
+              H__7('orig')=
+              [   380.7107;
+                  172.0000 ]
+              H__7('pin')= []
+              H__7('mlist')=
+              [  %t ]
+              H__7('peout')=
+              [   5;
+                  6 ]
+              H__7('out_implicit')= []
+            H__6('graphics')=H__7;clear('H__7');
+            H__6('gui')=
+            [ "CLKSPLIT_f" ]
+          L__5(4)=H__6;clear('H__6');
+          
+          H__6=hash_create(23);
+            H__6('type')=
+            [ "Link" ]
+            H__6('to')=
+            [   1,   1 ]
+            H__6('id')=
+            [ "drawlink" ]
+            H__6('from')=
+            [   4,   1 ]
+            H__6('mlist')=
+            [  %t ]
+            H__6('thick')=
+            [   0,   0 ]
+            H__6('yy')=
+            [   172;
+                172 ]
+            H__6('tlist')=
+            [  %t ]
+            H__6('xx')=
+            [   380.7100;
+                399.0000 ]
+            H__6('ct')=
+            [    5,   -1 ]
+          L__5(5)=H__6;clear('H__6');
+          
+          H__6=hash_create(23);
+            H__6('type')=
+            [ "Link" ]
+            H__6('to')=
+            [   2,   1 ]
+            H__6('id')=
+            [ "drawlink" ]
+            H__6('from')=
+            [   4,   2 ]
+            H__6('mlist')=
+            [  %t ]
+            H__6('thick')=
+            [   0,   0 ]
+            H__6('yy')=
+            [   172.0000;
+                302.0000;
+                302.0000;
+                277.7100 ]
+            H__6('tlist')=
+            [  %t ]
+            H__6('xx')=
+            [   380.7100;
+                380.7100;
+                340.0000;
+                340.0000 ]
+            H__6('ct')=
+            [    5,   -1 ]
+          L__5(6)=H__6;clear('H__6');
+         H__4('objs')=L__5;clear('L__5');
+         H__4('type')=
+         [ "diagram" ]
+         H__4('mlist')=
+         [  %t ]
+         H__5=hash_create(29);
+           H__5('rdnom')= []
+           H__5('libs')= []
+           H__5('rpat')= []
+           H__5('replace')= []
+           H__5('tlist')=
+           [  %t ]
+           H__5('enable_debug')=
+           [   0 ]
+           H__5('cblock')=
+           [   0 ]
+           H__5('scopes')= []
+           H__5('remove')= []
+           H__5('silent')=
+           [   0 ]
+           H__5('opt')=
+           [   1 ]
+           H__5('type')=
+           [ "codegeneration" ]
+           H__5('pcodegen_target')= []
+         H__4('codegen')=H__5;clear('H__5');
+         L__5=list();
+         H__4('contrib')=L__5;clear('L__5');
+         H__4('tlist')=
+         [  %t ]
+         H__4('version')=
+         [ "scicos4.4.1" ]
+       H__3('rpar')=H__4;clear('H__4');
+       H__3('firing')=
+       [  %f ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
        L__4=list();
         L__4(1)=
-        [ "wd=xget(''wdim'').*[1.016,1.12];";
-          "thick=xget(''thickness'');xset(''thickness'',2);";
-          "p=wd(2)/wd(1);p=1;";
-          "rx=sz(1)*p/2;ry=sz(2)/2;";
-          "xarcs([orig(1)+0.05*sz(1);";
-          "orig(2)+0.95*sz(2);";
-          "   0.9*sz(1)*p;";
-          "   0.9*sz(2);";
-          "   0;";
-          "   360*64],scs_color(5));";
-          "xset(''thickness'',1);";
-          "xx=[orig(1)+rx    orig(1)+rx;";
-          "    orig(1)+rx    orig(1)+rx+0.6*rx*cos(%pi/6)];";
-          "yy=[orig(2)+ry    orig(2)+ry ;";
-          "  orig(2)+1.8*ry  orig(2)+ry+0.6*ry*sin(%pi/6)];";
-          "xsegs(xx,yy,style=scs_color(10));";
-          "xset(''thickness'',thick);" ]
+        [ "blk_draw(sz,orig,orient,model.label)" ]
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')= []
        H__3('sz')=
        [   40,   40 ]
@@ -196,453 +797,105 @@ H__0=hash_create(11);
        [   5 ]
        H__3('id')=
        [ "" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('out2')= []
-       H__3('evtout')=
-       [   1 ]
-       H__3('intyp')=
-       [   1 ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('nzcross')=
-       [   0 ]
-       H__3('blocktype')=
-       [ "h" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')= []
-       H__3('sim')=
-       [ "csuper" ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('nmode')=
-       [   0 ]
-       H__4=hash_create(11);
-         L__5=list();
-          H__6=hash_create(23);
-            H__6('type')=
-            [ "Block" ]
-            H__7=hash_create(37);
-              H__7('type')=
-              [ "graphics" ]
-              H__7('exprs')=
-              [ "1" ]
-              L__8=list();
-               L__8(1)=
-               [ " " ]
-               
-               L__8(2)=
-               [   8 ]
-               H__7('gr_i')=L__8;
-              H__7('pout')= []
-              H__7('sz')=
-              [   20,   20 ]
-              H__7('theta')=
-              [   0 ]
-              H__7('flip')=
-              [  %t ]
-              H__7('pein')=
-              [   5 ]
-              H__7('in_implicit')= []
-              H__7('id')=
-              [ "" ]
-              H__7('orig')=
-              [   399,   162 ]
-              H__7('pin')= []
-              H__7('mlist')=
-              [  %t ]
-              H__7('peout')= []
-              H__7('out_implicit')= []
-             H__6('graphics')=H__7;
-            H__7=hash_create(47);
-              H__7('out')= []
-              H__7('out2')= []
-              H__7('evtout')= []
-              H__7('sim')=
-              [ "output" ]
-              H__7('type')=
-              [ "model" ]
-              H__7('state')= []
-              H__7('in2')= []
-              H__7('firing')= []
-              H__7('evtin')=
-              [   1 ]
-              H__7('dstate')= []
-              H__7('outtyp')=
-              [   1 ]
-              H__7('mlist')=
-              [  %t ]
-              H__7('blocktype')=
-              [ "d" ]
-              H__7('label')=
-              [ "" ]
-              H__7('dep_ut')=
-              [  %f,  %f ]
-              L__8=list();
-               H__7('equations')=L__8;
-              H__7('in')= []
-              H__7('intyp')=
-              [   1 ]
-              L__8=list();
-               H__7('odstate')=L__8;
-              H__7('ipar')=
-              [   1 ]
-              H__7('rpar')= []
-              H__7('nmode')=
-              [   0 ]
-              L__8=list();
-               H__7('opar')=L__8;
-              H__7('nzcross')=
-              [   0 ]
-             H__6('model')=H__7;
-            H__6('mlist')=
-            [  %t ]
-            H__6('gui')=
-            [ "CLKOUT_f" ]
-            L__7=list();
-             H__6('doc')=L__7;
-           L__5(1)=H__6;
-          
-          H__6=hash_create(23);
-            H__6('type')=
-            [ "Block" ]
-            H__7=hash_create(37);
-              H__7('type')=
-              [ "graphics" ]
-              H__7('exprs')=
-              [ "Tsampl";
-                "0" ]
-              L__8=list();
-               L__8(1)=
-               [ "dt=o.model.rpar;";
-                 "txt=[''Delay'';string(dt)];";
-                 "xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'');" ]
-               
-               L__8(2)=
-               [   8 ]
-               H__7('gr_i')=L__8;
-              H__7('pout')= []
-              H__7('sz')=
-              [   40,   40 ]
-              H__7('theta')=
-              [   0 ]
-              H__7('flip')=
-              [  %t ]
-              H__7('pein')=
-              [   6 ]
-              H__7('in_implicit')= []
-              H__7('id')=
-              [ "" ]
-              H__7('orig')=
-              [   320,   232 ]
-              H__7('pin')= []
-              H__7('mlist')=
-              [  %t ]
-              H__7('peout')=
-              [   3 ]
-              H__7('out_implicit')= []
-             H__6('graphics')=H__7;
-            H__7=hash_create(47);
-              H__7('out')= []
-              H__7('out2')= []
-              H__7('evtout')=
-              [   1 ]
-              H__7('sim')=
-              [ "evtdly" ]
-              H__7('type')=
-              [ "model" ]
-              H__7('state')= []
-              H__7('in2')= []
-              H__7('firing')=
-              [   0 ]
-              H__7('evtin')=
-              [   1 ]
-              H__7('dstate')= []
-              H__7('outtyp')=
-              [   1 ]
-              H__7('mlist')=
-              [  %t ]
-              H__7('blocktype')=
-              [ "d" ]
-              H__7('label')=
-              [ "" ]
-              H__7('dep_ut')=
-              [  %f,  %f ]
-              L__8=list();
-               H__7('equations')=L__8;
-              H__7('in')= []
-              H__7('intyp')=
-              [   1 ]
-              L__8=list();
-               H__7('odstate')=L__8;
-              H__7('ipar')= []
-              H__7('rpar')=
-              [   0.003000 ]
-              H__7('nmode')=
-              [   0 ]
-              L__8=list();
-               H__7('opar')=L__8;
-              H__7('nzcross')=
-              [   0 ]
-             H__6('model')=H__7;
-            H__6('mlist')=
-            [  %t ]
-            H__6('gui')=
-            [ "EVTDLY_f" ]
-            L__7=list();
-             H__6('doc')=L__7;
-           L__5(2)=H__6;
-          
-          H__6=hash_create(23);
-            H__6('type')=
-            [ "Link" ]
-            H__6('to')=
-            [   4,   1 ]
-            H__6('id')=
-            [ "drawlink" ]
-            H__6('from')=
-            [   2,   1 ]
-            H__6('mlist')=
-            [  %t ]
-            H__6('thick')=
-            [   0,   0 ]
-            H__6('ct')=
-            [    5,   -1 ]
-            H__6('xx')=
-            [   340.0000;
-                340.0000;
-                380.7100 ]
-            H__6('yy')=
-            [   226.2900;
-                172.0000;
-                172.0000 ]
-           L__5(3)=H__6;
-          
-          H__6=hash_create(11);
-            H__7=hash_create(47);
-              H__7('out')= []
-              L__8=list();
-               H__7('opar')=L__8;
-              H__7('out2')= []
-              H__7('evtout')=
-              [   1;
-                  1 ]
-              H__7('intyp')=
-              [   1 ]
-              H__7('type')=
-              [ "model" ]
-              H__7('state')= []
-              H__7('in2')= []
-              H__7('evtin')=
-              [   1 ]
-              H__7('dstate')= []
-              H__7('outtyp')=
-              [   1 ]
-              H__7('mlist')=
-              [  %t ]
-              H__7('nzcross')=
-              [   0 ]
-              H__7('blocktype')=
-              [ "d" ]
-              H__7('label')=
-              [ "" ]
-              H__7('dep_ut')=
-              [  %f,  %f ]
-              L__8=list();
-               H__7('equations')=L__8;
-              H__7('in')= []
-              H__7('sim')=
-              [ "split" ]
-              L__8=list();
-               H__7('odstate')=L__8;
-              H__7('ipar')= []
-              H__7('nmode')=
-              [   0 ]
-              H__7('rpar')= []
-              H__7('firing')=
-              [  %f,  %f,  %f ]
-             H__6('model')=H__7;
-            H__7=hash_create(37);
-              H__7('type')=
-              [ "graphics" ]
-              H__7('exprs')= []
-              L__8=list();
-               L__8(1)= []
-               
-               L__8(2)=
-               [   8 ]
-               H__7('gr_i')=L__8;
-              H__7('pout')= []
-              H__7('sz')=
-              [   0.3333,   0.3333 ]
-              H__7('theta')=
-              [   0 ]
-              H__7('flip')=
-              [  %t ]
-              H__7('pein')=
-              [   3 ]
-              H__7('in_implicit')= []
-              H__7('orig')=
-              [   380.7107;
-                  172.0000 ]
-              H__7('pin')= []
-              H__7('mlist')=
-              [  %t ]
-              H__7('out_implicit')= []
-              H__7('peout')=
-              [   5;
-                  6 ]
-              H__7('id')=
-              [ "" ]
-             H__6('graphics')=H__7;
-            H__6('mlist')=
-            [  %t ]
-            H__6('gui')=
-            [ "CLKSPLIT_f" ]
-            H__6('type')=
-            [ "Block" ]
-            L__7=list();
-             H__6('doc')=L__7;
-           L__5(4)=H__6;
-          
-          H__6=hash_create(23);
-            H__6('type')=
-            [ "Link" ]
-            H__6('to')=
-            [   1,   1 ]
-            H__6('id')=
-            [ "drawlink" ]
-            H__6('from')=
-            [   4,   1 ]
-            H__6('mlist')=
-            [  %t ]
-            H__6('thick')=
-            [   0,   0 ]
-            H__6('ct')=
-            [    5,   -1 ]
-            H__6('xx')=
-            [   380.7100;
-                399.0000 ]
-            H__6('yy')=
-            [   172;
-                172 ]
-           L__5(5)=H__6;
-          
-          H__6=hash_create(23);
-            H__6('type')=
-            [ "Link" ]
-            H__6('to')=
-            [   2,   1 ]
-            H__6('id')=
-            [ "drawlink" ]
-            H__6('from')=
-            [   4,   2 ]
-            H__6('mlist')=
-            [  %t ]
-            H__6('thick')=
-            [   0,   0 ]
-            H__6('ct')=
-            [    5,   -1 ]
-            H__6('xx')=
-            [   380.7100;
-                380.7100;
-                340.0000;
-                340.0000 ]
-            H__6('yy')=
-            [   172.0000;
-                302.0000;
-                302.0000;
-                277.7100 ]
-           L__5(6)=H__6;
-          H__4('objs')=L__5;
-         H__4('mlist')=
-         [  %t ]
-         H__4('version')=
-         [ "scicos4.4" ]
-         L__5=list();
-          H__4('contrib')=L__5;
-         H__4('type')=
-         [ "diagram" ]
-         H__5=hash_create(23);
-           H__5('tol')=
-           [   1.000e-04,   1.000e-06,   1.000e-10,   1.000e+05,           0 ,...
-            0 ]
-           H__5('title')=
-           [ "Untitled" ]
-           H__6=hash_create(17);
-             H__6('Background')=
-             [   8,   1 ]
-             L__7=list();
-              L__7(1)=
-              [   5,   1,   2,   1 ]
-              
-              L__7(2)=
-              [    4,    1,   10,    1 ]
-              H__6('ID')=L__7;
-             H__6('Link')=
-             [   1,   5 ]
-             H__6('type')=
-             [ "scsopt" ]
-             H__6('Cmap')=
-             [   0.8000,   0.8000,   0.8000 ]
-             H__6('tlist')=
-             [  %t ]
-             L__7=list();
-              L__7(1)=
-              [  %t ]
-              
-              L__7(2)=
-              [   33 ]
-              H__6('3D')=L__7;
-            H__5('options')=H__6;
-           H__5('void1')= []
-           H__5('void2')= []
-           H__5('void3')= []
-           H__5('wpar')=
-           [   600,   450,     0,     0,   600,   450 ]
-           H__5('context')= []
-           H__5('tlist')=
-           [  %t ]
-           L__6=list();
-            H__5('doc')=L__6;
-           H__5('tf')=
-           [   100000 ]
-           H__5('type')=
-           [ "params" ]
-          H__4('props')=H__5;
-        H__3('rpar')=H__4;
-       H__3('firing')=
-       [  %f ]
-      H__2('model')=H__3;
-     H__2('mlist')=
+     H__2('graphics')=H__3;clear('H__3');
+     H__2('tlist')=
      [  %t ]
      H__2('gui')=
      [ "CLOCK_f" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(2)=H__2;
+   L__1(2)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')=
+       [   1;
+           1;
+           1 ]
+       H__3('evtout')= []
+       H__3('evtin')=
+       [   1 ]
+       H__3('intyp')=
+       [   1;
+           1;
+           1 ]
+       L__4=list();
+        L__4(1)=
+        [ "canimxy3d" ]
+        
+        L__4(2)=
+        [   4 ]
+       H__3('sim')=L__4;clear('L__4');
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   4;
+           4;
+           4 ]
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "d" ]
+       H__3('state')= []
+       H__3('ipar')=
+       [      -1;
+               4;
+            1500;
+               1;
+               3;
+               5;
+               9;
+               1;
+               1;
+               1;
+               1;
+               1;
+              -1;
+              -1;
+              -1;
+              -1;
+               4 ]
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')=
+       [    -25;
+             25;
+            -25;
+             25;
+              0;
+             50;
+            122;
+            165 ]
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -663,7 +916,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')= []
        H__3('sz')=
        [   40,   40 ]
@@ -689,99 +942,65 @@ H__0=hash_create(11);
        [  %t ]
        H__3('peout')= []
        H__3('out_implicit')= m2s([])
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       H__3('out2')= []
-       H__3('evtout')= []
-       L__4=list();
-        L__4(1)=
-        [ "canimxy3d" ]
-        
-        L__4(2)=
-        [   4 ]
-        H__3('sim')=L__4;
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')=
-       [   1;
-           1;
-           1 ]
-       H__3('firing')= []
-       H__3('evtin')=
-       [   1 ]
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "d" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   4;
-           4;
-           4 ]
-       H__3('intyp')=
-       [   1;
-           1;
-           1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')=
-       [      -1;
-               4;
-            1500;
-               1;
-               3;
-               5;
-               9;
-               1;
-               1;
-               1;
-               1;
-               1;
-              -1;
-              -1;
-              -1;
-              -1;
-               4 ]
-       H__3('rpar')=
-       [    -25;
-             25;
-            -25;
-             25;
-              0;
-             50;
-            122;
-            165 ]
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "CANIMXY3D" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(3)=H__2;
+   L__1(3)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('nzcross')=
+       [   0 ]
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "text" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')= []
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('label')=
+       [ "" ]
+       H__3('state')= []
+       H__3('ipar')=
+       [   5;
+           2 ]
+       H__3('tlist')=
+       [  %t ]
+       H__3('evtin')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')=
+       [ "X" ]
+       H__3('firing')= []
+     H__2('model')=H__3;clear('H__3');
+     H__2('mlist')=
+     [  %t ]
      H__2('type')=
      [ "Text" ]
      H__2('void')=
      [ "" ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -791,7 +1010,7 @@ H__0=hash_create(11);
        H__3('gr_i')= []
        H__3('pout')= []
        H__3('sz')=
-       [   0.01556,   0.04088 ]
+       [   13.7749,   23.9206 ]
        H__3('theta')=
        [   0 ]
        H__3('flip')=
@@ -807,54 +1026,10 @@ H__0=hash_create(11);
        H__3('peout')= []
        H__3('id')=
        [ "" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('intyp')=
-       [   1 ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('nzcross')=
-       [   0 ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')= []
-       H__3('sim')=
-       [ "text" ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')=
-       [   5;
-           2 ]
-       H__3('nmode')=
-       [   0 ]
-       H__3('rpar')=
-       [ "X" ]
-       H__3('firing')= []
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "TEXT_f" ]
-    L__1(4)=H__2;
+   L__1(4)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -869,20 +1044,75 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   235.3860;
+         224.9469 ]
      H__2('ct')=
      [    5,   -1 ]
      H__2('xx')=
      [   561.9085;
          561.9085 ]
-     H__2('yy')=
-     [   235.3860;
-         224.9469 ]
-    L__1(5)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(5)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')=
+       [   1;
+           1 ]
+       H__3('evtin')=
+       [   1 ]
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "split" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')= []
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')=
+       [  %f,  %f,  %f ]
+       H__3('blocktype')=
+       [ "d" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
@@ -891,7 +1121,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')= []
        H__3('sz')=
        [   0.3333,   0.3333 ]
@@ -914,57 +1144,10 @@ H__0=hash_create(11);
        [   7;
            8 ]
        H__3('out_implicit')= []
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       H__3('out2')= []
-       H__3('evtout')=
-       [   1;
-           1 ]
-       H__3('sim')=
-       [ "split" ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('firing')=
-       [  %f,  %f,  %f ]
-       H__3('evtin')=
-       [   1 ]
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "d" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')= []
-       H__3('intyp')=
-       [   1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('rpar')= []
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "CLKSPLIT_f" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(6)=H__2;
+   L__1(6)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -979,15 +1162,17 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   224.9469;
+         146.9764 ]
      H__2('ct')=
      [    5,   -1 ]
      H__2('xx')=
      [   561.9085;
          561.9085 ]
-     H__2('yy')=
-     [   224.9469;
-         146.9764 ]
-    L__1(7)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(7)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -1002,24 +1187,74 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   224.9469;
+         224.9469;
+         207.6135 ]
      H__2('ct')=
      [    5,   -1 ]
      H__2('xx')=
      [   561.9085;
          496.9056;
          496.9056 ]
-     H__2('yy')=
-     [   224.9469;
-         224.9469;
-         207.6135 ]
-    L__1(8)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(8)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('nzcross')=
+       [   0 ]
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "text" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')= []
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('label')=
+       [ "" ]
+       H__3('state')= []
+       H__3('ipar')=
+       [   5;
+           2 ]
+       H__3('tlist')=
+       [  %t ]
+       H__3('evtin')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')=
+       [ "Y" ]
+       H__3('firing')= []
+     H__2('model')=H__3;clear('H__3');
+     H__2('mlist')=
+     [  %t ]
      H__2('type')=
      [ "Text" ]
      H__2('void')=
      [ "" ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -1029,7 +1264,7 @@ H__0=hash_create(11);
        H__3('gr_i')= []
        H__3('pout')= []
        H__3('sz')=
-       [   0.01333,   0.04088 ]
+       [   12.3263,   23.9206 ]
        H__3('theta')=
        [   0 ]
        H__3('flip')=
@@ -1045,61 +1280,65 @@ H__0=hash_create(11);
        H__3('peout')= []
        H__3('id')=
        [ "" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('intyp')=
-       [   1 ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
+     H__2('graphics')=H__3;clear('H__3');
+     H__2('gui')=
+     [ "TEXT_f" ]
+   L__1(9)=H__2;clear('H__2');
+   
+   H__2=hash_create(17);
+     H__3=hash_create(59);
        H__3('in2')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
+       H__3('evtout')= []
        H__3('nzcross')=
        [   0 ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')= []
+       H__3('intyp')=
+       [   1 ]
        H__3('sim')=
        [ "text" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')= []
+       H__3('out2')= []
        L__4=list();
-        H__3('odstate')=L__4;
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('label')=
+       [ "" ]
+       H__3('state')= []
        H__3('ipar')=
        [   5;
            2 ]
-       H__3('nmode')=
-       [   0 ]
+       H__3('tlist')=
+       [  %t ]
+       H__3('evtin')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('mlist')=
+       [  %t ]
        H__3('rpar')=
-       [ "Y" ]
+       [ "Z" ]
        H__3('firing')= []
-      H__2('model')=H__3;
+     H__2('model')=H__3;clear('H__3');
      H__2('mlist')=
      [  %t ]
-     H__2('gui')=
-     [ "TEXT_f" ]
-    L__1(9)=H__2;
-   
-   H__2=hash_create(23);
      H__2('type')=
      [ "Text" ]
      H__2('void')=
      [ "" ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -1109,7 +1348,7 @@ H__0=hash_create(11);
        H__3('gr_i')= []
        H__3('pout')= []
        H__3('sz')=
-       [   0.01556,   0.04088 ]
+       [   13.7749,   23.9206 ]
        H__3('theta')=
        [   0 ]
        H__3('flip')=
@@ -1125,59 +1364,299 @@ H__0=hash_create(11);
        H__3('peout')= []
        H__3('id')=
        [ "" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('intyp')=
-       [   1 ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('nzcross')=
-       [   0 ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')= []
-       H__3('sim')=
-       [ "text" ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')=
-       [   5;
-           2 ]
-       H__3('nmode')=
-       [   0 ]
-       H__3('rpar')=
-       [ "Z" ]
-       H__3('firing')= []
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "TEXT_f" ]
-    L__1(10)=H__2;
+   L__1(10)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('nzcross')=
+       [   0 ]
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "csuper" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')= []
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('label')=
+       [ "" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('evtin')= []
+       H__3('blocktype')=
+       [ "h" ]
+       H__3('mlist')=
+       [  %t ]
+       H__4=hash_create(17);
+         H__5=hash_create(37);
+           H__5('void3')= []
+           H__5('type')=
+           [ "params" ]
+           H__5('mlist')=
+           [  %f ]
+           H__5('zoom')=
+           [   1.4000 ]
+           H__5('context')=
+           [ "" ]
+           L__6=list();
+           H__5('doc')=L__6;clear('L__6');
+           H__5('params')=
+           [  %t ]
+           H__5('title')=
+           [ "ENDBLK" ]
+           H__5('tf')=
+           [   100000 ]
+           H__5('wpar')=
+           [    -159.0960,     811.1040,    -121.2160,     617.9840 ,...
+     1323.0000,    1008.0000,     331.0000,     284.0000 ,...
+      630.0000,     480.0000,            0,       7.0000 ,...
+        1.4000 ]
+           H__5('tlist')=
+           [  %t ]
+           H__5('tol')=
+           [   1.000e-04,   1.000e-06,   1.000e-10,   1.000e+05,           0 ,...
+            0 ]
+           H__6=hash_create(37);
+             H__6('tlist')=
+             [  %t ]
+             H__6('type')=
+             [ "options" ]
+             L__7=list();
+              L__7(1)=
+              [  %t ]
+              
+              L__7(2)=
+              [   33 ]
+             H__6('3D')=L__7;clear('L__7');
+             H__6('Action')=
+             [  %f ]
+             H__6('Cmap')=
+             [   0.8000,   0.8000,   0.8000 ]
+             H__6('Grid')=
+             [  %f ]
+             H__6('Background')=
+             [   8,   1 ]
+             H__6('Link')=
+             [   1,   5 ]
+             L__7=list();
+              L__7(1)=
+              [   5,   1,   2,   1 ]
+              
+              L__7(2)=
+              [    4,    1,   10,    1 ]
+             H__6('ID')=L__7;clear('L__7');
+             H__6('Snap')=
+             [  %t ]
+             L__7=list();
+              L__7(1)=
+              [  %t ]
+              
+              L__7(2)=
+              [   33 ]
+             H__6('D3')=L__7;clear('L__7');
+             H__6('Wgrid')=
+             [   10;
+                 10;
+                 12 ]
+           H__5('options')=H__6;clear('H__6');
+           H__5('void1')= []
+           H__5('void2')= []
+         H__4('props')=H__5;clear('H__5');
+         L__5=list();
+          H__6=hash_create(17);
+            H__7=hash_create(59);
+              H__7('in2')= []
+              H__7('evtout')=
+              [   1 ]
+              H__7('nzcross')=
+              [   0 ]
+              H__7('intyp')=
+              [   1 ]
+              L__8=list();
+               L__8(1)=
+               [ "scicosexit" ]
+               
+               L__8(2)=
+               [   4 ]
+              H__7('sim')=L__8;clear('L__8');
+              H__7('type')=
+              [ "model" ]
+              H__7('in')= []
+              H__7('out2')= []
+              L__8=list();
+              H__7('equations')=L__8;clear('L__8');
+              H__7('outtyp')=
+              [   1 ]
+              L__8=list();
+              H__7('opar')=L__8;clear('L__8');
+              L__8=list();
+              H__7('odstate')=L__8;clear('L__8');
+              H__7('out')= []
+              H__7('dep_ut')=
+              [  %f,  %f ]
+              H__7('dstate')= []
+              H__7('nmode')=
+              [   0 ]
+              H__7('label')=
+              [ "" ]
+              H__7('state')= []
+              H__7('ipar')= []
+              H__7('tlist')=
+              [  %t ]
+              H__7('evtin')=
+              [   1 ]
+              H__7('blocktype')=
+              [ "d" ]
+              H__7('mlist')=
+              [  %t ]
+              H__7('rpar')= []
+              H__7('firing')=
+              [   30 ]
+            H__6('model')=H__7;clear('H__7');
+            L__7=list();
+            H__6('doc')=L__7;clear('L__7');
+            H__6('type')=
+            [ "Block" ]
+            H__6('mlist')=
+            [  %t ]
+            H__6('tlist')=
+            [  %t ]
+            H__7=hash_create(37);
+              H__7('tlist')=
+              [  %t ]
+              H__7('type')=
+              [ "graphics" ]
+              H__7('exprs')=
+              [ "Tfin" ]
+              L__8=list();
+               L__8(1)=
+               [ "xstringb(orig(1),orig(2),'' END '',sz(1),sz(2),''fill'');" ]
+               
+               L__8(2)=
+               [   8 ]
+              H__7('gr_i')=L__8;clear('L__8');
+              H__7('pout')= []
+              H__7('sz')=
+              [   40,   40 ]
+              H__7('theta')=
+              [   0 ]
+              H__7('flip')=
+              [  %t ]
+              H__7('pein')=
+              [   2 ]
+              H__7('in_implicit')= []
+              H__7('orig')=
+              [   272.1040,   249.1173 ]
+              H__7('pin')= []
+              H__7('mlist')=
+              [  %t ]
+              H__7('out_implicit')= []
+              H__7('peout')=
+              [   2 ]
+              H__7('id')=
+              [ "" ]
+            H__6('graphics')=H__7;clear('H__7');
+            H__6('gui')=
+            [ "END_c" ]
+          L__5(1)=H__6;clear('H__6');
+          
+          H__6=hash_create(23);
+            H__6('type')=
+            [ "Link" ]
+            H__6('to')=
+            [   1,   1,   1 ]
+            H__6('id')=
+            [ "drawlink" ]
+            H__6('from')=
+            [   1,   1,   0 ]
+            H__6('mlist')=
+            [  %t ]
+            H__6('thick')=
+            [   0,   0 ]
+            H__6('yy')=
+            [   243.4031;
+                234.4507;
+                234.4507;
+                305.5840;
+                305.5840;
+                294.8316 ]
+            H__6('tlist')=
+            [  %t ]
+            H__6('xx')=
+            [   292.1040;
+                292.1040;
+                261.8373;
+                261.8373;
+                292.1040;
+                292.1040 ]
+            H__6('ct')=
+            [    5,   -1 ]
+          L__5(2)=H__6;clear('H__6');
+         H__4('objs')=L__5;clear('L__5');
+         H__4('type')=
+         [ "diagram" ]
+         H__4('mlist')=
+         [  %t ]
+         H__5=hash_create(29);
+           H__5('rdnom')= []
+           H__5('libs')= []
+           H__5('rpat')= []
+           H__5('replace')= []
+           H__5('tlist')=
+           [  %t ]
+           H__5('enable_debug')=
+           [   0 ]
+           H__5('cblock')=
+           [   0 ]
+           H__5('scopes')= []
+           H__5('remove')= []
+           H__5('silent')=
+           [   0 ]
+           H__5('opt')=
+           [   1 ]
+           H__5('type')=
+           [ "codegeneration" ]
+           H__5('pcodegen_target')= []
+         H__4('codegen')=H__5;clear('H__5');
+         L__5=list();
+         H__4('contrib')=L__5;clear('L__5');
+         H__4('tlist')=
+         [  %t ]
+         H__4('version')=
+         [ "scicos4.4.1" ]
+       H__3('rpar')=H__4;clear('H__4');
+       H__3('firing')= []
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
@@ -1187,7 +1666,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')= []
        H__3('sz')=
        [   40,   40 ]
@@ -1206,240 +1685,92 @@ H__0=hash_create(11);
        H__3('peout')= []
        H__3('id')=
        [ "" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('intyp')=
-       [   1 ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('nzcross')=
-       [   0 ]
-       H__3('blocktype')=
-       [ "h" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')= []
-       H__3('sim')=
-       [ "csuper" ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('nmode')=
-       [   0 ]
-       H__4=hash_create(11);
-         L__5=list();
-          H__6=hash_create(23);
-            H__6('type')=
-            [ "Block" ]
-            H__7=hash_create(37);
-              H__7('type')=
-              [ "graphics" ]
-              H__7('exprs')=
-              [ "Tfin" ]
-              L__8=list();
-               L__8(1)=
-               [ "xstringb(orig(1),orig(2),'' END '',sz(1),sz(2),''fill'');" ]
-               
-               L__8(2)=
-               [   8 ]
-               H__7('gr_i')=L__8;
-              H__7('pout')= []
-              H__7('sz')=
-              [   40,   40 ]
-              H__7('theta')=
-              [   0 ]
-              H__7('flip')=
-              [  %t ]
-              H__7('pein')=
-              [   2 ]
-              H__7('in_implicit')= []
-              H__7('id')=
-              [ "" ]
-              H__7('orig')=
-              [   272.1040,   249.1173 ]
-              H__7('pin')= []
-              H__7('mlist')=
-              [  %t ]
-              H__7('peout')=
-              [   2 ]
-              H__7('out_implicit')= []
-             H__6('graphics')=H__7;
-            H__7=hash_create(47);
-              H__7('out')= []
-              H__7('out2')= []
-              H__7('evtout')=
-              [   1 ]
-              L__8=list();
-               L__8(1)=
-               [ "scicosexit" ]
-               
-               L__8(2)=
-               [   4 ]
-               H__7('sim')=L__8;
-              H__7('type')=
-              [ "model" ]
-              H__7('state')= []
-              H__7('in2')= []
-              H__7('firing')=
-              [   30 ]
-              H__7('evtin')=
-              [   1 ]
-              H__7('dstate')= []
-              H__7('outtyp')=
-              [   1 ]
-              H__7('mlist')=
-              [  %t ]
-              H__7('blocktype')=
-              [ "d" ]
-              H__7('label')=
-              [ "" ]
-              H__7('dep_ut')=
-              [  %f,  %f ]
-              L__8=list();
-               H__7('equations')=L__8;
-              H__7('in')= []
-              H__7('intyp')=
-              [   1 ]
-              L__8=list();
-               H__7('odstate')=L__8;
-              H__7('ipar')= []
-              H__7('rpar')= []
-              H__7('nmode')=
-              [   0 ]
-              L__8=list();
-               H__7('opar')=L__8;
-              H__7('nzcross')=
-              [   0 ]
-             H__6('model')=H__7;
-            H__6('mlist')=
-            [  %t ]
-            H__6('gui')=
-            [ "END_c" ]
-            L__7=list();
-             H__6('doc')=L__7;
-           L__5(1)=H__6;
-          
-          H__6=hash_create(23);
-            H__6('type')=
-            [ "Link" ]
-            H__6('to')=
-            [   1,   1,   1 ]
-            H__6('id')=
-            [ "drawlink" ]
-            H__6('from')=
-            [   1,   1,   0 ]
-            H__6('mlist')=
-            [  %t ]
-            H__6('thick')=
-            [   0,   0 ]
-            H__6('ct')=
-            [    5,   -1 ]
-            H__6('xx')=
-            [   292.1040;
-                292.1040;
-                261.8373;
-                261.8373;
-                292.1040;
-                292.1040 ]
-            H__6('yy')=
-            [   243.4031;
-                234.4507;
-                234.4507;
-                305.5840;
-                305.5840;
-                294.8316 ]
-           L__5(2)=H__6;
-          H__4('objs')=L__5;
-         H__4('mlist')=
-         [  %t ]
-         H__4('version')=
-         [ "scicos4.4" ]
-         L__5=list();
-          H__4('contrib')=L__5;
-         H__4('type')=
-         [ "diagram" ]
-         H__5=hash_create(23);
-           H__5('tol')=
-           [   1.000e-04,   1.000e-06,   1.000e-10,   1.000e+05,           0 ,...
-            0 ]
-           H__5('title')=
-           [ "ENDBLK" ]
-           H__6=hash_create(17);
-             H__6('Background')=
-             [   8,   1 ]
-             L__7=list();
-              L__7(1)=
-              [   5,   1,   2,   1 ]
-              
-              L__7(2)=
-              [    4,    1,   10,    1 ]
-              H__6('ID')=L__7;
-             H__6('Link')=
-             [   1,   5 ]
-             H__6('type')=
-             [ "scsopt" ]
-             H__6('Cmap')=
-             [   0.8000,   0.8000,   0.8000 ]
-             H__6('tlist')=
-             [  %t ]
-             L__7=list();
-              L__7(1)=
-              [  %t ]
-              
-              L__7(2)=
-              [   33 ]
-              H__6('3D')=L__7;
-            H__5('options')=H__6;
-           H__5('void1')= []
-           H__5('void2')= []
-           H__5('void3')= []
-           H__5('wpar')=
-           [    -159.0960,     811.1040,    -121.2160,     617.9840,    1323.0000 ,...
-     1008.0000,     331.0000,     284.0000,     630.0000,     480.0000 ,...
-             0,       7.0000,       1.4000 ]
-           H__5('context')=
-           [ "" ]
-           H__5('tlist')=
-           [  %t ]
-           L__6=list();
-            H__5('doc')=L__6;
-           H__5('tf')=
-           [   100000 ]
-           H__5('type')=
-           [ "params" ]
-          H__4('props')=H__5;
-        H__3('rpar')=H__4;
-       H__3('firing')= []
-      H__2('model')=H__3;
-     H__2('mlist')=
+     H__2('graphics')=H__3;clear('H__3');
+     H__2('tlist')=
      [  %t ]
      H__2('gui')=
      [ "ENDBLK" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(11)=H__2;
+   L__1(11)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')=
+       [   1;
+           1 ]
+       H__3('evtout')= []
+       H__3('evtin')=
+       [   1 ]
+       H__3('intyp')=
+       [   1;
+           1 ]
+       L__4=list();
+        L__4(1)=
+        [ "canimxy" ]
+        
+        L__4(2)=
+        [   4 ]
+       H__3('sim')=L__4;clear('L__4');
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   4;
+           4 ]
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "d" ]
+       H__3('state')= []
+       H__3('ipar')=
+       [     -1;
+              1;
+            100;
+              0;
+              2;
+              0;
+             -1;
+             -1;
+            300;
+            300;
+              4 ]
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')=
+       [   -25;
+            25;
+           -25;
+            25 ]
+       H__3('label')=
+       [ "Phase portrait" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -1460,7 +1791,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')= []
        H__3('sz')=
        [   40,   40 ]
@@ -1484,84 +1815,68 @@ H__0=hash_create(11);
        [  %t ]
        H__3('peout')= []
        H__3('out_implicit')= m2s([])
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       H__3('out2')= []
-       H__3('evtout')= []
-       L__4=list();
-        L__4(1)=
-        [ "canimxy" ]
-        
-        L__4(2)=
-        [   4 ]
-        H__3('sim')=L__4;
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')=
-       [   1;
-           1 ]
-       H__3('firing')= []
-       H__3('evtin')=
-       [   1 ]
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "d" ]
-       H__3('label')=
-       [ "Phase portrait" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   4;
-           4 ]
-       H__3('intyp')=
-       [   1;
-           1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')=
-       [     -1;
-              1;
-            100;
-              0;
-              2;
-              0;
-             -1;
-             -1;
-            300;
-            300;
-              4 ]
-       H__3('rpar')=
-       [   -25;
-            25;
-           -25;
-            25 ]
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "CANIMXY" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(12)=H__2;
+   L__1(12)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')=
+       [   1;
+           1 ]
+       H__3('evtin')=
+       [   1 ]
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "split" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')= []
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')= []
+       H__3('dep_ut')=
+       [  %f,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')=
+       [  %f,  %f,  %f ]
+       H__3('blocktype')=
+       [ "d" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
@@ -1570,7 +1885,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')= []
        H__3('sz')=
        [   0.3333,   0.3333 ]
@@ -1593,57 +1908,10 @@ H__0=hash_create(11);
        [   14;
            15 ]
        H__3('out_implicit')= []
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')= []
-       H__3('out2')= []
-       H__3('evtout')=
-       [   1;
-           1 ]
-       H__3('sim')=
-       [ "split" ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('firing')=
-       [  %f,  %f,  %f ]
-       H__3('evtin')=
-       [   1 ]
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "d" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')= []
-       H__3('intyp')=
-       [   1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('rpar')= []
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "CLKSPLIT_f" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(13)=H__2;
+   L__1(13)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -1658,15 +1926,17 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   146.9764;
+         140.5494 ]
      H__2('ct')=
      [    5,   -1 ]
      H__2('xx')=
      [   561.9085;
          561.9085 ]
-     H__2('yy')=
-     [   146.9764;
-         140.5494 ]
-    L__1(14)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(14)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -1681,27 +1951,175 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   146.9764;
+         146.9764;
+          77.5175 ]
      H__2('ct')=
      [    5,   -1 ]
      H__2('xx')=
      [   561.9085;
          501.1225;
          501.1225 ]
-     H__2('yy')=
-     [   146.9764;
-         146.9764;
-          77.5175 ]
-    L__1(15)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(15)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('evtin')= []
+       H__3('intyp')=
+       [   1 ]
+       L__4=list();
+        L__4(1)=
+        [ "Lorentz" ]
+        
+        L__4(2)=
+        [   30004 ]
+       H__3('sim')=L__4;clear('L__4');
+       H__3('type')=
+       [ "model" ]
+       H__3('in')= []
+       H__3('out2')=
+       [   1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1 ]
+       H__4=hash_create(17);
+         H__4('model')=
+         [ "Lorentz" ]
+         H__4('outputs')=
+         [ "x1";
+           "x2";
+           "x3";
+           "x4";
+           "y1";
+           "y2";
+           "y3";
+           "y4";
+           "z1";
+           "z2";
+           "z3";
+           "z4" ]
+         H__4('type')=
+         [ "modelica" ]
+         L__5=list();
+          L__5(1)= []
+          
+          L__6=list();
+          L__5(2)=L__6;clear('L__6');
+         H__4('lel')=L__5;clear('L__5');
+         H__4('inputs')= m2s([])
+         H__4('tlist')=
+         [  %t ]
+         L__5=list();
+          L__5(1)=
+          [ "Y0", "Z", "P" ]
+          
+          L__6=list();
+           L__6(1)=
+           [   5.1000,   4.9900,   5.0100,   5.0110 ]
+           
+           L__6(2)=
+           [   20.1000,   19.9900,   20.0100,   20.0110 ]
+           
+           L__6(3)=
+           [   10.1000,   28.1000,    2.6667 ]
+          L__5(2)=L__6;clear('L__6');
+          
+          L__5(3)=
+          [   0,   1,   0 ]
+         H__4('parameters')=L__5;clear('L__5');
+       H__3('equations')=H__4;clear('H__4');
+       H__3('outtyp')=
+       [   1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1;
+           1 ]
+       H__3('dep_ut')=
+       [  %f,  %t ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')=
+       [    5.1000;
+            4.9900;
+            5.0100;
+            5.0110;
+           20.1000;
+           19.9900;
+           20.0100;
+           20.0110;
+           10.1000;
+           28.1000;
+            2.6667 ]
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__4=hash_create(23);
          H__4('type')=
          [ "MBLOCK" ]
+         H__4('in')=
+         [ "" ]
          H__4('intype')=
          [ "" ]
          H__4('out')=
@@ -1717,13 +2135,11 @@ H__0=hash_create(11);
           
           L__5(3)=
           [ "ABC" ]
-          H__4('paramv')=L__5;
+         H__4('paramv')=L__5;clear('L__5');
          H__4('nameF')=
          [ "Lorentz" ]
-         H__4('outtype')=
-         [ "[''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'']" ]
-         H__4('in')=
-         [ "" ]
+         H__4('tlist')=
+         [  %t ]
          H__4('pprop')=
          [ "[0;1;0]" ]
          H__4('funtxt')=
@@ -1749,17 +2165,17 @@ H__0=hash_create(11);
            "y1=Y[1];y2=Y[2];y3=Y[3];y4=Y[4];";
            "z1=Z[1];z2=Z[2];z3=Z[3];z4=Z[4];";
            "end Lorentz;" ]
-         H__4('tlist')=
-         [  %t ]
-        H__3('exprs')=H__4;
+         H__4('outtype')=
+         [ "[''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'';''E'']" ]
+       H__3('exprs')=H__4;clear('H__4');
        L__4=list();
         L__4(1)=
-        [ "txt=[''Modelica'';'' generic ''];";
-          "xstringb(orig(1),orig(2),txt,sz(1),sz(2),''fill'')" ]
+        [ "txt=[""Modelica"";"" Lorentz ""];";
+          "xstringb(orig(1),orig(2),txt,sz(1),sz(2),""fill"")" ]
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   20;
            21;
@@ -1803,153 +2219,83 @@ H__0=hash_create(11);
          "E";
          "E";
          "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
+     H__2('graphics')=H__3;clear('H__3');
+     H__2('gui')=
+     [ "MBLOCK" ]
+   L__1(16)=H__2;clear('H__2');
+   
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')=
        [   1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1 ]
-       H__3('out2')=
-       [   1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
            1;
            1;
            1 ]
        H__3('evtout')= []
+       H__3('evtin')= []
+       H__3('intyp')=
+       [   -1;
+           -1;
+           -1;
+           -1 ]
        L__4=list();
         L__4(1)=
-        [ "Lorentz" ]
+        [ "multiplex" ]
         
         L__4(2)=
-        [   30004 ]
-        H__3('sim')=L__4;
+        [   4 ]
+       H__3('sim')=L__4;clear('L__4');
        H__3('type')=
        [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('firing')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1;
-           1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %f,  %t ]
-       H__4=hash_create(17);
-         H__4('model')=
-         [ "Lorentz" ]
-         H__4('outputs')=
-         [ "x1";
-           "x2";
-           "x3";
-           "x4";
-           "y1";
-           "y2";
-           "y3";
-           "y4";
-           "z1";
-           "z2";
-           "z3";
-           "z4" ]
-         H__4('type')=
-         [ "modelica" ]
-         L__5=list();
-          L__5(1)= []
-          
-          L__6=list();
-           L__5(2)=L__6;
-          H__4('lel')=L__5;
-         H__4('inputs')= m2s([])
-         H__4('tlist')=
-         [  %t ]
-         L__5=list();
-          L__5(1)=
-          [ "Y0", "Z", "P" ]
-          
-          L__6=list();
-           L__6(1)=
-           [   5.1000,   4.9900,   5.0100,   5.0110 ]
-           
-           L__6(2)=
-           [   20.1000,   19.9900,   20.0100,   20.0110 ]
-           
-           L__6(3)=
-           [   10.1000,   28.1000,    2.6667 ]
-           L__5(2)=L__6;
-          
-          L__5(3)=
-          [   0,   1,   0 ]
-          H__4('parameters')=L__5;
-        H__3('equations')=H__4;
-       H__3('in')= []
-       H__3('intyp')=
+       H__3('in')=
+       [   -1;
+           -2;
+           -3;
+           -4 ]
+       H__3('out2')=
        [   1 ]
        L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('rpar')=
-       [    5.1000;
-            4.9900;
-            5.0100;
-            5.0110;
-           20.1000;
-           19.9900;
-           20.0100;
-           20.0110;
-           10.1000;
-           28.1000;
-            2.6667 ]
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   -1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   0 ]
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
        H__3('nmode')=
        [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')=
+       [   4 ]
+       H__3('tlist')=
+       [  %t ]
        H__3('nzcross')=
        [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
-     H__2('gui')=
-     [ "MBLOCK" ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
      L__3=list();
-      H__2('doc')=L__3;
-    L__1(16)=H__2;
-   
-   H__2=hash_create(23);
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -1960,7 +2306,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   32 ]
        H__3('sz')=
@@ -1989,77 +2335,83 @@ H__0=hash_create(11);
        H__3('peout')= []
        H__3('out_implicit')=
        [ "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
-       [   0 ]
-       H__3('out2')=
-       [   1 ]
-       H__3('evtout')= []
-       L__4=list();
-        L__4(1)=
-        [ "multiplex" ]
-        
-        L__4(2)=
-        [   4 ]
-        H__3('sim')=L__4;
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
+     H__2('graphics')=H__3;clear('H__3');
+     H__2('gui')=
+     [ "MUX" ]
+   L__1(17)=H__2;clear('H__2');
+   
+   H__2=hash_create(17);
+     H__3=hash_create(59);
        H__3('in2')=
        [   1;
            1;
            1;
            1 ]
-       H__3('firing')= []
+       H__3('evtout')= []
        H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   -1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   -1;
-           -2;
-           -3;
-           -4 ]
        H__3('intyp')=
        [   -1;
            -1;
            -1;
            -1 ]
        L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')=
-       [   4 ]
-       H__3('rpar')= []
+        L__4(1)=
+        [ "multiplex" ]
+        
+        L__4(2)=
+        [   4 ]
+       H__3('sim')=L__4;clear('L__4');
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   -1;
+           -2;
+           -3;
+           -4 ]
+       H__3('out2')=
+       [   1 ]
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   -1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   0 ]
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
        H__3('nmode')=
        [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')=
+       [   4 ]
+       H__3('tlist')=
+       [  %t ]
        H__3('nzcross')=
        [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
-     H__2('gui')=
-     [ "MUX" ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
      L__3=list();
-      H__2('doc')=L__3;
-    L__1(17)=H__2;
-   
-   H__2=hash_create(23);
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -2070,7 +2422,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   39 ]
        H__3('sz')=
@@ -2099,77 +2451,83 @@ H__0=hash_create(11);
        H__3('peout')= []
        H__3('out_implicit')=
        [ "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
-       [   0 ]
-       H__3('out2')=
-       [   1 ]
-       H__3('evtout')= []
-       L__4=list();
-        L__4(1)=
-        [ "multiplex" ]
-        
-        L__4(2)=
-        [   4 ]
-        H__3('sim')=L__4;
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
+     H__2('graphics')=H__3;clear('H__3');
+     H__2('gui')=
+     [ "MUX" ]
+   L__1(18)=H__2;clear('H__2');
+   
+   H__2=hash_create(17);
+     H__3=hash_create(59);
        H__3('in2')=
        [   1;
            1;
            1;
            1 ]
-       H__3('firing')= []
+       H__3('evtout')= []
        H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   -1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   -1;
-           -2;
-           -3;
-           -4 ]
        H__3('intyp')=
        [   -1;
            -1;
            -1;
            -1 ]
        L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')=
-       [   4 ]
-       H__3('rpar')= []
+        L__4(1)=
+        [ "multiplex" ]
+        
+        L__4(2)=
+        [   4 ]
+       H__3('sim')=L__4;clear('L__4');
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   -1;
+           -2;
+           -3;
+           -4 ]
+       H__3('out2')=
+       [   1 ]
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   -1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   0 ]
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
        H__3('nmode')=
        [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')=
+       [   4 ]
+       H__3('tlist')=
+       [  %t ]
        H__3('nzcross')=
        [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
-     H__2('gui')=
-     [ "MUX" ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
      L__3=list();
-      H__2('doc')=L__3;
-    L__1(18)=H__2;
-   
-   H__2=hash_create(23);
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')=
@@ -2180,7 +2538,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   46 ]
        H__3('sz')=
@@ -2209,72 +2567,10 @@ H__0=hash_create(11);
        H__3('peout')= []
        H__3('out_implicit')=
        [ "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
-       [   0 ]
-       H__3('out2')=
-       [   1 ]
-       H__3('evtout')= []
-       L__4=list();
-        L__4(1)=
-        [ "multiplex" ]
-        
-        L__4(2)=
-        [   4 ]
-        H__3('sim')=L__4;
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')=
-       [   1;
-           1;
-           1;
-           1 ]
-       H__3('firing')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   -1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   -1;
-           -2;
-           -3;
-           -4 ]
-       H__3('intyp')=
-       [   -1;
-           -1;
-           -1;
-           -1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')=
-       [   4 ]
-       H__3('rpar')= []
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "MUX" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(19)=H__2;
+   L__1(19)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2289,6 +2585,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   210.6742;
+         210.6742;
+         236.9298;
+         236.9298 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2296,12 +2597,9 @@ H__0=hash_create(11);
          235.3211;
          235.3211;
          256.8329 ]
-     H__2('yy')=
-     [   210.6742;
-         210.6742;
-         236.9298;
-         236.9298 ]
-    L__1(20)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(20)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2316,6 +2614,12 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   202.9819;
+         202.9819;
+         201.2618;
+         228.9298;
+         228.9298 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2324,13 +2628,9 @@ H__0=hash_create(11);
          238.9898;
          238.9898;
          256.8329 ]
-     H__2('yy')=
-     [   202.9819;
-         202.9819;
-         201.2618;
-         228.9298;
-         228.9298 ]
-    L__1(21)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(21)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2345,6 +2645,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   195.2896;
+         195.2896;
+         220.9298;
+         220.9298 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2352,12 +2657,9 @@ H__0=hash_create(11);
          243.3922;
          243.3922;
          256.8329 ]
-     H__2('yy')=
-     [   195.2896;
-         195.2896;
-         220.9298;
-         220.9298 ]
-    L__1(22)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(22)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2372,6 +2674,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   187.5973;
+         187.5973;
+         212.9298;
+         212.9298 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2379,12 +2686,9 @@ H__0=hash_create(11);
          247.7946;
          247.7946;
          256.8329 ]
-     H__2('yy')=
-     [   187.5973;
-         187.5973;
-         212.9298;
-         212.9298 ]
-    L__1(23)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(23)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2399,6 +2703,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   179.9050;
+         179.9050;
+         179.7100;
+         179.7100 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2406,12 +2715,9 @@ H__0=hash_create(11);
          244.8597;
          244.8597;
          254.6316 ]
-     H__2('yy')=
-     [   179.9050;
-         179.9050;
-         179.7100;
-         179.7100 ]
-    L__1(24)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(24)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2426,6 +2732,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   172.2126;
+         172.2126;
+         171.7100;
+         171.7100 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2433,12 +2744,9 @@ H__0=hash_create(11);
          248.5284;
          248.5284;
          254.6316 ]
-     H__2('yy')=
-     [   172.2126;
-         172.2126;
-         171.7100;
-         171.7100 ]
-    L__1(25)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(25)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2453,15 +2761,17 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   164.5203;
+         163.7100 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   229.0515;
          254.6316 ]
-     H__2('yy')=
-     [   164.5203;
-         163.7100 ]
-    L__1(26)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(26)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2476,6 +2786,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   156.8280;
+         156.8280;
+         155.7100;
+         155.7100 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2483,12 +2798,9 @@ H__0=hash_create(11);
          241.9247;
          241.9247;
          254.6316 ]
-     H__2('yy')=
-     [   156.8280;
-         156.8280;
-         155.7100;
-         155.7100 ]
-    L__1(27)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(27)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2503,6 +2815,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   126.0588;
+         126.0588;
+         110.2276;
+         110.2276 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2510,12 +2827,9 @@ H__0=hash_create(11);
          233.1199;
          233.1199;
          251.6967 ]
-     H__2('yy')=
-     [   126.0588;
-         126.0588;
-         110.2276;
-         110.2276 ]
-    L__1(28)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(28)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2530,6 +2844,12 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   133.7511;
+         133.7511;
+         133.7511;
+         118.2276;
+         118.2276 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2538,13 +2858,9 @@ H__0=hash_create(11);
          238.2561;
          238.2561;
          251.6967 ]
-     H__2('yy')=
-     [   133.7511;
-         133.7511;
-         133.7511;
-         118.2276;
-         118.2276 ]
-    L__1(29)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(29)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2559,6 +2875,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   141.4434;
+         141.4434;
+         126.2276;
+         126.2276 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2566,12 +2887,9 @@ H__0=hash_create(11);
          242.6585;
          242.6585;
          251.6967 ]
-     H__2('yy')=
-     [   141.4434;
-         141.4434;
-         126.2276;
-         126.2276 ]
-    L__1(30)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(30)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2586,6 +2904,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   149.1357;
+         149.1357;
+         134.2276;
+         134.2276 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2593,12 +2916,9 @@ H__0=hash_create(11);
          247.7946;
          247.7946;
          251.6967 ]
-     H__2('yy')=
-     [   149.1357;
-         149.1357;
-         134.2276;
-         134.2276 ]
-    L__1(31)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(31)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2613,6 +2933,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   224.9298;
+         224.9298;
+         224.9298;
+         191.8992 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -2620,17 +2945,67 @@ H__0=hash_create(11);
          337.3104;
          460.5779;
          460.5779 ]
-     H__2('yy')=
-     [   224.9298;
-         224.9298;
-         224.9298;
-         191.8992 ]
-    L__1(32)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(32)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('evtin')= []
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "lsplit" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   -1 ]
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   -1;
+           -1;
+           -1 ]
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
@@ -2639,7 +3014,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   34;
            35 ]
@@ -2666,57 +3041,10 @@ H__0=hash_create(11);
        [ "E";
          "E";
          "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
-       [   -1;
-           -1;
-           -1 ]
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('sim')=
-       [ "lsplit" ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('firing')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   -1 ]
-       H__3('intyp')=
-       [   1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('rpar')= []
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "SPLIT_f" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(33)=H__2;
+   L__1(33)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2731,15 +3059,17 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   124.8351;
+         124.8351 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   462.0454;
          533.3370 ]
-     H__2('yy')=
-     [   124.8351;
-         124.8351 ]
-    L__1(34)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(34)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2754,22 +3084,77 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   124.8351;
+          58.4699;
+          58.4699 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   462.0454;
          462.0454;
          472.5511 ]
-     H__2('yy')=
-     [   124.8351;
-          58.4699;
-          58.4699 ]
-    L__1(35)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(35)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('evtin')= []
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "lsplit" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   -1 ]
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   -1;
+           -1;
+           -1 ]
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
@@ -2778,7 +3163,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   37;
            38 ]
@@ -2804,57 +3189,10 @@ H__0=hash_create(11);
        [ "E";
          "E";
          "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
-       [   -1;
-           -1;
-           -1 ]
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('sim')=
-       [ "lsplit" ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('firing')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   -1 ]
-       H__3('intyp')=
-       [   1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('rpar')= []
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "SPLIT_f" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(36)=H__2;
+   L__1(36)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2869,17 +3207,19 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   191.8992;
+         124.8351;
+         124.8351 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   460.5779;
          460.5779;
          462.0454 ]
-     H__2('yy')=
-     [   191.8992;
-         124.8351;
-         124.8351 ]
-    L__1(37)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(37)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2894,15 +3234,17 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   191.8992;
+         191.8992 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   460.5779;
          468.3341 ]
-     H__2('yy')=
-     [   191.8992;
-         191.8992 ]
-    L__1(38)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(38)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -2917,20 +3259,75 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   167.7100;
+         167.7100 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   281.7745;
          400.4116 ]
-     H__2('yy')=
-     [   167.7100;
-         167.7100 ]
-    L__1(39)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(39)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('evtin')= []
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "lsplit" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   -1 ]
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   -1;
+           -1;
+           -1 ]
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
@@ -2939,7 +3336,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   41;
            42 ]
@@ -2966,57 +3363,10 @@ H__0=hash_create(11);
        [ "E";
          "E";
          "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
-       [   -1;
-           -1;
-           -1 ]
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('sim')=
-       [ "lsplit" ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('firing')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   -1 ]
-       H__3('intyp')=
-       [   1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('rpar')= []
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "SPLIT_f" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(40)=H__2;
+   L__1(40)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -3031,6 +3381,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   167.7100;
+         167.7100;
+         181.8992;
+         181.8992 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -3038,12 +3393,9 @@ H__0=hash_create(11);
          401.1454;
          401.1454;
          468.3341 ]
-     H__2('yy')=
-     [   167.7100;
-         167.7100;
-         181.8992;
-         181.8992 ]
-    L__1(41)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(41)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -3058,20 +3410,75 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   167.7100;
+         114.8351 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   400.4116;
          400.4116 ]
-     H__2('yy')=
-     [   167.7100;
-         114.8351 ]
-    L__1(42)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(42)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('evtin')= []
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "lsplit" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   -1 ]
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   -1;
+           -1;
+           -1 ]
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
@@ -3080,7 +3487,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   44;
            45 ]
@@ -3106,57 +3513,10 @@ H__0=hash_create(11);
        [ "E";
          "E";
          "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
-       [   -1;
-           -1;
-           -1 ]
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('sim')=
-       [ "lsplit" ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('firing')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   -1 ]
-       H__3('intyp')=
-       [   1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('rpar')= []
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "SPLIT_f" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(43)=H__2;
+   L__1(43)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -3171,17 +3531,19 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   114.8351;
+          45.1365;
+          45.1365 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   400.4116;
          400.4116;
          472.5511 ]
-     H__2('yy')=
-     [   114.8351;
-          45.1365;
-          45.1365 ]
-    L__1(44)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(44)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -3196,15 +3558,17 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   114.8351;
+         114.8351 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   400.4116;
          533.3370 ]
-     H__2('yy')=
-     [   114.8351;
-         114.8351 ]
-    L__1(45)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(45)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -3219,6 +3583,11 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   122.2276;
+         122.2276;
+         104.8351;
+         104.8351 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
@@ -3226,17 +3595,67 @@ H__0=hash_create(11);
          376.1984;
          376.1984;
          441.5008 ]
-     H__2('yy')=
-     [   122.2276;
-         122.2276;
-         104.8351;
-         104.8351 ]
-    L__1(46)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(46)=H__2;clear('H__2');
    
-   H__2=hash_create(23);
+   H__2=hash_create(17);
+     H__3=hash_create(59);
+       H__3('in2')= []
+       H__3('evtout')= []
+       H__3('evtin')= []
+       H__3('intyp')=
+       [   1 ]
+       H__3('sim')=
+       [ "lsplit" ]
+       H__3('type')=
+       [ "model" ]
+       H__3('in')=
+       [   -1 ]
+       H__3('out2')= []
+       L__4=list();
+       H__3('equations')=L__4;clear('L__4');
+       H__3('outtyp')=
+       [   1 ]
+       L__4=list();
+       H__3('odstate')=L__4;clear('L__4');
+       H__3('out')=
+       [   -1;
+           -1;
+           -1 ]
+       H__3('dep_ut')=
+       [  %t,  %f ]
+       H__3('dstate')= []
+       H__3('nmode')=
+       [   0 ]
+       H__3('firing')= []
+       H__3('blocktype')=
+       [ "c" ]
+       H__3('state')= []
+       H__3('ipar')= []
+       H__3('tlist')=
+       [  %t ]
+       H__3('nzcross')=
+       [   0 ]
+       L__4=list();
+       H__3('opar')=L__4;clear('L__4');
+       H__3('mlist')=
+       [  %t ]
+       H__3('rpar')= []
+       H__3('label')=
+       [ "" ]
+     H__2('model')=H__3;clear('H__3');
+     L__3=list();
+     H__2('doc')=L__3;clear('L__3');
      H__2('type')=
      [ "Block" ]
+     H__2('mlist')=
+     [  %t ]
+     H__2('tlist')=
+     [  %t ]
      H__3=hash_create(37);
+       H__3('tlist')=
+       [  %t ]
        H__3('type')=
        [ "graphics" ]
        H__3('exprs')= []
@@ -3245,7 +3664,7 @@ H__0=hash_create(11);
         
         L__4(2)=
         [   8 ]
-        H__3('gr_i')=L__4;
+       H__3('gr_i')=L__4;clear('L__4');
        H__3('pout')=
        [   48;
            49 ]
@@ -3272,57 +3691,10 @@ H__0=hash_create(11);
        [ "E";
          "E";
          "E" ]
-      H__2('graphics')=H__3;
-     H__3=hash_create(47);
-       H__3('out')=
-       [   -1;
-           -1;
-           -1 ]
-       H__3('out2')= []
-       H__3('evtout')= []
-       H__3('sim')=
-       [ "lsplit" ]
-       H__3('type')=
-       [ "model" ]
-       H__3('state')= []
-       H__3('in2')= []
-       H__3('firing')= []
-       H__3('evtin')= []
-       H__3('dstate')= []
-       H__3('outtyp')=
-       [   1 ]
-       H__3('mlist')=
-       [  %t ]
-       H__3('blocktype')=
-       [ "c" ]
-       H__3('label')=
-       [ "" ]
-       H__3('dep_ut')=
-       [  %t,  %f ]
-       L__4=list();
-        H__3('equations')=L__4;
-       H__3('in')=
-       [   -1 ]
-       H__3('intyp')=
-       [   1 ]
-       L__4=list();
-        H__3('odstate')=L__4;
-       H__3('ipar')= []
-       H__3('rpar')= []
-       H__3('nmode')=
-       [   0 ]
-       L__4=list();
-        H__3('opar')=L__4;
-       H__3('nzcross')=
-       [   0 ]
-      H__2('model')=H__3;
-     H__2('mlist')=
-     [  %t ]
+     H__2('graphics')=H__3;clear('H__3');
      H__2('gui')=
      [ "SPLIT_f" ]
-     L__3=list();
-      H__2('doc')=L__3;
-    L__1(47)=H__2;
+   L__1(47)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -3337,15 +3709,17 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   104.8351;
+         104.8351 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   441.5008;
          533.3370 ]
-     H__2('yy')=
-     [   104.8351;
-         104.8351 ]
-    L__1(48)=H__2;
+     H__2('tlist')=
+     [  %t ]
+   L__1(48)=H__2;clear('H__2');
    
    H__2=hash_create(23);
      H__2('type')=
@@ -3360,102 +3734,49 @@ H__0=hash_create(11);
      [  %t ]
      H__2('thick')=
      [   0,   0 ]
+     H__2('yy')=
+     [   104.8351;
+         171.8992;
+         171.8992 ]
      H__2('ct')=
      [   1,   1 ]
      H__2('xx')=
      [   441.5008;
          441.5008;
          468.3341 ]
-     H__2('yy')=
-     [   104.8351;
-         171.8992;
-         171.8992 ]
-    L__1(49)=H__2;
-   H__0('objs')=L__1;
-  H__0('mlist')=
-  [  %t ]
-  H__0('version')=
-  [ "scicos4.4" ]
-  L__1=list();
-   H__0('contrib')=L__1;
+     H__2('tlist')=
+     [  %t ]
+   L__1(49)=H__2;clear('H__2');
+  H__0('objs')=L__1;clear('L__1');
   H__0('type')=
   [ "diagram" ]
-  H__1=hash_create(23);
-    H__1('tol')=
-    [   1.000e-04;
-        1.000e-06;
-        1.000e-10;
-        1.000e+05;
-                0;
-        1.000e+02;
-                0 ]
-    H__1('title')=
-    [ "Lorentz_Modelica", "./" ]
-    H__2=hash_create(17);
-      H__2('Background')=
-      [   8,   1 ]
-      L__3=list();
-       L__3(1)=
-       [   5,   1,   2,   1 ]
-       
-       L__3(2)=
-       [    4,    1,   10,    1 ]
-       H__2('ID')=L__3;
-      H__2('Link')=
-      [   1,   5 ]
-      H__2('type')=
-      [ "scsopt" ]
-      H__2('Cmap')=
-      [   0.8000,   0.8000,   0.8000 ]
-      H__2('tlist')=
-      [  %t ]
-      L__3=list();
-       L__3(1)=
-       [  %t ]
-       
-       L__3(2)=
-       [   33 ]
-       H__2('3D')=L__3;
-     H__1('options')=H__2;
-    H__1('void1')= []
-    H__1('void2')= []
-    H__1('void3')= []
-    H__1('wpar')=
-    [     54.0554,    -36.3534,    703.0551,    379.2797,    963.0000,    617.0000 ,...
-     156.0000,      3.0000,    605.0000,    530.0000,    509.0000,     49.0000 ,...
-       1.5241,    707.0000,    614.0000 ]
-    H__1('context')=
-    [ "//set sampling time";
-      "Tsampl=3e-3";
-      "";
-      "//set parameters";
-      "ABC=[10.1,28.1,8/3]";
-      "Y0=[5.1, 4.99, 5.01, 5.011]";
-      "Z0=[20.1, 19.99, 20.01, 20.011]";
-      "";
-      "//set initial conditions";
-      "ci1=[5.5;5.49;5.51;5.511]";
-      "ci2=[5;4.99;5.01;5.011]";
-      "ci3=[20;19.99;20.01;20.011]";
-      "";
-      "//set colors for scopes";
-      "vcol=[1;3;5;9]";
-      "";
-      "//set end simulation time";
-      "Tfin=30" ]
+  H__0('mlist')=
+  [  %t ]
+  H__1=hash_create(29);
+    H__1('rdnom')= []
+    H__1('libs')= []
+    H__1('rpat')= []
+    H__1('replace')= []
     H__1('tlist')=
     [  %t ]
-    L__2=list();
-     L__2(1)=
-     [ "This diagram was a part of modnum toolbox.";
-       "This is given to Scicos for the purpose of";
-       "CANIMXY3D scope.";
-       "";
-       "Author : Alan Layec." ]
-     H__1('doc')=L__2;
-    H__1('tf')=
-    [   15000 ]
+    H__1('enable_debug')=
+    [   0 ]
+    H__1('cblock')=
+    [   0 ]
+    H__1('scopes')= []
+    H__1('remove')= []
+    H__1('silent')=
+    [   0 ]
+    H__1('opt')=
+    [   1 ]
     H__1('type')=
-    [ "params" ]
-   H__0('props')=H__1;
- scs_m=H__0;
+    [ "codegeneration" ]
+    H__1('pcodegen_target')= []
+  H__0('codegen')=H__1;clear('H__1');
+  L__1=list();
+  H__0('contrib')=L__1;clear('L__1');
+  H__0('tlist')=
+  [  %t ]
+  H__0('version')=
+  [ "scicos4.4.1" ]
+scs_m=H__0;clear('H__0');
