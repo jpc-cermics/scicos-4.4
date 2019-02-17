@@ -852,8 +852,8 @@ static int int_rat(Stack stack, int rhs, int opt, int lhs)
 
 /* Computes ppol
  */
-
-static int int_ppol(Stack stack, int rhs, int opt, int lhs)
+#if 0
+static int int_ppol_deprecated(Stack stack, int rhs, int opt, int lhs)
 {
   int worksize, worksize1, worksize2,i,ierr=0;
   double tol=0.0;
@@ -951,6 +951,7 @@ static int int_ppol(Stack stack, int rhs, int opt, int lhs)
   FREE(Work);FREE(Z);FREE(Nblk);FREE(G);FREE(Po);
   return RET_BUG;
 }
+#endif
 
 static int int_coserror(Stack stack, int rhs, int opt, int lhs)
 {
@@ -2564,7 +2565,7 @@ static OpTab Scicos_func[] = {
   {"scicos_send_halt", int_scicos_send_halt},
   /* utilities */
   {"rat",int_rat},
-  {"ppol",int_ppol},
+  /* {"ppol",int_ppol}, */
   {(char *) 0, NULL}
 };
 
