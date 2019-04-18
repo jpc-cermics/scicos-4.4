@@ -16,7 +16,7 @@ function  [ok]=Link_modelica_C(Cfile)
   // remove repreated directories from mlibs
   mlibs = unique(mlibs);
   //--------------------------------
-  libs=[];
+  libs=m2s([]);
   if (%win32) then ext='*.ilib',else ext='*.a',end 
   // removing .a or .ilib sufixs
   for k=1:size(mlibs,'*')

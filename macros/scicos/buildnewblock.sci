@@ -721,13 +721,14 @@ function [T]=gen_make_unix(blknam,files,filestan,libs,ldflags,cflags)
      "SCICOSLIB    = "+scicoslib
      "LIBRARY      = lib"+blknam]
 
+  if isempty(libs) then libs = m2s([]);end
   if use_msys then
-    libs = libs + ' -L$(SCICOSDIR) -lscicos';
+    libs = [libs; '-L$(SCICOSDIR) -lscicos'];
   end
-    
+  
   if ~isempty(libs) then
     T=[T;
-       "OTHERLIBS    = "+libs]
+       "OTHERLIBS    = " + catenate(libs,sep=" ")]
   else
     T=[T;
        "OTHERLIBS    = "]
@@ -800,9 +801,11 @@ function [T]=gen_make_win32(blknam,files,filestan,libs,ldflags,cflags)
      "CC           = cl"
      "LINKER       = link"]
 
+  if isempty(libs) then libs = m2s([]);end
+  
   if ~isempty(libs) then
     T=[T;
-       "OTHERLIBS    = "+libs]
+       "OTHERLIBS    = " + catenate(libs,sep=" ")]
   else
     T=[T;
        "OTHERLIBS    = "]
