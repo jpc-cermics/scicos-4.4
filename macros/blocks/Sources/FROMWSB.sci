@@ -51,7 +51,7 @@ function [x,y,typ]=FROMWSB(job,arg1,arg2)
      resume(needcompile=y);
    case 'define' then
      scs_m=FROMWSB_define()
-     model=scicos_model(sim="csuper",in=[],in2=[],intyp=1,out=-1,out2=-2,outtyp=1,
+     model=scicos_model(sim="csuper",in=[],in2=[],intyp=1,out=-1,out2=-2,outtyp=-1,
 			evtin=[],evtout=[],state=[],dstate=[],odstate=list(),
 			rpar=scs_m,ipar=1,opar=list(),blocktype="h",firing=[],
 			dep_ut=[%f,%f],label="",nzcross=0,nmode=0,equations=list())

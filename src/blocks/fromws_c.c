@@ -460,7 +460,7 @@ static int nsp_fromws_acquire_data(const char *name,fromws_data **hD,int m,int n
 	  /* type_ref='r'; */
 	  break;
 	case SCSCOMPLEX_N :
-	  if ( ! IsMat(Loc) ||  ((NspMatrix *) Loc)->rc_type != 'r') 
+	  if ( ! IsMat(Loc) ||  ((NspMatrix *) Loc)->rc_type != 'c') 
 	    {
 	      Coserror("%s.values{%d} should be a complex matrix",name,i+1);
 	      return FAIL;
