@@ -66,11 +66,15 @@ typedef struct
   void *cvode_mem;
 } *User_CV_data;
 
-typedef struct
+
+
+struct _User_KIN_data
 {
   double *rwork;
   double *uscale;
-} *User_KIN_data;
+};
+  
+typedef struct _User_KIN_data *User_KIN_data;
 
 extern void callf (const double *t, scicos_block * block, int *flag);
 extern void Set_Jacobian_flag (int flag);
@@ -893,7 +897,7 @@ cossim (double *told)
   DOPRI5_mem *dopri5_mem = NULL;
   User_DP5_data *dopri5_udata = NULL;
 
-  int flag, flagr;
+  int flag=0 , flagr;
   int cnt = 0;
   double *rhot = NULL;
   int *ihot = NULL, niwp, nrwp;
@@ -1871,7 +1875,7 @@ cossimdaskr (double *told)
   int Mode_change = 0;
   double *tmpneq = NULL;
 
-  int flag, flagr;
+  int flag, flagr = 0;
   N_Vector yy = NULL, yp = NULL;
   double reltol, abstol;
   int Discrete_Jump;
@@ -6030,7 +6034,7 @@ CallKinsol (double *told)
       return -1;
     }
 
-  if ((kin_data = (User_KIN_data) MALLOC (sizeof (User_KIN_data))) == NULL)
+  if ((kin_data = (User_KIN_data) malloc (sizeof (struct _User_KIN_data))) == NULL)
     {
       FREE (Mode_save);
       N_VDestroy_Serial (y);
